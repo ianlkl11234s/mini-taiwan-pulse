@@ -1,0 +1,2342 @@
+{
+  "count": 50,
+  "gisLayers": {},
+  "overlays": {},
+  "params": {
+    "statsAtmCount": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "台數",
+            "value": "statsAtmCount"
+          },
+          {
+            "label": "每萬人台數",
+            "value": "statsAtmPer10k"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsAtmCount"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsAtmPer10k": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "台數",
+            "value": "statsAtmCount"
+          },
+          {
+            "label": "每萬人台數",
+            "value": "statsAtmPer10k"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsAtmPer10k"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsAtmSitesPer10kTown": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "裝設點數",
+            "value": "statsAtmSitesTown"
+          },
+          {
+            "label": "每萬人裝設點數",
+            "value": "statsAtmSitesPer10kTown"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsAtmSitesPer10kTown"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsAtmSitesTown": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "裝設點數",
+            "value": "statsAtmSitesTown"
+          },
+          {
+            "label": "每萬人裝設點數",
+            "value": "statsAtmSitesPer10kTown"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsAtmSitesTown"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsBankDeposits": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "存款餘額",
+            "value": "statsBankDeposits"
+          },
+          {
+            "label": "放款餘額",
+            "value": "statsBankLoans"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsBankDeposits"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsBankLoans": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "存款餘額",
+            "value": "statsBankDeposits"
+          },
+          {
+            "label": "放款餘額",
+            "value": "statsBankLoans"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsBankLoans"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCensusEmployeePayroll": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "年底從業員工人數",
+            "value": "statsCensusPersonsEngaged"
+          },
+          {
+            "label": "僱用員工全年薪資",
+            "value": "statsCensusEmployeePayroll"
+          },
+          {
+            "label": "場所單位數",
+            "value": "statsCensusEstablishments"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCensusEmployeePayroll"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCensusEstablishments": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "年底從業員工人數",
+            "value": "statsCensusPersonsEngaged"
+          },
+          {
+            "label": "僱用員工全年薪資",
+            "value": "statsCensusEmployeePayroll"
+          },
+          {
+            "label": "場所單位數",
+            "value": "statsCensusEstablishments"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCensusEstablishments"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCensusPersonsEngaged": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "年底從業員工人數",
+            "value": "statsCensusPersonsEngaged"
+          },
+          {
+            "label": "僱用員工全年薪資",
+            "value": "statsCensusEmployeePayroll"
+          },
+          {
+            "label": "場所單位數",
+            "value": "statsCensusEstablishments"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCensusPersonsEngaged"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCompanyDissolvedCounty": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "每千家解散撤銷廢止",
+            "value": "statsCompanyDissolvedPer1000County"
+          },
+          {
+            "label": "新設立家數",
+            "value": "statsCompanyNewCounty"
+          },
+          {
+            "label": "解散撤銷廢止家數",
+            "value": "statsCompanyDissolvedCounty"
+          },
+          {
+            "label": "年底現有家數",
+            "value": "statsCompanyExistingCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCompanyDissolvedCounty"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCompanyDissolvedPer1000County": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "每千家解散撤銷廢止",
+            "value": "statsCompanyDissolvedPer1000County"
+          },
+          {
+            "label": "新設立家數",
+            "value": "statsCompanyNewCounty"
+          },
+          {
+            "label": "解散撤銷廢止家數",
+            "value": "statsCompanyDissolvedCounty"
+          },
+          {
+            "label": "年底現有家數",
+            "value": "statsCompanyExistingCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCompanyDissolvedPer1000County"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCompanyExistingCounty": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "每千家解散撤銷廢止",
+            "value": "statsCompanyDissolvedPer1000County"
+          },
+          {
+            "label": "新設立家數",
+            "value": "statsCompanyNewCounty"
+          },
+          {
+            "label": "解散撤銷廢止家數",
+            "value": "statsCompanyDissolvedCounty"
+          },
+          {
+            "label": "年底現有家數",
+            "value": "statsCompanyExistingCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCompanyExistingCounty"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCompanyNewCounty": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "每千家解散撤銷廢止",
+            "value": "statsCompanyDissolvedPer1000County"
+          },
+          {
+            "label": "新設立家數",
+            "value": "statsCompanyNewCounty"
+          },
+          {
+            "label": "解散撤銷廢止家數",
+            "value": "statsCompanyDissolvedCounty"
+          },
+          {
+            "label": "年底現有家數",
+            "value": "statsCompanyExistingCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCompanyNewCounty"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCreditCardCards": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "消費金額",
+            "value": "statsCreditCardResidentAmount"
+          },
+          {
+            "label": "跨縣市消費金額",
+            "value": "statsCreditCardCrossCountyAmount"
+          },
+          {
+            "label": "跨縣市消費占比",
+            "value": "statsCreditCardCrossCountyShare"
+          },
+          {
+            "label": "持卡數（12 月）",
+            "value": "statsCreditCardCards"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCreditCardCards"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCreditCardCrossCountyAmount": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "消費金額",
+            "value": "statsCreditCardResidentAmount"
+          },
+          {
+            "label": "跨縣市消費金額",
+            "value": "statsCreditCardCrossCountyAmount"
+          },
+          {
+            "label": "跨縣市消費占比",
+            "value": "statsCreditCardCrossCountyShare"
+          },
+          {
+            "label": "持卡數（12 月）",
+            "value": "statsCreditCardCards"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCreditCardCrossCountyAmount"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCreditCardCrossCountyShare": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "消費金額",
+            "value": "statsCreditCardResidentAmount"
+          },
+          {
+            "label": "跨縣市消費金額",
+            "value": "statsCreditCardCrossCountyAmount"
+          },
+          {
+            "label": "跨縣市消費占比",
+            "value": "statsCreditCardCrossCountyShare"
+          },
+          {
+            "label": "持卡數（12 月）",
+            "value": "statsCreditCardCards"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCreditCardCrossCountyShare"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCreditCardLocationAmount": [
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCreditCardResidentAmount": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "消費金額",
+            "value": "statsCreditCardResidentAmount"
+          },
+          {
+            "label": "跨縣市消費金額",
+            "value": "statsCreditCardCrossCountyAmount"
+          },
+          {
+            "label": "跨縣市消費占比",
+            "value": "statsCreditCardCrossCountyShare"
+          },
+          {
+            "label": "持卡數（12 月）",
+            "value": "statsCreditCardCards"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCreditCardResidentAmount"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDebitCardTxnCount": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "交易筆數",
+            "value": "statsDebitCardTxnCount"
+          },
+          {
+            "label": "縣市結構比",
+            "value": "statsDebitCardTxnShare"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDebitCardTxnCount"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDebitCardTxnShare": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "交易筆數",
+            "value": "statsDebitCardTxnCount"
+          },
+          {
+            "label": "縣市結構比",
+            "value": "statsDebitCardTxnShare"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDebitCardTxnShare"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDebitMerchantAddresses": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "每萬人商店數（排除集中登記）",
+            "value": "statsDebitMerchantsPer10k"
+          },
+          {
+            "label": "商店數（排除集中登記）",
+            "value": "statsDebitMerchantsExclBulk"
+          },
+          {
+            "label": "商店數（含集中登記）",
+            "value": "statsDebitMerchants"
+          },
+          {
+            "label": "店址數",
+            "value": "statsDebitMerchantAddresses"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDebitMerchantAddresses"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDebitMerchants": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "每萬人商店數（排除集中登記）",
+            "value": "statsDebitMerchantsPer10k"
+          },
+          {
+            "label": "商店數（排除集中登記）",
+            "value": "statsDebitMerchantsExclBulk"
+          },
+          {
+            "label": "商店數（含集中登記）",
+            "value": "statsDebitMerchants"
+          },
+          {
+            "label": "店址數",
+            "value": "statsDebitMerchantAddresses"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDebitMerchants"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDebitMerchantsExclBulk": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "每萬人商店數（排除集中登記）",
+            "value": "statsDebitMerchantsPer10k"
+          },
+          {
+            "label": "商店數（排除集中登記）",
+            "value": "statsDebitMerchantsExclBulk"
+          },
+          {
+            "label": "商店數（含集中登記）",
+            "value": "statsDebitMerchants"
+          },
+          {
+            "label": "店址數",
+            "value": "statsDebitMerchantAddresses"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDebitMerchantsExclBulk"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDebitMerchantsPer10k": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "每萬人商店數（排除集中登記）",
+            "value": "statsDebitMerchantsPer10k"
+          },
+          {
+            "label": "商店數（排除集中登記）",
+            "value": "statsDebitMerchantsExclBulk"
+          },
+          {
+            "label": "商店數（含集中登記）",
+            "value": "statsDebitMerchants"
+          },
+          {
+            "label": "店址數",
+            "value": "statsDebitMerchantAddresses"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDebitMerchantsPer10k"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsEinvoiceAvgTicket": [
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsFinanceEstablishments": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "場所單位數",
+            "value": "statsFinanceEstablishments"
+          },
+          {
+            "label": "每萬人場所單位數",
+            "value": "statsFinanceEstablishmentsPer10k"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsFinanceEstablishments"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsFinanceEstablishmentsPer10k": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "場所單位數",
+            "value": "statsFinanceEstablishments"
+          },
+          {
+            "label": "每萬人場所單位數",
+            "value": "statsFinanceEstablishmentsPer10k"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsFinanceEstablishmentsPer10k"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsFinanceUnderserved": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "名單鄉鎮",
+            "value": "statsFinanceUnderserved"
+          },
+          {
+            "label": "名單內各類機構家數",
+            "value": "statsFinanceUnderservedInstitutions"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsFinanceUnderserved"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsFinanceUnderservedInstitutions": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "名單鄉鎮",
+            "value": "statsFinanceUnderserved"
+          },
+          {
+            "label": "名單內各類機構家數",
+            "value": "statsFinanceUnderservedInstitutions"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsFinanceUnderservedInstitutions"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsFinancialBranches": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "縣市・分支數",
+            "value": "statsFinancialBranches"
+          },
+          {
+            "label": "縣市・每萬人分支數",
+            "value": "statsFinancialBranchesPer10k"
+          },
+          {
+            "label": "鄉鎮・分支數",
+            "value": "statsFinancialBranchesTown"
+          },
+          {
+            "label": "鄉鎮・每萬人分支數",
+            "value": "statsFinancialBranchesPer10kTown"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsFinancialBranches"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsFinancialBranchesPer10k": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "縣市・分支數",
+            "value": "statsFinancialBranches"
+          },
+          {
+            "label": "縣市・每萬人分支數",
+            "value": "statsFinancialBranchesPer10k"
+          },
+          {
+            "label": "鄉鎮・分支數",
+            "value": "statsFinancialBranchesTown"
+          },
+          {
+            "label": "鄉鎮・每萬人分支數",
+            "value": "statsFinancialBranchesPer10kTown"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsFinancialBranchesPer10k"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsFinancialBranchesPer10kTown": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "縣市・分支數",
+            "value": "statsFinancialBranches"
+          },
+          {
+            "label": "縣市・每萬人分支數",
+            "value": "statsFinancialBranchesPer10k"
+          },
+          {
+            "label": "鄉鎮・分支數",
+            "value": "statsFinancialBranchesTown"
+          },
+          {
+            "label": "鄉鎮・每萬人分支數",
+            "value": "statsFinancialBranchesPer10kTown"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsFinancialBranchesPer10kTown"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsFinancialBranchesTown": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "縣市・分支數",
+            "value": "statsFinancialBranches"
+          },
+          {
+            "label": "縣市・每萬人分支數",
+            "value": "statsFinancialBranchesPer10k"
+          },
+          {
+            "label": "鄉鎮・分支數",
+            "value": "statsFinancialBranchesTown"
+          },
+          {
+            "label": "鄉鎮・每萬人分支數",
+            "value": "statsFinancialBranchesPer10kTown"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsFinancialBranchesTown"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsFinancialInstitutions": [
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsFiscalLocalExpenditure": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "歲入",
+            "value": "statsFiscalLocalRevenue"
+          },
+          {
+            "label": "歲出",
+            "value": "statsFiscalLocalExpenditure"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsFiscalLocalExpenditure"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsFiscalLocalRevenue": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "歲入",
+            "value": "statsFiscalLocalRevenue"
+          },
+          {
+            "label": "歲出",
+            "value": "statsFiscalLocalExpenditure"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsFiscalLocalRevenue"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsIncomeTaxMean": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "平均數",
+            "value": "statsIncomeTaxMean"
+          },
+          {
+            "label": "中位數",
+            "value": "statsIncomeTaxMedian"
+          },
+          {
+            "label": "第一分位數",
+            "value": "statsIncomeTaxQ1"
+          },
+          {
+            "label": "第三分位數",
+            "value": "statsIncomeTaxQ3"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsIncomeTaxMean"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsIncomeTaxMedian": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "平均數",
+            "value": "statsIncomeTaxMean"
+          },
+          {
+            "label": "中位數",
+            "value": "statsIncomeTaxMedian"
+          },
+          {
+            "label": "第一分位數",
+            "value": "statsIncomeTaxQ1"
+          },
+          {
+            "label": "第三分位數",
+            "value": "statsIncomeTaxQ3"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsIncomeTaxMedian"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsIncomeTaxQ1": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "平均數",
+            "value": "statsIncomeTaxMean"
+          },
+          {
+            "label": "中位數",
+            "value": "statsIncomeTaxMedian"
+          },
+          {
+            "label": "第一分位數",
+            "value": "statsIncomeTaxQ1"
+          },
+          {
+            "label": "第三分位數",
+            "value": "statsIncomeTaxQ3"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsIncomeTaxQ1"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsIncomeTaxQ3": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "平均數",
+            "value": "statsIncomeTaxMean"
+          },
+          {
+            "label": "中位數",
+            "value": "statsIncomeTaxMedian"
+          },
+          {
+            "label": "第一分位數",
+            "value": "statsIncomeTaxQ1"
+          },
+          {
+            "label": "第三分位數",
+            "value": "statsIncomeTaxQ3"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsIncomeTaxQ3"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsIncomeTaxTotal": [
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsIncomeTaxUnits": [
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsIndustryEstablishmentsTownship": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "場所單位數",
+            "value": "statsIndustryEstablishmentsTownship"
+          },
+          {
+            "label": "年底從業員工人數",
+            "value": "statsIndustryPersonsEngagedTownship"
+          },
+          {
+            "label": "生產總額（千元）",
+            "value": "statsIndustryProductionValueTownship"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsIndustryEstablishmentsTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsIndustryPersonsEngagedTownship": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "場所單位數",
+            "value": "statsIndustryEstablishmentsTownship"
+          },
+          {
+            "label": "年底從業員工人數",
+            "value": "statsIndustryPersonsEngagedTownship"
+          },
+          {
+            "label": "生產總額（千元）",
+            "value": "statsIndustryProductionValueTownship"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsIndustryPersonsEngagedTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          },
+          {
+            "label": "點密度",
+            "value": "dots"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsIndustryProductionValueTownship": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "場所單位數",
+            "value": "statsIndustryEstablishmentsTownship"
+          },
+          {
+            "label": "年底從業員工人數",
+            "value": "statsIndustryPersonsEngagedTownship"
+          },
+          {
+            "label": "生產總額（千元）",
+            "value": "statsIndustryProductionValueTownship"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsIndustryProductionValueTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsLifeInsurerAgencyOffices": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "分公司家數",
+            "value": "statsLifeInsurerBranches"
+          },
+          {
+            "label": "通訊處家數",
+            "value": "statsLifeInsurerAgencyOffices"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsLifeInsurerAgencyOffices"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsLifeInsurerBranches": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "分公司家數",
+            "value": "statsLifeInsurerBranches"
+          },
+          {
+            "label": "通訊處家數",
+            "value": "statsLifeInsurerAgencyOffices"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsLifeInsurerBranches"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsVatDeclarers": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "申報家數",
+            "value": "statsVatDeclarers"
+          },
+          {
+            "label": "銷售額",
+            "value": "statsVatSales"
+          },
+          {
+            "label": "本年應實繳稅額",
+            "value": "statsVatTaxPayable"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsVatDeclarers"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsVatSales": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "申報家數",
+            "value": "statsVatDeclarers"
+          },
+          {
+            "label": "銷售額",
+            "value": "statsVatSales"
+          },
+          {
+            "label": "本年應實繳稅額",
+            "value": "statsVatTaxPayable"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsVatSales"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsVatTaxPayable": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "申報家數",
+            "value": "statsVatDeclarers"
+          },
+          {
+            "label": "銷售額",
+            "value": "statsVatSales"
+          },
+          {
+            "label": "本年應實繳稅額",
+            "value": "statsVatTaxPayable"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsVatTaxPayable"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ]
+  }
+}

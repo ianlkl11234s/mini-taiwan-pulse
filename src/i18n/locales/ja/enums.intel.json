@@ -24,6 +24,7 @@
   "enum.intel.pressure.emergency": "緊急",
   "enum.intel.origin.已研究": "調査済み",
   "enum.intel.origin.AI 初判": "AI 暫定判定",
+  "enum.intel.origin.AI 未判讀": "AI 未判定",
   "enum.intel.place.待定位": "位置未特定",
   "enum.intel.place.未標示地點": "地点未記載",
   "enum.intel.place.未命名事件": "名称未設定の出来事",

@@ -7,8 +7,8 @@
  * 北愛屬英國：所有點位以第 0 波 31 個地方政府面判定，落在北愛者剔除。
  */
 import type { IeDataKey } from "./ieDataKeys";
-import type { KrCat, KrFieldKind, KrLayerSpec, L3 } from "./krDataLayers";
-import { noiseColorAt } from "./gbEnvPlanningTypes";
+import type { KrCat, KrFieldKind, KrLayerSpec, L3 } from "./intlLayerShared";
+import { noiseColorAt } from "./intlLayerShared";
 
 const l3 = (zh: string, en: string, ja: string): L3 => ({ zh, en, ja });
 
@@ -1771,8 +1771,6 @@ export const IE_DATA_SPECS: readonly IeLayerSpec[] = [
 
 export const IE_SPEC_BY_KEY: Readonly<Record<IeDataKey, IeLayerSpec>> = Object.fromEntries(IE_DATA_SPECS.map((s) => [s.key, s])) as Record<IeDataKey, IeLayerSpec>;
 
-/** 南韓規格驅動 hook／篩選共用同一套畫法：IE 規格只差 key 型別與 popup 欄位種類（hook 不讀 fields）。 */
-export const asKrSpec = (spec: IeLayerSpec): KrLayerSpec => spec as unknown as KrLayerSpec;
 
 export const IE_BATHY_STOPS: readonly { depth: number; color: string }[] = [
   { depth: 0, color: "#cdeef8" }, { depth: -20, color: "#97d7ef" }, { depth: -50, color: "#63bde3" }, { depth: -100, color: "#3d9bd0" }, { depth: -200, color: "#2c7ab8" },

@@ -1,0 +1,868 @@
+{
+  "count": 6,
+  "gisLayers": {
+    "religionAncestralHalls": {
+      "layers": [
+        "religion-ancestral-halls-circle"
+      ],
+      "type": "religionAncestralHalls"
+    },
+    "religionChurches": {
+      "layers": [
+        "religion-churches-circle"
+      ],
+      "type": "religionChurches"
+    },
+    "religionFoundations": {
+      "layers": [
+        "religion-foundations-circle"
+      ],
+      "type": "religionFoundations"
+    },
+    "religionOtherWorship": {
+      "layers": [
+        "religion-other-worship-circle"
+      ],
+      "type": "religionOtherWorship"
+    },
+    "religionTemples": {
+      "layers": [
+        "religion-temples-circle"
+      ],
+      "type": "religionTemples"
+    },
+    "religionTop100": {
+      "layers": [
+        "religion-top100-circle",
+        "religion-top100-glow"
+      ],
+      "type": "religionTop100"
+    }
+  },
+  "overlays": {
+    "religionAncestralHalls": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "religionAncestralHalls",
+      "layers": [
+        {
+          "filter": [
+            "has",
+            "entity_id"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "facility_type"
+                ],
+                "宗祠",
+                "#b19185",
+                "宗祠基金會",
+                "#bcaaa4",
+                "文資祠堂（未登記）",
+                "#d4a017",
+                "#8a8a8a"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "facility_type"
+                ],
+                "宗祠",
+                "#8d6e63",
+                "宗祠基金會",
+                "#bcaaa4",
+                "文資祠堂（未登記）",
+                "#d4a017",
+                "#8a8a8a"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "circle"
+      ],
+      "sourceId": "religion-ancestral-halls",
+      "sourceUrl": "./religion/ancestral_halls.geojson"
+    },
+    "religionChurches": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "religionChurches",
+      "layers": [
+        {
+          "filter": [
+            "has",
+            "entity_id"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#7986cb",
+              "circle-opacity": 0.8,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#7986cb",
+              "circle-opacity": 0.8,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "circle"
+      ],
+      "sourceId": "religion-churches",
+      "sourceUrl": "./religion/churches.geojson"
+    },
+    "religionFoundations": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "religionFoundations",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#4db6ac",
+              "circle-opacity": 0.9,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#4db6ac",
+              "circle-opacity": 0.9,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "circle"
+      ],
+      "sourceId": "religion-foundations",
+      "sourceUrl": "./religion/foundations.geojson"
+    },
+    "religionOtherWorship": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "religionOtherWorship",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#9575cd",
+              "circle-opacity": 0.8,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#9575cd",
+              "circle-opacity": 0.8,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "circle"
+      ],
+      "sourceId": "religion-other-worship",
+      "sourceUrl": "./religion/other_worship.geojson"
+    },
+    "religionTemples": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "religionTemples",
+      "layers": [
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "entity_id"
+            ],
+            [
+              "has",
+              "entity_id"
+            ]
+          ],
+          "layout": null,
+          "maxzoom": 10.01,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(44,102,93,0.00)",
+                0.05,
+                "rgba(44,102,93,0.11)",
+                0.15,
+                "rgba(96,121,66,0.33)",
+                0.3,
+                "rgba(145,134,45,0.66)",
+                0.45,
+                "rgba(193,144,54,0.99)",
+                0.6,
+                "rgba(236,154,96,1.00)",
+                0.8,
+                "rgba(253,176,167,1.00)",
+                1,
+                "rgba(250,204,250,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.0078125,
+                12,
+                2
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(216,148,72,0.00)",
+                0.05,
+                "rgba(216,148,72,0.11)",
+                0.15,
+                "rgba(170,140,45,0.33)",
+                0.3,
+                "rgba(123,128,52,0.66)",
+                0.45,
+                "rgba(73,113,79,0.99)",
+                0.6,
+                "rgba(30,93,98,1.00)",
+                0.8,
+                "rgba(17,69,97,1.00)",
+                1,
+                "rgba(11,44,92,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.0078125,
+                12,
+                2
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "heatmap",
+          "type": "heatmap"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "entity_id"
+            ],
+            [
+              "has",
+              "entity_id"
+            ]
+          ],
+          "layout": null,
+          "minzoom": 10,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "coalesce",
+                  [
+                    "get",
+                    "deity_family"
+                  ],
+                  "unknown"
+                ],
+                "mazu",
+                "#ff4c7b",
+                "tudi",
+                "#f2c94c",
+                "guanyin",
+                "#4dd0e1",
+                "guangong",
+                "#ff9691",
+                "xuantian",
+                "#7788e0",
+                "wangye",
+                "#ff8a3d",
+                "buddha",
+                "#ffd54f",
+                "other",
+                "#a1887f",
+                "unknown",
+                "#8a8a8a",
+                "#8a8a8a"
+              ],
+              "circle-opacity": 0.75,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "coalesce",
+                  [
+                    "get",
+                    "deity_family"
+                  ],
+                  "unknown"
+                ],
+                "mazu",
+                "#e91e63",
+                "tudi",
+                "#f2c94c",
+                "guanyin",
+                "#4dd0e1",
+                "guangong",
+                "#eb5757",
+                "xuantian",
+                "#5c6bc0",
+                "wangye",
+                "#ff8a3d",
+                "buddha",
+                "#ffd54f",
+                "other",
+                "#a1887f",
+                "unknown",
+                "#8a8a8a",
+                "#8a8a8a"
+              ],
+              "circle-opacity": 0.75,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 5,
+        "sourceLayer": "temples"
+      },
+      "rebuildOnParamChange": [
+        "heatmap",
+        "circle"
+      ],
+      "sourceId": "religion-temples",
+      "sourceUrl": "./religion/temples.pmtiles"
+    },
+    "religionTop100": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "religionTop100",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 1,
+              "circle-color": "#7b1fa2",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                7,
+                12,
+                14
+              ]
+            },
+            "light": {
+              "circle-blur": 1,
+              "circle-color": "#7b1fa2",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                7,
+                12,
+                14
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#b25cdd",
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#7b1fa2",
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
+      "sourceId": "religion-top100",
+      "sourceUrl": "./religion/top100.geojson"
+    }
+  },
+  "params": {
+    "religionAncestralHalls": [
+      {
+        "label": "類型",
+        "options": [
+          {
+            "label": "全部",
+            "value": "all"
+          },
+          {
+            "label": "登記宗祠",
+            "value": "registered"
+          },
+          {
+            "label": "文資祠堂",
+            "value": "unregistered"
+          }
+        ],
+        "type": "select",
+        "value": "all"
+      },
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "religionChurches": [
+      {
+        "label": "登記",
+        "options": [
+          {
+            "label": "全部",
+            "value": "all"
+          },
+          {
+            "label": "官方登記",
+            "value": "registered"
+          },
+          {
+            "label": "登記制度外",
+            "value": "unregistered"
+          }
+        ],
+        "type": "select",
+        "value": "all"
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "religionFoundations": [
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "religionOtherWorship": [
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "religionTemples": [
+      {
+        "label": "主祀類別",
+        "options": [
+          {
+            "label": "媽祖",
+            "value": "mazu"
+          },
+          {
+            "label": "土地公",
+            "value": "tudi"
+          },
+          {
+            "label": "觀音",
+            "value": "guanyin"
+          },
+          {
+            "label": "關聖帝君",
+            "value": "guangong"
+          },
+          {
+            "label": "玄天上帝",
+            "value": "xuantian"
+          },
+          {
+            "label": "王爺千歲",
+            "value": "wangye"
+          },
+          {
+            "label": "佛教諸佛",
+            "value": "buddha"
+          },
+          {
+            "label": "其他神祇",
+            "value": "other"
+          },
+          {
+            "label": "未標示",
+            "value": "unknown"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "mazu",
+          "tudi",
+          "guanyin",
+          "guangong",
+          "xuantian",
+          "wangye",
+          "buddha",
+          "other",
+          "unknown"
+        ]
+      },
+      {
+        "label": "登記",
+        "options": [
+          {
+            "label": "全部",
+            "value": "all"
+          },
+          {
+            "label": "官方登記",
+            "value": "registered"
+          },
+          {
+            "label": "登記制度外",
+            "value": "unregistered"
+          }
+        ],
+        "type": "select",
+        "value": "all"
+      },
+      {
+        "defaultValue": "batlow",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "batlow"
+      },
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.75,
+        "valueText": "0.75"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "religionTop100": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ]
+  }
+}

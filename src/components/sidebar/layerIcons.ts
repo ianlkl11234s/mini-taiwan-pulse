@@ -1,6 +1,7 @@
 import type { LucideIcon } from "lucide-react";
 import type { LayerVisibility } from "../../types";
-import { manifestIcons, type ManifestKey } from "../../data/layerManifest";
+import type { ManifestKey } from "../../data/layerManifest";
+import { layerIconTable } from "../../data/layerLookup";
 
 /**
  * 手寫 icon 殘量 —— **AR-22 Phase 2 完成後為空**（348/348 全部由 layerManifest 派生）。
@@ -18,6 +19,6 @@ const HANDWRITTEN_LAYER_ICONS: Omit<Record<keyof LayerVisibility, LucideIcon>, M
  */
 export const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   ...HANDWRITTEN_LAYER_ICONS,
-  ...manifestIcons(),
+  ...layerIconTable(),
 };
 

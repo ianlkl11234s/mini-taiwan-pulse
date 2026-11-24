@@ -2,16 +2,14 @@
 export declare const GOLDEN: string;
 export declare const INVENTORY: string;
 export declare const CHANGELOG: string;
-export declare const GOLDEN_TEST: string;
 export declare const LOCALE_RE: RegExp;
 export declare const SECTION_ORDER: string[];
 export type RegenCommand = [string, string[]];
 export declare const DEFAULT_REGEN: { golden: RegenCommand; inventory: RegenCommand };
 export type MergeResult = { ok: true; text: string } | { ok: false; reason: string };
-export declare function classify(path: string): "golden" | "inventory" | "changelog" | "goldenTest" | "locale" | null;
+export declare function classify(path: string): "golden" | "inventory" | "changelog" | "locale" | null;
 export declare function mergeChangelog(input: { base: string; ours: string; theirs: string }): MergeResult;
 export declare function mergeJsonObject(input: { base: string; ours: string; theirs: string }): MergeResult;
-export declare function resolveGoldenTest(text: string, keyCount: number): MergeResult;
 export declare function runMergeDevelop(opts: {
   cwd: string;
   remote?: string;

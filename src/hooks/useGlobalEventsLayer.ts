@@ -19,7 +19,7 @@ import { timeStore } from "../state/timeStore";
 import type { TimeMode } from "../types";
 import { useMapReadyTick } from "./useMapReadyTick";
 import { hookLineLayout, hookLineOpacity, hookLinePaint, hookLineWidth } from "../map/lineFillSpec";
-import { GLOBAL_EVENT_ICON_RADIUS, GLOBAL_EVENT_LABEL_MIN_ZOOM, GLOBAL_EVENT_STORY_LIST_MAX, filterGlobalEvents, globalEventShortLabel, globalEventRelations, globalEventStoryLinks, layoutGlobalEventPoints, recentGlobalEventWindow, selectGlobalEventsOverview, type GlobalEventsView } from "../data/globalEventsPresentation";
+import { GLOBAL_EVENT_ICON_RADIUS, GLOBAL_EVENT_LABEL_MIN_ZOOM, GLOBAL_EVENT_STORY_LIST_MAX, filterGlobalEvents, firstPointFeatureByEvent, globalEventShortLabel, globalEventRelations, globalEventStoryLinks, layoutGlobalEventPoints, recentGlobalEventWindow, selectGlobalEventsOverview, type GlobalEventsView } from "../data/globalEventsPresentation";
 import { globalEventsViewStore } from "../state/globalEventsViewStore";
 import { startThrottledRaf } from "../utils/throttledRaf";
 import { badgeLabelLayout, labelHaloPaint, poiLabelLayout } from "../map/mapStyleScale";
@@ -371,7 +371,6 @@ export function useGlobalEventsLayer(
       if (storyCacheRef.current?.key !== storyKey) storyCacheRef.current = { key: storyKey, story: globalEventStoryLinks(events) };
       const story = storyCacheRef.current.story;
       storyNeighboursRef.current = story.neighbours;
-      const fed = new Map<string, { properties: Record<string, unknown>; coords: [number, number] }>();
       for (const feature of collection.features) {
         if (!feature.properties) continue;
         const eventId = String(feature.properties.event_id);
@@ -384,9 +383,8 @@ export function useGlobalEventsLayer(
         feature.properties.entity_link_count = entities?.size ?? 0;
         feature.properties.entity_names = JSON.stringify([...new Set([...(entities?.values() ?? [])].flat())].slice(0, 6));
         feature.properties.label_short = globalEventShortLabel(String(feature.properties.title_zh_tw ?? ""));
-        if (feature.geometry.type === "Point") fed.set(eventId, { properties: feature.properties, coords: feature.geometry.coordinates as [number, number] });
       }
-      fedFeaturesRef.current = fed;
+      fedFeaturesRef.current = firstPointFeatureByEvent(collection.features as GeoJSON.Feature<GeoJSON.Geometry, Record<string, unknown>>[]);
       const source = map.getSource(SOURCE_ID) as GeoJSONSource | undefined;
       source?.setData(collection);
       (map.getSource(CONNECTORS_SOURCE_ID) as GeoJSONSource | undefined)?.setData(layout.anchors);
@@ -543,10 +541,12 @@ export function useGlobalEventsLayer(
     };
     map.on("click", onClick);
     globalEventsViewStore.setSelectHandler((entry) => {
-      const point = displayedRowsRef.current.find((row) => row.eventId === entry.eventId);
-      if (!point) return;
-      expandedGroupsRef.current.add(point.coordinates.map((value) => value.toFixed(6)).join(","));
-      map.easeTo({ center: point.coordinates, duration: prefersReducedMotion() ? 0 : 500 });
+      // 與 popup／選取標記（featureLookup）同一個地點：取 fed 的第一個 feature
+      const coordinates = fedFeaturesRef.current.get(entry.eventId)?.coords
+        ?? displayedRowsRef.current.find((row) => row.eventId === entry.eventId)?.coordinates;
+      if (!coordinates) return;
+      expandedGroupsRef.current.add(coordinates.map((value) => value.toFixed(6)).join(","));
+      map.easeTo({ center: coordinates, duration: prefersReducedMotion() ? 0 : 500 });
       feed(displayedRowsRef.current);
     });
     globalEventsViewStore.setFeatureLookup((eventId) => fedFeaturesRef.current.get(eventId) ?? null);

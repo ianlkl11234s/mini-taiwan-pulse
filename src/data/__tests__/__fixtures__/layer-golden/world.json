@@ -1,0 +1,2581 @@
+{
+  "count": 24,
+  "gisLayers": {
+    "aisstreamVessel": {
+      "layers": [
+        "global-maritime-aisstream-circle"
+      ],
+      "type": "aisstreamVessel"
+    },
+    "allenCoralAtlas": {
+      "layers": [
+        "allen-coral-atlas-benthic-fill",
+        "allen-coral-atlas-geomorphic-fill"
+      ],
+      "type": "allenCoralAtlas"
+    },
+    "coralReefDistribution": {
+      "layers": [
+        "coral-reef-distribution-fill",
+        "coral-reef-distribution-line"
+      ],
+      "type": "coralReefDistribution"
+    },
+    "earthquakeGlobal": {
+      "layers": [
+        "earthquakes-global-circle"
+      ],
+      "type": "earthquakeGlobal"
+    },
+    "gfwDarkVessel": {
+      "layers": [
+        "gfw-dark-vessels-circle"
+      ],
+      "type": "gfwDarkVessel"
+    },
+    "gfwFishingEffort": {
+      "layers": [
+        "gfw-fishing-effort-fill"
+      ],
+      "type": "gfwFishingEffort"
+    },
+    "gfwHourlyGrid": {
+      "layers": [
+        "gfw-hourly-grid-hit-circle",
+        "gfw-hourly-grid-hit-fill",
+        "gfw-hourly-grid-pmtiles-hit-fill",
+        "gfw-hourly-grid-pmtiles-next-hit-fill",
+        "gfw-hourly-grid-pmtiles-preload-hit-fill"
+      ],
+      "type": "gfwHourlyGrid"
+    },
+    "gfwHourlyTrack": {
+      "layers": [
+        "gfw-hourly-tracks-endpoint",
+        "gfw-hourly-tracks-line"
+      ],
+      "type": "gfwHourlyTrack"
+    },
+    "gfwVesselPresence": {
+      "layers": [
+        "global-maritime-gfw-circle"
+      ],
+      "type": "gfwVesselPresence"
+    },
+    "globalEvent": {
+      "layers": [
+        "global-events-current-circle",
+        "global-events-relations-line"
+      ],
+      "type": "globalEvent"
+    },
+    "internetExchangePoint": {
+      "layers": [
+        "internet-exchange-points-circle",
+        "internet-exchange-points-glow"
+      ],
+      "type": "internetExchangePoint"
+    },
+    "landingStation": {
+      "layers": [
+        "landing-stations-circle",
+        "landing-stations-glow"
+      ],
+      "type": "landingStation"
+    },
+    "ooklaFixedGrid": {
+      "layers": [
+        "ookla-fixed-global-fill",
+        "ookla-fixed-global-line",
+        "ookla-fixed-global-fill-lo",
+        "ookla-fixed-global-line-lo",
+        "ookla-tw-z16-fixed-fill",
+        "ookla-tw-z16-fixed-line",
+        "ookla-tw-z14-fixed-fill",
+        "ookla-tw-z14-fixed-line"
+      ],
+      "type": "ooklaFixedGrid"
+    },
+    "ooklaMobileGrid": {
+      "layers": [
+        "ookla-mobile-global-fill",
+        "ookla-mobile-global-line",
+        "ookla-mobile-global-fill-lo",
+        "ookla-mobile-global-line-lo",
+        "ookla-tw-z16-mobile-fill",
+        "ookla-tw-z16-mobile-line",
+        "ookla-tw-z14-mobile-fill",
+        "ookla-tw-z14-mobile-line"
+      ],
+      "type": "ooklaMobileGrid"
+    },
+    "osmCommunicationSite": {
+      "layers": [
+        "osm-communication-sites-circle",
+        "osm-communication-sites-glow"
+      ],
+      "type": "osmCommunicationSite"
+    },
+    "ripeAtlasProbe": {
+      "layers": [
+        "ripe-atlas-probes-circle",
+        "ripe-atlas-probes-glow"
+      ],
+      "type": "ripeAtlasProbe"
+    },
+    "submarineCable": {
+      "layers": [
+        "submarine-cables-line",
+        "submarine-cables-glow"
+      ],
+      "type": "submarineCable"
+    },
+    "typhoonAgencyForecast": {
+      "layers": [
+        "typhoon-agency-forecasts-points",
+        "typhoon-agency-forecasts-line"
+      ],
+      "type": "typhoonAgencyForecast"
+    },
+    "typhoonTrack": {
+      "layers": [
+        "typhoon-tracks-current-ring",
+        "typhoon-tracks-current-dot",
+        "typhoon-tracks-points",
+        "typhoon-tracks-radii-fill"
+      ],
+      "type": "typhoonTrack"
+    },
+    "worldTrashDebris": {
+      "layers": [
+        "world-trash-debris-circle"
+      ],
+      "type": "worldTrashDebris"
+    }
+  },
+  "overlays": {
+    "internetExchangePoints": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "internetExchangePoints",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 1,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "region"
+                ],
+                "Africa",
+                "#F59E0B",
+                "Asia-Pacific",
+                "#22C55E",
+                "Europe",
+                "#60A5FA",
+                "Latin America",
+                "#F472B6",
+                "North America",
+                "#A78BFA",
+                "#94A3B8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "participants"
+                    ],
+                    0
+                  ],
+                  0,
+                  2,
+                  100,
+                  4,
+                  500,
+                  7
+                ],
+                7,
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "participants"
+                    ],
+                    0
+                  ],
+                  0,
+                  6,
+                  100,
+                  12,
+                  500,
+                  20
+                ]
+              ]
+            },
+            "light": {
+              "circle-blur": 1,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "region"
+                ],
+                "Africa",
+                "#F59E0B",
+                "Asia-Pacific",
+                "#22C55E",
+                "Europe",
+                "#60A5FA",
+                "Latin America",
+                "#F472B6",
+                "North America",
+                "#A78BFA",
+                "#94A3B8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "participants"
+                    ],
+                    0
+                  ],
+                  0,
+                  2,
+                  100,
+                  4,
+                  500,
+                  7
+                ],
+                7,
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "participants"
+                    ],
+                    0
+                  ],
+                  0,
+                  6,
+                  100,
+                  12,
+                  500,
+                  20
+                ]
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "region"
+                ],
+                "Africa",
+                "#F59E0B",
+                "Asia-Pacific",
+                "#22C55E",
+                "Europe",
+                "#60A5FA",
+                "Latin America",
+                "#F472B6",
+                "North America",
+                "#A78BFA",
+                "#94A3B8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "participants"
+                    ],
+                    0
+                  ],
+                  0,
+                  1.5,
+                  100,
+                  3,
+                  500,
+                  5
+                ],
+                7,
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "participants"
+                    ],
+                    0
+                  ],
+                  0,
+                  3,
+                  100,
+                  6,
+                  500,
+                  10
+                ]
+              ],
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "region"
+                ],
+                "Africa",
+                "#F59E0B",
+                "Asia-Pacific",
+                "#22C55E",
+                "Europe",
+                "#60A5FA",
+                "Latin America",
+                "#F472B6",
+                "North America",
+                "#A78BFA",
+                "#94A3B8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "participants"
+                    ],
+                    0
+                  ],
+                  0,
+                  1.5,
+                  100,
+                  3,
+                  500,
+                  5
+                ],
+                7,
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "participants"
+                    ],
+                    0
+                  ],
+                  0,
+                  3,
+                  100,
+                  6,
+                  500,
+                  10
+                ]
+              ],
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
+      "sourceId": "internet-exchange-points",
+      "sourceUrl": "./geo/internet_exchange_points.geojson"
+    },
+    "landingStations": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "landingStations",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 1,
+              "circle-color": "#ffb74d",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                3,
+                10,
+                6,
+                14,
+                12
+              ]
+            },
+            "light": {
+              "circle-blur": 1,
+              "circle-color": "#ffb74d",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                3,
+                10,
+                6,
+                14,
+                12
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#ffb74d",
+              "circle-opacity": 0.8,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#ffb74d",
+              "circle-opacity": 0.7,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
+      "sourceId": "landing-stations",
+      "sourceUrl": "./geo/landing_stations.geojson"
+    },
+    "ooklaFixedPerformance": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "ooklaFixedPerformance",
+      "layers": [
+        {
+          "filter": [
+            "==",
+            [
+              "get",
+              "z"
+            ],
+            6
+          ],
+          "layout": null,
+          "maxzoom": 2.5,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "avg_d_kbps"
+                  ],
+                  0
+                ],
+                0,
+                "#313695",
+                1000,
+                "#4575B4",
+                5000,
+                "#74ADD1",
+                25000,
+                "#ABD9E9",
+                50000,
+                "#FEE090",
+                100000,
+                "#FDAE61",
+                250000,
+                "#F46D43",
+                500000,
+                "#D73027"
+              ],
+              "fill-opacity": [
+                "*",
+                0.5720000000000001,
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "tests"
+                    ],
+                    0
+                  ],
+                  1,
+                  0.5,
+                  10,
+                  0.72,
+                  100,
+                  0.9,
+                  1000,
+                  1
+                ]
+              ]
+            },
+            "light": {
+              "fill-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "avg_d_kbps"
+                  ],
+                  0
+                ],
+                0,
+                "#313695",
+                1000,
+                "#4575B4",
+                5000,
+                "#74ADD1",
+                25000,
+                "#ABD9E9",
+                50000,
+                "#FEE090",
+                100000,
+                "#FDAE61",
+                250000,
+                "#F46D43",
+                500000,
+                "#D73027"
+              ],
+              "fill-opacity": [
+                "*",
+                0.5720000000000001,
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "tests"
+                    ],
+                    0
+                  ],
+                  1,
+                  0.5,
+                  10,
+                  0.72,
+                  100,
+                  0.9,
+                  1000,
+                  1
+                ]
+              ]
+            }
+          },
+          "suffix": "fill-lo",
+          "type": "fill"
+        },
+        {
+          "filter": [
+            "==",
+            [
+              "get",
+              "z"
+            ],
+            6
+          ],
+          "layout": null,
+          "maxzoom": 2.5,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "rgba(255,255,255,0.55)",
+              "line-opacity": 0.65,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                7,
+                0.7,
+                11,
+                1.2
+              ]
+            },
+            "light": {
+              "line-color": "rgba(15,23,42,0.55)",
+              "line-opacity": 0.65,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                7,
+                0.7,
+                11,
+                1.2
+              ]
+            }
+          },
+          "suffix": "line-lo",
+          "type": "line"
+        },
+        {
+          "filter": [
+            "==",
+            [
+              "get",
+              "z"
+            ],
+            6
+          ],
+          "layout": null,
+          "minzoom": 2.5,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "avg_d_kbps"
+                  ],
+                  0
+                ],
+                0,
+                "#313695",
+                1000,
+                "#4575B4",
+                5000,
+                "#74ADD1",
+                25000,
+                "#ABD9E9",
+                50000,
+                "#FEE090",
+                100000,
+                "#FDAE61",
+                250000,
+                "#F46D43",
+                500000,
+                "#D73027"
+              ],
+              "fill-opacity": [
+                "*",
+                0.5720000000000001,
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "tests"
+                    ],
+                    0
+                  ],
+                  1,
+                  0.5,
+                  10,
+                  0.72,
+                  100,
+                  0.9,
+                  1000,
+                  1
+                ]
+              ]
+            },
+            "light": {
+              "fill-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "avg_d_kbps"
+                  ],
+                  0
+                ],
+                0,
+                "#313695",
+                1000,
+                "#4575B4",
+                5000,
+                "#74ADD1",
+                25000,
+                "#ABD9E9",
+                50000,
+                "#FEE090",
+                100000,
+                "#FDAE61",
+                250000,
+                "#F46D43",
+                500000,
+                "#D73027"
+              ],
+              "fill-opacity": [
+                "*",
+                0.5720000000000001,
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "tests"
+                    ],
+                    0
+                  ],
+                  1,
+                  0.5,
+                  10,
+                  0.72,
+                  100,
+                  0.9,
+                  1000,
+                  1
+                ]
+              ]
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": [
+            "==",
+            [
+              "get",
+              "z"
+            ],
+            6
+          ],
+          "layout": null,
+          "minzoom": 2.5,
+          "paint": {
+            "dark": {
+              "line-color": "rgba(255,255,255,0.55)",
+              "line-opacity": 0.65,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                7,
+                0.7,
+                11,
+                1.2
+              ]
+            },
+            "light": {
+              "line-color": "rgba(15,23,42,0.55)",
+              "line-opacity": 0.65,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                7,
+                0.7,
+                11,
+                1.2
+              ]
+            }
+          },
+          "suffix": "line",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 6,
+        "minzoom": 0,
+        "sourceLayer": "ookla"
+      },
+      "rebuildOnParamChange": [
+        "fill",
+        "line",
+        "fill-lo",
+        "line-lo"
+      ],
+      "sourceId": "ookla-fixed-global",
+      "sourceUrl": "./geo/ookla_fixed_global_20260930_t3.pmtiles"
+    },
+    "ooklaMobilePerformance": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "ooklaMobilePerformance",
+      "layers": [
+        {
+          "filter": [
+            "==",
+            [
+              "get",
+              "z"
+            ],
+            6
+          ],
+          "layout": null,
+          "maxzoom": 2.5,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "avg_d_kbps"
+                  ],
+                  0
+                ],
+                0,
+                "#313695",
+                1000,
+                "#4575B4",
+                5000,
+                "#74ADD1",
+                25000,
+                "#ABD9E9",
+                50000,
+                "#FEE090",
+                100000,
+                "#FDAE61",
+                250000,
+                "#F46D43",
+                500000,
+                "#D73027"
+              ],
+              "fill-opacity": [
+                "*",
+                0.5720000000000001,
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "tests"
+                    ],
+                    0
+                  ],
+                  1,
+                  0.5,
+                  10,
+                  0.72,
+                  100,
+                  0.9,
+                  1000,
+                  1
+                ]
+              ]
+            },
+            "light": {
+              "fill-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "avg_d_kbps"
+                  ],
+                  0
+                ],
+                0,
+                "#313695",
+                1000,
+                "#4575B4",
+                5000,
+                "#74ADD1",
+                25000,
+                "#ABD9E9",
+                50000,
+                "#FEE090",
+                100000,
+                "#FDAE61",
+                250000,
+                "#F46D43",
+                500000,
+                "#D73027"
+              ],
+              "fill-opacity": [
+                "*",
+                0.5720000000000001,
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "tests"
+                    ],
+                    0
+                  ],
+                  1,
+                  0.5,
+                  10,
+                  0.72,
+                  100,
+                  0.9,
+                  1000,
+                  1
+                ]
+              ]
+            }
+          },
+          "suffix": "fill-lo",
+          "type": "fill"
+        },
+        {
+          "filter": [
+            "==",
+            [
+              "get",
+              "z"
+            ],
+            6
+          ],
+          "layout": null,
+          "maxzoom": 2.5,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "rgba(255,255,255,0.55)",
+              "line-opacity": 0.65,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                7,
+                0.7,
+                11,
+                1.2
+              ]
+            },
+            "light": {
+              "line-color": "rgba(15,23,42,0.55)",
+              "line-opacity": 0.65,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                7,
+                0.7,
+                11,
+                1.2
+              ]
+            }
+          },
+          "suffix": "line-lo",
+          "type": "line"
+        },
+        {
+          "filter": [
+            "==",
+            [
+              "get",
+              "z"
+            ],
+            6
+          ],
+          "layout": null,
+          "minzoom": 2.5,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "avg_d_kbps"
+                  ],
+                  0
+                ],
+                0,
+                "#313695",
+                1000,
+                "#4575B4",
+                5000,
+                "#74ADD1",
+                25000,
+                "#ABD9E9",
+                50000,
+                "#FEE090",
+                100000,
+                "#FDAE61",
+                250000,
+                "#F46D43",
+                500000,
+                "#D73027"
+              ],
+              "fill-opacity": [
+                "*",
+                0.5720000000000001,
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "tests"
+                    ],
+                    0
+                  ],
+                  1,
+                  0.5,
+                  10,
+                  0.72,
+                  100,
+                  0.9,
+                  1000,
+                  1
+                ]
+              ]
+            },
+            "light": {
+              "fill-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "avg_d_kbps"
+                  ],
+                  0
+                ],
+                0,
+                "#313695",
+                1000,
+                "#4575B4",
+                5000,
+                "#74ADD1",
+                25000,
+                "#ABD9E9",
+                50000,
+                "#FEE090",
+                100000,
+                "#FDAE61",
+                250000,
+                "#F46D43",
+                500000,
+                "#D73027"
+              ],
+              "fill-opacity": [
+                "*",
+                0.5720000000000001,
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "tests"
+                    ],
+                    0
+                  ],
+                  1,
+                  0.5,
+                  10,
+                  0.72,
+                  100,
+                  0.9,
+                  1000,
+                  1
+                ]
+              ]
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": [
+            "==",
+            [
+              "get",
+              "z"
+            ],
+            6
+          ],
+          "layout": null,
+          "minzoom": 2.5,
+          "paint": {
+            "dark": {
+              "line-color": "rgba(255,255,255,0.55)",
+              "line-opacity": 0.65,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                7,
+                0.7,
+                11,
+                1.2
+              ]
+            },
+            "light": {
+              "line-color": "rgba(15,23,42,0.55)",
+              "line-opacity": 0.65,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                7,
+                0.7,
+                11,
+                1.2
+              ]
+            }
+          },
+          "suffix": "line",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 6,
+        "minzoom": 0,
+        "sourceLayer": "ookla"
+      },
+      "rebuildOnParamChange": [
+        "fill",
+        "line",
+        "fill-lo",
+        "line-lo"
+      ],
+      "sourceId": "ookla-mobile-global",
+      "sourceUrl": "./geo/ookla_mobile_global_20260930_t3.pmtiles"
+    },
+    "osmCommunicationSites": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "osmCommunicationSites",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 1,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "site_kind"
+                ],
+                "mobile_phone",
+                "#38BDF8",
+                "radio",
+                "#A78BFA",
+                "television",
+                "#F472B6",
+                "microwave",
+                "#F59E0B",
+                "#94A3B8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                3,
+                7,
+                8,
+                12,
+                14
+              ]
+            },
+            "light": {
+              "circle-blur": 1,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "site_kind"
+                ],
+                "mobile_phone",
+                "#38BDF8",
+                "radio",
+                "#A78BFA",
+                "television",
+                "#F472B6",
+                "microwave",
+                "#F59E0B",
+                "#94A3B8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                3,
+                7,
+                8,
+                12,
+                14
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "site_kind"
+                ],
+                "mobile_phone",
+                "#38BDF8",
+                "radio",
+                "#A78BFA",
+                "television",
+                "#F472B6",
+                "microwave",
+                "#F59E0B",
+                "#94A3B8"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "site_kind"
+                ],
+                "mobile_phone",
+                "#38BDF8",
+                "radio",
+                "#A78BFA",
+                "television",
+                "#F472B6",
+                "microwave",
+                "#F59E0B",
+                "#94A3B8"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
+      "sourceId": "osm-communication-sites",
+      "sourceUrl": "./geo/osm_communication_sites.geojson"
+    },
+    "ripeAtlasProbes": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "ripeAtlasProbes",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 1,
+              "circle-color": [
+                "match",
+                [
+                  "to-string",
+                  [
+                    "get",
+                    "is_anchor"
+                  ]
+                ],
+                "true",
+                "#F59E0B",
+                "1",
+                "#F59E0B",
+                "#22D3EE"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                3,
+                7,
+                8,
+                12,
+                14
+              ]
+            },
+            "light": {
+              "circle-blur": 1,
+              "circle-color": [
+                "match",
+                [
+                  "to-string",
+                  [
+                    "get",
+                    "is_anchor"
+                  ]
+                ],
+                "true",
+                "#F59E0B",
+                "1",
+                "#F59E0B",
+                "#22D3EE"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                3,
+                7,
+                8,
+                12,
+                14
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "to-string",
+                  [
+                    "get",
+                    "is_anchor"
+                  ]
+                ],
+                "true",
+                "#F59E0B",
+                "1",
+                "#F59E0B",
+                "#22D3EE"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "to-string",
+                  [
+                    "get",
+                    "is_anchor"
+                  ]
+                ],
+                "true",
+                "#F59E0B",
+                "1",
+                "#F59E0B",
+                "#22D3EE"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
+      "sourceId": "ripe-atlas-probes",
+      "sourceUrl": "./geo/ripe_atlas_probes.geojson"
+    },
+    "submarineCables": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "submarineCables",
+      "layers": [
+        {
+          "filter": null,
+          "layout": {
+            "line-cap": "round",
+            "line-join": "round"
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-blur": 5,
+              "line-color": "#26c6da",
+              "line-opacity": 0,
+              "line-width": 6
+            },
+            "light": {
+              "line-blur": 5,
+              "line-color": "#26c6da",
+              "line-opacity": 0,
+              "line-width": 6
+            }
+          },
+          "suffix": "glow",
+          "type": "line"
+        },
+        {
+          "filter": null,
+          "layout": {
+            "line-cap": "round",
+            "line-join": "round"
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#26c6da",
+              "line-opacity": 0.6,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                10,
+                1,
+                14,
+                2
+              ]
+            },
+            "light": {
+              "line-color": "#26c6da",
+              "line-opacity": 0.6,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                10,
+                1,
+                14,
+                2
+              ]
+            }
+          },
+          "suffix": "line",
+          "type": "line"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": null,
+      "sourceId": "submarine-cables",
+      "sourceUrl": "./geo/submarine_cables.geojson"
+    }
+  },
+  "params": {
+    "aisstreamVessels": [
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      }
+    ],
+    "allenCoralAtlas": [
+      {
+        "label": "主題",
+        "options": [
+          {
+            "label": "珊瑚／藻類棲地",
+            "value": "coralAlgae"
+          },
+          {
+            "label": "淺海棲地分類",
+            "value": "benthic"
+          },
+          {
+            "label": "礁體地形分區",
+            "value": "geomorphic"
+          }
+        ],
+        "type": "select",
+        "value": "coralAlgae"
+      },
+      {
+        "label": "研究區域",
+        "options": [
+          {
+            "label": "全部研究區",
+            "value": "all"
+          },
+          {
+            "label": "臺灣研究區",
+            "value": "taiwan"
+          },
+          {
+            "label": "沖繩研究區",
+            "value": "okinawa"
+          }
+        ],
+        "type": "select",
+        "value": "all"
+      },
+      {
+        "label": "透明度 0.65",
+        "max": 1,
+        "min": 0,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.65,
+        "valueText": "0.65"
+      }
+    ],
+    "coralReefDistribution": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "dustForecast": [
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.3,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      }
+    ],
+    "earthquakesGlobal": [
+      {
+        "label": "回溯",
+        "options": [
+          {
+            "label": "僅當日",
+            "value": "1"
+          },
+          {
+            "label": "3 天",
+            "value": "3"
+          },
+          {
+            "label": "7 天",
+            "value": "7"
+          },
+          {
+            "label": "14 天",
+            "value": "14"
+          },
+          {
+            "label": "30 天",
+            "value": "30"
+          }
+        ],
+        "type": "select",
+        "value": "14"
+      },
+      {
+        "label": "立體效果",
+        "type": "toggle",
+        "value": false
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      }
+    ],
+    "gfwDarkVessels": [
+      {
+        "label": "透明度 0.86",
+        "max": 1,
+        "min": 0,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.86,
+        "valueText": "0.86"
+      }
+    ],
+    "gfwFishingEffort": [
+      {
+        "label": "透明度 0.58",
+        "max": 1,
+        "min": 0,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.58,
+        "valueText": "0.58"
+      }
+    ],
+    "gfwHourlyGrid": [
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      }
+    ],
+    "gfwHourlyTracks": [
+      {
+        "label": "拖尾",
+        "options": [
+          {
+            "label": "30 分鐘",
+            "value": "0.5"
+          },
+          {
+            "label": "1 小時",
+            "value": "1"
+          },
+          {
+            "label": "2 小時",
+            "value": "2"
+          },
+          {
+            "label": "3 小時",
+            "value": "3"
+          }
+        ],
+        "type": "select",
+        "value": "0.5"
+      },
+      {
+        "label": "漁船",
+        "type": "toggle",
+        "value": true
+      },
+      {
+        "label": "貨輪",
+        "type": "toggle",
+        "value": true
+      },
+      {
+        "label": "客輪",
+        "type": "toggle",
+        "value": true
+      },
+      {
+        "label": "運搬船",
+        "type": "toggle",
+        "value": false
+      },
+      {
+        "label": "其他",
+        "type": "toggle",
+        "value": false
+      },
+      {
+        "label": "未知",
+        "type": "toggle",
+        "value": false
+      },
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.75,
+        "valueText": "0.75"
+      }
+    ],
+    "gfwVesselPresence": [
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.75,
+        "valueText": "0.75"
+      }
+    ],
+    "gibsNightLights": [
+      {
+        "label": "年份／樣式",
+        "options": [
+          {
+            "label": "2012 夜光",
+            "value": "viirs_2012"
+          },
+          {
+            "label": "2016 夜光",
+            "value": "viirs_2016"
+          },
+          {
+            "label": "2016 Black Marble",
+            "value": "black_marble_2016"
+          }
+        ],
+        "type": "select",
+        "value": "viirs_2016"
+      },
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.3,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      }
+    ],
+    "globalEvents": [
+      {
+        "label": "分類",
+        "options": [
+          {
+            "label": "全部",
+            "value": "all"
+          },
+          {
+            "label": "災害",
+            "value": "disaster"
+          },
+          {
+            "label": "事故",
+            "value": "accident"
+          },
+          {
+            "label": "健康",
+            "value": "health"
+          },
+          {
+            "label": "治安",
+            "value": "crime"
+          },
+          {
+            "label": "交通",
+            "value": "traffic"
+          },
+          {
+            "label": "政策",
+            "value": "policy"
+          },
+          {
+            "label": "其他",
+            "value": "other"
+          }
+        ],
+        "type": "select",
+        "value": "all"
+      },
+      {
+        "label": "最低嚴重度",
+        "options": [
+          {
+            "label": "一般",
+            "value": "0"
+          },
+          {
+            "label": "關注",
+            "value": "1"
+          },
+          {
+            "label": "重大",
+            "value": "2"
+          },
+          {
+            "label": "嚴重",
+            "value": "3"
+          }
+        ],
+        "type": "select",
+        "value": "3"
+      },
+      {
+        "label": "過去",
+        "options": [
+          {
+            "label": "1 天",
+            "value": "1"
+          },
+          {
+            "label": "3 天",
+            "value": "3"
+          },
+          {
+            "label": "7 天",
+            "value": "7"
+          }
+        ],
+        "type": "select",
+        "value": "1"
+      },
+      {
+        "label": "時間範圍",
+        "options": [
+          {
+            "label": "最近範圍",
+            "value": "recent7d"
+          },
+          {
+            "label": "跟隨時間軸",
+            "value": "timeline"
+          }
+        ],
+        "type": "select",
+        "value": "recent7d"
+      },
+      {
+        "label": "關聯線（非移動或因果）",
+        "type": "toggle",
+        "value": true
+      },
+      {
+        "label": "包含 AI 初判／待判斷",
+        "type": "toggle",
+        "value": true
+      },
+      {
+        "label": "僅顯示臺灣相關（直接／間接）",
+        "type": "toggle",
+        "value": false
+      },
+      {
+        "label": "包含 AI 判為雜訊的報導",
+        "type": "toggle",
+        "value": false
+      },
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      }
+    ],
+    "internetExchangePoints": [
+      {
+        "label": "區域",
+        "options": [
+          {
+            "label": "非洲",
+            "value": "Africa"
+          },
+          {
+            "label": "亞太",
+            "value": "Asia-Pacific"
+          },
+          {
+            "label": "歐洲",
+            "value": "Europe"
+          },
+          {
+            "label": "拉丁美洲",
+            "value": "Latin America"
+          },
+          {
+            "label": "北美",
+            "value": "North America"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "Africa",
+          "Asia-Pacific",
+          "Europe",
+          "Latin America",
+          "North America"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "landingStations": [
+      {
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 1,
+        "valueText": "1.00"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "oceanCurrents": [
+      {
+        "label": "透明度 0.65",
+        "max": 1,
+        "min": 0,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.65,
+        "valueText": "0.65"
+      },
+      {
+        "label": "線寬 1.05px",
+        "max": 1.5,
+        "min": 0.5,
+        "name": "線寬",
+        "step": 0.05,
+        "value": 1.05,
+        "valueText": "1.05 px"
+      },
+      {
+        "label": "動畫速度 1.0×",
+        "max": 3,
+        "min": 0.2,
+        "name": "動畫速度",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0×"
+      },
+      {
+        "label": "粒子數 12000",
+        "max": 50000,
+        "min": 2000,
+        "name": "粒子數",
+        "step": 1000,
+        "value": 12000,
+        "valueText": "12000"
+      }
+    ],
+    "ooklaFixedPerformance": [
+      {
+        "label": "配色",
+        "options": [
+          {
+            "label": "柔和 RdYlBu",
+            "value": "soft"
+          },
+          {
+            "label": "高對比",
+            "value": "vivid"
+          }
+        ],
+        "type": "select",
+        "value": "soft"
+      },
+      {
+        "label": "透明度 0.65",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.65,
+        "valueText": "0.65"
+      },
+      {
+        "label": "解析度",
+        "options": [
+          {
+            "label": "粗 z6（約 500 km）",
+            "value": "6"
+          },
+          {
+            "label": "中 z8（約 156 km）",
+            "value": "8"
+          },
+          {
+            "label": "細 z10（約 78 km）",
+            "value": "10"
+          }
+        ],
+        "type": "select",
+        "value": "6"
+      }
+    ],
+    "ooklaMobilePerformance": [
+      {
+        "label": "配色",
+        "options": [
+          {
+            "label": "柔和 RdYlBu",
+            "value": "soft"
+          },
+          {
+            "label": "高對比",
+            "value": "vivid"
+          }
+        ],
+        "type": "select",
+        "value": "soft"
+      },
+      {
+        "label": "透明度 0.65",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.65,
+        "valueText": "0.65"
+      },
+      {
+        "label": "解析度",
+        "options": [
+          {
+            "label": "粗 z6（約 500 km）",
+            "value": "6"
+          },
+          {
+            "label": "中 z8（約 156 km）",
+            "value": "8"
+          },
+          {
+            "label": "細 z10（約 78 km）",
+            "value": "10"
+          }
+        ],
+        "type": "select",
+        "value": "6"
+      }
+    ],
+    "osmCommunicationSites": [
+      {
+        "label": "通訊類型",
+        "options": [
+          {
+            "label": "行動電話",
+            "value": "mobile_phone"
+          },
+          {
+            "label": "廣播",
+            "value": "radio"
+          },
+          {
+            "label": "電視",
+            "value": "television"
+          },
+          {
+            "label": "微波",
+            "value": "microwave"
+          },
+          {
+            "label": "其他通訊",
+            "value": "general"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "mobile_phone",
+          "radio",
+          "television",
+          "microwave",
+          "general"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "ripeAtlasProbes": [
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "submarineCables": [],
+    "typhoonAgencyForecasts": [
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      }
+    ],
+    "typhoonTracks": [
+      {
+        "label": "資料源",
+        "options": [
+          {
+            "label": "全部",
+            "value": "all"
+          },
+          {
+            "label": "JMA 日本",
+            "value": "jma"
+          },
+          {
+            "label": "JTWC 美軍",
+            "value": "jtwc"
+          },
+          {
+            "label": "CWA 氣象署",
+            "value": "cwa"
+          }
+        ],
+        "type": "select",
+        "value": "all"
+      },
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      }
+    ],
+    "windField": [
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "線寬 1.15px",
+        "max": 1.5,
+        "min": 0.5,
+        "name": "線寬",
+        "step": 0.05,
+        "value": 1.15,
+        "valueText": "1.15 px"
+      },
+      {
+        "label": "動畫速度 1.0×",
+        "max": 3,
+        "min": 0.2,
+        "name": "動畫速度",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0×"
+      },
+      {
+        "label": "粒子數 12000",
+        "max": 80000,
+        "min": 2000,
+        "name": "粒子數",
+        "step": 1000,
+        "value": 12000,
+        "valueText": "12000"
+      }
+    ],
+    "worldTrashDebris": [
+      {
+        "defaultValue": "turku",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "turku"
+      },
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.75,
+        "valueText": "0.75"
+      }
+    ]
+  }
+}

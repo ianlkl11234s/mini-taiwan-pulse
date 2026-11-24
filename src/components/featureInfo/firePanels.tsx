@@ -108,7 +108,7 @@ export function FireIsochronePanel({ props }: { props: Record<string, unknown> }
           {[5, 10, 15].includes(minutes) ? enumLabel("fireIsochrone", minutes, fireIsochroneLabel(minutes), i18n) : tr("popup.fire.minutesLabel", { minutes })}
         </div>
       </div>
-      <Row field="county" value={placeName(String(props.county ?? ""), i18n)} />
+      <Row field="county" value={props.county === "全台" ? tr("popup.fire.nationwide") : placeName(String(props.county ?? ""), i18n)} />
       <Row label={tr("popup.fire.reachTime")} value={tr("popup.fire.withinMinutes", { minutes })} color={accentColor} />
       <Row label={tr("popup.fire.cumulativeArea")} value={cumulative} />
       <Row label={tr("popup.fire.ringArea")} value={ring} />

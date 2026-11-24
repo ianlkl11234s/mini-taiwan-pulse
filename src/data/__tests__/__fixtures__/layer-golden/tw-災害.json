@@ -1,0 +1,7047 @@
+{
+  "count": 29,
+  "gisLayers": {
+    "activeFault": {
+      "layers": [
+        "active-faults-fill",
+        "active-faults-line",
+        "active-faults-glow"
+      ],
+      "type": "activeFault"
+    },
+    "debrisFlowPotential": {
+      "layers": [
+        "debris-flow-streams-points-circle",
+        "debris-flow-streams-line",
+        "debris-flow-impact-zones-fill",
+        "debris-flow-catchments-fill"
+      ],
+      "type": "debrisFlowPotential"
+    },
+    "disasterAlert": {
+      "layers": [
+        "lifelineAlerts-fill",
+        "lifelineAlerts-line",
+        "lifelineAlerts-point",
+        "floodAlerts-fill",
+        "floodAlerts-line",
+        "floodAlerts-point",
+        "weatherAlerts-fill",
+        "weatherAlerts-line",
+        "weatherAlerts-point",
+        "transitAlerts-fill",
+        "transitAlerts-line",
+        "transitAlerts-point",
+        "safetyAlerts-fill",
+        "safetyAlerts-line",
+        "safetyAlerts-point"
+      ],
+      "type": "disasterAlert"
+    },
+    "earthquakeReplayStation": {
+      "layers": [
+        "eq-replay-station-circle"
+      ],
+      "type": "earthquakeReplayStation"
+    },
+    "earthquakeReplayTown": {
+      "layers": [
+        "eq-replay-town-fill"
+      ],
+      "type": "earthquakeReplayTown"
+    },
+    "earthquakes": {
+      "layers": [
+        "earthquake-post",
+        "earthquake-pre"
+      ],
+      "type": "earthquakes"
+    },
+    "floodDisasterPointsNcdr": {
+      "layers": [
+        "flood-disaster-points-ncdr-circle",
+        "flood-disaster-points-ncdr-glow"
+      ],
+      "type": "floodDisasterPointsNcdr"
+    },
+    "highwayDisaster": {
+      "layers": [
+        "highway-disaster-history-circle",
+        "highway-disaster-history-glow"
+      ],
+      "type": "highwayDisaster"
+    },
+    "landslideAnnual": {
+      "layers": [
+        "landslide-annual-fill",
+        "landslide-annual-outline",
+        "landslide-annual-points-circle-point",
+        "landslide-annual-points-circle-polygon"
+      ],
+      "type": "landslideAnnual"
+    },
+    "landslideAnnual#2": {
+      "layers": [
+        "landslide-annual-2025-fill",
+        "landslide-annual-2025-outline",
+        "landslide-annual-2025-points-circle-point",
+        "landslide-annual-2025-points-circle-polygon"
+      ],
+      "type": "landslideAnnual"
+    },
+    "landslideDodArea": {
+      "layers": [
+        "landslide-dod-areas-fill",
+        "landslide-dod-areas-outline",
+        "landslide-dod-areas-points-circle-point",
+        "landslide-dod-areas-points-circle-polygon"
+      ],
+      "type": "landslideDodArea"
+    },
+    "landslideDodImpact": {
+      "layers": [
+        "landslide-dod-impact-fill",
+        "landslide-dod-impact-outline",
+        "landslide-dod-impact-points-circle-point",
+        "landslide-dod-impact-points-circle-polygon"
+      ],
+      "type": "landslideDodImpact"
+    },
+    "landslideEventCatalog": {
+      "layers": [
+        "landslide-event-catalog-fill",
+        "landslide-event-catalog-outline",
+        "landslide-event-catalog-points-circle-point",
+        "landslide-event-catalog-points-circle-polygon"
+      ],
+      "type": "landslideEventCatalog"
+    },
+    "liquefactionMonitoringSites": {
+      "layers": [
+        "soil-liquefaction-monitoring-sites-circle"
+      ],
+      "type": "liquefactionMonitoringSites"
+    },
+    "mountainRescueIncident": {
+      "layers": [
+        "mountain-rescue-incidents-circle"
+      ],
+      "type": "mountainRescueIncident"
+    },
+    "nuclearStation": {
+      "layers": [
+        "hazard-nuclear-core",
+        "hazard-nuclear-halo"
+      ],
+      "type": "nuclearStation"
+    },
+    "soilLiquefactionPotential": {
+      "layers": [
+        "soil-liquefaction-potential-fill",
+        "soil-liquefaction-potential-not-investigated"
+      ],
+      "type": "soilLiquefactionPotential"
+    },
+    "swcbDisasterPhotoPoints": {
+      "layers": [
+        "swcb-disaster-photo-points-circle",
+        "swcb-disaster-photo-points-glow"
+      ],
+      "type": "swcbDisasterPhotoPoints"
+    },
+    "taipeiWaterloggingHistory": {
+      "layers": [
+        "taipei-waterlogging-history-fill",
+        "taipei-waterlogging-history-outline",
+        "taipei-waterlogging-history-points-circle-point",
+        "taipei-waterlogging-history-points-circle-polygon"
+      ],
+      "type": "taipeiWaterloggingHistory"
+    },
+    "weakSoilClay0To5": {
+      "layers": [
+        "soil-liquefaction-weakSoilClay0To5-fill",
+        "soil-liquefaction-weakSoilClay0To5-missing"
+      ],
+      "type": "weakSoilClay0To5"
+    },
+    "weakSoilClay10To20": {
+      "layers": [
+        "soil-liquefaction-weakSoilClay10To20-fill",
+        "soil-liquefaction-weakSoilClay10To20-missing"
+      ],
+      "type": "weakSoilClay10To20"
+    },
+    "weakSoilClay5To10": {
+      "layers": [
+        "soil-liquefaction-weakSoilClay5To10-fill",
+        "soil-liquefaction-weakSoilClay5To10-missing"
+      ],
+      "type": "weakSoilClay5To10"
+    },
+    "weakSoilSand0To5": {
+      "layers": [
+        "soil-liquefaction-weakSoilSand0To5-fill",
+        "soil-liquefaction-weakSoilSand0To5-missing"
+      ],
+      "type": "weakSoilSand0To5"
+    },
+    "weakSoilSand10To20": {
+      "layers": [
+        "soil-liquefaction-weakSoilSand10To20-fill",
+        "soil-liquefaction-weakSoilSand10To20-missing"
+      ],
+      "type": "weakSoilSand10To20"
+    },
+    "weakSoilSand5To10": {
+      "layers": [
+        "soil-liquefaction-weakSoilSand5To10-fill",
+        "soil-liquefaction-weakSoilSand5To10-missing"
+      ],
+      "type": "weakSoilSand5To10"
+    }
+  },
+  "overlays": {
+    "activeFaults": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "activeFaults",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-blur": 6,
+              "line-color": "#ef5350",
+              "line-opacity": 0,
+              "line-width": 8
+            },
+            "light": {
+              "line-blur": 6,
+              "line-color": "#c62828",
+              "line-opacity": 0,
+              "line-width": 8
+            }
+          },
+          "suffix": "glow",
+          "type": "line"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": "#ef5350",
+              "fill-opacity": 0.3
+            },
+            "light": {
+              "fill-color": "#e53935",
+              "fill-opacity": 0.15
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#9ca3af",
+              "line-opacity": 0.6,
+              "line-width": 0.5
+            },
+            "light": {
+              "line-color": "#374151",
+              "line-opacity": 0.6,
+              "line-width": 0.5
+            }
+          },
+          "suffix": "line",
+          "type": "line"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": null,
+      "sourceId": "active-faults",
+      "sourceUrl": "./geo/active_faults.geojson"
+    },
+    "debrisFlowPotential": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "debrisFlowPotential",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "risk"
+                ],
+                "高",
+                "#b91c1c",
+                "中",
+                "#ea580c",
+                "低",
+                "#facc15",
+                "持續觀察",
+                "#64748b",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.36
+            },
+            "light": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "risk"
+                ],
+                "高",
+                "#b91c1c",
+                "中",
+                "#ea580c",
+                "低",
+                "#facc15",
+                "持續觀察",
+                "#64748b",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.36
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#e2e8f0",
+              "line-opacity": 0.8999999999999999,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "risk"
+                ],
+                "高",
+                "#b91c1c",
+                "中",
+                "#ea580c",
+                "低",
+                "#facc15",
+                "持續觀察",
+                "#64748b",
+                "#94a3b8"
+              ],
+              "line-opacity": 0.8999999999999999,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 4,
+        "sourceLayer": "debris_flow_catchments"
+      },
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "debris-flow-catchments",
+      "sourceUrl": "./hazards/debris_flow_catchments_115.pmtiles"
+    },
+    "debrisFlowPotential#2": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "debrisFlowPotential",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "risk"
+                ],
+                "高",
+                "#b91c1c",
+                "中",
+                "#ea580c",
+                "低",
+                "#facc15",
+                "持續觀察",
+                "#64748b",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.36
+            },
+            "light": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "risk"
+                ],
+                "高",
+                "#b91c1c",
+                "中",
+                "#ea580c",
+                "低",
+                "#facc15",
+                "持續觀察",
+                "#64748b",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.36
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#e2e8f0",
+              "line-dasharray": [
+                4,
+                3
+              ],
+              "line-opacity": 0.8999999999999999,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "risk"
+                ],
+                "高",
+                "#b91c1c",
+                "中",
+                "#ea580c",
+                "低",
+                "#facc15",
+                "持續觀察",
+                "#64748b",
+                "#94a3b8"
+              ],
+              "line-dasharray": [
+                4,
+                3
+              ],
+              "line-opacity": 0.8999999999999999,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 4,
+        "sourceLayer": "debris_flow_impact_zones"
+      },
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "debris-flow-impact-zones",
+      "sourceUrl": "./hazards/debris_flow_impact_zones_115.pmtiles"
+    },
+    "debrisFlowPotential#3": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "debrisFlowPotential",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "dark": {
+              "line-cap": "round",
+              "line-join": "round",
+              "visibility": "visible"
+            },
+            "light": {
+              "line-cap": "round",
+              "line-join": "round",
+              "visibility": "visible"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "risk"
+                ],
+                "高",
+                "#ff6e61",
+                "中",
+                "#ea580c",
+                "低",
+                "#facc15",
+                "持續觀察",
+                "#6e7e95",
+                "#94a3b8"
+              ],
+              "line-opacity": 0.8999999999999999,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                1,
+                12,
+                2.5,
+                16,
+                4
+              ]
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "risk"
+                ],
+                "高",
+                "#b91c1c",
+                "中",
+                "#ea580c",
+                "低",
+                "#facc15",
+                "持續觀察",
+                "#64748b",
+                "#94a3b8"
+              ],
+              "line-opacity": 0.8999999999999999,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                1,
+                12,
+                2.5,
+                16,
+                4
+              ]
+            }
+          },
+          "suffix": "line",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 4,
+        "sourceLayer": "debris_flow_streams"
+      },
+      "rebuildOnParamChange": [
+        "line"
+      ],
+      "sourceId": "debris-flow-streams",
+      "sourceUrl": "./hazards/debris_flow_streams_115.pmtiles"
+    },
+    "debrisFlowPotential#4": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "debrisFlowPotential",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "maxzoom": 11.5,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "risk"
+                ],
+                "高",
+                "#ff6e61",
+                "中",
+                "#ea580c",
+                "低",
+                "#facc15",
+                "持續觀察",
+                "#6e7e95",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.8999999999999999,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                2.2,
+                10,
+                4.5
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.8999999999999999,
+              "circle-stroke-width": 0.8
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "risk"
+                ],
+                "高",
+                "#b91c1c",
+                "中",
+                "#ea580c",
+                "低",
+                "#facc15",
+                "持續觀察",
+                "#64748b",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.8999999999999999,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                2.2,
+                10,
+                4.5
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.8999999999999999,
+              "circle-stroke-width": 0.8
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 10,
+        "minzoom": 4,
+        "sourceLayer": "debris_flow_streams_points"
+      },
+      "rebuildOnParamChange": [
+        "circle"
+      ],
+      "sourceId": "debris-flow-streams-points",
+      "sourceUrl": "./hazards/debris_flow_streams_115_points.pmtiles"
+    },
+    "floodDisasterPointsNcdr": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "floodDisasterPointsNcdr",
+      "layers": [
+        {
+          "filter": [
+            "in",
+            [
+              "to-string",
+              [
+                "get",
+                "event_year"
+              ]
+            ],
+            [
+              "literal",
+              [
+                "2021",
+                "2022",
+                "2023",
+                "2024",
+                "2025"
+              ]
+            ]
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "info_source"
+                ],
+                "emic_report",
+                "#0284c7",
+                "flood_sensor",
+                "#7c3aed",
+                "social_media",
+                "#db2777",
+                "news_media",
+                "#ea580c",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "info_source"
+                ],
+                "emic_report",
+                "#0284c7",
+                "flood_sensor",
+                "#7c3aed",
+                "social_media",
+                "#db2777",
+                "news_media",
+                "#ea580c",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "in",
+            [
+              "to-string",
+              [
+                "get",
+                "event_year"
+              ]
+            ],
+            [
+              "literal",
+              [
+                "2021",
+                "2022",
+                "2023",
+                "2024",
+                "2025"
+              ]
+            ]
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "info_source"
+                ],
+                "emic_report",
+                "#1d8fd3",
+                "flood_sensor",
+                "#976cff",
+                "social_media",
+                "#f4438b",
+                "news_media",
+                "#ea580c",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "info_source"
+                ],
+                "emic_report",
+                "#0284c7",
+                "flood_sensor",
+                "#7c3aed",
+                "social_media",
+                "#db2777",
+                "news_media",
+                "#ea580c",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 12,
+        "minzoom": 5,
+        "sourceLayer": "flood_disaster_points_ncdr"
+      },
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
+      "sourceId": "flood-disaster-points-ncdr",
+      "sourceUrl": "./hazards/flood_disaster_points_ncdr.pmtiles"
+    },
+    "highwayDisasterHistory": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "highwayDisasterHistory",
+      "layers": [
+        {
+          "filter": [
+            "all",
+            [
+              "in",
+              [
+                "get",
+                "category_group"
+              ],
+              [
+                "literal",
+                [
+                  "rockfall",
+                  "slope_failure",
+                  "debris_flow",
+                  "precautionary_closure",
+                  "flooding",
+                  "structure_damage",
+                  "traffic_incident",
+                  "other"
+                ]
+              ]
+            ],
+            [
+              "in",
+              [
+                "to-string",
+                [
+                  "get",
+                  "year"
+                ]
+              ],
+              [
+                "literal",
+                [
+                  "2014",
+                  "2015",
+                  "2016",
+                  "2017",
+                  "2018",
+                  "2019",
+                  "2020",
+                  "2021",
+                  "2022",
+                  "2023",
+                  "2024",
+                  "2025",
+                  "2026"
+                ]
+              ]
+            ]
+          ],
+          "layout": null,
+          "maxzoom": 10.01,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(142,42,129,0.00)",
+                0.05,
+                "rgba(142,42,129,0.11)",
+                0.15,
+                "rgba(186,56,120,0.33)",
+                0.3,
+                "rgba(226,77,102,0.66)",
+                0.45,
+                "rgba(248,116,92,0.99)",
+                0.6,
+                "rgba(254,160,109,1.00)",
+                0.8,
+                "rgba(254,201,141,1.00)",
+                1,
+                "rgba(252,240,178,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(249,121,93,0.00)",
+                0.05,
+                "rgba(249,121,93,0.11)",
+                0.15,
+                "rgba(233,85,97,0.33)",
+                0.3,
+                "rgba(202,62,114,0.66)",
+                0.45,
+                "rgba(164,49,126,0.99)",
+                0.6,
+                "rgba(126,36,130,1.00)",
+                0.8,
+                "rgba(90,22,126,1.00)",
+                1,
+                "rgba(55,16,108,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "heatmap",
+          "type": "heatmap"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "in",
+              [
+                "get",
+                "category_group"
+              ],
+              [
+                "literal",
+                [
+                  "rockfall",
+                  "slope_failure",
+                  "debris_flow",
+                  "precautionary_closure",
+                  "flooding",
+                  "structure_damage",
+                  "traffic_incident",
+                  "other"
+                ]
+              ]
+            ],
+            [
+              "in",
+              [
+                "to-string",
+                [
+                  "get",
+                  "year"
+                ]
+              ],
+              [
+                "literal",
+                [
+                  "2014",
+                  "2015",
+                  "2016",
+                  "2017",
+                  "2018",
+                  "2019",
+                  "2020",
+                  "2021",
+                  "2022",
+                  "2023",
+                  "2024",
+                  "2025",
+                  "2026"
+                ]
+              ]
+            ]
+          ],
+          "layout": null,
+          "minzoom": 10,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "category_group"
+                ],
+                "rockfall",
+                "#a16207",
+                "slope_failure",
+                "#c2410c",
+                "debris_flow",
+                "#7c2d12",
+                "precautionary_closure",
+                "#7c3aed",
+                "flooding",
+                "#0284c7",
+                "structure_damage",
+                "#be185d",
+                "traffic_incident",
+                "#475569",
+                "other",
+                "#94a3b8",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "category_group"
+                ],
+                "rockfall",
+                "#a16207",
+                "slope_failure",
+                "#c2410c",
+                "debris_flow",
+                "#7c2d12",
+                "precautionary_closure",
+                "#7c3aed",
+                "flooding",
+                "#0284c7",
+                "structure_damage",
+                "#be185d",
+                "traffic_incident",
+                "#475569",
+                "other",
+                "#94a3b8",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "in",
+              [
+                "get",
+                "category_group"
+              ],
+              [
+                "literal",
+                [
+                  "rockfall",
+                  "slope_failure",
+                  "debris_flow",
+                  "precautionary_closure",
+                  "flooding",
+                  "structure_damage",
+                  "traffic_incident",
+                  "other"
+                ]
+              ]
+            ],
+            [
+              "in",
+              [
+                "to-string",
+                [
+                  "get",
+                  "year"
+                ]
+              ],
+              [
+                "literal",
+                [
+                  "2014",
+                  "2015",
+                  "2016",
+                  "2017",
+                  "2018",
+                  "2019",
+                  "2020",
+                  "2021",
+                  "2022",
+                  "2023",
+                  "2024",
+                  "2025",
+                  "2026"
+                ]
+              ]
+            ]
+          ],
+          "layout": null,
+          "minzoom": 10,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "category_group"
+                ],
+                "rockfall",
+                "#d8954c",
+                "slope_failure",
+                "#fc764b",
+                "debris_flow",
+                "#ce775c",
+                "precautionary_closure",
+                "#9b76ff",
+                "flooding",
+                "#2896da",
+                "structure_damage",
+                "#f55589",
+                "traffic_incident",
+                "#7f8fa5",
+                "other",
+                "#94a3b8",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.75,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.75,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "category_group"
+                ],
+                "rockfall",
+                "#a16207",
+                "slope_failure",
+                "#c2410c",
+                "debris_flow",
+                "#7c2d12",
+                "precautionary_closure",
+                "#7c3aed",
+                "flooding",
+                "#0284c7",
+                "structure_damage",
+                "#be185d",
+                "traffic_incident",
+                "#475569",
+                "other",
+                "#94a3b8",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.75,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.75,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 12,
+        "minzoom": 5,
+        "sourceLayer": "highway_disaster_history"
+      },
+      "rebuildOnParamChange": [
+        "heatmap",
+        "glow",
+        "circle"
+      ],
+      "sourceId": "highway-disaster-history",
+      "sourceUrl": "./hazards/highway_disaster_history.pmtiles"
+    },
+    "landslideAnnual": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "landslideAnnual",
+      "layers": [
+        {
+          "filter": [
+            "==",
+            [
+              "get",
+              "year"
+            ],
+            2024
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": 7,
+          "paint": {
+            "dark": {
+              "fill-color": "#92400e",
+              "fill-opacity": 0.55
+            },
+            "light": {
+              "fill-color": "#92400e",
+              "fill-opacity": 0.55
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": [
+            "==",
+            [
+              "get",
+              "year"
+            ],
+            2024
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": 7,
+          "paint": {
+            "dark": {
+              "line-color": "#fdba74",
+              "line-opacity": 0.8500000000000001,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                10,
+                0.4,
+                14,
+                1.2
+              ]
+            },
+            "light": {
+              "line-color": "#7c2d12",
+              "line-opacity": 0.8500000000000001,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                10,
+                0.4,
+                14,
+                1.2
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 6,
+        "sourceLayer": "landslide_annual"
+      },
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "landslide-annual",
+      "sourceUrl": "./hazards/landslide_annual_swcb_20261006.pmtiles"
+    },
+    "landslideAnnual#2": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "landslideAnnual",
+      "layers": [
+        {
+          "filter": [
+            "==",
+            [
+              "get",
+              "year"
+            ],
+            2024
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "maxzoom": 12.01,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(160,26,91,0.00)",
+                0.05,
+                "rgba(160,26,91,0.11)",
+                0.15,
+                "rgba(205,28,78,0.33)",
+                0.3,
+                "rgba(234,69,62,0.66)",
+                0.45,
+                "rgba(243,120,82,0.99)",
+                0.6,
+                "rgba(246,163,123,1.00)",
+                0.8,
+                "rgba(247,201,171,1.00)",
+                1,
+                "rgba(250,235,221,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00078125,
+                12,
+                0.2
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                64,
+                10,
+                1
+              ]
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(244,126,87,0.00)",
+                0.05,
+                "rgba(244,126,87,0.11)",
+                0.15,
+                "rgba(238,83,63,0.33)",
+                0.3,
+                "rgba(218,41,71,0.66)",
+                0.45,
+                "rgba(183,22,87,0.99)",
+                0.6,
+                "rgba(142,29,91,1.00)",
+                0.8,
+                "rgba(102,31,84,1.00)",
+                1,
+                "rgba(66,27,70,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00078125,
+                12,
+                0.2
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                64,
+                10,
+                1
+              ]
+            }
+          },
+          "suffix": "heat-point",
+          "type": "heatmap"
+        },
+        {
+          "filter": [
+            "==",
+            [
+              "get",
+              "year"
+            ],
+            2024
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "maxzoom": 7.01,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(160,26,91,0.00)",
+                0.05,
+                "rgba(160,26,91,0.11)",
+                0.15,
+                "rgba(205,28,78,0.33)",
+                0.3,
+                "rgba(234,69,62,0.66)",
+                0.45,
+                "rgba(243,120,82,0.99)",
+                0.6,
+                "rgba(246,163,123,1.00)",
+                0.8,
+                "rgba(247,201,171,1.00)",
+                1,
+                "rgba(250,235,221,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00078125,
+                12,
+                0.2
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                64,
+                10,
+                1
+              ]
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(244,126,87,0.00)",
+                0.05,
+                "rgba(244,126,87,0.11)",
+                0.15,
+                "rgba(238,83,63,0.33)",
+                0.3,
+                "rgba(218,41,71,0.66)",
+                0.45,
+                "rgba(183,22,87,0.99)",
+                0.6,
+                "rgba(142,29,91,1.00)",
+                0.8,
+                "rgba(102,31,84,1.00)",
+                1,
+                "rgba(66,27,70,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00078125,
+                12,
+                0.2
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                64,
+                10,
+                1
+              ]
+            }
+          },
+          "suffix": "heat-polygon",
+          "type": "heatmap"
+        },
+        {
+          "filter": [
+            "==",
+            [
+              "get",
+              "year"
+            ],
+            2024
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": 12,
+          "paint": {
+            "dark": {
+              "circle-color": "#ec9165",
+              "circle-opacity": 0.6,
+              "circle-radius": 3,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#92400e",
+              "circle-opacity": 0.6,
+              "circle-radius": 3,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle-point",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 10,
+        "minzoom": 4,
+        "sourceLayer": "landslide_annual_points"
+      },
+      "rebuildOnParamChange": [
+        "heat-point",
+        "heat-polygon",
+        "circle-point"
+      ],
+      "sourceId": "landslide-annual-points",
+      "sourceUrl": "./hazards/landslide_annual_swcb_20261006_points.pmtiles"
+    },
+    "landslideAnnual#3": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "landslideAnnual",
+      "layers": [
+        {
+          "filter": [
+            "==",
+            [
+              "get",
+              "year"
+            ],
+            2024
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": 7,
+          "paint": {
+            "dark": {
+              "fill-color": "#92400e",
+              "fill-opacity": 0.55
+            },
+            "light": {
+              "fill-color": "#92400e",
+              "fill-opacity": 0.55
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": [
+            "==",
+            [
+              "get",
+              "year"
+            ],
+            2024
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": 7,
+          "paint": {
+            "dark": {
+              "line-color": "#fdba74",
+              "line-opacity": 0.8500000000000001,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                10,
+                0.4,
+                14,
+                1.2
+              ]
+            },
+            "light": {
+              "line-color": "#7c2d12",
+              "line-opacity": 0.8500000000000001,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                10,
+                0.4,
+                14,
+                1.2
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 6,
+        "sourceLayer": "landslide_annual"
+      },
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "landslide-annual-2025",
+      "sourceUrl": "./hazards/landslide_annual_swcb_2025_20261120.pmtiles"
+    },
+    "landslideAnnual#4": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "landslideAnnual",
+      "layers": [
+        {
+          "filter": [
+            "==",
+            [
+              "get",
+              "year"
+            ],
+            2024
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "maxzoom": 10.01,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(160,26,91,0.00)",
+                0.05,
+                "rgba(160,26,91,0.11)",
+                0.15,
+                "rgba(205,28,78,0.33)",
+                0.3,
+                "rgba(234,69,62,0.66)",
+                0.45,
+                "rgba(243,120,82,0.99)",
+                0.6,
+                "rgba(246,163,123,1.00)",
+                0.8,
+                "rgba(247,201,171,1.00)",
+                1,
+                "rgba(250,235,221,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.0015625,
+                12,
+                0.4
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(244,126,87,0.00)",
+                0.05,
+                "rgba(244,126,87,0.11)",
+                0.15,
+                "rgba(238,83,63,0.33)",
+                0.3,
+                "rgba(218,41,71,0.66)",
+                0.45,
+                "rgba(183,22,87,0.99)",
+                0.6,
+                "rgba(142,29,91,1.00)",
+                0.8,
+                "rgba(102,31,84,1.00)",
+                1,
+                "rgba(66,27,70,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.0015625,
+                12,
+                0.4
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "heat-point",
+          "type": "heatmap"
+        },
+        {
+          "filter": [
+            "==",
+            [
+              "get",
+              "year"
+            ],
+            2024
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "maxzoom": 7.01,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(160,26,91,0.00)",
+                0.05,
+                "rgba(160,26,91,0.11)",
+                0.15,
+                "rgba(205,28,78,0.33)",
+                0.3,
+                "rgba(234,69,62,0.66)",
+                0.45,
+                "rgba(243,120,82,0.99)",
+                0.6,
+                "rgba(246,163,123,1.00)",
+                0.8,
+                "rgba(247,201,171,1.00)",
+                1,
+                "rgba(250,235,221,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.0015625,
+                12,
+                0.4
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(244,126,87,0.00)",
+                0.05,
+                "rgba(244,126,87,0.11)",
+                0.15,
+                "rgba(238,83,63,0.33)",
+                0.3,
+                "rgba(218,41,71,0.66)",
+                0.45,
+                "rgba(183,22,87,0.99)",
+                0.6,
+                "rgba(142,29,91,1.00)",
+                0.8,
+                "rgba(102,31,84,1.00)",
+                1,
+                "rgba(66,27,70,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.0015625,
+                12,
+                0.4
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "heat-polygon",
+          "type": "heatmap"
+        },
+        {
+          "filter": [
+            "==",
+            [
+              "get",
+              "year"
+            ],
+            2024
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": 10,
+          "paint": {
+            "dark": {
+              "circle-color": "#cf774c",
+              "circle-opacity": 0.75,
+              "circle-radius": 3,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#92400e",
+              "circle-opacity": 0.75,
+              "circle-radius": 3,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle-point",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 10,
+        "minzoom": 4,
+        "sourceLayer": "landslide_annual_points"
+      },
+      "rebuildOnParamChange": [
+        "heat-point",
+        "heat-polygon",
+        "circle-point"
+      ],
+      "sourceId": "landslide-annual-2025-points",
+      "sourceUrl": "./hazards/landslide_annual_swcb_2025_20261120_points.pmtiles"
+    },
+    "landslideDodAreas": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "landslideDodAreas",
+      "layers": [
+        {
+          "filter": [
+            "==",
+            [
+              "get",
+              "year_roc"
+            ],
+            115
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "risk"
+                ],
+                "高",
+                "#b91c1c",
+                "中",
+                "#ea580c",
+                "低",
+                "#facc15",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.55
+            },
+            "light": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "risk"
+                ],
+                "高",
+                "#b91c1c",
+                "中",
+                "#ea580c",
+                "低",
+                "#facc15",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.55
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": [
+            "==",
+            [
+              "get",
+              "year_roc"
+            ],
+            115
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#fde68a",
+              "line-opacity": 0.8500000000000001,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.5,
+                14,
+                1.4
+              ]
+            },
+            "light": {
+              "line-color": "#7c2d12",
+              "line-opacity": 0.8500000000000001,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.5,
+                14,
+                1.4
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "landslide-dod-areas",
+      "sourceUrl": "./hazards/landslide_dod_areas.geojson"
+    },
+    "landslideDodAreas#2": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "landslideDodAreas",
+      "layers": [
+        {
+          "filter": [
+            "==",
+            [
+              "get",
+              "year_roc"
+            ],
+            115
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "risk"
+                ],
+                "高",
+                "#ff7366",
+                "中",
+                "#ea580c",
+                "低",
+                "#facc15",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "risk"
+                ],
+                "高",
+                "#b91c1c",
+                "中",
+                "#ea580c",
+                "低",
+                "#facc15",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle-point",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "circle-point"
+      ],
+      "sourceId": "landslide-dod-areas-points",
+      "sourceUrl": "./hazards/landslide_dod_areas.geojson"
+    },
+    "landslideDodImpact": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "landslideDodImpact",
+      "layers": [
+        {
+          "filter": [
+            "==",
+            [
+              "get",
+              "year_roc"
+            ],
+            115
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "risk"
+                ],
+                "高",
+                "#b91c1c",
+                "中",
+                "#ea580c",
+                "低",
+                "#facc15",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.35
+            },
+            "light": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "risk"
+                ],
+                "高",
+                "#b91c1c",
+                "中",
+                "#ea580c",
+                "低",
+                "#facc15",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.35
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": [
+            "==",
+            [
+              "get",
+              "year_roc"
+            ],
+            115
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "risk"
+                ],
+                "高",
+                "#b91c1c",
+                "中",
+                "#ea580c",
+                "低",
+                "#facc15",
+                "#94a3b8"
+              ],
+              "line-dasharray": [
+                2,
+                2
+              ],
+              "line-opacity": 0.75,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.6,
+                14,
+                1.6
+              ]
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "risk"
+                ],
+                "高",
+                "#b91c1c",
+                "中",
+                "#ea580c",
+                "低",
+                "#facc15",
+                "#94a3b8"
+              ],
+              "line-dasharray": [
+                2,
+                2
+              ],
+              "line-opacity": 0.75,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.6,
+                14,
+                1.6
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "landslide-dod-impact",
+      "sourceUrl": "./hazards/landslide_dod_impact.geojson"
+    },
+    "landslideDodImpact#2": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "landslideDodImpact",
+      "layers": [
+        {
+          "filter": [
+            "==",
+            [
+              "get",
+              "year_roc"
+            ],
+            115
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "risk"
+                ],
+                "高",
+                "#ff7366",
+                "中",
+                "#ea580c",
+                "低",
+                "#facc15",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "risk"
+                ],
+                "高",
+                "#b91c1c",
+                "中",
+                "#ea580c",
+                "低",
+                "#facc15",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle-point",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "circle-point"
+      ],
+      "sourceId": "landslide-dod-impact-points",
+      "sourceUrl": "./hazards/landslide_dod_impact.geojson"
+    },
+    "landslideEventCatalog": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "landslideEventCatalog",
+      "layers": [
+        {
+          "filter": [
+            "in",
+            [
+              "to-string",
+              [
+                "get",
+                "year"
+              ]
+            ],
+            [
+              "literal",
+              [
+                "114"
+              ]
+            ]
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "has_typhoon"
+                  ],
+                  true
+                ],
+                "#7c3aed",
+                [
+                  "==",
+                  [
+                    "get",
+                    "has_rain"
+                  ],
+                  true
+                ],
+                "#0284c7",
+                [
+                  "==",
+                  [
+                    "get",
+                    "has_quake"
+                  ],
+                  true
+                ],
+                "#ea580c",
+                "#64748b"
+              ],
+              "fill-opacity": 0.7
+            },
+            "light": {
+              "fill-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "has_typhoon"
+                  ],
+                  true
+                ],
+                "#7c3aed",
+                [
+                  "==",
+                  [
+                    "get",
+                    "has_rain"
+                  ],
+                  true
+                ],
+                "#0284c7",
+                [
+                  "==",
+                  [
+                    "get",
+                    "has_quake"
+                  ],
+                  true
+                ],
+                "#ea580c",
+                "#64748b"
+              ],
+              "fill-opacity": 0.7
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": [
+            "in",
+            [
+              "to-string",
+              [
+                "get",
+                "year"
+              ]
+            ],
+            [
+              "literal",
+              [
+                "114"
+              ]
+            ]
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#e2e8f0",
+              "line-opacity": 1,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            },
+            "light": {
+              "line-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "has_typhoon"
+                  ],
+                  true
+                ],
+                "#7c3aed",
+                [
+                  "==",
+                  [
+                    "get",
+                    "has_rain"
+                  ],
+                  true
+                ],
+                "#0284c7",
+                [
+                  "==",
+                  [
+                    "get",
+                    "has_quake"
+                  ],
+                  true
+                ],
+                "#ea580c",
+                "#64748b"
+              ],
+              "line-opacity": 1,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 10,
+        "sourceLayer": "landslide_event_catalog"
+      },
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "landslide-event-catalog",
+      "sourceUrl": "./hazards/landslide_event_catalog_093_114.pmtiles"
+    },
+    "landslideEventCatalog#2": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "landslideEventCatalog",
+      "layers": [
+        {
+          "filter": [
+            "in",
+            [
+              "to-string",
+              [
+                "get",
+                "year"
+              ]
+            ],
+            [
+              "literal",
+              [
+                "114"
+              ]
+            ]
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "maxzoom": 10.01,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(89,84,129,0.00)",
+                0.05,
+                "rgba(89,84,129,0.11)",
+                0.15,
+                "rgba(132,99,142,0.33)",
+                0.3,
+                "rgba(189,105,146,0.66)",
+                0.45,
+                "rgba(212,132,169,0.99)",
+                0.6,
+                "rgba(222,166,198,1.00)",
+                0.8,
+                "rgba(231,200,224,1.00)",
+                1,
+                "rgba(240,234,250,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.005859375,
+                12,
+                1.5
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(214,137,173,0.00)",
+                0.05,
+                "rgba(214,137,173,0.11)",
+                0.15,
+                "rgba(199,110,150,0.33)",
+                0.3,
+                "rgba(156,101,143,0.66)",
+                0.45,
+                "rgba(103,95,138,0.99)",
+                0.6,
+                "rgba(82,75,120,1.00)",
+                0.8,
+                "rgba(67,54,101,1.00)",
+                1,
+                "rgba(53,33,82,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.005859375,
+                12,
+                1.5
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "heat-point",
+          "type": "heatmap"
+        },
+        {
+          "filter": [
+            "in",
+            [
+              "to-string",
+              [
+                "get",
+                "year"
+              ]
+            ],
+            [
+              "literal",
+              [
+                "114"
+              ]
+            ]
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "maxzoom": 10.01,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(89,84,129,0.00)",
+                0.05,
+                "rgba(89,84,129,0.11)",
+                0.15,
+                "rgba(132,99,142,0.33)",
+                0.3,
+                "rgba(189,105,146,0.66)",
+                0.45,
+                "rgba(212,132,169,0.99)",
+                0.6,
+                "rgba(222,166,198,1.00)",
+                0.8,
+                "rgba(231,200,224,1.00)",
+                1,
+                "rgba(240,234,250,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.005859375,
+                12,
+                1.5
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(214,137,173,0.00)",
+                0.05,
+                "rgba(214,137,173,0.11)",
+                0.15,
+                "rgba(199,110,150,0.33)",
+                0.3,
+                "rgba(156,101,143,0.66)",
+                0.45,
+                "rgba(103,95,138,0.99)",
+                0.6,
+                "rgba(82,75,120,1.00)",
+                0.8,
+                "rgba(67,54,101,1.00)",
+                1,
+                "rgba(53,33,82,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.005859375,
+                12,
+                1.5
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "heat-polygon",
+          "type": "heatmap"
+        },
+        {
+          "filter": [
+            "in",
+            [
+              "to-string",
+              [
+                "get",
+                "year"
+              ]
+            ],
+            [
+              "literal",
+              [
+                "114"
+              ]
+            ]
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": 10,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "has_typhoon"
+                  ],
+                  true
+                ],
+                "#9b76ff",
+                [
+                  "==",
+                  [
+                    "get",
+                    "has_rain"
+                  ],
+                  true
+                ],
+                "#2896da",
+                [
+                  "==",
+                  [
+                    "get",
+                    "has_quake"
+                  ],
+                  true
+                ],
+                "#f3611d",
+                "#7e8fa7"
+              ],
+              "circle-opacity": 0.75,
+              "circle-radius": 3,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "has_typhoon"
+                  ],
+                  true
+                ],
+                "#7c3aed",
+                [
+                  "==",
+                  [
+                    "get",
+                    "has_rain"
+                  ],
+                  true
+                ],
+                "#0284c7",
+                [
+                  "==",
+                  [
+                    "get",
+                    "has_quake"
+                  ],
+                  true
+                ],
+                "#ea580c",
+                "#64748b"
+              ],
+              "circle-opacity": 0.75,
+              "circle-radius": 3,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle-point",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 12,
+        "minzoom": 4,
+        "sourceLayer": "landslide_event_catalog_points"
+      },
+      "rebuildOnParamChange": [
+        "heat-point",
+        "heat-polygon",
+        "circle-point"
+      ],
+      "sourceId": "landslide-event-catalog-points",
+      "sourceUrl": "./hazards/landslide_event_catalog_093_114_points.pmtiles"
+    },
+    "lightning": {
+      "dynamicData": true,
+      "filter": null,
+      "id": "lightning",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.85,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "strike_type"
+                ],
+                0,
+                "#fb923c",
+                1,
+                "#22d3ee",
+                "#9ca3af"
+              ],
+              "circle-opacity": [
+                "min",
+                [
+                  "*",
+                  0.3825,
+                  [
+                    "coalesce",
+                    [
+                      "get",
+                      "alpha"
+                    ],
+                    1
+                  ]
+                ],
+                0.35
+              ],
+              "circle-radius": 9
+            },
+            "light": {
+              "circle-blur": 0.85,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "strike_type"
+                ],
+                0,
+                "#fb923c",
+                1,
+                "#22d3ee",
+                "#9ca3af"
+              ],
+              "circle-opacity": [
+                "min",
+                [
+                  "*",
+                  0.3825,
+                  [
+                    "coalesce",
+                    [
+                      "get",
+                      "alpha"
+                    ],
+                    1
+                  ]
+                ],
+                0.35
+              ],
+              "circle-radius": 9
+            }
+          },
+          "suffix": "halo",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "strike_type"
+                ],
+                0,
+                "#fb923c",
+                1,
+                "#22d3ee",
+                "#9ca3af"
+              ],
+              "circle-opacity": [
+                "*",
+                0.85,
+                [
+                  "coalesce",
+                  [
+                    "get",
+                    "alpha"
+                  ],
+                  1
+                ]
+              ],
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": [
+                "*",
+                0.45,
+                [
+                  "coalesce",
+                  [
+                    "get",
+                    "alpha"
+                  ],
+                  1
+                ]
+              ],
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "strike_type"
+                ],
+                0,
+                "#fb923c",
+                1,
+                "#22d3ee",
+                "#9ca3af"
+              ],
+              "circle-opacity": [
+                "*",
+                0.85,
+                [
+                  "coalesce",
+                  [
+                    "get",
+                    "alpha"
+                  ],
+                  1
+                ]
+              ],
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": [
+                "*",
+                0.9,
+                [
+                  "coalesce",
+                  [
+                    "get",
+                    "alpha"
+                  ],
+                  1
+                ]
+              ],
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "core",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "lightningOpacity",
+        "halo",
+        "core"
+      ],
+      "sourceId": "hazard-lightning",
+      "sourceUrl": "./geo/_empty.geojson"
+    },
+    "lightningCwa": {
+      "dynamicData": true,
+      "filter": null,
+      "id": "lightningCwa",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.85,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "strike_type"
+                ],
+                0,
+                "#a78bfa",
+                1,
+                "#4ade80",
+                "#9ca3af"
+              ],
+              "circle-opacity": [
+                "min",
+                [
+                  "*",
+                  0.3825,
+                  [
+                    "coalesce",
+                    [
+                      "get",
+                      "alpha"
+                    ],
+                    1
+                  ]
+                ],
+                0.35
+              ],
+              "circle-radius": 9
+            },
+            "light": {
+              "circle-blur": 0.85,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "strike_type"
+                ],
+                0,
+                "#a78bfa",
+                1,
+                "#4ade80",
+                "#9ca3af"
+              ],
+              "circle-opacity": [
+                "min",
+                [
+                  "*",
+                  0.3825,
+                  [
+                    "coalesce",
+                    [
+                      "get",
+                      "alpha"
+                    ],
+                    1
+                  ]
+                ],
+                0.35
+              ],
+              "circle-radius": 9
+            }
+          },
+          "suffix": "halo",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "strike_type"
+                ],
+                0,
+                "#a78bfa",
+                1,
+                "#4ade80",
+                "#9ca3af"
+              ],
+              "circle-opacity": [
+                "*",
+                0.85,
+                [
+                  "coalesce",
+                  [
+                    "get",
+                    "alpha"
+                  ],
+                  1
+                ]
+              ],
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": [
+                "*",
+                0.45,
+                [
+                  "coalesce",
+                  [
+                    "get",
+                    "alpha"
+                  ],
+                  1
+                ]
+              ],
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "strike_type"
+                ],
+                0,
+                "#a78bfa",
+                1,
+                "#4ade80",
+                "#9ca3af"
+              ],
+              "circle-opacity": [
+                "*",
+                0.85,
+                [
+                  "coalesce",
+                  [
+                    "get",
+                    "alpha"
+                  ],
+                  1
+                ]
+              ],
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": [
+                "*",
+                0.9,
+                [
+                  "coalesce",
+                  [
+                    "get",
+                    "alpha"
+                  ],
+                  1
+                ]
+              ],
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "core",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "lightningCwaOpacity",
+        "halo",
+        "core"
+      ],
+      "sourceId": "hazard-lightning-cwa",
+      "sourceUrl": "./geo/_empty.geojson"
+    },
+    "mountainRescueIncidents": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "mountainRescueIncidents",
+      "layers": [
+        {
+          "filter": [
+            "has",
+            "year"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 1,
+              "circle-color": [
+                "match",
+                [
+                  "coalesce",
+                  [
+                    "get",
+                    "cause"
+                  ],
+                  "—"
+                ],
+                [
+                  "迷路",
+                  "迷路,遲歸",
+                  "迷路,其他"
+                ],
+                "#f2c94c",
+                [
+                  "創傷"
+                ],
+                "#eb5757",
+                [
+                  "墜谷"
+                ],
+                "#a855f7",
+                [
+                  "疾病"
+                ],
+                "#4d9de0",
+                [
+                  "疲勞"
+                ],
+                "#f2994a",
+                [
+                  "高山症"
+                ],
+                "#2dd4bf",
+                [
+                  "遲歸"
+                ],
+                "#84cc16",
+                [
+                  "天候惡劣",
+                  "落石",
+                  "落雷",
+                  "動物或昆蟲攻擊",
+                  "物或昆蟲"
+                ],
+                "#9aa5b1",
+                [
+                  "其他",
+                  "不明"
+                ],
+                "#8a8a8a",
+                "#8a8a8a"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                [
+                  "*",
+                  6,
+                  [
+                    "step",
+                    [
+                      "+",
+                      [
+                        "coalesce",
+                        [
+                          "get",
+                          "fire_local_persons"
+                        ],
+                        0
+                      ],
+                      [
+                        "coalesce",
+                        [
+                          "get",
+                          "fire_support_persons"
+                        ],
+                        0
+                      ],
+                      [
+                        "coalesce",
+                        [
+                          "get",
+                          "police_persons"
+                        ],
+                        0
+                      ],
+                      [
+                        "coalesce",
+                        [
+                          "get",
+                          "npark_persons"
+                        ],
+                        0
+                      ],
+                      [
+                        "coalesce",
+                        [
+                          "get",
+                          "forestry_persons"
+                        ],
+                        0
+                      ],
+                      [
+                        "coalesce",
+                        [
+                          "get",
+                          "civilian_persons"
+                        ],
+                        0
+                      ]
+                    ],
+                    1,
+                    10,
+                    1.25,
+                    30,
+                    1.6,
+                    80,
+                    2
+                  ]
+                ],
+                12,
+                [
+                  "*",
+                  12,
+                  [
+                    "step",
+                    [
+                      "+",
+                      [
+                        "coalesce",
+                        [
+                          "get",
+                          "fire_local_persons"
+                        ],
+                        0
+                      ],
+                      [
+                        "coalesce",
+                        [
+                          "get",
+                          "fire_support_persons"
+                        ],
+                        0
+                      ],
+                      [
+                        "coalesce",
+                        [
+                          "get",
+                          "police_persons"
+                        ],
+                        0
+                      ],
+                      [
+                        "coalesce",
+                        [
+                          "get",
+                          "npark_persons"
+                        ],
+                        0
+                      ],
+                      [
+                        "coalesce",
+                        [
+                          "get",
+                          "forestry_persons"
+                        ],
+                        0
+                      ],
+                      [
+                        "coalesce",
+                        [
+                          "get",
+                          "civilian_persons"
+                        ],
+                        0
+                      ]
+                    ],
+                    1,
+                    10,
+                    1.25,
+                    30,
+                    1.6,
+                    80,
+                    2
+                  ]
+                ]
+              ]
+            },
+            "light": {
+              "circle-blur": 1,
+              "circle-color": [
+                "match",
+                [
+                  "coalesce",
+                  [
+                    "get",
+                    "cause"
+                  ],
+                  "—"
+                ],
+                [
+                  "迷路",
+                  "迷路,遲歸",
+                  "迷路,其他"
+                ],
+                "#f2c94c",
+                [
+                  "創傷"
+                ],
+                "#eb5757",
+                [
+                  "墜谷"
+                ],
+                "#a855f7",
+                [
+                  "疾病"
+                ],
+                "#4d9de0",
+                [
+                  "疲勞"
+                ],
+                "#f2994a",
+                [
+                  "高山症"
+                ],
+                "#2dd4bf",
+                [
+                  "遲歸"
+                ],
+                "#84cc16",
+                [
+                  "天候惡劣",
+                  "落石",
+                  "落雷",
+                  "動物或昆蟲攻擊",
+                  "物或昆蟲"
+                ],
+                "#9aa5b1",
+                [
+                  "其他",
+                  "不明"
+                ],
+                "#8a8a8a",
+                "#8a8a8a"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                [
+                  "*",
+                  6,
+                  [
+                    "step",
+                    [
+                      "+",
+                      [
+                        "coalesce",
+                        [
+                          "get",
+                          "fire_local_persons"
+                        ],
+                        0
+                      ],
+                      [
+                        "coalesce",
+                        [
+                          "get",
+                          "fire_support_persons"
+                        ],
+                        0
+                      ],
+                      [
+                        "coalesce",
+                        [
+                          "get",
+                          "police_persons"
+                        ],
+                        0
+                      ],
+                      [
+                        "coalesce",
+                        [
+                          "get",
+                          "npark_persons"
+                        ],
+                        0
+                      ],
+                      [
+                        "coalesce",
+                        [
+                          "get",
+                          "forestry_persons"
+                        ],
+                        0
+                      ],
+                      [
+                        "coalesce",
+                        [
+                          "get",
+                          "civilian_persons"
+                        ],
+                        0
+                      ]
+                    ],
+                    1,
+                    10,
+                    1.25,
+                    30,
+                    1.6,
+                    80,
+                    2
+                  ]
+                ],
+                12,
+                [
+                  "*",
+                  12,
+                  [
+                    "step",
+                    [
+                      "+",
+                      [
+                        "coalesce",
+                        [
+                          "get",
+                          "fire_local_persons"
+                        ],
+                        0
+                      ],
+                      [
+                        "coalesce",
+                        [
+                          "get",
+                          "fire_support_persons"
+                        ],
+                        0
+                      ],
+                      [
+                        "coalesce",
+                        [
+                          "get",
+                          "police_persons"
+                        ],
+                        0
+                      ],
+                      [
+                        "coalesce",
+                        [
+                          "get",
+                          "npark_persons"
+                        ],
+                        0
+                      ],
+                      [
+                        "coalesce",
+                        [
+                          "get",
+                          "forestry_persons"
+                        ],
+                        0
+                      ],
+                      [
+                        "coalesce",
+                        [
+                          "get",
+                          "civilian_persons"
+                        ],
+                        0
+                      ]
+                    ],
+                    1,
+                    10,
+                    1.25,
+                    30,
+                    1.6,
+                    80,
+                    2
+                  ]
+                ]
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "has",
+            "year"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "coalesce",
+                  [
+                    "get",
+                    "cause"
+                  ],
+                  "—"
+                ],
+                [
+                  "迷路",
+                  "迷路,遲歸",
+                  "迷路,其他"
+                ],
+                "#f2c94c",
+                [
+                  "創傷"
+                ],
+                "#eb5757",
+                [
+                  "墜谷"
+                ],
+                "#b05fff",
+                [
+                  "疾病"
+                ],
+                "#4d9de0",
+                [
+                  "疲勞"
+                ],
+                "#f2994a",
+                [
+                  "高山症"
+                ],
+                "#2dd4bf",
+                [
+                  "遲歸"
+                ],
+                "#84cc16",
+                [
+                  "天候惡劣",
+                  "落石",
+                  "落雷",
+                  "動物或昆蟲攻擊",
+                  "物或昆蟲"
+                ],
+                "#9aa5b1",
+                [
+                  "其他",
+                  "不明"
+                ],
+                "#8a8a8a",
+                "#8a8a8a"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                [
+                  "*",
+                  3,
+                  [
+                    "step",
+                    [
+                      "+",
+                      [
+                        "coalesce",
+                        [
+                          "get",
+                          "fire_local_persons"
+                        ],
+                        0
+                      ],
+                      [
+                        "coalesce",
+                        [
+                          "get",
+                          "fire_support_persons"
+                        ],
+                        0
+                      ],
+                      [
+                        "coalesce",
+                        [
+                          "get",
+                          "police_persons"
+                        ],
+                        0
+                      ],
+                      [
+                        "coalesce",
+                        [
+                          "get",
+                          "npark_persons"
+                        ],
+                        0
+                      ],
+                      [
+                        "coalesce",
+                        [
+                          "get",
+                          "forestry_persons"
+                        ],
+                        0
+                      ],
+                      [
+                        "coalesce",
+                        [
+                          "get",
+                          "civilian_persons"
+                        ],
+                        0
+                      ]
+                    ],
+                    1,
+                    10,
+                    1.25,
+                    30,
+                    1.6,
+                    80,
+                    2
+                  ]
+                ],
+                12,
+                [
+                  "*",
+                  6,
+                  [
+                    "step",
+                    [
+                      "+",
+                      [
+                        "coalesce",
+                        [
+                          "get",
+                          "fire_local_persons"
+                        ],
+                        0
+                      ],
+                      [
+                        "coalesce",
+                        [
+                          "get",
+                          "fire_support_persons"
+                        ],
+                        0
+                      ],
+                      [
+                        "coalesce",
+                        [
+                          "get",
+                          "police_persons"
+                        ],
+                        0
+                      ],
+                      [
+                        "coalesce",
+                        [
+                          "get",
+                          "npark_persons"
+                        ],
+                        0
+                      ],
+                      [
+                        "coalesce",
+                        [
+                          "get",
+                          "forestry_persons"
+                        ],
+                        0
+                      ],
+                      [
+                        "coalesce",
+                        [
+                          "get",
+                          "civilian_persons"
+                        ],
+                        0
+                      ]
+                    ],
+                    1,
+                    10,
+                    1.25,
+                    30,
+                    1.6,
+                    80,
+                    2
+                  ]
+                ]
+              ],
+              "circle-stroke-color": [
+                "case",
+                [
+                  ">",
+                  [
+                    "coalesce",
+                    [
+                      "get",
+                      "deaths"
+                    ],
+                    0
+                  ],
+                  0
+                ],
+                "#ff2d2d",
+                "#0a0a14"
+              ],
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                [
+                  "case",
+                  [
+                    ">",
+                    [
+                      "coalesce",
+                      [
+                        "get",
+                        "deaths"
+                      ],
+                      0
+                    ],
+                    0
+                  ],
+                  0.8,
+                  1
+                ],
+                14,
+                [
+                  "case",
+                  [
+                    ">",
+                    [
+                      "coalesce",
+                      [
+                        "get",
+                        "deaths"
+                      ],
+                      0
+                    ],
+                    0
+                  ],
+                  1.8,
+                  1
+                ]
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "coalesce",
+                  [
+                    "get",
+                    "cause"
+                  ],
+                  "—"
+                ],
+                [
+                  "迷路",
+                  "迷路,遲歸",
+                  "迷路,其他"
+                ],
+                "#f2c94c",
+                [
+                  "創傷"
+                ],
+                "#eb5757",
+                [
+                  "墜谷"
+                ],
+                "#a855f7",
+                [
+                  "疾病"
+                ],
+                "#4d9de0",
+                [
+                  "疲勞"
+                ],
+                "#f2994a",
+                [
+                  "高山症"
+                ],
+                "#2dd4bf",
+                [
+                  "遲歸"
+                ],
+                "#84cc16",
+                [
+                  "天候惡劣",
+                  "落石",
+                  "落雷",
+                  "動物或昆蟲攻擊",
+                  "物或昆蟲"
+                ],
+                "#9aa5b1",
+                [
+                  "其他",
+                  "不明"
+                ],
+                "#8a8a8a",
+                "#8a8a8a"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                [
+                  "*",
+                  3,
+                  [
+                    "step",
+                    [
+                      "+",
+                      [
+                        "coalesce",
+                        [
+                          "get",
+                          "fire_local_persons"
+                        ],
+                        0
+                      ],
+                      [
+                        "coalesce",
+                        [
+                          "get",
+                          "fire_support_persons"
+                        ],
+                        0
+                      ],
+                      [
+                        "coalesce",
+                        [
+                          "get",
+                          "police_persons"
+                        ],
+                        0
+                      ],
+                      [
+                        "coalesce",
+                        [
+                          "get",
+                          "npark_persons"
+                        ],
+                        0
+                      ],
+                      [
+                        "coalesce",
+                        [
+                          "get",
+                          "forestry_persons"
+                        ],
+                        0
+                      ],
+                      [
+                        "coalesce",
+                        [
+                          "get",
+                          "civilian_persons"
+                        ],
+                        0
+                      ]
+                    ],
+                    1,
+                    10,
+                    1.25,
+                    30,
+                    1.6,
+                    80,
+                    2
+                  ]
+                ],
+                12,
+                [
+                  "*",
+                  6,
+                  [
+                    "step",
+                    [
+                      "+",
+                      [
+                        "coalesce",
+                        [
+                          "get",
+                          "fire_local_persons"
+                        ],
+                        0
+                      ],
+                      [
+                        "coalesce",
+                        [
+                          "get",
+                          "fire_support_persons"
+                        ],
+                        0
+                      ],
+                      [
+                        "coalesce",
+                        [
+                          "get",
+                          "police_persons"
+                        ],
+                        0
+                      ],
+                      [
+                        "coalesce",
+                        [
+                          "get",
+                          "npark_persons"
+                        ],
+                        0
+                      ],
+                      [
+                        "coalesce",
+                        [
+                          "get",
+                          "forestry_persons"
+                        ],
+                        0
+                      ],
+                      [
+                        "coalesce",
+                        [
+                          "get",
+                          "civilian_persons"
+                        ],
+                        0
+                      ]
+                    ],
+                    1,
+                    10,
+                    1.25,
+                    30,
+                    1.6,
+                    80,
+                    2
+                  ]
+                ]
+              ],
+              "circle-stroke-color": [
+                "case",
+                [
+                  ">",
+                  [
+                    "coalesce",
+                    [
+                      "get",
+                      "deaths"
+                    ],
+                    0
+                  ],
+                  0
+                ],
+                "#ff2d2d",
+                "#ffffff"
+              ],
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                [
+                  "case",
+                  [
+                    ">",
+                    [
+                      "coalesce",
+                      [
+                        "get",
+                        "deaths"
+                      ],
+                      0
+                    ],
+                    0
+                  ],
+                  0.8,
+                  1
+                ],
+                14,
+                [
+                  "case",
+                  [
+                    ">",
+                    [
+                      "coalesce",
+                      [
+                        "get",
+                        "deaths"
+                      ],
+                      0
+                    ],
+                    0
+                  ],
+                  1.8,
+                  1
+                ]
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
+      "sourceId": "mountain-rescue-incidents",
+      "sourceUrl": "./hazards/mountain_rescue_incidents.geojson"
+    },
+    "nuclearRadiation": {
+      "dynamicData": true,
+      "filter": null,
+      "id": "nuclearRadiation",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.75,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "level"
+                ],
+                "normal",
+                "#22c55e",
+                "watch",
+                "#facc15",
+                "warning",
+                "#f97316",
+                "alarm",
+                "#ef4444",
+                "stale",
+                "#6b7280",
+                "#6b7280"
+              ],
+              "circle-opacity": [
+                "min",
+                [
+                  "*",
+                  [
+                    "match",
+                    [
+                      "get",
+                      "level"
+                    ],
+                    "stale",
+                    0.108,
+                    "normal",
+                    0.162,
+                    0.342
+                  ],
+                  [
+                    "coalesce",
+                    [
+                      "get",
+                      "alpha"
+                    ],
+                    1
+                  ]
+                ],
+                0.35
+              ],
+              "circle-radius": 9
+            },
+            "light": {
+              "circle-blur": 0.75,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "level"
+                ],
+                "normal",
+                "#22c55e",
+                "watch",
+                "#facc15",
+                "warning",
+                "#f97316",
+                "alarm",
+                "#ef4444",
+                "stale",
+                "#6b7280",
+                "#6b7280"
+              ],
+              "circle-opacity": [
+                "min",
+                [
+                  "*",
+                  [
+                    "match",
+                    [
+                      "get",
+                      "level"
+                    ],
+                    "stale",
+                    0.108,
+                    "normal",
+                    0.162,
+                    0.342
+                  ],
+                  [
+                    "coalesce",
+                    [
+                      "get",
+                      "alpha"
+                    ],
+                    1
+                  ]
+                ],
+                0.35
+              ],
+              "circle-radius": 9
+            }
+          },
+          "suffix": "halo",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "level"
+                ],
+                "normal",
+                "#22c55e",
+                "watch",
+                "#facc15",
+                "warning",
+                "#f97316",
+                "alarm",
+                "#ef4444",
+                "stale",
+                "#6b7280",
+                "#6b7280"
+              ],
+              "circle-opacity": [
+                "*",
+                0.9,
+                [
+                  "coalesce",
+                  [
+                    "get",
+                    "alpha"
+                  ],
+                  1
+                ]
+              ],
+              "circle-radius": 4.5,
+              "circle-stroke-color": [
+                "match",
+                [
+                  "get",
+                  "level"
+                ],
+                "stale",
+                "#9ca3af",
+                "#0a0a14"
+              ],
+              "circle-stroke-opacity": [
+                "*",
+                0.8,
+                [
+                  "coalesce",
+                  [
+                    "get",
+                    "alpha"
+                  ],
+                  1
+                ]
+              ],
+              "circle-stroke-width": [
+                "match",
+                [
+                  "get",
+                  "level"
+                ],
+                "stale",
+                1.5,
+                1
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "level"
+                ],
+                "normal",
+                "#22c55e",
+                "watch",
+                "#facc15",
+                "warning",
+                "#f97316",
+                "alarm",
+                "#ef4444",
+                "stale",
+                "#6b7280",
+                "#6b7280"
+              ],
+              "circle-opacity": [
+                "*",
+                0.9,
+                [
+                  "coalesce",
+                  [
+                    "get",
+                    "alpha"
+                  ],
+                  1
+                ]
+              ],
+              "circle-radius": 4.5,
+              "circle-stroke-color": [
+                "match",
+                [
+                  "get",
+                  "level"
+                ],
+                "stale",
+                "#4b5563",
+                "#ffffff"
+              ],
+              "circle-stroke-opacity": [
+                "*",
+                0.9,
+                [
+                  "coalesce",
+                  [
+                    "get",
+                    "alpha"
+                  ],
+                  1
+                ]
+              ],
+              "circle-stroke-width": [
+                "match",
+                [
+                  "get",
+                  "level"
+                ],
+                "stale",
+                1.5,
+                1
+              ]
+            }
+          },
+          "suffix": "core",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "nuclearOpacity",
+        "nuclearScale"
+      ],
+      "sourceId": "hazard-nuclear",
+      "sourceUrl": "./geo/_empty.geojson"
+    },
+    "swcbDisasterPhotoPoints": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "swcbDisasterPhotoPoints",
+      "layers": [
+        {
+          "filter": [
+            "has",
+            "photo_category"
+          ],
+          "layout": null,
+          "maxzoom": 10.01,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(142,42,129,0.00)",
+                0.05,
+                "rgba(142,42,129,0.11)",
+                0.15,
+                "rgba(186,56,120,0.33)",
+                0.3,
+                "rgba(226,77,102,0.66)",
+                0.45,
+                "rgba(248,116,92,0.99)",
+                0.6,
+                "rgba(254,160,109,1.00)",
+                0.8,
+                "rgba(254,201,141,1.00)",
+                1,
+                "rgba(252,240,178,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(249,121,93,0.00)",
+                0.05,
+                "rgba(249,121,93,0.11)",
+                0.15,
+                "rgba(233,85,97,0.33)",
+                0.3,
+                "rgba(202,62,114,0.66)",
+                0.45,
+                "rgba(164,49,126,0.99)",
+                0.6,
+                "rgba(126,36,130,1.00)",
+                0.8,
+                "rgba(90,22,126,1.00)",
+                1,
+                "rgba(55,16,108,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "heatmap",
+          "type": "heatmap"
+        },
+        {
+          "filter": [
+            "has",
+            "photo_category"
+          ],
+          "layout": null,
+          "minzoom": 10,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "photo_category"
+                ],
+                "event_photo",
+                "#a16207",
+                "media_report",
+                "#7c3aed",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "photo_category"
+                ],
+                "event_photo",
+                "#a16207",
+                "media_report",
+                "#7c3aed",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "has",
+            "photo_category"
+          ],
+          "layout": null,
+          "minzoom": 10,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "photo_category"
+                ],
+                "event_photo",
+                "#c18034",
+                "media_report",
+                "#9b76ff",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.75,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.75,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "photo_category"
+                ],
+                "event_photo",
+                "#a16207",
+                "media_report",
+                "#7c3aed",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.75,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.75,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 12,
+        "minzoom": 5,
+        "sourceLayer": "swcb_disaster_photo_points"
+      },
+      "rebuildOnParamChange": [
+        "heatmap",
+        "glow",
+        "circle"
+      ],
+      "sourceId": "swcb-disaster-photo-points",
+      "sourceUrl": "./hazards/swcb_disaster_photo_points_v2_lt2.pmtiles"
+    },
+    "taipeiWaterloggingHistory": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "taipeiWaterloggingHistory",
+      "layers": [
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": "#2563eb",
+              "fill-opacity": 0.5
+            },
+            "light": {
+              "fill-color": "#2563eb",
+              "fill-opacity": 0.5
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#e2e8f0",
+              "line-opacity": 0.8,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            },
+            "light": {
+              "line-color": "#2563eb",
+              "line-opacity": 0.8,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "taipei-waterlogging-history",
+      "sourceUrl": "./hazards/taipei_waterlogging_history.geojson"
+    },
+    "taipeiWaterloggingHistory#2": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "taipeiWaterloggingHistory",
+      "layers": [
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#3d7bff",
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#2563eb",
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle-point",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": null,
+      "sourceId": "taipei-waterlogging-history-points",
+      "sourceUrl": "./hazards/taipei_waterlogging_history.geojson"
+    }
+  },
+  "params": {
+    "activeFaults": [],
+    "debrisFlowPotential": [
+      {
+        "label": "風險等級",
+        "options": [
+          {
+            "label": "高",
+            "value": "高"
+          },
+          {
+            "label": "中",
+            "value": "中"
+          },
+          {
+            "label": "低",
+            "value": "低"
+          },
+          {
+            "label": "持續觀察",
+            "value": "持續觀察"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "高",
+          "中",
+          "低",
+          "持續觀察"
+        ]
+      },
+      {
+        "label": "透明度 0.60",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.6,
+        "valueText": "0.60"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "顯示",
+        "options": [
+          {
+            "label": "溪流線",
+            "value": "streams"
+          },
+          {
+            "label": "影響範圍",
+            "value": "impact"
+          },
+          {
+            "label": "集水區",
+            "value": "catchments"
+          }
+        ],
+        "type": "select",
+        "value": "streams"
+      }
+    ],
+    "earthquakeReplay": [
+      {
+        "label": "透明度 0.95",
+        "max": 1,
+        "min": 0,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.95,
+        "valueText": "0.95"
+      }
+    ],
+    "earthquakes": [
+      {
+        "label": "模式",
+        "options": [
+          {
+            "label": "Timeline",
+            "value": "timeline"
+          },
+          {
+            "label": "History",
+            "value": "history"
+          }
+        ],
+        "type": "select",
+        "value": "timeline"
+      },
+      {
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 1,
+        "valueText": "1.00"
+      }
+    ],
+    "floodAlerts": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "淹水",
+            "value": "淹水"
+          },
+          {
+            "label": "淹水感測",
+            "value": "淹水感測"
+          },
+          {
+            "label": "水庫放流",
+            "value": "水庫放流"
+          },
+          {
+            "label": "河川高水位",
+            "value": "河川高水位"
+          },
+          {
+            "label": "區排警戒",
+            "value": "區排警戒"
+          },
+          {
+            "label": "土石流及大規模崩塌",
+            "value": "土石流及大規模崩塌"
+          },
+          {
+            "label": "枯旱預警",
+            "value": "枯旱預警"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "淹水",
+          "淹水感測",
+          "水庫放流",
+          "河川高水位",
+          "區排警戒",
+          "土石流及大規模崩塌",
+          "枯旱預警"
+        ]
+      },
+      {
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 1,
+        "valueText": "1.00"
+      }
+    ],
+    "floodDisasterPointsNcdr": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "EMIC 災情通報",
+            "value": "emic_report"
+          },
+          {
+            "label": "淹水感測器",
+            "value": "flood_sensor"
+          },
+          {
+            "label": "社群媒體",
+            "value": "social_media"
+          },
+          {
+            "label": "新聞媒體",
+            "value": "news_media"
+          },
+          {
+            "label": "其他來源",
+            "value": "__other__"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "emic_report",
+          "flood_sensor",
+          "social_media",
+          "news_media",
+          "__other__"
+        ]
+      },
+      {
+        "label": "事件年",
+        "options": [
+          {
+            "label": "2021",
+            "value": "2021"
+          },
+          {
+            "label": "2022",
+            "value": "2022"
+          },
+          {
+            "label": "2023",
+            "value": "2023"
+          },
+          {
+            "label": "2024",
+            "value": "2024"
+          },
+          {
+            "label": "2025",
+            "value": "2025"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "2021",
+          "2022",
+          "2023",
+          "2024",
+          "2025"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "highwayDisasterHistory": [
+      {
+        "label": "災情類別",
+        "options": [
+          {
+            "label": "落石",
+            "value": "rockfall"
+          },
+          {
+            "label": "邊坡坍方・路基流失",
+            "value": "slope_failure"
+          },
+          {
+            "label": "土石流阻斷",
+            "value": "debris_flow"
+          },
+          {
+            "label": "預警性封閉",
+            "value": "precautionary_closure"
+          },
+          {
+            "label": "淹水",
+            "value": "flooding"
+          },
+          {
+            "label": "橋梁・設施損毀",
+            "value": "structure_damage"
+          },
+          {
+            "label": "交通事故",
+            "value": "traffic_incident"
+          },
+          {
+            "label": "其他",
+            "value": "other"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "rockfall",
+          "slope_failure",
+          "debris_flow",
+          "precautionary_closure",
+          "flooding",
+          "structure_damage",
+          "traffic_incident",
+          "other"
+        ]
+      },
+      {
+        "label": "通報年份",
+        "options": [
+          {
+            "label": "2014",
+            "value": "2014"
+          },
+          {
+            "label": "2015",
+            "value": "2015"
+          },
+          {
+            "label": "2016",
+            "value": "2016"
+          },
+          {
+            "label": "2017",
+            "value": "2017"
+          },
+          {
+            "label": "2018",
+            "value": "2018"
+          },
+          {
+            "label": "2019",
+            "value": "2019"
+          },
+          {
+            "label": "2020",
+            "value": "2020"
+          },
+          {
+            "label": "2021",
+            "value": "2021"
+          },
+          {
+            "label": "2022",
+            "value": "2022"
+          },
+          {
+            "label": "2023",
+            "value": "2023"
+          },
+          {
+            "label": "2024",
+            "value": "2024"
+          },
+          {
+            "label": "2025",
+            "value": "2025"
+          },
+          {
+            "label": "2026（至 10/04）",
+            "value": "2026"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "2014",
+          "2015",
+          "2016",
+          "2017",
+          "2018",
+          "2019",
+          "2020",
+          "2021",
+          "2022",
+          "2023",
+          "2024",
+          "2025",
+          "2026"
+        ]
+      },
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.75,
+        "valueText": "0.75"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "landslideAnnual": [
+      {
+        "label": "年份",
+        "options": [
+          {
+            "label": "2017",
+            "value": "2017"
+          },
+          {
+            "label": "2018",
+            "value": "2018"
+          },
+          {
+            "label": "2023",
+            "value": "2023"
+          },
+          {
+            "label": "2024（V2 版）",
+            "value": "2024"
+          },
+          {
+            "label": "2025（114 年版）",
+            "value": "2025"
+          }
+        ],
+        "type": "select",
+        "value": "2024"
+      },
+      {
+        "defaultValue": "rocket",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "rocket"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "point"
+      }
+    ],
+    "landslideDodAreas": [
+      {
+        "label": "年度版本",
+        "options": [
+          {
+            "label": "111 年版（2022）",
+            "value": "111"
+          },
+          {
+            "label": "112 年版（2023）",
+            "value": "112"
+          },
+          {
+            "label": "113 年版（2024）",
+            "value": "113"
+          },
+          {
+            "label": "114 年版（2025）",
+            "value": "114"
+          },
+          {
+            "label": "115 年版（2026）",
+            "value": "115"
+          }
+        ],
+        "type": "select",
+        "value": "115"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "point"
+      }
+    ],
+    "landslideDodImpact": [
+      {
+        "label": "年度版本",
+        "options": [
+          {
+            "label": "111 年版（2022）",
+            "value": "111"
+          },
+          {
+            "label": "112 年版（2023）",
+            "value": "112"
+          },
+          {
+            "label": "113 年版（2024）",
+            "value": "113"
+          },
+          {
+            "label": "114 年版（2025）",
+            "value": "114"
+          },
+          {
+            "label": "115 年版（2026）",
+            "value": "115"
+          }
+        ],
+        "type": "select",
+        "value": "115"
+      },
+      {
+        "label": "透明度 0.35",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.35,
+        "valueText": "0.35"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "point"
+      }
+    ],
+    "landslideEventCatalog": [
+      {
+        "label": "年度（西元）",
+        "options": [
+          {
+            "label": "2004",
+            "value": "93"
+          },
+          {
+            "label": "2005",
+            "value": "94"
+          },
+          {
+            "label": "2006",
+            "value": "95"
+          },
+          {
+            "label": "2007",
+            "value": "96"
+          },
+          {
+            "label": "2008",
+            "value": "97"
+          },
+          {
+            "label": "2009",
+            "value": "98"
+          },
+          {
+            "label": "2010",
+            "value": "99"
+          },
+          {
+            "label": "2011",
+            "value": "100"
+          },
+          {
+            "label": "2012",
+            "value": "101"
+          },
+          {
+            "label": "2013",
+            "value": "102"
+          },
+          {
+            "label": "2014",
+            "value": "103"
+          },
+          {
+            "label": "2015",
+            "value": "104"
+          },
+          {
+            "label": "2016",
+            "value": "105"
+          },
+          {
+            "label": "2017",
+            "value": "106"
+          },
+          {
+            "label": "2018",
+            "value": "107"
+          },
+          {
+            "label": "2019",
+            "value": "108"
+          },
+          {
+            "label": "2020",
+            "value": "109"
+          },
+          {
+            "label": "2021",
+            "value": "110"
+          },
+          {
+            "label": "2022",
+            "value": "111"
+          },
+          {
+            "label": "2023",
+            "value": "112"
+          },
+          {
+            "label": "2024",
+            "value": "113"
+          },
+          {
+            "label": "2025",
+            "value": "114"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "114"
+        ]
+      },
+      {
+        "label": "事件類型",
+        "options": [
+          {
+            "label": "颱風",
+            "value": "typhoon"
+          },
+          {
+            "label": "豪雨",
+            "value": "rain"
+          },
+          {
+            "label": "地震",
+            "value": "quake"
+          },
+          {
+            "label": "其他",
+            "value": "other"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "typhoon",
+          "rain",
+          "quake",
+          "other"
+        ]
+      },
+      {
+        "defaultValue": "acton",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "acton"
+      },
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "point"
+      }
+    ],
+    "lifelineAlerts": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "停水",
+            "value": "停水"
+          },
+          {
+            "label": "電力中斷",
+            "value": "電力中斷"
+          },
+          {
+            "label": "行動電話中斷",
+            "value": "行動電話中斷"
+          },
+          {
+            "label": "停班停課",
+            "value": "停班停課"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "停水",
+          "電力中斷",
+          "行動電話中斷",
+          "停班停課"
+        ]
+      },
+      {
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 1,
+        "valueText": "1.00"
+      }
+    ],
+    "lightning": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "雲對地",
+            "value": "0"
+          },
+          {
+            "label": "雲中",
+            "value": "1"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "0",
+          "1"
+        ]
+      },
+      {
+        "label": "保留 10 min",
+        "max": 360,
+        "min": 5,
+        "name": "保留",
+        "step": 5,
+        "value": 10,
+        "valueText": "10 min"
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "lightningCwa": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "雲對地",
+            "value": "0"
+          },
+          {
+            "label": "雲中",
+            "value": "1"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "0",
+          "1"
+        ]
+      },
+      {
+        "label": "保留 10 min",
+        "max": 360,
+        "min": 5,
+        "name": "保留",
+        "step": 5,
+        "value": 10,
+        "valueText": "10 min"
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "liquefactionMonitoringSites": [
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      }
+    ],
+    "mountainRescueIncidents": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "迷路",
+            "value": "迷路"
+          },
+          {
+            "label": "創傷",
+            "value": "創傷"
+          },
+          {
+            "label": "墜谷",
+            "value": "墜谷"
+          },
+          {
+            "label": "疾病",
+            "value": "疾病"
+          },
+          {
+            "label": "疲勞",
+            "value": "疲勞"
+          },
+          {
+            "label": "高山症",
+            "value": "高山症"
+          },
+          {
+            "label": "遲歸",
+            "value": "遲歸"
+          },
+          {
+            "label": "天候・落石・動物",
+            "value": "天候惡劣"
+          },
+          {
+            "label": "其他・不明",
+            "value": "__other__"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "迷路",
+          "創傷",
+          "墜谷",
+          "疾病",
+          "疲勞",
+          "高山症",
+          "遲歸",
+          "天候惡劣",
+          "__other__"
+        ]
+      },
+      {
+        "label": "年份",
+        "options": [
+          {
+            "label": "全部",
+            "value": "all"
+          },
+          {
+            "label": "2019",
+            "value": "2019"
+          },
+          {
+            "label": "2020",
+            "value": "2020"
+          },
+          {
+            "label": "2021",
+            "value": "2021"
+          },
+          {
+            "label": "2022",
+            "value": "2022"
+          },
+          {
+            "label": "2023",
+            "value": "2023"
+          },
+          {
+            "label": "2024",
+            "value": "2024"
+          }
+        ],
+        "type": "select",
+        "value": "all"
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.00",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.00"
+      }
+    ],
+    "nuclearRadiation": [
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "safetyAlerts": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "火災",
+            "value": "火災"
+          },
+          {
+            "label": "海洋污染",
+            "value": "海洋污染"
+          },
+          {
+            "label": "空氣品質",
+            "value": "空氣品質"
+          },
+          {
+            "label": "國家森林遊樂區",
+            "value": "國家森林遊樂區"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "火災",
+          "海洋污染",
+          "空氣品質",
+          "國家森林遊樂區"
+        ]
+      },
+      {
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 1,
+        "valueText": "1.00"
+      }
+    ],
+    "soilLiquefactionPotential": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "swcbDisasterPhotoPoints": [
+      {
+        "label": "照片類別",
+        "options": [
+          {
+            "label": "土砂災害事件影像",
+            "value": "event_photo"
+          },
+          {
+            "label": "媒體報導",
+            "value": "media_report"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "event_photo",
+          "media_report"
+        ]
+      },
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.75,
+        "valueText": "0.75"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "taipeiWaterloggingHistory": [
+      {
+        "label": "透明度 0.50",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.5,
+        "valueText": "0.50"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "point"
+      }
+    ],
+    "transitAlerts": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "道路封閉",
+            "value": "道路封閉"
+          },
+          {
+            "label": "鐵路事故",
+            "value": "鐵路事故"
+          },
+          {
+            "label": "捷運營運",
+            "value": "捷運營運"
+          },
+          {
+            "label": "高速公路路況事件",
+            "value": "高速公路路況事件"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "道路封閉",
+          "鐵路事故",
+          "捷運營運",
+          "高速公路路況事件"
+        ]
+      },
+      {
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 1,
+        "valueText": "1.00"
+      }
+    ],
+    "weakSoilClay0To5": [
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      }
+    ],
+    "weakSoilClay10To20": [
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      }
+    ],
+    "weakSoilClay5To10": [
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      }
+    ],
+    "weakSoilSand0To5": [
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      }
+    ],
+    "weakSoilSand10To20": [
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      }
+    ],
+    "weakSoilSand5To10": [
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      }
+    ],
+    "weatherAlerts": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "雷雨",
+            "value": "雷雨"
+          },
+          {
+            "label": "降雨",
+            "value": "降雨"
+          },
+          {
+            "label": "強風",
+            "value": "強風"
+          },
+          {
+            "label": "高溫",
+            "value": "高溫"
+          },
+          {
+            "label": "低溫",
+            "value": "低溫"
+          },
+          {
+            "label": "濃霧",
+            "value": "濃霧"
+          },
+          {
+            "label": "颱風",
+            "value": "颱風"
+          },
+          {
+            "label": "海嘯",
+            "value": "海嘯"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "雷雨",
+          "降雨",
+          "強風",
+          "高溫",
+          "低溫",
+          "濃霧",
+          "颱風",
+          "海嘯"
+        ]
+      },
+      {
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 1,
+        "valueText": "1.00"
+      }
+    ]
+  }
+}

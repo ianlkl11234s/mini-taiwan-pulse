@@ -16,6 +16,7 @@ import { IntelCard, intelCardId, type IntelCardEvent } from "./IntelCard";
 import { GlobalSituationFeed, GLOBAL_FEED_LOAD_FAILED, selectGlobalFeedCards } from "./GlobalSituationFeed";
 import { AlertSummaryBar } from "./alerts/AlertSummaryBar";
 import { FeedTabs, type FeedTab } from "./alerts/FeedTabs";
+import { feedCounts } from "./alerts/feedCounts";
 import { AlertCard } from "./alerts/AlertCard";
 import {
   fetchSourceHealth,
@@ -134,6 +135,8 @@ export function IntelPanel({
   const [pickedGroups, setPickedGroups] = useState<AlertGroupShort[]>([]);
   const [severityMin, setSeverityMin] = useState<1 | 2 | 3 | 4>(1);
   const [activeAlerts, setActiveAlerts] = useState<ActiveAlert[]>([]);
+  // 清單還沒回來前，分頁角標與摘要先用全國摘要數字，避免閃一下 0
+  const [activeAlertsReady, setActiveAlertsReady] = useState(false);
   const [alertSelectedId, setAlertSelectedId] = useState<string | null>(null);
   const [alertExpandedId, setAlertExpandedId] = useState<string | null>(null);
   const [staleOpen, setStaleOpen] = useState(false);
@@ -211,7 +214,8 @@ export function IntelPanel({
 
   // active alerts list — re-fetch when tab / filter change
   const groupKey = pickedGroups.length === 1 ? pickedGroups[0]! : null;
-  const needsAlertList = feedTab === "all" || feedTab === "alerts";
+  // 三處數字（標頭／分頁角標／警報摘要）共用同一份清單，所以不管在哪個分頁都要載入（IN-1）
+  const needsAlertList = true;
   useEffect(() => {
     if (!open || !needsAlertList) return;
     let alive = true;
@@ -221,6 +225,7 @@ export function IntelPanel({
         ? rows.filter((r) => pickedGroups.includes(r.group))
         : rows;
       setActiveAlerts(filtered);
+      setActiveAlertsReady(true);
     });
     return () => { alive = false; };
   }, [open, needsAlertList, groupKey, severityMin, pickedGroups]);
@@ -350,16 +355,10 @@ export function IntelPanel({
   }, [clusters]);
 
   // 全球情勢卡片：decision 過濾 → 卡片轉換 → 與新聞同一組 RANGE 前端過濾。
-  // 「全部」分頁只併入已研究＋keep_core（不含觀察中），與分頁自身的 toggle 無關。
+  // 「全部」分頁併入的就是這一份（含不含觀察中跟著「全球情勢」分頁的 toggle），角標與分頁一致。
   const globalCards = useMemo(
     () => selectGlobalFeedCards(feedSnapshot.entries, { includeWatch, windowStartTs, endTs: effectivePlayback }),
     [feedSnapshot, includeWatch, windowStartTs, effectivePlayback],
-  );
-  const globalCardsInAll = useMemo(
-    () => (includeWatch
-      ? selectGlobalFeedCards(feedSnapshot.entries, { includeWatch: false, windowStartTs, endTs: effectivePlayback })
-      : globalCards),
-    [feedSnapshot, includeWatch, windowStartTs, effectivePlayback, globalCards],
   );
   const globalLocByEventId = useMemo(() => {
     const m = new Map<string, { lon: number; lat: number }>();
@@ -401,6 +400,16 @@ export function IntelPanel({
     [historyAlerts, severityMin, pickedGroups],
   );
   const alertRows = historyMode ? historyRows : freshAlerts;
+
+  // 三處數字同一口徑（見 alerts/feedCounts.ts）：警報＝套嚴重度／群組篩選後的清單，清單載入前才退回全國摘要
+  const alertsListed = historyMode ? historyRows : activeAlertsReady ? activeAlerts : null;
+  const alertsTotal = alertsListed ? alertsListed.length : alertTally.total;
+  const alertsSevere = alertsListed ? alertsListed.filter((a) => a.severity >= 3).length : alertTally.severe;
+  const counts = feedCounts({
+    news: flatEvents.length,
+    alerts: alertsTotal,
+    globalEvents: globalCards.length,
+  });
 
   const staleLabels = useMemo(() => {
     const seen = new Set<string>();
@@ -456,6 +465,55 @@ export function IntelPanel({
     setPickedGroups((cur) => (cur.includes(g) ? cur.filter((x) => x !== g) : [...cur, g]));
   };
 
+  // 「持續中」折疊列：警報分頁與「全部」分頁共用（「全部」把它算進角標，但不攤開洗版）
+  const renderStaleFold = (hasRowsAbove: boolean) =>
+    !historyMode && staleAlerts.length > 0 ? (
+                <div style={{ marginTop: hasRowsAbove ? 14 : 4 }}>
+        <button
+          onClick={() => setStaleOpen((v) => !v)}
+          title={[...new Set(staleAlerts.map((a) => ALERT_PERSISTENCE_RULES[a.group].rationale))].join("\n")}
+          style={{
+            width: "100%", display: "flex", alignItems: "center", gap: 7,
+            padding: "7px 10px", borderRadius: RADIUS.lg,
+            background: neutralFill(0.03, palette.isDark),
+            border: `1px dashed ${palette.borderMid}`,
+            color: palette.textMuted, cursor: "pointer", textAlign: "left",
+          }}
+        >
+          <span style={{ fontFamily: FONT_DATA, fontSize: 10 }}>
+            {staleOpen ? "▾" : "▸"}
+          </span>
+          <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.base }}>
+            {t("intel.panel.ongoing", { count: staleAlerts.length })}
+          </span>
+          <div style={{ flex: 1 }} />
+          <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: palette.textFaint }}>
+            {staleLabels}
+          </span>
+        </button>
+        {staleOpen && (
+          <div
+            style={{
+              position: "relative", display: "flex", flexDirection: "column",
+              gap: 10, marginTop: 10, opacity: 0.72,
+            }}
+          >
+            {staleAlerts.map((a) => (
+              <AlertCard
+                key={a.id}
+                a={a}
+                selected={a.id === alertSelectedId}
+                expanded={a.id === alertExpandedId}
+                onSelect={onAlertSelect}
+                onToggle={onAlertToggle}
+                nowTs={now}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+    ) : null;
+
   return (
     <IntelThemeProvider palette={palette}>
     <div
@@ -483,7 +541,7 @@ export function IntelPanel({
     >
       <IntelHeader
         showFeedStatus={!isGlobalEventsTab}
-        totalCount={flatEvents.length}
+        totalCount={counts[feedTab]}
         lastUpdateTs={now}
         countdownSec={countdownSec}
         sourceHealth={sourceHealth}
@@ -492,6 +550,8 @@ export function IntelPanel({
 
       {!isGlobalEventsTab && <AlertSummaryBar
         tally={alertTally}
+        total={alertsTotal}
+        severe={alertsSevere}
         status={alertSummaryQuery.status}
         lastSuccessAt={alertSummaryQuery.lastSuccessAt}
         expanded={alertsExpanded}
@@ -504,15 +564,9 @@ export function IntelPanel({
         tab={feedTab}
         onTab={(t) => setFeedTab(t)}
         newsCount={flatEvents.length}
-        alertCount={historyMode ? historyRows.length : alertTally.total}
-        alertCountInAll={alertRows.length}
+        alertCount={alertsTotal}
         globalCount={globalCards.length}
-        globalCountInAll={globalCardsInAll.length}
-        alertSevere={
-          historyMode
-            ? historyRows.filter((a) => a.severity >= 3).length
-            : alertTally.severe
-        }
+        alertSevere={alertsSevere}
       />
 
       {feedTab === "news" ? (
@@ -750,52 +804,7 @@ export function IntelPanel({
               )}
 
               {/* 「持續中」折疊區 —— 規則見 src/data/alertRules.ts（歷史模式不套） */}
-              {!historyMode && staleAlerts.length > 0 && (
-                <div style={{ marginTop: alertRows.length > 0 ? 14 : 4 }}>
-                  <button
-                    onClick={() => setStaleOpen((v) => !v)}
-                    title={[...new Set(staleAlerts.map((a) => ALERT_PERSISTENCE_RULES[a.group].rationale))].join("\n")}
-                    style={{
-                      width: "100%", display: "flex", alignItems: "center", gap: 7,
-                      padding: "7px 10px", borderRadius: RADIUS.lg,
-                      background: neutralFill(0.03, palette.isDark),
-                      border: `1px dashed ${palette.borderMid}`,
-                      color: palette.textMuted, cursor: "pointer", textAlign: "left",
-                    }}
-                  >
-                    <span style={{ fontFamily: FONT_DATA, fontSize: 10 }}>
-                      {staleOpen ? "▾" : "▸"}
-                    </span>
-                    <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.base }}>
-                      {t("intel.panel.ongoing", { count: staleAlerts.length })}
-                    </span>
-                    <div style={{ flex: 1 }} />
-                    <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: palette.textFaint }}>
-                      {staleLabels}
-                    </span>
-                  </button>
-                  {staleOpen && (
-                    <div
-                      style={{
-                        position: "relative", display: "flex", flexDirection: "column",
-                        gap: 10, marginTop: 10, opacity: 0.72,
-                      }}
-                    >
-                      {staleAlerts.map((a) => (
-                        <AlertCard
-                          key={a.id}
-                          a={a}
-                          selected={a.id === alertSelectedId}
-                          expanded={a.id === alertExpandedId}
-                          onSelect={onAlertSelect}
-                          onToggle={onAlertToggle}
-                          nowTs={now}
-                        />
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
+              {renderStaleFold(alertRows.length > 0)}
             </>
           )}
           </>
@@ -806,13 +815,14 @@ export function IntelPanel({
               { kind: "alert"; ts: number; a: ActiveAlert }
             > = [
               ...flatEvents.map((e) => ({ kind: "news" as const, ts: e.published_ts, e })),
-              // 國際卡片走同一條時間軸（只收已研究＋keep_core，卡片上有「國際」chip 可辨識）
-              ...globalCardsInAll.map((e) => ({ kind: "news" as const, ts: e.published_ts, e })),
-              // 長期持續事件不進「全部」時間軸（本來就沉底，只是噪音）；要看走「警報」tab 的折疊區
+              // 國際卡片走同一條時間軸（與「全球情勢」分頁同一份，卡片上有「國際」chip 可辨識）
+              ...globalCards.map((e) => ({ kind: "news" as const, ts: e.published_ts, e })),
+              // 折疊的持續中警報不攤進時間軸（本來就沉底），列表尾端用同一個可展開列呈現、並算進角標
               ...alertRows.map((a) => ({ kind: "alert" as const, ts: a.sent_ts, a })),
             ];
             merged.sort((x, y) => y.ts - x.ts);
-            if (merged.length === 0) {
+            const staleRow = renderStaleFold(merged.length > 0);
+            if (merged.length === 0 && !staleRow) {
               return (
                 <div
                   style={{
@@ -860,6 +870,7 @@ export function IntelPanel({
                     />
                   ),
                 )}
+                {staleRow}
               </div>
             );
           })()

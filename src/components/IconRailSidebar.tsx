@@ -23,7 +23,7 @@ import { searchLocationPresets } from "../lib/locationSearch";
 import type { PlaceSearchHit } from "../lib/placeSearch";
 import type { LayerSearchResult } from "../lib/layerSearch";
 import { UnifiedSearchResults, usePlaceSearchIndex } from "./sidebar/UnifiedSearchResults";
-import { DataSourcePanel } from "./sidebar/DataSourcePanel";
+import { LazyDataSourcePanel } from "./sidebar/LazyDataSourcePanel";
 import { panelForExplorationLayers, type ExplorationPanel } from "../research/explorationNavigation";
 // 圖層面板共用外殼（layer-panel-unify A 段）：四個入口與手機底部面板用同一套元件
 import { useLocale } from "../state/localeStore";
@@ -484,7 +484,7 @@ export function IconRailSidebar({
               />
             )}
             {activePanel === "datasource" && (
-              <DataSourcePanel
+              <LazyDataSourcePanel
                 isDarkTheme={isDarkTheme}
                 lockedKeys={lockedKeys}
                 onActivateLayer={onBulkSetVisibility ? (key) => onBulkSetVisibility([key], true) : undefined}

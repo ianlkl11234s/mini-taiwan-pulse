@@ -5,7 +5,7 @@ import { viewLngRanges } from "../lib/viewLngRanges";
 import { PMTILES_SOURCE_TYPE } from "../map/pmtilesConstants";
 import { registerPmtilesSourceTypeOnce } from "../map/pmtilesSourceType";
 import { useMapReadyTick } from "./useMapReadyTick";
-import type { LayerBuild } from "./useGbWaterLayers";
+import type { LayerBuild } from "./intlPmtilesLayers";
 
 /**
  * 「一層多檔」：同一個圖層的資料依地區分成多個 PMTiles（分片），只掛視窗看得到的那幾個。

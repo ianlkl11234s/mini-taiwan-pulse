@@ -41,7 +41,7 @@ interface UnifiedSearchResultsProps {
 
 /** 門牌命中 → 選取目標（沿用地點選取的飛行與標記） */
 function addressToPlace(hit: AddressHit): PlaceSearchHit {
-  return { label: hit.label, kind: hit.kind, parent: `${hit.county}${hit.town}`, center: hit.center, ...(hit.bbox ? { bbox: hit.bbox } : {}), score: 3 };
+  return { label: hit.label, kind: hit.kind, parent: `${hit.county}${hit.town}`, center: hit.center, ...(hit.bbox ? { bbox: hit.bbox } : {}), score: 3, ...(hit.source === "owner" ? { private: true } : {}) };
 }
 
 /**
