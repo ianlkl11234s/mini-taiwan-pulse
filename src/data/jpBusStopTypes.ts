@@ -1,4 +1,5 @@
 import type { ExpressionSpecification } from "mapbox-gl";
+import { INTL_BUS_STOP_COLOR } from "./intlLayerShared";
 
 /** 国土数値情報 P11 バス区分（本版無「需求應答」）。 */
 export interface JpBusStopClass {
@@ -10,7 +11,7 @@ export interface JpBusStopClass {
 
 /** Map、legend 與 popup 共用的分類／色票 SSOT（沿用日本點層既有色票）。 */
 export const JP_BUS_STOP_CLASSES = [
-  { value: "route_private", label: "民營路線", color: "#2563eb", count: 171_127 },
+  { value: "route_private", label: "民營路線", color: INTL_BUS_STOP_COLOR, count: 171_127 },
   { value: "community", label: "社區巴士", color: "#14b8a6", count: 91_867 },
   { value: "route_public", label: "公營路線", color: "#f59e0b", count: 14_856 },
   { value: "other", label: "其他", color: "#94a3b8", count: 337 },

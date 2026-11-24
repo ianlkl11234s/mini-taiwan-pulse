@@ -1,4 +1,4 @@
-import { MainMapConnection } from "./research/MainMapConnection";
+import { LazyMainMapConnection } from "./research/LazyMainMapConnection";
 import { globalEventsViewStore } from "./state/globalEventsViewStore";
 import { useAnalysisLegend } from "./research/analysisLegendStore";
 import type { AnalysisResultPanelProperties } from "./research/researchResultPopup";
@@ -84,14 +84,16 @@ import { getH3Resolution } from "./map/h3LayerFactory";
 import { DEFAULT_CAMERA, getPresetById } from "./map/cameraPresets";
 import { DEFAULT_COUNTRY, countryDef, type CountryCode } from "./constants/countries";
 import { countryForMapCenter } from "./lib/localClock";
-import { countryCameraMemory, countryStore, resolveInitialCountry, useCountry, useOwnerOnlyCountryGuard, type CountryFlyMode } from "./state/countryStore";
+import { countryCameraMemory, countryStore, resolveInitialCountry, useCountry, useOwnerOnlyCountryGuard, usePinnedCountries, useVisibleCountries, type CountryFlyMode } from "./state/countryStore";
 import { countryForLayerKeys } from "./research/explorationNavigation";
 // filterByTimeWindow removed — airspace shows all flights, isFlightActive handles visibility
 import { LocationJump } from "./components/AirportSelector";
-import { DataSourcePanel } from "./components/sidebar/DataSourcePanel";
+import { LazyDataSourcePanel } from "./components/sidebar/LazyDataSourcePanel";
 import { LayerSidebar } from "./components/LayerSidebar";
 import { IconRailSidebar } from "./components/IconRailSidebar";
 import { showPlaceSearchResult } from "./map/placeSearchMarker";
+import { createPlaceMarkerSlot } from "./map/placeMarkerSlot";
+import { clearOwnerAddressCache } from "./data/addressOwnerLoader";
 import type { PlaceSearchHit } from "./lib/placeSearch";
 import { IntelPanel } from "./components/intel/IntelPanel";
 import { MonitorPanel } from "./components/intel/monitor/MonitorPanel";
@@ -130,10 +132,15 @@ import { HEADER_LABELS } from "./components/featureInfo/registry";
 import { ChatPanel } from "./components/chat/ChatPanel";
 import { runChatTurn, testKey } from "./chat/lazyAgent";
 import type { MapBridge } from "./chat/types";
-import { BookOpen, Bot, Box, Camera, CircleHelp, Columns2, MessageSquare, Share2, UserRound } from "lucide-react";
+import { BookOpen, Bot, Box, Camera, CircleHelp, MessageSquare, Share2, UserRound } from "lucide-react";
 import { CompareMapView } from "./map/CompareMapView";
 import { CompareDivider } from "./components/compare/CompareDivider";
-import { compareStore, isCompareSupported, useCompareSelector } from "./state/compareStore";
+import { CountryCompareChrome } from "./components/compare/CountryCompareChrome";
+import { CompareMenu } from "./components/toolbar/CompareMenu";
+import { CountryCompareMapView } from "./map/CountryCompareMapView";
+import { rightSideBlocker } from "./map/compareCountrySides";
+import { compareHydrateFromUrl, compareStore, countriesTipSeen, isCompareSupported, markCountriesTipSeen, pickRightCountry, useCompareSelector, type CompareMode } from "./state/compareStore";
+import { restoreMobileCompare } from "./utils/mobileCompareRestore";
 import { compareSelectionsForUrl, restoreSelectionsAfterLoad, singleSelectionsForUrl } from "./state/compareStatistics";
 import { layerParamsForUrl, resolveUrlLayerParams } from "./lib/urlLayerParams";
 import { statisticsDefaultOpacity } from "./data/statisticsVisuals";
@@ -158,7 +165,7 @@ import { createMeasureController } from "./map/measureController";
 import { formatMeasureArea, formatMeasureDistance } from "./map/measureMath";
 import { MemberPanel } from "./components/member/MemberPanel";
 import { memberLibraryStore, useMemberLibrary } from "./state/memberLibraryStore";
-import { LAYER_SEARCH_INDEX } from "./lib/layerSearch";
+import { getLayerSearchLabels } from "./lib/layerSearch";
 import { captureSceneParams, resolveSceneRestore } from "./lib/memberSceneAdapter";
 import { restoreLinkedSelects } from "./state/linkedSelect";
 import { validateScene, type MemberSceneSnapshot, type MemberPlaceGeometry } from "./lib/memberSchema";
@@ -260,6 +267,11 @@ export default function App() {
     const { center, zoom, pitch, bearing } = mode === "remembered" ? countryCameraMemory.resolve(code) : countryDef(code).camera;
     mapRef.current?.flyTo({ center, zoom, pitch, bearing, speed: 1.0 });
   }, []);
+  /** 並排左側 chip 換國家：同圖層面板選國家（切 countryStore）＋飛到該國上次的鏡頭 */
+  const handleLeftCountry = useCallback((code: CountryCode, mode: CountryFlyMode = "remembered") => {
+    countryStore.set(code);
+    handleCountryFly(code, mode);
+  }, [handleCountryFly]);
 
   // layer visibility 必須早於動態資料 hook 宣告：供 boot lazy gating（圖層關 → 不抓資料）
   const { layerVisibility, layerVisibilityRef, setLayerVisibility, toggleVisibility } = useLayerVisibility();
@@ -288,7 +300,7 @@ export default function App() {
   const pendingSceneDoneRef = useRef<((skipped: string[]) => void) | null>(null);
   const [pendingMemberScene, setPendingMemberScene] = useState<MemberSceneSnapshot | null>(null);
   const favoriteKeys = useMemo(() => new Set(memberLibrary.userId === (memberUser?.id ?? null) ? memberLibrary.favorites : []), [memberLibrary.favorites, memberLibrary.userId, memberUser?.id]);
-  const memberLabels = useMemo(() => Object.fromEntries(LAYER_SEARCH_INDEX.map((item) => [item.key, item.label])), []);
+  const memberLabels = useMemo(() => getLayerSearchLabels() as Record<string, string>, []);
   const knownMemberKeys = useMemo(() => new Set(Object.keys(memberLabels)), [memberLabels]);
   useEffect(() => { memberLibraryStore.setUser(memberUser?.id ?? null); }, [memberUser?.id]);
   useEffect(() => {
@@ -545,6 +557,29 @@ export default function App() {
   // 只訂開關：拖把手（split 每幀變）不重繪 App
   const compareEnabled = useCompareSelector((state) => state.enabled);
   const compareActive = compareEnabled && !isMobile;
+  // 兩國並排（G2-1）：右側國家要先定好才建右圖；手機不支援（站主決定 4，G2-2 另做）
+  const compareMode = useCompareSelector((state) => state.mode);
+  const compareRightCountry = useCompareSelector((state) => state.rightCountry);
+  const countriesCompareActive = compareActive && compareMode === "countries" && compareRightCountry !== null;
+  const visibleCountryCodes = useVisibleCountries().map((c) => c.code);
+  const pinnedCountryCodes = usePinnedCountries();
+  const pickRightCountryRef = useRef<(current: CountryCode | null) => CountryCode | null>(() => null);
+  pickRightCountryRef.current = (current) => pickRightCountry(countryStore.getSnapshot(), pinnedCountryCodes, visibleCountryCodes, current);
+  // 並排中右側國家不合法（左側換成同一國、身分降級看不到、還沒選）→ 換成下一個釘選外國
+  useEffect(() => {
+    if (!compareEnabled || compareMode !== "countries") return;
+    const next = pickRightCountryRef.current(compareRightCountry);
+    if (next !== compareRightCountry) compareStore.setRightCountry(next);
+  }, [compareEnabled, compareMode, compareRightCountry, country, visibleCountryCodes.join(","), pinnedCountryCodes]);
+  // 右圖換國家或關掉：右圖點出來的資訊面板跟著關（那筆資料的地圖已經不在）
+  useEffect(() => {
+    setFeatureInfo((info) => (info?.properties?.compare_side === "right" ? null : info));
+  }, [compareRightCountry, countriesCompareActive]);
+  /** 工具列比較入口選了模式（並排先補齊右側國家再開） */
+  const handleOpenCompare = useCallback((mode: CompareMode) => {
+    if (mode === "countries") compareStore.setRightCountry(pickRightCountryRef.current(compareStore.getSnapshot().rightCountry));
+    compareStore.open(mode);
+  }, []);
   /**
    * 手機退回單地圖時寄放的比較狀態（VIZ-26）：網址照樣寫回 cmp*，只是不渲染右側；
    * 回到桌機寬度時還原成比較畫面。store 在手機維持關閉，右側相關的讀取端不必各自判斷手機。
@@ -556,14 +591,12 @@ export default function App() {
       compareStore.setEnabled(false);
       return;
     }
-    const stashed = mobileCompareRef.current;
-    if (isMobile || !stashed) return;
+    const stashedRaw = mobileCompareRef.current;
+    if (isMobile || !stashedRaw) return;
     mobileCompareRef.current = undefined;
-    compareStore.hydrate({
-      enabled: true,
-      ...(stashed.split !== undefined ? { split: stashed.split } : {}),
-      sides: Object.fromEntries([...(stashed.left ?? []).map((key) => [key, "left"] as const), ...(stashed.right ?? []).map((key) => [key, "right"] as const)]),
-    });
+    // 左側期別以手機單地圖目前的選擇為準（不蓋掉使用者在手機上的改動）；此時單地圖選擇還沒被比較模式接管
+    const stashed = restoreMobileCompare(stashedRaw, singleSelectionsForUrl((key) => !lockedKeysRef.current.has(key as keyof LayerVisibility)));
+    compareStore.hydrate(compareHydrateFromUrl(stashed));
     if (stashed.leftSelection || stashed.rightSelection) void restoreSelectionsAfterLoad(stashed.leftSelection, stashed.rightSelection);
   }, [isMobile]);
   const [chatOpen, setChatOpen] = useState(false);
@@ -1422,6 +1455,11 @@ export default function App() {
     map.on("moveend", update);
     return () => { map.off("moveend", update); };
   }, [mapPrepared]);
+  // 時間軸當地時間小字：單地圖＝地圖中心所在國；兩國並排＝左右兩國（同一刻；當地同時刻是 G2-4）
+  const localClocks = useMemo(() => {
+    if (countriesCompareActive && compareRightCountry) return [{ country: centerCountry ?? country }, { country: compareRightCountry }];
+    return centerCountry ? [{ country: centerCountry }] : [];
+  }, [countriesCompareActive, compareRightCountry, centerCountry, country]);
 
   // 選取圈（useSelectionRing）的主題色走地圖容器上的 CSS 變數，Marker DOM 直接繼承。
   useEffect(() => {
@@ -2003,12 +2041,18 @@ export default function App() {
   }, [timelineSeek, timelineSetSpeed, timelinePlay, setLayerVisibility]);
 
   // 側欄地點搜尋：飛過去＋暫時標記；null＝移除標記（再搜尋或關閉 Locations 面板）
-  const placeMarkerCleanupRef = useRef<(() => void) | null>(null);
-  const handlePlacePick = useCallback((place: PlaceSearchHit | null) => {
-    placeMarkerCleanupRef.current?.();
-    placeMarkerCleanupRef.current = null;
-    if (place && mapRef.current) placeMarkerCleanupRef.current = showPlaceSearchResult(mapRef.current, place, isDarkThemeRef.current);
-  }, []);
+  const placeMarkerSlot = useMemo(
+    () => createPlaceMarkerSlot((place) => (mapRef.current ? showPlaceSearchResult(mapRef.current, place, isDarkThemeRef.current) : null)),
+    [],
+  );
+  const handlePlacePick = useCallback((place: PlaceSearchHit | null) => placeMarkerSlot.set(place), [placeMarkerSlot]);
+  // 站主版私人地址：撤權（登出、失去站主權限）時清掉快取與已選的私人標記。
+  // 放在常駐的 App：搜尋面板選完就卸載，hook 內的 effect 已不在了（review L1）。
+  useEffect(() => {
+    if (isOwner) return;
+    clearOwnerAddressCache();
+    placeMarkerSlot.revokePrivate();
+  }, [isOwner, placeMarkerSlot]);
 
   // EM-03 深連結：套用網址指定的圖層與日期。**只跑一次**（deps 空陣列）——
   // 相機走 preset 那條路，這裡只處理 setter 型的狀態。
@@ -2035,12 +2079,17 @@ export default function App() {
     if (urlCompare) {
       if (isMobile) {
         mobileCompareRef.current = urlCompare;
-        showTransientNotice(t("compare.mobileFallback"));
-      } else compareStore.hydrate({
-        enabled: true,
-        ...(urlCompare.split !== undefined ? { split: urlCompare.split } : {}),
-        sides: Object.fromEntries([...(urlCompare.left ?? []).map((key) => [key, "left"] as const), ...(urlCompare.right ?? []).map((key) => [key, "right"] as const)]),
-      });
+        // 語系包是 lazy 載入：開頁當下 t 還停在預設語系，等目標語系載完（active＝locale）再翻，否則英日文介面會看到中文
+        const notify = () => showTransientNotice(localeStore.getSnapshot().t("compare.mobileFallback"));
+        const snap = localeStore.getSnapshot();
+        if (snap.active === snap.locale) notify();
+        else {
+          const off = localeStore.subscribe(() => {
+            const next = localeStore.getSnapshot();
+            if (next.active === next.locale) { off(); notify(); }
+          });
+        }
+      } else compareStore.hydrate(compareHydrateFromUrl(urlCompare));
     }
     // URL 明示模式優先於 localStorage；舊連結若列出統計面卻沒有 sm，安全地以單一
     // 模式收斂（layers 原始順序的最後一個統計面保留），避免舊多色階重疊難以閱讀。
@@ -2100,6 +2149,8 @@ export default function App() {
     if (!isMobile) return compareStateFromStore();
     const stashed = mobileCompareRef.current;
     if (!stashed) return undefined;
+    // 並排的參數與圖層開關無關，原樣寫回（VIZ-26）
+    if (stashed.mode === "countries") return stashed;
     const visible = (key: string) => Boolean(layerVisibilityRef.current[key as keyof LayerVisibility]);
     const left = stashed.left?.filter(visible);
     const right = stashed.right?.filter(visible);
@@ -2116,6 +2167,14 @@ export default function App() {
   const compareStateFromStore = (): UrlState["compare"] => {
     const snapshot = compareStore.getSnapshot();
     if (!snapshot.enabled) return undefined;
+    if (snapshot.mode === "countries") {
+      return {
+        mode: "countries",
+        ...(snapshot.rightCountry ? { rightCountry: snapshot.rightCountry } : {}),
+        ...(snapshot.rightCamera ? { rightCamera: snapshot.rightCamera } : {}),
+        ...(snapshot.scaleLocked ? {} : { scaleLocked: false as const }),
+      };
+    }
     const sides = Object.entries(snapshot.sides);
     const visible = (key: string) => Boolean(layerVisibilityRef.current[key as keyof LayerVisibility]);
     const left = sides.filter(([key, side]) => side === "left" && visible(key)).map(([key]) => key);
@@ -2305,13 +2364,20 @@ export default function App() {
       onDismiss: () => setHistoricalLabelTipDismissed(true),
     }
     : null;
-  // 比較模式剛開：同一張卡的第四段（§5.42）說明把手與「顯示在」，並列出幾個開著的圖層只在左側；每次開比較顯示一次
+  // 比較模式剛開：同一張卡的第四段（§5.42）說明把手與「顯示在」，並列出幾個開著的圖層只在左側；每次開比較顯示一次。
+  // 兩國並排的說明看過（按「知道了」）就記在這個瀏覽器，重整或再開都不再出現
   const [compareTipDismissed, setCompareTipDismissed] = useState(false);
+  const [countriesTipSeenState, setCountriesTipSeenState] = useState(countriesTipSeen);
   useEffect(() => { if (!compareActive) setCompareTipDismissed(false); }, [compareActive]);
-  const compareTip = compareActive && !compareTipDismissed && !captureMode && !chatOpen && !agentActivityVisible
+  const compareTip = compareActive && !compareTipDismissed && !(countriesCompareActive && countriesTipSeenState) && !captureMode && !chatOpen && !agentActivityVisible
     ? {
-      unsupported: (Object.entries(layerVisibility) as [string, boolean][]).filter(([key, on]) => on && !lockedKeys.has(key as keyof LayerVisibility) && !isCompareSupported(key)).length,
-      onDismiss: () => setCompareTipDismissed(true),
+      unsupported: (Object.entries(layerVisibility) as [string, boolean][]).filter(([key, on]) => on && !lockedKeys.has(key as keyof LayerVisibility)
+        && (countriesCompareActive ? rightSideBlocker(key, compareRightCountry) !== null : !isCompareSupported(key))).length,
+      countries: countriesCompareActive,
+      onDismiss: () => {
+        setCompareTipDismissed(true);
+        if (countriesCompareActive) { markCountriesTipSeen(); setCountriesTipSeenState(true); }
+      },
     }
     : null;
   const layerHint = useLayerVisibilityHint({
@@ -2502,7 +2568,32 @@ export default function App() {
         onMapReady={handleMapReady}
       />
       {/* 比較模式右圖（開才建、關就銷毀）＋把手；主地圖＝左側，Agent 只操作主地圖（右圖靠鏡頭同步跟著動） */}
-      {compareActive && mapPrepared && mapRef.current && (
+      {countriesCompareActive && mapPrepared && mapRef.current && (
+        <>
+          {/* 兩國並排右圖：換右側國家＝以 key 整張重建（舊國圖層不殘留） */}
+          <CountryCompareMapView
+            key={compareRightCountry}
+            mainMap={mapRef.current}
+            rightCountry={compareRightCountry}
+            styleUrl={styleUrl}
+            pureBlack={mapStyleId === "black"}
+            isDarkTheme={isDarkTheme}
+            showBasemapLabels={showBasemapLabels}
+            featureInfo={featureInfo}
+            onFeatureInfo={setFeatureInfo}
+            hostDeps={hostDeps}
+          />
+          <CountryCompareChrome
+            isDarkTheme={isDarkTheme}
+            captureMode={captureMode}
+            mainMap={mapRef.current}
+            leftCountry={country}
+            rightCountry={compareRightCountry}
+            onLeftCountry={handleLeftCountry}
+          />
+        </>
+      )}
+      {compareActive && compareMode === "slider" && mapPrepared && mapRef.current && (
         <>
           <CompareMapView
             mainMap={mapRef.current}
@@ -2516,7 +2607,7 @@ export default function App() {
           <CompareDivider isDarkTheme={isDarkTheme} captureMode={captureMode} />
         </>
       )}
-      {agentEnabled && <MainMapConnection
+      {agentEnabled && <LazyMainMapConnection
         bridge={chatBridge}
         map={mapPrepared ? mapRef.current : null}
         labels={memberLabels}
@@ -2736,15 +2827,7 @@ export default function App() {
                 onToggleLabels={() => setShowBasemapLabels((visible) => !visible)}
               />
               {toolbarDivider}
-              <ToolbarButton
-                palette={toolbarPalette}
-                icon
-                pressed={compareEnabled}
-                title={t(compareEnabled ? "compare.toolbarOn" : "compare.toolbar")}
-                onClick={() => compareStore.setEnabled(!compareStore.getSnapshot().enabled)}
-              >
-                <Columns2 size={13} />
-              </ToolbarButton>
+              <CompareMenu isDarkTheme={isDarkTheme} onOpenMode={handleOpenCompare} />
               <ToolbarButton
                 palette={toolbarPalette}
                 icon
@@ -2934,7 +3017,7 @@ export default function App() {
           {appMode === "realtime" ? (
             <LongTermTimelineGate isDark={isDarkTheme} leftOffset={sidebarWidth + 16} rightReserve={splitActive ? `calc(${navColumnRight} + 296px)` : undefined}>
             <LiveTimelineControls
-              localClockCountry={centerCountry}
+              localClocks={localClocks}
               playing={timeline.playing}
               speed={timeline.speed}
               timeMode={timeline.timeMode}
@@ -3096,7 +3179,7 @@ export default function App() {
           >
             {appMode === "realtime" ? (
               <LiveTimelineControls
-                localClockCountry={centerCountry}
+                localClocks={localClocks}
                 playing={timeline.playing}
                 speed={timeline.speed}
                 timeMode={timeline.timeMode}
@@ -3258,7 +3341,7 @@ export default function App() {
                 background: isDarkTheme ? SURFACE.solid : LIGHT.surfaceSolid,
               }}
             >
-              <DataSourcePanel
+              <LazyDataSourcePanel
                 isDarkTheme={isDarkTheme}
                 lockedKeys={lockedKeys}
                 onActivateLayer={(key) => { handleBulkSetVisibility([key], true); setMobileDataSourceOpen(false); }}
@@ -3609,7 +3692,8 @@ export default function App() {
           )}
         </div>
         {/* 比例尺（§5.43）：停靠欄最底一列，寬度跟欄寬（最小 224）；與上方間距 12（欄 gap 8 ＋ 4）；z<5 不渲染、不留空位 */}
-        {navColumnVisible && (
+        {/* 兩國並排時改由分隔線兩側各一條（CountryCompareChrome），這裡不畫，免得看不出量的是哪一張 */}
+        {navColumnVisible && !countriesCompareActive && (
           <MapScaleBar
             map={mapPrepared ? mapRef.current : null}
             isDarkTheme={isDarkTheme}

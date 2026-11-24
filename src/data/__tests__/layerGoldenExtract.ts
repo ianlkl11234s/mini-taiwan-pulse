@@ -51,8 +51,9 @@ import { OVERLAY_REGISTRY } from "../../map/overlayRegistry";
 import { GIS_LAYERS } from "../../map/gisClickRegistry";
 import { buildParamControls } from "../../state/layerParamsControls";
 import { encodeParamsToOverlay, layerParamsStore } from "../../state/layerParamsStore";
+import { LAYER_MANIFEST } from "../layerManifest";
+import type { GoldenGrouper } from "./layerGoldenFiles";
 
-export const FIXTURE_PATH = "src/data/__tests__/__fixtures__/layer-golden.json";
 const INTERACTION_FILE = "src/hooks/useMapInteraction.ts";
 
 /**
@@ -424,6 +425,57 @@ export function extractGolden(): GoldenSnapshot {
     gisLayers: sanitize(GIS_LAYERS),
     overlays: sanitize(extractOverlays(overlayParams)),
     params: sanitize(controls),
+  };
+}
+
+// ── 目錄化分組（B1 P1）────────────────────────────────────────────
+
+interface GroupableEntry {
+  country?: string;
+  section?: { theme: string } | null;
+  popup?: string | string[] | null;
+}
+
+/** 主題 title 取中文段（"人口與教育 Population & Education" → "人口與教育"）當檔名 */
+function themeSlug(theme: string): string {
+  const zh = theme.split(/\s+(?=[A-Za-z])/)[0] ?? theme;
+  return zh.trim().replace(/[\\/:*?"<>|&\s]+/g, "-");
+}
+
+/**
+ * group 規則：國家小寫（TW 再依 section.theme 拆）；沒有 section 的孤兒歸 `orphan`。
+ * gisLayers 的 type 歸給「key 與 type 同名」的 manifest entry，否則第一個 popup 宣告它的 entry。
+ * 只有 dump 腳本用得到（測試只讀目錄，不重新判斷歸屬）。
+ */
+export function goldenGrouper(): GoldenGrouper {
+  const M = LAYER_MANIFEST as unknown as Record<string, GroupableEntry>;
+  const slugOwner = new Map<string, string>();
+  const ofKey = (key: string): string => {
+    const e = M[key];
+    if (!e) throw new Error(`golden：${key} 不在 LAYER_MANIFEST，無法決定 group`);
+    if (!e.section || !e.country) return "orphan";
+    const cc = e.country.toLowerCase();
+    if (cc !== "tw") return cc;
+    const slug = themeSlug(e.section.theme);
+    const prev = slugOwner.get(slug);
+    if (prev !== undefined && prev !== e.section.theme) {
+      throw new Error(`golden：主題「${prev}」與「${e.section.theme}」的檔名都是 ${slug}`);
+    }
+    slugOwner.set(slug, e.section.theme);
+    return `tw-${slug}`;
+  };
+  const typeOwner = new Map<string, string>();
+  for (const [key, e] of Object.entries(M)) {
+    const p = e.popup;
+    for (const t of Array.isArray(p) ? p : p ? [p] : []) if (!typeOwner.has(t)) typeOwner.set(t, key);
+  }
+  return {
+    layerKey: ofKey,
+    gisType: (type) => {
+      const owner = type in M ? type : typeOwner.get(type);
+      if (!owner) throw new Error(`golden：popup 類型 ${type} 沒有任何 manifest entry 宣告，無法決定 group`);
+      return ofKey(owner);
+    },
   };
 }
 

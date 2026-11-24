@@ -120,7 +120,8 @@ import { ID_RASTER_SPECS } from "./idWavesLayers";
 import { CA_WAVE_SPECS } from "./caWavesLayers";
 import { VN_RASTER_SPECS } from "./vnWavesLayers";
 import { CN_ADMIN_LEVELS, CN_DATA_SPECS, CN_PLANT_SCOPES, CN_PLANT_STATUSES, CN_PLANT_STATUS_DEFAULT, CN_RASTER_SPECS, cnCatOptions } from "./cnDataLayers";
-import { IE_DATA_SPECS, IE_FLOOD_SCENARIOS, IE_FLOOD_SCENARIO_DEFAULT, IE_NOISE_METRICS, IE_NOISE_METRIC_DEFAULT, IE_GW_FLOOD_PRODUCTS, IE_GW_FLOOD_DEFAULT, asKrSpec } from "./ieDataLayers";
+import { IE_DATA_SPECS, IE_FLOOD_SCENARIOS, IE_FLOOD_SCENARIO_DEFAULT, IE_NOISE_METRICS, IE_NOISE_METRIC_DEFAULT, IE_GW_FLOOD_PRODUCTS, IE_GW_FLOOD_DEFAULT } from "./ieDataLayers";
+import { asKrSpec } from "./intlSpecBridge";
 import { PALETTE_IDS, type PaletteId } from "../map/palettes";
 import { defaultHeatmapPalette } from "../map/heatmapPaletteDefaults";
 import { URBAN_HEAT_MODES } from "./urbanHeatTypes";
@@ -6075,39 +6076,43 @@ export interface SharedSlotMember {
 }
 
 /**
- * `sharedGroup` id → 參與的 (key, name) 成員。模組載入時掃一次規格建好。
+ * `sharedGroup` id → 參與的 (key, name) 成員。
  *
  * 消費者只有一個：`layerParamsStore.setParam` —— 寫入時把同群成員一起改、一起通知，
  * 讓 N 個 store slot 的行為與「共用一個 useState」逐字等價。
+ *
+ * B1 P4：改成增量登記。模組載入時用 `registerSharedParamGroups` 掃一次現有規格；
+ * P5 國家包載入時對自己的規格再呼叫一次，把成員累加進來（同一個 Map 物件，讀者不用換引用）。
  */
-export const SHARED_PARAM_GROUPS: ReadonlyMap<string, readonly SharedSlotMember[]> = (() => {
-  const groups = new Map<string, SharedSlotMember[]>();
-  for (const key of Object.keys(LAYER_PARAMS_SPEC) as MigratedParamsKey[]) {
-    for (const spec of LAYER_PARAMS_SPEC[key] as LayerParamSpec[]) {
-      if (!spec.sharedGroup) continue;
-      const list = groups.get(spec.sharedGroup) ?? [];
-      list.push({ key, name: spec.name });
-      groups.set(spec.sharedGroup, list);
-    }
-  }
-  return groups;
-})();
+const sharedParamGroups = new Map<string, SharedSlotMember[]>();
+export const SHARED_PARAM_GROUPS: ReadonlyMap<string, readonly SharedSlotMember[]> = sharedParamGroups;
 
-/** (key, name) → 反查所屬共用群組的 id；獨佔回 null */
-const SHARED_GROUP_OF = (() => {
-  const m = new Map<string, string>();
-  for (const [id, members] of SHARED_PARAM_GROUPS) {
-    for (const mem of members) m.set(`${mem.key} ${mem.name}`, id);
+/** (key, name) → 反查所屬共用群組的 id；獨佔不在表內 */
+const SHARED_GROUP_OF = new Map<string, string>();
+
+/** 登記一個圖層的共用參數成員（重複登記同一 (key, name) 不會產生重複成員）。 */
+export function registerSharedParamGroups(key: MigratedParamsKey, specs: readonly LayerParamSpec[]): void {
+  for (const spec of specs) {
+    if (!spec.sharedGroup) continue;
+    const slot = `${key}\0${spec.name}`;
+    if (SHARED_GROUP_OF.has(slot)) continue;
+    const list = sharedParamGroups.get(spec.sharedGroup) ?? [];
+    list.push({ key, name: spec.name });
+    sharedParamGroups.set(spec.sharedGroup, list);
+    SHARED_GROUP_OF.set(slot, spec.sharedGroup);
   }
-  return m;
-})();
+}
+
+for (const key of Object.keys(LAYER_PARAMS_SPEC) as MigratedParamsKey[]) {
+  registerSharedParamGroups(key, LAYER_PARAMS_SPEC[key] as LayerParamSpec[]);
+}
 
 /**
  * 與 (key, name) 共用同一份值的全部成員（含自己）。獨佔參數回 null，
  * 呼叫端據此走「只寫自己」的快路徑。
  */
 export function sharedSlotMembers(key: string, name: string): readonly SharedSlotMember[] | null {
-  const id = SHARED_GROUP_OF.get(`${key} ${name}`);
+  const id = SHARED_GROUP_OF.get(`${key}\0${name}`);
   return id ? (SHARED_PARAM_GROUPS.get(id) ?? null) : null;
 }
 

@@ -3,9 +3,9 @@ import { useHistoricalMapLayer } from "../../hooks/useHistoricalMapSinicaLayer";
 import { HISTORICAL_MAP_GROUPS, type HistoricalMapGroupKey } from "../../data/historicalMapSinica";
 import { bumpHostRender, type LayerHostComponent, type LayerHostDeps } from "../layerHostDeps";
 import { useKeyOverlayParams } from "../layerParamsAccess";
-import { shownOnLeft, useCompareState, type CompareState } from "../../state/compareStore";
+import { shownOnLeft, useCompareSideState, type CompareSideState } from "../../state/compareStore";
 
-function useHistoricalGroup(deps: LayerHostDeps, key: HistoricalMapGroupKey, compare: CompareState) {
+function useHistoricalGroup(deps: LayerHostDeps, key: HistoricalMapGroupKey, compare: CompareSideState) {
   const group = HISTORICAL_MAP_GROUPS.find((g) => g.key === key)!;
   const p = useKeyOverlayParams(key) as Record<string, number | undefined>;
   // 比較模式：側別＝只在右側時主地圖（左）不畫；右圖由 CompareMapView 用同一支 hook 另外畫
@@ -15,7 +15,7 @@ function useHistoricalGroup(deps: LayerHostDeps, key: HistoricalMapGroupKey, com
 
 export const HistoricalMapSinicaHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useHistoricalMapSinicaLayer");
-  const compare = useCompareState();
+  const compare = useCompareSideState();
   // 固定順序呼叫（每個 key 一次），不在迴圈裡以免違反 hooks 規則
   useHistoricalGroup(deps, "historicalMapSinica", compare);
   useHistoricalGroup(deps, "historicalMapPostwar", compare);

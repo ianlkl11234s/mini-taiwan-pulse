@@ -1,0 +1,868 @@
+{
+  "count": 5,
+  "gisLayers": {
+    "cemeteryOsm": {
+      "layers": [
+        "cemetery-osm-fill",
+        "cemetery-osm-points-circle-point",
+        "cemetery-osm-points-circle-polygon"
+      ],
+      "type": "cemeteryOsm"
+    },
+    "cemeteryZoning": {
+      "layers": [
+        "cemetery-zoning-fill",
+        "cemetery-zoning-points-circle-point",
+        "cemetery-zoning-points-circle-polygon"
+      ],
+      "type": "cemeteryZoning"
+    },
+    "funeralFacilities": {
+      "layers": [
+        "funeral-facilities-circle"
+      ],
+      "type": "funeralFacilities"
+    },
+    "funeralOperatorDensity": {
+      "layers": [
+        "funeral-density-fill"
+      ],
+      "type": "funeralOperatorDensity"
+    },
+    "funeralOperators": {
+      "layers": [
+        "funeral-operators-circle"
+      ],
+      "type": "funeralOperators"
+    }
+  },
+  "overlays": {
+    "cemeteryOsm": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "cemeteryOsm",
+      "layers": [
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": "#4a7c59",
+              "fill-opacity": 0.5
+            },
+            "light": {
+              "fill-color": "#4a7c59",
+              "fill-opacity": 0.35
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#60936e",
+              "line-opacity": 0.8,
+              "line-width": 1
+            },
+            "light": {
+              "line-color": "#4a7c59",
+              "line-opacity": 0.8,
+              "line-width": 1
+            }
+          },
+          "suffix": "line",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 6,
+        "sourceLayer": "cemetery_osm"
+      },
+      "rebuildOnParamChange": [
+        "fill",
+        "line"
+      ],
+      "sourceId": "cemetery-osm",
+      "sourceUrl": "./funeral/cemetery_osm.pmtiles"
+    },
+    "cemeteryOsm#2": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "cemeteryOsm",
+      "layers": [
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#60936e",
+              "circle-opacity": 0.8,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#4a7c59",
+              "circle-opacity": 0.8,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle-point",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "maxzoom": 6,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#60936e",
+              "circle-opacity": 0.8,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#4a7c59",
+              "circle-opacity": 0.8,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle-polygon",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 10,
+        "minzoom": 4,
+        "sourceLayer": "cemetery_osm_points"
+      },
+      "rebuildOnParamChange": null,
+      "sourceId": "cemetery-osm-points",
+      "sourceUrl": "./funeral/cemetery_osm_points.pmtiles"
+    },
+    "cemeteryZoning": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "cemeteryZoning",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "zone_label"
+                ],
+                [
+                  "公墓用地",
+                  "墓地",
+                  "墓地用地",
+                  "墳墓用地",
+                  "軍人公墓用地"
+                ],
+                "#a1554b",
+                [
+                  "殯葬設施用地",
+                  "殯葬設施專用區",
+                  "殯葬用地"
+                ],
+                "#d18c5c",
+                [
+                  "殯儀館用地"
+                ],
+                "#8d6e63",
+                "#8a8a8a"
+              ],
+              "fill-opacity": 0.5
+            },
+            "light": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "zone_label"
+                ],
+                [
+                  "公墓用地",
+                  "墓地",
+                  "墓地用地",
+                  "墳墓用地",
+                  "軍人公墓用地"
+                ],
+                "#a1554b",
+                [
+                  "殯葬設施用地",
+                  "殯葬設施專用區",
+                  "殯葬用地"
+                ],
+                "#d18c5c",
+                [
+                  "殯儀館用地"
+                ],
+                "#8d6e63",
+                "#8a8a8a"
+              ],
+              "fill-opacity": 0.35
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "zone_label"
+                ],
+                [
+                  "公墓用地",
+                  "墓地",
+                  "墓地用地",
+                  "墳墓用地",
+                  "軍人公墓用地"
+                ],
+                "#c17267",
+                [
+                  "殯葬設施用地",
+                  "殯葬設施專用區",
+                  "殯葬用地"
+                ],
+                "#d18c5c",
+                [
+                  "殯儀館用地"
+                ],
+                "#a38377",
+                "#9a9a9a"
+              ],
+              "line-opacity": 0.8,
+              "line-width": 1
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "zone_label"
+                ],
+                [
+                  "公墓用地",
+                  "墓地",
+                  "墓地用地",
+                  "墳墓用地",
+                  "軍人公墓用地"
+                ],
+                "#a1554b",
+                [
+                  "殯葬設施用地",
+                  "殯葬設施專用區",
+                  "殯葬用地"
+                ],
+                "#d18c5c",
+                [
+                  "殯儀館用地"
+                ],
+                "#8d6e63",
+                "#8a8a8a"
+              ],
+              "line-opacity": 0.8,
+              "line-width": 1
+            }
+          },
+          "suffix": "line",
+          "type": "line"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "fill",
+        "line"
+      ],
+      "sourceId": "cemetery-zoning",
+      "sourceUrl": "./funeral/cemetery_zoning.geojson"
+    },
+    "cemeteryZoning#2": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "cemeteryZoning",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "zone_label"
+                ],
+                [
+                  "公墓用地",
+                  "墓地",
+                  "墓地用地",
+                  "墳墓用地",
+                  "軍人公墓用地"
+                ],
+                "#bb6c62",
+                [
+                  "殯葬設施用地",
+                  "殯葬設施專用區",
+                  "殯葬用地"
+                ],
+                "#d18c5c",
+                [
+                  "殯儀館用地"
+                ],
+                "#9d7d72",
+                "#939393"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "zone_label"
+                ],
+                [
+                  "公墓用地",
+                  "墓地",
+                  "墓地用地",
+                  "墳墓用地",
+                  "軍人公墓用地"
+                ],
+                "#a1554b",
+                [
+                  "殯葬設施用地",
+                  "殯葬設施專用區",
+                  "殯葬用地"
+                ],
+                "#d18c5c",
+                [
+                  "殯儀館用地"
+                ],
+                "#8d6e63",
+                "#8a8a8a"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle-point",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "circle-point"
+      ],
+      "sourceId": "cemetery-zoning-points",
+      "sourceUrl": "./funeral/cemetery_zoning.geojson"
+    },
+    "funeralFacilities": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "funeralFacilities",
+      "layers": [
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "facility_uid"
+            ],
+            [
+              "has",
+              "facility_uid"
+            ]
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "coalesce",
+                  [
+                    "get",
+                    "facility_type"
+                  ],
+                  "unknown"
+                ],
+                "cemetery",
+                "#6d8b74",
+                "columbarium",
+                "#8e7cc3",
+                "eco_burial",
+                "#7cb342",
+                "funeral_home",
+                "#4d8fcc",
+                "crematorium",
+                "#e07b39",
+                "ritual_hall",
+                "#ef4c7f",
+                "#8a8a8a"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "coalesce",
+                  [
+                    "get",
+                    "facility_type"
+                  ],
+                  "unknown"
+                ],
+                "cemetery",
+                "#6d8b74",
+                "columbarium",
+                "#8e7cc3",
+                "eco_burial",
+                "#7cb342",
+                "funeral_home",
+                "#4d8fcc",
+                "crematorium",
+                "#e07b39",
+                "ritual_hall",
+                "#c2185b",
+                "#8a8a8a"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "circle"
+      ],
+      "sourceId": "funeral-facilities",
+      "sourceUrl": "./funeral/funeral_facilities.geojson"
+    },
+    "funeralOperators": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "funeralOperators",
+      "layers": [
+        {
+          "filter": [
+            "all",
+            [
+              "==",
+              [
+                "get",
+                "is_active"
+              ],
+              true
+            ],
+            [
+              "has",
+              "operator_id"
+            ]
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "coalesce",
+                  [
+                    "get",
+                    "entity_type"
+                  ],
+                  "unknown"
+                ],
+                "business",
+                "#b08968",
+                "company",
+                "#6a8caf",
+                "#8a8a8a"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "coalesce",
+                  [
+                    "get",
+                    "entity_type"
+                  ],
+                  "unknown"
+                ],
+                "business",
+                "#b08968",
+                "company",
+                "#6a8caf",
+                "#8a8a8a"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "circle"
+      ],
+      "sourceId": "funeral-operators",
+      "sourceUrl": "./funeral/funeral_operators.geojson"
+    }
+  },
+  "params": {
+    "cemeteryOsm": [
+      {
+        "label": "透明度 0.45",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.45,
+        "valueText": "0.45"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "point"
+      }
+    ],
+    "cemeteryZoning": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "公墓／墓地用地",
+            "value": "公墓用地"
+          },
+          {
+            "label": "殯葬設施用地",
+            "value": "殯葬設施用地"
+          },
+          {
+            "label": "殯儀館用地",
+            "value": "殯儀館用地"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "公墓用地",
+          "殯葬設施用地",
+          "殯儀館用地"
+        ]
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "point"
+      }
+    ],
+    "funeralFacilities": [
+      {
+        "label": "類型",
+        "options": [
+          {
+            "label": "全部",
+            "value": "all"
+          },
+          {
+            "label": "公墓 (2,928)",
+            "value": "cemetery"
+          },
+          {
+            "label": "納骨堂塔 (607)",
+            "value": "columbarium"
+          },
+          {
+            "label": "環保葬 (66)",
+            "value": "eco_burial"
+          },
+          {
+            "label": "殯儀館 (64)",
+            "value": "funeral_home"
+          },
+          {
+            "label": "火化場 (41)",
+            "value": "crematorium"
+          },
+          {
+            "label": "禮廳／靈堂 (1)",
+            "value": "ritual_hall"
+          }
+        ],
+        "type": "select",
+        "value": "all"
+      },
+      {
+        "label": "定位精度",
+        "options": [
+          {
+            "label": "全部",
+            "value": "all"
+          },
+          {
+            "label": "僅精確定位",
+            "value": "exact"
+          },
+          {
+            "label": "僅概略座標",
+            "value": "approx"
+          }
+        ],
+        "type": "select",
+        "value": "all"
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "funeralOperatorDensity": [
+      {
+        "label": "透明度 0.60",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.6,
+        "valueText": "0.60"
+      }
+    ],
+    "funeralOperators": [
+      {
+        "label": "營業狀態",
+        "options": [
+          {
+            "label": "仍營業 (4,569)",
+            "value": "active"
+          },
+          {
+            "label": "已失效 (1,664)",
+            "value": "inactive"
+          },
+          {
+            "label": "全部 (6,233)",
+            "value": "all"
+          }
+        ],
+        "type": "select",
+        "value": "active"
+      },
+      {
+        "label": "定位精度",
+        "options": [
+          {
+            "label": "全部",
+            "value": "all"
+          },
+          {
+            "label": "僅精確定位",
+            "value": "exact"
+          },
+          {
+            "label": "僅概略座標",
+            "value": "approx"
+          }
+        ],
+        "type": "select",
+        "value": "all"
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ]
+  }
+}

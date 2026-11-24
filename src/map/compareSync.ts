@@ -41,3 +41,59 @@ export function syncMaps(a: SyncableMap, b: SyncableMap, afterMirror?: (from: Sy
   b.on("move", fromB);
   return () => { a.off("move", fromA); b.off("move", fromB); };
 }
+
+// ── 兩國並排：只同步比例尺（G2-1，站主 2026-11-24 決定 2）──────────────────
+// 兩國位置各看各的，只讓「同樣長度的線代表同樣的公尺數」。Mercator 每像素公尺數和 cos(緯度) 成正比，
+// 所以同一個 zoom 在台灣（24°N）和英國（54°N）差約 1.55 倍：zoomB = zoomA + log2(cos φB / cos φA)。
+// 中心、旋轉、傾斜、padding 都不同步。
+
+/** 比例尺同步只需要的地圖介面 */
+export interface ScaleSyncableMap {
+  on(type: "move", listener: () => void): unknown;
+  off(type: "move", listener: () => void): unknown;
+  getCenter(): { lng: number; lat: number };
+  getZoom(): number;
+  jumpTo(options: { zoom: number }): unknown;
+}
+
+/** 緯度夾在 ±85（Mercator 上限），避免 cos→0 */
+const clampLat = (lat: number) => Math.max(-85, Math.min(85, lat));
+const cosLat = (lat: number) => Math.cos((clampLat(lat) * Math.PI) / 180);
+
+/** 讓緯度 `toLat` 處的比例尺等於 `fromLat` 處 zoom `fromZoom` 的比例尺 */
+export function scaleMatchedZoom(fromZoom: number, fromLat: number, toLat: number): number {
+  return fromZoom + Math.log2(cosLat(toLat) / cosLat(fromLat));
+}
+
+/** 浮點誤差內視為同一級（避免互相 jumpTo 抖動） */
+const ZOOM_EPSILON = 1e-6;
+
+/** 把 `to` 的縮放對齊 `from` 的比例尺（只動 zoom，不動中心）；有動回 true */
+export function alignScale(from: ScaleSyncableMap, to: ScaleSyncableMap): boolean {
+  const target = scaleMatchedZoom(from.getZoom(), from.getCenter().lat, to.getCenter().lat);
+  if (!Number.isFinite(target) || Math.abs(to.getZoom() - target) < ZOOM_EPSILON) return false;
+  to.jumpTo({ zoom: target });
+  return true;
+}
+
+/**
+ * 雙向比例尺同步：哪一張在動（縮放或平移換了緯度），就調另一張的 zoom；防重入旗標避免互相觸發。
+ * `isLocked()` 每次 move 都讀（開關可隨時切）；關掉後不再同步，重新打開由呼叫端 `alignScale(主, 右)` 對齊一次。
+ */
+export function syncScale(a: ScaleSyncableMap, b: ScaleSyncableMap, isLocked: () => boolean): () => void {
+  let syncing = false;
+  const follow = (from: ScaleSyncableMap, to: ScaleSyncableMap) => () => {
+    if (syncing || !isLocked()) return;
+    syncing = true;
+    try {
+      alignScale(from, to);
+    } finally {
+      syncing = false;
+    }
+  };
+  const fromA = follow(a, b);
+  const fromB = follow(b, a);
+  a.on("move", fromA);
+  b.on("move", fromB);
+  return () => { a.off("move", fromA); b.off("move", fromB); };
+}

@@ -47,6 +47,13 @@ describe("Global Events concise popup", () => {
 
   it("retains pending/researched status and never presents formal event time as collection time", () => {
     expect(render({ ...props, assessment_status: "pending" })).toContain("待 AI 判斷（尚未研究確認）");
+    const rejected = render({ ...props, assessment_status: "pending", ai_unassessed: "provider_rejected",
+      reason_zh_tw: "AI 供應商內容審查拒絕判讀（Alibaba data_inspection_failed）；本筆未經 AI 判讀，不代表不相關或不重要。" });
+    expect(rejected).toContain("AI 未判讀（不會再判）");
+    expect(rejected).not.toContain("待 AI 判斷");
+    expect(rejected).toContain("沒有通過 AI 服務的自動內容審查");
+    for (const code of ["Alibaba", "data_inspection_failed"]) expect(rejected).not.toContain(code);
+    expect(render({ ...props, assessment_status: "pending", ai_unassessed: "model_failed" })).toContain("多次嘗試都沒有取得有效的 AI 判讀");
     const formal = render({ ...props, research_status: "published" });
     expect(formal).toContain("已研究並正式發布");
     expect(formal).toMatch(/>來源收集時間<\/span><span[^>]*>—<\/span>/);

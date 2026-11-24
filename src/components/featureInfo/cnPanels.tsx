@@ -3,13 +3,13 @@
 import type { FC } from "react";
 import { Row, SourceFooter, Title } from "./shared";
 import { useLocale } from "../../state/localeStore";
-import { caText } from "../../data/caInfraTypes";
+import { caText } from "../../data/intlLayerShared";
 import {
   CN_ADMIN_COLOR, CN_ADMIN_SOURCE, CN_DATA_SPECS, CN_FETCHED_AT, CN_NOT_COVERED_COLOR, CN_POPULATION_SOURCE, CN_UNIT_TYPE,
   asPhSpec, pickL3, type L3,
 } from "../../data/cnDataLayers";
 import type { CnDataKey } from "../../data/cnDataKeys";
-import { makePhPanel } from "./phPanels";
+import { makePhPanel } from "./intlSpecPanel";
 
 type P = { props: Record<string, unknown> };
 const LEVEL: Record<string, L3> = { province: { zh: "省級", en: "Province-level", ja: "省級" }, prefecture: { zh: "地級", en: "Prefecture-level", ja: "地級" } };

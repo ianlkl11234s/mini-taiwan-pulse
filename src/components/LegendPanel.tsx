@@ -16,6 +16,10 @@ import { PUBLIC_LIFE_COLORS } from "../data/publicLifePalette";
 import { useAnalysisLegend } from "../research/analysisLegendStore";
 import { AnalysisLegendSection } from "../research/AnalysisLegendSection";
 import { legendKeys } from "../data/legendGroups";
+import { activeRightCountry, useCompareSelector } from "../state/compareStore";
+import { useCountry } from "../state/countryStore";
+import { isRightSideKey } from "../map/compareCountrySides";
+import { countryDef, type CountryCode } from "../constants/countries";
 import { AGRI_ENABLED_STATISTICS_RECIPES } from "../data/agriStatisticsRecipes";
 import { SOCIAL_ENABLED_STATISTICS_RECIPES } from "../data/socialStatisticsRecipes";
 import { LABOR_ENABLED_STATISTICS_RECIPES } from "../data/laborStatisticsRecipes";
@@ -43,6 +47,7 @@ import { AisstreamVesselsLegend, AllenCoralAtlasLegend, AquacultureIntegratedLeg
 import { TransitReachGridLegend, TransitReachPlaybackLegend } from "./legend/transitReachLegends";
 import { FreewayTdcsSimLegend } from "./legend/freewayTdcsSimLegends";
 import { MapchallengeFacilityLegend, MapchallengeDay19ComplaintsLegend, MapchallengeDay19PotentialLegend, MapchallengeDay19PenaltiesLegend, MapchallengeDay21OsmRoadsLegend, MapchallengeDay23TasteTermsLegend, MapchallengeDay23TastePlacesLegend, MapchallengeDay23TasteForeignLegend, MapchallengeDay23TasteIntlLegend, MapchallengeDay23TasteVariantsLegend, MapchallengeOverlapLegend, MapchallengePopulationLegend, MapchallengeScaleTcChLegend, MapchallengeSeaViewLegend, MapchallengeSeaViewRunsLegend, MapchallengeDay06CoastLegend, MapchallengeDay06LighthousesLegend, MapchallengeDay06Taipei1932Legend, MapchallengeDay06Temples1921Legend, MapchallengeDay08AccessLegend, MapchallengeDay08ParksLegend, MapchallengeDay08Plan1955Legend, MapchallengeDay08SitesLegend, MapchallengeDay09UrbanRuralLegend, MapchallengeDay17DarkRoadsLegend, MapchallengeDay17DarkSkyLegend, MapchallengeDay17NightFallLegend, MapchallengeDay17LedShareLegend } from "./legend/mapchallengeLegends";
+import { mapchallengeDay21YearAt } from "../data/mapchallengeDay21Types";
 import { TransitAccessGridLegend, TransitAccessPlaybackLegend } from "./legend/transitAccessLegends";
 import { AviationAirspaceLegend, CctvLegend, DroneZonesLegend, FlightsLegend, FreewayCongestionLegend, HistoricalFlightTrailsLegend, JpRailwaysLegend, JpMajorRoadsLegend, JpMunicipalRoadsLegend, JpExpresswaysLegend, JpStationsLegend, OsmRoadDriveLegend, ParkingLegend, PortsLegend, RailLegend, RoadCongestionLegend, RoadEventsLegend, SatelliteLegend, TouristShuttleLegend, BusCrowdingSimLegend } from "./legend/transportLegends";
 import { AspectVectorLegend, BridgeResilienceLegend, BssBridgeLineLegend, BssBridgePointLegend, DisasterAlertLegend, EarthquakeGlobalLegend, EarthquakeLegend, EarthquakeReplayLegend, ErCongestionLegend, FireEventLegend, FireHydrantLegend, FireIsochroneLegend, FireStationLegend, FloodSensorLegend, GlobalEventsLegend, LiquefactionMonitoringLegend, MountainRescueLegend, NewsEventsLegend, NuclearLegend, SlopeVectorLegend, SoilLiquefactionPotentialLegend, TyphoonAgencyForecastLegend, TyphoonTrackLegend, WeakSoilLegend } from "./legend/hazardLegends";
@@ -324,12 +329,12 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "mapchallengeDay17LedShare", render: ({ isDark }) => <MapchallengeDay17LedShareLegend isDark={isDark} /> },
   { id: "mapchallengeDay19Complaints", render: ({ isDark }) => <MapchallengeDay19ComplaintsLegend isDark={isDark} /> },
   { id: "mapchallengeDay19Potential", render: ({ isDark, overlayParams, embedded }) => <MapchallengeDay19PotentialLegend isDark={isDark} windIdx={embedded ? (overlayParams.mapchallengeDay19PotentialWindIdx ?? 0) : undefined} /> },
-  { id: "mapchallengeDay19Penalties", render: ({ isDark }) => <MapchallengeDay19PenaltiesLegend isDark={isDark} /> },
-  { id: "mapchallengeDay21OsmRoads", render: ({ isDark }) => <MapchallengeDay21OsmRoadsLegend isDark={isDark} /> },
-  { id: "mapchallengeDay23TasteTerms", render: ({ isDark }) => <MapchallengeDay23TasteTermsLegend isDark={isDark} /> },
-  { id: "mapchallengeDay23TasteVariants", render: ({ isDark }) => <MapchallengeDay23TasteVariantsLegend isDark={isDark} /> },
-  { id: "mapchallengeDay23TastePlaces", render: ({ isDark }) => <MapchallengeDay23TastePlacesLegend isDark={isDark} /> },
-  { id: "mapchallengeDay23TasteForeign", render: ({ isDark }) => <MapchallengeDay23TasteForeignLegend isDark={isDark} /> },
+  { id: "mapchallengeDay19Penalties", render: ({ isDark, overlayParams, embedded }) => <MapchallengeDay19PenaltiesLegend isDark={isDark} scale={embedded ? (overlayParams.mapchallengeDay19PenaltiesScale ?? 1) : undefined} /> },
+  { id: "mapchallengeDay21OsmRoads", render: ({ isDark, overlayParams, embedded }) => <MapchallengeDay21OsmRoadsLegend isDark={isDark} year={embedded ? mapchallengeDay21YearAt(overlayParams.mapchallengeDay21OsmRoadsYear) : undefined} newOnly={embedded ? (overlayParams.mapchallengeDay21OsmRoadsNewOnly ?? 0) !== 0 : undefined} /> },
+  { id: "mapchallengeDay23TasteTerms", render: ({ isDark, overlayParams, embedded }) => <MapchallengeDay23TasteTermsLegend isDark={isDark} termIdx={embedded ? (overlayParams.mapchallengeDay23TasteTermsTermIdx ?? 0) : undefined} scale={embedded ? (overlayParams.mapchallengeDay23TasteTermsScale ?? 1) : undefined} /> },
+  { id: "mapchallengeDay23TasteVariants", render: ({ isDark, overlayParams, embedded }) => <MapchallengeDay23TasteVariantsLegend isDark={isDark} groupIdx={embedded ? (overlayParams.mapchallengeDay23TasteVariantsGroupIdx ?? 0) : undefined} scale={embedded ? (overlayParams.mapchallengeDay23TasteVariantsScale ?? 1) : undefined} /> },
+  { id: "mapchallengeDay23TastePlaces", render: ({ isDark, overlayParams, embedded }) => <MapchallengeDay23TastePlacesLegend isDark={isDark} scale={embedded ? (overlayParams.mapchallengeDay23TastePlacesScale ?? 1) : undefined} /> },
+  { id: "mapchallengeDay23TasteForeign", render: ({ isDark, overlayParams, embedded }) => <MapchallengeDay23TasteForeignLegend isDark={isDark} scale={embedded ? (overlayParams.mapchallengeDay23TasteForeignScale ?? 1) : undefined} /> },
   { id: "mapchallengeDay23TasteKr", render: ({ isDark }) => <MapchallengeDay23TasteIntlLegend layerKey="mapchallengeDay23TasteKr" isDark={isDark} /> },
   { id: "mapchallengeDay23TasteGb", render: ({ isDark }) => <MapchallengeDay23TasteIntlLegend layerKey="mapchallengeDay23TasteGb" isDark={isDark} /> },
   { id: "mapchallengeDay23TasteJp", render: ({ isDark }) => <MapchallengeDay23TasteIntlLegend layerKey="mapchallengeDay23TasteJp" isDark={isDark} /> },
@@ -830,7 +835,28 @@ export const LegendPanel = memo(function LegendPanel({
   useEffect(() => { if (hasAnalysisLegend) setExpanded(true); }, [hasAnalysisLegend]);
 
   const active = LEGEND_REGISTRY.filter((e) => legendKeys(e.id).some((k) => visibility[k]));
+  // 兩國並排（G2-1）：同一個面板分「左・國家」「右・國家」兩段（圖例跟著圖層畫在哪一側；embed 沒有並排）
+  const rightCountry = useCompareSelector(activeRightCountry);
+  const leftCountry = useCountry();
+  const splitSides = !embedded && rightCountry !== null;
+  const isRightEntry = (entry: LegendEntry) => splitSides && legendKeys(entry.id).some((k) => visibility[k] && isRightSideKey(k, rightCountry));
+  const rightActive = splitSides ? active.filter(isRightEntry) : [];
+  const leftActive = splitSides ? active.filter((entry) => !isRightEntry(entry)) : active;
   if (active.length === 0 && !hasAnalysisLegend) return null;
+  const renderEntry = (entry: LegendEntry) => (
+    // LG-14：面圖層的色票畫「目前透明度 × 底圖陸地色」的合成色（查不到透明度的圖層維持原色票）。
+    <LegendFillOpacityCtx.Provider key={entry.id} value={legendFillOpacity(legendKeys(entry.id), visibility, isDarkTheme, overlayParams) ?? null}>
+      {/* C-4：點／線色票換成地圖上提亮後的顏色 */}
+      <LegendLiftCtx.Provider value={legendLiftMap(legendKeys(entry.id), visibility, isDarkTheme)}>
+        {entry.render({ visibility, overlayParams, isDark: isDarkTheme, railSystems, embedded, i18n })}
+      </LegendLiftCtx.Provider>
+    </LegendFillOpacityCtx.Provider>
+  );
+  const sideHeading = (side: "compare.sideLeft" | "compare.sideRight", country: CountryCode) => (
+    <div style={{ fontSize: FONT_SIZE.xs, fontWeight: 600, color: c.headerText, borderBottom: `1px solid ${c.panelBorder}`, paddingBottom: 2 }}>
+      {i18n.t("compare.legendSide", { side: i18n.t(side), country: i18n.t(countryDef(country).labelKey) })}
+    </div>
+  );
 
   return (
     <LegendThemeCtx.Provider value={legendPalette}>
@@ -883,15 +909,10 @@ export const LegendPanel = memo(function LegendPanel({
       {expanded && (
         <div className="layer-sidebar-scroll" style={{ padding: "0 10px 8px", display: "flex", flexDirection: "column", gap: 10, minHeight: 0, overflowY: "auto" }}>
           <AnalysisLegendSection entries={analysisLegend.entries} compact={analysisLegend.compact} isDark={isDarkTheme} />
-          {active.map((entry) => (
-            // LG-14：面圖層的色票畫「目前透明度 × 底圖陸地色」的合成色（查不到透明度的圖層維持原色票）。
-            <LegendFillOpacityCtx.Provider key={entry.id} value={legendFillOpacity(legendKeys(entry.id), visibility, isDarkTheme, overlayParams) ?? null}>
-              {/* C-4：點／線色票換成地圖上提亮後的顏色 */}
-              <LegendLiftCtx.Provider value={legendLiftMap(legendKeys(entry.id), visibility, isDarkTheme)}>
-                {entry.render({ visibility, overlayParams, isDark: isDarkTheme, railSystems, embedded, i18n })}
-              </LegendLiftCtx.Provider>
-            </LegendFillOpacityCtx.Provider>
-          ))}
+          {splitSides && leftActive.length > 0 && sideHeading("compare.sideLeft", leftCountry)}
+          {leftActive.map(renderEntry)}
+          {rightActive.length > 0 && rightCountry && sideHeading("compare.sideRight", rightCountry)}
+          {rightActive.map(renderEntry)}
         </div>
       )}
     </div>

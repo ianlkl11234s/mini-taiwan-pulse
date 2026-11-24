@@ -1,0 +1,458 @@
+{
+  "count": 2,
+  "gisLayers": {
+    "urbanFormGrid": {
+      "layers": [
+        "urban-form-grid-fill"
+      ],
+      "type": "urbanFormGrid"
+    }
+  },
+  "overlays": {
+    "urbanFormGrid": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "urbanFormGrid",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "step",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "gg_index"
+                  ],
+                  0
+                ],
+                "#8c510a",
+                -40,
+                "#d8b365",
+                -10,
+                "#f6e8c3",
+                10,
+                "#c7eae5",
+                50,
+                "#5ab4ac",
+                90,
+                "#01665e"
+              ],
+              "fill-opacity": 0.8
+            },
+            "light": {
+              "fill-color": [
+                "step",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "gg_index"
+                  ],
+                  0
+                ],
+                "#8c510a",
+                -40,
+                "#d8b365",
+                -10,
+                "#f6e8c3",
+                10,
+                "#c7eae5",
+                50,
+                "#5ab4ac",
+                90,
+                "#01665e"
+              ],
+              "fill-opacity": 0.7
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 12,
+        "minzoom": 5,
+        "sourceLayer": "urban_form"
+      },
+      "rebuildOnParamChange": null,
+      "sourceId": "urban-form-grid",
+      "sourceUrl": "./urban/urban_form_grid_500m.pmtiles"
+    },
+    "urbanHeat": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "urbanHeat",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "raster-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "raster-value"
+                ],
+                -10,
+                "#2166ac",
+                -7.5,
+                "#4393c3",
+                -5,
+                "#92c5de",
+                -2.5,
+                "#d1e5f0",
+                0,
+                "#f7f7f7",
+                2,
+                "#fddbc7",
+                4,
+                "#f4a582",
+                6,
+                "#d6604d",
+                8,
+                "#b2182b"
+              ],
+              "raster-color-mix": [
+                51,
+                0,
+                0,
+                -30
+              ],
+              "raster-color-range": [
+                -30,
+                21
+              ],
+              "raster-fade-duration": 0,
+              "raster-opacity": 0.7,
+              "raster-resampling": "nearest"
+            },
+            "light": {
+              "raster-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "raster-value"
+                ],
+                -10,
+                "#2166ac",
+                -7.5,
+                "#4393c3",
+                -5,
+                "#92c5de",
+                -2.5,
+                "#d1e5f0",
+                0,
+                "#f7f7f7",
+                2,
+                "#fddbc7",
+                4,
+                "#f4a582",
+                6,
+                "#d6604d",
+                8,
+                "#b2182b"
+              ],
+              "raster-color-mix": [
+                51,
+                0,
+                0,
+                -30
+              ],
+              "raster-color-range": [
+                -30,
+                21
+              ],
+              "raster-fade-duration": 0,
+              "raster-opacity": 0.7,
+              "raster-resampling": "nearest"
+            }
+          },
+          "suffix": "raster",
+          "type": "raster"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 11,
+        "minzoom": 6
+      },
+      "rebuildOnParamChange": null,
+      "sourceId": "urban-heat-lst",
+      "sourceUrl": "./environment/urban_heat_lst_taiwan.pmtiles"
+    }
+  },
+  "params": {
+    "urbanFormGrid": [
+      {
+        "label": "顯示模式",
+        "options": [
+          {
+            "bands": [
+              {
+                "color": "#fef0d9",
+                "label": "1–10 棟",
+                "max": 10
+              },
+              {
+                "color": "#fdcc8a",
+                "label": "10–50 棟",
+                "max": 50
+              },
+              {
+                "color": "#fc8d59",
+                "label": "50–150 棟",
+                "max": 150
+              },
+              {
+                "color": "#e34a33",
+                "label": "150–400 棟",
+                "max": 400
+              },
+              {
+                "color": "#b30000",
+                "label": "> 400 棟",
+                "max": null
+              }
+            ],
+            "field": "bld_count",
+            "label": "棟數密度",
+            "value": "0",
+            "zeroFade": true
+          },
+          {
+            "bands": [
+              {
+                "color": "#4575b4",
+                "label": "< 3 m",
+                "max": 3
+              },
+              {
+                "color": "#91bfdb",
+                "label": "3–5 m",
+                "max": 5
+              },
+              {
+                "color": "#e0f3f8",
+                "label": "5–7 m",
+                "max": 7
+              },
+              {
+                "color": "#fee090",
+                "label": "7–12 m",
+                "max": 12
+              },
+              {
+                "color": "#fc8d59",
+                "label": "12–20 m",
+                "max": 20
+              },
+              {
+                "color": "#d73027",
+                "label": "> 20 m",
+                "max": null
+              }
+            ],
+            "field": "avg_height",
+            "label": "平均高度",
+            "value": "1",
+            "zeroFade": true
+          },
+          {
+            "bands": [
+              {
+                "color": "#f1eef6",
+                "label": "< 1 萬m³",
+                "max": 1
+              },
+              {
+                "color": "#d4b9da",
+                "label": "1–10 萬m³",
+                "max": 10
+              },
+              {
+                "color": "#c994c7",
+                "label": "10–50 萬m³",
+                "max": 50
+              },
+              {
+                "color": "#df65b0",
+                "label": "50–200 萬m³",
+                "max": 200
+              },
+              {
+                "color": "#980043",
+                "label": "> 200 萬m³",
+                "max": null
+              }
+            ],
+            "field": "total_vol",
+            "label": "總量體",
+            "value": "2",
+            "zeroFade": true
+          },
+          {
+            "bands": [
+              {
+                "color": "#ffffd4",
+                "label": "< 1%",
+                "max": 1
+              },
+              {
+                "color": "#fee391",
+                "label": "1–5%",
+                "max": 5
+              },
+              {
+                "color": "#fec44f",
+                "label": "5–15%",
+                "max": 15
+              },
+              {
+                "color": "#fe9929",
+                "label": "15–30%",
+                "max": 30
+              },
+              {
+                "color": "#d95f0e",
+                "label": "30–50%",
+                "max": 50
+              },
+              {
+                "color": "#993404",
+                "label": "> 50%",
+                "max": null
+              }
+            ],
+            "field": "built_pct",
+            "label": "建蔽率",
+            "value": "3",
+            "zeroFade": true
+          },
+          {
+            "bands": [
+              {
+                "color": "#edf8e9",
+                "label": "< 10%",
+                "max": 10
+              },
+              {
+                "color": "#c7e9c0",
+                "label": "10–30%",
+                "max": 30
+              },
+              {
+                "color": "#a1d99b",
+                "label": "30–60%",
+                "max": 60
+              },
+              {
+                "color": "#74c476",
+                "label": "60–85%",
+                "max": 85
+              },
+              {
+                "color": "#31a354",
+                "label": "85–95%",
+                "max": 95
+              },
+              {
+                "color": "#006d2c",
+                "label": "> 95%",
+                "max": null
+              }
+            ],
+            "field": "canopy_pct",
+            "label": "樹冠覆蓋",
+            "value": "4",
+            "zeroFade": false
+          },
+          {
+            "bands": [
+              {
+                "color": "#8c510a",
+                "label": "< −40（灰主導）",
+                "max": -40
+              },
+              {
+                "color": "#d8b365",
+                "label": "−40 ~ −10",
+                "max": -10
+              },
+              {
+                "color": "#f6e8c3",
+                "label": "−10 ~ +10（均衡）",
+                "max": 10
+              },
+              {
+                "color": "#c7eae5",
+                "label": "+10 ~ +50",
+                "max": 50
+              },
+              {
+                "color": "#5ab4ac",
+                "label": "+50 ~ +90",
+                "max": 90
+              },
+              {
+                "color": "#01665e",
+                "label": "> +90（綠主導）",
+                "max": null
+              }
+            ],
+            "field": "gg_index",
+            "label": "灰綠指數",
+            "value": "5",
+            "zeroFade": false
+          }
+        ],
+        "type": "select",
+        "value": "5"
+      },
+      {
+        "label": "填色透明度 0.55",
+        "max": 1,
+        "min": 0,
+        "name": "填色透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "urbanHeat": [
+      {
+        "label": "顯示",
+        "options": [
+          {
+            "label": "熱島強度 ΔT",
+            "value": "0"
+          },
+          {
+            "label": "絕對地表溫度",
+            "value": "1"
+          }
+        ],
+        "type": "select",
+        "value": "0"
+      },
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.3,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      }
+    ]
+  }
+}

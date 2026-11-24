@@ -547,7 +547,7 @@
 - **位置**：右上，單一底板；左上為品牌字標＋座標 HUD（§5.18）。
 - **底板**：`SURFACE.strong`（淡 `LIGHT.surfacePanel`）、`1px BORDER.panel`、`borderRadius 7`、padding 3、gap 4、`ELEVATION.lg`；窄寬度整條換行並維持靠右（`marginLeft: auto`）。
 - **組成順序**（固定）：即時／歷史分段 ｜ 底圖 ｜ 左右比較（圖示，桌機才有）、分享（圖示）、說明（圖示）、AI（一般，開啟時主要）、**拍攝模式**（主要按鈕）｜ 語言（圖示）、帳號。
-- **左右比較**（2026-11-11，§5.45）：lucide `Columns2` 13px 一般圖示按鈕，開啟時 accentFaint 底（`ToolbarButton` `pressed`、`aria-pressed`）；title「左右比較」／「結束左右比較」。窄螢幕（手機）不放（第一期只做桌機）。
+- **左右比較**（2026-11-11，§5.45；2026-11-24 改成選單）：lucide `Columns2` 13px 一般圖示按鈕，開啟時 accentFaint 底（`ToolbarButton` `pressed`、`aria-pressed`）；title「左右比較」／「結束左右比較」。點了打開模式選單（§5.45.1「入口」），不直接開關。窄螢幕（手機）不放（第一期只做桌機）。
 - **語言**（2026-10-12）：lucide `Languages` 13px 圖示按鈕，點開 popover 列出「中文／EN／日本語」，目前語系用 accentFaint 底、accent 字標示；popover 樣式同底圖選單（§5.19）。手機不放工具列，收在 ⋯ 選單（§5.29）。實作 `src/components/toolbar/LanguageMenu.tsx`。`｜` 為 1px×16 直線，色 `palette.controlBorder`（暗 `CONTROL.border`／淡 `LIGHT.controlBorder`）。
 - **項目**：高 26、圓角 4、icon 13px（§5.7）。
 - **拿掉的東西**：Monitor BETA 按鈕（左側 rail「監測模式」保留）、第二排、計數列「flights · ships · 台灣好行」；操作提示移進「說明」。
@@ -1133,6 +1133,25 @@
 - **文案**：`compare.*`（三語）。
 - **禁止**：在右圖另做一套圖層控制或圖例面板；把比較狀態寫進 localStorage；讓不支援的層靜默消失（一律畫在左側並標示）。
 - **實作**：`src/components/compare/{CompareDivider.tsx,compareDivider.css,CompareStatisticsLegend.tsx}`、`src/map/{CompareMapView.tsx,compareSync.ts,compareRightMap.ts}`、`src/state/{compareStore.ts,compareStatistics.ts,compareControls.ts}`；掛在 `App.tsx`。
+
+#### 5.45.1 兩國並排（2026-11-24，G2-1）
+
+站主 2026-11-24 拍板（`.gis-agent-system/projects/2026-11-23-multi-country-restructure/G2-EVAL.md`）：同一個「比較」入口，選「兩國並排」時左右各放一個國家，同比例尺、同一刻。
+
+- **入口**：工具列比較鈕打開選單（`role="menu"`，寬 232、`popupBg`、`RADIUS.xl`）：每個模式一列 `menuitemradio`（名稱 sm 600＋一行說明 xs `textMuted`；目前模式 accentFaint 底），比較開著時下面分隔線＋「結束比較」。模式清單來自 `COMPARE_MODES`，之後加模式只多一列。
+- **版面**：右圖是右半幅容器（不用 clip-path），主地圖全寬、右 padding＝半寬，所以主地圖中心落在左半。中間分隔線固定 50%、不可拖（同拉桿的線，不畫圓鈕與熱區）。
+- **頂端列**（工具列下方，`pointer-events` 只在按鈕上）：左側國家 chip（下拉，任何國家＝圖層面板目前國家，換國家會飛到該國上次的鏡頭）｜比例尺同步開關（lucide `Ruler`，開著 accentFaint 底、`aria-pressed`）｜右側國家 chip 列（只列釘選的外國；目前右國永遠在列；「其他國家…」下拉可選任何外國，台灣不能放右邊）。下面左右各一條比例尺（各量各的地圖）；底部 dock 的比例尺在並排時不畫。
+- **比例尺同步**：預設開。`zoomB = zoomA + log2(cos φB / cos φA)`，雙向、每次移動重算、防重入；方位與傾角各自獨立。關掉後兩邊各自縮放，再打開時以左圖為準重新對齊。
+- **哪些圖層畫在右邊**：看 manifest `country`。右國圖層畫在右圖（右圖另掛一份 `<LayerHosts role="right">`，主圖同一批 Host 讀到的開關是 false）；其他國家、WORLD、SIM 都在左圖。走 overlay registry 的右國圖層由右圖自己掛一份 overlay（hydrate 紀錄以地圖實例分開；2026-11-24 G2-1b），主地圖把它們讀成關閉。例外：立體層（`jpHistoricalFlightTrails`）仍只畫在左圖，圖層列標「只在左側」（滑過看原因）；其他右國圖層列尾標「右」。拉桿專用的「顯示在」控制與統計左右合成圖例在並排時不出現。
+- **點擊**：右圖的點擊由右圖處理（命中順序同主地圖，`src/map/gisClickQuery.ts`），結果進同一個停靠 popup；選取圈只畫在被點的那一側。
+- **圖例**：仍只有一個面板，分「左・國家」「右・國家」兩段（小標 xs 600 `headerText`、下底線）。
+- **時間**：同一刻；時間軸展開時列出兩國當地時間（和台灣同時區的不另列；右側時間來源留給 G2-4「當地同時刻」）。
+- **分享網址**：`cmp=2`、`cmpc`（右國，小寫）、`cmpv`（右圖 `lng,lat,zoom[,bearing,pitch]`）、`cmpsl=0`（比例尺同步關）；`cmp=1` 照舊是拉桿。
+- **AI（MCP）**：只操作左圖；畫面摘要只算主地圖露出的左半，且不列右國圖層。
+- **手機**：不支援；帶 `cmp=2` 的網址用單一地圖開、參數原樣保留（同拉桿）。
+- **說明卡**：開並排時同一張提示卡（§5.42）說明左右分工；按「知道了」後記在這個瀏覽器（`pulse.compareCountriesTipSeen.v1`），之後不再出現。拉桿的說明照舊每次開比較出現一次。
+- **載入**：右圖建立登記 loadingRegistry（「右側地圖」），右圖 overlay 的載入任務加 `-right` 後綴；換右國時整張右圖重建，舊國圖層不殘留。
+- **實作**：`src/map/{CountryCompareMapView.tsx,compareCountrySides.ts,gisClickQuery.ts,compareSync.ts}`、`src/components/compare/CountryCompareChrome.tsx`、`src/components/toolbar/CompareMenu.tsx`、`src/state/compareStore.ts`、`src/layers/LayerHost.tsx`（`role`）、`src/research/visibleSummary.ts`（左半範圍）。
 
 ### 5.46 星期格子（popup 內的每週排程，2026-11-17，南韓 KRH-1）
 

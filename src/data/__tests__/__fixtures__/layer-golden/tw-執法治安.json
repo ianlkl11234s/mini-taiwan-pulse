@@ -1,0 +1,6183 @@
+{
+  "count": 22,
+  "gisLayers": {
+    "a1AccidentRealtime": {
+      "layers": [
+        "a1-accident-realtime-circle",
+        "a1-accident-realtime-halo",
+        "a1-accident-realtime-ripple-outer"
+      ],
+      "type": "a1AccidentRealtime"
+    },
+    "accidentTaipei": {
+      "layers": [
+        "accident-taipei-circle"
+      ],
+      "type": "accidentTaipei"
+    },
+    "antiCorruptionOffice": {
+      "layers": [
+        "anti-corruption-office-circle"
+      ],
+      "type": "antiCorruptionOffice"
+    },
+    "coastGuardStation": {
+      "layers": [
+        "coast-guard-station-circle"
+      ],
+      "type": "coastGuardStation"
+    },
+    "correctionalFacility": {
+      "layers": [
+        "correctional-facility-circle"
+      ],
+      "type": "correctionalFacility"
+    },
+    "court": {
+      "layers": [
+        "court-circle"
+      ],
+      "type": "court"
+    },
+    "courtJurisdiction": {
+      "layers": [
+        "court-jurisdiction-fill",
+        "court-jurisdiction-line"
+      ],
+      "type": "courtJurisdiction"
+    },
+    "harmReductionDuiCrashes": {
+      "layers": [
+        "harm-reduction-dui-crashes-circle",
+        "harm-reduction-dui-crashes-glow"
+      ],
+      "type": "harmReductionDuiCrashes"
+    },
+    "immigrationOffice": {
+      "layers": [
+        "immigration-office-circle"
+      ],
+      "type": "immigrationOffice"
+    },
+    "investigationBureau": {
+      "layers": [
+        "investigation-bureau-circle"
+      ],
+      "type": "investigationBureau"
+    },
+    "majorOccupationalAccidents": {
+      "layers": [
+        "major-occupational-accidents-circle",
+        "major-occupational-accidents-glow"
+      ],
+      "type": "majorOccupationalAccidents"
+    },
+    "policeIsoCityDept": {
+      "layers": [
+        "police-iso-city-dept-fill",
+        "police-iso-city-dept-line"
+      ],
+      "type": "policeIsoCityDept"
+    },
+    "policeIsoPrecinct": {
+      "layers": [
+        "police-iso-precinct-fill",
+        "police-iso-precinct-line"
+      ],
+      "type": "policeIsoPrecinct"
+    },
+    "policeIsoSubstation": {
+      "layers": [
+        "police-iso-substation-fill",
+        "police-iso-substation-line"
+      ],
+      "type": "policeIsoSubstation"
+    },
+    "policeStation": {
+      "layers": [
+        "police-station-circle"
+      ],
+      "type": "policeStation"
+    },
+    "prosecutorsOffice": {
+      "layers": [
+        "prosecutors-office-circle"
+      ],
+      "type": "prosecutorsOffice"
+    },
+    "speedCamera": {
+      "layers": [
+        "speed-camera-circle"
+      ],
+      "type": "speedCamera"
+    },
+    "speedZoneSegment": {
+      "layers": [
+        "speed-zone-segment-line"
+      ],
+      "type": "speedZoneSegment"
+    },
+    "theftTaoyuan": {
+      "layers": [
+        "theft-taoyuan-circle"
+      ],
+      "type": "theftTaoyuan"
+    },
+    "trafficAccidentYearly": {
+      "layers": [
+        "traffic-accident-yearly-circle"
+      ],
+      "type": "trafficAccidentYearly"
+    },
+    "trafficAccidents2025": {
+      "layers": [
+        "traffic-accidents-2025-circle",
+        "traffic-accidents-2025-glow"
+      ],
+      "type": "trafficAccidents2025"
+    },
+    "womenChildWarning": {
+      "layers": [
+        "women-child-warning-circle"
+      ],
+      "type": "womenChildWarning"
+    }
+  },
+  "overlays": {
+    "a1AccidentRealtime": {
+      "dynamicData": true,
+      "filter": null,
+      "id": "a1AccidentRealtime",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 1,
+              "circle-color": "#ef4444",
+              "circle-opacity": [
+                "min",
+                [
+                  "case",
+                  [
+                    "<",
+                    [
+                      "get",
+                      "age_hours"
+                    ],
+                    24
+                  ],
+                  [
+                    "*",
+                    0.3,
+                    0.95
+                  ],
+                  0
+                ],
+                0.35
+              ],
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                [
+                  "*",
+                  1,
+                  [
+                    "case",
+                    [
+                      "<",
+                      [
+                        "get",
+                        "age_hours"
+                      ],
+                      24
+                    ],
+                    14,
+                    0
+                  ]
+                ],
+                10,
+                [
+                  "*",
+                  1,
+                  [
+                    "case",
+                    [
+                      "<",
+                      [
+                        "get",
+                        "age_hours"
+                      ],
+                      24
+                    ],
+                    24,
+                    0
+                  ]
+                ],
+                14,
+                [
+                  "*",
+                  1,
+                  [
+                    "case",
+                    [
+                      "<",
+                      [
+                        "get",
+                        "age_hours"
+                      ],
+                      24
+                    ],
+                    36,
+                    0
+                  ]
+                ]
+              ]
+            },
+            "light": {
+              "circle-blur": 1,
+              "circle-color": "#ef4444",
+              "circle-opacity": [
+                "min",
+                [
+                  "case",
+                  [
+                    "<",
+                    [
+                      "get",
+                      "age_hours"
+                    ],
+                    24
+                  ],
+                  [
+                    "*",
+                    0.3,
+                    0.95
+                  ],
+                  0
+                ],
+                0.35
+              ],
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                [
+                  "*",
+                  1,
+                  [
+                    "case",
+                    [
+                      "<",
+                      [
+                        "get",
+                        "age_hours"
+                      ],
+                      24
+                    ],
+                    14,
+                    0
+                  ]
+                ],
+                10,
+                [
+                  "*",
+                  1,
+                  [
+                    "case",
+                    [
+                      "<",
+                      [
+                        "get",
+                        "age_hours"
+                      ],
+                      24
+                    ],
+                    24,
+                    0
+                  ]
+                ],
+                14,
+                [
+                  "*",
+                  1,
+                  [
+                    "case",
+                    [
+                      "<",
+                      [
+                        "get",
+                        "age_hours"
+                      ],
+                      24
+                    ],
+                    36,
+                    0
+                  ]
+                ]
+              ]
+            }
+          },
+          "suffix": "ripple-outer",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.6,
+              "circle-color": [
+                "step",
+                [
+                  "get",
+                  "age_hours"
+                ],
+                "#ef4444",
+                24,
+                "#dc2626",
+                168,
+                "#7f1d1d"
+              ],
+              "circle-opacity": [
+                "min",
+                [
+                  "*",
+                  0.95,
+                  [
+                    "step",
+                    [
+                      "get",
+                      "age_hours"
+                    ],
+                    0.45,
+                    24,
+                    0.25,
+                    168,
+                    0.12,
+                    720,
+                    0
+                  ]
+                ],
+                0.35
+              ],
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                [
+                  "*",
+                  1,
+                  [
+                    "*",
+                    6,
+                    [
+                      "step",
+                      [
+                        "get",
+                        "age_hours"
+                      ],
+                      1.2,
+                      24,
+                      0.7,
+                      168,
+                      0.4,
+                      720,
+                      0
+                    ]
+                  ]
+                ],
+                10,
+                [
+                  "*",
+                  1,
+                  [
+                    "*",
+                    12,
+                    [
+                      "step",
+                      [
+                        "get",
+                        "age_hours"
+                      ],
+                      1.2,
+                      24,
+                      0.7,
+                      168,
+                      0.4,
+                      720,
+                      0
+                    ]
+                  ]
+                ],
+                14,
+                [
+                  "*",
+                  1,
+                  [
+                    "*",
+                    20,
+                    [
+                      "step",
+                      [
+                        "get",
+                        "age_hours"
+                      ],
+                      1.2,
+                      24,
+                      0.7,
+                      168,
+                      0.4,
+                      720,
+                      0
+                    ]
+                  ]
+                ]
+              ]
+            },
+            "light": {
+              "circle-blur": 0.6,
+              "circle-color": [
+                "step",
+                [
+                  "get",
+                  "age_hours"
+                ],
+                "#ef4444",
+                24,
+                "#dc2626",
+                168,
+                "#7f1d1d"
+              ],
+              "circle-opacity": [
+                "min",
+                [
+                  "*",
+                  0.95,
+                  [
+                    "step",
+                    [
+                      "get",
+                      "age_hours"
+                    ],
+                    0.45,
+                    24,
+                    0.25,
+                    168,
+                    0.12,
+                    720,
+                    0
+                  ]
+                ],
+                0.35
+              ],
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                [
+                  "*",
+                  1,
+                  [
+                    "*",
+                    6,
+                    [
+                      "step",
+                      [
+                        "get",
+                        "age_hours"
+                      ],
+                      1.2,
+                      24,
+                      0.7,
+                      168,
+                      0.4,
+                      720,
+                      0
+                    ]
+                  ]
+                ],
+                10,
+                [
+                  "*",
+                  1,
+                  [
+                    "*",
+                    12,
+                    [
+                      "step",
+                      [
+                        "get",
+                        "age_hours"
+                      ],
+                      1.2,
+                      24,
+                      0.7,
+                      168,
+                      0.4,
+                      720,
+                      0
+                    ]
+                  ]
+                ],
+                14,
+                [
+                  "*",
+                  1,
+                  [
+                    "*",
+                    20,
+                    [
+                      "step",
+                      [
+                        "get",
+                        "age_hours"
+                      ],
+                      1.2,
+                      24,
+                      0.7,
+                      168,
+                      0.4,
+                      720,
+                      0
+                    ]
+                  ]
+                ]
+              ]
+            }
+          },
+          "suffix": "halo",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "step",
+                [
+                  "get",
+                  "age_hours"
+                ],
+                "#fa4f4d",
+                24,
+                "#e5312e",
+                168,
+                "#bf5952"
+              ],
+              "circle-opacity": 0.95,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                [
+                  "*",
+                  1,
+                  [
+                    "*",
+                    3,
+                    [
+                      "step",
+                      [
+                        "get",
+                        "age_hours"
+                      ],
+                      1.4,
+                      24,
+                      0.85,
+                      168,
+                      0.5,
+                      720,
+                      0
+                    ]
+                  ]
+                ],
+                10,
+                [
+                  "*",
+                  1,
+                  [
+                    "*",
+                    5,
+                    [
+                      "step",
+                      [
+                        "get",
+                        "age_hours"
+                      ],
+                      1.4,
+                      24,
+                      0.85,
+                      168,
+                      0.5,
+                      720,
+                      0
+                    ]
+                  ]
+                ],
+                14,
+                [
+                  "*",
+                  1,
+                  [
+                    "*",
+                    8,
+                    [
+                      "step",
+                      [
+                        "get",
+                        "age_hours"
+                      ],
+                      1.4,
+                      24,
+                      0.85,
+                      168,
+                      0.5,
+                      720,
+                      0
+                    ]
+                  ]
+                ]
+              ],
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": [
+                "step",
+                [
+                  "get",
+                  "age_hours"
+                ],
+                1,
+                24,
+                0.6,
+                168,
+                0.3
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "step",
+                [
+                  "get",
+                  "age_hours"
+                ],
+                "#fa4f4d",
+                24,
+                "#e5312e",
+                168,
+                "#bf5952"
+              ],
+              "circle-opacity": 0.95,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                [
+                  "*",
+                  1,
+                  [
+                    "*",
+                    3,
+                    [
+                      "step",
+                      [
+                        "get",
+                        "age_hours"
+                      ],
+                      1.4,
+                      24,
+                      0.85,
+                      168,
+                      0.5,
+                      720,
+                      0
+                    ]
+                  ]
+                ],
+                10,
+                [
+                  "*",
+                  1,
+                  [
+                    "*",
+                    5,
+                    [
+                      "step",
+                      [
+                        "get",
+                        "age_hours"
+                      ],
+                      1.4,
+                      24,
+                      0.85,
+                      168,
+                      0.5,
+                      720,
+                      0
+                    ]
+                  ]
+                ],
+                14,
+                [
+                  "*",
+                  1,
+                  [
+                    "*",
+                    8,
+                    [
+                      "step",
+                      [
+                        "get",
+                        "age_hours"
+                      ],
+                      1.4,
+                      24,
+                      0.85,
+                      168,
+                      0.5,
+                      720,
+                      0
+                    ]
+                  ]
+                ]
+              ],
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "step",
+                [
+                  "get",
+                  "age_hours"
+                ],
+                1,
+                24,
+                0.6,
+                168,
+                0.3
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "a1AccidentRealtimeOpacity",
+        "a1AccidentRealtimeScale"
+      ],
+      "sourceId": "a1-accident-realtime",
+      "sourceUrl": "./geo/_empty.geojson"
+    },
+    "accidentTaipei": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "accidentTaipei",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "maxzoom": 10.01,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(133,46,144,0.00)",
+                0.05,
+                "rgba(133,46,144,0.11)",
+                0.15,
+                "rgba(138,89,168,0.33)",
+                0.3,
+                "rgba(140,126,186,0.66)",
+                0.45,
+                "rgba(145,160,203,0.99)",
+                0.6,
+                "rgba(161,190,219,1.00)",
+                0.8,
+                "rgba(196,215,232,1.00)",
+                1,
+                "rgba(230,240,246,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.0001953125,
+                12,
+                0.05
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(147,164,205,0.00)",
+                0.05,
+                "rgba(147,164,205,0.11)",
+                0.15,
+                "rgba(140,135,191,0.33)",
+                0.3,
+                "rgba(140,103,175,0.66)",
+                0.45,
+                "rgba(136,68,158,0.99)",
+                0.6,
+                "rgba(131,26,131,1.00)",
+                0.8,
+                "rgba(106,8,102,1.00)",
+                1,
+                "rgba(79,1,77,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.0001953125,
+                12,
+                0.05
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "heatmap",
+          "type": "heatmap"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": 10,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "case_class"
+                ],
+                "1",
+                "#ff5349",
+                "2",
+                "#fda4af",
+                "#fda4af"
+              ],
+              "circle-opacity": 0.75,
+              "circle-radius": 3,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "case_class"
+                ],
+                "1",
+                "#dc2626",
+                "2",
+                "#fda4af",
+                "#fda4af"
+              ],
+              "circle-opacity": 0.75,
+              "circle-radius": 3,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "accidentTaipeiOpacity",
+        "accidentTaipeiScale"
+      ],
+      "sourceId": "accident-taipei",
+      "sourceUrl": "./police_justice/accident_taipei_dots/accident_taipei_dots_20260626.geojson"
+    },
+    "antiCorruptionOffice": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "antiCorruptionOffice",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "level"
+                ],
+                "central",
+                "#4f8681",
+                "local",
+                "#5eead4",
+                "#14b8a6"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                [
+                  "*",
+                  1,
+                  [
+                    "*",
+                    2.5,
+                    [
+                      "match",
+                      [
+                        "get",
+                        "level"
+                      ],
+                      "central",
+                      1.35,
+                      "local",
+                      0.85,
+                      0.9
+                    ]
+                  ]
+                ],
+                10,
+                [
+                  "*",
+                  1,
+                  [
+                    "*",
+                    5,
+                    [
+                      "match",
+                      [
+                        "get",
+                        "level"
+                      ],
+                      "central",
+                      1.35,
+                      "local",
+                      0.85,
+                      0.9
+                    ]
+                  ]
+                ],
+                14,
+                [
+                  "*",
+                  1,
+                  [
+                    "*",
+                    7,
+                    [
+                      "match",
+                      [
+                        "get",
+                        "level"
+                      ],
+                      "central",
+                      1.35,
+                      "local",
+                      0.85,
+                      0.9
+                    ]
+                  ]
+                ]
+              ],
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": [
+                "match",
+                [
+                  "get",
+                  "level"
+                ],
+                "central",
+                1,
+                1
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "level"
+                ],
+                "central",
+                "#4f8681",
+                "local",
+                "#5eead4",
+                "#14b8a6"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                [
+                  "*",
+                  1,
+                  [
+                    "*",
+                    2.5,
+                    [
+                      "match",
+                      [
+                        "get",
+                        "level"
+                      ],
+                      "central",
+                      1.35,
+                      "local",
+                      0.85,
+                      0.9
+                    ]
+                  ]
+                ],
+                10,
+                [
+                  "*",
+                  1,
+                  [
+                    "*",
+                    5,
+                    [
+                      "match",
+                      [
+                        "get",
+                        "level"
+                      ],
+                      "central",
+                      1.35,
+                      "local",
+                      0.85,
+                      0.9
+                    ]
+                  ]
+                ],
+                14,
+                [
+                  "*",
+                  1,
+                  [
+                    "*",
+                    7,
+                    [
+                      "match",
+                      [
+                        "get",
+                        "level"
+                      ],
+                      "central",
+                      1.35,
+                      "local",
+                      0.85,
+                      0.9
+                    ]
+                  ]
+                ]
+              ],
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "match",
+                [
+                  "get",
+                  "level"
+                ],
+                "central",
+                1,
+                1
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "antiCorruptionOfficeOpacity",
+        "antiCorruptionOfficeScale",
+        "circle"
+      ],
+      "sourceId": "anti-corruption-office",
+      "sourceUrl": "./police_justice/anti_corruption_offices/anti_corruption_offices_20260626.geojson"
+    },
+    "coastGuardStation": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "coastGuardStation",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "facility_subtype"
+                ],
+                "ocean_pier",
+                "#5087af",
+                "patrol_station",
+                "#38bdf8",
+                "#2392d6"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                [
+                  "*",
+                  1,
+                  [
+                    "*",
+                    2.5,
+                    [
+                      "match",
+                      [
+                        "get",
+                        "facility_subtype"
+                      ],
+                      "ocean_pier",
+                      1.5,
+                      "patrol_station",
+                      0.85,
+                      0.9
+                    ]
+                  ]
+                ],
+                10,
+                [
+                  "*",
+                  1,
+                  [
+                    "*",
+                    4,
+                    [
+                      "match",
+                      [
+                        "get",
+                        "facility_subtype"
+                      ],
+                      "ocean_pier",
+                      1.5,
+                      "patrol_station",
+                      0.85,
+                      0.9
+                    ]
+                  ]
+                ],
+                14,
+                [
+                  "*",
+                  1,
+                  [
+                    "*",
+                    7,
+                    [
+                      "match",
+                      [
+                        "get",
+                        "facility_subtype"
+                      ],
+                      "ocean_pier",
+                      1.5,
+                      "patrol_station",
+                      0.85,
+                      0.9
+                    ]
+                  ]
+                ]
+              ],
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": [
+                "match",
+                [
+                  "get",
+                  "facility_subtype"
+                ],
+                "ocean_pier",
+                1.1,
+                1
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "facility_subtype"
+                ],
+                "ocean_pier",
+                "#0c4a6e",
+                "patrol_station",
+                "#38bdf8",
+                "#0284c7"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                [
+                  "*",
+                  1,
+                  [
+                    "*",
+                    2.5,
+                    [
+                      "match",
+                      [
+                        "get",
+                        "facility_subtype"
+                      ],
+                      "ocean_pier",
+                      1.5,
+                      "patrol_station",
+                      0.85,
+                      0.9
+                    ]
+                  ]
+                ],
+                10,
+                [
+                  "*",
+                  1,
+                  [
+                    "*",
+                    4,
+                    [
+                      "match",
+                      [
+                        "get",
+                        "facility_subtype"
+                      ],
+                      "ocean_pier",
+                      1.5,
+                      "patrol_station",
+                      0.85,
+                      0.9
+                    ]
+                  ]
+                ],
+                14,
+                [
+                  "*",
+                  1,
+                  [
+                    "*",
+                    7,
+                    [
+                      "match",
+                      [
+                        "get",
+                        "facility_subtype"
+                      ],
+                      "ocean_pier",
+                      1.5,
+                      "patrol_station",
+                      0.85,
+                      0.9
+                    ]
+                  ]
+                ]
+              ],
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "match",
+                [
+                  "get",
+                  "facility_subtype"
+                ],
+                "ocean_pier",
+                1.1,
+                1
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "coastGuardStationOpacity",
+        "coastGuardStationScale",
+        "circle"
+      ],
+      "sourceId": "coast-guard-station",
+      "sourceUrl": "./police_justice/coast_guard_stations/coast_guard_stations_20260626_v2.geojson"
+    },
+    "correctionalFacility": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "correctionalFacility",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "facility_type"
+                ],
+                "prison",
+                "#737d90",
+                "detention",
+                "#8c98ab",
+                "drug_rehab",
+                "#8f5bff",
+                "juvenile_obs",
+                "#0ea5e9",
+                "correction_school",
+                "#0d9488",
+                "#8c98ab"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                [
+                  "*",
+                  1,
+                  [
+                    "*",
+                    3,
+                    [
+                      "match",
+                      [
+                        "get",
+                        "facility_type"
+                      ],
+                      "prison",
+                      1.5,
+                      "detention",
+                      1.2,
+                      "drug_rehab",
+                      0.95,
+                      "juvenile_obs",
+                      0.85,
+                      "correction_school",
+                      1,
+                      0.9
+                    ]
+                  ]
+                ],
+                10,
+                [
+                  "*",
+                  1,
+                  [
+                    "*",
+                    6,
+                    [
+                      "match",
+                      [
+                        "get",
+                        "facility_type"
+                      ],
+                      "prison",
+                      1.5,
+                      "detention",
+                      1.2,
+                      "drug_rehab",
+                      0.95,
+                      "juvenile_obs",
+                      0.85,
+                      "correction_school",
+                      1,
+                      0.9
+                    ]
+                  ]
+                ],
+                14,
+                [
+                  "*",
+                  1,
+                  [
+                    "*",
+                    10,
+                    [
+                      "match",
+                      [
+                        "get",
+                        "facility_type"
+                      ],
+                      "prison",
+                      1.5,
+                      "detention",
+                      1.2,
+                      "drug_rehab",
+                      0.95,
+                      "juvenile_obs",
+                      0.85,
+                      "correction_school",
+                      1,
+                      0.9
+                    ]
+                  ]
+                ]
+              ],
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": [
+                "match",
+                [
+                  "get",
+                  "facility_type"
+                ],
+                "prison",
+                1.2,
+                "detention",
+                1,
+                1
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "facility_type"
+                ],
+                "prison",
+                "#111827",
+                "detention",
+                "#374151",
+                "drug_rehab",
+                "#7c3aed",
+                "juvenile_obs",
+                "#0ea5e9",
+                "correction_school",
+                "#0d9488",
+                "#374151"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                [
+                  "*",
+                  1,
+                  [
+                    "*",
+                    3,
+                    [
+                      "match",
+                      [
+                        "get",
+                        "facility_type"
+                      ],
+                      "prison",
+                      1.5,
+                      "detention",
+                      1.2,
+                      "drug_rehab",
+                      0.95,
+                      "juvenile_obs",
+                      0.85,
+                      "correction_school",
+                      1,
+                      0.9
+                    ]
+                  ]
+                ],
+                10,
+                [
+                  "*",
+                  1,
+                  [
+                    "*",
+                    6,
+                    [
+                      "match",
+                      [
+                        "get",
+                        "facility_type"
+                      ],
+                      "prison",
+                      1.5,
+                      "detention",
+                      1.2,
+                      "drug_rehab",
+                      0.95,
+                      "juvenile_obs",
+                      0.85,
+                      "correction_school",
+                      1,
+                      0.9
+                    ]
+                  ]
+                ],
+                14,
+                [
+                  "*",
+                  1,
+                  [
+                    "*",
+                    10,
+                    [
+                      "match",
+                      [
+                        "get",
+                        "facility_type"
+                      ],
+                      "prison",
+                      1.5,
+                      "detention",
+                      1.2,
+                      "drug_rehab",
+                      0.95,
+                      "juvenile_obs",
+                      0.85,
+                      "correction_school",
+                      1,
+                      0.9
+                    ]
+                  ]
+                ]
+              ],
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "match",
+                [
+                  "get",
+                  "facility_type"
+                ],
+                "prison",
+                1.2,
+                "detention",
+                1,
+                1
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "correctionalFacilityOpacity",
+        "correctionalFacilityScale",
+        "circle"
+      ],
+      "sourceId": "correctional-facility",
+      "sourceUrl": "./police_justice/correctional_facilities/correctional_facilities_20260626.geojson"
+    },
+    "court": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "court",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "court_type"
+                ],
+                "supreme",
+                "#ffa41b",
+                "high",
+                "#d749c7",
+                "district",
+                "#978fff",
+                "admin",
+                "#00daff",
+                "ipc",
+                "#ef4614",
+                "juvenile_family",
+                "#0c9743",
+                "#978fff"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                [
+                  "*",
+                  1,
+                  [
+                    "*",
+                    3,
+                    [
+                      "match",
+                      [
+                        "get",
+                        "court_type"
+                      ],
+                      "supreme",
+                      1.7,
+                      "high",
+                      1.35,
+                      "admin",
+                      1.2,
+                      "ipc",
+                      1.15,
+                      "juvenile_family",
+                      1.15,
+                      "district",
+                      0.85,
+                      0.85
+                    ]
+                  ]
+                ],
+                10,
+                [
+                  "*",
+                  1,
+                  [
+                    "*",
+                    6,
+                    [
+                      "match",
+                      [
+                        "get",
+                        "court_type"
+                      ],
+                      "supreme",
+                      1.7,
+                      "high",
+                      1.35,
+                      "admin",
+                      1.2,
+                      "ipc",
+                      1.15,
+                      "juvenile_family",
+                      1.15,
+                      "district",
+                      0.85,
+                      0.85
+                    ]
+                  ]
+                ],
+                14,
+                [
+                  "*",
+                  1,
+                  [
+                    "*",
+                    9,
+                    [
+                      "match",
+                      [
+                        "get",
+                        "court_type"
+                      ],
+                      "supreme",
+                      1.7,
+                      "high",
+                      1.35,
+                      "admin",
+                      1.2,
+                      "ipc",
+                      1.15,
+                      "juvenile_family",
+                      1.15,
+                      "district",
+                      0.85,
+                      0.85
+                    ]
+                  ]
+                ]
+              ],
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": [
+                "match",
+                [
+                  "get",
+                  "court_type"
+                ],
+                "supreme",
+                1.4,
+                "high",
+                1.1,
+                1
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "court_type"
+                ],
+                "supreme",
+                "#652800",
+                "high",
+                "#c23fb4",
+                "district",
+                "#4840e0",
+                "admin",
+                "#003e5d",
+                "ipc",
+                "#d93c0f",
+                "juvenile_family",
+                "#07873a",
+                "#4840e0"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                [
+                  "*",
+                  1,
+                  [
+                    "*",
+                    3,
+                    [
+                      "match",
+                      [
+                        "get",
+                        "court_type"
+                      ],
+                      "supreme",
+                      1.7,
+                      "high",
+                      1.35,
+                      "admin",
+                      1.2,
+                      "ipc",
+                      1.15,
+                      "juvenile_family",
+                      1.15,
+                      "district",
+                      0.85,
+                      0.85
+                    ]
+                  ]
+                ],
+                10,
+                [
+                  "*",
+                  1,
+                  [
+                    "*",
+                    6,
+                    [
+                      "match",
+                      [
+                        "get",
+                        "court_type"
+                      ],
+                      "supreme",
+                      1.7,
+                      "high",
+                      1.35,
+                      "admin",
+                      1.2,
+                      "ipc",
+                      1.15,
+                      "juvenile_family",
+                      1.15,
+                      "district",
+                      0.85,
+                      0.85
+                    ]
+                  ]
+                ],
+                14,
+                [
+                  "*",
+                  1,
+                  [
+                    "*",
+                    9,
+                    [
+                      "match",
+                      [
+                        "get",
+                        "court_type"
+                      ],
+                      "supreme",
+                      1.7,
+                      "high",
+                      1.35,
+                      "admin",
+                      1.2,
+                      "ipc",
+                      1.15,
+                      "juvenile_family",
+                      1.15,
+                      "district",
+                      0.85,
+                      0.85
+                    ]
+                  ]
+                ]
+              ],
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "match",
+                [
+                  "get",
+                  "court_type"
+                ],
+                "supreme",
+                1.4,
+                "high",
+                1.1,
+                1
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "courtOpacity",
+        "courtScale",
+        "circle"
+      ],
+      "sourceId": "court",
+      "sourceUrl": "./police_justice/courts/courts_20260626.geojson"
+    },
+    "courtJurisdiction": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "courtJurisdiction",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": "#c4b5fd",
+              "fill-opacity": 0.3
+            },
+            "light": {
+              "fill-color": "#c4b5fd",
+              "fill-opacity": 0.15
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#9ca3af",
+              "line-opacity": 0.6,
+              "line-width": 0.5
+            },
+            "light": {
+              "line-color": "#374151",
+              "line-opacity": 0.6,
+              "line-width": 0.5
+            }
+          },
+          "suffix": "line",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 10,
+        "minzoom": 6,
+        "sourceLayer": "court_jurisdictions"
+      },
+      "rebuildOnParamChange": [
+        "courtJurisdictionOpacity"
+      ],
+      "sourceId": "court-jurisdiction",
+      "sourceUrl": "./police_justice/court_jurisdictions/court_jurisdictions.pmtiles"
+    },
+    "harmReductionDuiCrashes": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "harmReductionDuiCrashes",
+      "layers": [
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "accident_class"
+            ],
+            [
+              "has",
+              "year_roc"
+            ],
+            [
+              "has",
+              "dui_cause_basis"
+            ]
+          ],
+          "layout": null,
+          "maxzoom": 10.01,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(142,42,129,0.00)",
+                0.05,
+                "rgba(142,42,129,0.11)",
+                0.15,
+                "rgba(186,56,120,0.33)",
+                0.3,
+                "rgba(226,77,102,0.66)",
+                0.45,
+                "rgba(248,116,92,0.99)",
+                0.6,
+                "rgba(254,160,109,1.00)",
+                0.8,
+                "rgba(254,201,141,1.00)",
+                1,
+                "rgba(252,240,178,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(249,121,93,0.00)",
+                0.05,
+                "rgba(249,121,93,0.11)",
+                0.15,
+                "rgba(233,85,97,0.33)",
+                0.3,
+                "rgba(202,62,114,0.66)",
+                0.45,
+                "rgba(164,49,126,0.99)",
+                0.6,
+                "rgba(126,36,130,1.00)",
+                0.8,
+                "rgba(90,22,126,1.00)",
+                1,
+                "rgba(55,16,108,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "heatmap",
+          "type": "heatmap"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "accident_class"
+            ],
+            [
+              "has",
+              "year_roc"
+            ],
+            [
+              "has",
+              "dui_cause_basis"
+            ]
+          ],
+          "layout": null,
+          "minzoom": 10,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "accident_class"
+                ],
+                "A1",
+                "#dc2626",
+                "A2",
+                "#f97316",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "accident_class"
+                ],
+                "A1",
+                "#dc2626",
+                "A2",
+                "#f97316",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "accident_class"
+            ],
+            [
+              "has",
+              "year_roc"
+            ],
+            [
+              "has",
+              "dui_cause_basis"
+            ]
+          ],
+          "layout": null,
+          "minzoom": 10,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "accident_class"
+                ],
+                "A1",
+                "#ff8477",
+                "A2",
+                "#f97316",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.75,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.75,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "accident_class"
+                ],
+                "A1",
+                "#dc2626",
+                "A2",
+                "#f97316",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.75,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.75,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 12,
+        "minzoom": 5,
+        "sourceLayer": "dui_crash_points"
+      },
+      "rebuildOnParamChange": [
+        "heatmap",
+        "glow",
+        "circle"
+      ],
+      "sourceId": "harm-reduction-dui-crashes",
+      "sourceUrl": "./harm_reduction/dui_crash_points_lt2.pmtiles"
+    },
+    "immigrationOffice": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "immigrationOffice",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#0ea5e9",
+              "circle-opacity": 0.9,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#0ea5e9",
+              "circle-opacity": 0.9,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "immigrationOfficeOpacity",
+        "immigrationOfficeScale"
+      ],
+      "sourceId": "immigration-office",
+      "sourceUrl": "./police_justice/immigration_offices/immigration_offices_20260626.geojson"
+    },
+    "investigationBureau": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "investigationBureau",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "slice",
+                    [
+                      "get",
+                      "name"
+                    ],
+                    -1
+                  ],
+                  "處"
+                ],
+                "#4b8873",
+                "#4aa39a"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                [
+                  "*",
+                  1,
+                  [
+                    "*",
+                    3,
+                    [
+                      "case",
+                      [
+                        "==",
+                        [
+                          "slice",
+                          [
+                            "get",
+                            "name"
+                          ],
+                          -1
+                        ],
+                        "處"
+                      ],
+                      1.35,
+                      0.9
+                    ]
+                  ]
+                ],
+                10,
+                [
+                  "*",
+                  1,
+                  [
+                    "*",
+                    5,
+                    [
+                      "case",
+                      [
+                        "==",
+                        [
+                          "slice",
+                          [
+                            "get",
+                            "name"
+                          ],
+                          -1
+                        ],
+                        "處"
+                      ],
+                      1.35,
+                      0.9
+                    ]
+                  ]
+                ],
+                14,
+                [
+                  "*",
+                  1,
+                  [
+                    "*",
+                    8,
+                    [
+                      "case",
+                      [
+                        "==",
+                        [
+                          "slice",
+                          [
+                            "get",
+                            "name"
+                          ],
+                          -1
+                        ],
+                        "處"
+                      ],
+                      1.35,
+                      0.9
+                    ]
+                  ]
+                ]
+              ],
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": [
+                "case",
+                [
+                  "==",
+                  [
+                    "slice",
+                    [
+                      "get",
+                      "name"
+                    ],
+                    -1
+                  ],
+                  "處"
+                ],
+                1.1,
+                1
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "slice",
+                    [
+                      "get",
+                      "name"
+                    ],
+                    -1
+                  ],
+                  "處"
+                ],
+                "#064e3b",
+                "#0f766e"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                [
+                  "*",
+                  1,
+                  [
+                    "*",
+                    3,
+                    [
+                      "case",
+                      [
+                        "==",
+                        [
+                          "slice",
+                          [
+                            "get",
+                            "name"
+                          ],
+                          -1
+                        ],
+                        "處"
+                      ],
+                      1.35,
+                      0.9
+                    ]
+                  ]
+                ],
+                10,
+                [
+                  "*",
+                  1,
+                  [
+                    "*",
+                    5,
+                    [
+                      "case",
+                      [
+                        "==",
+                        [
+                          "slice",
+                          [
+                            "get",
+                            "name"
+                          ],
+                          -1
+                        ],
+                        "處"
+                      ],
+                      1.35,
+                      0.9
+                    ]
+                  ]
+                ],
+                14,
+                [
+                  "*",
+                  1,
+                  [
+                    "*",
+                    8,
+                    [
+                      "case",
+                      [
+                        "==",
+                        [
+                          "slice",
+                          [
+                            "get",
+                            "name"
+                          ],
+                          -1
+                        ],
+                        "處"
+                      ],
+                      1.35,
+                      0.9
+                    ]
+                  ]
+                ]
+              ],
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "case",
+                [
+                  "==",
+                  [
+                    "slice",
+                    [
+                      "get",
+                      "name"
+                    ],
+                    -1
+                  ],
+                  "處"
+                ],
+                1.1,
+                1
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "investigationBureauOpacity",
+        "investigationBureauScale"
+      ],
+      "sourceId": "investigation-bureau",
+      "sourceUrl": "./police_justice/investigation_bureau/investigation_bureau_20260626.geojson"
+    },
+    "majorOccupationalAccidents": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "majorOccupationalAccidents",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "accident_type"
+                ],
+                "墜落、滾落",
+                "#dc2626",
+                "物體倒塌、崩塌",
+                "#ea580c",
+                "物體飛落",
+                "#a16207",
+                "感電",
+                "#ca8a04",
+                "被夾、被捲",
+                "#7c3aed",
+                "被撞",
+                "#2563eb",
+                "公路交通事故",
+                "#0891b2",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "accident_type"
+                ],
+                "墜落、滾落",
+                "#dc2626",
+                "物體倒塌、崩塌",
+                "#ea580c",
+                "物體飛落",
+                "#a16207",
+                "感電",
+                "#ca8a04",
+                "被夾、被捲",
+                "#7c3aed",
+                "被撞",
+                "#2563eb",
+                "公路交通事故",
+                "#0891b2",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "accident_type"
+                ],
+                "墜落、滾落",
+                "#ff7064",
+                "物體倒塌、崩塌",
+                "#ea580c",
+                "物體飛落",
+                "#e29e55",
+                "感電",
+                "#ca8a04",
+                "被夾、被捲",
+                "#976cff",
+                "被撞",
+                "#4782ff",
+                "公路交通事故",
+                "#0891b2",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "accident_type"
+                ],
+                "墜落、滾落",
+                "#dc2626",
+                "物體倒塌、崩塌",
+                "#ea580c",
+                "物體飛落",
+                "#a16207",
+                "感電",
+                "#ca8a04",
+                "被夾、被捲",
+                "#7c3aed",
+                "被撞",
+                "#2563eb",
+                "公路交通事故",
+                "#0891b2",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "name"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "name"
+              ],
+              ""
+            ]
+          ],
+          "layout": {
+            "text-allow-overlap": false,
+            "text-field": [
+              "get",
+              "name"
+            ],
+            "text-font": [
+              "DIN Pro Medium",
+              "Arial Unicode MS Regular"
+            ],
+            "text-max-width": 14,
+            "text-optional": true,
+            "text-radial-offset": 0.8,
+            "text-size": [
+              "interpolate",
+              [
+                "linear"
+              ],
+              [
+                "zoom"
+              ],
+              10,
+              10,
+              14,
+              12
+            ],
+            "text-variable-anchor": [
+              "top",
+              "bottom",
+              "left",
+              "right"
+            ]
+          },
+          "minzoom": 14,
+          "paint": {
+            "dark": {
+              "text-color": "#f8fafc",
+              "text-halo-color": "rgba(15,23,42,0.92)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.8
+            },
+            "light": {
+              "text-color": "#0f172a",
+              "text-halo-color": "rgba(255,255,255,0.94)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.8
+            }
+          },
+          "suffix": "label",
+          "type": "symbol"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle",
+        "label"
+      ],
+      "sourceId": "major-occupational-accidents",
+      "sourceUrl": "./hazards/major_occupational_accidents.geojson"
+    },
+    "policeIsoCityDept": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "policeIsoCityDept",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "step",
+                [
+                  "coalesce",
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "overlap_count"
+                    ]
+                  ],
+                  0
+                ],
+                "#9b2c2c",
+                1,
+                "#b83232",
+                2,
+                "#d43d2f",
+                3,
+                "#e8592a",
+                5,
+                "#f47c2a",
+                8,
+                "#f9a23a",
+                12,
+                "#fcc55a",
+                20,
+                "#fde68a"
+              ],
+              "fill-opacity": [
+                "case",
+                [
+                  "all",
+                  [
+                    "==",
+                    [
+                      "case",
+                      [
+                        "==",
+                        [
+                          "get",
+                          "mode"
+                        ],
+                        "drive"
+                      ],
+                      1,
+                      0
+                    ],
+                    1
+                  ],
+                  [
+                    "==",
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "minutes"
+                      ]
+                    ],
+                    30
+                  ]
+                ],
+                0.45,
+                0
+              ]
+            },
+            "light": {
+              "fill-color": [
+                "step",
+                [
+                  "coalesce",
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "overlap_count"
+                    ]
+                  ],
+                  0
+                ],
+                "#fef2f2",
+                1,
+                "#fee2e2",
+                2,
+                "#fca5a5",
+                3,
+                "#f87171",
+                5,
+                "#ef4444",
+                8,
+                "#dc2626",
+                12,
+                "#991b1b",
+                20,
+                "#7f1d1d"
+              ],
+              "fill-opacity": [
+                "case",
+                [
+                  "all",
+                  [
+                    "==",
+                    [
+                      "case",
+                      [
+                        "==",
+                        [
+                          "get",
+                          "mode"
+                        ],
+                        "drive"
+                      ],
+                      1,
+                      0
+                    ],
+                    1
+                  ],
+                  [
+                    "==",
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "minutes"
+                      ]
+                    ],
+                    30
+                  ]
+                ],
+                0.45,
+                0
+              ]
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#7f1d1d",
+              "line-opacity": [
+                "case",
+                [
+                  "all",
+                  [
+                    "==",
+                    [
+                      "case",
+                      [
+                        "==",
+                        [
+                          "get",
+                          "mode"
+                        ],
+                        "drive"
+                      ],
+                      1,
+                      0
+                    ],
+                    1
+                  ],
+                  [
+                    "==",
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "minutes"
+                      ]
+                    ],
+                    30
+                  ]
+                ],
+                0.08,
+                0
+              ],
+              "line-width": 0.15
+            },
+            "light": {
+              "line-color": "#7f1d1d",
+              "line-opacity": [
+                "case",
+                [
+                  "all",
+                  [
+                    "==",
+                    [
+                      "case",
+                      [
+                        "==",
+                        [
+                          "get",
+                          "mode"
+                        ],
+                        "drive"
+                      ],
+                      1,
+                      0
+                    ],
+                    1
+                  ],
+                  [
+                    "==",
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "minutes"
+                      ]
+                    ],
+                    30
+                  ]
+                ],
+                0.08,
+                0
+              ],
+              "line-width": 0.15
+            }
+          },
+          "suffix": "line",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 4,
+        "sourceLayer": "police_iso_police_dept"
+      },
+      "rebuildOnParamChange": [
+        "fill",
+        "line"
+      ],
+      "sourceId": "police-iso-city-dept",
+      "sourceUrl": "./police_justice/isochrone/police_iso_police_dept_combined.pmtiles"
+    },
+    "policeIsoPrecinct": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "policeIsoPrecinct",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "step",
+                [
+                  "coalesce",
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "overlap_count"
+                    ]
+                  ],
+                  0
+                ],
+                "#9b2c2c",
+                1,
+                "#b83232",
+                2,
+                "#d43d2f",
+                3,
+                "#e8592a",
+                5,
+                "#f47c2a",
+                8,
+                "#f9a23a",
+                12,
+                "#fcc55a",
+                20,
+                "#fde68a"
+              ],
+              "fill-opacity": [
+                "case",
+                [
+                  "all",
+                  [
+                    "==",
+                    [
+                      "case",
+                      [
+                        "==",
+                        [
+                          "get",
+                          "mode"
+                        ],
+                        "drive"
+                      ],
+                      1,
+                      0
+                    ],
+                    1
+                  ],
+                  [
+                    "==",
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "minutes"
+                      ]
+                    ],
+                    15
+                  ]
+                ],
+                0.5,
+                0
+              ]
+            },
+            "light": {
+              "fill-color": [
+                "step",
+                [
+                  "coalesce",
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "overlap_count"
+                    ]
+                  ],
+                  0
+                ],
+                "#fef2f2",
+                1,
+                "#fee2e2",
+                2,
+                "#fca5a5",
+                3,
+                "#f87171",
+                5,
+                "#ef4444",
+                8,
+                "#dc2626",
+                12,
+                "#991b1b",
+                20,
+                "#7f1d1d"
+              ],
+              "fill-opacity": [
+                "case",
+                [
+                  "all",
+                  [
+                    "==",
+                    [
+                      "case",
+                      [
+                        "==",
+                        [
+                          "get",
+                          "mode"
+                        ],
+                        "drive"
+                      ],
+                      1,
+                      0
+                    ],
+                    1
+                  ],
+                  [
+                    "==",
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "minutes"
+                      ]
+                    ],
+                    15
+                  ]
+                ],
+                0.5,
+                0
+              ]
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#7f1d1d",
+              "line-opacity": [
+                "case",
+                [
+                  "all",
+                  [
+                    "==",
+                    [
+                      "case",
+                      [
+                        "==",
+                        [
+                          "get",
+                          "mode"
+                        ],
+                        "drive"
+                      ],
+                      1,
+                      0
+                    ],
+                    1
+                  ],
+                  [
+                    "==",
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "minutes"
+                      ]
+                    ],
+                    15
+                  ]
+                ],
+                0.08,
+                0
+              ],
+              "line-width": 0.15
+            },
+            "light": {
+              "line-color": "#7f1d1d",
+              "line-opacity": [
+                "case",
+                [
+                  "all",
+                  [
+                    "==",
+                    [
+                      "case",
+                      [
+                        "==",
+                        [
+                          "get",
+                          "mode"
+                        ],
+                        "drive"
+                      ],
+                      1,
+                      0
+                    ],
+                    1
+                  ],
+                  [
+                    "==",
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "minutes"
+                      ]
+                    ],
+                    15
+                  ]
+                ],
+                0.08,
+                0
+              ],
+              "line-width": 0.15
+            }
+          },
+          "suffix": "line",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 4,
+        "sourceLayer": "police_iso_precinct"
+      },
+      "rebuildOnParamChange": [
+        "fill",
+        "line"
+      ],
+      "sourceId": "police-iso-precinct",
+      "sourceUrl": "./police_justice/isochrone/police_iso_precinct_combined.pmtiles"
+    },
+    "policeIsoSubstation": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "policeIsoSubstation",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "step",
+                [
+                  "coalesce",
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "overlap_count"
+                    ]
+                  ],
+                  0
+                ],
+                "#9b2c2c",
+                1,
+                "#b83232",
+                2,
+                "#d43d2f",
+                3,
+                "#e8592a",
+                5,
+                "#f47c2a",
+                8,
+                "#f9a23a",
+                12,
+                "#fcc55a",
+                20,
+                "#fde68a"
+              ],
+              "fill-opacity": [
+                "case",
+                [
+                  "all",
+                  [
+                    "==",
+                    [
+                      "case",
+                      [
+                        "==",
+                        [
+                          "get",
+                          "mode"
+                        ],
+                        "drive"
+                      ],
+                      1,
+                      0
+                    ],
+                    0
+                  ],
+                  [
+                    "==",
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "minutes"
+                      ]
+                    ],
+                    5
+                  ]
+                ],
+                0.55,
+                0
+              ]
+            },
+            "light": {
+              "fill-color": [
+                "step",
+                [
+                  "coalesce",
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "overlap_count"
+                    ]
+                  ],
+                  0
+                ],
+                "#fef2f2",
+                1,
+                "#fee2e2",
+                2,
+                "#fca5a5",
+                3,
+                "#f87171",
+                5,
+                "#ef4444",
+                8,
+                "#dc2626",
+                12,
+                "#991b1b",
+                20,
+                "#7f1d1d"
+              ],
+              "fill-opacity": [
+                "case",
+                [
+                  "all",
+                  [
+                    "==",
+                    [
+                      "case",
+                      [
+                        "==",
+                        [
+                          "get",
+                          "mode"
+                        ],
+                        "drive"
+                      ],
+                      1,
+                      0
+                    ],
+                    0
+                  ],
+                  [
+                    "==",
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "minutes"
+                      ]
+                    ],
+                    5
+                  ]
+                ],
+                0.55,
+                0
+              ]
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#7f1d1d",
+              "line-opacity": [
+                "case",
+                [
+                  "all",
+                  [
+                    "==",
+                    [
+                      "case",
+                      [
+                        "==",
+                        [
+                          "get",
+                          "mode"
+                        ],
+                        "drive"
+                      ],
+                      1,
+                      0
+                    ],
+                    0
+                  ],
+                  [
+                    "==",
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "minutes"
+                      ]
+                    ],
+                    5
+                  ]
+                ],
+                0.08,
+                0
+              ],
+              "line-width": 0.15
+            },
+            "light": {
+              "line-color": "#7f1d1d",
+              "line-opacity": [
+                "case",
+                [
+                  "all",
+                  [
+                    "==",
+                    [
+                      "case",
+                      [
+                        "==",
+                        [
+                          "get",
+                          "mode"
+                        ],
+                        "drive"
+                      ],
+                      1,
+                      0
+                    ],
+                    0
+                  ],
+                  [
+                    "==",
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "minutes"
+                      ]
+                    ],
+                    5
+                  ]
+                ],
+                0.08,
+                0
+              ],
+              "line-width": 0.15
+            }
+          },
+          "suffix": "line",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 4,
+        "sourceLayer": "police_iso_substation"
+      },
+      "rebuildOnParamChange": [
+        "fill",
+        "line"
+      ],
+      "sourceId": "police-iso-substation",
+      "sourceUrl": "./police_justice/isochrone/police_iso_substation_combined.pmtiles"
+    },
+    "policeStation": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "policeStation",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "facility_subtype"
+                ],
+                "headquarters",
+                "#00daff",
+                "police_dept",
+                "#ffa41b",
+                "precinct",
+                "#1a9d48",
+                "substation",
+                "#2d82ff",
+                "specialized",
+                "#f64d1f",
+                "security",
+                "#d749c7",
+                "other",
+                "#94a3b8",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                [
+                  "*",
+                  1,
+                  [
+                    "*",
+                    2,
+                    [
+                      "match",
+                      [
+                        "get",
+                        "facility_subtype"
+                      ],
+                      "headquarters",
+                      1.7,
+                      "police_dept",
+                      1.4,
+                      "precinct",
+                      1.15,
+                      "specialized",
+                      1,
+                      "security",
+                      0.75,
+                      "substation",
+                      0.7,
+                      "other",
+                      0.6,
+                      0.7
+                    ]
+                  ]
+                ],
+                10,
+                [
+                  "*",
+                  1,
+                  [
+                    "*",
+                    4,
+                    [
+                      "match",
+                      [
+                        "get",
+                        "facility_subtype"
+                      ],
+                      "headquarters",
+                      1.7,
+                      "police_dept",
+                      1.4,
+                      "precinct",
+                      1.15,
+                      "specialized",
+                      1,
+                      "security",
+                      0.75,
+                      "substation",
+                      0.7,
+                      "other",
+                      0.6,
+                      0.7
+                    ]
+                  ]
+                ],
+                14,
+                [
+                  "*",
+                  1,
+                  [
+                    "*",
+                    7,
+                    [
+                      "match",
+                      [
+                        "get",
+                        "facility_subtype"
+                      ],
+                      "headquarters",
+                      1.7,
+                      "police_dept",
+                      1.4,
+                      "precinct",
+                      1.15,
+                      "specialized",
+                      1,
+                      "security",
+                      0.75,
+                      "substation",
+                      0.7,
+                      "other",
+                      0.6,
+                      0.7
+                    ]
+                  ]
+                ]
+              ],
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": [
+                "match",
+                [
+                  "get",
+                  "facility_subtype"
+                ],
+                "headquarters",
+                1.2,
+                "police_dept",
+                1,
+                "precinct",
+                0.8,
+                1
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "facility_subtype"
+                ],
+                "headquarters",
+                "#003e5d",
+                "police_dept",
+                "#652800",
+                "precinct",
+                "#07873a",
+                "substation",
+                "#216bff",
+                "specialized",
+                "#d93c0f",
+                "security",
+                "#c23fb4",
+                "other",
+                "#64748b",
+                "#64748b"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                [
+                  "*",
+                  1,
+                  [
+                    "*",
+                    2,
+                    [
+                      "match",
+                      [
+                        "get",
+                        "facility_subtype"
+                      ],
+                      "headquarters",
+                      1.7,
+                      "police_dept",
+                      1.4,
+                      "precinct",
+                      1.15,
+                      "specialized",
+                      1,
+                      "security",
+                      0.75,
+                      "substation",
+                      0.7,
+                      "other",
+                      0.6,
+                      0.7
+                    ]
+                  ]
+                ],
+                10,
+                [
+                  "*",
+                  1,
+                  [
+                    "*",
+                    4,
+                    [
+                      "match",
+                      [
+                        "get",
+                        "facility_subtype"
+                      ],
+                      "headquarters",
+                      1.7,
+                      "police_dept",
+                      1.4,
+                      "precinct",
+                      1.15,
+                      "specialized",
+                      1,
+                      "security",
+                      0.75,
+                      "substation",
+                      0.7,
+                      "other",
+                      0.6,
+                      0.7
+                    ]
+                  ]
+                ],
+                14,
+                [
+                  "*",
+                  1,
+                  [
+                    "*",
+                    7,
+                    [
+                      "match",
+                      [
+                        "get",
+                        "facility_subtype"
+                      ],
+                      "headquarters",
+                      1.7,
+                      "police_dept",
+                      1.4,
+                      "precinct",
+                      1.15,
+                      "specialized",
+                      1,
+                      "security",
+                      0.75,
+                      "substation",
+                      0.7,
+                      "other",
+                      0.6,
+                      0.7
+                    ]
+                  ]
+                ]
+              ],
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "match",
+                [
+                  "get",
+                  "facility_subtype"
+                ],
+                "headquarters",
+                1.2,
+                "police_dept",
+                1,
+                "precinct",
+                0.8,
+                1
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "policeStationOpacity",
+        "policeStationScale",
+        "circle"
+      ],
+      "sourceId": "police-station",
+      "sourceUrl": "./police_justice/police_stations/police_stations_20260626.geojson"
+    },
+    "prosecutorsOffice": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "prosecutorsOffice",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "pros_type"
+                ],
+                "supreme",
+                "#ffa41b",
+                "high",
+                "#d749c7",
+                "district",
+                "#978fff",
+                "#978fff"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                [
+                  "*",
+                  1,
+                  [
+                    "*",
+                    3,
+                    [
+                      "match",
+                      [
+                        "get",
+                        "pros_type"
+                      ],
+                      "supreme",
+                      1.7,
+                      "high",
+                      1.3,
+                      "district",
+                      0.9,
+                      0.9
+                    ]
+                  ]
+                ],
+                10,
+                [
+                  "*",
+                  1,
+                  [
+                    "*",
+                    5,
+                    [
+                      "match",
+                      [
+                        "get",
+                        "pros_type"
+                      ],
+                      "supreme",
+                      1.7,
+                      "high",
+                      1.3,
+                      "district",
+                      0.9,
+                      0.9
+                    ]
+                  ]
+                ],
+                14,
+                [
+                  "*",
+                  1,
+                  [
+                    "*",
+                    8,
+                    [
+                      "match",
+                      [
+                        "get",
+                        "pros_type"
+                      ],
+                      "supreme",
+                      1.7,
+                      "high",
+                      1.3,
+                      "district",
+                      0.9,
+                      0.9
+                    ]
+                  ]
+                ]
+              ],
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": [
+                "match",
+                [
+                  "get",
+                  "pros_type"
+                ],
+                "supreme",
+                1.4,
+                "high",
+                1,
+                1
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "pros_type"
+                ],
+                "supreme",
+                "#652800",
+                "high",
+                "#c23fb4",
+                "district",
+                "#4840e0",
+                "#4840e0"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                [
+                  "*",
+                  1,
+                  [
+                    "*",
+                    3,
+                    [
+                      "match",
+                      [
+                        "get",
+                        "pros_type"
+                      ],
+                      "supreme",
+                      1.7,
+                      "high",
+                      1.3,
+                      "district",
+                      0.9,
+                      0.9
+                    ]
+                  ]
+                ],
+                10,
+                [
+                  "*",
+                  1,
+                  [
+                    "*",
+                    5,
+                    [
+                      "match",
+                      [
+                        "get",
+                        "pros_type"
+                      ],
+                      "supreme",
+                      1.7,
+                      "high",
+                      1.3,
+                      "district",
+                      0.9,
+                      0.9
+                    ]
+                  ]
+                ],
+                14,
+                [
+                  "*",
+                  1,
+                  [
+                    "*",
+                    8,
+                    [
+                      "match",
+                      [
+                        "get",
+                        "pros_type"
+                      ],
+                      "supreme",
+                      1.7,
+                      "high",
+                      1.3,
+                      "district",
+                      0.9,
+                      0.9
+                    ]
+                  ]
+                ]
+              ],
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "match",
+                [
+                  "get",
+                  "pros_type"
+                ],
+                "supreme",
+                1.4,
+                "high",
+                1,
+                1
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "prosecutorsOfficeOpacity",
+        "prosecutorsOfficeScale",
+        "circle"
+      ],
+      "sourceId": "prosecutors-office",
+      "sourceUrl": "./police_justice/prosecutors_offices/prosecutors_offices_20260626.geojson"
+    },
+    "speedCamera": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "speedCamera",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "facility_subtype"
+                ],
+                "speed_camera_freeway",
+                "#d16961",
+                "red_light_camera",
+                "#fb7185",
+                "railway_crossing_camera",
+                "#facc15",
+                "#f94840"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                [
+                  "*",
+                  1,
+                  [
+                    "*",
+                    2,
+                    [
+                      "step",
+                      [
+                        "coalesce",
+                        [
+                          "to-number",
+                          [
+                            "get",
+                            "limit_kph"
+                          ]
+                        ],
+                        60
+                      ],
+                      1.5,
+                      30,
+                      1.4,
+                      40,
+                      1.2,
+                      50,
+                      1,
+                      60,
+                      0.9,
+                      70,
+                      0.85,
+                      90,
+                      0.75,
+                      100,
+                      0.7
+                    ]
+                  ]
+                ],
+                12,
+                [
+                  "*",
+                  1,
+                  [
+                    "*",
+                    4,
+                    [
+                      "step",
+                      [
+                        "coalesce",
+                        [
+                          "to-number",
+                          [
+                            "get",
+                            "limit_kph"
+                          ]
+                        ],
+                        60
+                      ],
+                      1.5,
+                      30,
+                      1.4,
+                      40,
+                      1.2,
+                      50,
+                      1,
+                      60,
+                      0.9,
+                      70,
+                      0.85,
+                      90,
+                      0.75,
+                      100,
+                      0.7
+                    ]
+                  ]
+                ],
+                16,
+                [
+                  "*",
+                  1,
+                  [
+                    "*",
+                    6,
+                    [
+                      "step",
+                      [
+                        "coalesce",
+                        [
+                          "to-number",
+                          [
+                            "get",
+                            "limit_kph"
+                          ]
+                        ],
+                        60
+                      ],
+                      1.5,
+                      30,
+                      1.4,
+                      40,
+                      1.2,
+                      50,
+                      1,
+                      60,
+                      0.9,
+                      70,
+                      0.85,
+                      90,
+                      0.75,
+                      100,
+                      0.7
+                    ]
+                  ]
+                ]
+              ],
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "facility_subtype"
+                ],
+                "speed_camera_freeway",
+                "#7f1d1d",
+                "red_light_camera",
+                "#fb7185",
+                "railway_crossing_camera",
+                "#facc15",
+                "#dc2626"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                [
+                  "*",
+                  1,
+                  [
+                    "*",
+                    2,
+                    [
+                      "step",
+                      [
+                        "coalesce",
+                        [
+                          "to-number",
+                          [
+                            "get",
+                            "limit_kph"
+                          ]
+                        ],
+                        60
+                      ],
+                      1.5,
+                      30,
+                      1.4,
+                      40,
+                      1.2,
+                      50,
+                      1,
+                      60,
+                      0.9,
+                      70,
+                      0.85,
+                      90,
+                      0.75,
+                      100,
+                      0.7
+                    ]
+                  ]
+                ],
+                12,
+                [
+                  "*",
+                  1,
+                  [
+                    "*",
+                    4,
+                    [
+                      "step",
+                      [
+                        "coalesce",
+                        [
+                          "to-number",
+                          [
+                            "get",
+                            "limit_kph"
+                          ]
+                        ],
+                        60
+                      ],
+                      1.5,
+                      30,
+                      1.4,
+                      40,
+                      1.2,
+                      50,
+                      1,
+                      60,
+                      0.9,
+                      70,
+                      0.85,
+                      90,
+                      0.75,
+                      100,
+                      0.7
+                    ]
+                  ]
+                ],
+                16,
+                [
+                  "*",
+                  1,
+                  [
+                    "*",
+                    6,
+                    [
+                      "step",
+                      [
+                        "coalesce",
+                        [
+                          "to-number",
+                          [
+                            "get",
+                            "limit_kph"
+                          ]
+                        ],
+                        60
+                      ],
+                      1.5,
+                      30,
+                      1.4,
+                      40,
+                      1.2,
+                      50,
+                      1,
+                      60,
+                      0.9,
+                      70,
+                      0.85,
+                      90,
+                      0.75,
+                      100,
+                      0.7
+                    ]
+                  ]
+                ]
+              ],
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "speedCameraOpacity",
+        "speedCameraScale",
+        "circle"
+      ],
+      "sourceId": "speed-camera",
+      "sourceUrl": "./police_justice/speed_cameras/speed_cameras_20260824.geojson"
+    },
+    "speedZoneSegment": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "speedZoneSegment",
+      "layers": [
+        {
+          "filter": null,
+          "layout": {
+            "line-cap": "round",
+            "line-join": "round"
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#e64d44",
+              "line-opacity": 0.85,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                10,
+                2,
+                14,
+                3.5
+              ]
+            },
+            "light": {
+              "line-color": "#e64d44",
+              "line-opacity": 0.85,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                10,
+                2,
+                14,
+                3.5
+              ]
+            }
+          },
+          "suffix": "line",
+          "type": "line"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "speedZoneSegmentOpacity",
+        "speedZoneSegmentWidth"
+      ],
+      "sourceId": "speed-zone-segment",
+      "sourceUrl": "./police_justice/speed_zone_segments/speed_zone_segments_20260626.geojson"
+    },
+    "theftTaoyuan": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "theftTaoyuan",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "case_type"
+                ],
+                "住宅竊盜",
+                "#f59e0b",
+                "汽車竊盜",
+                "#fb923c",
+                "機車竊盜",
+                "#fbbf24",
+                "自行車竊盜",
+                "#fde047",
+                "#f59e0b"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "case_type"
+                ],
+                "住宅竊盜",
+                "#f59e0b",
+                "汽車竊盜",
+                "#fb923c",
+                "機車竊盜",
+                "#fbbf24",
+                "自行車竊盜",
+                "#fde047",
+                "#f59e0b"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "theftTaoyuanOpacity",
+        "theftTaoyuanScale",
+        "circle"
+      ],
+      "sourceId": "theft-taoyuan",
+      "sourceUrl": "./police_justice/theft_points_taoyuan/theft_points_taoyuan_20260626.geojson"
+    },
+    "trafficAccidentYearly": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "trafficAccidentYearly",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#fb7185",
+              "circle-opacity": 0.8,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#fb7185",
+              "circle-opacity": 0.8,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "trafficAccidentYearlyOpacity",
+        "trafficAccidentYearlyScale"
+      ],
+      "sourceId": "traffic-accident-yearly",
+      "sourceUrl": "./police_justice/traffic_accident_yearly/traffic_accident_yearly_20260626.geojson"
+    },
+    "trafficAccidents2025": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "trafficAccidents2025",
+      "layers": [
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "cat"
+            ],
+            [
+              "has",
+              "cause"
+            ]
+          ],
+          "layout": null,
+          "maxzoom": 12.01,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(142,42,129,0.00)",
+                0.05,
+                "rgba(142,42,129,0.11)",
+                0.15,
+                "rgba(186,56,120,0.33)",
+                0.3,
+                "rgba(226,77,102,0.66)",
+                0.45,
+                "rgba(248,116,92,0.99)",
+                0.6,
+                "rgba(254,160,109,1.00)",
+                0.8,
+                "rgba(254,201,141,1.00)",
+                1,
+                "rgba(252,240,178,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.001171875,
+                12,
+                0.3
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(249,121,93,0.00)",
+                0.05,
+                "rgba(249,121,93,0.11)",
+                0.15,
+                "rgba(233,85,97,0.33)",
+                0.3,
+                "rgba(202,62,114,0.66)",
+                0.45,
+                "rgba(164,49,126,0.99)",
+                0.6,
+                "rgba(126,36,130,1.00)",
+                0.8,
+                "rgba(90,22,126,1.00)",
+                1,
+                "rgba(55,16,108,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.001171875,
+                12,
+                0.3
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "heatmap",
+          "type": "heatmap"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "cat"
+            ],
+            [
+              "has",
+              "cause"
+            ]
+          ],
+          "layout": {
+            "circle-sort-key": [
+              "match",
+              [
+                "get",
+                "cat"
+              ],
+              "A1",
+              1,
+              0
+            ]
+          },
+          "minzoom": 12,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "cat"
+                ],
+                "A1",
+                "#dc2626",
+                "A2",
+                "#f97316",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1,
+                5,
+                3.6,
+                12,
+                9
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "cat"
+                ],
+                "A1",
+                "#dc2626",
+                "A2",
+                "#f97316",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1,
+                5,
+                3.6,
+                12,
+                9
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "cat"
+            ],
+            [
+              "has",
+              "cause"
+            ]
+          ],
+          "layout": {
+            "circle-sort-key": [
+              "match",
+              [
+                "get",
+                "cat"
+              ],
+              "A1",
+              1,
+              0
+            ]
+          },
+          "minzoom": 12,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "cat"
+                ],
+                "A1",
+                "#ff8578",
+                "A2",
+                "#ffa87b",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.6,
+              "circle-radius": 3,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "cat"
+                ],
+                "A1",
+                "#dc2626",
+                "A2",
+                "#f97316",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.6,
+              "circle-radius": 3,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 12,
+        "minzoom": 5,
+        "sourceLayer": "traffic_accidents_2025"
+      },
+      "rebuildOnParamChange": [
+        "heatmap",
+        "glow",
+        "circle"
+      ],
+      "sourceId": "traffic-accidents-2025",
+      "sourceUrl": "./geo/traffic_accidents_2025.pmtiles"
+    },
+    "womenChildWarning": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "womenChildWarning",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#ec4899",
+              "circle-opacity": 0.9,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#ec4899",
+              "circle-opacity": 0.9,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "womenChildWarningOpacity",
+        "womenChildWarningScale"
+      ],
+      "sourceId": "women-child-warning",
+      "sourceUrl": "./police_justice/women_child_warning/women_child_warning_20260626.geojson"
+    }
+  },
+  "params": {
+    "a1AccidentRealtime": [
+      {
+        "label": "透明度 0.95",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.95,
+        "valueText": "0.95"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "accidentTaipei": [
+      {
+        "defaultValue": "BuPu",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "BuPu"
+      },
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.75,
+        "valueText": "0.75"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "antiCorruptionOffice": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "中央",
+            "value": "central"
+          },
+          {
+            "label": "地方",
+            "value": "local"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "central",
+          "local"
+        ]
+      },
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "coastGuardStation": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "海洋分署",
+            "value": "ocean_pier"
+          },
+          {
+            "label": "巡防隊",
+            "value": "patrol_station"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "ocean_pier",
+          "patrol_station"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "correctionalFacility": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "監獄",
+            "value": "prison"
+          },
+          {
+            "label": "看守所",
+            "value": "detention"
+          },
+          {
+            "label": "戒治所",
+            "value": "drug_rehab"
+          },
+          {
+            "label": "矯正學校",
+            "value": "correction_school"
+          },
+          {
+            "label": "少年觀護所",
+            "value": "juvenile_obs"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "prison",
+          "detention",
+          "drug_rehab",
+          "correction_school",
+          "juvenile_obs"
+        ]
+      },
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "court": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "最高法院",
+            "value": "supreme"
+          },
+          {
+            "label": "高等法院",
+            "value": "high"
+          },
+          {
+            "label": "高等行政",
+            "value": "admin"
+          },
+          {
+            "label": "智財商業／少家事",
+            "value": "ipc"
+          },
+          {
+            "label": "地方法院",
+            "value": "district"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "supreme",
+          "high",
+          "admin",
+          "ipc",
+          "district"
+        ]
+      },
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "courtJurisdiction": [
+      {
+        "label": "填色透明度 0.18",
+        "max": 0.6,
+        "min": 0,
+        "name": "填色透明度",
+        "step": 0.02,
+        "value": 0.18,
+        "valueText": "0.18"
+      }
+    ],
+    "harmReductionDuiCrashes": [
+      {
+        "label": "事故類別",
+        "options": [
+          {
+            "label": "A1 類（24 小時內死亡）",
+            "value": "A1"
+          },
+          {
+            "label": "A2 類（受傷或 24 小時後死亡）",
+            "value": "A2"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "A1",
+          "A2"
+        ]
+      },
+      {
+        "label": "年份",
+        "options": [
+          {
+            "label": "107 年（2018）",
+            "value": "107"
+          },
+          {
+            "label": "108 年（2019）",
+            "value": "108"
+          },
+          {
+            "label": "109 年（2020）",
+            "value": "109"
+          },
+          {
+            "label": "110 年（2021）",
+            "value": "110"
+          },
+          {
+            "label": "111 年（2022）",
+            "value": "111"
+          },
+          {
+            "label": "112 年（2023）",
+            "value": "112"
+          },
+          {
+            "label": "113 年（2024）",
+            "value": "113"
+          },
+          {
+            "label": "114 年（2025）",
+            "value": "114"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "107",
+          "108",
+          "109",
+          "110",
+          "111",
+          "112",
+          "113",
+          "114"
+        ]
+      },
+      {
+        "label": "酒駕判定",
+        "options": [
+          {
+            "label": "事故主要肇因為酒駕",
+            "value": "primary"
+          },
+          {
+            "label": "僅個別當事者肇因為酒駕",
+            "value": "party_level_only"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "primary",
+          "party_level_only"
+        ]
+      },
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.75,
+        "valueText": "0.75"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "immigrationOffice": [
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "investigationBureau": [
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "majorOccupationalAccidents": [
+      {
+        "label": "災害類型",
+        "options": [
+          {
+            "label": "墜落、滾落",
+            "value": "墜落、滾落"
+          },
+          {
+            "label": "物體倒塌、崩塌",
+            "value": "物體倒塌、崩塌"
+          },
+          {
+            "label": "物體飛落",
+            "value": "物體飛落"
+          },
+          {
+            "label": "感電",
+            "value": "感電"
+          },
+          {
+            "label": "被夾、被捲",
+            "value": "被夾、被捲"
+          },
+          {
+            "label": "被撞",
+            "value": "被撞"
+          },
+          {
+            "label": "公路交通事故",
+            "value": "公路交通事故"
+          },
+          {
+            "label": "其他",
+            "value": "__other__"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "墜落、滾落",
+          "物體倒塌、崩塌",
+          "物體飛落",
+          "感電",
+          "被夾、被捲",
+          "被撞",
+          "公路交通事故",
+          "__other__"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "policeIsoCityDept": [
+      {
+        "label": "模式",
+        "options": [
+          {
+            "label": "步行 Walk",
+            "value": "walk"
+          },
+          {
+            "label": "開車 Drive",
+            "value": "drive"
+          }
+        ],
+        "type": "select",
+        "value": "drive"
+      },
+      {
+        "label": "分鐘",
+        "options": [
+          {
+            "label": "30 分",
+            "value": "30"
+          },
+          {
+            "label": "60 分",
+            "value": "60"
+          }
+        ],
+        "type": "select",
+        "value": "30"
+      },
+      {
+        "label": "透明度 0.45",
+        "max": 0.9,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.45,
+        "valueText": "0.45"
+      }
+    ],
+    "policeIsoPrecinct": [
+      {
+        "label": "模式",
+        "options": [
+          {
+            "label": "步行 Walk",
+            "value": "walk"
+          },
+          {
+            "label": "開車 Drive",
+            "value": "drive"
+          }
+        ],
+        "type": "select",
+        "value": "drive"
+      },
+      {
+        "label": "分鐘",
+        "options": [
+          {
+            "label": "15 分",
+            "value": "15"
+          },
+          {
+            "label": "30 分",
+            "value": "30"
+          }
+        ],
+        "type": "select",
+        "value": "15"
+      },
+      {
+        "label": "透明度 0.50",
+        "max": 0.9,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.5,
+        "valueText": "0.50"
+      }
+    ],
+    "policeIsoSubstation": [
+      {
+        "label": "模式",
+        "options": [
+          {
+            "label": "步行 Walk",
+            "value": "walk"
+          },
+          {
+            "label": "開車 Drive",
+            "value": "drive"
+          }
+        ],
+        "type": "select",
+        "value": "walk"
+      },
+      {
+        "label": "分鐘",
+        "options": [
+          {
+            "label": "5 分",
+            "value": "5"
+          },
+          {
+            "label": "10 分",
+            "value": "10"
+          }
+        ],
+        "type": "select",
+        "value": "5"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 0.9,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "policeStation": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "警政署（總部）",
+            "value": "headquarters"
+          },
+          {
+            "label": "縣市警察局",
+            "value": "police_dept"
+          },
+          {
+            "label": "分局",
+            "value": "precinct"
+          },
+          {
+            "label": "派出所",
+            "value": "substation"
+          },
+          {
+            "label": "專業警隊",
+            "value": "specialized"
+          },
+          {
+            "label": "其他",
+            "value": "other"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "headquarters",
+          "police_dept",
+          "precinct",
+          "substation",
+          "specialized",
+          "other"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "prosecutorsOffice": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "最高檢察署",
+            "value": "supreme"
+          },
+          {
+            "label": "高等檢察署",
+            "value": "high"
+          },
+          {
+            "label": "地方檢察署",
+            "value": "district"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "supreme",
+          "high",
+          "district"
+        ]
+      },
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "speedCamera": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "一般測速",
+            "value": "speed_camera_general"
+          },
+          {
+            "label": "國道測速",
+            "value": "speed_camera_freeway"
+          },
+          {
+            "label": "闖紅燈照相",
+            "value": "red_light_camera"
+          },
+          {
+            "label": "平交道照相",
+            "value": "railway_crossing_camera"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "speed_camera_general",
+          "speed_camera_freeway",
+          "red_light_camera",
+          "railway_crossing_camera"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "speedZoneSegment": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "線寬 1.0",
+        "max": 5,
+        "min": 0.3,
+        "name": "線寬",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "theftTaoyuan": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "住宅竊盜",
+            "value": "住宅竊盜"
+          },
+          {
+            "label": "汽車竊盜",
+            "value": "汽車竊盜"
+          },
+          {
+            "label": "機車竊盜",
+            "value": "機車竊盜"
+          },
+          {
+            "label": "自行車竊盜",
+            "value": "自行車竊盜"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "住宅竊盜",
+          "汽車竊盜",
+          "機車竊盜",
+          "自行車竊盜"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "trafficAccidentYearly": [
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "trafficAccidents2025": [
+      {
+        "label": "事故類別",
+        "options": [
+          {
+            "label": "A1 類（24 小時內死亡）",
+            "value": "A1"
+          },
+          {
+            "label": "A2 類（受傷或 24 小時後死亡）",
+            "value": "A2"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "A1",
+          "A2"
+        ]
+      },
+      {
+        "label": "主要肇因",
+        "options": [
+          {
+            "label": "駕駛者",
+            "value": "駕駛者"
+          },
+          {
+            "label": "其他",
+            "value": "其他"
+          },
+          {
+            "label": "無（車輛駕駛者因素）",
+            "value": "無(車輛駕駛者因素)"
+          },
+          {
+            "label": "非駕駛者",
+            "value": "非駕駛者"
+          },
+          {
+            "label": "機件",
+            "value": "機件"
+          },
+          {
+            "label": "燈光",
+            "value": "燈光"
+          },
+          {
+            "label": "裝載",
+            "value": "裝載"
+          },
+          {
+            "label": "無（非車輛駕駛人因素）",
+            "value": "無(非車輛駕駛人因素)"
+          },
+          {
+            "label": "無（物或動物）",
+            "value": "無(物或動物)"
+          },
+          {
+            "label": "交通管制（設施）",
+            "value": "交通管制(設施)"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "駕駛者",
+          "其他",
+          "無(車輛駕駛者因素)",
+          "非駕駛者",
+          "機件",
+          "燈光",
+          "裝載",
+          "無(非車輛駕駛人因素)",
+          "無(物或動物)",
+          "交通管制(設施)"
+        ]
+      },
+      {
+        "label": "透明度 0.60",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.6,
+        "valueText": "0.60"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "womenChildWarning": [
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ]
+  }
+}

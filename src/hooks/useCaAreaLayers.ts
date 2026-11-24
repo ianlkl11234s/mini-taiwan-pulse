@@ -10,7 +10,7 @@ import {
   CA_INDIGENOUS_TYPES, CA_RENT_UNITS, CA_RENTS_PALETTE_ID, CA_RENTS_POLYGON_FROM_ZOOM, CA_RENTS_SOURCE, type CaCimdDimension, type CaRentUnit,
 } from "../data/caInfraTypes";
 import { caCatColor, caCatFilter } from "./useCaTransportLayers";
-import { gbHeatmapBuild, useGbPmtilesLayers, type LayerBuild, type SourceSpec } from "./useGbWaterLayers";
+import { gbHeatmapBuild, useGbPmtilesLayers, type LayerBuild, type SourceSpec } from "./intlPmtilesLayers";
 
 /**
  * 加拿大第 2 波面資料與社經 5 層（C134 聯邦選區、X010 FSA、C019 原住民法定土地、C023 CIMD、C026 CMHC 租金）。靜態 PMTiles、不訂閱時間。

@@ -6,7 +6,7 @@
  */
 import type { ThRasterKey } from "./thDataKeys";
 import type { ThLayerSpec } from "./thDataLayers";
-import type { L3, PhCat, PhCatGetter, PhField, PhNote, PhPart } from "./phDataLayers";
+import type { L3, PhCat, PhCatGetter, PhField, PhNote, PhPart } from "./intlLayerShared";
 import { TH_SOIL_RASTER_SPECS } from "./thWaves8Layers";
 
 const l3 = (zh: string, en: string, ja: string): L3 => ({ zh, en, ja });

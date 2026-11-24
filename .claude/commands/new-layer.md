@@ -145,7 +145,7 @@ $1: [
 npx tsc -b                                              # 必過
 npx vitest run                                          # 全綠
 npx vite-node scripts/preprocess/dump-layer-golden.ts   # 只有新 key 那幾行該動
-git diff src/data/__tests__/__fixtures__/layer-golden.json   # 逐行 review
+git diff src/data/__tests__/__fixtures__/layer-golden/   # 逐行 review
 ```
 
 ⚠️ 黃金快照 fixture 只凍 `overlays` / `params` / `gisLayers` 三個 section。

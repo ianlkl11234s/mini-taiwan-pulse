@@ -11,6 +11,7 @@ import { localizeLayerName } from "../../i18n/layerText";
 import { LayerToggleSwitch } from "./LayerToggleSwitch";
 import { useRailTheme } from "./railTheme";
 import { compareSideOf, isCompareSupported, useCompareSelector } from "../../state/compareStore";
+import { rightSideBlocker } from "../../map/compareCountrySides";
 import { LongTermBadge } from "../longTermBar/LongTermBadge";
 import "./layerRow.css";
 
@@ -58,13 +59,17 @@ export function LayerNameLine({ name, layerKey, rowActive }: { name: LayerName; 
 function CompareSideTag({ layerKey }: { layerKey: string }) {
   // 只訂這層的側別（拖把手不重繪）；null＝沒在比較
   const side = useCompareSelector((state) => (state.enabled ? compareSideOf(layerKey, state) : null));
+  // 兩國並排（G2-1）：右國圖層標「右」；右國但只能畫在主地圖的（overlay／立體）標「只在左側」；其他不標
+  const countries = useCompareSelector((state) => state.enabled && state.mode === "countries");
+  const blocked = useCompareSelector((state) => rightSideBlocker(layerKey, state.rightCountry) !== null);
   const { DIM, BORDER } = useRailTheme();
   const { t } = useLocale();
   if (!side) return null;
-  const supported = isCompareSupported(layerKey);
-  if (supported && side === "both") return null;
+  const supported = countries ? !blocked : isCompareSupported(layerKey);
+  if (supported && (side === "both" || (countries && side === "left"))) return null;
   const text = !supported ? t("compare.unsupportedShort") : t(side === "left" ? "compare.sideLeft" : "compare.sideRight");
-  return <span title={supported ? undefined : t("compare.unsupported")} style={{ flexShrink: 0, alignSelf: "center", marginLeft: 5, padding: "0 4px", border: `1px solid ${BORDER}`, borderRadius: RADIUS.md, fontSize: FONT_SIZE.xs, lineHeight: "13px", color: DIM, whiteSpace: "nowrap" }}>{text}</span>;
+  const title = supported ? undefined : t(countries ? "compare.countriesUnsupported" : "compare.unsupported");
+  return <span title={title} style={{ flexShrink: 0, alignSelf: "center", marginLeft: 5, padding: "0 4px", border: `1px solid ${BORDER}`, borderRadius: RADIUS.md, fontSize: FONT_SIZE.xs, lineHeight: "13px", color: DIM, whiteSpace: "nowrap" }}>{text}</span>;
 }
 
 export interface ListRowProps {
