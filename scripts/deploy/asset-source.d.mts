@@ -15,3 +15,18 @@ export declare function resolveAsset(
   },
 ): Promise<ResolveResult>;
 export declare function memoBaseLock(readPaths: () => string[] | Promise<string[]>): (path: string) => Promise<boolean>;
+
+// CI-11：lock 新增／變更的條目都要真的有檔（只做 HEAD）
+export interface LockEntry extends AssetEntry { delivery?: string }
+export interface HeadResult { status: number; bytes?: number | null; sha256?: string | null; error?: string }
+export type PresenceResult = { ok: true; source: "public" | "s3" } | { ok: false; reason: string };
+export declare const UPLOAD_HELP: string;
+export declare function changedLockEntries<T extends LockEntry>(entries: T[], baseEntries: AssetEntry[]): T[];
+export declare function checkPresence(
+  entry: AssetEntry,
+  deps: {
+    headPublic: (entry: AssetEntry) => Promise<HeadResult>;
+    s3Configured: boolean;
+    headS3: (entry: AssetEntry) => Promise<HeadResult>;
+  },
+): Promise<PresenceResult>;
