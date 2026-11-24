@@ -389,17 +389,57 @@ function moveRecordEntries(fileRel: string, varName: string, match: (name: strin
 }
 
 // ── 規則：有序陣列（插槽） ─────────────────────────────────────────
-function existingSlotNumbers(sf: ts.SourceFile): number[] {
+function existingSlotNumbers(sf: ts.SourceFile, marker: string): number[] {
   const out: number[] = [];
-  for (const m of sf.text.matchAll(new RegExp(`countrySlot\\("${CC}", (\\d+)\\)`, "g"))) out.push(Number(m[1]));
+  for (const m of sf.text.matchAll(new RegExp(`${marker}\\("${CC}", (\\d+)\\)`, "g"))) out.push(Number(m[1]));
   return out;
 }
 
-function moveListEntries(fileRel: string, varName: string, match: (el: ts.Expression, sf: ts.SourceFile) => boolean, sec: Section): number {
+interface ListOptions {
+  /** 插槽標記函式名（預設 countrySlot；overlay 用 overlaySlot，型別上是 OverlayConfig） */
+  marker?: string;
+  /** 也掃巢狀的 `...[ … ]` 陣列與 `<varName>.push(…)` 的引數（overlayRegistry 的條目散在這些地方） */
+  nested?: boolean;
+  /** 符合但留在中央的條目（例：由 jpHeightLifecycle 管的 overlay 樣板） */
+  keep?: (el: ts.Expression) => boolean;
+}
+
+function unwrapExpr(e: ts.Expression): ts.Expression {
+  while (ts.isParenthesizedExpression(e) || ts.isAsExpression(e) || ts.isSatisfiesExpression(e)) e = e.expression;
+  return e;
+}
+
+/** 有序陣列的「條目清單」：主陣列，加上（nested 時）巢狀展開陣列與 push 呼叫的引數 */
+function elementLists(sf: ts.SourceFile, arr: ts.ArrayLiteralExpression, varName: string, nested: boolean): ts.NodeArray<ts.Expression>[] {
+  const out: ts.NodeArray<ts.Expression>[] = [arr.elements];
+  if (!nested) return out;
+  const unwrap = unwrapExpr;
+  const addNested = (els: ts.NodeArray<ts.Expression>) => {
+    for (const el of els) {
+      if (!ts.isSpreadElement(el)) continue;
+      const inner = unwrap(el.expression);
+      if (ts.isArrayLiteralExpression(inner)) { out.push(inner.elements); addNested(inner.elements); }
+    }
+  };
+  addNested(arr.elements);
+  const visit = (n: ts.Node) => {
+    if (ts.isCallExpression(n) && ts.isPropertyAccessExpression(n.expression) && n.expression.name.text === "push"
+      && ts.isIdentifier(n.expression.expression) && n.expression.expression.text === varName) {
+      out.push(n.arguments);
+      addNested(n.arguments);
+    }
+    n.forEachChild(visit);
+  };
+  for (const st of sf.statements) if (ts.isExpressionStatement(st)) visit(st);
+  return out;
+}
+
+function moveListEntries(fileRel: string, varName: string, match: (el: ts.Expression, sf: ts.SourceFile) => boolean, sec: Section, opts: ListOptions = {}): number {
   const abs = join(ROOT, fileRel);
   const sf = parse(abs);
   const arr = findContainer(sf, varName) as ts.ArrayLiteralExpression;
-  let next = Math.max(0, ...existingSlotNumbers(sf)) + 1;
+  const marker = opts.marker ?? "countrySlot";
+  let next = Math.max(0, ...existingSlotNumbers(sf, marker)) + 1;
   const picked: ts.Node[] = [];
   let run: ts.Expression[] = [];
   const flush = () => {
@@ -411,15 +451,20 @@ function moveListEntries(fileRel: string, varName: string, match: (el: ts.Expres
     const indent = sf.text.slice(sf.text.lastIndexOf("\n", first.getStart(sf)) + 1, first.getStart(sf)).match(/^\s*/)![0];
     const texts = run.map((el) => entryText(el, sf));
     sec.slotBodies.set(n, texts);
-    pushEdit(abs, { start: s0, end: e1, text: `${indent}countrySlot("${CC}", ${n}), // ${cfg!.nameZh}國家包（src/countries/${cfg!.dir}/）\n` });
+    pushEdit(abs, { start: s0, end: e1, text: `${indent}${marker}("${CC}", ${n}), // ${cfg!.nameZh}國家包（src/countries/${cfg!.dir}/）\n` });
     picked.push(...run);
     run = [];
   };
-  for (const el of arr.elements) {
-    if (ts.isSpreadElement(el) ? spreadIsCountry(sf, el.expression) : match(el, sf)) run.push(el);
-    else if (!ts.isOmittedExpression(el)) flush();
+  for (const list of elementLists(sf, arr, varName, !!opts.nested)) {
+    for (const el of list) {
+      const inner = ts.isSpreadElement(el) ? el.expression : null;
+      const nestedArray = inner && opts.nested && ts.isArrayLiteralExpression(unwrapExpr(inner));
+      const hit = !opts.keep?.(el) && (inner ? !nestedArray && spreadIsCountry(sf, inner) : match(el, sf));
+      if (hit) run.push(el);
+      else if (!ts.isOmittedExpression(el)) flush();
+    }
+    flush();
   }
-  flush();
   if (picked.length === 0) return 0;
   carryDependencies(sf, picked, sec);
   if (!sf.text.includes("countrySlot")) {
@@ -674,6 +719,11 @@ moveListEntries("src/map/gisClickRegistry.ts", "GIS_LAYERS", (el) => { const t =
 const sLegends = section("legends.tsx", `${CC}_PACK_LEGEND_SLOTS`, "slots", "Readonly<Record<number, readonly LegendEntry[]>>",
   ['import type { LegendEntry } from "../../components/LegendPanel";']);
 moveListEntries("src/components/LegendPanel.tsx", "LEGEND_REGISTRY", (el) => { const id = strOf(objField(el, "id")); return id !== null && LEGENDS.has(id); }, sLegends);
+const sOverlays = section("overlays.ts", `${CC}_PACK_OVERLAY_SLOTS`, "slots", "Readonly<Record<number, readonly OverlayConfig[]>>",
+  ['import type { OverlayConfig } from "../../types";']);
+const keepOverlay = (el: ts.Expression) => { const id = strOf(objField(el, "id")); return id !== null && !!cfg.keepOverlays?.includes(id); };
+moveListEntries("src/map/overlayRegistry.ts", "OVERLAY_REGISTRY", (el) => { const id = strOf(objField(el, "id")); return id !== null && KEYS.has(id); }, sOverlays,
+  { marker: "overlaySlot", nested: true, keep: keepOverlay });
 
 const nonEmpty = [...sections.values()].filter((s) => s.exportName && (s.body.length || s.slotBodies.size));
 if (nonEmpty.length === 0 && moves.size === 0 && !(cfg.moveNamed?.length)) {
@@ -726,7 +776,8 @@ const REC: Array<[string, string, string]> = [
   ["featureHeaderLabels", "headerLabels", `${CC}_PACK_HEADER_LABELS`],
 ];
 const LIST: Array<[string, string, string]> = [
-  ["legends", "legends", `${CC}_PACK_LEGEND_SLOTS`], ["gisClickLayers", "clicks", `${CC}_PACK_CLICK_SLOTS`], ["layerHosts", "hosts", `${CC}_PACK_HOST_SLOTS`],
+  ["legends", "legends", `${CC}_PACK_LEGEND_SLOTS`], ["gisClickLayers", "clicks", `${CC}_PACK_CLICK_SLOTS`],
+  ["overlays", "overlays", `${CC}_PACK_OVERLAY_SLOTS`], ["layerHosts", "hosts", `${CC}_PACK_HOST_SLOTS`],
 ];
 const exists = (f: string) => existsSync(join(PACK_ABS, `${f}.ts`)) || existsSync(join(PACK_ABS, `${f}.tsx`));
 const recs = REC.filter(([, f]) => exists(f));

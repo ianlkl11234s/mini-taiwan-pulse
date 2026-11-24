@@ -1,3 +1,4 @@
+import { countrySlot, isCountrySlot, slottedList, type CountrySlot } from "../countries/slots";
 import { CATEGORY_FILTERS, categoryDefs, categoryFilterExpr, categoryMaskKey } from "../data/categoryFilters";
 import {
   JP_NATURAL_PARK_AREAS_URL, JP_NATURAL_PARK_AREAS_COLOR, JP_NATURAL_PARK_LEVELS, JP_NATURAL_PARK_AREAS_ATTRIBUTION,
@@ -1384,6 +1385,10 @@ function electionPointExpr(p?: Record<string, number>) {
   ];
   return { base, campColor, past };
 }
+
+/** 國家包 overlay 的插槽標記（型別上當成 OverlayConfig，好放進下面各段陣列；登記簿建立時取出） */
+const overlaySlot = (country: string, n: number) => countrySlot(country, n) as unknown as OverlayConfig;
+void overlaySlot;
 
 export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // ── 🌡️ 都市熱島 Urban Heat（Landsat 8/9 地表溫度，雙通道值編碼 RGBA PMTiles，z6–11/512px）──
@@ -13608,7 +13613,17 @@ for (const country of MAPCHALLENGE_DAY23_INTL) {
 
 // R2（P-1 B／P-2 A）：點圖層的半徑與描邊統一由 pointTiers.ts＋pointSpec.ts 套用，
 // 上面各 config 的 circle-radius／circle-stroke-* 字面值對這些圖層已不生效。
-OVERLAY_REGISTRY.splice(0, OVERLAY_REGISTRY.length, ...withRepPoints(OVERLAY_REGISTRY).map(withPointSpec).map(withLineFillSpec).map(withDarkContrast).map(withCategoryFilter));
+// B1 P5b：國家包的 overlay 以 overlaySlot 標記原位置，載入後經同一串包裝插回（slots.ts；陣列物件不變、順序＝z-order 不變）。
+slottedList<OverlayConfig>(
+  "overlays",
+  [...(OVERLAY_REGISTRY as Array<OverlayConfig | CountrySlot>)].flatMap((entry): Array<OverlayConfig | CountrySlot> => (isCountrySlot(entry) ? [entry] : finalizeOverlays([entry]))),
+  undefined,
+  { into: OVERLAY_REGISTRY, transform: finalizeOverlays },
+);
+
+function finalizeOverlays(configs: OverlayConfig[]): OverlayConfig[] {
+  return withRepPoints(configs).map(withPointSpec).map(withLineFillSpec).map(withDarkContrast).map(withCategoryFilter);
+}
 
 /**
  * V-4 類別篩選（`data/categoryFilters.ts` 規格表）：把類別多選併進該圖層每個子圖層的 filter

@@ -28,4 +28,4 @@ export type PackRecordName =
   | "featureHeaderLabels"
   | "atlasFamilies";
 
-export type PackListName = "layerHosts" | "gisClickLayers" | "legends";
+export type PackListName = "layerHosts" | "gisClickLayers" | "legends" | "overlays";

@@ -28,7 +28,7 @@ const RECORD_ORDER: readonly PackRecordName[] = [
   "layerManifest", "layerParamsSpec", "layerSourceInfo", "layerNotes", "layerSpecNotes",
   "featurePanels", "featureHeaderLabels", "atlasFamilies",
 ];
-const LIST_ORDER: readonly PackListName[] = ["legends", "gisClickLayers", "layerHosts"];
+const LIST_ORDER: readonly PackListName[] = ["legends", "gisClickLayers", "overlays", "layerHosts"];
 
 export type PackStatus = "none" | "idle" | "loading" | "ready" | "error";
 
