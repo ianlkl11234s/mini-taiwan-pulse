@@ -235,6 +235,7 @@ export type GeneratedStaticKey =
   | "country.CN"
   | "country.FR"
   | "country.GB"
+  | "country.ID"
   | "country.IE"
   | "country.JP"
   | "country.KR"

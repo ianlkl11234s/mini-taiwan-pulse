@@ -115,6 +115,8 @@ import { PH_RASTER_SPECS } from "./phWavesLayers";
 import { VN_DATA_SPECS, VN_STATUSES } from "./vnDataLayers";
 import { TH_ADMIN_LEVELS, TH_DATA_SPECS, TH_POP_LEVELS, TH_STATUSES } from "./thDataLayers";
 import { TH_RASTER_SPECS } from "./thWavesLayers";
+import { ID_ADMIN_LEVELS, ID_DATA_SPECS, ID_LEVELS_2 } from "./idDataLayers";
+import { ID_RASTER_SPECS } from "./idWavesLayers";
 import { CA_WAVE_SPECS } from "./caWavesLayers";
 import { VN_RASTER_SPECS } from "./vnWavesLayers";
 import { CN_ADMIN_LEVELS, CN_DATA_SPECS, CN_PLANT_SCOPES, CN_PLANT_STATUSES, CN_PLANT_STATUS_DEFAULT, CN_RASTER_SPECS, cnCatOptions } from "./cnDataLayers";
@@ -2447,6 +2449,46 @@ export const LAYER_PARAMS_SPEC = {
   })),
   // 泰國 raster 2 層（2026-11-22）：只有透明度（同 phTerrain）
   ...Object.fromEntries(TH_RASTER_SPECS.map((spec) => [spec.key, [
+    { kind: "slider" as const, name: `${spec.key}Opacity`, labelPrefix: "透明度", digits: 2, default: spec.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05 },
+  ]])),
+  // 印尼第 0–3 波（2026-11-23）：選項順序＝ ID_ADMIN_LEVELS／ID_LEVELS_2；行政邊界、人口、IDM 預設 province（國家全覽 z4 有圖磚）
+  idAdminBoundaries: [
+    opacitySlider("idAdminBoundariesOpacity", 0.85),
+    {
+      kind: "select", category: "data", name: "idAdminBoundariesLevel", label: "行政層級", default: "province",
+      options: ID_ADMIN_LEVELS.map((x) => ({ label: x.label, value: x.value })),
+      out: "idAdminBoundariesLevelIdx", encode: ID_ADMIN_LEVELS.map((x) => x.value),
+    },
+  ],
+  idPopulation: [
+    {
+      kind: "select", category: "data", name: "idPopulationLevel", label: "行政層級", default: "province",
+      options: ID_LEVELS_2.map((x) => ({ label: x.label, value: x.value })),
+      out: "idPopulationLevelIdx", encode: ID_LEVELS_2.map((x) => x.value),
+    },
+    opacitySlider("idPopulationOpacity", 0.7),
+  ],
+  idRuralDevelopment: [
+    {
+      kind: "select", category: "data", name: "idRuralDevelopmentLevel", label: "行政層級", default: "province",
+      options: ID_LEVELS_2.map((x) => ({ label: x.label, value: x.value })),
+      out: "idRuralDevelopmentLevelIdx", encode: ID_LEVELS_2.map((x) => x.value),
+    },
+    opacitySlider("idRuralDevelopmentOpacity", 0.7),
+  ],
+  // 印尼規格驅動 19 層：類別多選（順序＝規格 cats＋「其他」＝bitmask；沉降預設只開 2025）；≥1 萬點加熱區顏色
+  ...Object.fromEntries(ID_DATA_SPECS.map((spec) => {
+    const hasPoint = spec.parts.some((p) => p.geom === "point");
+    const pointOnly = spec.parts.every((p) => p.geom === "point");
+    return [spec.key, [
+      categoryMultiSelect(spec.key, phCatOptions(spec), spec.defaultCats ? serializeMultiSelectValues([...spec.defaultCats]) : undefined),
+      ...(spec.heat ? [heatmapPalette(spec.key)] : []),
+      opacitySlider(`${spec.key}Opacity`, spec.opacity ?? (pointOnly ? densePointOpacity(spec.count) : 0.85)),
+      ...(hasPoint ? [scaleSlider(`${spec.key}Scale`, 1)] : []),
+    ]];
+  })),
+  // 印尼 raster 5 層（2026-11-23）：只有透明度（同 thTerrain）
+  ...Object.fromEntries(ID_RASTER_SPECS.map((spec) => [spec.key, [
     { kind: "slider" as const, name: `${spec.key}Opacity`, labelPrefix: "透明度", digits: 2, default: spec.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05 },
   ]])),
   // 越南第 0–1 波（2026-11-13）：行政邊界、人口只有 34 省一級（不需層級 select）

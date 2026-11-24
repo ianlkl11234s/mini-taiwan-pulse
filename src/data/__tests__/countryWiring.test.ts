@@ -100,6 +100,7 @@ const NO_STATISTICS: Readonly<Partial<Record<string, string>>> = {
   PH: "菲律賓第 0–1 波明定統計不涵蓋（layerPanels.ts PHILIPPINES_THEMES 註解）",
   VN: "越南第 0–1 波明定統計不涵蓋（layerPanels.ts VIETNAM_THEMES 註解）",
   TH: "泰國第 0 波明定統計不涵蓋（layerPanels.ts THAILAND_THEMES 註解）",
+  ID: "印尼第 0–4 波明定統計不涵蓋（layerPanels.ts INDONESIA_THEMES 註解）",
   CN: "中國第 0–1 波站主限定，統計不涵蓋（layerPanels.ts CHINA_THEMES 註解）",
 };
 
