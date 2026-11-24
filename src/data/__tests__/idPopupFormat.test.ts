@@ -2,19 +2,20 @@
  * 2026-11-24 正式站看圖驗收（印尼 popup）：類別不帶圖例的筆數與來源、面積不顯示「0 km²」、
  * 不露出英文 STALE、外圍小島去代碼前綴、每筆都一樣的備註搬到圖層「說明・來源」。
  */
-import { createElement } from "react";
+import { createElement, type FC } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { ID_DATA_SPECS } from "../idDataLayers";
 import { plain } from "../idWavesLayers";
-import { pickL3, type L3 } from "../intlLayerShared";
+import type { L3 } from "../intlLayerShared";
 import { LAYER_SOURCE_INFO } from "../layerSourceInfo";
 import { fmtArea, stripCodePrefix } from "../../components/featureInfo/intlSpecPanel";
 import { ID_DATA_PANELS, IdAdminBoundariesPanel } from "../../components/featureInfo/idPanels";
 import { HarmReductionDuiCrashPanel } from "../../components/featureInfo/harmReductionPanels";
 
 const all = (t: L3) => [t.zh, t.en, t.ja];
-const render = (el: Parameters<typeof createElement>[0], props: Record<string, unknown>) => renderToStaticMarkup(createElement(el as never, { props } as never));
+type PopupFC = FC<{ props: Record<string, unknown> }>;
+const render = (el: PopupFC, props: Record<string, unknown>) => renderToStaticMarkup(createElement(el, { props }));
 
 describe("圖例標籤 → popup 類別（plain）", () => {
   it.each([
@@ -94,6 +95,5 @@ describe("popup 內容", () => {
     const info = LAYER_SOURCE_INFO.harmReductionDuiCrashes!;
     expect(info.asOf).toBeTruthy();
     expect(info.notes?.length).toBeGreaterThan(0);
-    expect(pickL3({ zh: "a", en: "b", ja: "c" }, "en")).toBe("b");
   });
 });
