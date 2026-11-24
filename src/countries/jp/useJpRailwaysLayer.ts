@@ -14,7 +14,8 @@ const LINE_LAYER_ID = "jp-railways-line";
 const FILE = "jp_railways.pmtiles";
 const MINZOOM = 4;
 const MAXZOOM = 12;
-const OPACITY_DEFAULT = Number(paramDefault("jpRailways", "jpRailwaysOpacity") ?? 1);
+// 國家包的參數規格在包載入後才登記：預設值要用時再讀，不可在模組載入時就讀（B1 P5b）
+const opacityDefault = () => Number(paramDefault("jpRailways", "jpRailwaysOpacity") ?? 1);
 
 // UX baseline（主要路網線層）：z6=1px → z14=3px
 const LINE_WIDTH: ExpressionSpecification = [
@@ -40,7 +41,7 @@ function railwayLineLayer(opacity: number): LineLayer {
   }, {
     "line-color": JP_RAILWAY_TYPE_COLOR_EXPRESSION,
     "line-width": LINE_WIDTH,
-    "line-opacity": OPACITY_DEFAULT,
+    "line-opacity": opacityDefault(),
   });
   return {
     id: LINE_LAYER_ID,
@@ -85,7 +86,7 @@ export function useJpRailwaysLayer(
       if (map.getLayer(LINE_LAYER_ID)) {
         map.setFilter(LINE_LAYER_ID, (hookCategoryFilter("jpRailways", { jpRailwaysCatMask: catMask as number }) ?? null) as never);
         map.setLayoutProperty(LINE_LAYER_ID, "visibility", "visible");
-        map.setPaintProperty(LINE_LAYER_ID, "line-opacity", hookLineOpacity("jpRailways", LINE_LAYER_ID, clampOpacity(opacity), OPACITY_DEFAULT));
+        map.setPaintProperty(LINE_LAYER_ID, "line-opacity", hookLineOpacity("jpRailways", LINE_LAYER_ID, clampOpacity(opacity), opacityDefault()));
       }
     };
 

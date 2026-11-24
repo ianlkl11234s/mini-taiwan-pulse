@@ -6,7 +6,8 @@ import { pointRadius, pointStrokePaint } from "../../map/mapStyleScale";
 import { paramDefault } from "../../data/layerParamsSpec";
 import { hookFillOpacity, hookFillPaint, hookLineLayout, hookLinePaint } from "../../map/lineFillSpec";
 
-const DEFAULT_OPACITY = Number(paramDefault("jpAirports", "jpAirportsOpacity") ?? 1);
+// 國家包的參數規格在包載入後才登記：預設值要用時再讀，不可在模組載入時就讀（B1 P5b）
+const defaultOpacity = () => Number(paramDefault("jpAirports", "jpAirportsOpacity") ?? 1);
 
 const SOURCE_ID = "jp-airports";
 const FILL_LAYER_ID = "jp-airports-fill";
@@ -33,7 +34,7 @@ function fillLayer(opacity: number): FillLayer {
     type: "fill",
     source: SOURCE_ID,
     layout: { visibility: "none" },
-    paint: hookFillPaint("jpAirports", FILL_LAYER_ID, { "fill-color": COLOR, "fill-opacity": clampOpacity(opacity) }, { "fill-color": COLOR, "fill-opacity": DEFAULT_OPACITY }),
+    paint: hookFillPaint("jpAirports", FILL_LAYER_ID, { "fill-color": COLOR, "fill-opacity": clampOpacity(opacity) }, { "fill-color": COLOR, "fill-opacity": defaultOpacity() }),
   } as FillLayer;
 }
 
@@ -57,7 +58,7 @@ function circleLayer(opacity: number, isDark: boolean): CircleLayer {
       "circle-radius": pointRadius("M"),
       "circle-color": COLOR,
       "circle-opacity": clampOpacity(opacity),
-      ...pointStrokePaint(isDark, clampOpacity(opacity) / DEFAULT_OPACITY),
+      ...pointStrokePaint(isDark, clampOpacity(opacity) / defaultOpacity()),
     },
   } as CircleLayer;
 }
@@ -136,7 +137,7 @@ export function useJpAirportsLayer(
       const showPolygon = displayMode === "polygon";
       if (map.getLayer(FILL_LAYER_ID)) {
         map.setLayoutProperty(FILL_LAYER_ID, "visibility", showPolygon ? "visible" : "none");
-        map.setPaintProperty(FILL_LAYER_ID, "fill-opacity", hookFillOpacity("jpAirports", FILL_LAYER_ID, clampOpacity(opacity), DEFAULT_OPACITY));
+        map.setPaintProperty(FILL_LAYER_ID, "fill-opacity", hookFillOpacity("jpAirports", FILL_LAYER_ID, clampOpacity(opacity), defaultOpacity()));
       }
       if (map.getLayer(LINE_LAYER_ID)) {
         map.setLayoutProperty(LINE_LAYER_ID, "visibility", showPolygon ? "visible" : "none");
@@ -145,7 +146,7 @@ export function useJpAirportsLayer(
         map.setLayoutProperty(CIRCLE_LAYER_ID, "visibility", showPolygon ? "none" : "visible");
         map.setPaintProperty(CIRCLE_LAYER_ID, "circle-opacity", clampOpacity(opacity));
         map.setPaintProperty(CIRCLE_LAYER_ID, "circle-radius", pointRadius("M"));
-        const stroke = pointStrokePaint(isDark, clampOpacity(opacity) / DEFAULT_OPACITY);
+        const stroke = pointStrokePaint(isDark, clampOpacity(opacity) / defaultOpacity());
         for (const prop of ["circle-stroke-color", "circle-stroke-width", "circle-stroke-opacity"] as const) map.setPaintProperty(CIRCLE_LAYER_ID, prop, stroke[prop]);
       }
     };

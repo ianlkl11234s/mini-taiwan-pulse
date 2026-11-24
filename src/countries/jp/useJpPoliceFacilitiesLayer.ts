@@ -32,7 +32,8 @@ function clampOpacity(opacity: number): number {
   return Math.max(0, Math.min(1, opacity));
 }
 
-const OPACITY_DEFAULT = Number(paramDefault("jpPoliceFacilities", "jpPoliceFacilitiesOpacity"));
+// 國家包的參數規格在包載入後才登記：預設值要用時再讀，不可在模組載入時就讀（B1 P5b）
+const opacityDefault = () => Number(paramDefault("jpPoliceFacilities", "jpPoliceFacilitiesOpacity"));
 const IS_DEGRADED: ExpressionSpecification = ["==", ["get", "geom_status"], "degraded"];
 
 /**
@@ -40,7 +41,7 @@ const IS_DEGRADED: ExpressionSpecification = ["==", ["get", "geom_status"], "deg
  * （圖例「橘色外框＝約略位置」）；其餘點用底圖色細縫。
  */
 function policeStrokePaint(isDark: boolean, opacity: number) {
-  const seam = pointStrokePaint(isDark, clampOpacity(opacity) / OPACITY_DEFAULT);
+  const seam = pointStrokePaint(isDark, clampOpacity(opacity) / opacityDefault());
   return {
     "circle-stroke-color": ["case", IS_DEGRADED, JP_POLICE_DEGRADED_COLOR, seam["circle-stroke-color"]] as unknown as ExpressionSpecification,
     "circle-stroke-width": ["case", IS_DEGRADED, 1.5, seam["circle-stroke-width"]] as unknown as ExpressionSpecification,
@@ -99,7 +100,7 @@ function policeHeatmapLayer(opacity: number, typeIndex: number, isDark: boolean)
     maxzoom: heatmapMaxzoom(POINTS_FROM_ZOOM),
     ...(initialFilter === undefined ? {} : { filter: initialFilter }),
     layout: { visibility: "none" },
-    paint: heatmapLayerPaint("jpPoliceFacilities", isDark, clampOpacity(opacity) / OPACITY_DEFAULT, HEATMAP_INTENSITY),
+    paint: heatmapLayerPaint("jpPoliceFacilities", isDark, clampOpacity(opacity) / opacityDefault(), HEATMAP_INTENSITY),
   } as HeatmapLayer;
 }
 
@@ -143,7 +144,7 @@ export function useJpPoliceFacilitiesLayer(
       }
       if (map.getLayer(HEATMAP_LAYER_ID)) {
         map.setLayoutProperty(HEATMAP_LAYER_ID, "visibility", "visible");
-        applyHeatmapStyle(map, HEATMAP_LAYER_ID, "jpPoliceFacilities", isDark, clampOpacity(opacity) / OPACITY_DEFAULT);
+        applyHeatmapStyle(map, HEATMAP_LAYER_ID, "jpPoliceFacilities", isDark, clampOpacity(opacity) / opacityDefault());
         map.setFilter(HEATMAP_LAYER_ID, jpPoliceFacilityTypeFilter(typeIndex));
       }
       if (!map.getLayer(LAYER_ID)) map.addLayer(policeCircleLayer(opacity, scale, typeIndex, isDark));

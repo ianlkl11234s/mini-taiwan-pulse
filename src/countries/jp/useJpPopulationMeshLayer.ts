@@ -16,7 +16,8 @@ const MINZOOM = 4;
 // ⚠️ 產製配方是 tippecanoe -Z4 -z11 —— 沒有 z12 以上的磚。
 //    source 寫 11、圖層不設 maxzoom，讓 z12+ overzoom z11 而不是整層消失。
 const MAXZOOM = 11;
-const OPACITY_DEFAULT = Number(paramDefault("jpPopulationMesh1km", "jpPopulationMesh1kmOpacity") ?? 1);
+// 國家包的參數規格在包載入後才登記：預設值要用時再讀，不可在模組載入時就讀（B1 P5b）
+const opacityDefault = () => Number(paramDefault("jpPopulationMesh1km", "jpPopulationMesh1kmOpacity") ?? 1);
 
 function clampOpacity(opacity: number): number {
   return Math.max(0, Math.min(1, opacity));
@@ -44,7 +45,7 @@ function meshFillLayer(opacity: number, modeIdx: number, isDark: boolean): FillL
     source: SOURCE_ID,
     "source-layer": SOURCE_LAYER,
     layout: { visibility: "none" },
-    paint: hookFillPaint("jpPopulationMesh1km", LAYER_ID, { "fill-color": color, "fill-opacity": clampOpacity(opacity) }, { "fill-color": color, "fill-opacity": OPACITY_DEFAULT }),
+    paint: hookFillPaint("jpPopulationMesh1km", LAYER_ID, { "fill-color": color, "fill-opacity": clampOpacity(opacity) }, { "fill-color": color, "fill-opacity": opacityDefault() }),
   } as FillLayer;
 }
 
@@ -86,7 +87,7 @@ export function useJpPopulationMeshLayer(
       }
       if (map.getLayer(LAYER_ID)) {
         map.setLayoutProperty(LAYER_ID, "visibility", "visible");
-        map.setPaintProperty(LAYER_ID, "fill-opacity", hookFillOpacity("jpPopulationMesh1km", LAYER_ID, clampOpacity(opacity), OPACITY_DEFAULT));
+        map.setPaintProperty(LAYER_ID, "fill-opacity", hookFillOpacity("jpPopulationMesh1km", LAYER_ID, clampOpacity(opacity), opacityDefault()));
         map.setPaintProperty(LAYER_ID, "fill-color", jpPopulationMeshColor(modeIdx, isDarkTheme));
       }
     };

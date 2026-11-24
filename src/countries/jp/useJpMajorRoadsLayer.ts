@@ -27,7 +27,8 @@ const Z5_FILE = "jp_major_roads_z5.pmtiles";
 // 契約：PMTiles z6–13；z6–8 只有國道與高速，都道府縣道 z9 起；z14 以上由前端 overzoom（source maxzoom=13）。
 const MINZOOM = 6;
 const MAXZOOM = 13;
-const OPACITY_DEFAULT = Number(paramDefault("jpMajorRoads", "jpMajorRoadsOpacity"));
+// 國家包的參數規格在包載入後才登記：預設值要用時再讀，不可在模組載入時就讀（B1 P5b）
+const opacityDefault = () => Number(paramDefault("jpMajorRoads", "jpMajorRoadsOpacity"));
 
 /** L-1 三階依道路等級：zoom interpolate 外殼、各停點內 match 等級；widthScale 為線寬滑桿。 */
 export function jpRoadWidthExpression(widthScale = 1): ExpressionSpecification {
@@ -64,7 +65,7 @@ function lineLayer(opacity: number, classIdx: number, z5 = false): LineLayer {
     paint: hookLinePaint(
       "jpMajorRoads", LAYER_ID,
       { "line-color": JP_ROAD_COLOR_EXPRESSION, "line-width": width, "line-opacity": clampOpacity(opacity) },
-      { "line-color": JP_ROAD_COLOR_EXPRESSION, "line-width": width, "line-opacity": OPACITY_DEFAULT },
+      { "line-color": JP_ROAD_COLOR_EXPRESSION, "line-width": width, "line-opacity": opacityDefault() },
     ),
   } as LineLayer;
 }
@@ -116,7 +117,7 @@ export function useJpMajorRoadsLayer(
       for (const id of [Z5_LAYER_ID, DETAIL_LAYER_ID]) {
         if (!map.getLayer(id)) continue;
         map.setLayoutProperty(id, "visibility", "visible");
-        map.setPaintProperty(id, "line-opacity", hookLineOpacity("jpMajorRoads", id, clampOpacity(opacity), OPACITY_DEFAULT));
+        map.setPaintProperty(id, "line-opacity", hookLineOpacity("jpMajorRoads", id, clampOpacity(opacity), opacityDefault()));
         map.setFilter(id, jpRoadFilter(classIdx));
       }
       if (sourceAdded) {

@@ -9,7 +9,8 @@ import { paramDefault } from "../../data/layerParamsSpec";
 import { useMapReadyTick } from "../../hooks/useMapReadyTick";
 import { JP_SCHOOL_TYPE_COLOR_EXPRESSION } from "../../data/jpSchoolTypes";
 
-const DEFAULT_OPACITY = Number(paramDefault("jpSchools", "jpSchoolsOpacity") ?? 1);
+// 國家包的參數規格在包載入後才登記：預設值要用時再讀，不可在模組載入時就讀（B1 P5b）
+const defaultOpacity = () => Number(paramDefault("jpSchools", "jpSchoolsOpacity") ?? 1);
 
 const SOURCE_ID = "jp-schools";
 const SOURCE_LAYER = "jp_schools";
@@ -47,7 +48,7 @@ function schoolsCircleLayer(opacity: number, scale: number, isDark: boolean): Ci
       "circle-radius": pointRadius("M", scale),
       "circle-color": JP_SCHOOL_TYPE_COLOR_EXPRESSION,
       "circle-opacity": clampOpacity(opacity),
-      ...pointStrokePaint(isDark, clampOpacity(opacity) / DEFAULT_OPACITY),
+      ...pointStrokePaint(isDark, clampOpacity(opacity) / defaultOpacity()),
     },
   } as CircleLayer;
 }
@@ -61,7 +62,7 @@ function schoolsHeatmapLayer(opacity: number, isDark: boolean): HeatmapLayer {
     "source-layer": SOURCE_LAYER,
     maxzoom: heatmapMaxzoom(POINTS_FROM_ZOOM),
     layout: { visibility: "none" },
-    paint: heatmapLayerPaint("jpSchools", isDark, clampOpacity(opacity) / DEFAULT_OPACITY, HEATMAP_INTENSITY),
+    paint: heatmapLayerPaint("jpSchools", isDark, clampOpacity(opacity) / defaultOpacity(), HEATMAP_INTENSITY),
   } as HeatmapLayer;
 }
 
@@ -104,7 +105,7 @@ export function useJpSchoolsLayer(
       if (map.getLayer(HEATMAP_LAYER_ID)) {
         map.setFilter(HEATMAP_LAYER_ID, catFilter);
         map.setLayoutProperty(HEATMAP_LAYER_ID, "visibility", "visible");
-        applyHeatmapStyle(map, HEATMAP_LAYER_ID, "jpSchools", isDark, clampOpacity(opacity) / DEFAULT_OPACITY);
+        applyHeatmapStyle(map, HEATMAP_LAYER_ID, "jpSchools", isDark, clampOpacity(opacity) / defaultOpacity());
       }
       if (!map.getLayer(LAYER_ID)) {
         // 圖層不設 maxzoom；z12+ 必須 overzoom z11 tiles，不能變空白。
@@ -115,7 +116,7 @@ export function useJpSchoolsLayer(
         map.setLayoutProperty(LAYER_ID, "visibility", "visible");
         map.setPaintProperty(LAYER_ID, "circle-opacity", clampOpacity(opacity));
         map.setPaintProperty(LAYER_ID, "circle-radius", pointRadius("M", scale));
-        const stroke = pointStrokePaint(isDark, clampOpacity(opacity) / DEFAULT_OPACITY);
+        const stroke = pointStrokePaint(isDark, clampOpacity(opacity) / defaultOpacity());
         for (const prop of ["circle-stroke-color", "circle-stroke-width", "circle-stroke-opacity"] as const) map.setPaintProperty(LAYER_ID, prop, stroke[prop]);
       }
     };

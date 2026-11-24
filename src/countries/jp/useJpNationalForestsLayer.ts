@@ -18,7 +18,8 @@ const FILE = "jp_national_forests.pmtiles?v=45d19fe32538";
 // 契約：PMTiles z8–13、z12 起全保留；z14 以上由前端 overzoom（source maxzoom=13），低於 z8 沒有磚。
 const MINZOOM = 8;
 const MAXZOOM = 13;
-const OPACITY_DEFAULT = Number(paramDefault("jpNationalForests", "jpNationalForestsOpacity"));
+// 國家包的參數規格在包載入後才登記：預設值要用時再讀，不可在模組載入時就讀（B1 P5b）
+const opacityDefault = () => Number(paramDefault("jpNationalForests", "jpNationalForestsOpacity"));
 
 function clampOpacity(opacity: number): number {
   return Math.max(0, Math.min(1, opacity));
@@ -41,7 +42,7 @@ function fillLayer(opacity: number): FillLayer {
     paint: hookFillPaint(
       "jpNationalForests", LAYER_ID,
       { "fill-color": color, "fill-opacity": clampOpacity(opacity) },
-      { "fill-color": color, "fill-opacity": OPACITY_DEFAULT },
+      { "fill-color": color, "fill-opacity": opacityDefault() },
     ),
   } as FillLayer;
 }
@@ -66,7 +67,7 @@ export function useJpNationalForestsLayer(
   const filterJson = JSON.stringify(hookCategoryFilter("jpNationalForests", { jpNationalForestsCatMask: catMask as number }) ?? null);
   useGbRepPointLayers(mapRef, repPointSpecFor("jpNationalForests", {
     sourceId: "jp-national-forests-points", heatId: "jp-national-forests-heatmap", circleId: "jp-national-forests-point-circle",
-    attribution: JP_FOREST_ATTRIBUTION, loading: "国有林 代表點載入中", polygonMinzoom: MINZOOM, opacityDefault: OPACITY_DEFAULT,
+    attribution: JP_FOREST_ATTRIBUTION, loading: "国有林 代表點載入中", polygonMinzoom: MINZOOM, opacityDefault: opacityDefault(),
   }), { visible, mode, opacity, scale, isDark: isDarkTheme, color: JP_FOREST_COLOR_EXPRESSION, filter: JSON.parse(filterJson) as unknown[] | null }, heatStyle);
 
   useEffect(() => {
@@ -94,7 +95,7 @@ export function useJpNationalForestsLayer(
       if (map.getLayer(LAYER_ID)) {
         map.setFilter(LAYER_ID, (hookCategoryFilter("jpNationalForests", { jpNationalForestsCatMask: catMask as number }) ?? null) as never);
         map.setLayoutProperty(LAYER_ID, "visibility", "visible");
-        map.setPaintProperty(LAYER_ID, "fill-opacity", hookFillOpacity("jpNationalForests", LAYER_ID, clampOpacity(opacity), OPACITY_DEFAULT));
+        map.setPaintProperty(LAYER_ID, "fill-opacity", hookFillOpacity("jpNationalForests", LAYER_ID, clampOpacity(opacity), opacityDefault()));
       }
       if (sourceAdded) {
         keepLoadingUntilMapIdle(map, "jp-national-forests:render", "国有林 国有林載入中", SOURCE_ID);

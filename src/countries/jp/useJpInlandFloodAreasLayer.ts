@@ -21,7 +21,8 @@ const FILE = "jp_inland_flood_areas.pmtiles?v=21eb77d38c59";
 // 契約：PMTiles z8–14、z12 起全保留；低於 z8 沒有磚。
 const MINZOOM = 8;
 const MAXZOOM = 14;
-const OPACITY_DEFAULT = Number(paramDefault("jpInlandFloodAreas", "jpInlandFloodAreasOpacity"));
+// 國家包的參數規格在包載入後才登記：預設值要用時再讀，不可在模組載入時就讀（B1 P5b）
+const opacityDefault = () => Number(paramDefault("jpInlandFloodAreas", "jpInlandFloodAreasOpacity"));
 
 function clampOpacity(opacity: number): number {
   return Math.max(0, Math.min(1, opacity));
@@ -49,7 +50,7 @@ function fillLayer(opacity: number, isDark: boolean): FillLayer {
     paint: hookFillPaint(
       "jpInlandFloodAreas", LAYER_ID,
       { "fill-color": color, "fill-opacity": clampOpacity(opacity) },
-      { "fill-color": color, "fill-opacity": OPACITY_DEFAULT },
+      { "fill-color": color, "fill-opacity": opacityDefault() },
     ),
   } as FillLayer;
 }
@@ -73,7 +74,7 @@ export function useJpInlandFloodAreasLayer(
   const heatStyle = useHeatmapStyleSignature(["jpInlandFloodAreas"]);
   useGbRepPointLayers(mapRef, repPointSpecFor("jpInlandFloodAreas", {
     sourceId: "jp-inland-flood-areas-points", heatId: "jp-inland-flood-areas-heatmap", circleId: "jp-inland-flood-areas-point-circle",
-    attribution: JP_INLAND_FLOOD_ATTRIBUTION, loading: "內水浸水想定 代表點載入中", polygonMinzoom: MINZOOM, opacityDefault: OPACITY_DEFAULT,
+    attribution: JP_INLAND_FLOOD_ATTRIBUTION, loading: "內水浸水想定 代表點載入中", polygonMinzoom: MINZOOM, opacityDefault: opacityDefault(),
   }), { visible, mode, opacity, scale, isDark: isDarkTheme, color: jpInlandFloodColor(isDarkTheme), filter: null }, heatStyle);
 
   useEffect(() => {
@@ -100,7 +101,7 @@ export function useJpInlandFloodAreasLayer(
       if (!map.getLayer(LAYER_ID)) map.addLayer(fillLayer(opacity, isDarkTheme));
       if (map.getLayer(LAYER_ID)) {
         map.setLayoutProperty(LAYER_ID, "visibility", "visible");
-        map.setPaintProperty(LAYER_ID, "fill-opacity", hookFillOpacity("jpInlandFloodAreas", LAYER_ID, clampOpacity(opacity), OPACITY_DEFAULT));
+        map.setPaintProperty(LAYER_ID, "fill-opacity", hookFillOpacity("jpInlandFloodAreas", LAYER_ID, clampOpacity(opacity), opacityDefault()));
         map.setPaintProperty(LAYER_ID, "fill-color", jpInlandFloodColor(isDarkTheme) as never);
       }
       if (sourceAdded) {

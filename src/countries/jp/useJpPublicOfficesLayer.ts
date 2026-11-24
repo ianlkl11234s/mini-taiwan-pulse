@@ -29,7 +29,8 @@ function clampOpacity(opacity: number): number {
   return Math.max(0, Math.min(1, opacity));
 }
 
-const OPACITY_DEFAULT = Number(paramDefault("jpPublicOffices", "jpPublicOfficesOpacity"));
+// 國家包的參數規格在包載入後才登記：預設值要用時再讀，不可在模組載入時就讀（B1 P5b）
+const opacityDefault = () => Number(paramDefault("jpPublicOffices", "jpPublicOfficesOpacity"));
 
 function absoluteUrl(relativeFile: string): string {
   const relative = `${import.meta.env.BASE_URL ?? "/"}world/${relativeFile}`;
@@ -50,7 +51,7 @@ function circleLayer(opacity: number, scale: number, filterIdx: number, isDark: 
       "circle-radius": pointRadius("M", scale),
       "circle-color": JP_PUBLIC_OFFICE_CLASS_COLOR_EXPRESSION,
       "circle-opacity": clampOpacity(opacity),
-      ...pointStrokePaint(isDark, clampOpacity(opacity) / OPACITY_DEFAULT),
+      ...pointStrokePaint(isDark, clampOpacity(opacity) / opacityDefault()),
     },
   } as CircleLayer;
 }
@@ -66,7 +67,7 @@ function heatmapLayer(opacity: number, filterIdx: number, isDark: boolean): Heat
     maxzoom: heatmapMaxzoom(POINTS_FROM_ZOOM),
     ...(filter === null ? {} : { filter }),
     layout: { visibility: "none" },
-    paint: heatmapLayerPaint("jpPublicOffices", isDark, clampOpacity(opacity) / OPACITY_DEFAULT, HEATMAP_INTENSITY),
+    paint: heatmapLayerPaint("jpPublicOffices", isDark, clampOpacity(opacity) / opacityDefault(), HEATMAP_INTENSITY),
   } as HeatmapLayer;
 }
 
@@ -110,7 +111,7 @@ export function useJpPublicOfficesLayer(
       }
       if (map.getLayer(HEATMAP_LAYER_ID)) {
         map.setLayoutProperty(HEATMAP_LAYER_ID, "visibility", "visible");
-        applyHeatmapStyle(map, HEATMAP_LAYER_ID, "jpPublicOffices", isDark, clampOpacity(opacity) / OPACITY_DEFAULT);
+        applyHeatmapStyle(map, HEATMAP_LAYER_ID, "jpPublicOffices", isDark, clampOpacity(opacity) / opacityDefault());
         map.setFilter(HEATMAP_LAYER_ID, jpPublicOfficeFilter(filterIdx));
       }
       if (!map.getLayer(LAYER_ID)) map.addLayer(circleLayer(opacity, scale, filterIdx, isDark));
@@ -118,7 +119,7 @@ export function useJpPublicOfficesLayer(
         map.setLayoutProperty(LAYER_ID, "visibility", "visible");
         map.setPaintProperty(LAYER_ID, "circle-opacity", clampOpacity(opacity));
         map.setPaintProperty(LAYER_ID, "circle-radius", pointRadius("M", scale));
-        for (const [k, v] of Object.entries(pointStrokePaint(isDark, clampOpacity(opacity) / OPACITY_DEFAULT))) {
+        for (const [k, v] of Object.entries(pointStrokePaint(isDark, clampOpacity(opacity) / opacityDefault()))) {
           map.setPaintProperty(LAYER_ID, k as "circle-stroke-color", v as never);
         }
         map.setFilter(LAYER_ID, jpPublicOfficeFilter(filterIdx));

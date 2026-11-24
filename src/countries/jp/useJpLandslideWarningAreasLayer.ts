@@ -24,7 +24,8 @@ const FILE = "jp_landslide_warning_areas.pmtiles?v=b85c1008459b";
 // 契約：PMTiles z8–12、z12 起全保留；z13 以上由前端 overzoom（source maxzoom=12），低於 z8 沒有磚。
 const MINZOOM = 8;
 const MAXZOOM = 12;
-const OPACITY_DEFAULT = Number(paramDefault("jpLandslideWarningAreas", "jpLandslideWarningAreasOpacity"));
+// 國家包的參數規格在包載入後才登記：預設值要用時再讀，不可在模組載入時就讀（B1 P5b）
+const opacityDefault = () => Number(paramDefault("jpLandslideWarningAreas", "jpLandslideWarningAreasOpacity"));
 
 // §3.8 V-5 特例：代表點檔（179 萬點）只有 z4–7，z8 起由面接手。所以「點／面」兩種樣式畫的東西相同——
 // z4–8 熱區（maxzoom = heatmapMaxzoom(8)，與面的 minzoom 8 接棒）、z8 起面照畫；面不隨樣式關閉，否則 z8 起會空白。
@@ -57,7 +58,7 @@ function fillLayer(opacity: number, zoneIdx: number, phenomenonIdx: number): Fil
     paint: hookFillPaint(
       "jpLandslideWarningAreas", LAYER_ID,
       { "fill-color": JP_LANDSLIDE_ZONE_COLOR_EXPRESSION, "fill-opacity": clampOpacity(opacity) },
-      { "fill-color": JP_LANDSLIDE_ZONE_COLOR_EXPRESSION, "fill-opacity": OPACITY_DEFAULT },
+      { "fill-color": JP_LANDSLIDE_ZONE_COLOR_EXPRESSION, "fill-opacity": opacityDefault() },
     ),
   } as FillLayer;
 }
@@ -81,7 +82,7 @@ export function useJpLandslideWarningAreasLayer(
     gbHeatmapBuild({
       id: HEAT_ID, key: "jpLandslideWarningAreas", sourceId: POINTS_SOURCE.id, sourceLayer: REP.sourceLayer,
       maxzoom: heatmapMaxzoom(MINZOOM), filter: JSON.parse(heatFilterJson) as unknown[] | null, isDark: isDarkTheme,
-      opacityScale: clampOpacity(opacity) / OPACITY_DEFAULT, intensity: repPointHeatIntensity(REP), weight: repPointThinnedWeight(2.5),
+      opacityScale: clampOpacity(opacity) / opacityDefault(), intensity: repPointHeatIntensity(REP), weight: repPointThinnedWeight(2.5),
     }),
   ], [opacity, isDarkTheme, heatFilterJson, heatStyle]);
 
@@ -109,7 +110,7 @@ export function useJpLandslideWarningAreasLayer(
       if (!map.getLayer(LAYER_ID)) map.addLayer(fillLayer(opacity, zoneIdx, phenomenonIdx));
       if (map.getLayer(LAYER_ID)) {
         map.setLayoutProperty(LAYER_ID, "visibility", "visible");
-        map.setPaintProperty(LAYER_ID, "fill-opacity", hookFillOpacity("jpLandslideWarningAreas", LAYER_ID, clampOpacity(opacity), OPACITY_DEFAULT));
+        map.setPaintProperty(LAYER_ID, "fill-opacity", hookFillOpacity("jpLandslideWarningAreas", LAYER_ID, clampOpacity(opacity), opacityDefault()));
         map.setFilter(LAYER_ID, jpLandslideFilter(zoneIdx, phenomenonIdx));
       }
       if (sourceAdded) {

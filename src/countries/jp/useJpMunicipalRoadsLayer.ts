@@ -28,7 +28,8 @@ const FILE_VERSION: Record<Shard, string> = {
   chugoku_shikoku: "807f1894b1c9",
   kyushu_okinawa: "db3393ad79bd",
 };
-const OPACITY_DEFAULT = Number(paramDefault("jpMunicipalRoads", "jpMunicipalRoadsOpacity"));
+// 國家包的參數規格在包載入後才登記：預設值要用時再讀，不可在模組載入時就讀（B1 P5b）
+const opacityDefault = () => Number(paramDefault("jpMunicipalRoads", "jpMunicipalRoadsOpacity"));
 /** 插在主要道路之下，讓國道／縣道畫在市町村道上面。 */
 const BEFORE_LAYER_IDS = ["jp-major-roads-z5-line", "jp-major-roads-line"];
 
@@ -68,7 +69,7 @@ function lineLayer(shard: Shard, opacity: number): LineLayer {
     paint: hookLinePaint(
       "jpMunicipalRoads", id,
       { "line-color": JP_MUNICIPAL_ROAD_COLOR, "line-width": width, "line-opacity": clampOpacity(opacity) },
-      { "line-color": JP_MUNICIPAL_ROAD_COLOR, "line-width": width, "line-opacity": OPACITY_DEFAULT },
+      { "line-color": JP_MUNICIPAL_ROAD_COLOR, "line-width": width, "line-opacity": opacityDefault() },
     ),
   } as LineLayer;
 }
@@ -111,7 +112,7 @@ export function useJpMunicipalRoadsLayer(
         const id = jpMunicipalRoadsLayerId(shard);
         if (!map.getLayer(id)) map.addLayer(lineLayer(shard, opacity), before);
         map.setLayoutProperty(id, "visibility", "visible");
-        map.setPaintProperty(id, "line-opacity", hookLineOpacity("jpMunicipalRoads", id, clampOpacity(opacity), OPACITY_DEFAULT));
+        map.setPaintProperty(id, "line-opacity", hookLineOpacity("jpMunicipalRoads", id, clampOpacity(opacity), opacityDefault()));
       }
       if (sourceAdded) {
         keepLoadingUntilMapIdle(map, "jp-municipal-roads:render", "市町村道 載入中", jpMunicipalRoadsSourceId("kanto"));

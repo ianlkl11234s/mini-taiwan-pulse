@@ -23,9 +23,12 @@ const WIKIDATA_SOURCE_ID = "jp-religion-wikidata";
 const WIKIDATA_LAYER_ID = "jp-religion-wikidata-circle";
 const WIKIDATA_HEATMAP_LAYER_ID = "jp-religion-wikidata-heatmap";
 
-const GSI_OPACITY_DEFAULT = Number(paramDefault("jpReligionGsi", "jpReligionGsiOpacity"));
-const OSM_OPACITY_DEFAULT = Number(paramDefault("jpReligionOsm", "jpReligionOsmOpacity"));
-const WIKIDATA_OPACITY_DEFAULT = Number(paramDefault("jpReligionWikidata", "jpReligionWikidataOpacity"));
+// 國家包的參數規格在包載入後才登記：預設值要用時再讀，不可在模組載入時就讀（B1 P5b）
+const gsiOpacityDefault = () => Number(paramDefault("jpReligionGsi", "jpReligionGsiOpacity"));
+// 國家包的參數規格在包載入後才登記：預設值要用時再讀，不可在模組載入時就讀（B1 P5b）
+const osmOpacityDefault = () => Number(paramDefault("jpReligionOsm", "jpReligionOsmOpacity"));
+// 國家包的參數規格在包載入後才登記：預設值要用時再讀，不可在模組載入時就讀（B1 P5b）
+const wikidataOpacityDefault = () => Number(paramDefault("jpReligionWikidata", "jpReligionWikidataOpacity"));
 
 // GSI 的 PMTiles 從 z4 起就是全量 167,037 點，拉遠糊成一片。R5（P-4／G-2）：> 100k 點
 // z < 12 畫 magma 熱區、z ≥ 12 才畫點（原本 z8 以下不畫描邊的例外因此不再需要）。
@@ -202,7 +205,7 @@ const GSI_CONFIG: PmtilesLayerConfig = {
   sourceLayer: GSI_SOURCE_LAYER,
   layerId: GSI_LAYER_ID,
   file: "jp_religion_gsi.pmtiles",
-  opacityDefault: GSI_OPACITY_DEFAULT,
+  get opacityDefault() { return gsiOpacityDefault(); },
   heatmap: { layerId: GSI_HEATMAP_LAYER_ID, pointsFromZoom: GSI_POINTS_FROM_ZOOM, intensity: GSI_HEATMAP_INTENSITY, paletteKey: "jpReligionGsi" },
 };
 
@@ -213,7 +216,7 @@ const OSM_CONFIG: PmtilesLayerConfig = {
   sourceLayer: OSM_SOURCE_LAYER,
   layerId: OSM_LAYER_ID,
   file: "jp_religion_osm_20260930.pmtiles",
-  opacityDefault: OSM_OPACITY_DEFAULT,
+  get opacityDefault() { return osmOpacityDefault(); },
   heatmap: { layerId: OSM_HEATMAP_LAYER_ID, pointsFromZoom: OSM_POINTS_FROM_ZOOM, intensity: OSM_HEATMAP_INTENSITY, paletteKey: "jpReligionOsm" },
 };
 
@@ -339,7 +342,7 @@ const WIKIDATA_CONFIG: GeoJsonLayerConfig = {
   layerId: WIKIDATA_LAYER_ID,
   fetcher: fetchJpReligionWikidata,
   logName: "Wikidata",
-  opacityDefault: WIKIDATA_OPACITY_DEFAULT,
+  get opacityDefault() { return wikidataOpacityDefault(); },
   heatmap: { layerId: WIKIDATA_HEATMAP_LAYER_ID, pointsFromZoom: WIKIDATA_POINTS_FROM_ZOOM, intensity: WIKIDATA_HEATMAP_INTENSITY, paletteKey: "jpReligionWikidata" },
 };
 

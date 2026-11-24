@@ -21,7 +21,8 @@ const FILE = "jp_zoning_use_districts.pmtiles?v=3cab9ffe0c6e";
 // 契約：PMTiles z8–14、z12 起全保留；低於 z8 沒有磚。
 const MINZOOM = 8;
 const MAXZOOM = 14;
-const OPACITY_DEFAULT = Number(paramDefault("jpZoningUseDistricts", "jpZoningUseDistrictsOpacity"));
+// 國家包的參數規格在包載入後才登記：預設值要用時再讀，不可在模組載入時就讀（B1 P5b）
+const opacityDefault = () => Number(paramDefault("jpZoningUseDistricts", "jpZoningUseDistrictsOpacity"));
 
 function clampOpacity(opacity: number): number {
   return Math.max(0, Math.min(1, opacity));
@@ -45,7 +46,7 @@ function fillLayer(opacity: number, classIdx: number): FillLayer {
     paint: hookFillPaint(
       "jpZoningUseDistricts", LAYER_ID,
       { "fill-color": JP_ZONING_COLOR_EXPRESSION, "fill-opacity": clampOpacity(opacity) },
-      { "fill-color": JP_ZONING_COLOR_EXPRESSION, "fill-opacity": OPACITY_DEFAULT },
+      { "fill-color": JP_ZONING_COLOR_EXPRESSION, "fill-opacity": opacityDefault() },
     ),
   } as FillLayer;
 }
@@ -70,7 +71,7 @@ export function useJpZoningUseDistrictsLayer(
   const filterJson = JSON.stringify(jpZoningFilter(classIdx));
   useGbRepPointLayers(mapRef, repPointSpecFor("jpZoningUseDistricts", {
     sourceId: "jp-zoning-use-districts-points", heatId: "jp-zoning-use-districts-heatmap", circleId: "jp-zoning-use-districts-point-circle",
-    attribution: JP_ZONING_ATTRIBUTION, loading: "用途地域 代表點載入中", polygonMinzoom: MINZOOM, opacityDefault: OPACITY_DEFAULT,
+    attribution: JP_ZONING_ATTRIBUTION, loading: "用途地域 代表點載入中", polygonMinzoom: MINZOOM, opacityDefault: opacityDefault(),
   }), { visible, mode, opacity, scale, isDark: isDarkTheme, color: JP_ZONING_COLOR_EXPRESSION, filter: JSON.parse(filterJson) as unknown[] | null }, heatStyle);
 
   useEffect(() => {
@@ -97,7 +98,7 @@ export function useJpZoningUseDistrictsLayer(
       if (!map.getLayer(LAYER_ID)) map.addLayer(fillLayer(opacity, classIdx));
       if (map.getLayer(LAYER_ID)) {
         map.setLayoutProperty(LAYER_ID, "visibility", "visible");
-        map.setPaintProperty(LAYER_ID, "fill-opacity", hookFillOpacity("jpZoningUseDistricts", LAYER_ID, clampOpacity(opacity), OPACITY_DEFAULT));
+        map.setPaintProperty(LAYER_ID, "fill-opacity", hookFillOpacity("jpZoningUseDistricts", LAYER_ID, clampOpacity(opacity), opacityDefault()));
         map.setFilter(LAYER_ID, jpZoningFilter(classIdx));
       }
       if (sourceAdded) {

@@ -24,7 +24,8 @@ const FILE = "jp_expressways.pmtiles?v=b74bad90ddf0";
 // 契約：PMTiles z5–13，兩個 layer 全 zoom 全保留（線 1,289、點 2,384）；z14+ overzoom。
 const MINZOOM = 5;
 const MAXZOOM = 13;
-const OPACITY_DEFAULT = Number(paramDefault("jpExpressways", "jpExpresswaysOpacity"));
+// 國家包的參數規格在包載入後才登記：預設值要用時再讀，不可在模組載入時就讀（B1 P5b）
+const opacityDefault = () => Number(paramDefault("jpExpressways", "jpExpresswaysOpacity"));
 
 function clampOpacity(opacity: number): number {
   return Math.max(0, Math.min(1, opacity));
@@ -48,7 +49,7 @@ function lineLayer(opacity: number, categoryIdx: number): LineLayer {
     paint: hookLinePaint(
       "jpExpressways", LINE_LAYER_ID,
       { "line-color": JP_EXPRESSWAY_COLOR_EXPRESSION, "line-width": width, "line-opacity": clampOpacity(opacity) },
-      { "line-color": JP_EXPRESSWAY_COLOR_EXPRESSION, "line-width": width, "line-opacity": OPACITY_DEFAULT },
+      { "line-color": JP_EXPRESSWAY_COLOR_EXPRESSION, "line-width": width, "line-opacity": opacityDefault() },
     ),
   } as LineLayer;
 }
@@ -65,7 +66,7 @@ function pointLayer(opacity: number, isDark: boolean): CircleLayer {
       "circle-radius": pointRadius("M"),
       "circle-color": JP_EXPRESSWAY_JUNCTION_COLOR_EXPRESSION,
       "circle-opacity": clampOpacity(opacity),
-      ...pointStrokePaint(isDark, clampOpacity(opacity) / OPACITY_DEFAULT),
+      ...pointStrokePaint(isDark, clampOpacity(opacity) / opacityDefault()),
     },
   } as CircleLayer;
 }
@@ -108,13 +109,13 @@ export function useJpExpresswaysLayer(
       if (!map.getLayer(POINT_LAYER_ID)) map.addLayer(pointLayer(opacity, isDarkTheme));
       if (map.getLayer(LINE_LAYER_ID)) {
         map.setLayoutProperty(LINE_LAYER_ID, "visibility", "visible");
-        map.setPaintProperty(LINE_LAYER_ID, "line-opacity", hookLineOpacity("jpExpressways", LINE_LAYER_ID, clampOpacity(opacity), OPACITY_DEFAULT));
+        map.setPaintProperty(LINE_LAYER_ID, "line-opacity", hookLineOpacity("jpExpressways", LINE_LAYER_ID, clampOpacity(opacity), opacityDefault()));
         map.setFilter(LINE_LAYER_ID, jpExpresswayFilter(categoryIdx));
       }
       if (map.getLayer(POINT_LAYER_ID)) {
         map.setLayoutProperty(POINT_LAYER_ID, "visibility", "visible");
         map.setPaintProperty(POINT_LAYER_ID, "circle-opacity", clampOpacity(opacity));
-        for (const [k, v] of Object.entries(pointStrokePaint(isDarkTheme, clampOpacity(opacity) / OPACITY_DEFAULT))) {
+        for (const [k, v] of Object.entries(pointStrokePaint(isDarkTheme, clampOpacity(opacity) / opacityDefault()))) {
           map.setPaintProperty(POINT_LAYER_ID, k as "circle-stroke-color", v as never);
         }
       }

@@ -29,7 +29,8 @@ function clampOpacity(opacity: number): number {
   return Math.max(0, Math.min(1, opacity));
 }
 
-const OPACITY_DEFAULT = Number(paramDefault("jpBusStops", "jpBusStopsOpacity"));
+// 國家包的參數規格在包載入後才登記：預設值要用時再讀，不可在模組載入時就讀（B1 P5b）
+const opacityDefault = () => Number(paramDefault("jpBusStops", "jpBusStopsOpacity"));
 
 function absoluteUrl(relativeFile: string): string {
   const relative = `${import.meta.env.BASE_URL ?? "/"}world/${relativeFile}`;
@@ -49,7 +50,7 @@ function circleLayer(opacity: number, scale: number, isDark: boolean): CircleLay
       "circle-radius": pointRadius("S", scale),
       "circle-color": JP_BUS_STOP_CLASS_COLOR_EXPRESSION,
       "circle-opacity": clampOpacity(opacity),
-      ...pointStrokePaint(isDark, clampOpacity(opacity) / OPACITY_DEFAULT),
+      ...pointStrokePaint(isDark, clampOpacity(opacity) / opacityDefault()),
     },
   } as CircleLayer;
 }
@@ -63,7 +64,7 @@ function heatmapLayer(opacity: number, isDark: boolean): HeatmapLayer {
     "source-layer": SOURCE_LAYER,
     maxzoom: heatmapMaxzoom(POINTS_FROM_ZOOM),
     layout: { visibility: "none" },
-    paint: heatmapLayerPaint("jpBusStops", isDark, clampOpacity(opacity) / OPACITY_DEFAULT, HEATMAP_INTENSITY),
+    paint: heatmapLayerPaint("jpBusStops", isDark, clampOpacity(opacity) / opacityDefault(), HEATMAP_INTENSITY),
   } as HeatmapLayer;
 }
 
@@ -109,7 +110,7 @@ export function useJpBusStopsLayer(
       if (map.getLayer(HEATMAP_LAYER_ID)) {
         map.setFilter(HEATMAP_LAYER_ID, catFilter);
         map.setLayoutProperty(HEATMAP_LAYER_ID, "visibility", "visible");
-        applyHeatmapStyle(map, HEATMAP_LAYER_ID, "jpBusStops", isDark, clampOpacity(opacity) / OPACITY_DEFAULT);
+        applyHeatmapStyle(map, HEATMAP_LAYER_ID, "jpBusStops", isDark, clampOpacity(opacity) / opacityDefault());
       }
       if (!map.getLayer(LAYER_ID)) map.addLayer(circleLayer(opacity, scale, isDark));
       if (map.getLayer(LAYER_ID)) {
@@ -117,7 +118,7 @@ export function useJpBusStopsLayer(
         map.setLayoutProperty(LAYER_ID, "visibility", "visible");
         map.setPaintProperty(LAYER_ID, "circle-opacity", clampOpacity(opacity));
         map.setPaintProperty(LAYER_ID, "circle-radius", pointRadius("S", scale));
-        for (const [k, v] of Object.entries(pointStrokePaint(isDark, clampOpacity(opacity) / OPACITY_DEFAULT))) {
+        for (const [k, v] of Object.entries(pointStrokePaint(isDark, clampOpacity(opacity) / opacityDefault()))) {
           map.setPaintProperty(LAYER_ID, k as "circle-stroke-color", v as never);
         }
       }

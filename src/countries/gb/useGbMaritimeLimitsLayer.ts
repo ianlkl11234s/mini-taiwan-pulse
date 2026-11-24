@@ -37,7 +37,8 @@ const SUB_LAYERS: SubLayer[] = [
   { id: GB_MARITIME_SOLID_LAYER_ID, kinds: GB_MARITIME_SOLID_KINDS, minzoom: LAYER_MINZOOM, dashed: false },
 ];
 
-const OPACITY_DEFAULT = Number(paramDefault(KEY, `${KEY}Opacity`) ?? 0.85);
+// 國家包的參數規格在包載入後才登記：預設值要用時再讀，不可在模組載入時就讀（B1 P5b）
+const opacityDefault = () => Number(paramDefault(KEY, `${KEY}Opacity`) ?? 0.85);
 
 function clamp01(value: number): number {
   return Math.max(0, Math.min(1, value));
@@ -73,7 +74,7 @@ function linePaint(sub: SubLayer, isDark: boolean, opacity: number) {
     "line-opacity": clamp01(opacity),
     ...(sub.dashed ? { "line-dasharray": [...LINE_DASH.boundary] } : {}),
   };
-  return hookLinePaint(KEY, sub.id, base, { ...base, "line-opacity": OPACITY_DEFAULT }, isDark);
+  return hookLinePaint(KEY, sub.id, base, { ...base, "line-opacity": opacityDefault() }, isDark);
 }
 
 export function useGbMaritimeLimitsLayer(
@@ -113,7 +114,7 @@ export function useGbMaritimeLimitsLayer(
         }
         map.setLayoutProperty(sub.id, "visibility", "visible");
         map.setPaintProperty(sub.id, "line-color", colorExpr(sub.kinds, isDarkTheme) as any);
-        map.setPaintProperty(sub.id, "line-opacity", hookLineOpacity(KEY, sub.id, clamp01(opacity), OPACITY_DEFAULT, isDarkTheme));
+        map.setPaintProperty(sub.id, "line-opacity", hookLineOpacity(KEY, sub.id, clamp01(opacity), opacityDefault(), isDarkTheme));
       }
       if (sourceAdded) keepLoadingUntilMapIdle(map, `${SOURCE_ID}:render`, "英國海域界線載入中", SOURCE_ID);
     };

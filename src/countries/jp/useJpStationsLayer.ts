@@ -7,7 +7,8 @@ import { useMapReadyTick } from "../../hooks/useMapReadyTick";
 import { pointRadius, pointStrokePaint } from "../../map/mapStyleScale";
 import { paramDefault } from "../../data/layerParamsSpec";
 
-const DEFAULT_OPACITY = Number(paramDefault("jpStations", "jpStationsOpacity") ?? 1);
+// 國家包的參數規格在包載入後才登記：預設值要用時再讀，不可在模組載入時就讀（B1 P5b）
+const defaultOpacity = () => Number(paramDefault("jpStations", "jpStationsOpacity") ?? 1);
 
 const SOURCE_ID = "jp-stations";
 const LAYER_ID = "jp-stations-circle";
@@ -30,7 +31,7 @@ function circleLayer(radius: number, opacity: number, colorMode: "type" | "rider
       "circle-radius": radius,
       "circle-color": colorExpression(colorMode),
       "circle-opacity": clampOpacity(opacity),
-      ...pointStrokePaint(isDark, clampOpacity(opacity) / DEFAULT_OPACITY),
+      ...pointStrokePaint(isDark, clampOpacity(opacity) / defaultOpacity()),
     },
   } as CircleLayer;
 }
@@ -86,7 +87,7 @@ export function useJpStationsLayer(
         map.setPaintProperty(LAYER_ID, "circle-opacity", clampOpacity(opacity));
         map.setPaintProperty(LAYER_ID, "circle-radius", pointRadius("M", scale));
         map.setPaintProperty(LAYER_ID, "circle-color", colorExpression(colorMode));
-        const stroke = pointStrokePaint(isDark, clampOpacity(opacity) / DEFAULT_OPACITY);
+        const stroke = pointStrokePaint(isDark, clampOpacity(opacity) / defaultOpacity());
         for (const prop of ["circle-stroke-color", "circle-stroke-width", "circle-stroke-opacity"] as const) map.setPaintProperty(LAYER_ID, prop, stroke[prop]);
       }
     };
