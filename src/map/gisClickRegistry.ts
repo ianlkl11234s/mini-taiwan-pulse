@@ -886,7 +886,7 @@ export const GIS_LAYERS: GisLayerEntry[] = [
   { layers: ["us-fuel-stations-circle"], type: "usFuelStations" },
   { layers: ["us-rail-lines-line"], type: "usRailLines" },
   { layers: ["us-highways-line"], type: "usHighways" },
-  { layers: ["us-power-lines-line"], type: "usPowerGrid" },
+  { layers: ["us-power-substations-circle", "us-power-lines-line"], type: "usPowerGrid" },
   { layers: ["us-population-tract-fill", "us-population-county-fill", "us-population-state-fill"], type: "usPopulation" },
   { layers: ["us-admin-county-fill", "us-admin-state-fill"], type: "usAdminBoundaries" },
   { layers: ["vn-population-province-fill"], type: "vnPopulation" },

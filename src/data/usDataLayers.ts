@@ -247,10 +247,13 @@ export const US_DATA_SPECS: readonly UsLayerSpec[] = [
     license: US_LICENSE_PD, fetchedAt: US_FETCHED_AT, loading: loading("美國電廠載入中", "Loading U.S. power plants", "米国の発電所を読み込み中"),
   },
   {
-    key: "usPowerGrid", file: "us_power_grid.pmtiles", sourceId: "us-power-grid", srcMinzoom: 3, srcMaxzoom: 11, color: "#62D9AD", count: 94_339,
-    parts: [{ id: "us-power-lines-line", sourceLayer: "lines", geom: "line", minzoom: 3, cat: propGetter("volt_class"), lineWidth: VOLT_WIDTH }],
+    key: "usPowerGrid", file: "us_power_grid.pmtiles", sourceId: "us-power-grid", srcMinzoom: 3, srcMaxzoom: 12, color: "#62D9AD", count: 167_925,
+    parts: [
+      { id: "us-power-lines-line", sourceLayer: "lines", geom: "line", minzoom: 3, cat: propGetter("volt_class"), lineWidth: VOLT_WIDTH },
+      point("us-power-substations-circle", "substations", 7, propGetter("volt_class"), { small: true }),
+    ],
     cats: VOLT_CATS,
-    title: { props: ["owner"], fallback: l3("輸電線", "Transmission line", "送電線") },
+    title: { props: ["name", "owner"], fallback: l3("輸電線／變電所", "Transmission line / substation", "送電線／変電所") },
     fields: [
       { prop: "voltage_kv", label: l3("電壓", "Voltage", "電圧"), kind: "num", unit: "kV" },
       { prop: "line_type", label: l3("型式", "Type", "型式") },
@@ -258,16 +261,18 @@ export const US_DATA_SPECS: readonly UsLayerSpec[] = [
       { prop: "sub_1", label: l3("起點變電所", "From substation", "起点変電所") },
       { prop: "sub_2", label: l3("終點變電所", "To substation", "終点変電所") },
       { prop: "inferred", label: l3("推定路徑", "Inferred", "推定"), kind: "code" },
+      { prop: "operator", label: l3("營運者（變電所）", "Operator (substation)", "運営者（変電所）") },
+      { prop: "sub_kind", label: l3("變電所類型（OSM）", "Substation type (OSM)", "変電所種別（OSM）"), kind: "code" },
       { prop: "source_date", label: l3("來源日期", "Source date", "出典日"), kind: "code" },
       ...COUNTY_FIELDS,
     ],
     legendNotes: [
       l3("HIFLD 輸電線 94,339 段（約 69 kV 以上）；z3–6 只畫 220 kV 以上與直流", "94,339 HIFLD transmission segments (about 69 kV and above); z3–6 shows only ≥220 kV and DC", "HIFLD 送電線 94,339 区間（約 69 kV 以上）。z3–6 は 220 kV 以上と直流のみ"),
-      l3("變電所本輪未做（HIFLD 存檔無變電所層；OSM 變電所待下一輪）", "Substations not in this round (no substation layer in the HIFLD archive; OSM substations next round)", "変電所は今回対象外（HIFLD アーカイブに変電所層なし。OSM 変電所は次回）"),
+      l3("變電所 73,586 處（z7 起）：官方無全國名冊，取自 Overture／OpenStreetMap（ODbL，非官方）；電壓取 OSM 標籤最高值，缺值歸「電壓未知」", "73,586 substations (from z7): no official national register, taken from Overture／OpenStreetMap (ODbL, unofficial); voltage is the highest OSM tag value, missing → unknown", "変電所 73,586 か所（z7 以上）：公式の全国名簿がないため Overture／OpenStreetMap（ODbL、非公式）から。電圧は OSM タグの最大値、欠損は「電圧不明」"),
       US_HIFLD_NOTE,
     ],
     popupNotes: [NEAREST], sourceOrg: "HIFLD Electric Power Transmission Lines (archive by SeerAI, CC BY 4.0)", sourceUrl: "https://source.coop/seerai/hifld",
-    license: "CC BY 4.0（HIFLD 存檔）", fetchedAt: US_FETCHED_AT, sourceNotes: [US_HIFLD_NOTE],
+    license: "輸電線 CC BY 4.0（HIFLD 存檔）；變電所 ODbL（© OpenStreetMap contributors，經 Overture）", fetchedAt: US_FETCHED_AT, sourceNotes: [US_HIFLD_NOTE],
     loading: loading("美國輸電網載入中", "Loading U.S. transmission lines", "米国の送電網を読み込み中"),
   },
   {

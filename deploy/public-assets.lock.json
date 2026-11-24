@@ -9973,8 +9973,8 @@
   },
   {
    "path": "public/world/us_power_grid.pmtiles",
-   "bytes": 42894936,
-   "sha256": "675b3cfa478e0ed85966ef43a9d0714f600574fbff800f0a20054d8589f4f88c",
+   "bytes": 62983920,
+   "sha256": "3861f8d40095747d8d6c776331d53f90bdfa16fcbc7641cf124c7f7610bbcdac",
    "delivery": "r2",
    "s3_key": "deploy-assets/world/us_power_grid.pmtiles"
   },

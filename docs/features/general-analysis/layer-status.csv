@@ -1577,7 +1577,7 @@ usTransportHubs,機場與港口 Airports & Ports,US,美國,交通,custom,verifie
 usRailLines,鐵路網 Rail Network,US,美國,交通,custom,verified,us_rail_lines,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"美國鐵路網 235,645 段（FRA North American Rail Network；幹線、支線、調車場、停駛線）"
 usHighways,國家公路系統 National Highway System,US,美國,交通,custom,verified,us_highways,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"美國國家公路系統 482,407 段（FHWA NHS 2025-08 版；州際公路、快速道路、主要幹道；含 AADT）"
 usPowerPlants,電廠 Power Plants,US,美國,能源,custom,verified,us_power_plants,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"美國運轉中電廠 14,325 座（EIA-860 2025；依最大容量能源分色、容量分級大小）"
-usPowerGrid,輸電網 Transmission Lines,US,美國,能源,custom,verified,us_power_grid,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"美國輸電線 94,339 段（HIFLD 存檔 2025-08；依電壓分色）"
+usPowerGrid,輸電網 Transmission Lines,US,美國,能源,custom,verified,us_power_grid,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"美國輸電線 94,339 段（HIFLD 存檔 2025-08；依電壓分色）＋變電所 73,586 處（OSM，z7 起）"
 usRenewables,風機與大型太陽能 Wind Turbines & Utility Solar,US,美國,能源,custom,verified,us_renewables,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"美國風機 77,649 座（USWTDB v9.1）＋大型地面型太陽能 6,611 處（USPVDB v4.0，z8 起畫範圍）"
 usOilGas,油氣設施與管線 Oil & Gas Infrastructure,US,美國,能源,custom,verified,us_oil_gas,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"美國煉油廠 132、天然氣處理廠 478、LNG 站 8、外海平台 1,303、外海井 56,495、管線 49,165 段"
 usFuelStations,加油站 Gas Stations,US,美國,能源,custom,verified,us_fuel_stations,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,美國加油站（Overture Places，非官方；z6 起）

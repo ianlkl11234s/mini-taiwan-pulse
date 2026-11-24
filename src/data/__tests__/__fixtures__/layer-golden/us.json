@@ -38,6 +38,7 @@
     },
     "usPowerGrid": {
       "layers": [
+        "us-power-substations-circle",
         "us-power-lines-line"
       ],
       "type": "usPowerGrid"
@@ -370,6 +371,15 @@
         "step": 0.05,
         "value": 0.85,
         "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "usPowerPlants": [
