@@ -126,7 +126,7 @@ export function useGbPlanningConstraintsLayer(mapRef: MapRef, visible: boolean, 
 // ─────────────────────────── 棕地登記冊 ───────────────────────────
 
 const BROWNFIELD_SOURCE: SourceSpec = {
-  id: "gb-brownfield", file: "gb_brownfield.pmtiles", ...GB_BROWNFIELD_TILE_ZOOM, attribution: GB_BROWNFIELD_ATTRIBUTION, loading: "英國棕地登記冊載入中",
+  id: "gb-brownfield", file: "gb_brownfield_lt2.pmtiles", ...GB_BROWNFIELD_TILE_ZOOM, attribution: GB_BROWNFIELD_ATTRIBUTION, loading: "英國棕地登記冊載入中",
 };
 const KNOWN_STATUSES = GB_BROWNFIELD_STATUSES.filter((s) => s.value !== "other").map((s) => s.value);
 /** permission_status 歸類：null 與未列舉值都算 other（未載明）。 */
