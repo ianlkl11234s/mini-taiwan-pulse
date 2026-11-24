@@ -1,0 +1,2566 @@
+{
+  "count": 47,
+  "gisLayers": {
+    "vnAdminBoundaries": {
+      "layers": [
+        "vn-admin-province-fill"
+      ],
+      "type": "vnAdminBoundaries"
+    },
+    "vnAngiangAquaculture": {
+      "layers": [
+        "vn-angiang-aquaculture-fill"
+      ],
+      "type": "vnAngiangAquaculture"
+    },
+    "vnAngiangDemo": {
+      "layers": [
+        "vn-angiang-flood-circle",
+        "vn-angiang-clusters-outline",
+        "vn-angiang-clusters-fill"
+      ],
+      "type": "vnAngiangDemo"
+    },
+    "vnBicycleRental": {
+      "layers": [
+        "vn-bicycle-rental-circle"
+      ],
+      "type": "vnBicycleRental"
+    },
+    "vnBridges": {
+      "layers": [
+        "vn-bridges-line"
+      ],
+      "type": "vnBridges"
+    },
+    "vnCoalMines": {
+      "layers": [
+        "vn-coal-mines-circle"
+      ],
+      "type": "vnCoalMines"
+    },
+    "vnCourtsPrisons": {
+      "layers": [
+        "vn-courts-prisons-circle"
+      ],
+      "type": "vnCourtsPrisons"
+    },
+    "vnDams": {
+      "layers": [
+        "vn-dams-circle",
+        "vn-reservoirs-fill"
+      ],
+      "type": "vnDams"
+    },
+    "vnEnvisoftStations": {
+      "layers": [
+        "vn-envisoft-stations-circle"
+      ],
+      "type": "vnEnvisoftStations"
+    },
+    "vnFarmTracks": {
+      "layers": [
+        "vn-farm-tracks-line"
+      ],
+      "type": "vnFarmTracks"
+    },
+    "vnFieldBoundaries": {
+      "layers": [
+        "vn-field-boundaries-line",
+        "vn-field-boundaries-fill"
+      ],
+      "type": "vnFieldBoundaries"
+    },
+    "vnFinancialServices": {
+      "layers": [
+        "vn-financial-services-circle"
+      ],
+      "type": "vnFinancialServices"
+    },
+    "vnFuelStations": {
+      "layers": [
+        "vn-fuel-stations-circle"
+      ],
+      "type": "vnFuelStations"
+    },
+    "vnGlideEvents": {
+      "layers": [
+        "vn-glide-events-circle"
+      ],
+      "type": "vnGlideEvents"
+    },
+    "vnHealthFacilities": {
+      "layers": [
+        "vn-health-facilities-circle"
+      ],
+      "type": "vnHealthFacilities"
+    },
+    "vnKindergartens": {
+      "layers": [
+        "vn-kindergartens-circle"
+      ],
+      "type": "vnKindergartens"
+    },
+    "vnMajorRoads": {
+      "layers": [
+        "vn-major-roads-line",
+        "vn-major-rail-line",
+        "vn-major-rail-construction-line"
+      ],
+      "type": "vnMajorRoads"
+    },
+    "vnNationalTouristAreas": {
+      "layers": [
+        "vn-national-tourist-areas-circle"
+      ],
+      "type": "vnNationalTouristAreas"
+    },
+    "vnOilGas": {
+      "layers": [
+        "vn-lng-terminals-circle",
+        "vn-coal-terminals-circle",
+        "vn-refineries-circle",
+        "vn-tanks-circle",
+        "vn-pipelines-gem-line",
+        "vn-pipelines-osm-line"
+      ],
+      "type": "vnOilGas"
+    },
+    "vnParking": {
+      "layers": [
+        "vn-parking-circle"
+      ],
+      "type": "vnParking"
+    },
+    "vnParks": {
+      "layers": [
+        "vn-parks-circle",
+        "vn-parks-fill"
+      ],
+      "type": "vnParks"
+    },
+    "vnPlaceNames": {
+      "layers": [
+        "vn-place-names-circle"
+      ],
+      "type": "vnPlaceNames"
+    },
+    "vnPlacesOfWorship": {
+      "layers": [
+        "vn-places-of-worship-circle"
+      ],
+      "type": "vnPlacesOfWorship"
+    },
+    "vnPolice": {
+      "layers": [
+        "vn-police-circle"
+      ],
+      "type": "vnPolice"
+    },
+    "vnPopulation": {
+      "layers": [
+        "vn-population-province-fill"
+      ],
+      "type": "vnPopulation"
+    },
+    "vnPostalServices": {
+      "layers": [
+        "vn-postal-services-circle"
+      ],
+      "type": "vnPostalServices"
+    },
+    "vnPowerGrid": {
+      "layers": [
+        "vn-power-substations-circle",
+        "vn-power-lines-line",
+        "vn-power-cables-line"
+      ],
+      "type": "vnPowerGrid"
+    },
+    "vnPowerPlants": {
+      "layers": [
+        "vn-power-plants-circle"
+      ],
+      "type": "vnPowerPlants"
+    },
+    "vnProtectedAreasOdm": {
+      "layers": [
+        "vn-protected-areas-odm-line",
+        "vn-protected-areas-odm-fill"
+      ],
+      "type": "vnProtectedAreasOdm"
+    },
+    "vnPublicAmenities": {
+      "layers": [
+        "vn-public-amenities-circle"
+      ],
+      "type": "vnPublicAmenities"
+    },
+    "vnRenewables": {
+      "layers": [
+        "vn-renewables-wind-solar-circle",
+        "vn-renewables-solar-tz-circle",
+        "vn-charging-circle"
+      ],
+      "type": "vnRenewables"
+    },
+    "vnRiverbankErosion": {
+      "layers": [
+        "vn-riverbank-erosion-circle"
+      ],
+      "type": "vnRiverbankErosion"
+    },
+    "vnRivers": {
+      "layers": [
+        "vn-rivers-line"
+      ],
+      "type": "vnRivers"
+    },
+    "vnSchoolCampuses": {
+      "layers": [
+        "vn-school-campuses-line",
+        "vn-school-campuses-fill"
+      ],
+      "type": "vnSchoolCampuses"
+    },
+    "vnSchools": {
+      "layers": [
+        "vn-schools-circle"
+      ],
+      "type": "vnSchools"
+    },
+    "vnSoil": {
+      "layers": [
+        "vn-soil-fill"
+      ],
+      "type": "vnSoil"
+    },
+    "vnStations": {
+      "layers": [
+        "vn-stations-circle"
+      ],
+      "type": "vnStations"
+    },
+    "vnTourAttractions": {
+      "layers": [
+        "vn-tour-attractions-circle"
+      ],
+      "type": "vnTourAttractions"
+    },
+    "vnTourNature": {
+      "layers": [
+        "vn-tour-nature-circle"
+      ],
+      "type": "vnTourNature"
+    },
+    "vnTourServices": {
+      "layers": [
+        "vn-tour-services-circle"
+      ],
+      "type": "vnTourServices"
+    },
+    "vnTransportHubs": {
+      "layers": [
+        "vn-airports-circle",
+        "vn-ports-circle",
+        "vn-airports-osm-circle"
+      ],
+      "type": "vnTransportHubs"
+    },
+    "vnWaterStructures": {
+      "layers": [
+        "vn-water-structures-circle"
+      ],
+      "type": "vnWaterStructures"
+    },
+    "vnWaterSupply": {
+      "layers": [
+        "vn-water-supply-circle"
+      ],
+      "type": "vnWaterSupply"
+    }
+  },
+  "overlays": {},
+  "params": {
+    "vnAdminBoundaries": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      }
+    ],
+    "vnAngiangAquaculture": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "稻＋養蝦",
+            "value": "LUA_TOM"
+          },
+          {
+            "label": "兩季稻＋養魚",
+            "value": "LUA_CA"
+          },
+          {
+            "label": "專業養蝦",
+            "value": "NTTS_TOM"
+          },
+          {
+            "label": "養蝦＋種稻",
+            "value": "NTTS_LUA"
+          },
+          {
+            "label": "養魚",
+            "value": "NTTS_CA"
+          },
+          {
+            "label": "海上養殖",
+            "value": "NTTS_BIEN"
+          },
+          {
+            "label": "種苗場、珍珠養殖",
+            "value": "NTTS_OTHER"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "LUA_TOM",
+          "LUA_CA",
+          "NTTS_TOM",
+          "NTTS_LUA",
+          "NTTS_CA",
+          "NTTS_BIEN",
+          "NTTS_OTHER"
+        ]
+      },
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      }
+    ],
+    "vnAngiangDemo": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "工業群：已營運",
+            "value": "hoatdong"
+          },
+          {
+            "label": "工業群：興建中",
+            "value": "dangxd"
+          },
+          {
+            "label": "工業群：尚未興建",
+            "value": "chuaxd"
+          },
+          {
+            "label": "避洪居民點",
+            "value": "flood"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "hoatdong",
+          "dangxd",
+          "chuaxd",
+          "flood"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "vnBicycleRental": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "租借站",
+            "value": "bicycle_rental"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "bicycle_rental"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "vnBridges": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "主要道路橋",
+            "value": "major_road"
+          },
+          {
+            "label": "一般道路橋",
+            "value": "minor_road"
+          },
+          {
+            "label": "步道、人行橋",
+            "value": "footway"
+          },
+          {
+            "label": "鐵路橋",
+            "value": "railway"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "major_road",
+          "minor_road",
+          "footway",
+          "railway"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      }
+    ],
+    "vnCoalMines": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "運轉中",
+            "value": "Operating"
+          },
+          {
+            "label": "提案",
+            "value": "Proposed"
+          },
+          {
+            "label": "封存",
+            "value": "Mothballed"
+          },
+          {
+            "label": "取消",
+            "value": "Cancelled"
+          },
+          {
+            "label": "狀態未標",
+            "value": "other_brand"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "Operating",
+          "Proposed",
+          "Mothballed",
+          "Cancelled",
+          "other_brand"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "vnCourtsPrisons": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "法院",
+            "value": "courthouse"
+          },
+          {
+            "label": "監所",
+            "value": "prison"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "courthouse",
+          "prison"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "vnDams": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "水力發電",
+            "value": "Hydroelectricity"
+          },
+          {
+            "label": "灌溉",
+            "value": "Irrigation"
+          },
+          {
+            "label": "防洪",
+            "value": "Flood control"
+          },
+          {
+            "label": "水庫面",
+            "value": "reservoir"
+          },
+          {
+            "label": "壩（用途未標）",
+            "value": "other_brand"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "Hydroelectricity",
+          "Irrigation",
+          "Flood control",
+          "reservoir",
+          "other_brand"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "vnEnvisoftStations": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "空氣品質（KK，C098）",
+            "value": "air"
+          },
+          {
+            "label": "地面水質（NM，C100）",
+            "value": "surface_water"
+          },
+          {
+            "label": "海水水質（NB，C100／C104）",
+            "value": "sea_water"
+          },
+          {
+            "label": "廢水排放口（NT，C033）",
+            "value": "wastewater"
+          },
+          {
+            "label": "煙道廢氣排放（KT，C101／C033）",
+            "value": "stack"
+          },
+          {
+            "label": "其他（低成本感測器、類型未知）",
+            "value": "other_brand"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "air",
+          "surface_water",
+          "sea_water",
+          "wastewater",
+          "stack",
+          "other_brand"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "vnFarmTracks": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "1 級（鋪面）",
+            "value": "grade1"
+          },
+          {
+            "label": "2 級（碎石）",
+            "value": "grade2"
+          },
+          {
+            "label": "3 級（混合）",
+            "value": "grade3"
+          },
+          {
+            "label": "4 級（土質為主）",
+            "value": "grade4"
+          },
+          {
+            "label": "5 級（土路）",
+            "value": "grade5"
+          },
+          {
+            "label": "未標等級",
+            "value": "unspecified"
+          },
+          {
+            "label": "其他",
+            "value": "other_brand"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "grade1",
+          "grade2",
+          "grade3",
+          "grade4",
+          "grade5",
+          "unspecified",
+          "other_brand"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      }
+    ],
+    "vnFieldBoundaries": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "農田邊界（AI 判讀）",
+            "value": "field"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "field"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      }
+    ],
+    "vnFinancialServices": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "銀行",
+            "value": "bank"
+          },
+          {
+            "label": "ATM",
+            "value": "atm"
+          },
+          {
+            "label": "外幣兌換",
+            "value": "bureau_de_change"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "bank",
+          "atm",
+          "bureau_de_change"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "vnFuelStations": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "Petrolimex",
+            "value": "petrolimex"
+          },
+          {
+            "label": "PVOIL",
+            "value": "pvoil"
+          },
+          {
+            "label": "Mipec",
+            "value": "mipec"
+          },
+          {
+            "label": "Saigon Petro",
+            "value": "saigon_petro"
+          },
+          {
+            "label": "品牌未知",
+            "value": "unknown"
+          },
+          {
+            "label": "其他品牌",
+            "value": "other_brand"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "petrolimex",
+          "pvoil",
+          "mipec",
+          "saigon_petro",
+          "unknown",
+          "other_brand"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "vnGlideEvents": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "洪水（FL）",
+            "value": "flood"
+          },
+          {
+            "label": "山洪（FF）",
+            "value": "flash_flood"
+          },
+          {
+            "label": "颱風（TC）",
+            "value": "tropical_cyclone"
+          },
+          {
+            "label": "風暴（ST）",
+            "value": "severe_storm"
+          },
+          {
+            "label": "崩塌（LS／SL）",
+            "value": "landslide"
+          },
+          {
+            "label": "乾旱（DR）",
+            "value": "drought"
+          },
+          {
+            "label": "疫情（EP）",
+            "value": "epidemic"
+          },
+          {
+            "label": "事故（AC）",
+            "value": "accident"
+          },
+          {
+            "label": "野火（WF）",
+            "value": "wildfire"
+          },
+          {
+            "label": "其他（OT）",
+            "value": "other_brand"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "flood",
+          "flash_flood",
+          "tropical_cyclone",
+          "severe_storm",
+          "landslide",
+          "drought",
+          "epidemic",
+          "accident",
+          "wildfire",
+          "other_brand"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "vnHealthFacilities": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "醫院",
+            "value": "hospital"
+          },
+          {
+            "label": "診所",
+            "value": "clinic"
+          },
+          {
+            "label": "藥局",
+            "value": "pharmacy"
+          },
+          {
+            "label": "牙科",
+            "value": "dentist"
+          },
+          {
+            "label": "其他（醫師、安寧等）",
+            "value": "other_brand"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "hospital",
+          "clinic",
+          "pharmacy",
+          "dentist",
+          "other_brand"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "vnKindergartens": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "幼兒園",
+            "value": "kindergarten"
+          },
+          {
+            "label": "托育",
+            "value": "childcare"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "kindergarten",
+          "childcare"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "vnLandslideSusceptibility": [
+      {
+        "label": "透明度 0.60",
+        "max": 1,
+        "min": 0.3,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.6,
+        "valueText": "0.60"
+      }
+    ],
+    "vnMajorRoads": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "高速公路（motorway）",
+            "value": "motorway"
+          },
+          {
+            "label": "幹道（trunk）",
+            "value": "trunk"
+          },
+          {
+            "label": "主要道路（primary）",
+            "value": "primary"
+          },
+          {
+            "label": "鐵道（營運中）",
+            "value": "rail"
+          },
+          {
+            "label": "鐵道（興建中，虛線）",
+            "value": "rail_construction"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "motorway",
+          "trunk",
+          "primary",
+          "rail",
+          "rail_construction"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      }
+    ],
+    "vnNationalTouristAreas": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "已認證（9 處）",
+            "value": "recognized"
+          },
+          {
+            "label": "規劃潛力（54 處，空心）",
+            "value": "potential"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "recognized",
+          "potential"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "vnOilGas": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "LNG 接收站（GEM）",
+            "value": "lng"
+          },
+          {
+            "label": "煤炭碼頭（GEM）",
+            "value": "coal_terminal"
+          },
+          {
+            "label": "天然氣管線（GEM）",
+            "value": "gas_pipeline"
+          },
+          {
+            "label": "油管（GEM）",
+            "value": "oil_pipeline"
+          },
+          {
+            "label": "煉油廠（OSM）",
+            "value": "refinery"
+          },
+          {
+            "label": "油氣儲槽（OSM）",
+            "value": "tank"
+          },
+          {
+            "label": "天然氣管線（OSM）",
+            "value": "osm_pipeline"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "lng",
+          "coal_terminal",
+          "gas_pipeline",
+          "oil_pipeline",
+          "refinery",
+          "tank",
+          "osm_pipeline"
+        ]
+      },
+      {
+        "label": "狀態",
+        "options": [
+          {
+            "label": "運轉中",
+            "value": "operating"
+          },
+          {
+            "label": "興建中",
+            "value": "construction"
+          },
+          {
+            "label": "規劃中",
+            "value": "planned"
+          },
+          {
+            "label": "提案",
+            "value": "proposed"
+          },
+          {
+            "label": "擱置",
+            "value": "shelved"
+          },
+          {
+            "label": "封存",
+            "value": "mothballed"
+          },
+          {
+            "label": "退役",
+            "value": "retired"
+          },
+          {
+            "label": "取消",
+            "value": "cancelled"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "operating",
+          "construction",
+          "proposed"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "vnParking": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "停車場",
+            "value": "parking"
+          },
+          {
+            "label": "機車停車場",
+            "value": "motorcycle_parking"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "parking",
+          "motorcycle_parking"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "vnParks": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "公園",
+            "value": "park"
+          },
+          {
+            "label": "庭園",
+            "value": "garden"
+          },
+          {
+            "label": "遊戲場",
+            "value": "playground"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "park",
+          "garden",
+          "playground"
+        ]
+      },
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.75,
+        "valueText": "0.75"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "vnPlaceNames": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "城市（city）",
+            "value": "city"
+          },
+          {
+            "label": "市鎮（town）",
+            "value": "town"
+          },
+          {
+            "label": "城區（suburb）",
+            "value": "suburb"
+          },
+          {
+            "label": "街區（quarter）",
+            "value": "quarter"
+          },
+          {
+            "label": "鄰里（neighbourhood）",
+            "value": "neighbourhood"
+          },
+          {
+            "label": "村（village）",
+            "value": "village"
+          },
+          {
+            "label": "小聚落（hamlet）",
+            "value": "hamlet"
+          },
+          {
+            "label": "地點（locality）",
+            "value": "locality"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "city",
+          "town",
+          "suburb",
+          "quarter",
+          "neighbourhood",
+          "village",
+          "hamlet",
+          "locality"
+        ]
+      },
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.75,
+        "valueText": "0.75"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "vnPlacesOfWorship": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "佛教",
+            "value": "buddhist"
+          },
+          {
+            "label": "基督宗教",
+            "value": "christian"
+          },
+          {
+            "label": "高台教",
+            "value": "caodaism"
+          },
+          {
+            "label": "道教",
+            "value": "taoist"
+          },
+          {
+            "label": "伊斯蘭",
+            "value": "muslim"
+          },
+          {
+            "label": "印度教",
+            "value": "hindu"
+          },
+          {
+            "label": "儒教（文廟）",
+            "value": "confucian"
+          },
+          {
+            "label": "民間信仰與其他（亭、廟）",
+            "value": "other"
+          },
+          {
+            "label": "未標宗教",
+            "value": "unspecified"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "buddhist",
+          "christian",
+          "caodaism",
+          "taoist",
+          "muslim",
+          "hindu",
+          "confucian",
+          "other",
+          "unspecified"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "vnPolice": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "警察",
+            "value": "police"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "police"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "vnPopulation": [
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      }
+    ],
+    "vnPostalServices": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "郵局",
+            "value": "post_office"
+          },
+          {
+            "label": "便利商店",
+            "value": "convenience"
+          },
+          {
+            "label": "超市",
+            "value": "supermarket"
+          },
+          {
+            "label": "傳統市場",
+            "value": "marketplace"
+          },
+          {
+            "label": "購物中心",
+            "value": "mall"
+          },
+          {
+            "label": "廳舍（人民委員會）",
+            "value": "townhall"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "post_office",
+          "convenience",
+          "supermarket",
+          "marketplace",
+          "mall",
+          "townhall"
+        ]
+      },
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.75,
+        "valueText": "0.75"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "vnPowerGrid": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "500 kV 以上",
+            "value": "kv500"
+          },
+          {
+            "label": "220–499 kV",
+            "value": "kv220"
+          },
+          {
+            "label": "110–219 kV",
+            "value": "kv110"
+          },
+          {
+            "label": "110 kV 以下",
+            "value": "kvlt110"
+          },
+          {
+            "label": "電壓未標",
+            "value": "unknown"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "kv500",
+          "kv220",
+          "kv110",
+          "kvlt110",
+          "unknown"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "vnPowerPlants": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "燃煤",
+            "value": "coal"
+          },
+          {
+            "label": "燃氣",
+            "value": "gas"
+          },
+          {
+            "label": "燃油",
+            "value": "oil"
+          },
+          {
+            "label": "水力",
+            "value": "hydro"
+          },
+          {
+            "label": "生質能",
+            "value": "bioenergy"
+          },
+          {
+            "label": "地熱",
+            "value": "geothermal"
+          },
+          {
+            "label": "核能（規劃）",
+            "value": "nuclear"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "coal",
+          "gas",
+          "oil",
+          "hydro",
+          "bioenergy",
+          "geothermal",
+          "nuclear"
+        ]
+      },
+      {
+        "label": "狀態",
+        "options": [
+          {
+            "label": "運轉中",
+            "value": "operating"
+          },
+          {
+            "label": "興建中",
+            "value": "construction"
+          },
+          {
+            "label": "規劃中",
+            "value": "planned"
+          },
+          {
+            "label": "提案",
+            "value": "proposed"
+          },
+          {
+            "label": "擱置",
+            "value": "shelved"
+          },
+          {
+            "label": "封存",
+            "value": "mothballed"
+          },
+          {
+            "label": "退役",
+            "value": "retired"
+          },
+          {
+            "label": "取消",
+            "value": "cancelled"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "operating",
+          "construction"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "vnProtectedAreasOdm": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "國家公園",
+            "value": "np"
+          },
+          {
+            "label": "自然保護區",
+            "value": "nr"
+          },
+          {
+            "label": "物種與棲地保護區",
+            "value": "species"
+          },
+          {
+            "label": "景觀保護區",
+            "value": "landscape"
+          },
+          {
+            "label": "濕地",
+            "value": "wetland"
+          },
+          {
+            "label": "特用林",
+            "value": "special"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "np",
+          "nr",
+          "species",
+          "landscape",
+          "wetland",
+          "special"
+        ]
+      },
+      {
+        "label": "透明度 0.60",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.6,
+        "valueText": "0.60"
+      }
+    ],
+    "vnPublicAmenities": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "公廁",
+            "value": "toilets"
+          },
+          {
+            "label": "飲水機",
+            "value": "drinking_water"
+          },
+          {
+            "label": "垃圾桶、收集點",
+            "value": "waste_disposal"
+          },
+          {
+            "label": "回收點",
+            "value": "recycling"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "toilets",
+          "drinking_water",
+          "waste_disposal",
+          "recycling"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "vnRenewables": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "風力（GEM）",
+            "value": "wind"
+          },
+          {
+            "label": "太陽光電（GEM）",
+            "value": "solar"
+          },
+          {
+            "label": "太陽光電（TransitionZero，CC BY-NC 4.0，非商用）",
+            "value": "solar_tz"
+          },
+          {
+            "label": "電動車充電站（OSM 補缺）",
+            "value": "charging"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "wind",
+          "solar",
+          "solar_tz",
+          "charging"
+        ]
+      },
+      {
+        "label": "狀態",
+        "options": [
+          {
+            "label": "運轉中",
+            "value": "operating"
+          },
+          {
+            "label": "興建中",
+            "value": "construction"
+          },
+          {
+            "label": "規劃中",
+            "value": "planned"
+          },
+          {
+            "label": "提案",
+            "value": "proposed"
+          },
+          {
+            "label": "擱置",
+            "value": "shelved"
+          },
+          {
+            "label": "封存",
+            "value": "mothballed"
+          },
+          {
+            "label": "退役",
+            "value": "retired"
+          },
+          {
+            "label": "取消",
+            "value": "cancelled"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "operating",
+          "construction"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "vnRiverbankErosion": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "特別危險（未編列經費）",
+            "value": "special_unfunded"
+          },
+          {
+            "label": "特別危險（規劃編列經費）",
+            "value": "special_planned"
+          },
+          {
+            "label": "危險點",
+            "value": "danger"
+          },
+          {
+            "label": "快速崩塌點",
+            "value": "fast"
+          },
+          {
+            "label": "一般點",
+            "value": "normal"
+          },
+          {
+            "label": "淤積",
+            "value": "sediment"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "special_unfunded",
+          "special_planned",
+          "danger",
+          "fast",
+          "normal",
+          "sediment"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "vnRivers": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "第 1 級",
+            "value": "1"
+          },
+          {
+            "label": "第 2 級",
+            "value": "2"
+          },
+          {
+            "label": "第 3 級",
+            "value": "3"
+          },
+          {
+            "label": "第 4 級",
+            "value": "4"
+          },
+          {
+            "label": "第 5 級",
+            "value": "5"
+          },
+          {
+            "label": "第 6 級",
+            "value": "6"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      }
+    ],
+    "vnSchoolCampuses": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "中小學",
+            "value": "school"
+          },
+          {
+            "label": "學院、專科",
+            "value": "college"
+          },
+          {
+            "label": "大學",
+            "value": "university"
+          },
+          {
+            "label": "幼兒園",
+            "value": "kindergarten"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "school",
+          "college",
+          "university",
+          "kindergarten"
+        ]
+      },
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      }
+    ],
+    "vnSchools": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "中小學",
+            "value": "school"
+          },
+          {
+            "label": "學院、專科",
+            "value": "college"
+          },
+          {
+            "label": "大學",
+            "value": "university"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "school",
+          "college",
+          "university"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "vnSoil": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "強酸性淋溶土（Acrisols，A）",
+            "value": "A"
+          },
+          {
+            "label": "鐵鋁土（Ferralsols，F）",
+            "value": "F"
+          },
+          {
+            "label": "潛育土（Gleysols，G）",
+            "value": "G"
+          },
+          {
+            "label": "沖積土（Fluvisols，J）",
+            "value": "J"
+          },
+          {
+            "label": "粗骨土（Regosols，R）",
+            "value": "R"
+          },
+          {
+            "label": "石質土（Lithosols，I）",
+            "value": "I"
+          },
+          {
+            "label": "變性土（Vertisols，V）",
+            "value": "V"
+          },
+          {
+            "label": "淋溶土（Luvisols，L）",
+            "value": "L"
+          },
+          {
+            "label": "有機土（Histosols，O）",
+            "value": "O"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "A",
+          "F",
+          "G",
+          "J",
+          "R",
+          "I",
+          "V",
+          "L",
+          "O"
+        ]
+      },
+      {
+        "label": "透明度 0.60",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.6,
+        "valueText": "0.60"
+      }
+    ],
+    "vnStations": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "鐵路車站",
+            "value": "rail"
+          },
+          {
+            "label": "都市鐵路（捷運）站",
+            "value": "metro"
+          },
+          {
+            "label": "公車總站、轉運站",
+            "value": "bus"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "rail",
+          "metro",
+          "bus"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "vnTerrainHillshade": [
+      {
+        "label": "透明度 0.50",
+        "max": 1,
+        "min": 0.3,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.5,
+        "valueText": "0.50"
+      }
+    ],
+    "vnTerrainRelief": [
+      {
+        "label": "透明度 0.50",
+        "max": 1,
+        "min": 0.3,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.5,
+        "valueText": "0.50"
+      }
+    ],
+    "vnTourAttractions": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "世界遺產",
+            "value": "unesco_site"
+          },
+          {
+            "label": "國家公園、保護區",
+            "value": "protected"
+          },
+          {
+            "label": "古蹟與寺廟",
+            "value": "heritage"
+          },
+          {
+            "label": "景點",
+            "value": "attraction"
+          },
+          {
+            "label": "博物館",
+            "value": "museum"
+          },
+          {
+            "label": "觀景點",
+            "value": "viewpoint"
+          },
+          {
+            "label": "公園",
+            "value": "park"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "unesco_site",
+          "protected",
+          "heritage",
+          "attraction",
+          "museum",
+          "viewpoint",
+          "park"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "vnTourNature": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "海灘",
+            "value": "beach"
+          },
+          {
+            "label": "島",
+            "value": "island"
+          },
+          {
+            "label": "小島",
+            "value": "islet"
+          },
+          {
+            "label": "海灣",
+            "value": "bay"
+          },
+          {
+            "label": "瀑布",
+            "value": "waterfall"
+          },
+          {
+            "label": "洞穴",
+            "value": "cave"
+          },
+          {
+            "label": "火山",
+            "value": "volcano"
+          },
+          {
+            "label": "溫泉",
+            "value": "hot_spring"
+          },
+          {
+            "label": "潛水點",
+            "value": "dive"
+          },
+          {
+            "label": "湖",
+            "value": "lake"
+          },
+          {
+            "label": "山",
+            "value": "mountain"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "beach",
+          "island",
+          "islet",
+          "bay",
+          "waterfall",
+          "cave",
+          "volcano",
+          "hot_spring",
+          "dive",
+          "lake",
+          "mountain"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "vnTourServices": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "住宿",
+            "value": "lodging"
+          },
+          {
+            "label": "度假村",
+            "value": "resort"
+          },
+          {
+            "label": "樂園、動物園",
+            "value": "theme_park_zoo"
+          },
+          {
+            "label": "露營地",
+            "value": "camp_site"
+          },
+          {
+            "label": "遊客中心",
+            "value": "visitor_centre"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "lodging",
+          "resort",
+          "theme_park_zoo",
+          "camp_site",
+          "visitor_centre"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "vnTransportHubs": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "國際機場（ODM）",
+            "value": "intl"
+          },
+          {
+            "label": "國內機場（ODM）",
+            "value": "domestic"
+          },
+          {
+            "label": "海港（ODM）",
+            "value": "seaport"
+          },
+          {
+            "label": "內河港（ODM）",
+            "value": "inland_port"
+          },
+          {
+            "label": "OSM 補缺：機場（2019 後新機場、軍用、停用等）",
+            "value": "osm_airport"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "intl",
+          "domestic",
+          "seaport",
+          "inland_port",
+          "osm_airport"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "vnWaterStructures": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "壩",
+            "value": "dam"
+          },
+          {
+            "label": "堰",
+            "value": "weir"
+          },
+          {
+            "label": "船閘",
+            "value": "lock_gate"
+          },
+          {
+            "label": "水門",
+            "value": "sluice_gate"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "dam",
+          "weir",
+          "lock_gate",
+          "sluice_gate"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "vnWaterSupply": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "淨水場",
+            "value": "water_works"
+          },
+          {
+            "label": "抽水站",
+            "value": "pumping_station"
+          },
+          {
+            "label": "水塔",
+            "value": "water_tower"
+          },
+          {
+            "label": "配水池",
+            "value": "reservoir_covered"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "water_works",
+          "pumping_station",
+          "water_tower",
+          "reservoir_covered"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "vnWdpca": [
+      {
+        "label": "透明度 0.60",
+        "max": 1,
+        "min": 0.3,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.6,
+        "valueText": "0.60"
+      }
+    ]
+  }
+}

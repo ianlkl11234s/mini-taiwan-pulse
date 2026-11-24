@@ -2992,7 +2992,7 @@ export const LAYER_MANIFEST = {
       datasets: [],
       derivedFromLayers: ["fireStations"],
       derivationType: "isochrone",
-      processing: "OSRM 路網等時圈計算（救援抵達 ≤ 5/8/10 分鐘）— 從消防分隊出發",
+      processing: "Mapbox Isochrone API 路網等時圈（driving，救援抵達 5/10/15 分鐘）— 從消防分隊出發",
       note: "FIX: 派生分析：消防分隊 + 路網救援等時圈",
     },
     dataClass: "D",

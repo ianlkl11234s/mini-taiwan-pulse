@@ -1,0 +1,5547 @@
+{
+  "count": 19,
+  "gisLayers": {
+    "artificialReefCenters": {
+      "layers": [
+        "artificial-reef-centers-circle",
+        "artificial-reef-centers-glow"
+      ],
+      "type": "artificialReefCenters"
+    },
+    "beachWaterQuality": {
+      "layers": [
+        "beach-water-quality-circle",
+        "beach-water-quality-glow"
+      ],
+      "type": "beachWaterQuality"
+    },
+    "cetaceanStrandings": {
+      "layers": [
+        "cetacean-strandings-circle",
+        "cetacean-strandings-glow"
+      ],
+      "type": "cetaceanStrandings"
+    },
+    "coastalAreaExtents": {
+      "layers": [
+        "coastal-area-extents-fill",
+        "coastal-area-extents-outline",
+        "coastal-area-extents-points-circle-point",
+        "coastal-area-extents-points-circle-polygon"
+      ],
+      "type": "coastalAreaExtents"
+    },
+    "exclusiveFisheryRightAreas": {
+      "layers": [
+        "exclusive-fishery-right-areas-fill",
+        "exclusive-fishery-right-areas-outline",
+        "exclusive-fishery-right-areas-points-circle-point",
+        "exclusive-fishery-right-areas-points-circle-polygon"
+      ],
+      "type": "exclusiveFisheryRightAreas"
+    },
+    "iOceanFishing": {
+      "layers": [
+        "iocean-fishing-reports-circle"
+      ],
+      "type": "iOceanFishing"
+    },
+    "iOceanSightings": {
+      "layers": [
+        "iocean-sightings-circle",
+        "iocean-sightings-glow"
+      ],
+      "type": "iOceanSightings"
+    },
+    "marineEcologicalMonitoringSites": {
+      "layers": [
+        "marine-ecological-monitoring-sites-circle",
+        "marine-ecological-monitoring-sites-glow"
+      ],
+      "type": "marineEcologicalMonitoringSites"
+    },
+    "marineMicroplastics": {
+      "layers": [
+        "marine-microplastics-circle",
+        "marine-microplastics-glow"
+      ],
+      "type": "marineMicroplastics"
+    },
+    "marinePollutionIncidents": {
+      "layers": [
+        "marine-pollution-incidents-circle",
+        "marine-pollution-incidents-glow"
+      ],
+      "type": "marinePollutionIncidents"
+    },
+    "namrBuoys": {
+      "layers": [
+        "namr-buoys-circle",
+        "namr-buoys-glow"
+      ],
+      "type": "namrBuoys"
+    },
+    "namrEdnaSurveySites": {
+      "layers": [
+        "namr-edna-survey-sites-circle",
+        "namr-edna-survey-sites-glow"
+      ],
+      "type": "namrEdnaSurveySites"
+    },
+    "navNotice": {
+      "layers": [
+        "tw-nav-notices-point",
+        "tw-nav-notices-line"
+      ],
+      "type": "navNotice"
+    },
+    "navNotice#2": {
+      "layers": [
+        "tw-nav-notices-fill"
+      ],
+      "type": "navNotice"
+    },
+    "openFishingLocations": {
+      "layers": [
+        "open-fishing-locations-circle",
+        "open-fishing-locations-glow"
+      ],
+      "type": "openFishingLocations"
+    },
+    "protectedReefCenters": {
+      "layers": [
+        "protected-reef-centers-circle",
+        "protected-reef-centers-glow"
+      ],
+      "type": "protectedReefCenters"
+    },
+    "seaTurtleStrandings": {
+      "layers": [
+        "sea-turtle-strandings-circle",
+        "sea-turtle-strandings-glow"
+      ],
+      "type": "seaTurtleStrandings"
+    },
+    "setNetFishingAreas": {
+      "layers": [
+        "set-net-fishing-areas-fill",
+        "set-net-fishing-areas-outline",
+        "set-net-fishing-areas-points-circle-point",
+        "set-net-fishing-areas-points-circle-polygon"
+      ],
+      "type": "setNetFishingAreas"
+    }
+  },
+  "overlays": {
+    "artificialReefCenters": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "artificialReefCenters",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": "#ea580c",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                2,
+                5,
+                7.2,
+                12,
+                12.6
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": "#ea580c",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                2,
+                5,
+                7.2,
+                12,
+                12.6
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#ea580c",
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.4,
+                5,
+                4,
+                12,
+                7
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": "#ea580c",
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.4,
+                5,
+                4,
+                12,
+                7
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "name"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "name"
+              ],
+              ""
+            ]
+          ],
+          "layout": {
+            "text-allow-overlap": false,
+            "text-field": [
+              "get",
+              "name"
+            ],
+            "text-font": [
+              "DIN Pro Medium",
+              "Arial Unicode MS Regular"
+            ],
+            "text-max-width": 14,
+            "text-optional": true,
+            "text-radial-offset": 0.8,
+            "text-size": [
+              "interpolate",
+              [
+                "linear"
+              ],
+              [
+                "zoom"
+              ],
+              10,
+              10,
+              14,
+              12
+            ],
+            "text-variable-anchor": [
+              "top",
+              "bottom",
+              "left",
+              "right"
+            ]
+          },
+          "minzoom": 13,
+          "paint": {
+            "dark": {
+              "text-color": "#f8fafc",
+              "text-halo-color": "rgba(15,23,42,0.92)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            },
+            "light": {
+              "text-color": "#0f172a",
+              "text-halo-color": "rgba(255,255,255,0.94)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            }
+          },
+          "suffix": "label",
+          "type": "symbol"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle",
+        "label"
+      ],
+      "sourceId": "artificial-reef-centers",
+      "sourceUrl": "./marine/artificial_reef_areas.geojson"
+    },
+    "beachWaterQuality": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "beachWaterQuality",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "latest_water_level_code"
+                ],
+                "excellent",
+                "#0891b2",
+                "fair",
+                "#f59e0b",
+                "unsuitable",
+                "#dc2626",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                2.5,
+                5,
+                9,
+                12,
+                16.2
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "latest_water_level_code"
+                ],
+                "excellent",
+                "#0891b2",
+                "fair",
+                "#f59e0b",
+                "unsuitable",
+                "#dc2626",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                2.5,
+                5,
+                9,
+                12,
+                16.2
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "latest_water_level_code"
+                ],
+                "excellent",
+                "#0891b2",
+                "fair",
+                "#f59e0b",
+                "unsuitable",
+                "#f2403a",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.75,
+                5,
+                5,
+                12,
+                9
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "latest_water_level_code"
+                ],
+                "excellent",
+                "#0891b2",
+                "fair",
+                "#f59e0b",
+                "unsuitable",
+                "#f2403a",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.75,
+                5,
+                5,
+                12,
+                9
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "name"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "name"
+              ],
+              ""
+            ]
+          ],
+          "layout": {
+            "text-allow-overlap": false,
+            "text-field": [
+              "get",
+              "name"
+            ],
+            "text-font": [
+              "DIN Pro Medium",
+              "Arial Unicode MS Regular"
+            ],
+            "text-max-width": 14,
+            "text-optional": true,
+            "text-radial-offset": 0.8,
+            "text-size": [
+              "interpolate",
+              [
+                "linear"
+              ],
+              [
+                "zoom"
+              ],
+              10,
+              10,
+              14,
+              12
+            ],
+            "text-variable-anchor": [
+              "top",
+              "bottom",
+              "left",
+              "right"
+            ]
+          },
+          "minzoom": 13,
+          "paint": {
+            "dark": {
+              "text-color": "#f8fafc",
+              "text-halo-color": "rgba(15,23,42,0.92)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            },
+            "light": {
+              "text-color": "#0f172a",
+              "text-halo-color": "rgba(255,255,255,0.94)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            }
+          },
+          "suffix": "label",
+          "type": "symbol"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle",
+        "label"
+      ],
+      "sourceId": "beach-water-quality",
+      "sourceUrl": "./marine/beach_water_quality.geojson"
+    },
+    "cetaceanStrandings": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "cetaceanStrandings",
+      "layers": [
+        {
+          "filter": [
+            "in",
+            [
+              "to-string",
+              [
+                "get",
+                "event_year"
+              ]
+            ],
+            [
+              "literal",
+              [
+                "2020",
+                "2021",
+                "2022",
+                "2023",
+                "2024",
+                "2025",
+                "2026"
+              ]
+            ]
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "case",
+                [
+                  "in",
+                  [
+                    "get",
+                    "coord_status"
+                  ],
+                  [
+                    "literal",
+                    [
+                      "suspect_county_mismatch"
+                    ]
+                  ]
+                ],
+                "#f59e0b",
+                [
+                  "match",
+                  [
+                    "get",
+                    "animal_status"
+                  ],
+                  "死亡",
+                  "#475569",
+                  "活體",
+                  "#0284c7",
+                  "#94a3b8"
+                ]
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "case",
+                [
+                  "in",
+                  [
+                    "get",
+                    "coord_status"
+                  ],
+                  [
+                    "literal",
+                    [
+                      "suspect_county_mismatch"
+                    ]
+                  ]
+                ],
+                "#f59e0b",
+                [
+                  "match",
+                  [
+                    "get",
+                    "animal_status"
+                  ],
+                  "死亡",
+                  "#475569",
+                  "活體",
+                  "#0284c7",
+                  "#94a3b8"
+                ]
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "in",
+            [
+              "to-string",
+              [
+                "get",
+                "event_year"
+              ]
+            ],
+            [
+              "literal",
+              [
+                "2020",
+                "2021",
+                "2022",
+                "2023",
+                "2024",
+                "2025",
+                "2026"
+              ]
+            ]
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "case",
+                [
+                  "in",
+                  [
+                    "get",
+                    "coord_status"
+                  ],
+                  [
+                    "literal",
+                    [
+                      "suspect_county_mismatch"
+                    ]
+                  ]
+                ],
+                "#f59e0b",
+                [
+                  "match",
+                  [
+                    "get",
+                    "animal_status"
+                  ],
+                  "死亡",
+                  "#748398",
+                  "活體",
+                  "#1289cd",
+                  "#94a3b8"
+                ]
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "case",
+                [
+                  "in",
+                  [
+                    "get",
+                    "coord_status"
+                  ],
+                  [
+                    "literal",
+                    [
+                      "suspect_county_mismatch"
+                    ]
+                  ]
+                ],
+                "#f59e0b",
+                [
+                  "match",
+                  [
+                    "get",
+                    "animal_status"
+                  ],
+                  "死亡",
+                  "#475569",
+                  "活體",
+                  "#0284c7",
+                  "#94a3b8"
+                ]
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "in",
+              [
+                "to-string",
+                [
+                  "get",
+                  "event_year"
+                ]
+              ],
+              [
+                "literal",
+                [
+                  "2020",
+                  "2021",
+                  "2022",
+                  "2023",
+                  "2024",
+                  "2025",
+                  "2026"
+                ]
+              ]
+            ],
+            [
+              "has",
+              "name"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "name"
+              ],
+              ""
+            ]
+          ],
+          "layout": {
+            "text-allow-overlap": false,
+            "text-field": [
+              "get",
+              "name"
+            ],
+            "text-font": [
+              "DIN Pro Medium",
+              "Arial Unicode MS Regular"
+            ],
+            "text-max-width": 14,
+            "text-optional": true,
+            "text-radial-offset": 0.8,
+            "text-size": [
+              "interpolate",
+              [
+                "linear"
+              ],
+              [
+                "zoom"
+              ],
+              10,
+              10,
+              14,
+              12
+            ],
+            "text-variable-anchor": [
+              "top",
+              "bottom",
+              "left",
+              "right"
+            ]
+          },
+          "minzoom": 14,
+          "paint": {
+            "dark": {
+              "text-color": "#f8fafc",
+              "text-halo-color": "rgba(15,23,42,0.92)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            },
+            "light": {
+              "text-color": "#0f172a",
+              "text-halo-color": "rgba(255,255,255,0.94)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            }
+          },
+          "suffix": "label",
+          "type": "symbol"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle",
+        "label"
+      ],
+      "sourceId": "cetacean-strandings",
+      "sourceUrl": "./marine/cetacean_strandings.geojson"
+    },
+    "coastalAreaExtents": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "coastalAreaExtents",
+      "layers": [
+        {
+          "filter": [
+            "has",
+            "area_type"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "area_type"
+                ],
+                "濱海陸地",
+                "#a8a29e",
+                "近岸海域",
+                "#64748b",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.25
+            },
+            "light": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "area_type"
+                ],
+                "濱海陸地",
+                "#a8a29e",
+                "近岸海域",
+                "#64748b",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.25
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": [
+            "has",
+            "area_type"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#e2e8f0",
+              "line-opacity": 0.55,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "area_type"
+                ],
+                "濱海陸地",
+                "#a8a29e",
+                "近岸海域",
+                "#64748b",
+                "#94a3b8"
+              ],
+              "line-opacity": 0.55,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 12,
+        "minzoom": 5,
+        "sourceLayer": "coastal_area_extents"
+      },
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "coastal-area-extents",
+      "sourceUrl": "./marine/coastal_area_extents.pmtiles"
+    },
+    "coastalAreaExtents#2": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "coastalAreaExtents",
+      "layers": [
+        {
+          "filter": [
+            "has",
+            "area_type"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "area_type"
+                ],
+                "濱海陸地",
+                "#a8a29e",
+                "近岸海域",
+                "#72839a",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "area_type"
+                ],
+                "濱海陸地",
+                "#a8a29e",
+                "近岸海域",
+                "#64748b",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle-point",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "has",
+            "area_type"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "maxzoom": 5,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "area_type"
+                ],
+                "濱海陸地",
+                "#a8a29e",
+                "近岸海域",
+                "#72839a",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "area_type"
+                ],
+                "濱海陸地",
+                "#a8a29e",
+                "近岸海域",
+                "#64748b",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle-polygon",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 10,
+        "minzoom": 4,
+        "sourceLayer": "coastal_area_extents_points"
+      },
+      "rebuildOnParamChange": [
+        "circle-point",
+        "circle-polygon"
+      ],
+      "sourceId": "coastal-area-extents-points",
+      "sourceUrl": "./marine/coastal_area_extents_points.pmtiles"
+    },
+    "exclusiveFisheryRightAreas": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "exclusiveFisheryRightAreas",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "status"
+                ],
+                "active",
+                "#0e7490",
+                "expired",
+                "#a8a29e",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.3
+            },
+            "light": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "status"
+                ],
+                "active",
+                "#0e7490",
+                "expired",
+                "#a8a29e",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.3
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#e2e8f0",
+              "line-opacity": 0.6,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "status"
+                ],
+                "active",
+                "#0e7490",
+                "expired",
+                "#a8a29e",
+                "#94a3b8"
+              ],
+              "line-opacity": 0.6,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "exclusive-fishery-right-areas",
+      "sourceUrl": "./marine/exclusive_fishery_right_areas.geojson"
+    },
+    "exclusiveFisheryRightAreas#2": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "exclusiveFisheryRightAreas",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "status"
+                ],
+                "active",
+                "#328ca9",
+                "expired",
+                "#a8a29e",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "status"
+                ],
+                "active",
+                "#0e7490",
+                "expired",
+                "#a8a29e",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle-point",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "circle-point"
+      ],
+      "sourceId": "exclusive-fishery-right-areas-points",
+      "sourceUrl": "./marine/exclusive_fishery_right_areas.geojson"
+    },
+    "iOceanFishing": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "iOceanFishing",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "maxzoom": 10.01,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(43,92,149,0.00)",
+                0.05,
+                "rgba(43,92,149,0.11)",
+                0.15,
+                "rgba(68,114,179,0.33)",
+                0.3,
+                "rgba(101,138,198,0.66)",
+                0.45,
+                "rgba(140,162,201,0.99)",
+                0.6,
+                "rgba(178,187,204,1.00)",
+                0.8,
+                "rgba(209,212,217,1.00)",
+                1,
+                "rgba(238,238,239,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "ln",
+                  [
+                    "+",
+                    1,
+                    [
+                      "coalesce",
+                      [
+                        "get",
+                        "n_reports"
+                      ],
+                      0
+                    ]
+                  ]
+                ],
+                0,
+                0,
+                6.90875477931522,
+                1
+              ]
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(145,165,201,0.00)",
+                0.05,
+                "rgba(145,165,201,0.11)",
+                0.15,
+                "rgba(110,144,201,0.33)",
+                0.3,
+                "rgba(79,123,188,0.66)",
+                0.45,
+                "rgba(54,103,165,0.99)",
+                0.6,
+                "rgba(36,84,136,1.00)",
+                0.8,
+                "rgba(25,66,105,1.00)",
+                1,
+                "rgba(18,47,76,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "ln",
+                  [
+                    "+",
+                    1,
+                    [
+                      "coalesce",
+                      [
+                        "get",
+                        "n_reports"
+                      ],
+                      0
+                    ]
+                  ]
+                ],
+                0,
+                0,
+                6.90875477931522,
+                1
+              ]
+            }
+          },
+          "suffix": "heatmap",
+          "type": "heatmap"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 9,
+        "minzoom": 4,
+        "sourceLayer": "iocean_fishing_reports_z4_9"
+      },
+      "rebuildOnParamChange": [],
+      "sourceId": "iocean-fishing-reports-z4-9",
+      "sourceUrl": "./marine/iocean_fishing_reports_20260506_z4_9.pmtiles"
+    },
+    "iOceanFishing#2": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "iOceanFishing",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": 10,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "fishing_type"
+                ],
+                "堤岸釣",
+                "#0ea5e9",
+                "港區垂釣",
+                "#7279ff",
+                "岩磯岸釣",
+                "#ba792d",
+                "船釣",
+                "#14b8a6",
+                "島礁垂釣",
+                "#f97316",
+                "沙灘釣",
+                "#eab308",
+                "礫灘釣",
+                "#8d8681",
+                "筏釣",
+                "#ec4899",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                10,
+                2.5,
+                14,
+                5
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": 0.6
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "fishing_type"
+                ],
+                "堤岸釣",
+                "#0ea5e9",
+                "港區垂釣",
+                "#6366f1",
+                "岩磯岸釣",
+                "#a16207",
+                "船釣",
+                "#14b8a6",
+                "島礁垂釣",
+                "#f97316",
+                "沙灘釣",
+                "#eab308",
+                "礫灘釣",
+                "#78716c",
+                "筏釣",
+                "#ec4899",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                10,
+                2.5,
+                14,
+                5
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": 0.6
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 10,
+        "sourceLayer": "iocean_fishing_reports"
+      },
+      "rebuildOnParamChange": [
+        "circle"
+      ],
+      "sourceId": "iocean-fishing-reports",
+      "sourceUrl": "./marine/iocean_fishing_reports_20260506.pmtiles"
+    },
+    "iOceanSightings": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "iOceanSightings",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "group_key"
+                ],
+                "cetacean",
+                "#2563eb",
+                "turtle_snake",
+                "#16a34a",
+                "mollusc",
+                "#f59e0b",
+                "reef_fish",
+                "#ec4899",
+                "other_fish",
+                "#94a3b8",
+                "echinoderm",
+                "#a855f7",
+                "crustacean",
+                "#ef4444",
+                "coral",
+                "#f97316",
+                "shark_ray",
+                "#06b6d4",
+                "seabird",
+                "#eab308",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                11.700000000000001
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "group_key"
+                ],
+                "cetacean",
+                "#2563eb",
+                "turtle_snake",
+                "#16a34a",
+                "mollusc",
+                "#f59e0b",
+                "reef_fish",
+                "#ec4899",
+                "other_fish",
+                "#94a3b8",
+                "echinoderm",
+                "#a855f7",
+                "crustacean",
+                "#ef4444",
+                "coral",
+                "#f97316",
+                "shark_ray",
+                "#06b6d4",
+                "seabird",
+                "#eab308",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                11.700000000000001
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "group_key"
+                ],
+                "cetacean",
+                "#3575fe",
+                "turtle_snake",
+                "#16a34a",
+                "mollusc",
+                "#f59e0b",
+                "reef_fish",
+                "#ec4899",
+                "other_fish",
+                "#94a3b8",
+                "echinoderm",
+                "#a855f7",
+                "crustacean",
+                "#ef4444",
+                "coral",
+                "#f97316",
+                "shark_ray",
+                "#06b6d4",
+                "seabird",
+                "#eab308",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6.5
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "group_key"
+                ],
+                "cetacean",
+                "#3575fe",
+                "turtle_snake",
+                "#16a34a",
+                "mollusc",
+                "#f59e0b",
+                "reef_fish",
+                "#ec4899",
+                "other_fish",
+                "#94a3b8",
+                "echinoderm",
+                "#a855f7",
+                "crustacean",
+                "#ef4444",
+                "coral",
+                "#f97316",
+                "shark_ray",
+                "#06b6d4",
+                "seabird",
+                "#eab308",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6.5
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 4,
+        "sourceLayer": "iocean_sightings"
+      },
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
+      "sourceId": "iocean-sightings",
+      "sourceUrl": "./marine/iocean_sightings_20260506_gen.pmtiles"
+    },
+    "marineEcologicalMonitoringSites": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "marineEcologicalMonitoringSites",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": "#4f46e5",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": "#4f46e5",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#6c71ff",
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": "#4f46e5",
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "name"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "name"
+              ],
+              ""
+            ]
+          ],
+          "layout": {
+            "text-allow-overlap": false,
+            "text-field": [
+              "get",
+              "name"
+            ],
+            "text-font": [
+              "DIN Pro Medium",
+              "Arial Unicode MS Regular"
+            ],
+            "text-max-width": 14,
+            "text-optional": true,
+            "text-radial-offset": 0.8,
+            "text-size": [
+              "interpolate",
+              [
+                "linear"
+              ],
+              [
+                "zoom"
+              ],
+              10,
+              10,
+              14,
+              12
+            ],
+            "text-variable-anchor": [
+              "top",
+              "bottom",
+              "left",
+              "right"
+            ]
+          },
+          "minzoom": 13,
+          "paint": {
+            "dark": {
+              "text-color": "#f8fafc",
+              "text-halo-color": "rgba(15,23,42,0.92)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            },
+            "light": {
+              "text-color": "#0f172a",
+              "text-halo-color": "rgba(255,255,255,0.94)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            }
+          },
+          "suffix": "label",
+          "type": "symbol"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle",
+        "label"
+      ],
+      "sourceId": "marine-ecological-monitoring-sites",
+      "sourceUrl": "./marine/marine_ecological_monitoring_sites.geojson"
+    },
+    "marineMicroplastics": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "marineMicroplastics",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "case",
+                [
+                  "!=",
+                  [
+                    "typeof",
+                    [
+                      "get",
+                      "surface_mean_total_per_m3"
+                    ]
+                  ],
+                  "number"
+                ],
+                "#94a3b8",
+                [
+                  "step",
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "surface_mean_total_per_m3"
+                    ],
+                    0
+                  ],
+                  "#e9d5ff",
+                  100,
+                  "#c084fc",
+                  300,
+                  "#9333ea",
+                  1000,
+                  "#581c87"
+                ]
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                2.5,
+                5,
+                9,
+                12,
+                16.2
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "case",
+                [
+                  "!=",
+                  [
+                    "typeof",
+                    [
+                      "get",
+                      "surface_mean_total_per_m3"
+                    ]
+                  ],
+                  "number"
+                ],
+                "#94a3b8",
+                [
+                  "step",
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "surface_mean_total_per_m3"
+                    ],
+                    0
+                  ],
+                  "#e9d5ff",
+                  100,
+                  "#c084fc",
+                  300,
+                  "#9333ea",
+                  1000,
+                  "#581c87"
+                ]
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                2.5,
+                5,
+                9,
+                12,
+                16.2
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "case",
+                [
+                  "!=",
+                  [
+                    "typeof",
+                    [
+                      "get",
+                      "surface_mean_total_per_m3"
+                    ]
+                  ],
+                  "number"
+                ],
+                "#94a3b8",
+                [
+                  "step",
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "surface_mean_total_per_m3"
+                    ],
+                    0
+                  ],
+                  "#e9d5ff",
+                  100,
+                  "#c084fc",
+                  300,
+                  "#a957ff",
+                  1000,
+                  "#9f69d6"
+                ]
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.75,
+                5,
+                5,
+                12,
+                9
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "case",
+                [
+                  "!=",
+                  [
+                    "typeof",
+                    [
+                      "get",
+                      "surface_mean_total_per_m3"
+                    ]
+                  ],
+                  "number"
+                ],
+                "#94a3b8",
+                [
+                  "step",
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "surface_mean_total_per_m3"
+                    ],
+                    0
+                  ],
+                  "#e9d5ff",
+                  100,
+                  "#c084fc",
+                  300,
+                  "#9333ea",
+                  1000,
+                  "#581c87"
+                ]
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.75,
+                5,
+                5,
+                12,
+                9
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "name"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "name"
+              ],
+              ""
+            ]
+          ],
+          "layout": {
+            "text-allow-overlap": false,
+            "text-field": [
+              "get",
+              "name"
+            ],
+            "text-font": [
+              "DIN Pro Medium",
+              "Arial Unicode MS Regular"
+            ],
+            "text-max-width": 14,
+            "text-optional": true,
+            "text-radial-offset": 0.8,
+            "text-size": [
+              "interpolate",
+              [
+                "linear"
+              ],
+              [
+                "zoom"
+              ],
+              10,
+              10,
+              14,
+              12
+            ],
+            "text-variable-anchor": [
+              "top",
+              "bottom",
+              "left",
+              "right"
+            ]
+          },
+          "minzoom": 13,
+          "paint": {
+            "dark": {
+              "text-color": "#f8fafc",
+              "text-halo-color": "rgba(15,23,42,0.92)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            },
+            "light": {
+              "text-color": "#0f172a",
+              "text-halo-color": "rgba(255,255,255,0.94)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            }
+          },
+          "suffix": "label",
+          "type": "symbol"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle",
+        "label"
+      ],
+      "sourceId": "marine-microplastics",
+      "sourceUrl": "./marine/marine_microplastics_stations.geojson"
+    },
+    "marinePollutionIncidents": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "marinePollutionIncidents",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "case_level"
+                ],
+                "1",
+                "#64748b",
+                "2",
+                "#ea580c",
+                "3",
+                "#b91c1c",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "case_level"
+                ],
+                "1",
+                "#64748b",
+                "2",
+                "#ea580c",
+                "3",
+                "#b91c1c",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "case_level"
+                ],
+                "1",
+                "#7888a0",
+                "2",
+                "#ea580c",
+                "3",
+                "#ff7366",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "case_level"
+                ],
+                "1",
+                "#64748b",
+                "2",
+                "#ea580c",
+                "3",
+                "#b91c1c",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "name"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "name"
+              ],
+              ""
+            ]
+          ],
+          "layout": {
+            "text-allow-overlap": false,
+            "text-field": [
+              "get",
+              "name"
+            ],
+            "text-font": [
+              "DIN Pro Medium",
+              "Arial Unicode MS Regular"
+            ],
+            "text-max-width": 14,
+            "text-optional": true,
+            "text-radial-offset": 0.8,
+            "text-size": [
+              "interpolate",
+              [
+                "linear"
+              ],
+              [
+                "zoom"
+              ],
+              10,
+              10,
+              14,
+              12
+            ],
+            "text-variable-anchor": [
+              "top",
+              "bottom",
+              "left",
+              "right"
+            ]
+          },
+          "minzoom": 14,
+          "paint": {
+            "dark": {
+              "text-color": "#f8fafc",
+              "text-halo-color": "rgba(15,23,42,0.92)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.8
+            },
+            "light": {
+              "text-color": "#0f172a",
+              "text-halo-color": "rgba(255,255,255,0.94)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.8
+            }
+          },
+          "suffix": "label",
+          "type": "symbol"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle",
+        "label"
+      ],
+      "sourceId": "marine-pollution-incidents",
+      "sourceUrl": "./marine/marine_pollution_incidents.geojson"
+    },
+    "namrBuoys": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "namrBuoys",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "buoy_kind"
+                ],
+                "data_buoy",
+                "#06b6d4",
+                "gamma_mooring",
+                "#f59e0b",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                2.5,
+                5,
+                9,
+                12,
+                16.2
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "buoy_kind"
+                ],
+                "data_buoy",
+                "#06b6d4",
+                "gamma_mooring",
+                "#f59e0b",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                2.5,
+                5,
+                9,
+                12,
+                16.2
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "buoy_kind"
+                ],
+                "data_buoy",
+                "#06b6d4",
+                "gamma_mooring",
+                "#f59e0b",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.75,
+                5,
+                5,
+                12,
+                9
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "buoy_kind"
+                ],
+                "data_buoy",
+                "#06b6d4",
+                "gamma_mooring",
+                "#f59e0b",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.75,
+                5,
+                5,
+                12,
+                9
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 4,
+        "sourceLayer": "namr_buoys"
+      },
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
+      "sourceId": "namr-buoys",
+      "sourceUrl": "./marine/namr_buoys_v1.pmtiles"
+    },
+    "namrEdnaSurveySites": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "namrEdnaSurveySites",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": "#0e7490",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": "#0e7490",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#328ca9",
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": "#0e7490",
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "name"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "name"
+              ],
+              ""
+            ]
+          ],
+          "layout": {
+            "text-allow-overlap": false,
+            "text-field": [
+              "get",
+              "name"
+            ],
+            "text-font": [
+              "DIN Pro Medium",
+              "Arial Unicode MS Regular"
+            ],
+            "text-max-width": 14,
+            "text-optional": true,
+            "text-radial-offset": 0.8,
+            "text-size": [
+              "interpolate",
+              [
+                "linear"
+              ],
+              [
+                "zoom"
+              ],
+              10,
+              10,
+              14,
+              12
+            ],
+            "text-variable-anchor": [
+              "top",
+              "bottom",
+              "left",
+              "right"
+            ]
+          },
+          "minzoom": 13,
+          "paint": {
+            "dark": {
+              "text-color": "#f8fafc",
+              "text-halo-color": "rgba(15,23,42,0.92)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            },
+            "light": {
+              "text-color": "#0f172a",
+              "text-halo-color": "rgba(255,255,255,0.94)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            }
+          },
+          "suffix": "label",
+          "type": "symbol"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle",
+        "label"
+      ],
+      "sourceId": "namr-edna-survey-sites",
+      "sourceUrl": "./marine/namr_edna_survey_sites.geojson"
+    },
+    "openFishingLocations": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "openFishingLocations",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": "#0891b2",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": "#0891b2",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#0891b2",
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": "#0891b2",
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "name"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "name"
+              ],
+              ""
+            ]
+          ],
+          "layout": {
+            "text-allow-overlap": false,
+            "text-field": [
+              "get",
+              "name"
+            ],
+            "text-font": [
+              "DIN Pro Medium",
+              "Arial Unicode MS Regular"
+            ],
+            "text-max-width": 14,
+            "text-optional": true,
+            "text-radial-offset": 0.8,
+            "text-size": [
+              "interpolate",
+              [
+                "linear"
+              ],
+              [
+                "zoom"
+              ],
+              10,
+              10,
+              14,
+              12
+            ],
+            "text-variable-anchor": [
+              "top",
+              "bottom",
+              "left",
+              "right"
+            ]
+          },
+          "minzoom": 14,
+          "paint": {
+            "dark": {
+              "text-color": "#f8fafc",
+              "text-halo-color": "rgba(15,23,42,0.92)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            },
+            "light": {
+              "text-color": "#0f172a",
+              "text-halo-color": "rgba(255,255,255,0.94)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            }
+          },
+          "suffix": "label",
+          "type": "symbol"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle",
+        "label"
+      ],
+      "sourceId": "open-fishing-locations",
+      "sourceUrl": "./marine/open_fishing_locations.geojson"
+    },
+    "protectedReefCenters": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "protectedReefCenters",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": "#b45309",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                2,
+                5,
+                7.2,
+                12,
+                12.6
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": "#b45309",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                2,
+                5,
+                7.2,
+                12,
+                12.6
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#ca6728",
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.4,
+                5,
+                4,
+                12,
+                7
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": "#b45309",
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.4,
+                5,
+                4,
+                12,
+                7
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "name"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "name"
+              ],
+              ""
+            ]
+          ],
+          "layout": {
+            "text-allow-overlap": false,
+            "text-field": [
+              "get",
+              "name"
+            ],
+            "text-font": [
+              "DIN Pro Medium",
+              "Arial Unicode MS Regular"
+            ],
+            "text-max-width": 14,
+            "text-optional": true,
+            "text-radial-offset": 0.8,
+            "text-size": [
+              "interpolate",
+              [
+                "linear"
+              ],
+              [
+                "zoom"
+              ],
+              10,
+              10,
+              14,
+              12
+            ],
+            "text-variable-anchor": [
+              "top",
+              "bottom",
+              "left",
+              "right"
+            ]
+          },
+          "minzoom": 13,
+          "paint": {
+            "dark": {
+              "text-color": "#f8fafc",
+              "text-halo-color": "rgba(15,23,42,0.92)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            },
+            "light": {
+              "text-color": "#0f172a",
+              "text-halo-color": "rgba(255,255,255,0.94)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            }
+          },
+          "suffix": "label",
+          "type": "symbol"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle",
+        "label"
+      ],
+      "sourceId": "protected-reef-centers",
+      "sourceUrl": "./marine/protected_reef_areas.geojson"
+    },
+    "seaTurtleStrandings": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "seaTurtleStrandings",
+      "layers": [
+        {
+          "filter": [
+            "in",
+            [
+              "to-string",
+              [
+                "get",
+                "event_year"
+              ]
+            ],
+            [
+              "literal",
+              [
+                "2020",
+                "2021",
+                "2022",
+                "2023",
+                "2024",
+                "2025",
+                "2026"
+              ]
+            ]
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "case",
+                [
+                  "in",
+                  [
+                    "get",
+                    "coord_status"
+                  ],
+                  [
+                    "literal",
+                    [
+                      "suspect_county_mismatch"
+                    ]
+                  ]
+                ],
+                "#f59e0b",
+                [
+                  "match",
+                  [
+                    "get",
+                    "species_zh"
+                  ],
+                  "綠蠵龜",
+                  "#059669",
+                  "欖蠵龜",
+                  "#65a30d",
+                  "玳瑁",
+                  "#b45309",
+                  "赤蠵龜",
+                  "#dc2626",
+                  "革龜",
+                  "#1f2937",
+                  "#94a3b8"
+                ]
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "case",
+                [
+                  "in",
+                  [
+                    "get",
+                    "coord_status"
+                  ],
+                  [
+                    "literal",
+                    [
+                      "suspect_county_mismatch"
+                    ]
+                  ]
+                ],
+                "#f59e0b",
+                [
+                  "match",
+                  [
+                    "get",
+                    "species_zh"
+                  ],
+                  "綠蠵龜",
+                  "#059669",
+                  "欖蠵龜",
+                  "#65a30d",
+                  "玳瑁",
+                  "#b45309",
+                  "赤蠵龜",
+                  "#dc2626",
+                  "革龜",
+                  "#1f2937",
+                  "#94a3b8"
+                ]
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "in",
+            [
+              "to-string",
+              [
+                "get",
+                "event_year"
+              ]
+            ],
+            [
+              "literal",
+              [
+                "2020",
+                "2021",
+                "2022",
+                "2023",
+                "2024",
+                "2025",
+                "2026"
+              ]
+            ]
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "case",
+                [
+                  "in",
+                  [
+                    "get",
+                    "coord_status"
+                  ],
+                  [
+                    "literal",
+                    [
+                      "suspect_county_mismatch"
+                    ]
+                  ]
+                ],
+                "#f59e0b",
+                [
+                  "match",
+                  [
+                    "get",
+                    "species_zh"
+                  ],
+                  "綠蠵龜",
+                  "#149b6d",
+                  "欖蠵龜",
+                  "#65a30d",
+                  "玳瑁",
+                  "#d06d2f",
+                  "赤蠵龜",
+                  "#f94840",
+                  "革龜",
+                  "#7c8899",
+                  "#94a3b8"
+                ]
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "case",
+                [
+                  "in",
+                  [
+                    "get",
+                    "coord_status"
+                  ],
+                  [
+                    "literal",
+                    [
+                      "suspect_county_mismatch"
+                    ]
+                  ]
+                ],
+                "#f59e0b",
+                [
+                  "match",
+                  [
+                    "get",
+                    "species_zh"
+                  ],
+                  "綠蠵龜",
+                  "#059669",
+                  "欖蠵龜",
+                  "#65a30d",
+                  "玳瑁",
+                  "#b45309",
+                  "赤蠵龜",
+                  "#dc2626",
+                  "革龜",
+                  "#1f2937",
+                  "#94a3b8"
+                ]
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "in",
+              [
+                "to-string",
+                [
+                  "get",
+                  "event_year"
+                ]
+              ],
+              [
+                "literal",
+                [
+                  "2020",
+                  "2021",
+                  "2022",
+                  "2023",
+                  "2024",
+                  "2025",
+                  "2026"
+                ]
+              ]
+            ],
+            [
+              "has",
+              "name"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "name"
+              ],
+              ""
+            ]
+          ],
+          "layout": {
+            "text-allow-overlap": false,
+            "text-field": [
+              "get",
+              "name"
+            ],
+            "text-font": [
+              "DIN Pro Medium",
+              "Arial Unicode MS Regular"
+            ],
+            "text-max-width": 14,
+            "text-optional": true,
+            "text-radial-offset": 0.8,
+            "text-size": [
+              "interpolate",
+              [
+                "linear"
+              ],
+              [
+                "zoom"
+              ],
+              10,
+              10,
+              14,
+              12
+            ],
+            "text-variable-anchor": [
+              "top",
+              "bottom",
+              "left",
+              "right"
+            ]
+          },
+          "minzoom": 14,
+          "paint": {
+            "dark": {
+              "text-color": "#f8fafc",
+              "text-halo-color": "rgba(15,23,42,0.92)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.8
+            },
+            "light": {
+              "text-color": "#0f172a",
+              "text-halo-color": "rgba(255,255,255,0.94)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.8
+            }
+          },
+          "suffix": "label",
+          "type": "symbol"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle",
+        "label"
+      ],
+      "sourceId": "sea-turtle-strandings",
+      "sourceUrl": "./marine/sea_turtle_strandings.geojson"
+    },
+    "setNetFishingAreas": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "setNetFishingAreas",
+      "layers": [
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": "#7c3aed",
+              "fill-opacity": 0.4
+            },
+            "light": {
+              "fill-color": "#7c3aed",
+              "fill-opacity": 0.4
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#e2e8f0",
+              "line-opacity": 0.7,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            },
+            "light": {
+              "line-color": "#7c3aed",
+              "line-opacity": 0.7,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "set-net-fishing-areas",
+      "sourceUrl": "./marine/set_net_fishing_areas.geojson"
+    },
+    "setNetFishingAreas#2": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "setNetFishingAreas",
+      "layers": [
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#9363ff",
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#7c3aed",
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle-point",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": null,
+      "sourceId": "set-net-fishing-areas-points",
+      "sourceUrl": "./marine/set_net_fishing_areas.geojson"
+    }
+  },
+  "params": {
+    "artificialReefCenters": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "beachWaterQuality": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "cetaceanStrandings": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "死亡",
+            "value": "死亡"
+          },
+          {
+            "label": "活體",
+            "value": "活體"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "死亡",
+          "活體"
+        ]
+      },
+      {
+        "label": "擱淺年份",
+        "options": [
+          {
+            "label": "2020",
+            "value": "2020"
+          },
+          {
+            "label": "2021",
+            "value": "2021"
+          },
+          {
+            "label": "2022",
+            "value": "2022"
+          },
+          {
+            "label": "2023",
+            "value": "2023"
+          },
+          {
+            "label": "2024",
+            "value": "2024"
+          },
+          {
+            "label": "2025",
+            "value": "2025"
+          },
+          {
+            "label": "2026（不完整年度）",
+            "value": "2026"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "2020",
+          "2021",
+          "2022",
+          "2023",
+          "2024",
+          "2025",
+          "2026"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "coastalAreaExtents": [
+      {
+        "label": "範圍類型",
+        "options": [
+          {
+            "label": "濱海陸地",
+            "value": "濱海陸地"
+          },
+          {
+            "label": "近岸海域",
+            "value": "近岸海域"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "濱海陸地",
+          "近岸海域"
+        ]
+      },
+      {
+        "label": "透明度 0.25",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.25,
+        "valueText": "0.25"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "polygon"
+      }
+    ],
+    "exclusiveFisheryRightAreas": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "來源標「現存」",
+            "value": "active"
+          },
+          {
+            "label": "來源標「屆期」",
+            "value": "expired"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "active",
+          "expired"
+        ]
+      },
+      {
+        "label": "透明度 0.30",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.3,
+        "valueText": "0.30"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "point"
+      }
+    ],
+    "iOceanFishing": [
+      {
+        "label": "垂釣類型",
+        "options": [
+          {
+            "label": "堤岸釣",
+            "value": "堤岸釣"
+          },
+          {
+            "label": "港區垂釣",
+            "value": "港區垂釣"
+          },
+          {
+            "label": "岩磯岸釣",
+            "value": "岩磯岸釣"
+          },
+          {
+            "label": "船釣",
+            "value": "船釣"
+          },
+          {
+            "label": "島礁垂釣",
+            "value": "島礁垂釣"
+          },
+          {
+            "label": "沙灘釣",
+            "value": "沙灘釣"
+          },
+          {
+            "label": "礫灘釣",
+            "value": "礫灘釣"
+          },
+          {
+            "label": "筏釣",
+            "value": "筏釣"
+          },
+          {
+            "label": "其他",
+            "value": "__other__"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "堤岸釣",
+          "港區垂釣",
+          "岩磯岸釣",
+          "船釣",
+          "島礁垂釣",
+          "沙灘釣",
+          "礫灘釣",
+          "筏釣",
+          "__other__"
+        ]
+      },
+      {
+        "defaultValue": "oslo",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "oslo"
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "iOceanSightings": [
+      {
+        "label": "推定類群",
+        "options": [
+          {
+            "label": "鯨豚",
+            "value": "cetacean"
+          },
+          {
+            "label": "海龜與海蛇",
+            "value": "turtle_snake"
+          },
+          {
+            "label": "貝類與軟體動物",
+            "value": "mollusc"
+          },
+          {
+            "label": "珊瑚礁魚類",
+            "value": "reef_fish"
+          },
+          {
+            "label": "其他魚類",
+            "value": "other_fish"
+          },
+          {
+            "label": "棘皮動物",
+            "value": "echinoderm"
+          },
+          {
+            "label": "甲殼類與鱟",
+            "value": "crustacean"
+          },
+          {
+            "label": "珊瑚",
+            "value": "coral"
+          },
+          {
+            "label": "鯊魚與魟",
+            "value": "shark_ray"
+          },
+          {
+            "label": "海鳥",
+            "value": "seabird"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "cetacean",
+          "turtle_snake",
+          "mollusc",
+          "reef_fish",
+          "other_fish",
+          "echinoderm",
+          "crustacean",
+          "coral",
+          "shark_ray",
+          "seabird"
+        ]
+      },
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "marineEcologicalMonitoringSites": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "marineMicroplastics": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "marinePollutionIncidents": [
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "namrBuoys": [
+      {
+        "label": "浮標種類",
+        "options": [
+          {
+            "label": "資料浮標",
+            "value": "data_buoy"
+          },
+          {
+            "label": "加馬輻射錨碇",
+            "value": "gamma_mooring"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "data_buoy",
+          "gamma_mooring"
+        ]
+      },
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "namrEdnaSurveySites": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "navNotices": [
+      {
+        "label": "類型",
+        "options": [
+          {
+            "label": "礙航公告",
+            "value": "obstruction"
+          },
+          {
+            "label": "射擊公告",
+            "value": "firing"
+          },
+          {
+            "label": "航標公告",
+            "value": "aton"
+          },
+          {
+            "label": "離岸風場施工公告",
+            "value": "windfarm"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "obstruction",
+          "firing",
+          "aton",
+          "windfarm"
+        ]
+      },
+      {
+        "label": "期限",
+        "options": [
+          {
+            "label": "有期限",
+            "value": "temporary"
+          },
+          {
+            "label": "永久",
+            "value": "permanent"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "temporary"
+        ]
+      },
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "openFishingLocations": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "protectedReefCenters": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "seaTurtleStrandings": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "綠蠵龜",
+            "value": "綠蠵龜"
+          },
+          {
+            "label": "欖蠵龜",
+            "value": "欖蠵龜"
+          },
+          {
+            "label": "玳瑁",
+            "value": "玳瑁"
+          },
+          {
+            "label": "赤蠵龜",
+            "value": "赤蠵龜"
+          },
+          {
+            "label": "革龜",
+            "value": "革龜"
+          },
+          {
+            "label": "無法辨認",
+            "value": "__other__"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "綠蠵龜",
+          "欖蠵龜",
+          "玳瑁",
+          "赤蠵龜",
+          "革龜",
+          "__other__"
+        ]
+      },
+      {
+        "label": "擱淺年份",
+        "options": [
+          {
+            "label": "2020",
+            "value": "2020"
+          },
+          {
+            "label": "2021",
+            "value": "2021"
+          },
+          {
+            "label": "2022",
+            "value": "2022"
+          },
+          {
+            "label": "2023",
+            "value": "2023"
+          },
+          {
+            "label": "2024",
+            "value": "2024"
+          },
+          {
+            "label": "2025",
+            "value": "2025"
+          },
+          {
+            "label": "2026（不完整年度）",
+            "value": "2026"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "2020",
+          "2021",
+          "2022",
+          "2023",
+          "2024",
+          "2025",
+          "2026"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "setNetFishingAreas": [
+      {
+        "label": "透明度 0.40",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.4,
+        "valueText": "0.40"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "point"
+      }
+    ],
+    "twCoralBleachingHeatStress": [
+      {
+        "label": "年份",
+        "options": [
+          {
+            "label": "2026",
+            "value": "2026"
+          },
+          {
+            "label": "2025",
+            "value": "2025"
+          },
+          {
+            "label": "2024",
+            "value": "2024"
+          },
+          {
+            "label": "2023",
+            "value": "2023"
+          },
+          {
+            "label": "2022",
+            "value": "2022"
+          },
+          {
+            "label": "2021",
+            "value": "2021"
+          },
+          {
+            "label": "2020",
+            "value": "2020"
+          },
+          {
+            "label": "2019",
+            "value": "2019"
+          },
+          {
+            "label": "2018",
+            "value": "2018"
+          },
+          {
+            "label": "2017",
+            "value": "2017"
+          },
+          {
+            "label": "2016",
+            "value": "2016"
+          },
+          {
+            "label": "2015",
+            "value": "2015"
+          },
+          {
+            "label": "2014",
+            "value": "2014"
+          },
+          {
+            "label": "2013",
+            "value": "2013"
+          },
+          {
+            "label": "2012",
+            "value": "2012"
+          },
+          {
+            "label": "2011",
+            "value": "2011"
+          },
+          {
+            "label": "2010",
+            "value": "2010"
+          },
+          {
+            "label": "2009",
+            "value": "2009"
+          },
+          {
+            "label": "2008",
+            "value": "2008"
+          },
+          {
+            "label": "2007",
+            "value": "2007"
+          },
+          {
+            "label": "2006",
+            "value": "2006"
+          },
+          {
+            "label": "2005",
+            "value": "2005"
+          },
+          {
+            "label": "2004",
+            "value": "2004"
+          },
+          {
+            "label": "2003",
+            "value": "2003"
+          }
+        ],
+        "type": "select",
+        "value": "2026"
+      },
+      {
+        "label": "月份",
+        "options": [
+          {
+            "label": "1 月",
+            "value": "01"
+          },
+          {
+            "label": "2 月",
+            "value": "02"
+          },
+          {
+            "label": "3 月",
+            "value": "03"
+          },
+          {
+            "label": "4 月",
+            "value": "04"
+          },
+          {
+            "label": "5 月",
+            "value": "05"
+          },
+          {
+            "label": "6 月",
+            "value": "06"
+          },
+          {
+            "label": "7 月",
+            "value": "07"
+          },
+          {
+            "label": "8 月",
+            "value": "08"
+          },
+          {
+            "label": "9 月",
+            "value": "09"
+          },
+          {
+            "label": "10 月",
+            "value": "10"
+          },
+          {
+            "label": "11 月",
+            "value": "11"
+          },
+          {
+            "label": "12 月",
+            "value": "12"
+          }
+        ],
+        "type": "select",
+        "value": "10"
+      },
+      {
+        "label": "顯示",
+        "options": [
+          {
+            "label": "白化警報等級",
+            "value": "baa"
+          },
+          {
+            "label": "累積熱壓力 DHW",
+            "value": "dhw"
+          }
+        ],
+        "type": "select",
+        "value": "baa"
+      },
+      {
+        "label": "等級",
+        "options": [
+          {
+            "label": "無壓力",
+            "value": "0"
+          },
+          {
+            "label": "觀察",
+            "value": "1"
+          },
+          {
+            "label": "警告",
+            "value": "2"
+          },
+          {
+            "label": "警報 1 級",
+            "value": "3"
+          },
+          {
+            "label": "警報 2 級",
+            "value": "4"
+          },
+          {
+            "label": "警報 3 級",
+            "value": "5"
+          },
+          {
+            "label": "警報 4 級",
+            "value": "6"
+          },
+          {
+            "label": "警報 5 級",
+            "value": "7"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7"
+        ]
+      },
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.3,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      }
+    ],
+    "twMarineHeatwaves": [
+      {
+        "label": "年份",
+        "options": [
+          {
+            "label": "2026",
+            "value": "2026"
+          },
+          {
+            "label": "2025",
+            "value": "2025"
+          },
+          {
+            "label": "2024",
+            "value": "2024"
+          },
+          {
+            "label": "2023",
+            "value": "2023"
+          },
+          {
+            "label": "2022",
+            "value": "2022"
+          },
+          {
+            "label": "2021",
+            "value": "2021"
+          },
+          {
+            "label": "2020",
+            "value": "2020"
+          },
+          {
+            "label": "2019",
+            "value": "2019"
+          },
+          {
+            "label": "2018",
+            "value": "2018"
+          },
+          {
+            "label": "2017",
+            "value": "2017"
+          },
+          {
+            "label": "2016",
+            "value": "2016"
+          },
+          {
+            "label": "2015",
+            "value": "2015"
+          },
+          {
+            "label": "2014",
+            "value": "2014"
+          },
+          {
+            "label": "2013",
+            "value": "2013"
+          },
+          {
+            "label": "2012",
+            "value": "2012"
+          },
+          {
+            "label": "2011",
+            "value": "2011"
+          },
+          {
+            "label": "2010",
+            "value": "2010"
+          },
+          {
+            "label": "2009",
+            "value": "2009"
+          },
+          {
+            "label": "2008",
+            "value": "2008"
+          },
+          {
+            "label": "2007",
+            "value": "2007"
+          },
+          {
+            "label": "2006",
+            "value": "2006"
+          },
+          {
+            "label": "2005",
+            "value": "2005"
+          },
+          {
+            "label": "2004",
+            "value": "2004"
+          },
+          {
+            "label": "2003",
+            "value": "2003"
+          },
+          {
+            "label": "2002",
+            "value": "2002"
+          },
+          {
+            "label": "2001",
+            "value": "2001"
+          },
+          {
+            "label": "2000",
+            "value": "2000"
+          },
+          {
+            "label": "1999",
+            "value": "1999"
+          },
+          {
+            "label": "1998",
+            "value": "1998"
+          },
+          {
+            "label": "1997",
+            "value": "1997"
+          },
+          {
+            "label": "1996",
+            "value": "1996"
+          },
+          {
+            "label": "1995",
+            "value": "1995"
+          },
+          {
+            "label": "1994",
+            "value": "1994"
+          },
+          {
+            "label": "1993",
+            "value": "1993"
+          },
+          {
+            "label": "1992",
+            "value": "1992"
+          },
+          {
+            "label": "1991",
+            "value": "1991"
+          },
+          {
+            "label": "1990",
+            "value": "1990"
+          },
+          {
+            "label": "1989",
+            "value": "1989"
+          },
+          {
+            "label": "1988",
+            "value": "1988"
+          },
+          {
+            "label": "1987",
+            "value": "1987"
+          },
+          {
+            "label": "1986",
+            "value": "1986"
+          },
+          {
+            "label": "1985",
+            "value": "1985"
+          },
+          {
+            "label": "1984",
+            "value": "1984"
+          },
+          {
+            "label": "1983",
+            "value": "1983"
+          },
+          {
+            "label": "1982",
+            "value": "1982"
+          }
+        ],
+        "type": "select",
+        "value": "2026"
+      },
+      {
+        "label": "月份",
+        "options": [
+          {
+            "label": "1 月",
+            "value": "01"
+          },
+          {
+            "label": "2 月",
+            "value": "02"
+          },
+          {
+            "label": "3 月",
+            "value": "03"
+          },
+          {
+            "label": "4 月",
+            "value": "04"
+          },
+          {
+            "label": "5 月",
+            "value": "05"
+          },
+          {
+            "label": "6 月",
+            "value": "06"
+          },
+          {
+            "label": "7 月",
+            "value": "07"
+          },
+          {
+            "label": "8 月",
+            "value": "08"
+          },
+          {
+            "label": "9 月",
+            "value": "09"
+          },
+          {
+            "label": "10 月",
+            "value": "10"
+          },
+          {
+            "label": "11 月",
+            "value": "11"
+          },
+          {
+            "label": "12 月",
+            "value": "12"
+          }
+        ],
+        "type": "select",
+        "value": "10"
+      },
+      {
+        "label": "等級",
+        "options": [
+          {
+            "label": "無熱浪",
+            "value": "0"
+          },
+          {
+            "label": "中等 Moderate",
+            "value": "1"
+          },
+          {
+            "label": "強烈 Strong",
+            "value": "2"
+          },
+          {
+            "label": "嚴重 Severe",
+            "value": "3"
+          },
+          {
+            "label": "極端 Extreme",
+            "value": "4"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4"
+        ]
+      },
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.3,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      }
+    ]
+  }
+}

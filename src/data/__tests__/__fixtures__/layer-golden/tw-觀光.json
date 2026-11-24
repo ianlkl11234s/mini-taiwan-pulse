@@ -1,0 +1,2756 @@
+{
+  "count": 14,
+  "gisLayers": {
+    "tourAmusementParks": {
+      "layers": [
+        "tour-amusement-parks-circle",
+        "tour-amusement-parks-glow"
+      ],
+      "type": "tourAmusementParks"
+    },
+    "tourAttractions": {
+      "layers": [
+        "tour-attractions-circle",
+        "tour-attractions-glow"
+      ],
+      "type": "tourAttractions"
+    },
+    "tourCamping": {
+      "layers": [
+        "tour-camping-circle",
+        "tour-camping-glow"
+      ],
+      "type": "tourCamping"
+    },
+    "tourEvents": {
+      "layers": [
+        "tour-events-circle"
+      ],
+      "type": "tourEvents"
+    },
+    "tourFactories": {
+      "layers": [
+        "tour-factories-circle",
+        "tour-factories-glow"
+      ],
+      "type": "tourFactories"
+    },
+    "tourHeritage": {
+      "layers": [
+        "tour-heritage-circle",
+        "tour-heritage-glow"
+      ],
+      "type": "tourHeritage"
+    },
+    "tourHotSpringZones": {
+      "layers": [
+        "tour-hot-spring-zones-fill",
+        "tour-hot-spring-zones-points-circle-point",
+        "tour-hot-spring-zones-points-circle-polygon"
+      ],
+      "type": "tourHotSpringZones"
+    },
+    "tourHotSprings": {
+      "layers": [
+        "tour-hot-springs-circle",
+        "tour-hot-springs-glow"
+      ],
+      "type": "tourHotSprings"
+    },
+    "tourHotels": {
+      "layers": [
+        "tour-hotels-circle",
+        "tour-hotels-glow"
+      ],
+      "type": "tourHotels"
+    },
+    "tourRestaurants": {
+      "layers": [
+        "tour-restaurants-circle"
+      ],
+      "type": "tourRestaurants"
+    },
+    "tourScenicAreas": {
+      "layers": [
+        "tour-scenic-areas-fill",
+        "tour-scenic-areas-points-circle-point",
+        "tour-scenic-areas-points-circle-polygon"
+      ],
+      "type": "tourScenicAreas"
+    },
+    "tourServiceSites": {
+      "layers": [
+        "tour-service-sites-circle",
+        "tour-service-sites-glow"
+      ],
+      "type": "tourServiceSites"
+    },
+    "tourVisitorStats": {
+      "layers": [
+        "tour-visitor-stats-circle",
+        "tour-visitor-stats-glow"
+      ],
+      "type": "tourVisitorStats"
+    },
+    "visitorCentres": {
+      "layers": [
+        "visitor-centres-circle",
+        "visitor-centres-glow"
+      ],
+      "type": "visitorCentres"
+    }
+  },
+  "overlays": {
+    "tourAmusementParks": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "tourAmusementParks",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 1,
+              "circle-color": "#00acc1",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                7,
+                12,
+                14
+              ]
+            },
+            "light": {
+              "circle-blur": 1,
+              "circle-color": "#00acc1",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                7,
+                12,
+                14
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#00acc1",
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#00acc1",
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
+      "sourceId": "tour-amusement-parks",
+      "sourceUrl": "./tourism/amusement_parks_national.geojson"
+    },
+    "tourAttractions": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "tourAttractions",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 1,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "category"
+                ],
+                "Nature",
+                "#2e7d32",
+                "Culture",
+                "#6d4c41",
+                "Leisure_Arts",
+                "#ab47bc",
+                "Urban_Comm",
+                "#0288d1",
+                "#9e9e9e"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                6,
+                12,
+                12
+              ]
+            },
+            "light": {
+              "circle-blur": 1,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "category"
+                ],
+                "Nature",
+                "#2e7d32",
+                "Culture",
+                "#6d4c41",
+                "Leisure_Arts",
+                "#ab47bc",
+                "Urban_Comm",
+                "#0288d1",
+                "#9e9e9e"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                6,
+                12,
+                12
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "category"
+                ],
+                "Nature",
+                "#4a984c",
+                "Culture",
+                "#a37f73",
+                "Leisure_Arts",
+                "#c35fd5",
+                "Urban_Comm",
+                "#158fd8",
+                "#9e9e9e"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "category"
+                ],
+                "Nature",
+                "#2e7d32",
+                "Culture",
+                "#6d4c41",
+                "Leisure_Arts",
+                "#ab47bc",
+                "Urban_Comm",
+                "#0288d1",
+                "#9e9e9e"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
+      "sourceId": "tour-attractions",
+      "sourceUrl": "./tourism/attractions_national_v2.geojson"
+    },
+    "tourCamping": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "tourCamping",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 1,
+              "circle-color": "#7cb342",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                6,
+                12,
+                12
+              ]
+            },
+            "light": {
+              "circle-blur": 1,
+              "circle-color": "#7cb342",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                6,
+                12,
+                12
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#7cb342",
+              "circle-opacity": 0.8,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#7cb342",
+              "circle-opacity": 0.8,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
+      "sourceId": "tour-camping",
+      "sourceUrl": "./tourism/camping_national.geojson"
+    },
+    "tourEvents": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "tourEvents",
+      "layers": [
+        {
+          "filter": [
+            "has",
+            "start_time"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "case",
+                [
+                  "<=",
+                  [
+                    "slice",
+                    [
+                      "get",
+                      "start_time"
+                    ],
+                    0,
+                    10
+                  ],
+                  "__TODAY_DASH__"
+                ],
+                "#f9a825",
+                "#90a4ae"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "case",
+                [
+                  "<=",
+                  [
+                    "slice",
+                    [
+                      "get",
+                      "start_time"
+                    ],
+                    0,
+                    10
+                  ],
+                  "__TODAY_DASH__"
+                ],
+                "#f9a825",
+                "#90a4ae"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "circle"
+      ],
+      "sourceId": "tour-events",
+      "sourceUrl": "./tourism/activities_national_v2.geojson"
+    },
+    "tourFactories": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "tourFactories",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 1,
+              "circle-color": "#546e7a",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                7,
+                12,
+                14
+              ]
+            },
+            "light": {
+              "circle-blur": 1,
+              "circle-color": "#546e7a",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                7,
+                12,
+                14
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#6b8692",
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#546e7a",
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
+      "sourceId": "tour-factories",
+      "sourceUrl": "./tourism/tourism_factories_national.geojson"
+    },
+    "tourHeritage": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "tourHeritage",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 1,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "category"
+                ],
+                "古蹟",
+                "#e879f9",
+                "歷史建築",
+                "#14b8a6",
+                "文化景觀",
+                "#ca8a04",
+                "考古遺址",
+                "#ea580c",
+                "聚落建築群",
+                "#2563eb",
+                "紀念建築",
+                "#65a30d",
+                "史蹟",
+                "#db2777",
+                "#64748b"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                6,
+                12,
+                12
+              ]
+            },
+            "light": {
+              "circle-blur": 1,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "category"
+                ],
+                "古蹟",
+                "#e879f9",
+                "歷史建築",
+                "#14b8a6",
+                "文化景觀",
+                "#ca8a04",
+                "考古遺址",
+                "#ea580c",
+                "聚落建築群",
+                "#2563eb",
+                "紀念建築",
+                "#65a30d",
+                "史蹟",
+                "#db2777",
+                "#64748b"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                6,
+                12,
+                12
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "category"
+                ],
+                "古蹟",
+                "#e879f9",
+                "歷史建築",
+                "#14b8a6",
+                "文化景觀",
+                "#ca8a04",
+                "考古遺址",
+                "#ea580c",
+                "聚落建築群",
+                "#4782ff",
+                "紀念建築",
+                "#65a30d",
+                "史蹟",
+                "#f4438b",
+                "#7888a0"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "category"
+                ],
+                "古蹟",
+                "#e879f9",
+                "歷史建築",
+                "#14b8a6",
+                "文化景觀",
+                "#ca8a04",
+                "考古遺址",
+                "#ea580c",
+                "聚落建築群",
+                "#2563eb",
+                "紀念建築",
+                "#65a30d",
+                "史蹟",
+                "#db2777",
+                "#64748b"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
+      "sourceId": "tour-heritage",
+      "sourceUrl": "./tourism/heritage_national_v2.geojson"
+    },
+    "tourHotSpringZones": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "tourHotSpringZones",
+      "layers": [
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-blur": 6,
+              "line-color": "#c2185b",
+              "line-opacity": 0,
+              "line-width": 8
+            },
+            "light": {
+              "line-blur": 6,
+              "line-color": "#880e4f",
+              "line-opacity": 0,
+              "line-width": 8
+            }
+          },
+          "suffix": "glow",
+          "type": "line"
+        },
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": "#c2185b",
+              "fill-opacity": 0.3
+            },
+            "light": {
+              "fill-color": "#880e4f",
+              "fill-opacity": 0.15
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#9ca3af",
+              "line-opacity": 0.6,
+              "line-width": 0.5
+            },
+            "light": {
+              "line-color": "#374151",
+              "line-opacity": 0.6,
+              "line-width": 0.5
+            }
+          },
+          "suffix": "line",
+          "type": "line"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": null,
+      "sourceId": "tour-hot-spring-zones",
+      "sourceUrl": "./tourism/hot_spring_zones_national.geojson"
+    },
+    "tourHotSpringZones#2": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "tourHotSpringZones",
+      "layers": [
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#e84579",
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#880e4f",
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle-point",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": null,
+      "sourceId": "tour-hot-spring-zones-points",
+      "sourceUrl": "./tourism/hot_spring_zones_national.geojson"
+    },
+    "tourHotSprings": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "tourHotSprings",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 1,
+              "circle-color": "#d81b60",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                7,
+                12,
+                14
+              ]
+            },
+            "light": {
+              "circle-blur": 1,
+              "circle-color": "#d81b60",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                7,
+                12,
+                14
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#f03a73",
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#f03a73",
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
+      "sourceId": "tour-hot-springs",
+      "sourceUrl": "./tourism/hot_springs_national.geojson"
+    },
+    "tourHotels": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "tourHotels",
+      "layers": [
+        {
+          "filter": [
+            "has",
+            "hotel_classes"
+          ],
+          "layout": null,
+          "maxzoom": 10.01,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(145,52,92,0.00)",
+                0.05,
+                "rgba(145,52,92,0.11)",
+                0.15,
+                "rgba(171,69,107,0.33)",
+                0.3,
+                "rgba(196,89,121,0.66)",
+                0.45,
+                "rgba(216,114,136,0.99)",
+                0.6,
+                "rgba(233,140,153,1.00)",
+                0.8,
+                "rgba(246,169,172,1.00)",
+                1,
+                "rgba(255,198,196,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.005859375,
+                12,
+                1.5
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(230,136,149,0.00)",
+                0.05,
+                "rgba(230,136,149,0.11)",
+                0.15,
+                "rgba(215,112,135,0.33)",
+                0.3,
+                "rgba(197,90,121,0.66)",
+                0.45,
+                "rgba(175,72,109,0.99)",
+                0.6,
+                "rgba(152,56,96,1.00)",
+                0.8,
+                "rgba(128,43,82,1.00)",
+                1,
+                "rgba(103,32,68,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.005859375,
+                12,
+                1.5
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "heatmap",
+          "type": "heatmap"
+        },
+        {
+          "filter": [
+            "has",
+            "hotel_classes"
+          ],
+          "layout": null,
+          "minzoom": 10,
+          "paint": {
+            "dark": {
+              "circle-blur": 1,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "hotel_classes"
+                ],
+                "1",
+                "#d32f2f",
+                "2",
+                "#f57c00",
+                "3",
+                "#1976d2",
+                "4",
+                "#43a047",
+                "#9e9e9e"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                4,
+                12,
+                9
+              ]
+            },
+            "light": {
+              "circle-blur": 1,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "hotel_classes"
+                ],
+                "1",
+                "#d32f2f",
+                "2",
+                "#f57c00",
+                "3",
+                "#1976d2",
+                "4",
+                "#43a047",
+                "#9e9e9e"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                4,
+                12,
+                9
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "has",
+            "hotel_classes"
+          ],
+          "layout": null,
+          "minzoom": 10,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "hotel_classes"
+                ],
+                "1",
+                "#fa5750",
+                "2",
+                "#f57c00",
+                "3",
+                "#3a91ef",
+                "4",
+                "#43a047",
+                "#9e9e9e"
+              ],
+              "circle-opacity": 0.75,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "hotel_classes"
+                ],
+                "1",
+                "#d32f2f",
+                "2",
+                "#f57c00",
+                "3",
+                "#1976d2",
+                "4",
+                "#43a047",
+                "#9e9e9e"
+              ],
+              "circle-opacity": 0.75,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "heatmap",
+        "glow",
+        "circle"
+      ],
+      "sourceId": "tour-hotels",
+      "sourceUrl": "./tourism/hotels_national.geojson"
+    },
+    "tourRestaurants": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "tourRestaurants",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#ef524b",
+              "circle-opacity": 0.8,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#c62828",
+              "circle-opacity": 0.8,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "circle"
+      ],
+      "sourceId": "tour-restaurants",
+      "sourceUrl": "./tourism/restaurants_national_v2.geojson"
+    },
+    "tourScenicAreas": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "tourScenicAreas",
+      "layers": [
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-blur": 6,
+              "line-color": "#26a69a",
+              "line-opacity": 0,
+              "line-width": 8
+            },
+            "light": {
+              "line-blur": 6,
+              "line-color": "#00695c",
+              "line-opacity": 0,
+              "line-width": 8
+            }
+          },
+          "suffix": "glow",
+          "type": "line"
+        },
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": "#26a69a",
+              "fill-opacity": 0.3
+            },
+            "light": {
+              "fill-color": "#00695c",
+              "fill-opacity": 0.15
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#9ca3af",
+              "line-opacity": 0.6,
+              "line-width": 0.5
+            },
+            "light": {
+              "line-color": "#374151",
+              "line-opacity": 0.6,
+              "line-width": 0.5
+            }
+          },
+          "suffix": "line",
+          "type": "line"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": null,
+      "sourceId": "tour-scenic-areas",
+      "sourceUrl": "./tourism/national_scenic_areas_national.geojson"
+    },
+    "tourScenicAreas#2": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "tourScenicAreas",
+      "layers": [
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#26a69a",
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#00695c",
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle-point",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": null,
+      "sourceId": "tour-scenic-areas-points",
+      "sourceUrl": "./tourism/national_scenic_areas_national.geojson"
+    },
+    "tourServiceSites": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "tourServiceSites",
+      "layers": [
+        {
+          "filter": [
+            "has",
+            "site_class"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "site_class"
+                ],
+                "1",
+                "#be123c",
+                "2",
+                "#4f46e5",
+                "3",
+                "#0f766e",
+                "4",
+                "#0891b2",
+                "5",
+                "#ca8a04",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "site_class"
+                ],
+                "1",
+                "#be123c",
+                "2",
+                "#4f46e5",
+                "3",
+                "#0f766e",
+                "4",
+                "#0891b2",
+                "5",
+                "#ca8a04",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "has",
+            "site_class"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "site_class"
+                ],
+                "1",
+                "#e9475e",
+                "2",
+                "#6c71ff",
+                "3",
+                "#4ca59c",
+                "4",
+                "#0891b2",
+                "5",
+                "#ca8a04",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "site_class"
+                ],
+                "1",
+                "#be123c",
+                "2",
+                "#4f46e5",
+                "3",
+                "#0f766e",
+                "4",
+                "#0891b2",
+                "5",
+                "#ca8a04",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "site_class"
+            ],
+            [
+              "has",
+              "name"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "name"
+              ],
+              ""
+            ]
+          ],
+          "layout": {
+            "text-allow-overlap": false,
+            "text-field": [
+              "get",
+              "name"
+            ],
+            "text-font": [
+              "DIN Pro Medium",
+              "Arial Unicode MS Regular"
+            ],
+            "text-max-width": 14,
+            "text-optional": true,
+            "text-radial-offset": 0.8,
+            "text-size": [
+              "interpolate",
+              [
+                "linear"
+              ],
+              [
+                "zoom"
+              ],
+              10,
+              10,
+              14,
+              12
+            ],
+            "text-variable-anchor": [
+              "top",
+              "bottom",
+              "left",
+              "right"
+            ]
+          },
+          "minzoom": 13,
+          "paint": {
+            "dark": {
+              "text-color": "#f8fafc",
+              "text-halo-color": "rgba(15,23,42,0.92)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            },
+            "light": {
+              "text-color": "#0f172a",
+              "text-halo-color": "rgba(255,255,255,0.94)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            }
+          },
+          "suffix": "label",
+          "type": "symbol"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle",
+        "label"
+      ],
+      "sourceId": "tour-service-sites",
+      "sourceUrl": "./tourism/tourism_service_sites.geojson"
+    },
+    "tourVisitorStats": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "tourVisitorStats",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "typeof",
+                    [
+                      "get",
+                      "latest_annual"
+                    ]
+                  ],
+                  "number"
+                ],
+                [
+                  "step",
+                  [
+                    "get",
+                    "latest_annual"
+                  ],
+                  "#fed7aa",
+                  100000,
+                  "#fdba74",
+                  500000,
+                  "#fb923c",
+                  1000000,
+                  "#ea580c",
+                  5000000,
+                  "#9a3412"
+                ],
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                2,
+                5,
+                7.2,
+                12,
+                14.4
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "typeof",
+                    [
+                      "get",
+                      "latest_annual"
+                    ]
+                  ],
+                  "number"
+                ],
+                [
+                  "step",
+                  [
+                    "get",
+                    "latest_annual"
+                  ],
+                  "#fed7aa",
+                  100000,
+                  "#fdba74",
+                  500000,
+                  "#fb923c",
+                  1000000,
+                  "#ea580c",
+                  5000000,
+                  "#9a3412"
+                ],
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                2,
+                5,
+                7.2,
+                12,
+                14.4
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "typeof",
+                    [
+                      "get",
+                      "latest_annual"
+                    ]
+                  ],
+                  "number"
+                ],
+                [
+                  "step",
+                  [
+                    "get",
+                    "latest_annual"
+                  ],
+                  "#fed7aa",
+                  100000,
+                  "#fdba74",
+                  500000,
+                  "#fb923c",
+                  1000000,
+                  "#ee5b14",
+                  5000000,
+                  "#cd6343"
+                ],
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.4,
+                5,
+                4,
+                12,
+                8
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "typeof",
+                    [
+                      "get",
+                      "latest_annual"
+                    ]
+                  ],
+                  "number"
+                ],
+                [
+                  "step",
+                  [
+                    "get",
+                    "latest_annual"
+                  ],
+                  "#fed7aa",
+                  100000,
+                  "#fdba74",
+                  500000,
+                  "#fb923c",
+                  1000000,
+                  "#ea580c",
+                  5000000,
+                  "#9a3412"
+                ],
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.4,
+                5,
+                4,
+                12,
+                8
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "name"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "name"
+              ],
+              ""
+            ]
+          ],
+          "layout": {
+            "text-allow-overlap": false,
+            "text-field": [
+              "get",
+              "name"
+            ],
+            "text-font": [
+              "DIN Pro Medium",
+              "Arial Unicode MS Regular"
+            ],
+            "text-max-width": 14,
+            "text-optional": true,
+            "text-radial-offset": 0.8,
+            "text-size": [
+              "interpolate",
+              [
+                "linear"
+              ],
+              [
+                "zoom"
+              ],
+              10,
+              10,
+              14,
+              12
+            ],
+            "text-variable-anchor": [
+              "top",
+              "bottom",
+              "left",
+              "right"
+            ]
+          },
+          "minzoom": 13,
+          "paint": {
+            "dark": {
+              "text-color": "#f8fafc",
+              "text-halo-color": "rgba(15,23,42,0.92)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            },
+            "light": {
+              "text-color": "#0f172a",
+              "text-halo-color": "rgba(255,255,255,0.94)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            }
+          },
+          "suffix": "label",
+          "type": "symbol"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle",
+        "label"
+      ],
+      "sourceId": "tour-visitor-stats",
+      "sourceUrl": "./tourism/visitor_spot_stats.geojson"
+    },
+    "visitorCentres": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "visitorCentres",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": "#6366f1",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": "#6366f1",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#6d72fe",
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#6366f1",
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "name"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "name"
+              ],
+              ""
+            ]
+          ],
+          "layout": {
+            "text-allow-overlap": false,
+            "text-field": [
+              "get",
+              "name"
+            ],
+            "text-font": [
+              "DIN Pro Medium",
+              "Arial Unicode MS Regular"
+            ],
+            "text-max-width": 14,
+            "text-optional": true,
+            "text-radial-offset": 0.8,
+            "text-size": [
+              "interpolate",
+              [
+                "linear"
+              ],
+              [
+                "zoom"
+              ],
+              10,
+              10,
+              14,
+              12
+            ],
+            "text-variable-anchor": [
+              "top",
+              "bottom",
+              "left",
+              "right"
+            ]
+          },
+          "minzoom": 13,
+          "paint": {
+            "dark": {
+              "text-color": "#f8fafc",
+              "text-halo-color": "rgba(15,23,42,0.92)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            },
+            "light": {
+              "text-color": "#0f172a",
+              "text-halo-color": "rgba(255,255,255,0.94)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            }
+          },
+          "suffix": "label",
+          "type": "symbol"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle",
+        "label"
+      ],
+      "sourceId": "visitor-centres",
+      "sourceUrl": "./public_life/visitor_centres.geojson"
+    }
+  },
+  "params": {
+    "tourAmusementParks": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "tourAttractions": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "自然",
+            "value": "Nature"
+          },
+          {
+            "label": "文化",
+            "value": "Culture"
+          },
+          {
+            "label": "休閒藝術",
+            "value": "Leisure_Arts"
+          },
+          {
+            "label": "都會社區",
+            "value": "Urban_Comm"
+          },
+          {
+            "label": "其他",
+            "value": "__other__"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "Nature",
+          "Culture",
+          "Leisure_Arts",
+          "Urban_Comm",
+          "__other__"
+        ]
+      },
+      {
+        "label": "著色模式",
+        "options": [
+          {
+            "label": "分類",
+            "value": "category"
+          },
+          {
+            "label": "熱度",
+            "value": "heat"
+          }
+        ],
+        "type": "select",
+        "value": "category"
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "tourCamping": [
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "tourEvents": [
+      {
+        "label": "狀態",
+        "options": [
+          {
+            "label": "全部",
+            "value": "all"
+          },
+          {
+            "label": "進行中",
+            "value": "ongoing"
+          },
+          {
+            "label": "未開始",
+            "value": "upcoming"
+          }
+        ],
+        "type": "select",
+        "value": "all"
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "tourFactories": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "tourHeritage": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "古蹟",
+            "value": "古蹟"
+          },
+          {
+            "label": "歷史建築",
+            "value": "歷史建築"
+          },
+          {
+            "label": "文化景觀",
+            "value": "文化景觀"
+          },
+          {
+            "label": "考古遺址",
+            "value": "考古遺址"
+          },
+          {
+            "label": "聚落建築群",
+            "value": "聚落建築群"
+          },
+          {
+            "label": "紀念建築",
+            "value": "紀念建築"
+          },
+          {
+            "label": "史蹟",
+            "value": "史蹟"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "古蹟",
+          "歷史建築",
+          "文化景觀",
+          "考古遺址",
+          "聚落建築群",
+          "紀念建築",
+          "史蹟"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "tourHotSpringZones": [
+      {
+        "label": "透明度 0.50",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.5,
+        "valueText": "0.50"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "point"
+      }
+    ],
+    "tourHotSprings": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "tourHotels": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "國際觀光旅館",
+            "value": "1"
+          },
+          {
+            "label": "一般觀光旅館",
+            "value": "2"
+          },
+          {
+            "label": "旅館",
+            "value": "3"
+          },
+          {
+            "label": "民宿",
+            "value": "4"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "1",
+          "2",
+          "3",
+          "4"
+        ]
+      },
+      {
+        "defaultValue": "Burg",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "Burg"
+      },
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.75,
+        "valueText": "0.75"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "tourRestaurants": [
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "tourScenicAreas": [
+      {
+        "label": "透明度 0.50",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.5,
+        "valueText": "0.50"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "polygon"
+      }
+    ],
+    "tourServiceSites": [
+      {
+        "label": "站點類別",
+        "options": [
+          {
+            "label": "機場旅客服務中心",
+            "value": "1"
+          },
+          {
+            "label": "交通場站旅遊服務中心",
+            "value": "2"
+          },
+          {
+            "label": "國家風景區遊客中心",
+            "value": "3"
+          },
+          {
+            "label": "地方遊客中心",
+            "value": "4"
+          },
+          {
+            "label": "借問站",
+            "value": "5"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "tourVisitorStats": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "visitorCentres": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ]
+  }
+}

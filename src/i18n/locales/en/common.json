@@ -45,6 +45,11 @@
   "country.PH": "Philippines",
   "country.CN": "Mainland China",
   "country.menuAria": "Switch country (current: {country})",
+  "country.pinnedAria": "Pinned countries",
+  "country.pinnedChipAria": "Switch to {country} (back to where you left off)",
+  "country.pin": "Pin {country}",
+  "country.unpin": "Unpin {country}",
+  "country.pinFull": "You can pin up to {max} countries; unpin one first",
   "statistics.uncovered": "No statistics for {country} yet",
   "statistics.backToTaiwan": "Back to Taiwan",
   "countryHint.aria": "Viewport country hint",
@@ -201,5 +206,8 @@
   "addressSearch.attribution.osmShare": "address tiles are provided under the ODbL",
   "addressSearch.attribution.panelTitle": "Address search",
   "addressSearch.attribution.panelToggle": "Address sources and licences by county",
-  "addressSearch.attribution.panelNote": "Each county uses a single source; sources are never mixed. Coordinates are for reference only."
+  "addressSearch.attribution.panelNote": "Each county uses a single source; sources are never mixed. Coordinates are for reference only.",
+  "mobileSheet.label": "Layers & search",
+  "mobileSheet.collapse": "Collapse layers and search",
+  "mobileSheet.expand": "Expand layers and search"
 }

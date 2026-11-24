@@ -1,0 +1,1832 @@
+{
+  "count": 8,
+  "gisLayers": {
+    "propertyValueGrid": {
+      "layers": [
+        "property-value-grid-150-fill",
+        "property-value-grid-150-extrusion",
+        "property-value-grid-450-fill",
+        "property-value-grid-450-extrusion",
+        "property-value-grid-1500-fill",
+        "property-value-grid-1500-extrusion"
+      ],
+      "type": "propertyValueGrid"
+    },
+    "statePropertyTenderListings": {
+      "layers": [
+        "state-property-tender-listings-circle",
+        "state-property-tender-listings-glow"
+      ],
+      "type": "statePropertyTenderListings"
+    }
+  },
+  "overlays": {
+    "propertyValueGrid": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "propertyValueGrid",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "step",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "v_mkt"
+                  ],
+                  0
+                ],
+                "#9a3504",
+                1000,
+                "#b44103",
+                3000,
+                "#cc5107",
+                10000,
+                "#e1650f",
+                30000,
+                "#f27d1b",
+                100000,
+                "#fb9a2c",
+                300000,
+                "#feb84a",
+                1000000,
+                "#fed574",
+                3000000,
+                "#ffefac"
+              ],
+              "fill-opacity": [
+                "case",
+                [
+                  "<=",
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "v_mkt"
+                    ],
+                    0
+                  ],
+                  0
+                ],
+                0.04,
+                0.7
+              ]
+            },
+            "light": {
+              "fill-color": [
+                "step",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "v_mkt"
+                  ],
+                  0
+                ],
+                "#f5841e",
+                1000,
+                "#ea7014",
+                3000,
+                "#dc5e0c",
+                10000,
+                "#cc4f05",
+                30000,
+                "#b94303",
+                100000,
+                "#a53904",
+                300000,
+                "#903205",
+                1000000,
+                "#7b2b05",
+                3000000,
+                "#662506"
+              ],
+              "fill-opacity": [
+                "case",
+                [
+                  "<=",
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "v_mkt"
+                    ],
+                    0
+                  ],
+                  0
+                ],
+                0.04,
+                0.7
+              ]
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-extrusion-base": 0,
+              "fill-extrusion-color": [
+                "step",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "v_mkt"
+                  ],
+                  0
+                ],
+                "#9a3504",
+                1000,
+                "#b44103",
+                3000,
+                "#cc5107",
+                10000,
+                "#e1650f",
+                30000,
+                "#f27d1b",
+                100000,
+                "#fb9a2c",
+                300000,
+                "#feb84a",
+                1000000,
+                "#fed574",
+                3000000,
+                "#ffefac"
+              ],
+              "fill-extrusion-height": [
+                "*",
+                [
+                  "^",
+                  [
+                    "max",
+                    0,
+                    [
+                      "/",
+                      [
+                        "-",
+                        [
+                          "ln",
+                          [
+                            "+",
+                            1,
+                            [
+                              "to-number",
+                              [
+                                "get",
+                                "v_mkt"
+                              ],
+                              0
+                            ]
+                          ]
+                        ],
+                        6.90875477931522
+                      ],
+                      9.836910805109742
+                    ]
+                  ],
+                  1.8
+                ],
+                4000
+              ],
+              "fill-extrusion-opacity": 0,
+              "fill-extrusion-vertical-gradient": true
+            },
+            "light": {
+              "fill-extrusion-base": 0,
+              "fill-extrusion-color": [
+                "step",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "v_mkt"
+                  ],
+                  0
+                ],
+                "#f5841e",
+                1000,
+                "#ea7014",
+                3000,
+                "#dc5e0c",
+                10000,
+                "#cc4f05",
+                30000,
+                "#b94303",
+                100000,
+                "#a53904",
+                300000,
+                "#903205",
+                1000000,
+                "#7b2b05",
+                3000000,
+                "#662506"
+              ],
+              "fill-extrusion-height": [
+                "*",
+                [
+                  "^",
+                  [
+                    "max",
+                    0,
+                    [
+                      "/",
+                      [
+                        "-",
+                        [
+                          "ln",
+                          [
+                            "+",
+                            1,
+                            [
+                              "to-number",
+                              [
+                                "get",
+                                "v_mkt"
+                              ],
+                              0
+                            ]
+                          ]
+                        ],
+                        6.90875477931522
+                      ],
+                      9.836910805109742
+                    ]
+                  ],
+                  1.8
+                ],
+                4000
+              ],
+              "fill-extrusion-opacity": 0,
+              "fill-extrusion-vertical-gradient": true
+            }
+          },
+          "suffix": "extrusion",
+          "type": "fill-extrusion"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 4,
+        "sourceLayer": "grid_value_150m"
+      },
+      "rebuildOnParamChange": null,
+      "sourceId": "property-value-grid-150",
+      "sourceUrl": "./urban/property_value_grid_150m.pmtiles"
+    },
+    "propertyValueGrid#2": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "propertyValueGrid",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "step",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "v_mkt"
+                  ],
+                  0
+                ],
+                "#9a3504",
+                3000,
+                "#b44103",
+                10000,
+                "#cc5107",
+                30000,
+                "#e1650f",
+                100000,
+                "#f27d1b",
+                300000,
+                "#fb9a2c",
+                1000000,
+                "#feb84a",
+                3000000,
+                "#fed574",
+                10000000,
+                "#ffefac"
+              ],
+              "fill-opacity": [
+                "case",
+                [
+                  "<=",
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "v_mkt"
+                    ],
+                    0
+                  ],
+                  0
+                ],
+                0.04,
+                0.7
+              ]
+            },
+            "light": {
+              "fill-color": [
+                "step",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "v_mkt"
+                  ],
+                  0
+                ],
+                "#f5841e",
+                3000,
+                "#ea7014",
+                10000,
+                "#dc5e0c",
+                30000,
+                "#cc4f05",
+                100000,
+                "#b94303",
+                300000,
+                "#a53904",
+                1000000,
+                "#903205",
+                3000000,
+                "#7b2b05",
+                10000000,
+                "#662506"
+              ],
+              "fill-opacity": [
+                "case",
+                [
+                  "<=",
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "v_mkt"
+                    ],
+                    0
+                  ],
+                  0
+                ],
+                0.04,
+                0.7
+              ]
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-extrusion-base": 0,
+              "fill-extrusion-color": [
+                "step",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "v_mkt"
+                  ],
+                  0
+                ],
+                "#9a3504",
+                3000,
+                "#b44103",
+                10000,
+                "#cc5107",
+                30000,
+                "#e1650f",
+                100000,
+                "#f27d1b",
+                300000,
+                "#fb9a2c",
+                1000000,
+                "#feb84a",
+                3000000,
+                "#fed574",
+                10000000,
+                "#ffefac"
+              ],
+              "fill-extrusion-height": [
+                "*",
+                [
+                  "^",
+                  [
+                    "max",
+                    0,
+                    [
+                      "/",
+                      [
+                        "-",
+                        [
+                          "ln",
+                          [
+                            "+",
+                            1,
+                            [
+                              "to-number",
+                              [
+                                "get",
+                                "v_mkt"
+                              ],
+                              0
+                            ]
+                          ]
+                        ],
+                        8.006700845440367
+                      ],
+                      9.957316586231908
+                    ]
+                  ],
+                  1.8
+                ],
+                4000
+              ],
+              "fill-extrusion-opacity": 0,
+              "fill-extrusion-vertical-gradient": true
+            },
+            "light": {
+              "fill-extrusion-base": 0,
+              "fill-extrusion-color": [
+                "step",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "v_mkt"
+                  ],
+                  0
+                ],
+                "#f5841e",
+                3000,
+                "#ea7014",
+                10000,
+                "#dc5e0c",
+                30000,
+                "#cc4f05",
+                100000,
+                "#b94303",
+                300000,
+                "#a53904",
+                1000000,
+                "#903205",
+                3000000,
+                "#7b2b05",
+                10000000,
+                "#662506"
+              ],
+              "fill-extrusion-height": [
+                "*",
+                [
+                  "^",
+                  [
+                    "max",
+                    0,
+                    [
+                      "/",
+                      [
+                        "-",
+                        [
+                          "ln",
+                          [
+                            "+",
+                            1,
+                            [
+                              "to-number",
+                              [
+                                "get",
+                                "v_mkt"
+                              ],
+                              0
+                            ]
+                          ]
+                        ],
+                        8.006700845440367
+                      ],
+                      9.957316586231908
+                    ]
+                  ],
+                  1.8
+                ],
+                4000
+              ],
+              "fill-extrusion-opacity": 0,
+              "fill-extrusion-vertical-gradient": true
+            }
+          },
+          "suffix": "extrusion",
+          "type": "fill-extrusion"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 13,
+        "minzoom": 4,
+        "sourceLayer": "grid_value_450m"
+      },
+      "rebuildOnParamChange": null,
+      "sourceId": "property-value-grid-450",
+      "sourceUrl": "./urban/property_value_grid_450m.pmtiles"
+    },
+    "propertyValueGrid#3": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "propertyValueGrid",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "step",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "v_mkt"
+                  ],
+                  0
+                ],
+                "#9a3504",
+                30000,
+                "#b44103",
+                100000,
+                "#cc5107",
+                300000,
+                "#e1650f",
+                1000000,
+                "#f27d1b",
+                3000000,
+                "#fb9a2c",
+                10000000,
+                "#feb84a",
+                30000000,
+                "#fed574",
+                100000000,
+                "#ffefac"
+              ],
+              "fill-opacity": [
+                "case",
+                [
+                  "<=",
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "v_mkt"
+                    ],
+                    0
+                  ],
+                  0
+                ],
+                0.04,
+                0.7
+              ]
+            },
+            "light": {
+              "fill-color": [
+                "step",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "v_mkt"
+                  ],
+                  0
+                ],
+                "#f5841e",
+                30000,
+                "#ea7014",
+                100000,
+                "#dc5e0c",
+                300000,
+                "#cc4f05",
+                1000000,
+                "#b94303",
+                3000000,
+                "#a53904",
+                10000000,
+                "#903205",
+                30000000,
+                "#7b2b05",
+                100000000,
+                "#662506"
+              ],
+              "fill-opacity": [
+                "case",
+                [
+                  "<=",
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "v_mkt"
+                    ],
+                    0
+                  ],
+                  0
+                ],
+                0.04,
+                0.7
+              ]
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-extrusion-base": 0,
+              "fill-extrusion-color": [
+                "step",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "v_mkt"
+                  ],
+                  0
+                ],
+                "#9a3504",
+                30000,
+                "#b44103",
+                100000,
+                "#cc5107",
+                300000,
+                "#e1650f",
+                1000000,
+                "#f27d1b",
+                3000000,
+                "#fb9a2c",
+                10000000,
+                "#feb84a",
+                30000000,
+                "#fed574",
+                100000000,
+                "#ffefac"
+              ],
+              "fill-extrusion-height": [
+                "*",
+                [
+                  "^",
+                  [
+                    "max",
+                    0,
+                    [
+                      "/",
+                      [
+                        "-",
+                        [
+                          "ln",
+                          [
+                            "+",
+                            1,
+                            [
+                              "to-number",
+                              [
+                                "get",
+                                "v_mkt"
+                              ],
+                              0
+                            ]
+                          ]
+                        ],
+                        10.308985993422082
+                      ],
+                      8.99087512871534
+                    ]
+                  ],
+                  1.8
+                ],
+                4000
+              ],
+              "fill-extrusion-opacity": 0,
+              "fill-extrusion-vertical-gradient": true
+            },
+            "light": {
+              "fill-extrusion-base": 0,
+              "fill-extrusion-color": [
+                "step",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "v_mkt"
+                  ],
+                  0
+                ],
+                "#f5841e",
+                30000,
+                "#ea7014",
+                100000,
+                "#dc5e0c",
+                300000,
+                "#cc4f05",
+                1000000,
+                "#b94303",
+                3000000,
+                "#a53904",
+                10000000,
+                "#903205",
+                30000000,
+                "#7b2b05",
+                100000000,
+                "#662506"
+              ],
+              "fill-extrusion-height": [
+                "*",
+                [
+                  "^",
+                  [
+                    "max",
+                    0,
+                    [
+                      "/",
+                      [
+                        "-",
+                        [
+                          "ln",
+                          [
+                            "+",
+                            1,
+                            [
+                              "to-number",
+                              [
+                                "get",
+                                "v_mkt"
+                              ],
+                              0
+                            ]
+                          ]
+                        ],
+                        10.308985993422082
+                      ],
+                      8.99087512871534
+                    ]
+                  ],
+                  1.8
+                ],
+                4000
+              ],
+              "fill-extrusion-opacity": 0,
+              "fill-extrusion-vertical-gradient": true
+            }
+          },
+          "suffix": "extrusion",
+          "type": "fill-extrusion"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 12,
+        "minzoom": 4,
+        "sourceLayer": "grid_value_1500m"
+      },
+      "rebuildOnParamChange": null,
+      "sourceId": "property-value-grid-1500",
+      "sourceUrl": "./urban/property_value_grid_1500m.pmtiles"
+    },
+    "realEstatePresaleGrid": {
+      "dynamicData": null,
+      "filter": [
+        "all",
+        [
+          "==",
+          [
+            "get",
+            "type"
+          ],
+          "presale"
+        ],
+        [
+          "==",
+          [
+            "get",
+            "period"
+          ],
+          "ALL"
+        ]
+      ],
+      "id": "realEstatePresaleGrid",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "coalesce",
+                  [
+                    "get",
+                    "price_per_sqm_median"
+                  ],
+                  0
+                ],
+                72845,
+                "#9a3504",
+                230344.5,
+                "#f27d1b",
+                387844,
+                "#ffefac"
+              ],
+              "fill-opacity": 0.8
+            },
+            "light": {
+              "fill-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "coalesce",
+                  [
+                    "get",
+                    "price_per_sqm_median"
+                  ],
+                  0
+                ],
+                72845,
+                "#f5841e",
+                230344.5,
+                "#b94303",
+                387844,
+                "#662506"
+              ],
+              "fill-opacity": 0.7
+            }
+          },
+          "suffix": "presale-fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#a5a6b5",
+              "line-opacity": 0.6,
+              "line-width": 0.5
+            },
+            "light": {
+              "line-color": "#ffffff",
+              "line-opacity": 0.8,
+              "line-width": 0.5
+            }
+          },
+          "suffix": "presale-line",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 6,
+        "sourceLayer": "real_estate_grid"
+      },
+      "rebuildOnParamChange": null,
+      "sourceId": "re-grid",
+      "sourceUrl": "./coverage/real_estate_grid.pmtiles"
+    },
+    "realEstateRentalGrid": {
+      "dynamicData": null,
+      "filter": [
+        "all",
+        [
+          "==",
+          [
+            "get",
+            "type"
+          ],
+          "rental"
+        ],
+        [
+          "==",
+          [
+            "get",
+            "period"
+          ],
+          "ALL"
+        ]
+      ],
+      "id": "realEstateRentalGrid",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "coalesce",
+                  [
+                    "get",
+                    "price_per_sqm_median"
+                  ],
+                  0
+                ],
+                92,
+                "#2c665d",
+                177.2,
+                "#6a7c3e",
+                262.4,
+                "#a48a31",
+                347.6,
+                "#db964f",
+                432.8,
+                "#faac99",
+                518,
+                "#faccfa"
+              ],
+              "fill-opacity": 0.8
+            },
+            "light": {
+              "fill-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "coalesce",
+                  [
+                    "get",
+                    "price_per_sqm_median"
+                  ],
+                  0
+                ],
+                92,
+                "#d89448",
+                177.2,
+                "#a18a2e",
+                262.4,
+                "#677a3f",
+                347.6,
+                "#2f655a",
+                432.8,
+                "#144a61",
+                518,
+                "#0b2c5c"
+              ],
+              "fill-opacity": 0.7
+            }
+          },
+          "suffix": "rental-fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#a5a6b5",
+              "line-opacity": 0.6,
+              "line-width": 0.5
+            },
+            "light": {
+              "line-color": "#ffffff",
+              "line-opacity": 0.8,
+              "line-width": 0.5
+            }
+          },
+          "suffix": "rental-line",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 6,
+        "sourceLayer": "real_estate_grid"
+      },
+      "rebuildOnParamChange": null,
+      "sourceId": "re-grid",
+      "sourceUrl": "./coverage/real_estate_grid.pmtiles"
+    },
+    "realEstateSaleGrid": {
+      "dynamicData": null,
+      "filter": [
+        "all",
+        [
+          "==",
+          [
+            "get",
+            "type"
+          ],
+          "sale"
+        ],
+        [
+          "==",
+          [
+            "get",
+            "period"
+          ],
+          "ALL"
+        ]
+      ],
+      "id": "realEstateSaleGrid",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "coalesce",
+                  [
+                    "get",
+                    "price_per_sqm_median"
+                  ],
+                  0
+                ],
+                28480,
+                "#1a9850",
+                128141,
+                "#f7f7f7",
+                227802,
+                "#d73027"
+              ],
+              "fill-opacity": 0.8
+            },
+            "light": {
+              "fill-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "coalesce",
+                  [
+                    "get",
+                    "price_per_sqm_median"
+                  ],
+                  0
+                ],
+                28480,
+                "#1a9850",
+                128141,
+                "#f7f7f7",
+                227802,
+                "#d73027"
+              ],
+              "fill-opacity": 0.7
+            }
+          },
+          "suffix": "sale-fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#a5a6b5",
+              "line-opacity": 0.6,
+              "line-width": 0.5
+            },
+            "light": {
+              "line-color": "#ffffff",
+              "line-opacity": 0.8,
+              "line-width": 0.5
+            }
+          },
+          "suffix": "sale-line",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 6,
+        "sourceLayer": "real_estate_grid"
+      },
+      "rebuildOnParamChange": null,
+      "sourceId": "re-grid",
+      "sourceUrl": "./coverage/real_estate_grid.pmtiles"
+    },
+    "statePropertyTenderListings": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "statePropertyTenderListings",
+      "layers": [
+        {
+          "filter": [
+            "has",
+            "property_kind"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "property_kind"
+                ],
+                "land",
+                "#9333ea",
+                "building",
+                "#db2777",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.25,
+                5,
+                4.5,
+                12,
+                10.8
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "property_kind"
+                ],
+                "land",
+                "#9333ea",
+                "building",
+                "#db2777",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.25,
+                5,
+                4.5,
+                12,
+                10.8
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "has",
+            "property_kind"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "property_kind"
+                ],
+                "land",
+                "#a64dff",
+                "building",
+                "#e63480",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.875,
+                5,
+                2.5,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "property_kind"
+                ],
+                "land",
+                "#a64dff",
+                "building",
+                "#e63480",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.875,
+                5,
+                2.5,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "property_kind"
+            ],
+            [
+              "has",
+              "name"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "name"
+              ],
+              ""
+            ]
+          ],
+          "layout": {
+            "text-allow-overlap": false,
+            "text-field": [
+              "get",
+              "name"
+            ],
+            "text-font": [
+              "DIN Pro Medium",
+              "Arial Unicode MS Regular"
+            ],
+            "text-max-width": 14,
+            "text-optional": true,
+            "text-radial-offset": 0.8,
+            "text-size": [
+              "interpolate",
+              [
+                "linear"
+              ],
+              [
+                "zoom"
+              ],
+              10,
+              10,
+              14,
+              12
+            ],
+            "text-variable-anchor": [
+              "top",
+              "bottom",
+              "left",
+              "right"
+            ]
+          },
+          "minzoom": 14,
+          "paint": {
+            "dark": {
+              "text-color": "#f8fafc",
+              "text-halo-color": "rgba(15,23,42,0.92)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.9
+            },
+            "light": {
+              "text-color": "#0f172a",
+              "text-halo-color": "rgba(255,255,255,0.94)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.9
+            }
+          },
+          "suffix": "label",
+          "type": "symbol"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle",
+        "label"
+      ],
+      "sourceId": "state-property-tender-listings",
+      "sourceUrl": "./state_assets/state_property_tender_listings.geojson"
+    }
+  },
+  "params": {
+    "propertyValueGrid": [
+      {
+        "label": "上色模式",
+        "options": [
+          {
+            "disabled": false,
+            "label": "總市值",
+            "value": "0"
+          },
+          {
+            "disabled": true,
+            "label": "人均市值（僅 450m / 1.5km 提供）",
+            "value": "1"
+          }
+        ],
+        "type": "select",
+        "value": "0"
+      },
+      {
+        "defaultValue": "YlOrBr",
+        "label": "網格顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "grid",
+        "type": "palette",
+        "value": "YlOrBr"
+      },
+      {
+        "label": "填色透明度 0.70",
+        "max": 1,
+        "min": 0,
+        "name": "填色透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      },
+      {
+        "label": "網格大小",
+        "options": [
+          {
+            "label": "150m 細格",
+            "value": "0"
+          },
+          {
+            "label": "450m 中格",
+            "value": "1"
+          },
+          {
+            "label": "1.5km 粗格",
+            "value": "2"
+          }
+        ],
+        "type": "select",
+        "value": "0"
+      },
+      {
+        "label": "3D 立體",
+        "type": "toggle",
+        "value": false
+      }
+    ],
+    "realEstatePresaleGrid": [
+      {
+        "label": "排除雙北重繪",
+        "type": "toggle",
+        "value": false
+      },
+      {
+        "defaultValue": "YlOrBr",
+        "label": "網格顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "grid",
+        "type": "palette",
+        "value": "YlOrBr"
+      },
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      }
+    ],
+    "realEstatePresalePoint": [
+      {
+        "label": "排除雙北重繪",
+        "type": "toggle",
+        "value": false
+      },
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      }
+    ],
+    "realEstateRentalGrid": [
+      {
+        "label": "排除雙北重繪",
+        "type": "toggle",
+        "value": false
+      },
+      {
+        "defaultValue": "batlow",
+        "label": "網格顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "grid",
+        "type": "palette",
+        "value": "batlow"
+      },
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      }
+    ],
+    "realEstateRentalPoint": [
+      {
+        "label": "排除雙北重繪",
+        "type": "toggle",
+        "value": false
+      },
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      }
+    ],
+    "realEstateSaleGrid": [
+      {
+        "label": "排除雙北重繪",
+        "type": "toggle",
+        "value": false
+      },
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      }
+    ],
+    "realEstateSalePoint": [
+      {
+        "label": "排除雙北重繪",
+        "type": "toggle",
+        "value": false
+      },
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      }
+    ],
+    "statePropertyTenderListings": [
+      {
+        "label": "標的類別",
+        "options": [
+          {
+            "label": "土地",
+            "value": "land"
+          },
+          {
+            "label": "房地（建物）",
+            "value": "building"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "land",
+          "building"
+        ]
+      },
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ]
+  }
+}

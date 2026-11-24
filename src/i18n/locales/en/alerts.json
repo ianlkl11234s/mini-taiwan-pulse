@@ -41,5 +41,6 @@
   "alerts.card.notStated": "Not stated (long-term)",
   "alerts.card.magnitude": "Magnitude",
   "alerts.card.depth": "Depth",
-  "alerts.card.area": "Area"
+  "alerts.card.area": "Area",
+  "alerts.noneInFilter": "No active alerts under the current filter"
 }
