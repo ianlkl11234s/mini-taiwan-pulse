@@ -22,6 +22,16 @@ PREFIX = "deploy-assets/"
 def inc(p): return ("include", p)
 def exc(p): return ("exclude", p)
 
+
+# 全球事件月檔：data-collectors global_event_months 直接寫 R2 site/static-rpc/ 並自行刪除超過保留期的月份
+# （公開空間只留最近 6 個月；S3 正本不刪）。site-sync 不從 S3 補回、R2 上有也不算「多出」。
+COLLECTOR_MANAGED_STATIC_RPC = "get_global_event_month_*.json"
+
+
+def is_collector_managed(served_path: str) -> bool:
+    """served_path 形如 /static-rpc/get_global_event_month_202610.json。"""
+    return served_path.startswith("/static-rpc/") and fnmatchcase(served_path[len("/static-rpc/"):], COLLECTOR_MANAGED_STATIC_RPC)
+
 MIRRORS = ["network_structures", "medical", "industrial_zone", "sports", "education", "fishery",
            "water_resources", "urban", "culture", "religion", "funeral", "welfare", "hazards",
            "indigenous_rural", "marine", "civic_facilities", "environment", "public_life", "poi",
@@ -65,7 +75,7 @@ SYNCS: list[tuple[str, str, str, list]] = [
         "get_fossil_fuel_layers", "get_fossil_fuel_infrastructure", "get_osm_substations", "get_osm_power_lines",
         "get_osm_power_towers", "get_ssot_facilities_primary_operating", "get_ssot_facilities_planned",
         "get_ssot_facilities_historical", "get_ssot_facilities_secondary_small", "get_ssot_facilities_osm_supplement",
-        "get_osm_power_plants_static", "get_ssot_facilities_offshore_zones"]]),
+        "get_osm_power_plants_static", "get_ssot_facilities_offshore_zones"]] + [exc(COLLECTOR_MANAGED_STATIC_RPC)]),
     ("bus-gz-cache", "", "/.cache/", [exc("*"), inc("*_bus_routes_v2.json.gz"), inc("tourist_shuttle_routes_v2.json.gz")]),
     ("rail-cache", "", "/.cache/", [exc("*"), inc("rail.tar.gz")]),
 ]
