@@ -84,10 +84,19 @@ export function usePaletteRamp(key: string, isDark: boolean, steps = 7, name?: s
 
 // ── Q6 B 多層熱區 ───────────────────────────────────────────────────
 
-/** 有熱區色盤選單的 layer key（＝可換色熱區；雨量、電桿等自有色熱區不列） */
-export const HEATMAP_PALETTE_KEYS: readonly string[] = Object.entries(LAYER_PARAMS_SPEC as Record<string, LayerParamSpec[]>)
-  .filter(([, specs]) => specs.some((s) => s.kind === "palette" && s.role === ("heatmap" satisfies PaletteRole)))
-  .map(([key]) => key);
+/**
+ * 有熱區色盤選單的 layer key（＝可換色熱區；雨量、電桿等自有色熱區不列）。
+ * B1 P4：增量登記。模組載入時掃現有規格；P5 國家包載入時用 `registerHeatmapPaletteKeys` 累加（同一個陣列物件）。
+ */
+const heatmapPaletteKeys: string[] = [];
+export const HEATMAP_PALETTE_KEYS: readonly string[] = heatmapPaletteKeys;
+
+export function registerHeatmapPaletteKeys(key: string, specs: readonly LayerParamSpec[]): void {
+  if (heatmapPaletteKeys.includes(key)) return;
+  if (specs.some((s) => s.kind === "palette" && s.role === ("heatmap" satisfies PaletteRole))) heatmapPaletteKeys.push(key);
+}
+
+for (const [key, specs] of Object.entries(LAYER_PARAMS_SPEC as Record<string, LayerParamSpec[]>)) registerHeatmapPaletteKeys(key, specs);
 
 /** 同時開著的可換色熱區層數 */
 export function visibleHeatmapCount(vis: LayerVisibility): number {
