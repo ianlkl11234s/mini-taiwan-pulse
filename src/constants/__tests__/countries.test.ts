@@ -1,5 +1,28 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { COUNTRIES, countryForPoint, countryForViewer, isCountryCode, visibleCountries } from "../countries";
+import { ALL_PRESETS } from "../../map/cameraPresets";
+import { COUNTRIES, countryDef, countryForPoint, countryForViewer, isCountryCode, visibleCountries } from "../countries";
+import { GENERATED_PATH, readGenerated } from "./countriesCodegen";
+
+const ROOT = join(__dirname, "..", "..", "..");
+
+describe("countries.generated.ts（正本：pulse-data countries/countries.json）", () => {
+  const text = readFileSync(join(ROOT, GENERATED_PATH), "utf8");
+
+  it("產生檔沒被手改：標記間 JSON 的雜湊等於檔頭 payload-sha256", () => {
+    const { payload, payloadSha, computedSha } = readGenerated(text);
+    expect(payloadSha, "檔頭缺 payload-sha256").toBeDefined();
+    expect(computedSha, "countries.generated.ts 被手改了：改 pulse-data 正本後重跑 scripts/countries/gen-countries.ts").toBe(payloadSha);
+    expect(Array.isArray(JSON.parse(payload))).toBe(true);
+  });
+
+
+  it("TW 鏡頭等於 cameraPresets 的「全台總覽」", () => {
+    const overview = ALL_PRESETS.find((preset) => preset.id === "overview")!;
+    expect(countryDef("TW").camera).toEqual({ center: overview.center, zoom: overview.zoom, pitch: overview.pitch, bearing: overview.bearing });
+  });
+});
 
 describe("countries", () => {
   it("國碼與 chip 一致、bbox 都是合法矩形", () => {

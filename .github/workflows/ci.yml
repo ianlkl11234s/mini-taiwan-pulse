@@ -59,6 +59,14 @@ jobs:
       - name: Entry docs consistency (PROJECTS ↔ BACKLOG)
         run: npm run check:entry-docs
 
+      # DEV-7：origin/master 已發布的 CHANGELOG 版本段落不可被改（新條目只能進 Unreleased）。
+      # checkout 是淺層、沒有 origin/master，要先 fetch；fetch 失敗或讀不到 master 都會紅，不靜默略過（docs/ci.md §1.3）。
+      # 零相依，放這個永遠跑的 job：PR 到 develop 與 master（發版、hotfix）都適用，master 還沒有的新版本段落不受限。
+      - name: Released CHANGELOG sections unchanged
+        run: |
+          git fetch --no-tags --depth=1 origin +refs/heads/master:refs/remotes/origin/master
+          npm run check:changelog
+
   # 不需要 public/ 大檔的檢查集中在這裡，用 sparse-checkout 跳過 public/（約 1.75GB）
   quick:
     needs: changes
