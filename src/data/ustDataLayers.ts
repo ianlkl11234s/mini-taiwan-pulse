@@ -264,7 +264,7 @@ function specsFor(cc: UstCc): UstLayerSpec[] {
       key: key(cc, "PowerPlants"), file: `${cc}_power_plants.pmtiles`, sourceId: `${cc}-power-plants`, srcMinzoom: 6, srcMaxzoom: 14, color: "#F2622E", count: pr ? 48 : 18,
       parts: [
         point(I.plantsC, "plants", 6, propGetter("fuel_class"), { filter: PT }),
-        { id: I.plantsF, sourceLayer: "plants", geom: "fill", minzoom: 8, cat: propGetter("fuel_class"), filter: POLY, fillOpacity: 0.6 },
+        { id: I.plantsF, sourceLayer: "plants", geom: "fill", minzoom: 6, cat: propGetter("fuel_class"), filter: POLY, fillOpacity: 0.6, lowZoomHalo: { maxzoom: 11 } },
       ],
       cats: pr ? PLANT_CATS.slice(0, 7) : [PLANT_CATS[0]!, PLANT_CATS[3]!, PLANT_CATS[7]!],
       title: { props: ["name"], fallback: l3("電廠", "Power plant", "発電所") },
@@ -286,7 +286,7 @@ function specsFor(cc: UstCc): UstLayerSpec[] {
         { id: I.lines, sourceLayer: "lines", geom: "line", minzoom: 6, cat: propGetter("kv_class"), lineWidth: KV_W, ...(pr ? {} : { filter: ["!=", ["get", "underground"], "yes"] }) },
         ...(pr ? [] : [{ id: "gu-power-lines-ug-line", sourceLayer: "lines", geom: "line" as const, minzoom: 6, cat: propGetter("kv_class"), lineWidth: KV_W, filter: ["==", ["get", "underground"], "yes"], dashed: true }]),
         point(I.subsC, "substations", 7, propGetter("kv_class"), { small: true, filter: PT }),
-        { id: I.subsF, sourceLayer: "substations", geom: "fill", minzoom: 9, cat: propGetter("kv_class"), filter: POLY, fillOpacity: 0.6 },
+        { id: I.subsF, sourceLayer: "substations", geom: "fill", minzoom: 6, cat: propGetter("kv_class"), filter: POLY, fillOpacity: 0.6, lowZoomHalo: { maxzoom: 11 } },
       ],
       cats: pr ? KV_CATS.filter((c) => c.id !== "kv_low") : KV_CATS.filter((c) => c.id !== "kv230" && c.id !== "kv_low"),
       ...(pr ? {} : { dashLabel: l3("地下電纜（電壓未標）", "Underground cable (voltage not stated)", "地中ケーブル（電圧不明）") }),
@@ -310,7 +310,7 @@ function specsFor(cc: UstCc): UstLayerSpec[] {
       key: key(cc, "Renewables"), file: `${cc}_renewables.pmtiles`, sourceId: `${cc}-renewables`, srcMinzoom: 6, srcMaxzoom: 14, color: "#F2E085", count: pr ? 111 : 84,
       parts: [
         point(I.renewC, "generators", 6, propGetter("energy"), { filter: PT }),
-        { id: I.renewF, sourceLayer: "generators", geom: "fill", minzoom: 8, cat: propGetter("energy"), filter: POLY, fillOpacity: 0.7 },
+        { id: I.renewF, sourceLayer: "generators", geom: "fill", minzoom: 6, cat: propGetter("energy"), filter: POLY, fillOpacity: 0.7, lowZoomHalo: { maxzoom: 11 } },
       ],
       cats: RENEW_CATS,
       title: { props: ["name"], fallback: l3("再生能源", "Renewables", "再生可能エネルギー"), fallbackBy: { prop: "kind", map: RENEW_KIND_MAP } },
@@ -346,7 +346,7 @@ function specsFor(cc: UstCc): UstLayerSpec[] {
       parts: [
         point(I.petroC, "facilities", 6, kindGetter, { filter: PT }),
         ...(pr ? [] : [
-          { id: "gu-petroleum-fill", sourceLayer: "facilities", geom: "fill" as const, minzoom: 9, cat: kindGetter, filter: POLY, fillOpacity: 0.6 },
+          { id: "gu-petroleum-fill", sourceLayer: "facilities", geom: "fill" as const, minzoom: 6, cat: kindGetter, filter: POLY, fillOpacity: 0.6, lowZoomHalo: { maxzoom: 12 } },
           { id: "gu-petroleum-pipelines-line", sourceLayer: "pipelines", geom: "line" as const, minzoom: 6, cat: kindGetter, lineWidth: { pipeline: [0.8, 1.6] as const } },
         ]),
       ],
