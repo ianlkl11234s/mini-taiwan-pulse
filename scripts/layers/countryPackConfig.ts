@@ -49,7 +49,7 @@ export const COUNTRY_PACK_CONFIG: Record<string, CountryPackConfig> = {
     dir: "gb",
     nameZh: "英國",
     dedicated: [
-      /^src\/data\/gb(?!StatisticsRecipes|EnvPlanningTypes)[A-Z][A-Za-z]*\.ts$/,
+      /^src\/data\/gb(?!StatisticsRecipes)[A-Z][A-Za-z]*\.ts$/,
       /^src\/hooks\/useGb[A-Z][A-Za-z]*\.ts$/,
       /^src\/components\/legend\/gb[A-Z][A-Za-z]*\.tsx$/,
       /^src\/components\/featureInfo\/(ukPanels|gbRailReplayPanel)\.tsx$/,

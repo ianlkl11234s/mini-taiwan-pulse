@@ -1,6 +1,6 @@
 import { supabase } from "../../lib/supabase";
 import { withLoading } from "../../lib/loadingRegistry";
-import { GB_EA_POLLUTION_RPC } from "../../data/gbEnvPlanningTypes";
+import { GB_EA_POLLUTION_RPC } from "./gbEnvPlanningTypes";
 
 /**
  * 英格蘭 EA Pollution Inventory 2024 申報場址（站主限定，見 docs/features/owner-gated-layers）。

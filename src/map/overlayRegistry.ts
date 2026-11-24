@@ -11,7 +11,6 @@ import { COUNCIL_DISTRICT_COLOR } from "../data/councilDistrictsLoader";
 import { SPREAD_FADE, SPREAD_MINZOOM } from "./electionSpread";
 import { ELECTION_APPROX_PRECISIONS, ELECTION_CAMPS, ELECTION_CAMP_COLOR, ELECTION_GROUP_ICON_SCALE, ELECTION_HOLLOW_STATUSES, ELECTION_PAST_OPACITY, ELECTION_PAST_RADIUS, ELECTION_RING_FILL_OPACITY, ELECTION_RING_OFFSET, ELECTION_RING_STROKE, ELECTION_RING_STROKE_OPACITY, ELECTION_TIER_RADIUS } from "../data/electionEventsTypes";
 import { IE_COILLTE_ATTRIBUTION, IE_COILLTE_FOREST_ROADS, IE_COILLTE_RECREATION, IE_COILLTE_ROADS_MIN_ZOOM, ieCoillteColorExpr, ieCoillteKindFilter } from "../data/ieCoillteTypes";
-import { GB_EA_POLLUTION_ATTRIBUTION, GB_EA_POLLUTION_COUNTS, GB_EA_POLLUTION_SOURCE_ID, GB_ENV_HOLLOW_STROKE, GB_POLLUTION_COLOR } from "../data/gbEnvPlanningTypes";
 import { FORESTRY_PAINT_COLORS, HIKING_TRAIL_PAINT_COLORS } from "./layerPaintColors";
 import { gridRampFor, heatmapRampFor, heatmapStackFactor } from "../state/layerPalette";
 import { FACILITY_STATUS_PAINT_COLORS } from "./layerPaintColors";
@@ -3902,42 +3901,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       },
     ],
   },
-  // ── 🇬🇧 英格蘭污染排放申報（EA，站主限定）──
-  // dynamicData：useGbEaPollutionInventoryLayer 從 owner-only RPC get_gb_ea_pollution_inventory（gis-platform mig 499）拉一次後 setData。
-  // EA Conditional Licence 限 internal or personal purposes → 不走任何公開檔。配色、實心／空心語意比照蘇格蘭層 gbPollutionInventory：
-  // released（routes 非空＝有申報排放量）實心；無申報＝同色空心。2,536 點 z5 起直接畫（§3.8：英國全覽 z5.5 畫得出點）。
-  {
-    id: "gbPollutionInventoryEngland",
-    sourceUrl: "./geo/_empty.geojson",
-    sourceId: GB_EA_POLLUTION_SOURCE_ID,
-    dynamicData: true,
-    attribution: GB_EA_POLLUTION_ATTRIBUTION,
-    layers: [
-      {
-        suffix: "circle",
-        type: "circle",
-        minzoom: 5,
-        paint: (isDark, p) => {
-          const def = densePointOpacity(GB_EA_POLLUTION_COUNTS.total);
-          const op = p?.gbPollutionInventoryEnglandOpacity ?? def;
-          const scale = p?.gbPollutionInventoryEnglandScale ?? 1;
-          const released = ["==", ["get", "released"], true];
-          // 空環要寫成明確的條件分支：withPointSpec 的 normalizeMixedBranches 會把 case 最後的 fallback 換成標準值，
-          // 空環（同色描邊）若放在 fallback 會被換成底圖色細縫 → 846 個未申報場址變成底色空環
-          const unreleased = ["!=", ["get", "released"], true];
-          const seam = pointStrokePaint(isDark, op / def);
-          return {
-            "circle-radius": 5 * scale,
-            "circle-color": GB_POLLUTION_COLOR,
-            "circle-opacity": ["case", released, op, 0] as unknown as number,
-            "circle-stroke-color": ["case", released, seam["circle-stroke-color"], unreleased, GB_POLLUTION_COLOR, GB_POLLUTION_COLOR] as unknown as string,
-            "circle-stroke-width": ["case", released, seam["circle-stroke-width"], unreleased, GB_ENV_HOLLOW_STROKE, GB_ENV_HOLLOW_STROKE] as unknown as number,
-            "circle-stroke-opacity": ["case", released, seam["circle-stroke-opacity"], unreleased, op, op] as unknown as number,
-          };
-        },
-      },
-    ],
-  },
+  overlaySlot("GB", 1), // 英國國家包（src/countries/gb/）
   // ── 🇮🇪 愛爾蘭 Coillte 國有林（第 5c 波，站主限定）──
   // dynamicData：useIeCoillteLayer 從 owner-only RPC（gis-platform mig 512）拉一次後 setData；Coillte 條款不得轉供 → 不走任何公開檔。
   // 遊憩點 153 z4 起直接畫（M）；森林入口 12,888 拉遠畫熱區（V-1／P-4，z10 起 S 點）。V-4：kind 類別多選，熱區與點共用 filter。

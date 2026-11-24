@@ -8,7 +8,7 @@ import {
   GB_POLLUTION_COLOR, GB_POLLUTION_COUNTS, GB_POLLUTION_YEAR, GB_RECYCLING_BY_NATION,
   GB_RECYCLING_CENTRE_MINZOOM, GB_RECYCLING_CONTAINER_MINZOOM, GB_RECYCLING_KINDS, GB_RECYCLING_OSM_TIME, GB_WASTE_AUTHORITIES,
   GB_WASTE_PERMITS_COLOR, type GbBrownfieldStatus, type GbPlanningConstraint, type GbRecyclingKind,
-} from "../../data/gbEnvPlanningTypes";
+} from "./gbEnvPlanningTypes";
 import { useLocale } from "../../state/localeStore";
 import { localizeLayerName } from "../../i18n/layerText";
 import type { MessageKey } from "../../i18n/keys";

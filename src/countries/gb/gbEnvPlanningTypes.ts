@@ -16,11 +16,11 @@
  *   污染排放＝台灣 pollutionFacility（環境污染 › 申報工廠）；有申報排放實心、申報皆無空心（資料編碼描邊 P-9）。
  *   噪音 Lden 5 帶＝台灣 NoiseCapture 噪音格網的 dB 色階（NOISE_CAPTURE_COLOR_EXPR），取各帶中點 dB 的色。
  */
-import { URBAN_ZONING_CATEGORIES } from "./urbanZoningTypes";
-import { NON_URBAN_ZONING_CODES } from "./nonUrbanZoningTypes";
-import { WASTE_FACILITY_COLORS } from "./wasteFacilityColors";
-import { noiseColorAt } from "./intlLayerShared";
-import { FACILITY_STATUS_PAINT_COLORS } from "../map/layerPaintColors";
+import { URBAN_ZONING_CATEGORIES } from "../../data/urbanZoningTypes";
+import { NON_URBAN_ZONING_CODES } from "../../data/nonUrbanZoningTypes";
+import { WASTE_FACILITY_COLORS } from "../../data/wasteFacilityColors";
+import { noiseColorAt } from "../../data/intlLayerShared";
+import { FACILITY_STATUS_PAINT_COLORS } from "../../map/layerPaintColors";
 
 export const GB_ENV_FETCHED_AT = "2026-10-29";
 export const GB_ENV_OGL_V3 = "Open Government Licence v3.0";
