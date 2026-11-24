@@ -102,7 +102,7 @@ const CASES: Case[] = [
     ["year_roc", DUI_YEAR_VALUES],
     ["dui_cause_basis", DUI_BASIS_VALUES],
   ] as const).map(([field, values]) => ({
-    file: "harm_reduction/dui_crash_points_lt.pmtiles",
+    file: "harm_reduction/dui_crash_points_lt2.pmtiles",
     layer: "dui_crash_points",
     count: 36814,
     field,

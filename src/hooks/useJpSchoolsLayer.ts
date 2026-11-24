@@ -15,7 +15,7 @@ const SOURCE_ID = "jp-schools";
 const SOURCE_LAYER = "jp_schools";
 const LAYER_ID = "jp-schools-circle";
 const HEATMAP_LAYER_ID = "jp-schools-heatmap";
-const FILE = "jp_schools_lt.pmtiles";
+const FILE = "jp_schools_lt2.pmtiles";
 const MINZOOM = 4;
 // ⚠️ 產製配方是 tippecanoe -Z4 -z11 —— 沒有 z12~z14 的磚。
 //    這裡若照宗教層寫 14，Mapbox 會去要不存在的磚 → z11 以上整層消失。

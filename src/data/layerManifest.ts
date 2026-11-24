@@ -2611,7 +2611,7 @@ export const LAYER_MANIFEST = {
     key: "npSpeciesSites", country: "TW", section: { theme: "自然保育 Conservation", group: "物種調查 Species Surveys" }, ...layerName({ zh: "國家公園物種調查點位", alt: "National Park Species Survey Sites" }), expandable: true,
     color: ATLAS_LAYER_COLORS.npSpeciesSites, icon: PawPrint,
     upstream: { status: "verified", datasets: [{ datasetId: "np_species_survey_points", confidence: "MED" }], processing: "analytics environment/np_species_survey_points 73252：國家公園署 24 個 CSV（111、112 年）1,451,504 筆紀錄合併為 144,228 個調查點位；台灣框外 4,776 列不上圖；人名欄與備註不收", note: "單位是調查點位不是逐筆紀錄；2,304 點座標經模糊處理；PMTiles 逐點完整，拉遠為熱區。" },
-    dataClass: "B", source: { kind: "pmtiles", sourceId: "np-species-sites", url: "./environment/np_species_survey_points_sites_73252_lt.pmtiles", sourceLayer: "np_species_survey_points", minzoom: 4, maxzoom: 14 },
+    dataClass: "B", source: { kind: "pmtiles", sourceId: "np-species-sites", url: "./environment/np_species_survey_points_sites_73252_lt2.pmtiles", sourceLayer: "np_species_survey_points", minzoom: 4, maxzoom: 14 },
     legend: "npSpeciesSites", popup: "npSpeciesSites", params: { count: 4, kinds: ["multiSelect", "palette", "slider", "slider"] },
     description: "國家公園與都會公園物種調查點位 144,228 個（涵蓋 145 萬筆紀錄；拉遠為熱區，部分座標經模糊處理）。",
     topics: ["自然保育", "物種調查", "國家公園", "生物多樣性", "國家公園署"],
@@ -4291,7 +4291,7 @@ export const LAYER_MANIFEST = {
     source: {
       kind: "custom",
       note: "useJpSchoolsLayer 自建 mapbox-pmtiles source；source-layer=jp_schools，minzoom=4 maxzoom=11",
-      staticAssets: ["./world/jp_schools_lt.pmtiles"],
+      staticAssets: ["./world/jp_schools_lt2.pmtiles"],
     },
     legend: "jpSchools",
     popup: "jpSchools",
@@ -6696,7 +6696,7 @@ export const LAYER_MANIFEST = {
     source: {
       kind: "custom",
       note: "useGbOpenSpaceLayers 自建 mapbox-pmtiles source；source-layer=gb_greenspace filter category=park，minzoom=8 maxzoom=14（面 layer minzoom 9）；67.8MB 走 S3 deploy-assets；點／面切換（預設面），代表點 gb-greenspace-points z5–10、z<9 熱區",
-      staticAssets: ["./world/gb_greenspace.pmtiles", "./world/gb_greenspace_points_lt.pmtiles"],
+      staticAssets: ["./world/gb_greenspace.pmtiles", "./world/gb_greenspace_points_lt2.pmtiles"],
     },
     legend: "gbGreenspace",
     popup: "gbGreenspace",
@@ -6722,7 +6722,7 @@ export const LAYER_MANIFEST = {
     source: {
       kind: "custom",
       note: "useGbOpenSpaceLayers 共用 gb-greenspace source；filter category=sports 且 function≠Golf Course，面 layer minzoom 10；點／面切換（預設面），代表點 gb-greenspace-points z5–10、z<10 熱區",
-      staticAssets: ["./world/gb_greenspace.pmtiles", "./world/gb_greenspace_points_lt.pmtiles"],
+      staticAssets: ["./world/gb_greenspace.pmtiles", "./world/gb_greenspace_points_lt2.pmtiles"],
     },
     legend: "gbSportsFacilities",
     popup: "gbSportsFacilities",
@@ -6748,7 +6748,7 @@ export const LAYER_MANIFEST = {
     source: {
       kind: "custom",
       note: "useGbOpenSpaceLayers 共用 gb-greenspace source；filter function=Golf Course，面 layer minzoom 10；點／面切換（預設面，z<10 畫代表點 gb-greenspace-golf-circle）",
-      staticAssets: ["./world/gb_greenspace.pmtiles", "./world/gb_greenspace_points_lt.pmtiles"],
+      staticAssets: ["./world/gb_greenspace.pmtiles", "./world/gb_greenspace_points_lt2.pmtiles"],
     },
     legend: "gbGolfCourses",
     popup: "gbGolfCourses",
@@ -6774,7 +6774,7 @@ export const LAYER_MANIFEST = {
     source: {
       kind: "custom",
       note: "useGbOpenSpaceLayers 共用 gb-greenspace source；filter category=burial，面 layer minzoom 10；點／面切換（預設點），代表點 gb-greenspace-points z5–10、z<10 熱區",
-      staticAssets: ["./world/gb_greenspace.pmtiles", "./world/gb_greenspace_points_lt.pmtiles"],
+      staticAssets: ["./world/gb_greenspace.pmtiles", "./world/gb_greenspace_points_lt2.pmtiles"],
     },
     legend: "gbCemeteries",
     popup: "gbCemeteries",
@@ -7647,8 +7647,8 @@ export const LAYER_MANIFEST = {
     dataClass: "D",
     source: {
       kind: "custom",
-      note: "useGbCivicLayers 自建 mapbox-pmtiles source；gb_schools_lt.pmtiles；source-layer=gb_schools，minzoom=5 maxzoom=12（layer minzoom 9）；15.1MB git-track",
-      staticAssets: ["./world/gb_schools_lt.pmtiles"],
+      note: "useGbCivicLayers 自建 mapbox-pmtiles source；gb_schools_lt2.pmtiles；source-layer=gb_schools，minzoom=5 maxzoom=12（layer minzoom 9）；15.1MB git-track",
+      staticAssets: ["./world/gb_schools_lt2.pmtiles"],
     },
     legend: "gbSchools",
     popup: "gbSchools",
@@ -7699,8 +7699,8 @@ export const LAYER_MANIFEST = {
     dataClass: "D",
     source: {
       kind: "custom",
-      note: "useGbCivicLayers 自建 mapbox-pmtiles source；gb_care_services_lt.pmtiles；source-layer=gb_care_services，filter care_home=true，minzoom=5 maxzoom=12（layer minzoom 9）；16.3MB git-track",
-      staticAssets: ["./world/gb_care_services_lt.pmtiles"],
+      note: "useGbCivicLayers 自建 mapbox-pmtiles source；gb_care_services_lt2.pmtiles；source-layer=gb_care_services，filter care_home=true，minzoom=5 maxzoom=12（layer minzoom 9）；16.3MB git-track",
+      staticAssets: ["./world/gb_care_services_lt2.pmtiles"],
     },
     legend: "gbCareHomes",
     popup: "gbCareHomes",
@@ -7725,8 +7725,8 @@ export const LAYER_MANIFEST = {
     dataClass: "D",
     source: {
       kind: "custom",
-      note: "useGbCivicLayers 自建 mapbox-pmtiles source；gb_care_services_lt.pmtiles；source-layer=gb_care_services，filter care_home=false，minzoom=5 maxzoom=12（layer minzoom 9）；16.3MB（與 gbCareHomes 共用） git-track",
-      staticAssets: ["./world/gb_care_services_lt.pmtiles"],
+      note: "useGbCivicLayers 自建 mapbox-pmtiles source；gb_care_services_lt2.pmtiles；source-layer=gb_care_services，filter care_home=false，minzoom=5 maxzoom=12（layer minzoom 9）；16.3MB（與 gbCareHomes 共用） git-track",
+      staticAssets: ["./world/gb_care_services_lt2.pmtiles"],
     },
     legend: "gbCareServices",
     popup: "gbCareServices",
@@ -8117,7 +8117,7 @@ export const LAYER_MANIFEST = {
     source: {
       kind: "custom",
       note: "useGbEnvPlanningLayers 自建 mapbox-pmtiles source；source-layer=gb_brownfield，filter 依許可狀態選單，minzoom=5 maxzoom=13（layer minzoom 9）；18.9MB git-track",
-      staticAssets: ["./world/gb_brownfield_lt.pmtiles"],
+      staticAssets: ["./world/gb_brownfield_lt2.pmtiles"],
     },
     legend: "gbBrownfield",
     popup: "gbBrownfield",
@@ -13088,7 +13088,7 @@ export const LAYER_MANIFEST = {
     key: "swcbDisasterPhotoPoints", country: "TW", section: { theme: "災害 Hazard", group: "崩塌 Landslide" }, ...layerName({ zh: "土砂災害照片點位", alt: "Sediment Disaster Photo Points" }), expandable: true,
     color: ATLAS_LAYER_COLORS.swcbDisasterPhotoPoints, icon: Camera,
     upstream: { status: "verified", datasets: [{ datasetId: "swcb_disaster_photo_points", confidence: "HIGH" }], note: "農業部農村發展及水土保持署 土砂災害照片（data.gov.tw 138000、174226）；34,419 點，只放照片連結不嵌影像。PMTiles z5–12 逐 zoom 完整。" },
-    dataClass: "B", source: { kind: "pmtiles", sourceId: "swcb-disaster-photo-points", url: "./hazards/swcb_disaster_photo_points_v2_lt.pmtiles", sourceLayer: "swcb_disaster_photo_points", minzoom: 5, maxzoom: 12 },
+    dataClass: "B", source: { kind: "pmtiles", sourceId: "swcb-disaster-photo-points", url: "./hazards/swcb_disaster_photo_points_v2_lt2.pmtiles", sourceLayer: "swcb_disaster_photo_points", minzoom: 5, maxzoom: 12 },
     legend: "swcbDisasterPhotoPoints", popup: "swcbDisasterPhotoPoints", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
     description: "水保署土砂災害事件照片與媒體報導的拍攝點，點開看事件、日期與照片連結。",
     topics: ["災害", "崩塌", "土石流", "照片"],
@@ -13370,7 +13370,7 @@ export const LAYER_MANIFEST = {
     key: "atmSitesFisc", country: "TW", section: { theme: "基礎建設 Infrastructure", group: "金融據點" }, ...layerName({ zh: "ATM 裝設點（財金公司名冊）", alt: "ATM Sites (FISC Roster)" }), expandable: true,
     color: ATLAS_LAYER_COLORS.atmSitesFisc, icon: CreditCard,
     upstream: { status: "verified", datasets: [{ datasetId: "atm_sites_fisc", confidence: "HIGH" }], note: "財金資訊公司 金融機構 ATM 位置查詢一覽表（data.gov.tw 24333）名冊快照 2026-10-24：27,412 裝設點、27,390 有座標；座標依序取數位發展部 175482、中華郵政 6121、地址定位與 Google，逐點標定位精度。裝設點不等於機台數。PMTiles z5–12 逐 zoom 完整。" },
-    dataClass: "B", source: { kind: "pmtiles", sourceId: "atm-sites-fisc", url: "./finance/atm_sites_fisc_lt.pmtiles", sourceLayer: "atm_sites_fisc", minzoom: 5, maxzoom: 12 },
+    dataClass: "B", source: { kind: "pmtiles", sourceId: "atm-sites-fisc", url: "./finance/atm_sites_fisc_lt2.pmtiles", sourceLayer: "atm_sites_fisc", minzoom: 5, maxzoom: 12 },
     legend: "atmSitesFisc", popup: "atmSitesFisc", params: { count: 5, kinds: ["multiSelect", "toggle", "toggle", "slider", "slider"] },
     description: "財金公司名冊的 ATM 裝設地點，含機構類別、輪椅可用、視障語音、國際卡提款與定位精度（一點一個裝設地點，不是一台機器）。",
     topics: ["ATM", "金融", "提款機", "無障礙", "金融可及性"],
@@ -20029,7 +20029,7 @@ export const LAYER_MANIFEST = {
   harmReductionAntiDrugPharmacies: { key: "harmReductionAntiDrugPharmacies", country: "TW", section: { theme: "醫療 Medical", group: "減害服務 Harm Reduction" }, ...layerName({ zh: "社區藥局反毒站", alt: "Community Anti-drug Pharmacies" }), expandable: true, color: HARM_REDUCTION_COLORS.harmReductionAntiDrugPharmacies, icon: ShieldCheck, upstream: { status: "verified", datasets: [{ datasetId: "anti_drug_pharmacies", confidence: "HIGH" }], note: "新北 data.gov.tw 125302（2026-08-07）＋高雄 107877 的 113 年清冊；436 點，僅 2 縣市。" }, dataClass: "A", source: { kind: "geojson", sourceId: "harm-reduction-anti-drug-pharmacies", url: "./harm_reduction/anti_drug_pharmacies.geojson" }, legend: "harmReductionAntiDrugPharmacies", popup: "harmReductionAntiDrugPharmacies", params: { count: 2, kinds: ["slider", "slider"] }, description: "提供藥物濫用與戒癮資源諮詢的社區藥局；僅新北、高雄有開放名冊。", topics: ["醫療", "減害", "毒品防制"] },
   harmReductionTherapeuticCommunities: { key: "harmReductionTherapeuticCommunities", country: "TW", section: { theme: "醫療 Medical", group: "減害服務 Harm Reduction" }, ...layerName({ zh: "治療性社區與中途之家", alt: "Therapeutic Communities & Halfway Houses" }), expandable: true, color: HARM_REDUCTION_COLORS.harmReductionTherapeuticCommunities, icon: House, upstream: { status: "verified", datasets: [{ datasetId: "therapeutic_communities", confidence: "HIGH" }], note: "衛福部藥癮治療性社區／社區復健方案承辦機構（2025-07-29）；17 點可定位（2 點查無位置未畫），座標為機構辦公處。" }, dataClass: "A", source: { kind: "geojson", sourceId: "harm-reduction-therapeutic-communities", url: "./harm_reduction/therapeutic_communities.geojson" }, legend: "harmReductionTherapeuticCommunities", popup: "harmReductionTherapeuticCommunities", params: { count: 2, kinds: ["slider", "slider"] }, description: "衛福部藥癮治療性社區與社區復健方案（中途之家、自立方案）承辦機構；座標為辦公處而非安置地點。", topics: ["醫療", "減害", "藥癮治療"] },
   harmReductionAftercare: { key: "harmReductionAftercare", country: "TW", section: { theme: "醫療 Medical", group: "減害服務 Harm Reduction" }, ...layerName({ zh: "更生保護會", alt: "Offender Aftercare Offices" }), expandable: true, color: HARM_REDUCTION_COLORS.harmReductionAftercare, icon: Handshake, upstream: { status: "verified", datasets: [{ datasetId: "offender_aftercare_offices", confidence: "HIGH" }], note: "法務部 data.gov.tw 10060（2023-06-05，3 年未更新）；22 處。" }, dataClass: "A", source: { kind: "geojson", sourceId: "harm-reduction-aftercare", url: "./harm_reduction/offender_aftercare_offices.geojson" }, legend: "harmReductionAftercare", popup: "harmReductionAftercare", params: { count: 2, kinds: ["slider", "slider"] }, description: "臺灣更生保護會總會、各地分會與福建更生保護會（資料為 2023-06 版）。", topics: ["醫療", "減害", "社會復歸"] },
-  harmReductionDuiCrashes: { key: "harmReductionDuiCrashes", country: "TW", section: { theme: "執法治安 Law & Order", group: "交通事故" }, ...layerName({ zh: "酒駕肇事事故", alt: "Drunk-driving Crashes" }), expandable: true, color: HARM_REDUCTION_COLORS.harmReductionDuiCrashes, icon: CarFront, upstream: { status: "verified", datasets: [{ datasetId: "dui_crash_points", confidence: "HIGH" }], note: "警政署 A1／A2 道路交通事故 107–114 年，任一當事者肇因為酒醉駕駛即收；36,814 點（3 點無座標未畫）；PMTiles z5–12。" }, dataClass: "B", source: { kind: "pmtiles", sourceId: "harm-reduction-dui-crashes", url: "./harm_reduction/dui_crash_points_lt.pmtiles", sourceLayer: "dui_crash_points", minzoom: 5, maxzoom: 12 }, legend: "harmReductionDuiCrashes", popup: "harmReductionDuiCrashes", params: { count: 5, kinds: ["multiSelect", "multiSelect", "multiSelect", "slider", "slider"] }, description: "107–114 年 A1／A2 酒駕肇事事故點位，可依類別、年份與酒駕判定口徑篩選；可與減害服務的酒癮治療／酒駕酒癮評估機構對照。", topics: ["交通事故", "酒駕", "減害"] },
+  harmReductionDuiCrashes: { key: "harmReductionDuiCrashes", country: "TW", section: { theme: "執法治安 Law & Order", group: "交通事故" }, ...layerName({ zh: "酒駕肇事事故", alt: "Drunk-driving Crashes" }), expandable: true, color: HARM_REDUCTION_COLORS.harmReductionDuiCrashes, icon: CarFront, upstream: { status: "verified", datasets: [{ datasetId: "dui_crash_points", confidence: "HIGH" }], note: "警政署 A1／A2 道路交通事故 107–114 年，任一當事者肇因為酒醉駕駛即收；36,814 點（3 點無座標未畫）；PMTiles z5–12。" }, dataClass: "B", source: { kind: "pmtiles", sourceId: "harm-reduction-dui-crashes", url: "./harm_reduction/dui_crash_points_lt2.pmtiles", sourceLayer: "dui_crash_points", minzoom: 5, maxzoom: 12 }, legend: "harmReductionDuiCrashes", popup: "harmReductionDuiCrashes", params: { count: 5, kinds: ["multiSelect", "multiSelect", "multiSelect", "slider", "slider"] }, description: "107–114 年 A1／A2 酒駕肇事事故點位，可依類別、年份與酒駕判定口徑篩選；可與減害服務的酒癮治療／酒駕酒癮評估機構對照。", topics: ["交通事故", "酒駕", "減害"] },
 
   medICUBeds: {
     key: "medICUBeds",

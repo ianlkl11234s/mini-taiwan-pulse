@@ -434,7 +434,7 @@ def build_waterlogging(m, feats):
     }) for f in feats]
 
 
-@layer("swcbDisasterPhotoPoints", "hazards", "swcb_disaster_photo_points", "hazards/swcb_disaster_photo_points_v2_lt.pmtiles",
+@layer("swcbDisasterPhotoPoints", "hazards", "swcb_disaster_photo_points", "hazards/swcb_disaster_photo_points_v2_lt2.pmtiles",
        pmtiles={"layer": "swcb_disaster_photo_points", "zmin": 5, "zmax": 12, "kind": "point",
                 # <z10 熱區只用 photo_category（上色／篩選）＋county／town（畫面摘要）；z10 起全欄位
                 "tier": {"switch_zoom": 10, "low_fields": ["photo_category", "county", "town"]}})
@@ -1063,7 +1063,7 @@ def flag(v: Any) -> int | None:
     return 1 if v is True else 0 if v is False else None
 
 
-@layer("atmSitesFisc", "civic_facilities", "atm_sites_fisc", "finance/atm_sites_fisc_lt.pmtiles",
+@layer("atmSitesFisc", "civic_facilities", "atm_sites_fisc", "finance/atm_sites_fisc_lt2.pmtiles",
        pmtiles={"layer": "atm_sites_fisc", "zmin": 5, "zmax": 12, "kind": "point",
                 # <z10 熱區只用 institution_category／wheelchair_accessible／voice_guidance（上色與篩選）＋county／town（畫面摘要）
                 "tier": {"switch_zoom": 10, "low_fields": ["institution_category", "wheelchair_accessible",

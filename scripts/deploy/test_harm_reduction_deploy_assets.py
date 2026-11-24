@@ -8,7 +8,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[2]
-PMTILES = "public/harm_reduction/dui_crash_points_lt.pmtiles"
+PMTILES = "public/harm_reduction/dui_crash_points_lt2.pmtiles"
 
 
 def test_harm_reduction_asset_transport_contract() -> None:

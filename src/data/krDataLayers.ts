@@ -730,7 +730,7 @@ export const KR_DATA_SPECS: readonly KrLayerSpec[] = [
     loading: l3("南韓國家遺產載入中", "Loading South Korea heritage", "韓国の国家遺産を読み込み中"),
   },
   {
-    key: "krLodging", file: "kr_lodging_lt.pmtiles", sourceLayer: "kr_lodging", geom: "point", layerId: "kr-lodging-circle",
+    key: "krLodging", file: "kr_lodging_lt2.pmtiles", sourceLayer: "kr_lodging", geom: "point", layerId: "kr-lodging-circle",
     srcMinzoom: 0, srcMaxzoom: 14, minzoom: 10, heat: { intensity: 3 }, color: "#fb7185", tier: "S", count: 30358,
     catProp: "cat",
     cats: [
@@ -764,7 +764,7 @@ export const KR_DATA_SPECS: readonly KrLayerSpec[] = [
     loading: l3("南韓安心宅配櫃載入中", "Loading South Korea parcel lockers", "韓国の安心宅配ボックスを読み込み中"),
   },
   {
-    key: "krSeniorCenters", file: "kr_senior_centers_lt.pmtiles", sourceLayer: "kr_senior_centers", geom: "point", layerId: "kr-senior-centers-circle",
+    key: "krSeniorCenters", file: "kr_senior_centers_lt2.pmtiles", sourceLayer: "kr_senior_centers", geom: "point", layerId: "kr-senior-centers-circle",
     srcMinzoom: 0, srcMaxzoom: 14, minzoom: 10, heat: { intensity: 2 }, color: "#a78bfa", tier: "S", count: 56028,
     catProp: "kind",
     cats: [
@@ -972,7 +972,7 @@ export const KR_DATA_SPECS: readonly KrLayerSpec[] = [
     loading: l3("南韓民防給水設施載入中", "Loading South Korea civil defence water facilities", "韓国の民防給水施設を読み込み中"),
   },
   {
-    key: "krEmergencyBells", file: "kr_emergency_bells_lt.pmtiles", sourceLayer: "kr_emergency_bells", geom: "point", layerId: "kr-emergency-bells-circle",
+    key: "krEmergencyBells", file: "kr_emergency_bells_lt2.pmtiles", sourceLayer: "kr_emergency_bells", geom: "point", layerId: "kr-emergency-bells-circle",
     srcMinzoom: 0, srcMaxzoom: 14, minzoom: 10, heat: { intensity: 1.5 }, color: "#ef4444", tier: "M", count: 87711,
     catProp: "place_type",
     cats: [

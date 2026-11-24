@@ -347,7 +347,7 @@ def build_dui(src_root: Path, date: str) -> None:
         features.append({"type": "Feature",
                          "geometry": {"type": "Point", "coordinates": round_coords(geom["coordinates"])},
                          "properties": props})
-    out = OUT_DIR / f"{DUI_LAYER}_lt.pmtiles"
+    out = OUT_DIR / f"{DUI_LAYER}_lt2.pmtiles"
     with tempfile.TemporaryDirectory() as tmp:
         mid = Path(tmp) / f"{DUI_LAYER}.geojson"
         write_collection(mid, features)
