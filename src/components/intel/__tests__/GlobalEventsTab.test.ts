@@ -87,14 +87,14 @@ afterEach(() => {
 
 describe("Global Events Intel tab", () => {
 
-  it("四個分頁都帶數字，全部＝新聞＋警報＋國際", () => {
+  it("四個分頁都帶數字，全部＝三個分頁角標相加（IN-1b）", () => {
     const markup = renderToStaticMarkup(createElement(FeedTabs, {
       tab: "globalEvents", onTab: vi.fn(), newsCount: 7, alertCount: 5,
-      alertCountInAll: 3, alertSevere: 1, globalCount: 4, globalCountInAll: 2,
+      alertSevere: 1, globalCount: 4,
     }));
     const buttons = markup.match(/<button\b[\s\S]*?<\/button>/g)!;
     expect(buttons).toHaveLength(4);
-    expect(buttons.map((button) => button.replace(/<[^>]+>/g, ""))).toEqual(["全部12", "新聞7", "警報5", "全球情勢4"]);
+    expect(buttons.map((button) => button.replace(/<[^>]+>/g, ""))).toEqual(["全部16", "新聞7", "警報5", "全球情勢4"]);
     expect(buttons[3]).toContain('aria-selected="true"');
   });
 
