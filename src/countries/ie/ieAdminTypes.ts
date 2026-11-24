@@ -5,10 +5,10 @@
  * 資料與授權見 taipei-gis-analytics `docs/data-catalog/base_map/ie_admin_boundaries.md`（2026-11-07）。
  * 介面字串以三語 `L3` 寫在本檔（比照 `caInfraTypes.ts`）；圖層名走 layers.json。人口缺值顯示「無資料」，不補 0。
  */
-import type { CaSource, L3 } from "./intlLayerShared";
+import type { CaSource, L3 } from "../../data/intlLayerShared";
 
-export type { L3 } from "./intlLayerShared";
-export { pickL3 } from "./intlLayerShared";
+export type { L3 } from "../../data/intlLayerShared";
+export { pickL3 } from "../../data/intlLayerShared";
 
 const l3 = (zh: string, en: string, ja: string): L3 => ({ zh, en, ja });
 

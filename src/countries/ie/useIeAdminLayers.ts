@@ -1,13 +1,13 @@
 import { useEffect } from "react";
 import type { Map as MapboxMap, FillLayer, LineLayer } from "mapbox-gl";
-import { PMTILES_SOURCE_TYPE } from "../map/pmtilesConstants";
-import { registerPmtilesSourceTypeOnce } from "../map/pmtilesSourceType";
-import { useMapReadyTick } from "./useMapReadyTick";
-import { paramDefault } from "../data/layerParamsSpec";
-import { BOUNDARY_GRAY } from "../map/mapStyleScale";
-import { hookLineLayout, hookLineOpacity, hookLinePaint } from "../map/lineFillSpec";
-import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
-import { IE_ADMIN_COLOR, IE_ADMIN_LEVELS } from "../data/ieAdminTypes";
+import { PMTILES_SOURCE_TYPE } from "../../map/pmtilesConstants";
+import { registerPmtilesSourceTypeOnce } from "../../map/pmtilesSourceType";
+import { useMapReadyTick } from "../../hooks/useMapReadyTick";
+import { paramDefault } from "../../data/layerParamsSpec";
+import { BOUNDARY_GRAY } from "../../map/mapStyleScale";
+import { hookLineLayout, hookLineOpacity, hookLinePaint } from "../../map/lineFillSpec";
+import { keepLoadingUntilMapIdle } from "../../lib/loadingRegistry";
+import { IE_ADMIN_COLOR, IE_ADMIN_LEVELS } from "./ieAdminTypes";
 
 /**
  * 愛爾蘭行政邊界（第 0 波 C001，Tailte LA 2026＋CSO ED／SA 2022）：ie_admin_boundaries.pmtiles 一個檔、三個 tile layer（la／ed／sa）。

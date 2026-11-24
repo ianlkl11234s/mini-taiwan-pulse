@@ -6,9 +6,9 @@
  * 與 `docs/topic-research/ireland_opendata/waves/PLAN.md` 第 1 波（2026-11-07 重開授權頁）。
  * 北愛屬英國：所有點位以第 0 波 31 個地方政府面判定，落在北愛者剔除。
  */
-import type { IeDataKey } from "./ieDataKeys";
-import type { KrCat, KrFieldKind, KrLayerSpec, L3 } from "./intlLayerShared";
-import { noiseColorAt } from "./intlLayerShared";
+import type { IeDataKey } from "./keys";
+import type { KrCat, KrFieldKind, KrLayerSpec, L3 } from "../../data/intlLayerShared";
+import { noiseColorAt } from "../../data/intlLayerShared";
 
 const l3 = (zh: string, en: string, ja: string): L3 => ({ zh, en, ja });
 

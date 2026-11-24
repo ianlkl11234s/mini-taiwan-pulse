@@ -1,7 +1,8 @@
+import type { IeLayerKey } from "../countries/ie/keys";
 import type { GbLayerKey } from "../countries/gb/keys";
 import type { ComparisonStatisticsLayerKey } from '../data/comparisonStatisticsKeys';
 import type { KrDataKey } from '../data/krDataKeys';
-import type { IeDataKey } from '../data/ieDataKeys';
+import type { IeDataKey } from '../countries/ie/keys';
 import type { PhDataKey, PhRasterKey } from '../data/phDataKeys';
 import type { VnDataKey, VnRasterKey } from '../data/vnDataKeys';
 import type { ThDataKey, ThRasterKey } from '../data/thDataKeys';
@@ -1166,7 +1167,7 @@ export interface FeatureInfo {
 
 // ── 圖層控制 ──
 
-export interface LayerVisibility extends Record<KrDataKey | IeDataKey | PhDataKey | PhRasterKey | VnDataKey | VnRasterKey | ThDataKey | ThRasterKey | IdDataKey | IdRasterKey | CnDataKey | CnRasterKey | CaWaveKey | ComparisonStatisticsLayerKey | LaborStatisticsLayerKey | EnvironmentStatisticsLayerKey | DemographicsStatisticsLayerKey | AddictionStatisticsLayerKey | LandslideStatisticsLayerKey | AtlasStatisticsLayerKey | GbLayerKey, boolean> {
+export interface LayerVisibility extends Record<KrDataKey | IeDataKey | PhDataKey | PhRasterKey | VnDataKey | VnRasterKey | ThDataKey | ThRasterKey | IdDataKey | IdRasterKey | CnDataKey | CnRasterKey | CaWaveKey | ComparisonStatisticsLayerKey | LaborStatisticsLayerKey | EnvironmentStatisticsLayerKey | DemographicsStatisticsLayerKey | AddictionStatisticsLayerKey | LandslideStatisticsLayerKey | AtlasStatisticsLayerKey | GbLayerKey | IeLayerKey, boolean> {
   statsWasteRecyclingRate: boolean;
   statsEducationCountyInstitutionCount: boolean;
   statsEducationCountyTeacherCount: boolean;
@@ -2131,8 +2132,6 @@ export interface LayerVisibility extends Record<KrDataKey | IeDataKey | PhDataKe
   krWasteDisposalRules: boolean; // 南韓生活垃圾排出規則（KRH-1 C086，JSON join kr_admin_boundaries sgg 層）
   krAdminBoundaries: boolean;   // 南韓行政邊界（PMTiles polygon，시·도 16／시군구 256／행정동 3,559；admdongkor ver20261001）
   caAdminBoundaries: boolean;   // 加拿大第 0＋1 波（PMTiles，public/world/ca_*.pmtiles）
-  ieAdminBoundaries: boolean;   // 愛爾蘭行政邊界（PMTiles polygon，LA 31／CSO ED 3,420／SA 18,919；2026-11-07 第 0 波）
-  ieBathymetry: boolean;   // 愛爾蘭海床地形（INFOMAR raster PMTiles z4–10；2026-11-07 第 1 波；其餘 6 層走 IeDataKey）
   phAdminBoundaries: boolean;   // 菲律賓行政邊界（PMTiles polygon，region 18／province 88／municipality 1,642／barangay 42,048；2026-11-13 第 0 波）
   phPopulation: boolean;   // 菲律賓人口（2024 普查，四層級人口密度；其餘 8 層走 PhDataKey）
   vnAdminBoundaries: boolean;   // 越南行政邊界（PMTiles polygon，2025-07 新制 34 省；2026-11-13 第 0 波）
@@ -2145,8 +2144,6 @@ export interface LayerVisibility extends Record<KrDataKey | IeDataKey | PhDataKe
   cnAdminBoundaries: boolean;   // 中國行政邊界（站主限定私人 PMTiles，省 31／地級 357；2026-11-13 第 0 波）
   cnPopulation: boolean;   // 中國人口（省 2020 普查、地級 GHS 模型值；站主限定）
   cnPopulationGrid: boolean;   // 中國人口網格（GHS-POP 2025 模型值 raster；站主限定；其餘 6 層走 CnDataKey）
-  ieCoillteRecreation: boolean;  // 愛爾蘭 Coillte 遊憩點＋森林入口（13,041 點；第 5c 波站主限定 owner-only RPC get_ie_coillte_recreation）
-  ieCoillteForestRoads: boolean; // 愛爾蘭 Coillte 林道＋遊憩步道（17,076 條；第 5c 波站主限定 owner-only RPC get_ie_coillte_forest_roads）
   caTransitStops: boolean;   // 加拿大第 0＋1 波（PMTiles，public/world/ca_*.pmtiles）
   caAirportsPorts: boolean;   // 加拿大第 0＋1 波（PMTiles，public/world/ca_*.pmtiles）
   caMajorRoads: boolean;   // 加拿大第 0＋1 波（PMTiles，public/world/ca_*.pmtiles）

@@ -1,6 +1,6 @@
 import type { AnyLayer, Map as MapboxMap } from "mapbox-gl";
-import { IE_BATHYMETRY } from "../data/ieDataLayers";
-import { useGbPmtilesLayers, type SourceSpec } from "./intlPmtilesLayers";
+import { IE_BATHYMETRY } from "./ieDataLayers";
+import { useGbPmtilesLayers, type SourceSpec } from "../../hooks/intlPmtilesLayers";
 
 /**
  * 愛爾蘭海床地形（INFOMAR，第 1 波）：預先著色＋陰影的 raster PNG PMTiles（z4–10）。

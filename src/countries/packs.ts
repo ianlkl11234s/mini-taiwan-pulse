@@ -20,6 +20,7 @@ import type { CountryPack, PackListName, PackRecordName } from "./types";
 const PACK_LOADERS: Partial<Record<CountryCode, () => Promise<{ default: CountryPack }>>> = {
   CN: () => import("./cn/pack"),
   GB: () => import("./gb/pack"),
+  IE: () => import("./ie/pack"),
   // <codemod:pack-loaders>
 };
 

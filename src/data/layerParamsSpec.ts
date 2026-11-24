@@ -112,7 +112,6 @@ import { MAPCHALLENGE_DAY23_INTL, mapchallengeDay23IntlOptionLabel, MAPCHALLENGE
 import { MAPCHALLENGE_DAY19_CATEGORY_OPTIONS, MAPCHALLENGE_DAY19_PENALTY_SCOPES, MAPCHALLENGE_DAY19_PERIODS, MAPCHALLENGE_DAY19_WINDS } from "./mapchallengeDay19Types";
 import { CATEGORY_FILTERS, categoryDefs, categoryMaskKey, categoryParamName, categoryParamOptions } from "./categoryFilters";
 import { KR_DATA_SPECS, krCatOptionIds, type KrLayerSpec } from "./krDataLayers";
-import { IE_COILLTE_FOREST_ROADS, IE_COILLTE_RECREATION } from "./ieCoillteTypes";
 import { PH_ADMIN_LEVELS, PH_DATA_SPECS, PH_PLANT_STATUSES, PH_PLANT_STATUS_DEFAULT, phCatOptions } from "./phDataLayers";
 import { PH_RASTER_SPECS } from "./phWavesLayers";
 import { VN_DATA_SPECS, VN_STATUSES } from "./vnDataLayers";
@@ -122,8 +121,6 @@ import { ID_ADMIN_LEVELS, ID_DATA_SPECS, ID_LEVELS_2 } from "./idDataLayers";
 import { ID_RASTER_SPECS } from "./idWavesLayers";
 import { CA_WAVE_SPECS } from "./caWavesLayers";
 import { VN_RASTER_SPECS } from "./vnWavesLayers";
-import { IE_DATA_SPECS, IE_FLOOD_SCENARIOS, IE_FLOOD_SCENARIO_DEFAULT, IE_NOISE_METRICS, IE_NOISE_METRIC_DEFAULT, IE_GW_FLOOD_PRODUCTS, IE_GW_FLOOD_DEFAULT } from "./ieDataLayers";
-import { asKrSpec } from "./intlSpecBridge";
 import { PALETTE_IDS, type PaletteId } from "../map/palettes";
 import { defaultHeatmapPalette } from "../map/heatmapPaletteDefaults";
 import { URBAN_HEAT_MODES } from "./urbanHeatTypes";
@@ -870,7 +867,7 @@ function krMulti(out: string, label: string, options: KrOpt): MultiSelectParamSp
   return { kind: "multiSelect", name: out.replace(/Mask$/, ""), label, default: MULTI_SELECT_ALL, options: options.map(([value, l]) => ({ label: l, value })), out };
 }
 /** 規格驅動的南韓層（第 3–5 波）：cats＋「其他」→ 多選；zh 標籤取規格 `label.zh`。 */
-function krCatFilterSpecs(spec: KrLayerSpec): MultiSelectParamSpec[] {
+export function krCatFilterSpecs(spec: KrLayerSpec): MultiSelectParamSpec[] {
   if (!spec.cats) return [];
   const labels: Record<string, string> = Object.fromEntries(spec.cats.map((c) => [c.id, c.label.zh]));
   if (spec.otherLabel) labels.other = spec.otherLabel.zh;
@@ -2371,15 +2368,6 @@ const STATIC_LAYER_PARAMS_SPEC = {
   krSubstations: [krMulti("krSubstationsCatMask", "電壓等級", KR_OPT_VOLTAGE), opacitySlider("krSubstationsOpacity", densePointOpacity(1_199)), scaleSlider("krSubstationsScale", 1)],
   krPowerTowers: [opacitySlider("krPowerTowersOpacity", densePointOpacity(42_252)), scaleSlider("krPowerTowersScale", 1)],
   krOilGas: [krMulti("krOilGasCatMask", "設施類別", KR_OPT_OIL_GAS), krMulti("krOilGasPipeMask", "管線物質", KR_OPT_PIPELINE), opacitySlider("krOilGasOpacity", 0.6)],
-  // 愛爾蘭第 0 波（2026-11-07）：選項順序＝`data/ieAdminTypes.ts` IE_ADMIN_LEVELS
-  ieAdminBoundaries: [
-    opacitySlider("ieAdminBoundariesOpacity", 0.85),
-    {
-      kind: "select", category: "data", name: "ieAdminBoundariesLevel", label: "行政層級", default: "la",
-      options: [{ label: "地方政府（Local authority）", value: "la" }, { label: "選舉分區（Electoral division）", value: "ed" }, { label: "統計小區（Small area）", value: "sa" }],
-      out: "ieAdminBoundariesLevelIdx", encode: ["la", "ed", "sa"],
-    },
-  ],
   // 菲律賓第 0–1 波（2026-11-13）：選項順序＝`data/phDataLayers.ts` PH_ADMIN_LEVELS；行政邊界預設 region、人口預設 province（國家全覽 z5 有圖磚）
   phAdminBoundaries: [
     opacitySlider("phAdminBoundariesOpacity", 0.85),
@@ -2525,43 +2513,6 @@ const STATIC_LAYER_PARAMS_SPEC = {
   ...Object.fromEntries(VN_RASTER_SPECS.map((spec) => [spec.key, [
     { kind: "slider" as const, name: `${spec.key}Opacity`, labelPrefix: "透明度", digits: 2, default: spec.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05 },
   ]])),
-  // 愛爾蘭第 1 波起（2026-11-07）：規格驅動層同南韓（點＝透明度＋大小、線／面＝透明度、有分類者加類別多選、有熱區者加熱區顏色）；公園、國有登記土地的點／面切換由 repPointLayers 補
-  ...Object.fromEntries(IE_DATA_SPECS.map((spec) => [spec.key, [
-    // 第 3a 波河川淹水（NIFM）：情境 × 重現期一組一支 PMTiles，host 依 ieRiverFloodExtentsScenarioIdx 換檔（同台灣淹水情境）
-    ...(spec.key === "ieRiverFloodExtents" ? [{
-      kind: "select" as const, category: "data" as const, name: "ieRiverFloodExtentsScenario", label: "淹水情境", default: IE_FLOOD_SCENARIO_DEFAULT,
-      options: IE_FLOOD_SCENARIOS.map((x) => ({ label: x.label.zh, value: x.value })),
-      out: "ieRiverFloodExtentsScenarioIdx", encode: IE_FLOOD_SCENARIOS.map((x) => x.value),
-    }] : []),
-    // 第 9 波策略噪音地圖：Lden／Lnight 各一支 PMTiles，host 依 ieNoiseMapsMetricIdx 換檔
-    ...(spec.key === "ieNoiseMaps" ? [{
-      kind: "select" as const, category: "data" as const, name: "ieNoiseMapsMetric", label: "噪音指標", default: IE_NOISE_METRIC_DEFAULT,
-      options: IE_NOISE_METRICS.map((x) => ({ label: x.label.zh, value: x.value })),
-      out: "ieNoiseMapsMetricIdx", encode: IE_NOISE_METRICS.map((x) => x.value),
-    }] : []),
-    // 第 11 波 GSI 地下水淹水（ND）：一產品一支 PMTiles，host 依 ieGroundwaterFloodingProductIdx 換檔
-    ...(spec.key === "ieGroundwaterFlooding" ? [{
-      kind: "select" as const, category: "data" as const, name: "ieGroundwaterFloodingProduct", label: "淹水圖種類", default: IE_GW_FLOOD_DEFAULT,
-      options: IE_GW_FLOOD_PRODUCTS.map((x) => ({ label: x.label.zh, value: x.value })),
-      out: "ieGroundwaterFloodingProductIdx", encode: IE_GW_FLOOD_PRODUCTS.map((x) => x.value),
-    }] : []),
-    ...krCatFilterSpecs(asKrSpec(spec)),
-    ...(spec.heat ? [heatmapPalette(spec.key)] : []),
-    ...(spec.geom === "point"
-      ? [opacitySlider(`${spec.key}Opacity`, densePointOpacity(spec.count)), scaleSlider(`${spec.key}Scale`, 1)]
-      : [opacitySlider(`${spec.key}Opacity`, spec.key === "ieGaeltacht" ? 0.6 : spec.key === "ieRiverFloodExtents" || spec.key === "ieNoiseMaps" || spec.key === "ieGroundwaterFlooding" ? 0.55 : spec.geom === "polygon" ? 0.7 : 0.85)]),
-  ]])),
-  // 愛爾蘭第 5c 波（站主限定 Coillte）：類別多選（順序＝ieCoillteTypes cats＝bitmask）；遊憩點另有入口熱區色盤與點大小
-  ieCoillteRecreation: [
-    categoryMultiSelect("ieCoillteRecreation", IE_COILLTE_RECREATION.cats.map((c) => ({ label: c.label.zh, value: c.id }))),
-    heatmapPalette("ieCoillteRecreation"),
-    opacitySlider("ieCoillteRecreationOpacity", densePointOpacity(IE_COILLTE_RECREATION.count)), scaleSlider("ieCoillteRecreationScale", 1),
-  ],
-  ieCoillteForestRoads: [
-    categoryMultiSelect("ieCoillteForestRoads", IE_COILLTE_FOREST_ROADS.cats.map((c) => ({ label: c.label.zh, value: c.id }))),
-    opacitySlider("ieCoillteForestRoadsOpacity", 0.85),
-  ],
-  ieBathymetry: [{ kind: "slider", name: "ieBathymetryOpacity", labelPrefix: "透明度", digits: 2, default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05 }],
   // 加拿大第 0＋1 波（2026-11-04）：多選選項 id／順序必須同 `data/caInfraTypes.ts` 的類別陣列（caLayers 測試守）
   caAdminBoundaries: [
     opacitySlider("caAdminBoundariesOpacity", 0.85),
@@ -5704,35 +5655,67 @@ export const LAYER_PARAMS_SPEC = extensibleRecord("layerParamsSpec", STATIC_LAYE
 // 統計（圖層面板統一 C 段）：每個統計 key 在透明度前補上連動選單（群組「指標」、指標、期別、各維度），
 // 可切比例圓的總量層再補「呈現方式」（`statisticsPresentation.ts` 依 recipe 單位推導＋站主覆寫）。
 // 規格由 recipe catalog 派生（`statisticsParamsSpec.ts`），不逐層手寫；連動選單的值在 `regionalStatisticsStore`。
-for (const key of STATISTICS_RENDER_KEYS) {
-  const specs = (LAYER_PARAMS_SPEC as Record<string, LayerParamSpec[]>)[key];
-  const presentation = statisticsPresentationSpec(key);
-  if (specs) (LAYER_PARAMS_SPEC as Record<string, LayerParamSpec[]>)[key] = [...statisticsLinkedSelects(key), ...(presentation ? [presentation] : []), ...specs];
+const PARAMS_REC = LAYER_PARAMS_SPEC as Record<string, LayerParamSpec[]>;
+const STATISTICS_RENDER_KEY_SET = new Set<string>(STATISTICS_RENDER_KEYS);
+const REP_POINT_BY_KEY = new Map(REP_POINT_LAYERS.map((l) => [l.key, l] as const));
+
+/**
+ * 一個 key 的派生控件（統計連動選單、類別多選、點／面樣式）。開站時對靜態規格跑一次；
+ * 國家包的規格晚到（B1 P5b），併入登記簿後再對新到的 key 跑一次，結果與一開始就在靜態表相同。
+ * 回傳 false＝這個 key 還沒有規格（等國家包）。
+ */
+function deriveParamControls(key: string): boolean {
+  if (STATISTICS_RENDER_KEY_SET.has(key)) {
+    const specs = PARAMS_REC[key];
+    const presentation = statisticsPresentationSpec(key);
+    if (!specs) return false;
+    PARAMS_REC[key] = [...statisticsLinkedSelects(key), ...(presentation ? [presentation] : []), ...specs];
+  }
+
+  // V-4（map-layers.md §3.8）：規格表 `categoryFilters.ts` 登記的圖層，在控件最前面補「類別」多選（out＝`${key}${id}Mask`）。
+  const entry = CATEGORY_FILTERS[key];
+  if (entry) {
+    const specs = PARAMS_REC[key];
+    if (!specs) return false;
+    const multis: MultiSelectParamSpec[] = categoryDefs(entry).map((def) => ({
+      kind: "multiSelect", name: categoryParamName(key, def), label: def.label ?? "類別", default: MULTI_SELECT_ALL,
+      options: categoryParamOptions(def), out: categoryMaskKey(key, def),
+    }));
+    PARAMS_REC[key] = [...multis, ...specs];
+  }
+
+  // V-5（map-layers.md §3.8）：`repPointLayers.ts` 登記的面圖層，控件最前面補「樣式（點位／面）」，
+  // ≥ 1 萬點補「熱區顏色」，最後補「大小」。控件值怎麼生效：registry 圖層看 `map/repPointOverlays`，
+  // 其餘家族看各自的 hook／factory。
+  const l = REP_POINT_BY_KEY.get(key);
+  if (l) {
+    const specs = PARAMS_REC[key];
+    if (!specs) return false;
+    const has = (name: string) => specs.some((s) => s.name === name);
+    PARAMS_REC[key] = [
+      ...(l.modeless || has(`${l.key}DisplayMode`) ? [] : [displayModeSelect(l.key, l.def)]), ...specs,
+      ...(repPointDense(l) && !has(`${l.key}Palette`) ? [heatmapPalette(l.key)] : []),
+      ...(l.modeless || has(`${l.key}Scale`) ? [] : [scaleSlider(`${l.key}Scale`, 1)]),
+    ];
+  }
+  return true;
 }
 
-// V-4（map-layers.md §3.8）：規格表 `categoryFilters.ts` 登記的圖層，在控件最前面補「類別」多選（out＝`${key}${id}Mask`）。
-for (const [key, entry] of Object.entries(CATEGORY_FILTERS)) {
-  const specs = (LAYER_PARAMS_SPEC as Record<string, LayerParamSpec[]>)[key];
-  if (!specs) throw new Error(`categoryFilters: ${key} 沒有 layerParamsSpec 規格`);
-  const multis: MultiSelectParamSpec[] = categoryDefs(entry).map((def) => ({
-    kind: "multiSelect", name: categoryParamName(key, def), label: def.label ?? "類別", default: MULTI_SELECT_ALL,
-    options: categoryParamOptions(def), out: categoryMaskKey(key, def),
-  }));
-  (LAYER_PARAMS_SPEC as Record<string, LayerParamSpec[]>)[key] = [...multis, ...specs];
+// 統計（圖層面板統一 C 段）：每個統計 key 在透明度前補上連動選單（群組「指標」、指標、期別、各維度），
+// 可切比例圓的總量層再補「呈現方式」（`statisticsPresentation.ts` 依 recipe 單位推導＋站主覆寫）。
+// 規格由 recipe catalog 派生（`statisticsParamsSpec.ts`），不逐層手寫；連動選單的值在 `regionalStatisticsStore`。
+// 還沒有規格的 key 等國家包帶來（全部國家包載入後仍缺規格：countryPacks 測試擋）。
+const DERIVE_PENDING = new Set<string>();
+for (const key of new Set([...STATISTICS_RENDER_KEYS, ...Object.keys(CATEGORY_FILTERS), ...REP_POINT_BY_KEY.keys()])) {
+  if (!deriveParamControls(key)) DERIVE_PENDING.add(key);
 }
+onRecordExtended("layerParamsSpec", (added) => {
+  for (const key of Object.keys(added)) if (DERIVE_PENDING.delete(key)) deriveParamControls(key);
+});
 
-// V-5（map-layers.md §3.8）：`repPointLayers.ts` 登記的面圖層，控件最前面補「樣式（點位／面）」，
-// ≥ 1 萬點補「熱區顏色」，最後補「大小」。控件值怎麼生效：registry 圖層看 `map/repPointOverlays`，
-// 其餘家族看各自的 hook／factory。
-for (const l of REP_POINT_LAYERS) {
-  const specs = (LAYER_PARAMS_SPEC as Record<string, LayerParamSpec[]>)[l.key];
-  if (!specs) throw new Error(`repPointLayers: ${l.key} 沒有 layerParamsSpec 規格`);
-  const has = (name: string) => specs.some((s) => s.name === name);
-  (LAYER_PARAMS_SPEC as Record<string, LayerParamSpec[]>)[l.key] = [
-    ...(l.modeless || has(`${l.key}DisplayMode`) ? [] : [displayModeSelect(l.key, l.def)]), ...specs,
-    ...(repPointDense(l) && !has(`${l.key}Palette`) ? [heatmapPalette(l.key)] : []),
-    ...(l.modeless || has(`${l.key}Scale`) ? [] : [scaleSlider(`${l.key}Scale`, 1)]),
-  ];
+/** 有派生控件（類別多選、點／面樣式）卻一直沒等到規格的 key；全部國家包載入後應為空。 */
+export function pendingDerivedParamKeys(): string[] {
+  return [...DERIVE_PENDING];
 }
 
 export type MigratedParamsKey = keyof typeof LAYER_PARAMS_SPEC;
@@ -5888,7 +5871,8 @@ for (const key of Object.keys(LAYER_PARAMS_SPEC) as MigratedParamsKey[]) {
 setRecordOrder("layerParamsSpec", (key) => layerIndexRow(key)?.po);
 onRecordExtended("layerParamsSpec", (added) => {
   MIGRATED_PARAMS_KEYS.splice(0, MIGRATED_PARAMS_KEYS.length, ...(Object.keys(LAYER_PARAMS_SPEC) as MigratedParamsKey[]));
-  for (const [key, specs] of Object.entries(added)) registerSharedParamGroups(key as MigratedParamsKey, specs as LayerParamSpec[]);
+  // 讀登記簿裡的（已含派生控件），不讀 added 原件
+  for (const key of Object.keys(added)) registerSharedParamGroups(key as MigratedParamsKey, PARAMS_REC[key] ?? []);
 });
 
 /**

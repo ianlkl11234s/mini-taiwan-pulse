@@ -41,23 +41,33 @@ function signature(r: Registries) {
   return {
     manifest: Object.keys(r.manifest),
     params: Object.keys(r.params),
+    // 派生控件（類別多選、點／面樣式）晚到也要補上，且只補一次
+    paramNames: Object.entries(r.params).map(([k, v]) => `${k}:${(v as { name: string }[]).map((s) => s.name).join(",")}`),
     hosts: r.hosts.map((e) => e.id),
     clicks: r.clicks.map((e) => e.type),
+    // 代表點 circle 別名只補一次
+    clickLayers: r.clicks.map((e) => `${e.type}:${(e as unknown as { layers: string[] }).layers.join(",")}`),
     legends: r.legends.map((e) => e.id),
   };
 }
 type Signature = ReturnType<typeof signature>;
 
+const PACK_MODULES = import.meta.glob<{ default: import("../types").CountryPack }>("../*/pack.ts");
+
 /** 某國國家包自己帶的 key／條目 id（用來從完整順序扣掉沒載入的國家） */
-async function packMembers(cc: "CN" | "GB"): Promise<Signature> {
-  const pack = (cc === "CN" ? await import("../cn/pack") : await import("../gb/pack")).default;
+async function packMembers(cc: CountryCode): Promise<Signature> {
+  const pack = (await PACK_MODULES[`../${cc.toLowerCase()}/pack.ts`]!()).default;
   const ids = <T,>(slots: Readonly<Record<number, readonly T[]>> | undefined, f: (x: T) => string) =>
     Object.values(slots ?? {}).flat().map(f);
+  const params = Object.keys(pack.records.layerParamsSpec ?? {});
+  const clicks = ids(pack.slots.gisClickLayers as Record<number, { type: string }[]>, (e) => e.type);
   return {
     manifest: Object.keys(pack.records.layerManifest ?? {}),
-    params: Object.keys(pack.records.layerParamsSpec ?? {}),
+    params,
+    paramNames: params,
+    clicks,
+    clickLayers: clicks,
     hosts: ids(pack.slots.layerHosts as Record<number, { id: string }[]>, (e) => e.id),
-    clicks: ids(pack.slots.gisClickLayers as Record<number, { type: string }[]>, (e) => e.type),
     legends: ids(pack.slots.legends as Record<number, { id: string }[]>, (e) => e.id),
   };
 }
@@ -100,9 +110,10 @@ describe("國家包沒載入時", () => {
 });
 
 describe("任意子集、任意載入順序都排回搬家前的位置", () => {
-  const ORDERS: CountryCode[][] = [[], ["CN"], ["GB"], ["CN", "GB"], ["GB", "CN"]];
+  const ALL = Object.keys(PACK_MODULES).map((p) => p.split("/")[1]!.toUpperCase() as CountryCode).sort();
+  const ORDERS: CountryCode[][] = [[], ...ALL.map((cc) => [cc]), ALL, [...ALL].reverse(), ALL.filter((_, i) => i % 2 === 1)];
   let full: Signature | null = null;
-  const members: Partial<Record<"CN" | "GB", Signature>> = {};
+  const members: Partial<Record<CountryCode, Signature>> = {};
 
   async function expected(loaded: readonly CountryCode[]): Promise<Signature> {
     if (!full) {
@@ -110,18 +121,19 @@ describe("任意子集、任意載入順序都排回搬家前的位置", () => {
       const r = await freshRegistries();
       await r.packs.loadAllPacks();
       full = signature(r);
-      members.CN = await packMembers("CN");
-      members.GB = await packMembers("GB");
+      const { pendingDerivedParamKeys } = await import("../../data/layerParamsSpec");
+      expect(pendingDerivedParamKeys()).toEqual([]);
+      for (const cc of ALL) members[cc] = await packMembers(cc);
       vi.resetModules();
     }
     const out = structuredClone(full);
-    for (const cc of ["CN", "GB"] as const) {
+    for (const cc of ALL) {
       if (loaded.includes(cc)) continue;
       const m = members[cc]!;
       for (const k of Object.keys(out) as (keyof Signature)[]) {
         const drop = new Set(m[k]);
-        // clicks 的 type 可能跨國重複（不會，但保險）：只扣國家包帶的那幾筆的數量
-        out[k] = out[k].filter((x) => !drop.has(x));
+        // paramNames／clickLayers 的字串以「key:」或「type:」開頭
+        out[k] = out[k].filter((x) => !drop.has(x) && !drop.has(x.split(":")[0]!));
       }
     }
     return out;

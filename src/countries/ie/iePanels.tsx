@@ -1,12 +1,12 @@
 // 愛爾蘭圖層 popup（第 0 波：行政邊界）。字串與署名 SSOT 在 data/ieAdminTypes.ts；
 // 來源與授權由 panel 自掛 SourceFooter（FOOTER_SELF_MANAGED）。
 import type { FC } from "react";
-import { Row, SourceFooter, Title } from "./shared";
+import { Row, SourceFooter, Title } from "../../components/featureInfo/shared";
 import { useLocale } from "../../state/localeStore";
 import { caText } from "../../data/intlLayerShared";
-import { IE_DATA_SPECS, type IeField, type IeLayerSpec } from "../../data/ieDataLayers";
-import type { IeDataKey } from "../../data/ieDataKeys";
-import { IE_ADMIN_COLOR, IE_ADMIN_LEVEL_LABELS, IE_ADMIN_SOURCE, IE_FETCHED_AT, IE_NO_DATA, pickL3, type L3 } from "../../data/ieAdminTypes";
+import { IE_DATA_SPECS, type IeField, type IeLayerSpec } from "./ieDataLayers";
+import type { IeDataKey } from "./keys";
+import { IE_ADMIN_COLOR, IE_ADMIN_LEVEL_LABELS, IE_ADMIN_SOURCE, IE_FETCHED_AT, IE_NO_DATA, pickL3, type L3 } from "./ieAdminTypes";
 
 type P = { props: Record<string, unknown> };
 

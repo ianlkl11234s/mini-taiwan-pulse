@@ -1,13 +1,13 @@
 // 愛爾蘭圖例：第 0 波行政邊界（SSOT data/ieAdminTypes.ts）、第 1 波規格驅動 6 層與海床地形（SSOT data/ieDataLayers.ts）。
 import type { ReactNode } from "react";
-import { LegendNote, LegendRow, LegendTitle, SwatchDot, SwatchGradient, SwatchLine, SwatchSquare, useLegendTheme, LegendRestrictions } from "./legendKit";
+import { LegendNote, LegendRow, LegendTitle, SwatchDot, SwatchGradient, SwatchLine, SwatchSquare, useLegendTheme, LegendRestrictions } from "../../components/legend/legendKit";
 import { LAYER_MANIFEST, type LayerName } from "../../data/layerManifest";
 import { localizeLayerName } from "../../i18n/layerText";
 import { useLocale } from "../../state/localeStore";
 import { BOUNDARY_GRAY, LINE_WIDTH } from "../../map/mapStyleScale";
-import { IE_ADMIN_NOTES, pickL3 } from "../../data/ieAdminTypes";
-import { IE_BATHYMETRY, IE_SPEC_BY_KEY, type IeLayerSpec } from "../../data/ieDataLayers";
-import type { IeDataKey } from "../../data/ieDataKeys";
+import { IE_ADMIN_NOTES, pickL3 } from "./ieAdminTypes";
+import { IE_BATHYMETRY, IE_SPEC_BY_KEY, type IeLayerSpec } from "./ieDataLayers";
+import type { IeDataKey } from "./keys";
 import { krRampColors } from "../../data/intlLayerShared";
 
 export function IeAdminBoundariesLegend() {

@@ -7,14 +7,18 @@
 
 import type { CnLayerKey } from "./cn/keys";
 import type { GbLayerKey } from "./gb/keys";
+import type { IeLayerKey } from "./ie/keys";
 export type PackLayerKey =
   | never
   | CnLayerKey
-  | GbLayerKey;
+  | GbLayerKey
+  | IeLayerKey;
 
 import type { CnPopupType } from "./cn/popupTypes";
 import type { GbPopupType } from "./gb/popupTypes";
+import type { IePopupType } from "./ie/popupTypes";
 export type PackPopupType =
   | never
   | CnPopupType
-  | GbPopupType;
+  | GbPopupType
+  | IePopupType;

@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import type { Map as MapboxMap } from "mapbox-gl";
-import { useMapReadyTick } from "./useMapReadyTick";
-import { feedDynamicSource } from "../map/dynamicSourceFeed";
-import { isAccessDenied } from "../lib/layerGates";
-import { registerOwnerGateReset } from "../lib/ownerGateRevoke";
-import { keepLoadingUntilMapIdle, withLoading } from "../lib/loadingRegistry";
-import { supabase } from "../lib/supabase";
-import { viewLngRanges } from "../lib/viewLngRanges";
-import { IE_COILLTE_FOREST_ROADS, IE_COILLTE_ROADS_MIN_ZOOM, IE_COILLTE_SPEC_BY_KEY, normalizeIeCoillte, type IeCoillteKey } from "../data/ieCoillteTypes";
+import { useMapReadyTick } from "../../hooks/useMapReadyTick";
+import { feedDynamicSource } from "../../map/dynamicSourceFeed";
+import { isAccessDenied } from "../../lib/layerGates";
+import { registerOwnerGateReset } from "../../lib/ownerGateRevoke";
+import { keepLoadingUntilMapIdle, withLoading } from "../../lib/loadingRegistry";
+import { supabase } from "../../lib/supabase";
+import { viewLngRanges } from "../../lib/viewLngRanges";
+import { IE_COILLTE_FOREST_ROADS, IE_COILLTE_ROADS_MIN_ZOOM, IE_COILLTE_SPEC_BY_KEY, normalizeIeCoillte, type IeCoillteKey } from "./ieCoillteTypes";
 
 /**
  * 愛爾蘭 Coillte 國有林兩層（站主限定）資料供應 hook，比照 useGbEaPollutionInventoryLayer。

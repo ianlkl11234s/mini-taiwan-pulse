@@ -71,4 +71,19 @@ export const COUNTRY_PACK_CONFIG: Record<string, CountryPackConfig> = {
     excludeKeys: /^statsGb/,
     keyType: "GbLayerKey",
   },
+  IE: {
+    dir: "ie",
+    nameZh: "愛爾蘭",
+    dedicated: [
+      /^src\/data\/ie(?!StatisticsRecipes)[A-Z][A-Za-z]*\.ts$/,
+      /^src\/hooks\/useIe[A-Z][A-Za-z]*\.ts$/,
+      /^src\/components\/legend\/ieLegends\.tsx$/,
+      /^src\/components\/featureInfo\/iePanels\.tsx$/,
+      /^src\/layers\/hosts\/irelandHosts\.tsx$/,
+    ],
+    rename: { "src/data/ieDataKeys.ts": "keys.ts" },
+    excludeKeys: /^statsIe/,
+    keyType: "IeLayerKey",
+    specNotes: { specsImport: "./ieDataLayers", specsName: "IE_DATA_SPECS", all: true },
+  },
 };

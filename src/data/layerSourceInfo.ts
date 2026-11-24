@@ -16,7 +16,6 @@ import { PH_DATA_SPECS } from "./phDataLayers";
 import { CA_WAVE_SPECS } from "./caWavesLayers";
 import { VN_DATA_SPECS } from "./vnDataLayers";
 import { KR_DATA_SPECS } from "./krDataLayers";
-import { IE_DATA_SPECS } from "./ieDataLayers";
 
 /** 原文字串、既有 i18n key（可帶變數），或三語各自的原文。 */
 export type SourceText =
@@ -93,7 +92,7 @@ const SPEC_NOTES = new Map<string, SourceText[]>();
 {
   const add = (key: string, notes: SourceText[]) => { if (notes.length) SPEC_NOTES.set(key, notes); };
   for (const spec of [...PH_DATA_SPECS, ...CA_WAVE_SPECS, ...VN_DATA_SPECS]) add(spec.key, specLayerNotes(spec));
-  for (const spec of [...KR_DATA_SPECS, ...IE_DATA_SPECS]) add(spec.key, spec.popupNotes.map(fromL3));
+  for (const spec of [...KR_DATA_SPECS]) add(spec.key, spec.popupNotes.map(fromL3));
 }
 // 國家包（B1 P5a）帶來的規格層備註：`layerSpecNotes` 登記簿（key → notes，空的不登記）
 onRecordExtended("layerSpecNotes", (added) => {

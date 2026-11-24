@@ -1,15 +1,15 @@
 // 愛爾蘭 Layer Host（2026-11-07 第 0 波起）。比照 hosts/canadaHosts.tsx：一個 key 一個 Host。
 
 import { useMemo } from "react";
-import { useIeAdminLayers } from "../../hooks/useIeAdminLayers";
-import { useIeBathymetryLayer } from "../../hooks/useIeBathymetryLayer";
+import { useIeAdminLayers } from "./useIeAdminLayers";
+import { useIeBathymetryLayer } from "./useIeBathymetryLayer";
 import { useKrDataLayer } from "../../hooks/intlKrSpecLayers";
-import { useIeCoillteForestRoadsLayer, useIeCoillteLayer } from "../../hooks/useIeCoillteLayers";
-import { IE_SPEC_BY_KEY, ieFloodScenarioFileAt, ieGwFloodFileAt, ieNoiseMetricFileAt } from "../../data/ieDataLayers";
+import { useIeCoillteForestRoadsLayer, useIeCoillteLayer } from "./useIeCoillteLayers";
+import { IE_SPEC_BY_KEY, ieFloodScenarioFileAt, ieGwFloodFileAt, ieNoiseMetricFileAt } from "./ieDataLayers";
 import { asKrSpec } from "../../data/intlSpecBridge";
-import type { IeDataKey } from "../../data/ieDataKeys";
-import { bumpHostRender, type LayerHostComponent } from "../layerHostDeps";
-import { useKeyOverlayParams } from "../layerParamsAccess";
+import type { IeDataKey } from "./keys";
+import { bumpHostRender, type LayerHostComponent } from "../../layers/layerHostDeps";
+import { useKeyOverlayParams } from "../../layers/layerParamsAccess";
 
 /** 行政邊界：地方政府、選舉分區、統計小區三層級（同一個 PMTiles，select 切換）。 */
 export const IeAdminHost: LayerHostComponent = ({ deps }) => {
