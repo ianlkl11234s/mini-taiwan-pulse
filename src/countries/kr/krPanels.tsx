@@ -1,21 +1,21 @@
 // 南韓圖層 popup（2026-10-31 第 0 波起）。來源與授權由 panel 自掛 SourceFooter（FOOTER_SELF_MANAGED）。
 import type { FC } from "react";
-import { Row, SourceFooter, Title } from "./shared";
-import { KR_DATA_SPECS, KR_UNMEASURED, KR_UNNAMED, krFishingExpired, pickL3, type KrField, type KrLayerSpec } from "../../data/krDataLayers";
-import type { KrDataKey } from "../../data/krDataKeys";
+import { Row, SourceFooter, Title } from "../../components/featureInfo/shared";
+import { KR_DATA_SPECS, KR_UNMEASURED, KR_UNNAMED, krFishingExpired, pickL3, type KrField, type KrLayerSpec } from "./krDataLayers";
+import type { KrDataKey } from "./keys";
 import type { MessageKey } from "../../i18n/keys";
 import { useLocale } from "../../state/localeStore";
 import {
   KR_ADMIN_ATTRIBUTION, KR_ADMIN_COLOR, KR_ADMIN_FETCHED_AT, KR_ADMIN_LICENSE, KR_ADMIN_SOURCE_URL,
-} from "../../data/krAdminTypes";
+} from "./krAdminTypes";
 import {
   KR_AIRPORT_COLOR, KR_AIRPORTS_ATTRIBUTION, KR_AIRPORTS_URL, KR_BUS_STOPS_ATTRIBUTION, KR_BUS_STOPS_COLOR, KR_BUS_STOPS_URL, KR_FETCHED_AT,
   KR_FUEL_STATIONS_ATTRIBUTION, KR_FUEL_STATIONS_COLOR, KR_FUEL_STATIONS_URL, KR_NATIONAL_ROAD_COLOR, KR_NATIONAL_ROADS_ATTRIBUTION,
   KR_NATIONAL_ROADS_URL, KR_OIL_GAS_COLOR, KR_OSM_ATTRIBUTION, KR_OSM_LICENSE, KR_OSM_URL, KR_PIPELINE_COLORS, KR_PORT_COLOR as KR_PORT, KR_PORTAL_LICENSE, KR_PORTS_ATTRIBUTION, KR_PORTS_URL, KR_POWER_LINES_COLOR, KR_POWER_PLANTS_COLOR,
   KR_RAIL_LINES_COLOR, KR_RAIL_STATIONS_ATTRIBUTION, KR_RAIL_STATIONS_COLOR, KR_RAIL_STATIONS_URL, KR_RENEWABLES_COLOR,
   KR_SUBSTATIONS_COLOR, KR_TOWERS_COLOR, krFuelGroup, krFuelType, krNum, krOilGasType, krRailLineClass, krRailNetwork, krText, krVoltageClass,
-} from "../../data/krInfraTypes";
-import { KR_FUEL_GROUP_KEYS, KR_FUEL_TYPE_KEYS, KR_OIL_GAS_TYPE_KEYS, KR_RAIL_CLASS_KEYS, KR_RAIL_NETWORK_KEYS } from "../legend/krLegends";
+} from "./krInfraTypes";
+import { KR_FUEL_GROUP_KEYS, KR_FUEL_TYPE_KEYS, KR_OIL_GAS_TYPE_KEYS, KR_RAIL_CLASS_KEYS, KR_RAIL_NETWORK_KEYS } from "./krLegends";
 
 const text = (value: unknown) => (value == null ? "" : String(value).trim());
 

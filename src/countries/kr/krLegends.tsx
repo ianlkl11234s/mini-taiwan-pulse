@@ -1,18 +1,18 @@
 // 南韓第 1 波（國土基礎）圖例：交通 6 層＋能源 7 層。色票與署名 SSOT 在 data/krInfraTypes.ts。
 // OSM 補缺的層一律分開標「OSM 補缺」並署名 © OpenStreetMap contributors；沒涵蓋的地區寫「未涵蓋」。
-import { LegendNote, LegendRow, LegendSizeRow, LegendTitle, SwatchDot, SwatchLine, SwatchSquare, useLegendTheme, LegendRestrictions } from "./legendKit";
-import { DenseHeatmapLegendRow } from "./legendShared";
+import { LegendNote, LegendRow, LegendSizeRow, LegendTitle, SwatchDot, SwatchLine, SwatchSquare, useLegendTheme, LegendRestrictions } from "../../components/legend/legendKit";
+import { DenseHeatmapLegendRow } from "../../components/legend/legendShared";
 import { LAYER_MANIFEST, type LayerName } from "../../data/layerManifest";
 import {
   KR_AIRPORT_COLOR, KR_BUS_STOPS_ATTRIBUTION, KR_BUS_STOPS_COLOR, KR_CAPACITY_BANDS, KR_FALLBACK_COLOR, KR_FUEL_GROUPS,
   KR_FUEL_STATIONS_ATTRIBUTION, KR_FUEL_TYPES, KR_NATIONAL_ROAD_COLOR, KR_NATIONAL_ROADS_ATTRIBUTION, KR_OIL_GAS_TYPES, KR_PIPELINE_COLORS, KR_PLANT_FUELS, KR_PORT_COLOR, KR_PORTS_ATTRIBUTION, KR_RAIL_LINE_CLASSES, KR_RAIL_NETWORKS, KR_RAIL_STATIONS_ATTRIBUTION,
   KR_RENEWABLE_FUELS, KR_TOWERS_COLOR, KR_VOLTAGE_CLASSES,
   type KrFuelGroup, type KrFuelType, type KrOilGasType, type KrRailLineClass, type KrRailNetwork, type KrVoltageClass,
-} from "../../data/krInfraTypes";
+} from "./krInfraTypes";
 import { LINE_DASH, LINE_WIDTH } from "../../map/mapStyleScale";
 import type { ReactNode } from "react";
-import { KR_SPEC_BY_KEY, krRampColors, pickL3, type KrLayerSpec } from "../../data/krDataLayers";
-import type { KrDataKey } from "../../data/krDataKeys";
+import { KR_SPEC_BY_KEY, krRampColors, pickL3, type KrLayerSpec } from "./krDataLayers";
+import type { KrDataKey } from "./keys";
 import { useLocale } from "../../state/localeStore";
 import { localizeLayerName } from "../../i18n/layerText";
 import type { MessageKey } from "../../i18n/keys";

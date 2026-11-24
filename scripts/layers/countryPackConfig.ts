@@ -27,6 +27,8 @@ export interface CountryPackConfig {
   keyType: string;
   /** all：備註全收（KR／IE 的規格層）；預設只收沒有 when 條件的（specLayerNotes） */
   specNotes?: { specsImport: string; specsName: string; all?: boolean };
+  /** 規格層自建的 style layer id 由國家包登記（layerVisibilityHint 的 layerStyleIds） */
+  styleIds?: { specsImport: string; specsName: string };
   /** 這國的 overlay 但留在中央 registry（例：jpHeightLifecycle 依視窗管理的樣板，MapView 開站就要） */
   keepOverlays?: string[];
 }
@@ -85,5 +87,21 @@ export const COUNTRY_PACK_CONFIG: Record<string, CountryPackConfig> = {
     excludeKeys: /^statsIe/,
     keyType: "IeLayerKey",
     specNotes: { specsImport: "./ieDataLayers", specsName: "IE_DATA_SPECS", all: true },
+  },
+  KR: {
+    dir: "kr",
+    nameZh: "南韓",
+    dedicated: [
+      /^src\/data\/kr(?!StatisticsRecipes)[A-Z][A-Za-z]*\.ts$/,
+      /^src\/hooks\/useKr[A-Z][A-Za-z]*\.ts$/,
+      /^src\/components\/legend\/kr[A-Z][A-Za-z]*\.tsx$/,
+      /^src\/components\/featureInfo\/kr[A-Z][A-Za-z]*\.tsx$/,
+      /^src\/layers\/hosts\/koreaHosts\.tsx$/,
+    ],
+    rename: { "src/data/krDataKeys.ts": "keys.ts" },
+    excludeKeys: /^statsKr/,
+    keyType: "KrLayerKey",
+    specNotes: { specsImport: "./krDataLayers", specsName: "KR_DATA_SPECS", all: true },
+    styleIds: { specsImport: "./krDataLayers", specsName: "KR_DATA_SPECS" },
   },
 };

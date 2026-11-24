@@ -37,7 +37,6 @@ import { repPointClickLayerIds } from './repPointOverlays';
  *   本表每個 type 也都要有 manifest key 宣告它。宣告與接線任一邊漂移 = 紅。
  */
 import type { FeatureInfo } from "../types";
-import { KR_ECO_CLICK_LAYER_IDS, KR_WASTE_CLICK_LAYER_IDS } from "../data/krEcoWasteTypes";
 import { DISASTER_ALERT_CLICK_LAYERS } from "../hooks/useDisasterAlertLayer";
 import { PLA_ACTIVITY_CLICK_LAYERS } from "../hooks/usePlaActivityLayer";
 import { VESSEL_WATCH_CLICK_LAYERS } from "../hooks/useVesselWatchLayer";
@@ -352,58 +351,7 @@ export const GIS_LAYERS: GisLayerEntry[] = slottedList<GisLayerEntry>("gisClickL
   { layers: ["jp-accommodation-density-1500-fill", "jp-accommodation-density-1500-outline"], type: "jpAccommodationDensity" },
   { layers: ["jp-admin-municipality-fill"], type: "jpAdminBoundaries" },
   countrySlot("GB", 1), // 英國國家包（src/countries/gb/）
-  // 南韓第 3–5 波：點 → 線 → 面，都排在行政界（大面積背景）前面
-  { layers: ["kr-street-trees-circle"], type: "krStreetTrees" },
-  { layers: ["kr-water-level-stations-circle"], type: "krWaterLevelStations" },
-  { layers: ["kr-sluice-gates-circle"], type: "krSluiceGates" },
-  { layers: ["kr-water-quality-stations-circle"], type: "krWaterQualityStations" },
-  { layers: ["kr-coastal-erosion-facilities-circle"], type: "krCoastalErosionFacilities" },
-  { layers: ["kr-marine-pollution-incidents-circle"], type: "krMarinePollutionIncidents" },
-  { layers: ["kr-marine-env-sites-circle"], type: "krMarineEnvSites" },
-  { layers: ["kr-public-bicycle-stations-circle"], type: "krPublicBicycleStations" },
-  { layers: ["kr-seoul-subway-congestion-circle"], type: "krSeoulSubwayCongestion" },
-  { layers: ["kr-parking-lots-circle"], type: "krParkingLots" },
-  { layers: ["kr-bridges-circle"], type: "krBridges" },
-  { layers: ["kr-speed-cameras-circle"], type: "krSpeedCameras" },
-  { layers: ["kr-child-protection-zones-circle"], type: "krChildProtectionZones" },
-  { layers: ["kr-np-location-signs-circle"], type: "krNpLocationSigns" },
-  { layers: ["kr-urban-parks-circle"], type: "krUrbanParks" },
-  { layers: ["kr-sports-facilities-circle"], type: "krSportsFacilities" },
-  { layers: ["kr-schools-circle"], type: "krSchools" },
-  { layers: ["kr-hospitals-pharmacies-circle"], type: "krHospitalsPharmacies" },
-  { layers: ["kr-fire-stations-circle"], type: "krFireStations" },
-  { layers: ["kr-civil-defense-shelters-circle"], type: "krCivilDefenseShelters" },
-  { layers: ["kr-police-boxes-circle"], type: "krPoliceBoxes" },
-  { layers: ["kr-libraries-circle"], type: "krLibraries" },
-  { layers: ["kr-museums-circle"], type: "krMuseums" },
-  { layers: ["kr-performances-circle"], type: "krPerformances" },
-  { layers: ["kr-festivals-circle"], type: "krFestivals" },
-  { layers: ["kr-heritage-circle"], type: "krHeritage" },
-  { layers: ["kr-lodging-circle"], type: "krLodging" },
-  { layers: ["kr-safe-delivery-boxes-circle"], type: "krSafeDeliveryBoxes" },
-  { layers: ["kr-senior-centers-circle"], type: "krSeniorCenters" },
-  { layers: ["kr-noise-sites-circle"], type: "krNoiseSites" },
-  { layers: ["kr-clothing-bins-circle"], type: "krClothingBins" },
-  { layers: ["kr-animal-hospitals-circle"], type: "krAnimalHospitals" },
-  { layers: ["kr-local-culture-centers-circle"], type: "krLocalCultureCenters" },
-  { layers: ["kr-traditional-temples-circle"], type: "krTraditionalTemples" },
-  { layers: ["kr-protected-trees-circle"], type: "krProtectedTrees" },
-  { layers: ["kr-bicycle-parking-circle"], type: "krBicycleParking" },
-  { layers: ["kr-civil-defense-water-circle"], type: "krCivilDefenseWater" },
-  { layers: ["kr-emergency-bells-circle"], type: "krEmergencyBells" },
-  { layers: ["kr-rural-experience-villages-circle"], type: "krRuralExperienceVillages" },
-  { layers: ["kr-slaughterhouses-circle"], type: "krSlaughterhouses" },
-  { layers: ["kr-np-trails-line"], type: "krNpTrails" },
-  { layers: ["kr-territorial-sea-line"], type: "krTerritorialSea" },
-  { layers: ["kr-rivers-osm-line", "kr-rivers-osm-major-line"], type: "krRiversOsm" },
-  // 南韓第 1 波：點（機場 → 電廠 → 再生能源 → 變電所 → 燃料站 → 鐵道站 → 公車站 → 鐵塔）→ 線（電網、國道、鐵道）→ 面（油氣、港灣）
-  { layers: ["kr-airports-circle"], type: "krAirports" },
-  { layers: ["kr-power-plants-circle", "kr-power-plants-minor-circle"], type: "krPowerPlants" },
-  { layers: ["kr-renewables-circle", "kr-renewables-minor-circle"], type: "krRenewables" },
-  { layers: ["kr-substations-circle"], type: "krSubstations" },
-  { layers: ["kr-fuel-stations-circle"], type: "krFuelStations" },
-  { layers: ["kr-rail-stations-circle"], type: "krRailStations" },
-  { layers: ["kr-oil-gas-pts-facility-circle", "kr-oil-gas-pts-pipeline-circle", "kr-oil-gas-point", "kr-oil-gas-pipelines-line", "kr-oil-gas-line", "kr-oil-gas-fill"], type: "krOilGas" },
+  countrySlot("KR", 1), // 南韓國家包（src/countries/kr/）
   { layers: ["ca-airports-circle", "ca-airports-minor-circle", "ca-ports-circle", "ca-ports-minor-circle"], type: "caAirportsPorts" },
   { layers: ["ca-rail-stations-circle", "ca-rail-tracks-line", "ca-rail-tracks-minor-line"], type: "caRailways" },
   { layers: ["ca-transit-stops-circle"], type: "caTransitStops" },
@@ -425,24 +373,7 @@ export const GIS_LAYERS: GisLayerEntry[] = slottedList<GisLayerEntry>("gisClickL
   { layers: ["ca-rents-points-circle"], type: "caRents" },
   { layers: ["ca-cimd-points-circle"], type: "caDeprivation" },
   { layers: ["ca-fed-points-circle"], type: "caFederalDistricts" },
-  { layers: ["kr-bus-stops-circle"], type: "krBusStops" },
-  { layers: ["kr-power-towers-circle"], type: "krPowerTowers" },
-  { layers: ["kr-power-lines-line", "kr-power-cables-line"], type: "krPowerLines" },
-  { layers: ["kr-national-roads-line"], type: "krNationalRoads" },
-  { layers: ["kr-rail-lines-line"], type: "krRailLines" },
-  { layers: ["kr-ports-line", "kr-ports-fill"], type: "krPorts" },
-  // 南韓面層（海洋保護區、國家公園、墓園、工業區、漁場、首爾分區）：排在所有點、線之後，避免吃掉點擊
-  { layers: ["kr-marine-protected-areas-fill"], type: "krMarineProtectedAreas" },
-  { layers: ["kr-national-parks-fill"], type: "krNationalParks" },
-  { layers: ["kr-cemeteries-osm-fill"], type: "krCemeteriesOsm" },
-  { layers: ["kr-industrial-complexes-fill"], type: "krIndustrialComplexes" },
-  { layers: ["kr-fishing-grounds-fill"], type: "krFishingGrounds" },
-  { layers: ["kr-seoul-zoning-fill"], type: "krSeoulZoning" },
-  // 南韓 KRH-1：垃圾排出規則（掛行政界 sgg 面）排在行政界之前，同開時先命中規則；生態自然圖 17 個 시·도 分片＋空錨點
-  { layers: [...KR_WASTE_CLICK_LAYER_IDS], type: "krWasteDisposalRules" },
-  { layers: [...KR_ECO_CLICK_LAYER_IDS], type: "krEcologyNaturalness" },
-  // 南韓：三層級一次只開一層
-  { layers: ["kr-admin-emd-fill", "kr-admin-sgg-fill", "kr-admin-sido-fill"], type: "krAdminBoundaries" },
+  countrySlot("KR", 2), // 南韓國家包（src/countries/kr/）
   // 加拿大第 3–8 波（2026-11-17，規格驅動；點層在前，面層在後，避免大面吃掉點擊）
   { layers: ["ca-dams-circle"], type: "caDams" },
   { layers: ["ca-recycling-depots-circle"], type: "caRecyclingDepots" },
@@ -1258,9 +1189,7 @@ export const GIS_LAYERS: GisLayerEntry[] = slottedList<GisLayerEntry>("gisClickL
   // 🏙️ 公共生活 OSM 覆蓋度 H3：鋪滿整個分析範圍的面層，排在最前會吞掉其下所有圖層的點擊
   //    （first-hit-wins）→ 與其他 H3 格一起放在大面積面層段。
   { layers: ["public-life-osm-coverage-fill", "public-life-osm-coverage-outline"], type: "publicLifeOsmCoverage" },
-  // 南韓人口 H3 格：覆蓋全國的面，排在南韓點線 entry 之前會搶走設施點擊 → 放面層段
-  { layers: ["kr-population-h3-fill"], type: "krPopulationH3" },
-  { layers: ["kr-school-districts-fill"], type: "krSchoolDistricts" },
+  countrySlot("KR", 3), // 南韓國家包（src/countries/kr/）
   // 航船布告的面（射擊區、施工區可達數十公里）：放面層段，避免吞掉海上測站與船點的點擊（B8）
   { layers: ["tw-nav-notices-fill"], type: "navNotice" },
   // 🏞️ 國家公園：大面積面層，排在道路、站點與 POI 之前會讓園區內的點擊先命中公園 → 放大面積面層段。

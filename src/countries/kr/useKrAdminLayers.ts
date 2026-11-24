@@ -1,13 +1,13 @@
 import { useEffect } from "react";
 import type { Map as MapboxMap, FillLayer, LineLayer } from "mapbox-gl";
-import { PMTILES_SOURCE_TYPE } from "../map/pmtilesConstants";
-import { registerPmtilesSourceTypeOnce } from "../map/pmtilesSourceType";
-import { useMapReadyTick } from "./useMapReadyTick";
-import { paramDefault } from "../data/layerParamsSpec";
-import { BOUNDARY_GRAY } from "../map/mapStyleScale";
-import { hookLineLayout, hookLineOpacity, hookLinePaint } from "../map/lineFillSpec";
-import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
-import { KR_ADMIN_COLOR, KR_ADMIN_LEVELS } from "../data/krAdminTypes";
+import { PMTILES_SOURCE_TYPE } from "../../map/pmtilesConstants";
+import { registerPmtilesSourceTypeOnce } from "../../map/pmtilesSourceType";
+import { useMapReadyTick } from "../../hooks/useMapReadyTick";
+import { paramDefault } from "../../data/layerParamsSpec";
+import { BOUNDARY_GRAY } from "../../map/mapStyleScale";
+import { hookLineLayout, hookLineOpacity, hookLinePaint } from "../../map/lineFillSpec";
+import { keepLoadingUntilMapIdle } from "../../lib/loadingRegistry";
+import { KR_ADMIN_COLOR, KR_ADMIN_LEVELS } from "./krAdminTypes";
 
 /**
  * 南韓行政邊界（第 0 波 C001）：kr_admin_boundaries.pmtiles 一個 source、三個 tile layer（sido／sgg／emd）。

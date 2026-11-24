@@ -5,10 +5,10 @@
  * - 不涵蓋：其他 hook 自建的圖層（英國 `useGb*`、台灣／日本各 hook）——縮放與色票寫在命令式程式裡，
  *   無法可靠抽出；這些靠 §3.8 V-7 截圖驗收。
  */
-import { OVERLAY_REGISTRY } from "./overlayRegistry";
-import { KR_DATA_SPECS } from "../data/krDataLayers";
-import { LAYER_MANIFEST } from "../data/layerManifest";
-import { getParamsSpec, paramControlCategory, paramDefault } from "../data/layerParamsSpec";
+import { OVERLAY_REGISTRY } from "../overlayRegistry";
+import { KR_DATA_SPECS } from "../../countries/kr/krDataLayers";
+import { LAYER_MANIFEST } from "../../data/layerManifest";
+import { getParamsSpec, paramControlCategory, paramDefault } from "../../data/layerParamsSpec";
 
 /** V-2 容許：layer 最早出現縮放比圖磚 minzoom 晚最多 1 級 */
 export const V2_MAX_ZOOM_LAG = 1;

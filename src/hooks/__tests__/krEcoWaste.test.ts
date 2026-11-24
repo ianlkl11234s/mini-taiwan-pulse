@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { shardsInView, type PmtilesShard } from "../useViewportPmtilesShards";
-import { KR_ECO_CLICK_LAYER_IDS, KR_ECO_CODES, krEcoGrade, krWasteDaysState } from "../../data/krEcoWasteTypes";
+import { KR_ECO_CLICK_LAYER_IDS, KR_ECO_CODES, krEcoGrade, krWasteDaysState } from "../../countries/kr/krEcoWasteTypes";
 import { GIS_LAYERS } from "../../map/gisClickRegistry";
 
 const shards: PmtilesShard[] = [

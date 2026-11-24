@@ -166,6 +166,8 @@ export function extendedRecordKeys(name: string): ReadonlySet<string> {
   return extendedKeys.get(name) ?? new Set();
 }
 
+const END = "\u0000end";
+
 function reorder(name: string, target: Rec): void {
   const hint = orderHints.get(name);
   const ext = extendedKeys.get(name);
@@ -181,18 +183,18 @@ function reorder(name: string, target: Rec): void {
   hinted.sort((a, b) => a.rank - b.rank);
   const after = new Map<string, string[]>();
   for (const h of hinted) {
-    // 錨點不在（理論上不會：錨點是靜態 key）就排到最後
-    const anchor = base.includes(h.anchor) ? h.anchor : "";
+    // 錨點 ""＝排在最前面（搬家前就是第一個）；錨點不在（理論上不會：錨點是靜態 key）就排到最後
+    const anchor = h.anchor === "" || base.includes(h.anchor) ? h.anchor : END;
     const list = after.get(anchor) ?? [];
     list.push(h.key);
     after.set(anchor, list);
   }
-  const order: string[] = [];
+  const order: string[] = [...(after.get("") ?? [])];
   for (const key of base) {
     order.push(key);
     for (const k of after.get(key) ?? []) order.push(k);
   }
-  for (const k of after.get("") ?? []) order.push(k);
+  for (const k of after.get(END) ?? []) order.push(k);
   const entries = order.map((k) => [k, target[k]] as const);
   for (const k of order) delete target[k];
   for (const [k, v] of entries) target[k] = v;

@@ -255,7 +255,7 @@ describe("R5 南韓熱區出點縮放", () => {
     expect(densePointsFromZoom(17_699, 0)).toBe(10);
   });
   it("krRenewables 不套熱區：太陽能陣列 90% 但容量差距大，熱區只反映案件數；改 z4 起畫大型點、z8 起補太陽能", () => {
-    const src = fs.readFileSync(path.resolve(__dirname, "../../hooks/useKrEnergyLayers.ts"), "utf8");
+    const src = fs.readFileSync(path.resolve(__dirname, "../../countries/kr/useKrEnergyLayers.ts"), "utf8");
     const block = src.slice(src.indexOf("export function useKrRenewablesLayer"), src.indexOf("// ─────────────────────────── 電網"));
     expect(block).not.toMatch(/heatmap/i);
     expect(paramsSpecHasHeatmap("krRenewables")).toBe(false);

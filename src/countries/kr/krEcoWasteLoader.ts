@@ -1,5 +1,5 @@
 // 南韓 KRH-1 靜態 JSON（public/world/，deploy-assets／R2）：生態自然圖分片索引、垃圾排出規則。各抓一次、模組快取。
-import { withLoading } from "../lib/loadingRegistry";
+import { withLoading } from "../../lib/loadingRegistry";
 import { KR_ECO_INDEX_FILE, KR_ECO_TEXT, KR_WASTE_RULES_FILE, KR_WASTE_TEXT, type KrEcoIndexFile, type KrWasteRulesFile } from "./krEcoWasteTypes";
 
 const url = (file: string) => `${import.meta.env.BASE_URL ?? "/"}world/${file}`;

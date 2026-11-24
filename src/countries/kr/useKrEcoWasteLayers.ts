@@ -1,14 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
 import type { AnyLayer, Map as MapboxMap } from "mapbox-gl";
-import { hatchImageData, hatchImageId, mapSeamColor } from "../map/mapStyleScale";
-import { loadKrEcoIndex, loadKrWasteRules } from "../data/krEcoWasteLoader";
+import { hatchImageData, hatchImageId, mapSeamColor } from "../../map/mapStyleScale";
+import { loadKrEcoIndex, loadKrWasteRules } from "./krEcoWasteLoader";
 import {
   KR_ECO_ANCHOR_FILL, KR_ECO_ANCHOR_SOURCE, KR_ECO_ATTRIBUTION, KR_ECO_CODES, KR_ECO_MIN_ZOOM, KR_ECO_SRC_MAXZOOM, KR_ECO_TEXT,
   KR_ECO_UNKNOWN_COLOR, KR_WASTE_ADMIN_FILE, KR_WASTE_ADMIN_SOURCE, KR_WASTE_ATTRIBUTION, KR_WASTE_COLOR, KR_WASTE_FILL, KR_WASTE_HATCH,
   KR_WASTE_LINE, KR_WASTE_MIN_ZOOM, KR_WASTE_TEXT, krEcoFillId, krEcoSourceId, KR_ECO_SOURCE_LAYER, krEcoGrades, type KrEcoIndexFile,
-} from "../data/krEcoWasteTypes";
-import { useGbPmtilesLayers, type LayerBuild, type SourceSpec } from "./intlPmtilesLayers";
-import { useViewportPmtilesShards, type PmtilesShard } from "./useViewportPmtilesShards";
+} from "./krEcoWasteTypes";
+import { useGbPmtilesLayers, type LayerBuild, type SourceSpec } from "../../hooks/intlPmtilesLayers";
+import { useViewportPmtilesShards, type PmtilesShard } from "../../hooks/useViewportPmtilesShards";
 
 type Expr = unknown[];
 const clamp01 = (value: number) => Math.max(0, Math.min(1, value));

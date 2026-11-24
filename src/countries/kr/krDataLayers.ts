@@ -6,12 +6,12 @@
  *
  * 色票沿用台灣同語意圖層與英國第 3 波（水系藍／青、堤防琥珀、海洋保護區綠…），分類色之間以明度與色相區分。
  */
-import type { KrDataKey } from "./krDataKeys";
-import { KR_CAT_OTHER_ID, type KrLayerSpec as IntlKrLayerSpec, type L3 } from "./intlLayerShared";
+import type { KrDataKey } from "./keys";
+import { type KrLayerSpec as IntlKrLayerSpec, type L3 } from "../../data/intlLayerShared";
 
-export { krRampColors, pickL3, krGroupFilter, krStringProp, krSpecCatFilter, KR_CONGESTION_BREAKS, KR_CAT_OTHER_ID } from "./intlLayerShared";
-export type { KrFilterGroup } from "./intlLayerShared";
-export type { KrCat, KrField, KrFieldKind, L3 } from "./intlLayerShared";
+export { krRampColors, pickL3, krGroupFilter, krStringProp, krSpecCatFilter, krCatOptionIds, KR_CONGESTION_BREAKS, KR_CAT_OTHER_ID } from "../../data/intlLayerShared";
+export type { KrFilterGroup } from "../../data/intlLayerShared";
+export type { KrCat, KrField, KrFieldKind, L3 } from "../../data/intlLayerShared";
 export type KrLayerSpec<K extends string = KrDataKey> = IntlKrLayerSpec<K>;
 
 const l3 = (zh: string, en: string, ja: string): L3 => ({ zh, en, ja });
@@ -1008,8 +1008,4 @@ export const KR_UNNAMED = UNNAMED;
 // ─────────────────────────── V-4 類別篩選（分類多選）與 V-1 縮放區間共用 ───────────────────────────
 
 
-
-/** 規格的多選選項 id（宣告順序；有 `otherLabel` 者最後加「其他」）。 */
-export const krCatOptionIds = (spec: Pick<KrLayerSpec, "cats" | "otherLabel">): string[] =>
-  spec.cats ? [...spec.cats.map((c) => c.id), ...(spec.otherLabel ? [KR_CAT_OTHER_ID] : [])] : [];
 

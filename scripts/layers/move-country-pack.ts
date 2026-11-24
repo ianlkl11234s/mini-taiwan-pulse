@@ -733,7 +733,17 @@ if (nonEmpty.length === 0 && moves.size === 0 && !(cfg.moveNamed?.length)) {
 flushSourceEdits();
 for (const s of sections.values()) if (s.exportName === "" || s.body.length || s.slotBodies.size) writeSection(s);
 
-// ── 5. keys.ts／popupTypes.ts／specNotes.ts／pack.ts／packKeys.ts ──────
+// ── 5. keys.ts／popupTypes.ts／specNotes.ts／styleIds.ts／pack.ts／packKeys.ts ──────
+if (cfg.styleIds && !existsSync(join(PACK_ABS, "styleIds.ts"))) {
+  mkdirSync(PACK_ABS, { recursive: true });
+  writeFileSync(join(PACK_ABS, "styleIds.ts"), `${HEADER("規格層自建的 style layer id（視野提示卡判斷「看不到」用，map/layerVisibilityHint）")}import { ${cfg.styleIds.specsName} } from "${cfg.styleIds.specsImport}";
+
+export const ${CC}_PACK_STYLE_IDS: Record<string, readonly string[]> = Object.fromEntries(
+  ${cfg.styleIds.specsName}.map((spec) => [spec.key, [spec.layerId]] as const),
+);
+`);
+  log.push(`產生 ${PACK_DIR}/styleIds.ts（設定 styleIds）`);
+}
 mkdirSync(PACK_ABS, { recursive: true });
 const keysAbs = join(PACK_ABS, "keys.ts");
 if (!existsSync(keysAbs)) {
@@ -800,6 +810,7 @@ const REC: Array<[string, string, string]> = [
   ["layerSourceInfo", "sourceInfo", `${CC}_PACK_SOURCE_INFO`], ["layerNotes", "notes", `${CC}_PACK_NOTES`],
   ["layerSpecNotes", "specNotes", `${CC}_PACK_SPEC_NOTES`], ["featurePanels", "panels", `${CC}_PACK_PANELS`],
   ["featureHeaderLabels", "headerLabels", `${CC}_PACK_HEADER_LABELS`],
+  ["layerStyleIds", "styleIds", `${CC}_PACK_STYLE_IDS`],
 ];
 const LIST: Array<[string, string, string]> = [
   ["legends", "legends", `${CC}_PACK_LEGEND_SLOTS`], ["gisClickLayers", "clicks", `${CC}_PACK_CLICK_SLOTS`],

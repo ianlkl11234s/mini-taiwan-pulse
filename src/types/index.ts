@@ -1,7 +1,8 @@
+import type { KrLayerKey } from "../countries/kr/keys";
 import type { IeLayerKey } from "../countries/ie/keys";
 import type { GbLayerKey } from "../countries/gb/keys";
 import type { ComparisonStatisticsLayerKey } from '../data/comparisonStatisticsKeys';
-import type { KrDataKey } from '../data/krDataKeys';
+import type { KrDataKey } from '../countries/kr/keys';
 import type { IeDataKey } from '../countries/ie/keys';
 import type { PhDataKey, PhRasterKey } from '../data/phDataKeys';
 import type { VnDataKey, VnRasterKey } from '../data/vnDataKeys';
@@ -1167,7 +1168,7 @@ export interface FeatureInfo {
 
 // ── 圖層控制 ──
 
-export interface LayerVisibility extends Record<KrDataKey | IeDataKey | PhDataKey | PhRasterKey | VnDataKey | VnRasterKey | ThDataKey | ThRasterKey | IdDataKey | IdRasterKey | CnDataKey | CnRasterKey | CaWaveKey | ComparisonStatisticsLayerKey | LaborStatisticsLayerKey | EnvironmentStatisticsLayerKey | DemographicsStatisticsLayerKey | AddictionStatisticsLayerKey | LandslideStatisticsLayerKey | AtlasStatisticsLayerKey | GbLayerKey | IeLayerKey, boolean> {
+export interface LayerVisibility extends Record<KrDataKey | IeDataKey | PhDataKey | PhRasterKey | VnDataKey | VnRasterKey | ThDataKey | ThRasterKey | IdDataKey | IdRasterKey | CnDataKey | CnRasterKey | CaWaveKey | ComparisonStatisticsLayerKey | LaborStatisticsLayerKey | EnvironmentStatisticsLayerKey | DemographicsStatisticsLayerKey | AddictionStatisticsLayerKey | LandslideStatisticsLayerKey | AtlasStatisticsLayerKey | GbLayerKey | IeLayerKey | KrLayerKey, boolean> {
   statsWasteRecyclingRate: boolean;
   statsEducationCountyInstitutionCount: boolean;
   statsEducationCountyTeacherCount: boolean;
@@ -2128,9 +2129,6 @@ export interface LayerVisibility extends Record<KrDataKey | IeDataKey | PhDataKe
   historicalLandUse: boolean;   // 同上：歷史土地利用
   historicalThematic: boolean;  // 同上：歷史主題圖（水利、地質、林務、測量）
   water1944Taipei: boolean; // 1944 水域（臺北盆地）：1944 美軍地形圖顏色抽取的水域面，依今日是否仍為河道分兩類（站主限定）
-  krEcologyNaturalness: boolean; // 南韓生態自然圖（KRH-1 C117，17 個 시·도 PMTiles 依視窗載入，z10 起）
-  krWasteDisposalRules: boolean; // 南韓生活垃圾排出規則（KRH-1 C086，JSON join kr_admin_boundaries sgg 層）
-  krAdminBoundaries: boolean;   // 南韓行政邊界（PMTiles polygon，시·도 16／시군구 256／행정동 3,559；admdongkor ver20261001）
   caAdminBoundaries: boolean;   // 加拿大第 0＋1 波（PMTiles，public/world/ca_*.pmtiles）
   phAdminBoundaries: boolean;   // 菲律賓行政邊界（PMTiles polygon，region 18／province 88／municipality 1,642／barangay 42,048；2026-11-13 第 0 波）
   phPopulation: boolean;   // 菲律賓人口（2024 普查，四層級人口密度；其餘 8 層走 PhDataKey）
@@ -2169,19 +2167,6 @@ export interface LayerVisibility extends Record<KrDataKey | IeDataKey | PhDataKe
   phOpenaqAir: boolean;   // 菲律賓即時空品（OpenAQ，RPC get_openaq_latest）
   caEarthquakesLive: boolean;   // 加拿大即時地震（瀏覽器直連 NRCan FDSN，近 30 天）
   caPopulationGrid: boolean;   // 加拿大第 3 波（PMTiles，public/world/ca_*.pmtiles）
-  krBusStops: boolean;        // 南韓全國公車站（PMTiles point，227,059；TAGO 彙整）
-  krRailStations: boolean;    // 南韓鐵道車站（KORAIL＋都市鐵道，955）
-  krAirports: boolean;        // 南韓機場（KAC 14＋仁川 OSM，15）
-  krPorts: boolean;           // 南韓港灣區（PMTiles polygon，68）
-  krNationalRoads: boolean;   // 南韓一般國道（PMTiles line，1,693 段；不含高速道路）
-  krRailLines: boolean;       // 南韓鐵道線（OSM，24,486）
-  krFuelStations: boolean;    // 南韓 LPG／CNG·LNG／수소／EV 充電站（7,106）
-  krPowerPlants: boolean;     // 南韓電廠（OSM，4,308；官方無座標）
-  krRenewables: boolean;      // 南韓再生能源點（OSM，8,578）
-  krPowerLines: boolean;      // 南韓輸配電線（OSM，4,523；kr_power_grid.pmtiles）
-  krSubstations: boolean;     // 南韓變電所（OSM，1,199；與電網線同檔）
-  krPowerTowers: boolean;     // 南韓高壓鐵塔（OSM，42,252；z11 起）
-  krOilGas: boolean;          // 南韓油氣設施與管線（OSM，146 面＋33 線；覆蓋稀疏）
   jpInlandFloodAreas: boolean;  // 日本內水浸水想定區域（PMTiles polygon，202,357 面；28 市町村、想定最大規模）
   jmaAmedas: boolean;     // 日本 AMeDAS 即時觀測（public.jma_amedas_current）
   jmaWarnings: boolean;   // 日本警報・注意報（市町村界 choropleth）

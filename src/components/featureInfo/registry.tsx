@@ -67,13 +67,6 @@ import {
   JpRailwaysPanel, JpSchoolsPanel, JpPoliceFacilitiesPanel, JpEvacuationSitesPanel, JpPublicOfficesPanel, JpBusStopsPanel, JpLandslideWarningAreasPanel, JpInlandFloodAreasPanel, JpZoningUseDistrictsPanel, JpNationalForestsPanel, JpWelfareDisabilityPanel, JpWelfareChildPanel, JpMajorRoadsPanel, JpMunicipalRoadsPanel, JpExpresswaysPanel, JpPopulationMeshPanel,
   JpTourismPanel, JpAccommodationDensityPanel, JpWaterPanel,
 } from "./japanPanels";
-import { KR_DATA_SPECS } from "../../data/krDataLayers";
-import type { KrDataKey } from "../../data/krDataKeys";
-
-/** 南韓第 3–5 波 18 層的標題列（中文＋韓文原名，與其他國家圖層一致）。 */
-const KR_HEADER_LABELS = Object.fromEntries(KR_DATA_SPECS.map((s) => [s.key, `${s.title.fallback.zh}`])) as Record<KrDataKey, string>;
-import { KR_DATA_PANELS, KrAdminBoundariesPanel, KrBusStopsPanel, KrRailStationsPanel, KrAirportsPanel, KrPortsPanel, KrNationalRoadsPanel, KrRailLinesPanel, KrFuelStationsPanel, KrPowerPlantsPanel, KrRenewablesPanel, KrPowerLinesPanel, KrSubstationsPanel, KrPowerTowersPanel, KrOilGasPanel } from "./krPanels";
-import { KrEcologyNaturalnessPanel, KrWasteDisposalRulesPanel } from "./krEcoWastePanels";
 import { CaAdminBoundariesPanel, CaTransitStopsPanel, CaAirportsPortsPanel, CaMajorRoadsPanel, CaRailwaysPanel, CaPowerPlantsPanel, CaWindTurbinesPanel, CaPowerGridPanel, CaOilGasPanel, CaPopulationCentresPanel, CaFederalDistrictsPanel, CaPostalFsaPanel, CaIndigenousLandsPanel, CaDeprivationPanel, CaRentsPanel, CaPlaceNamesPanel } from "./caPanels";
 import { PH_DATA_PANELS, PhAdminBoundariesPanel, PhOpenaqAirPanel, PhPopulationPanel } from "./phPanels";
 import { makePhPanel } from "./intlSpecPanel";
@@ -479,23 +472,6 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   jpReligionWikidata: JpReligionWikidataPanel,
   jpAdminPrefecture: JpAdminPrefecturePanel,
   jpAdminBoundaries: JpAdminBoundariesPanel,
-  krAdminBoundaries: KrAdminBoundariesPanel,
-  krEcologyNaturalness: KrEcologyNaturalnessPanel,
-  krWasteDisposalRules: KrWasteDisposalRulesPanel,
-  ...KR_DATA_PANELS,
-  krBusStops: KrBusStopsPanel,
-  krRailStations: KrRailStationsPanel,
-  krAirports: KrAirportsPanel,
-  krPorts: KrPortsPanel,
-  krNationalRoads: KrNationalRoadsPanel,
-  krRailLines: KrRailLinesPanel,
-  krFuelStations: KrFuelStationsPanel,
-  krPowerPlants: KrPowerPlantsPanel,
-  krRenewables: KrRenewablesPanel,
-  krPowerLines: KrPowerLinesPanel,
-  krSubstations: KrSubstationsPanel,
-  krPowerTowers: KrPowerTowersPanel,
-  krOilGas: KrOilGasPanel,
   caAdminBoundaries: CaAdminBoundariesPanel,
   phAdminBoundaries: PhAdminBoundariesPanel,
   phPopulation: PhPopulationPanel,
@@ -1137,23 +1113,6 @@ export const HEADER_LABELS = extensibleRecord("featureHeaderLabels", {
   jpReligionWikidata: "宗教設施 宗教施設（Wikidata）",
   jpAdminPrefecture: "都道府縣界 都道府県境",
   jpAdminBoundaries: "市區町村界 市区町村境",
-  krAdminBoundaries: "南韓行政區界",
-  krEcologyNaturalness: "生態自然圖 생태자연도",
-  krWasteDisposalRules: "垃圾排出規則 생활쓰레기 배출",
-  ...KR_HEADER_LABELS,
-  krBusStops: "公車站 버스정류장",
-  krRailStations: "鐵道車站 철도역",
-  krAirports: "機場 공항",
-  krPorts: "港灣區 항만구역",
-  krNationalRoads: "一般國道 일반국도",
-  krRailLines: "鐵道線 철도 노선",
-  krFuelStations: "燃料與充電站 연료·충전소",
-  krPowerPlants: "電廠 발전소",
-  krRenewables: "再生能源點 신재생에너지 설비",
-  krPowerLines: "輸配電線 송전선",
-  krSubstations: "變電所 변전소",
-  krPowerTowers: "高壓鐵塔 송전철탑",
-  krOilGas: "油氣設施 석유·가스 시설",
   caAdminBoundaries: "行政邊界 Administrative Boundaries",
   phAdminBoundaries: "行政邊界 Administrative Boundaries",
   phPopulation: "人口密度 Population Density",

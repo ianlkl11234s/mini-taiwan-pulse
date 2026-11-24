@@ -1,8 +1,8 @@
 // 南韓 KRH-1 圖例：生態自然圖（C117）、生活垃圾排出規則（C086）。文案與色票 SSOT 在 data/krEcoWasteTypes.ts。
-import { LegendNote, LegendRestrictions, LegendRow, LegendTitle, SwatchHatch, SwatchSquare, useLegendTheme } from "./legendKit";
+import { LegendNote, LegendRestrictions, LegendRow, LegendTitle, SwatchHatch, SwatchSquare, useLegendTheme } from "../../components/legend/legendKit";
 import { LAYER_MANIFEST, type LayerName } from "../../data/layerManifest";
-import { pickL3 } from "../../data/krDataLayers";
-import { krEcoGrades, KR_ECO_TEXT, KR_WASTE_ATTRIBUTION, KR_WASTE_COLOR, KR_WASTE_LICENSE, KR_WASTE_TEXT } from "../../data/krEcoWasteTypes";
+import { pickL3 } from "./krDataLayers";
+import { krEcoGrades, KR_ECO_TEXT, KR_WASTE_ATTRIBUTION, KR_WASTE_COLOR, KR_WASTE_LICENSE, KR_WASTE_TEXT } from "./krEcoWasteTypes";
 import { useLocale } from "../../state/localeStore";
 import { localizeLayerName } from "../../i18n/layerText";
 

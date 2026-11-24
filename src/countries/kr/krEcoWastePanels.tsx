@@ -1,18 +1,18 @@
 // 南韓 KRH-1 popup：生態自然圖（C117）、生活垃圾排出規則（C086，星期格子 spec §5.46）。來源由 panel 自掛 SourceFooter。
 import { useEffect, useState } from "react";
-import { PopupDetails, PopupScroll, Row, SourceFooter, Title } from "./shared";
-import { WeekdayGrid } from "./WeekdayGrid";
-import { LIGHT_FEATURE, useFeatureTheme } from "./featureTheme";
+import { PopupDetails, PopupScroll, Row, SourceFooter, Title } from "../../components/featureInfo/shared";
+import { WeekdayGrid } from "../../components/featureInfo/WeekdayGrid";
+import { LIGHT_FEATURE, useFeatureTheme } from "../../components/featureInfo/featureTheme";
 import { FONT_DATA, FONT_SIZE, FONT_WEIGHT, RADIUS } from "../../styles/designTokens";
-import { pickL3, type L3 } from "../../data/krDataLayers";
+import { pickL3, type L3 } from "./krDataLayers";
 import { useLocale } from "../../state/localeStore";
-import { krEcoIndexNow, krWasteRulesNow, loadKrWasteRules } from "../../data/krEcoWasteLoader";
+import { krEcoIndexNow, krWasteRulesNow, loadKrWasteRules } from "./krEcoWasteLoader";
 import {
   KR_ECO_COLOR, KR_ECO_EVAL_FIELDS, KR_ECO_LICENSE, KR_ECO_SOURCE_ORG, KR_ECO_SOURCE_URL, KR_ECO_TEXT, KR_KRH1_FETCHED_AT,
   KR_WASTE_ATTRIBUTION, KR_WASTE_COLOR, KR_WASTE_ITEMS, KR_WASTE_LICENSE, KR_WASTE_PLACE_TYPES, KR_WASTE_SOURCE_URL, KR_WASTE_TEXT,
   KR_WEEKDAY_LONG, KR_WEEKDAY_SHORT, KR_WEEKDAYS, krEcoGrade, krWasteDaysState,
   type KrWasteGroup, type KrWasteRulesFile, type KrWasteSgg, type KrWeekday,
-} from "../../data/krEcoWasteTypes";
+} from "./krEcoWasteTypes";
 
 const text = (value: unknown) => (value == null ? "" : String(value).trim());
 const fill = (s: string, vars: Record<string, string | number>) => s.replace(/\{(\w+)\}/g, (_, k: string) => String(vars[k] ?? ""));

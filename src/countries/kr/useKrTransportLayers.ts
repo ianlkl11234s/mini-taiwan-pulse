@@ -1,20 +1,20 @@
 import { useEffect } from "react";
 import type { AnyLayer, CircleLayer, HeatmapLayer, Map as MapboxMap } from "mapbox-gl";
-import { hookFillPaint, hookLinePaint } from "../map/lineFillSpec";
-import { LINE_WIDTH, densePointsFromZoom, heatmapMaxzoom, pointRadius, pointStrokePaint } from "../map/mapStyleScale";
-import { paramDefault } from "../data/layerParamsSpec";
-import { applyHeatmapStyle, heatmapLayerPaint, useHeatmapStyleSignature } from "../state/layerPalette";
-import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
-import { PMTILES_SOURCE_TYPE } from "../map/pmtilesConstants";
-import { registerPmtilesSourceTypeOnce } from "../map/pmtilesSourceType";
-import { krGroupFilter, krStringProp } from "../data/krDataLayers";
+import { hookFillPaint, hookLinePaint } from "../../map/lineFillSpec";
+import { LINE_WIDTH, densePointsFromZoom, heatmapMaxzoom, pointRadius, pointStrokePaint } from "../../map/mapStyleScale";
+import { paramDefault } from "../../data/layerParamsSpec";
+import { applyHeatmapStyle, heatmapLayerPaint, useHeatmapStyleSignature } from "../../state/layerPalette";
+import { keepLoadingUntilMapIdle } from "../../lib/loadingRegistry";
+import { PMTILES_SOURCE_TYPE } from "../../map/pmtilesConstants";
+import { registerPmtilesSourceTypeOnce } from "../../map/pmtilesSourceType";
+import { krGroupFilter, krStringProp } from "./krDataLayers";
 import {
   KR_AIRPORT_COLOR, KR_AIRPORTS_ATTRIBUTION, KR_BUS_STOPS_ATTRIBUTION, KR_BUS_STOPS_COLOR, KR_BUS_STOPS_COUNT, KR_FALLBACK_COLOR,
   KR_NATIONAL_ROAD_COLOR, KR_NATIONAL_ROADS_ATTRIBUTION, KR_OSM_ATTRIBUTION, KR_PORT_COLOR, KR_PORTS_ATTRIBUTION, KR_RAIL_LINE_CLASSES,
   KR_RAIL_NETWORKS, KR_RAIL_STATIONS_ATTRIBUTION,
-} from "../data/krInfraTypes";
-import { useGbPmtilesLayers, type SourceSpec } from "./intlPmtilesLayers";
-import { useMapReadyTick } from "./useMapReadyTick";
+} from "./krInfraTypes";
+import { useGbPmtilesLayers, type SourceSpec } from "../../hooks/intlPmtilesLayers";
+import { useMapReadyTick } from "../../hooks/useMapReadyTick";
 
 /**
  * 南韓第 1 波交通 6 層：公車站（點，P-4 熱區）、鐵道車站、機場、港灣區（面）、一般國道（線）、鐵道線（OSM）。靜態資料、不訂閱時間。

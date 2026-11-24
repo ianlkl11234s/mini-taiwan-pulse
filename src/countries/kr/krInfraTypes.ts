@@ -8,9 +8,9 @@
  * 色票沿用台灣／日本／英國同語意（資料色，spec §3.16）：燃料別＝`FUEL_COLORS`；電壓分級＝台灣 osmPowerLines 4 色；
  * 公車站＝日本公車站主色；機場／港口／國道／鐵道線＝英國同類色票。
  */
-import { FACILITY_STATUS_PAINT_COLORS, FOSSIL_PAINT_COLORS } from "../map/layerPaintColors";
-import { FUEL_COLORS, FUEL_FALLBACK_COLOR } from "./energyLoader";
-import { CAPACITY_RADIUS_BANDS, INTL_BUS_STOP_COLOR } from "./intlLayerShared";
+import { FACILITY_STATUS_PAINT_COLORS, FOSSIL_PAINT_COLORS } from "../../map/layerPaintColors";
+import { FUEL_COLORS, FUEL_FALLBACK_COLOR } from "../../data/energyLoader";
+import { CAPACITY_RADIUS_BANDS, INTL_BUS_STOP_COLOR } from "../../data/intlLayerShared";
 
 export const KR_FETCHED_AT = "2026-10-31";
 export const KR_OSM_ATTRIBUTION = "© OpenStreetMap contributors";

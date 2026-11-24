@@ -8,17 +8,21 @@
 import type { CnLayerKey } from "./cn/keys";
 import type { GbLayerKey } from "./gb/keys";
 import type { IeLayerKey } from "./ie/keys";
+import type { KrLayerKey } from "./kr/keys";
 export type PackLayerKey =
   | never
   | CnLayerKey
   | GbLayerKey
-  | IeLayerKey;
+  | IeLayerKey
+  | KrLayerKey;
 
 import type { CnPopupType } from "./cn/popupTypes";
 import type { GbPopupType } from "./gb/popupTypes";
 import type { IePopupType } from "./ie/popupTypes";
+import type { KrPopupType } from "./kr/popupTypes";
 export type PackPopupType =
   | never
   | CnPopupType
   | GbPopupType
-  | IePopupType;
+  | IePopupType
+  | KrPopupType;

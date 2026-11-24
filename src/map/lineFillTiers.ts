@@ -198,18 +198,18 @@ export const HOOK_LINE_TIERS: Readonly<Record<string, HookLineTierSpec>> = {
   "jpAdminBoundaries/jp-admin-municipality-line": {"width": "standard", "opacity": "reference"}, // src/hooks/useJpAdminLayers.ts
   "jpAdminPrefecture/jp-admin-prefecture-line": {"width": "standard", "opacity": "reference"}, // src/hooks/useJpAdminLayers.ts
   "gbAdminBoundaries/gb-admin-lad-line": {"width": "emphasis", "opacity": "standard"}, // L-5 行政界：LAD 比照縣市 · src/countries/gb/useGbAdminLayers.ts
-  "krAdminBoundaries/kr-admin-sido-line": {"width": "emphasis", "opacity": "standard"}, // L-5 行政界：시·도比照縣市 · src/hooks/useKrAdminLayers.ts
-  "krAdminBoundaries/kr-admin-sgg-line": {"width": "standard", "opacity": "standard"}, // L-5：시군구比照鄉鎮市區 · src/hooks/useKrAdminLayers.ts
-  "krAdminBoundaries/kr-admin-emd-line": {"width": "thin", "opacity": "standard"}, // L-5：행정동比照村里 · src/hooks/useKrAdminLayers.ts
-  "krPorts/kr-ports-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // 港灣區外框 · src/hooks/useKrTransportLayers.ts
-  "krNationalParks/kr-national-parks-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // 國立公園外框 · src/hooks/useKrDataLayers.ts
-  "krMarineProtectedAreas/kr-marine-protected-areas-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // 海洋保護區外框 · src/hooks/useKrDataLayers.ts
-  "krNationalRoads/kr-national-roads-line": {"width": "standard", "opacity": "standard"}, // 一般國道（單一類，標準階）· src/hooks/useKrTransportLayers.ts
-  "krRailLines/kr-rail-lines-line": {"width": "keep", "opacity": "keep"}, // 寬、透明度依 line_class（幹線強調、地鐵輕軌標準、側線細）· src/hooks/useKrTransportLayers.ts
-  "krPowerLines/kr-power-lines-line": {"width": "keep", "opacity": "keep"}, // 寬、透明度依電壓（比照 osmPowerLines）· src/hooks/useKrEnergyLayers.ts
-  "krPowerLines/kr-power-cables-line": {"width": "keep", "opacity": "keep"}, // 地下／海底電纜虛線，依電壓 · src/hooks/useKrEnergyLayers.ts
-  "krOilGas/kr-oil-gas-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // 油氣設施外框（依類型色）· src/hooks/useKrEnergyLayers.ts
-  "krOilGas/kr-oil-gas-pipelines-line": {"width": "keep", "opacity": "keep"}, // 油氣管線（依 substance）· src/hooks/useKrEnergyLayers.ts
+  "krAdminBoundaries/kr-admin-sido-line": {"width": "emphasis", "opacity": "standard"}, // L-5 行政界：시·도比照縣市 · src/countries/kr/useKrAdminLayers.ts
+  "krAdminBoundaries/kr-admin-sgg-line": {"width": "standard", "opacity": "standard"}, // L-5：시군구比照鄉鎮市區 · src/countries/kr/useKrAdminLayers.ts
+  "krAdminBoundaries/kr-admin-emd-line": {"width": "thin", "opacity": "standard"}, // L-5：행정동比照村里 · src/countries/kr/useKrAdminLayers.ts
+  "krPorts/kr-ports-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // 港灣區外框 · src/countries/kr/useKrTransportLayers.ts
+  "krNationalParks/kr-national-parks-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // 國立公園外框 · src/countries/kr/useKrDataLayers.ts
+  "krMarineProtectedAreas/kr-marine-protected-areas-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // 海洋保護區外框 · src/countries/kr/useKrDataLayers.ts
+  "krNationalRoads/kr-national-roads-line": {"width": "standard", "opacity": "standard"}, // 一般國道（單一類，標準階）· src/countries/kr/useKrTransportLayers.ts
+  "krRailLines/kr-rail-lines-line": {"width": "keep", "opacity": "keep"}, // 寬、透明度依 line_class（幹線強調、地鐵輕軌標準、側線細）· src/countries/kr/useKrTransportLayers.ts
+  "krPowerLines/kr-power-lines-line": {"width": "keep", "opacity": "keep"}, // 寬、透明度依電壓（比照 osmPowerLines）· src/countries/kr/useKrEnergyLayers.ts
+  "krPowerLines/kr-power-cables-line": {"width": "keep", "opacity": "keep"}, // 地下／海底電纜虛線，依電壓 · src/countries/kr/useKrEnergyLayers.ts
+  "krOilGas/kr-oil-gas-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // 油氣設施外框（依類型色）· src/countries/kr/useKrEnergyLayers.ts
+  "krOilGas/kr-oil-gas-pipelines-line": {"width": "keep", "opacity": "keep"}, // 油氣管線（依 substance）· src/countries/kr/useKrEnergyLayers.ts
   "caAdminBoundaries/ca-admin-pr-line": {"width": "emphasis", "opacity": "standard"}, // L-5 行政界：省／地區比照縣市 · src/hooks/useCaAdminLayers.ts
   "caAdminBoundaries/ca-admin-cd-line": {"width": "standard", "opacity": "standard"}, // L-5：普查區比照鄉鎮市區 · src/hooks/useCaAdminLayers.ts
   "caAdminBoundaries/ca-admin-csd-line": {"width": "thin", "opacity": "standard"}, // L-5：普查分區比照村里 · src/hooks/useCaAdminLayers.ts
@@ -407,10 +407,10 @@ export const HOOK_FILL_TIERS: Readonly<Record<string, FillTier | "keep">> = {
   "jpCarePlanning/jp-medical-care-aggregate-fill": "graded", // src/hooks/useJpMedicalLayers.ts
   "jpCareResidential/jp-medical-care-aggregate-fill": "graded", // src/hooks/useJpMedicalLayers.ts
   "jpNationalForests/jp-national-forests-fill": "coverage", // src/hooks/useJpNationalForestsLayer.ts
-  "krPorts/kr-ports-fill": "coverage", // 港灣區面 · src/hooks/useKrTransportLayers.ts
-  "krNationalParks/kr-national-parks-fill": "coverage", // 國立公園面 · src/hooks/useKrDataLayers.ts
-  "krMarineProtectedAreas/kr-marine-protected-areas-fill": "coverage", // 海洋保護區面 · src/hooks/useKrDataLayers.ts
-  "krOilGas/kr-oil-gas-fill": "coverage", // 油氣設施面（依類型色）· src/hooks/useKrEnergyLayers.ts
+  "krPorts/kr-ports-fill": "coverage", // 港灣區面 · src/countries/kr/useKrTransportLayers.ts
+  "krNationalParks/kr-national-parks-fill": "coverage", // 國立公園面 · src/countries/kr/useKrDataLayers.ts
+  "krMarineProtectedAreas/kr-marine-protected-areas-fill": "coverage", // 海洋保護區面 · src/countries/kr/useKrDataLayers.ts
+  "krOilGas/kr-oil-gas-fill": "coverage", // 油氣設施面（依類型色）· src/countries/kr/useKrEnergyLayers.ts
   "caPopulationCentres/ca-population-centres-fill": "coverage", // 人口中心面（依規模色）· src/hooks/useCaEnergyLayers.ts
   "caPostalFsa/ca-fsa-fill": "coverage", // FSA 面（都市／農村）· src/hooks/useCaAreaLayers.ts
   "caIndigenousLands/ca-indigenous-lands-fill": "coverage", // 原住民土地面（4 類）· src/hooks/useCaAreaLayers.ts

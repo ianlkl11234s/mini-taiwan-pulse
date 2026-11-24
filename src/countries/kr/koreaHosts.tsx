@@ -1,16 +1,16 @@
 // 南韓 Layer Host（2026-10-31 第 0 波起）。clone hosts/ukHosts.tsx 的 GbAdminHost 慣例。
 
-import { useKrAdminLayers } from "../../hooks/useKrAdminLayers";
-import { KR_ECO_OPACITY, KR_WASTE_OPACITY } from "../../data/krEcoWasteTypes";
-import { useKrEcologyNaturalnessLayer, useKrWasteDisposalRulesLayer } from "../../hooks/useKrEcoWasteLayers";
-import { krSourceSpec, useKrDataLayer } from "../../hooks/useKrDataLayers";
+import { useKrAdminLayers } from "./useKrAdminLayers";
+import { KR_ECO_OPACITY, KR_WASTE_OPACITY } from "./krEcoWasteTypes";
+import { useKrEcologyNaturalnessLayer, useKrWasteDisposalRulesLayer } from "./useKrEcoWasteLayers";
+import { krSourceSpec, useKrDataLayer } from "./useKrDataLayers";
 import { useOwnerPmtilesSource, useOwnerRevokeCleanup } from "../../hooks/useOwnerPmtilesAccess";
-import { KR_SPEC_BY_KEY } from "../../data/krDataLayers";
-import type { KrDataKey } from "../../data/krDataKeys";
-import { useKrAirportsLayer, useKrBusStopsLayer, useKrNationalRoadsLayer, useKrPortsLayer, useKrRailLinesLayer, useKrRailStationsLayer } from "../../hooks/useKrTransportLayers";
-import { useKrFuelStationsLayer, useKrOilGasLayer, useKrPowerLinesLayer, useKrPowerPlantsLayer, useKrPowerTowersLayer, useKrRenewablesLayer, useKrSubstationsLayer } from "../../hooks/useKrEnergyLayers";
-import { bumpHostRender, type LayerHostComponent } from "../layerHostDeps";
-import { useKeyOverlayParams } from "../layerParamsAccess";
+import { KR_SPEC_BY_KEY } from "./krDataLayers";
+import type { KrDataKey } from "./keys";
+import { useKrAirportsLayer, useKrBusStopsLayer, useKrNationalRoadsLayer, useKrPortsLayer, useKrRailLinesLayer, useKrRailStationsLayer } from "./useKrTransportLayers";
+import { useKrFuelStationsLayer, useKrOilGasLayer, useKrPowerLinesLayer, useKrPowerPlantsLayer, useKrPowerTowersLayer, useKrRenewablesLayer, useKrSubstationsLayer } from "./useKrEnergyLayers";
+import { bumpHostRender, type LayerHostComponent } from "../../layers/layerHostDeps";
+import { useKeyOverlayParams } from "../../layers/layerParamsAccess";
 
 /** 南韓行政邊界：시·도／시군구／행정동 三層級（同一個 PMTiles，select 切換）。 */
 export const KrAdminHost: LayerHostComponent = ({ deps }) => {
