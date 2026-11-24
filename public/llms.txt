@@ -48,6 +48,13 @@
 - [30 天地圖挑戰 Day 16：協作地圖：和朋友一起規劃英國旅行的共用網站](https://mini-taiwan-pulse.itsmigu.com/blog/mapchallenge-2026-day16-collaborative-map/)：30 天地圖挑戰 Day 16（Collaborative map）文章。
 - [30 天地圖挑戰 Day 17：台灣夜晚哪裡最黑？衛星夜光、暗路段與路燈 LED 化](https://mini-taiwan-pulse.itsmigu.com/blog/mapchallenge-2026-day17-light-dark/)：30 天地圖挑戰 Day 17（Light & dark）文章。
 - [30 天地圖挑戰 Day 18：開放資料的空白：22 縣市有多少資料能放上地圖？](https://mini-taiwan-pulse.itsmigu.com/blog/mapchallenge-2026-day18-null/)：30 天地圖挑戰 Day 18（NULL）文章。
+- [30 天地圖挑戰 Day 2：臺灣周邊船舶航跡：兩天 1.1 萬艘船的長曝光地圖](https://mini-taiwan-pulse.itsmigu.com/blog/mapchallenge-2026-day02-ship-trails/)：30 天地圖挑戰 Day 2（Lines）文章。
+- [30 天地圖挑戰 Day 19：台灣哪裡有異味？陳情、氣味潛勢與裁罰地圖](https://mini-taiwan-pulse.itsmigu.com/blog/mapchallenge-2026-day19-smell/)：30 天地圖挑戰 Day 19（Senses: Smell）文章。
+- [30 天地圖挑戰 Day 20：H3 六角網格：把日夜人口做成立體城市動畫](https://mini-taiwan-pulse.itsmigu.com/blog/mapchallenge-2026-day20-h3/)：30 天地圖挑戰 Day 20（Hexagons）文章。
+- [30 天地圖挑戰 Day 21：OpenStreetMap 道路是哪一年畫上去的？雙北基隆 19 年](https://mini-taiwan-pulse.itsmigu.com/blog/mapchallenge-2026-day21-osm-road-history/)：30 天地圖挑戰 Day 21（OpenStreetMap）文章。
+- [30 天地圖挑戰 Day 22：地圖投影：用日晷與方位等距投影看桃園機場的航線](https://mini-taiwan-pulse.itsmigu.com/blog/mapchallenge-2026-day22-projections/)：30 天地圖挑戰 Day 22（Projections）文章。
+- [30 天地圖挑戰 Day 23：店名裡的味道：肉燥飯、魯肉飯與各地小吃分布](https://mini-taiwan-pulse.itsmigu.com/blog/mapchallenge-2026-day23-taste/)：30 天地圖挑戰 Day 23（Senses: Taste）文章。
+- [30 天地圖挑戰 Day 11：城市聲景地圖：用資料推估雙北的聲源活動](https://mini-taiwan-pulse.itsmigu.com/blog/mapchallenge-2026-day11-city-soundscape/)：30 天地圖挑戰 Day 11（Senses: Sound）文章。
 
 ## 程式碼與文件
 

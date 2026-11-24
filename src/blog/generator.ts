@@ -390,7 +390,7 @@ export function renderPostPage(post: BlogPost, posts: BlogPost[], publicDir: str
   const image = post.cover ? assetPath(post, post.cover) : undefined;
   const { prev, next } = neighbors(posts, post);
   const related = relatedPosts(posts, post);
-  const seriesPosts = post.series ? posts.filter((p) => p.series === post.series).sort((a, b) => a.date.localeCompare(b.date)) : [];
+  const seriesPosts = post.series ? posts.filter((p) => p.series === post.series).sort((a, b) => (a.challengeDay ?? 0) - (b.challengeDay ?? 0) || a.date.localeCompare(b.date)) : [];
   const graph: unknown[] = [
     {
       "@type": "BlogPosting",

@@ -57,6 +57,7 @@
 
 | Day | 題目 | 文章 slug | 主題 | 狀態 | Threads | 備註 |
 |---|---|---|---|---|---|---|
+| 2 | Lines | mapchallenge-2026-day02-ship-trails | making | 待開 PR | 2026-11-19 | 11-19 補做；圖用 map-atelier 定案海報（網站沒有這張圖）；AIS 授權〔待確認〕；實際做法是 Python 疊光跡，Blender 只用在未採用的 3D 版 |
 | 3 | Polygons | mapchallenge-2026-day03-power-plants | layers | 已合併（#873） | 2026-11-03 | 貼文是三國電廠點位，沒點題 Polygons |
 | 4 | Clusters | mapchallenge-2026-day04-clusters | analysis | 已合併（#873） | 2026-11-04 | 圖層已隨 v2.23.0 上線 |
 | 5 | Senses: Sight | mapchallenge-2026-day05-sea-view | analysis | 已合併（#873） | 2026-11-05 | 網站群組名寫「視野 Perspectives」與官方題目不一致 |
@@ -65,7 +66,7 @@
 | 8 | Utopia | mapchallenge-2026-day08-utopia | analysis | 已合併（#957） | 2026-11-08 | 圖層隨 v2.32.0 上線（B 口徑）；成果小站 mapchallenge-utopia.itsmigu.com；方法分小節詳寫、約 3,900 字 |
 | 9 | Urban-rural | mapchallenge-2026-day09-urban-rural | analysis | 已合併（#1101） | 2026-11-09 | 圖層隨 v2.34.0 上線 |
 | 10 | Prompting only | mapchallenge-2026-day10-prompting-only | making | 已合併（#1101） | 2026-11-10 | 成果是 tw-gis-map-kit Plugin；示範地圖無公開網址，圖用 GitHub 頁 |
-| 11 | Senses: Sound | mapchallenge-2026-day11-city-soundscape | analysis | 草稿（drafts/） | 2026-11-11 | 城市聲景前端未上線；發版後補拍再搬進 content/blog |
+| 11 | Senses: Sound | mapchallenge-2026-day11-city-soundscape | analysis | 待開 PR | 2026-11-11 | 站主 11-24 決定先發實驗紀錄版：圖用研究階段截圖、文中寫明尚未上線；聲景圖層上線後補正式站截圖與位置 |
 | 12 | Power | mapchallenge-2026-day12-election-events | analysis | 草稿（drafts/） | 2026-11-12 | 選舉活動圖層站主限定；選後（11-28）決定開放再發 |
 | 13 | Interactions | mapchallenge-2026-day13-interactions | making | 已合併（#1101） | 2026-11-13 | 左右比較、多年份並排隨 v2.36.0 上線 |
 | 14 | Borgesian map | — | — | — | — | 2026-11-17 同步結果中沒有對應貼文 |
@@ -73,6 +74,11 @@
 | 16 | Collaborative map | mapchallenge-2026-day16-collaborative-map | making | 已合併（#1101） | 2026-11-16 | 英國旅行協作網站；截圖用去識別化示範版（假名），不放網址 |
 | 17 | Light & dark | mapchallenge-2026-day17-light-dark | analysis | 已合併（#1101） | 2026-11-17 | 圖層隨 v2.40.0 上線；漁火沒有截圖（需要 AIS 回放） |
 | 18 | NULL | mapchallenge-2026-day18-null | analysis | 已合併（#1103） | 2026-11-18 | 縣市開放資料完整度（目錄 2026-10-30 版）；站主決定圖用研究圖表；文內連到統計圖層「政府與開放資料」（#1104） |
+| 19 | Senses: Smell | mapchallenge-2026-day19-smell | analysis | 待開 PR | 2026-11-19 | 圖層隨 v2.42.0 上線；嵌入潛勢層（v2.43.0 起支援） |
+| 20 | Hexagons | mapchallenge-2026-day20-h3 | making | 待開 PR | 2026-11-21 | map-atelier 動畫作品，圖用影片畫面；信令資料時間〔待確認〕 |
+| 21 | OpenStreetMap | mapchallenge-2026-day21-osm-road-history | analysis | 待開 PR | 2026-11-21 | 圖層隨 v2.43.0 上線；文內附 map-atelier 有聲動畫 |
+| 22 | Projections | mapchallenge-2026-day22-projections | making | 待開 PR | 2026-11-22 | Flight Arc 投影切換（v3.9.0 上線，正式站截圖）；FR24 授權〔待確認〕；站主 11-24 決定收進挑戰系列 |
+| 23 | Senses: Taste | mapchallenge-2026-day23-taste | analysis | 待開 PR | 2026-11-23 | 已上線兩層有截圖；國外三層在 develop，發版後補截圖 |
 
 ## 新文章要決定的事
 
@@ -93,3 +99,4 @@
 - 2026-11-18：Day 9、10、13、16、17 五篇合併到 develop（#1101），等下次發版上正式站；〔待確認〕項目要在發版前補完。
 - 2026-11-18：Day 18 開寫；圖層未上線，先用研究圖表。
 - 2026-11-19：Day 18 隨 #1103 合併，統計圖層 #1104 同批合併。
+- 2026-11-24：Day 2、11、19、20、21、22、23 開寫（Day 11 從草稿搬出、Day 12 仍等選後）；授權類〔待確認〕依站主規則「沒有明確說不能用就當可以」移除；挑戰文章標題統一以「Day N - 」開頭（站主要求）。

@@ -1,5 +1,5 @@
 ---
-title: 台灣哪些公路、鐵路看得到海？海景路線地圖
+title: Day 5 - 台灣哪些公路、鐵路看得到海？海景路線地圖
 description: 30 天地圖挑戰 Day 5（Senses: Sight）：把台灣本島沿海 3 公里內的公路與鐵路每 50 公尺取一點，用地形、建物、樹冠高度推估車窗看不看得到海。約 12.7% 的點看得到，本島最長的連續公路海景是台 2 線金山到石門。
 slug: mapchallenge-2026-day05-sea-view
 topic: analysis
