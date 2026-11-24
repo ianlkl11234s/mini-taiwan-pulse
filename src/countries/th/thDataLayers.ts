@@ -8,14 +8,14 @@
  * 授權空白的官方來源（NGIS、GISTDA Hosted、DOH drive）照常上線（使用者 2026-11-21），圖例與署名一律寫「授權未明示」＋機關名；
  * Overture 來源（電網、儲槽管線、加油站）寫「Overture 補缺（非官方）」；OSM 層署名 © OpenStreetMap contributors（ODbL）。
  */
-import type { ThDataKey } from "./thDataKeys";
+import type { ThDataKey } from "./keys";
 import { TH_WAVE_SPECS } from "./thWavesLayers";
 import { TH_WAVE5_SPECS } from "./thWaves5Layers";
 import { TH_WAVE8_SPECS } from "./thWaves8Layers";
-import type { L3, PhCat, PhCatGetter, PhField, PhLayerSpec, PhNote, PhSizeBands } from "./intlLayerShared";
+import type { L3, PhCat, PhCatGetter, PhField, PhLayerSpec, PhNote, PhSizeBands } from "../../data/intlLayerShared";
 
-export type { L3 } from "./intlLayerShared";
-export { pickL3, phText } from "./intlLayerShared";
+export type { L3 } from "../../data/intlLayerShared";
+export { pickL3, phText } from "../../data/intlLayerShared";
 
 type Expr = unknown[];
 const l3 = (zh: string, en: string, ja: string): L3 => ({ zh, en, ja });

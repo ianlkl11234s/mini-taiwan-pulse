@@ -1,15 +1,15 @@
 // 泰國圖層 popup（2026-11-22 第 0–1 波）。規格與署名 SSOT 在 data/thDataLayers.ts；規格驅動層重用菲律賓 makePhPanel。
 // 來源與授權由 panel 自掛 SourceFooter（FOOTER_SELF_MANAGED）。空值列由 Row 自動隱藏，不寫 0。
 import type { FC } from "react";
-import { Row, SourceFooter, Title } from "./shared";
+import { Row, SourceFooter, Title } from "../../components/featureInfo/shared";
 import { useLocale } from "../../state/localeStore";
 import { caText } from "../../data/intlLayerShared";
-import { makePhPanel } from "./intlSpecPanel";
+import { makePhPanel } from "../../components/featureInfo/intlSpecPanel";
 import {
   TH_ADMIN_COLOR, TH_ADMIN_LEVEL_LABELS, TH_ADMIN_SOURCE, TH_BOUNDARY_NOTE, TH_DATA_SPECS, TH_FETCHED_AT, TH_NOT_COVERED_COLOR, TH_POP_STATUS,
   TH_POP_YEARS, TH_POPULATION_SOURCE, phText, pickL3, type L3, type ThAdminLevel,
-} from "../../data/thDataLayers";
-import type { ThDataKey } from "../../data/thDataKeys";
+} from "./thDataLayers";
+import type { ThDataKey } from "./keys";
 
 type P = { props: Record<string, unknown> };
 

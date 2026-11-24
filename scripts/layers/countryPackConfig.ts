@@ -119,4 +119,17 @@ export const COUNTRY_PACK_CONFIG: Record<string, CountryPackConfig> = {
     keyType: "CaLayerKey",
     specNotes: { specsImport: "./caWavesLayers", specsName: "CA_WAVE_SPECS" },
   },
+  TH: {
+    dir: "th",
+    nameZh: "泰國",
+    dedicated: [
+      /^src\/data\/th[A-Z][A-Za-z0-9]*\.ts$/,
+      /^src\/hooks\/useTh[A-Z][A-Za-z]*\.ts$/,
+      /^src\/components\/legend\/th[A-Z][A-Za-z]*\.tsx$/,
+      /^src\/components\/featureInfo\/th[A-Z][A-Za-z]*\.tsx$/,
+      /^src\/layers\/hosts\/thailandHosts\.tsx$/,
+    ],
+    rename: { "src/data/thDataKeys.ts": "keys.ts" },
+    keyType: "ThLayerKey",
+  },
 };

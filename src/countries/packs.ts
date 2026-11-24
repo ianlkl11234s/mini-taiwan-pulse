@@ -23,6 +23,7 @@ const PACK_LOADERS: Partial<Record<CountryCode, () => Promise<{ default: Country
   IE: () => import("./ie/pack"),
   KR: () => import("./kr/pack"),
   CA: () => import("./ca/pack"),
+  TH: () => import("./th/pack"),
   // <codemod:pack-loaders>
 };
 

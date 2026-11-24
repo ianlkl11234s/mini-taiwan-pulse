@@ -4,9 +4,9 @@
  * 授權空白的來源（NGIS、GISTDA Hosted、DOH drive、HRDI）照常上線（使用者 2026-11-21），圖例與署名寫「授權未明示」＋機關名。
  * 本檔不 import thDataLayers 的值（thDataLayers 會 spread 本檔）；只 import 型別。
  */
-import type { ThRasterKey } from "./thDataKeys";
+import type { ThRasterKey } from "./keys";
 import type { ThLayerSpec } from "./thDataLayers";
-import type { L3, PhCat, PhCatGetter, PhField, PhNote, PhPart } from "./intlLayerShared";
+import type { L3, PhCat, PhCatGetter, PhField, PhNote, PhPart } from "../../data/intlLayerShared";
 import { TH_SOIL_RASTER_SPECS } from "./thWaves8Layers";
 
 const l3 = (zh: string, en: string, ja: string): L3 => ({ zh, en, ja });

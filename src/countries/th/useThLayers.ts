@@ -1,11 +1,11 @@
 import type { AnyLayer, Map as MapboxMap } from "mapbox-gl";
-import { hookFillPaint, hookLineLayout, hookLinePaint } from "../map/lineFillSpec";
-import { BOUNDARY_GRAY, MAP_SEAM } from "../map/mapStyleScale";
-import { paletteRamp, resampleRamp } from "../map/palettes";
-import { paramDefault } from "../data/layerParamsSpec";
-import { phText, TH_ADMIN_COLOR, TH_ADMIN_LEVELS, TH_DENSITY_BREAKS_BY_LEVEL, TH_NOT_COVERED_COLOR, TH_POP_LEVELS, type ThAdminLevel, type ThPopLevel } from "../data/thDataLayers";
-import { useGbPmtilesLayers, type SourceSpec } from "./intlPmtilesLayers";
-import type { ThRasterSpec } from "../data/thWavesLayers";
+import { hookFillPaint, hookLineLayout, hookLinePaint } from "../../map/lineFillSpec";
+import { BOUNDARY_GRAY, MAP_SEAM } from "../../map/mapStyleScale";
+import { paletteRamp, resampleRamp } from "../../map/palettes";
+import { paramDefault } from "../../data/layerParamsSpec";
+import { phText, TH_ADMIN_COLOR, TH_ADMIN_LEVELS, TH_DENSITY_BREAKS_BY_LEVEL, TH_NOT_COVERED_COLOR, TH_POP_LEVELS, type ThAdminLevel, type ThPopLevel } from "./thDataLayers";
+import { useGbPmtilesLayers, type SourceSpec } from "../../hooks/intlPmtilesLayers";
+import type { ThRasterSpec } from "./thWavesLayers";
 
 /**
  * 泰國第 0–1 波（2026-11-22）：行政邊界（國界／府／amphoe／tambon 四層級 select）與人口（府／amphoe 兩層級 select）。靜態 PMTiles、不訂閱時間。

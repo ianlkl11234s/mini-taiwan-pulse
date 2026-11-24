@@ -1,16 +1,16 @@
 // 泰國圖例（2026-11-22 第 0–1 波）：行政邊界、人口密度、規格驅動 8 層（重用菲律賓 PhSpecLegend）。SSOT：data/thDataLayers.ts。
-import { LegendNote, LegendRow, LegendTitle, SwatchGradient, SwatchLine, SwatchSquare, SwatchSteps, useLegendTheme } from "./legendKit";
+import { LegendNote, LegendRow, LegendTitle, SwatchGradient, SwatchLine, SwatchSquare, SwatchSteps, useLegendTheme } from "../../components/legend/legendKit";
 import { LAYER_MANIFEST, type LayerName } from "../../data/layerManifest";
 import { localizeLayerName } from "../../i18n/layerText";
 import { useLocale } from "../../state/localeStore";
 import { BOUNDARY_GRAY, LINE_WIDTH } from "../../map/mapStyleScale";
 import {
   TH_ADMIN_NOTES, TH_ADMIN_SOURCE, TH_DENSITY_LABELS_BY_LEVEL, TH_NOT_COVERED_COLOR, TH_POPULATION_NOTES, TH_POPULATION_SOURCE, TH_SPEC_BY_KEY, phText, pickL3,
-} from "../../data/thDataLayers";
-import type { ThDataKey, ThRasterKey } from "../../data/thDataKeys";
-import { TH_RASTER_BY_KEY } from "../../data/thWavesLayers";
-import { thDensityColors } from "../../hooks/useThLayers";
-import { PhSpecLegend } from "./intlSpecLegend";
+} from "./thDataLayers";
+import type { ThDataKey, ThRasterKey } from "./keys";
+import { TH_RASTER_BY_KEY } from "./thWavesLayers";
+import { thDensityColors } from "./useThLayers";
+import { PhSpecLegend } from "../../components/legend/intlSpecLegend";
 
 function useLayerTitle(key: string): string {
   const i18n = useLocale();

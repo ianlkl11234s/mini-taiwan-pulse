@@ -61,8 +61,6 @@ import { AccessibleParkLegend, AnimalAdoptionLegend, AnimalShelterPressureLegend
 import { PH_DATA_KEYS, PH_RASTER_KEYS } from "../data/phDataKeys";
 import { PhAdminBoundariesLegend, PhDataLegend, PhOpenaqAirLegend, PhPopulationLegend, PhRasterLegend } from "./legend/phLegends";
 import { VN_DATA_KEYS, VN_RASTER_KEYS } from "../data/vnDataKeys";
-import { TH_DATA_KEYS, TH_RASTER_KEYS } from "../data/thDataKeys";
-import { ThAdminBoundariesLegend, ThDataLegend, ThPopulationLegend, ThRasterLegend } from "./legend/thLegends";
 import { ID_DATA_KEYS, ID_RASTER_KEYS } from "../data/idDataKeys";
 import { IdAdminBoundariesLegend, IdDataLegend, IdPopulationLegend, IdRasterLegend, IdRuralDevelopmentLegend } from "./legend/idLegends";
 import { VnAdminBoundariesLegend, VnDataLegend, VnPopulationLegend, VnRasterLegend } from "./legend/vnLegends";
@@ -358,10 +356,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = slottedList<LegendEntry>("legends"
   { id: "vnAdminBoundaries", render: () => <VnAdminBoundariesLegend /> },
   { id: "vnPopulation", render: () => <VnPopulationLegend /> },
   ...VN_DATA_KEYS.map((key) => ({ id: key, render: () => <VnDataLegend layerKey={key} /> })),
-  { id: "thAdminBoundaries", render: () => <ThAdminBoundariesLegend /> },
-  { id: "thPopulation", render: () => <ThPopulationLegend /> },
-  ...TH_DATA_KEYS.map((key) => ({ id: key, render: () => <ThDataLegend layerKey={key} /> })),
-  ...TH_RASTER_KEYS.map((key) => ({ id: key, render: () => <ThRasterLegend layerKey={key} /> })),
+  countrySlot("TH", 1), // 泰國國家包（src/countries/th/）
   { id: "idAdminBoundaries", render: () => <IdAdminBoundariesLegend /> },
   { id: "idPopulation", render: () => <IdPopulationLegend /> },
   { id: "idRuralDevelopment", render: () => <IdRuralDevelopmentLegend /> },

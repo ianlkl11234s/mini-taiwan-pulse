@@ -323,12 +323,12 @@ export const HOOK_LINE_TIERS: Readonly<Record<string, HookLineTierSpec>> = {
   "phPowerGrid/ph-power-lines-line": {"width": "keep", "opacity": "standard"}, // 寬依電壓（比照 osmPowerLines）· src/hooks/usePhLayers.ts
   "phPowerGrid/ph-power-cables-line": {"width": "keep", "opacity": "standard"}, // 地下／海底電纜虛線，寬依電壓 · src/hooks/usePhLayers.ts
   "phPipelines/ph-pipelines-line": {"width": "standard", "opacity": "standard"}, // 依內容物分色 · src/hooks/usePhLayers.ts
-  "thAdminBoundaries/th-admin-country-line": {"width": "emphasis", "opacity": "standard"}, // L-5：國界 · src/hooks/useThLayers.ts
-  "thAdminBoundaries/th-admin-province-line": {"width": "emphasis", "opacity": "standard"}, // L-5：77 府比照縣市 · src/hooks/useThLayers.ts
-  "thAdminBoundaries/th-admin-amphoe-line": {"width": "emphasis", "opacity": "standard"}, // L-5：928 縣 · src/hooks/useThLayers.ts
-  "thAdminBoundaries/th-admin-tambon-line": {"width": "emphasis", "opacity": "standard"}, // L-5：7,425 區 · src/hooks/useThLayers.ts
-  "thPopulation/th-population-province-line": {"width": "keep", "opacity": "keep"}, // 分級面底圖色細縫（F-2）· src/hooks/useThLayers.ts
-  "thPopulation/th-population-amphoe-line": {"width": "keep", "opacity": "keep"}, // 同上 · src/hooks/useThLayers.ts
+  "thAdminBoundaries/th-admin-country-line": {"width": "emphasis", "opacity": "standard"}, // L-5：國界 · src/countries/th/useThLayers.ts
+  "thAdminBoundaries/th-admin-province-line": {"width": "emphasis", "opacity": "standard"}, // L-5：77 府比照縣市 · src/countries/th/useThLayers.ts
+  "thAdminBoundaries/th-admin-amphoe-line": {"width": "emphasis", "opacity": "standard"}, // L-5：928 縣 · src/countries/th/useThLayers.ts
+  "thAdminBoundaries/th-admin-tambon-line": {"width": "emphasis", "opacity": "standard"}, // L-5：7,425 區 · src/countries/th/useThLayers.ts
+  "thPopulation/th-population-province-line": {"width": "keep", "opacity": "keep"}, // 分級面底圖色細縫（F-2）· src/countries/th/useThLayers.ts
+  "thPopulation/th-population-amphoe-line": {"width": "keep", "opacity": "keep"}, // 同上 · src/countries/th/useThLayers.ts
   "thMajorRoads/th-major-roads-line": {"width": "keep", "opacity": "standard"}, // 寬依道路等級 · src/hooks/usePhLayers.ts（泰國規格）
   "thMajorRoads/th-major-rail-line": {"width": "standard", "opacity": "standard"}, // 鐵道 · src/hooks/usePhLayers.ts（泰國規格）
   "thPowerGrid/th-power-lines-line": {"width": "keep", "opacity": "standard"}, // 寬依電壓 · src/hooks/usePhLayers.ts（泰國規格）
@@ -502,8 +502,8 @@ export const HOOK_FILL_TIERS: Readonly<Record<string, FillTier | "keep">> = {
   "phPopulation/ph-population-province-fill": "graded", // 同上 · src/hooks/usePhLayers.ts
   "phPopulation/ph-population-municipality-fill": "graded", // 同上 · src/hooks/usePhLayers.ts
   "phPopulation/ph-population-barangay-fill": "graded", // 同上 · src/hooks/usePhLayers.ts
-  "thPopulation/th-population-province-fill": "graded", // 人口密度 6 級 · src/hooks/useThLayers.ts
-  "thPopulation/th-population-amphoe-fill": "graded", // 同上 · src/hooks/useThLayers.ts
+  "thPopulation/th-population-province-fill": "graded", // 人口密度 6 級 · src/countries/th/useThLayers.ts
+  "thPopulation/th-population-amphoe-fill": "graded", // 同上 · src/countries/th/useThLayers.ts
   "vnPopulation/vn-population-province-fill": "graded", // 人口密度 5 級 · src/hooks/useVnLayers.ts
   "vnAngiangDemo/vn-angiang-clusters-fill": "coverage", // 安江工業群依狀態分色 · src/hooks/usePhLayers.ts（越南規格）
   "cnPopulation/cn-population-province-fill": "graded", // 人口密度 6 級＋未涵蓋灰 · src/countries/cn/useCnLayers.ts

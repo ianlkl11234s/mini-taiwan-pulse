@@ -1,13 +1,13 @@
 // 泰國 Layer Host（2026-11-22 第 0–1 波）。比照 hosts/vietnamHosts.tsx：一個 key 一個 Host；規格驅動層重用 usePhDataLayer。
 
 import { usePhDataLayer } from "../../hooks/intlPhSpecLayers";
-import { useThAdminLayers, useThPopulationLayers, useThRasterLayer } from "../../hooks/useThLayers";
-import { TH_RASTER_BY_KEY } from "../../data/thWavesLayers";
+import { useThAdminLayers, useThPopulationLayers, useThRasterLayer } from "./useThLayers";
+import { TH_RASTER_BY_KEY } from "./thWavesLayers";
 import { selectedMultiSelectValues } from "../../data/multiSelectMapbox";
-import { TH_SPEC_BY_KEY, TH_STATUS_IDS, thStatusFilter } from "../../data/thDataLayers";
-import type { ThDataKey, ThRasterKey } from "../../data/thDataKeys";
-import { bumpHostRender, type LayerHostComponent } from "../layerHostDeps";
-import { useKeyOverlayParams } from "../layerParamsAccess";
+import { TH_SPEC_BY_KEY, TH_STATUS_IDS, thStatusFilter } from "./thDataLayers";
+import type { ThDataKey, ThRasterKey } from "./keys";
+import { bumpHostRender, type LayerHostComponent } from "../../layers/layerHostDeps";
+import { useKeyOverlayParams } from "../../layers/layerParamsAccess";
 
 /** 行政邊界：國界、府、amphoe、tambon 四層級（同一個 PMTiles，select 切換）。 */
 export const ThAdminHost: LayerHostComponent = ({ deps }) => {

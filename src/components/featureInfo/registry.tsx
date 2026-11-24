@@ -71,17 +71,13 @@ import { PH_DATA_PANELS, PhAdminBoundariesPanel, PhOpenaqAirPanel, PhPopulationP
 import { PH_DATA_SPECS } from "../../data/phDataLayers";
 import type { PhDataKey } from "../../data/phDataKeys";
 import { VN_DATA_PANELS, VnAdminBoundariesPanel, VnPopulationPanel } from "./vnPanels";
-import { TH_DATA_PANELS, ThAdminBoundariesPanel, ThPopulationPanel } from "./thPanels";
-import { TH_DATA_SPECS } from "../../data/thDataLayers";
 import { ID_DATA_PANELS, IdAdminBoundariesPanel, IdPopulationPanel, IdRuralDevelopmentPanel } from "./idPanels";
 import { ID_DATA_SPECS } from "../../data/idDataLayers";
 import type { IdDataKey } from "../../data/idDataKeys";
-import type { ThDataKey } from "../../data/thDataKeys";
 import { VN_DATA_SPECS } from "../../data/vnDataLayers";
 import type { VnDataKey } from "../../data/vnDataKeys";
 const PH_HEADER_LABELS = Object.fromEntries(PH_DATA_SPECS.map((s) => [s.key, `${s.title.fallback.zh} ${s.title.fallback.en}`])) as Record<PhDataKey, string>;
 const ID_HEADER_LABELS = Object.fromEntries(ID_DATA_SPECS.map((s) => [s.key, `${s.title.fallback.zh} ${s.title.fallback.en}`])) as Record<IdDataKey, string>;
-const TH_HEADER_LABELS = Object.fromEntries(TH_DATA_SPECS.map((s) => [s.key, `${s.title.fallback.zh} ${s.title.fallback.en}`])) as Record<ThDataKey, string>;
 const VN_HEADER_LABELS = Object.fromEntries(VN_DATA_SPECS.map((s) => [s.key, `${s.title.fallback.zh} ${s.title.fallback.en}`])) as Record<VnDataKey, string>;
 import { BridgeResiliencePanel } from "./bridgeResiliencePanels";
 import { BusCrowdingSimPanel, BusCrowdingSimVehiclePanel } from "./busCrowdingSimPanels";
@@ -471,9 +467,6 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   vnAdminBoundaries: VnAdminBoundariesPanel,
   vnPopulation: VnPopulationPanel,
   ...VN_DATA_PANELS,
-  thAdminBoundaries: ThAdminBoundariesPanel,
-  thPopulation: ThPopulationPanel,
-  ...TH_DATA_PANELS,
   idAdminBoundaries: IdAdminBoundariesPanel,
   idPopulation: IdPopulationPanel,
   idRuralDevelopment: IdRuralDevelopmentPanel,
@@ -1087,9 +1080,6 @@ export const HEADER_LABELS = extensibleRecord("featureHeaderLabels", {
   vnAdminBoundaries: "行政邊界 Administrative Boundaries",
   vnPopulation: "人口密度 Population Density",
   ...VN_HEADER_LABELS,
-  thAdminBoundaries: "行政邊界 Administrative Boundaries",
-  thPopulation: "人口密度 Population Density",
-  ...TH_HEADER_LABELS,
   idAdminBoundaries: "行政邊界 Administrative Boundaries",
   idPopulation: "人口密度 Population Density",
   idRuralDevelopment: "農村發展指數 Village Development Index",
