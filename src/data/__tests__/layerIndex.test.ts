@@ -2,7 +2,6 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { LAYER_MANIFEST, MANIFEST_KEYS, manifestColors, manifestIcons, type LayerManifestEntry } from "../layerManifest";
-import { LAYER_INDEX } from "../layerIndex.generated";
 import { INDEXED_LAYER_KEYS, isIndexedKey, layerIndexRow } from "../layerIndex";
 import { allLayerKeys, getLayerEntry, layerColorTable, layerCountryOf, layerGatedKeys, layerIconTable, layerIsLive } from "../layerLookup";
 import { collectLayerIndex, isForeignEntry, renderLayerIndexModule } from "./layerIndexCodegen";
@@ -88,6 +87,9 @@ describe("layerIndex（外國圖層索引）", () => {
       const c = (getLayerEntry(l.key) as LayerManifestEntry | undefined)?.country;
       if (isCountryCode(c) && !old.has(l.key)) old.set(l.key, c);
     }
-    for (const k of MANIFEST_KEYS) expect(layerCountryOf(k), k).toBe(old.get(k));
+    for (const k of MANIFEST_KEYS) {
+      expect(layerCountryOf(k), k).toBe(old.get(k));
+      expect(countryForLayerKeys([k]), k).toBe(old.get(k));
+    }
   });
 });
