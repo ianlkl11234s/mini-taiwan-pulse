@@ -9,20 +9,24 @@ import type { CnLayerKey } from "./cn/keys";
 import type { GbLayerKey } from "./gb/keys";
 import type { IeLayerKey } from "./ie/keys";
 import type { KrLayerKey } from "./kr/keys";
+import type { CaLayerKey } from "./ca/keys";
 export type PackLayerKey =
   | never
   | CnLayerKey
   | GbLayerKey
   | IeLayerKey
-  | KrLayerKey;
+  | KrLayerKey
+  | CaLayerKey;
 
 import type { CnPopupType } from "./cn/popupTypes";
 import type { GbPopupType } from "./gb/popupTypes";
 import type { IePopupType } from "./ie/popupTypes";
 import type { KrPopupType } from "./kr/popupTypes";
+import type { CaPopupType } from "./ca/popupTypes";
 export type PackPopupType =
   | never
   | CnPopupType
   | GbPopupType
   | IePopupType
-  | KrPopupType;
+  | KrPopupType
+  | CaPopupType;

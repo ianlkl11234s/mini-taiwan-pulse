@@ -10,8 +10,8 @@
  * - 乾旱、開發申請在圖例寫快照日期 2026-11-17。
  * 沒有資料的省區一律寫「未涵蓋」，不當 0；「該省沒有」（內陸無潮位站、沒有冰川）與「未涵蓋」分開寫。
  */
-import type { CaWaveKey } from "./caWavesKeys";
-import { phCatOptionIds, type L3, type PhCat, type PhCatGetter, type PhField, type PhLayerSpec, type PhNote, type PhPart } from "./intlLayerShared";
+import type { CaWaveKey } from "./keys";
+import { phCatOptionIds, type L3, type PhCat, type PhCatGetter, type PhField, type PhLayerSpec, type PhNote, type PhPart } from "../../data/intlLayerShared";
 
 export interface CaWaveSpec extends PhLayerSpec<CaWaveKey> {
   /** 類別多選預設勾選（省略＝全選；例：LODE 運動的步道 14 萬點預設關） */

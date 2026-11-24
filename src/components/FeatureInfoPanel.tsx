@@ -10,7 +10,7 @@ import { VN_DATA_KEYS } from "../data/vnDataKeys";
 import { TH_DATA_KEYS } from "../data/thDataKeys";
 import { ID_DATA_KEYS } from "../data/idDataKeys";
 import { CN_DATA_KEYS } from "../countries/cn/keys";
-import { CA_WAVE_KEYS } from "../data/caWavesKeys";
+import { CA_WAVE_KEYS } from "../countries/ca/keys";
 import { G53_SELF_FOOTER_KEYS } from "../data/atlasLayerTypes";
 import { useEffect, useRef, type CSSProperties } from "react";
 import { X } from "lucide-react";

@@ -8,12 +8,12 @@
  * 圖層名走 layers.json。色票沿用台灣與南韓同語意圖層（交通：國道／省道、鐵道、機場港口；能源：燃料色、化石燃料色），
  * 不另造色。涵蓋寫 n/13 省／地區，未涵蓋的省份寫「未涵蓋」（不補 0）。
  */
-import { FOSSIL_PAINT_COLORS, ROAD_DRIVE_PAINT_COLORS } from "../map/layerPaintColors";
-import { FUEL_COLORS, FUEL_FALLBACK_COLOR } from "./energyLoader";
-import { CAPACITY_RADIUS_BANDS, INTL_BUS_STOP_COLOR, type CaSource, type L3 } from "./intlLayerShared";
+import { FOSSIL_PAINT_COLORS, ROAD_DRIVE_PAINT_COLORS } from "../../map/layerPaintColors";
+import { FUEL_COLORS, FUEL_FALLBACK_COLOR } from "../../data/energyLoader";
+import { CAPACITY_RADIUS_BANDS, INTL_BUS_STOP_COLOR, type CaSource, type L3 } from "../../data/intlLayerShared";
 
-export { caText, pickL3 } from "./intlLayerShared";
-export type { CaSource, L3 } from "./intlLayerShared";
+export { caText, pickL3 } from "../../data/intlLayerShared";
+export type { CaSource, L3 } from "../../data/intlLayerShared";
 
 const l3 = (zh: string, en: string, ja: string): L3 => ({ zh, en, ja });
 const fuel = (key: string) => FUEL_COLORS[key] ?? FUEL_FALLBACK_COLOR;

@@ -1,13 +1,13 @@
 import { useEffect } from "react";
 import type { Map as MapboxMap, FillLayer, LineLayer } from "mapbox-gl";
-import { PMTILES_SOURCE_TYPE } from "../map/pmtilesConstants";
-import { registerPmtilesSourceTypeOnce } from "../map/pmtilesSourceType";
-import { useMapReadyTick } from "./useMapReadyTick";
-import { paramDefault } from "../data/layerParamsSpec";
-import { BOUNDARY_GRAY } from "../map/mapStyleScale";
-import { hookLineLayout, hookLineOpacity, hookLinePaint } from "../map/lineFillSpec";
-import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
-import { CA_ADMIN_COLOR, CA_ADMIN_LEVELS } from "../data/caInfraTypes";
+import { PMTILES_SOURCE_TYPE } from "../../map/pmtilesConstants";
+import { registerPmtilesSourceTypeOnce } from "../../map/pmtilesSourceType";
+import { useMapReadyTick } from "../../hooks/useMapReadyTick";
+import { paramDefault } from "../../data/layerParamsSpec";
+import { BOUNDARY_GRAY } from "../../map/mapStyleScale";
+import { hookLineLayout, hookLineOpacity, hookLinePaint } from "../../map/lineFillSpec";
+import { keepLoadingUntilMapIdle } from "../../lib/loadingRegistry";
+import { CA_ADMIN_COLOR, CA_ADMIN_LEVELS } from "./caInfraTypes";
 
 /**
  * 加拿大行政邊界（第 0 波 C001，StatCan 2021 CBF）：ca_admin_boundaries.pmtiles 一個 source、三個 tile layer（pr／cd／csd）。

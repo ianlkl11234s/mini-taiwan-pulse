@@ -1,13 +1,13 @@
 import { useEffect, useRef } from "react";
 import type { AnyLayer, GeoJSONSource, Map as MapboxMap } from "mapbox-gl";
-import { pointStrokePaint } from "../map/mapStyleScale";
-import { paramDefault } from "../data/layerParamsSpec";
-import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
-import { CA_QUAKE_LIVE_TYPE_COLORS, CA_QUAKE_LIVE_SOURCE, CA_QUAKE_LIVE_TYPES } from "../data/caEnvTypes";
-import { fetchCaQuakesLive } from "../data/caLiveQuakesLoader";
+import { pointStrokePaint } from "../../map/mapStyleScale";
+import { paramDefault } from "../../data/layerParamsSpec";
+import { keepLoadingUntilMapIdle } from "../../lib/loadingRegistry";
+import { CA_QUAKE_LIVE_TYPE_COLORS, CA_QUAKE_LIVE_SOURCE, CA_QUAKE_LIVE_TYPES } from "./caEnvTypes";
+import { fetchCaQuakesLive } from "./caLiveQuakesLoader";
 import { caCatFilter } from "./useCaTransportLayers";
 import { caQuakeRadius } from "./useCaEnvLayers";
-import { useMapReadyTick } from "./useMapReadyTick";
+import { useMapReadyTick } from "../../hooks/useMapReadyTick";
 
 /**
  * 加拿大即時地震（NRCan FDSN，近 30 天）：瀏覽器直連上游（同 JMA 上游直連層，DISPLAY_ONLY）。

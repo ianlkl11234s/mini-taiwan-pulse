@@ -5,6 +5,10 @@ import type { DataCatalogEntry } from "../../../data/dataCatalogLoader";
 import { LAYER_SOURCE_INFO } from "../../../data/layerSourceInfo";
 import { LAYER_NOTES_DATA } from "../../../data/layerSourceInfo.data";
 import type { LayerVisibility } from "../../../types";
+import { loadAllPacks } from "../../../countries/packs";
+
+// 全部圖層（含延後載入的國家包，B1 P5）一起驗
+await loadAllPacks();
 
 const catalog = vi.hoisted(() => ({ entries: [] as unknown[] }));
 vi.mock("../../../hooks/useDataCatalog", () => ({

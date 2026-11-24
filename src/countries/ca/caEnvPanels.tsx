@@ -1,15 +1,15 @@
 // 加拿大第 3 波（環境氣候、災害）＋人口網格 popup。欄位規格 SSOT 在 data/caEnvTypes.ts 的 CA_*_POPUP；
 // 畫法共用 caPanels 的 SpecPanel，來源與授權由 panel 自掛 SourceFooter（FOOTER_SELF_MANAGED）。
 import { SpecPanel } from "./caPanels";
-import { LIGHT_FEATURE, useFeatureTheme } from "./featureTheme";
-import { caPopGridColors } from "../../hooks/useCaEnvLayers";
-import { caText, type CaCat } from "../../data/caInfraTypes";
-import { caQuakeLiveStatus } from "../../data/caLiveQuakesLoader";
+import { LIGHT_FEATURE, useFeatureTheme } from "../../components/featureInfo/featureTheme";
+import { caPopGridColors } from "./useCaEnvLayers";
+import { caText, type CaCat } from "./caInfraTypes";
+import { caQuakeLiveStatus } from "./caLiveQuakesLoader";
 import {
   CA_AQHI_COLOR, CA_AQHI_POPUP, CA_AQHI_SOURCE, CA_CLIMATE_POPUP, CA_CLIMATE_SOURCE, CA_CLIMATE_STATUSES, CA_ENV_FETCHED_AT, CA_NPRI_GROUPS,
   CA_NPRI_POPUP, CA_NPRI_SOURCE, CA_POP_GRID_BREAKS, CA_POP_GRID_POPUP, CA_POP_GRID_SOURCE, CA_QUAKE_COLOR, CA_QUAKE_LIVE_TYPE_COLORS, CA_QUAKE_LIVE_POPUP, CA_QUAKE_LIVE_SOURCE, CA_QUAKE_POPUP, CA_QUAKE_SOURCE,
   CA_RADIATION_COLOR, CA_RADIATION_POPUP, CA_RADIATION_SOURCE, CA_WSER_POPUP, CA_WSER_SOURCE, CA_WSER_STATUSES,
-} from "../../data/caEnvTypes";
+} from "./caEnvTypes";
 
 type P = { props: Record<string, unknown> };
 const catColor = (cats: readonly CaCat[], v: unknown) => cats.find((c) => c.values.includes(caText(v)))?.color ?? cats[cats.length - 1]!.color;

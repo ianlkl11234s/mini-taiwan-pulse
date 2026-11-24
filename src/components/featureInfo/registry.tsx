@@ -67,9 +67,7 @@ import {
   JpRailwaysPanel, JpSchoolsPanel, JpPoliceFacilitiesPanel, JpEvacuationSitesPanel, JpPublicOfficesPanel, JpBusStopsPanel, JpLandslideWarningAreasPanel, JpInlandFloodAreasPanel, JpZoningUseDistrictsPanel, JpNationalForestsPanel, JpWelfareDisabilityPanel, JpWelfareChildPanel, JpMajorRoadsPanel, JpMunicipalRoadsPanel, JpExpresswaysPanel, JpPopulationMeshPanel,
   JpTourismPanel, JpAccommodationDensityPanel, JpWaterPanel,
 } from "./japanPanels";
-import { CaAdminBoundariesPanel, CaTransitStopsPanel, CaAirportsPortsPanel, CaMajorRoadsPanel, CaRailwaysPanel, CaPowerPlantsPanel, CaWindTurbinesPanel, CaPowerGridPanel, CaOilGasPanel, CaPopulationCentresPanel, CaFederalDistrictsPanel, CaPostalFsaPanel, CaIndigenousLandsPanel, CaDeprivationPanel, CaRentsPanel, CaPlaceNamesPanel } from "./caPanels";
 import { PH_DATA_PANELS, PhAdminBoundariesPanel, PhOpenaqAirPanel, PhPopulationPanel } from "./phPanels";
-import { makePhPanel } from "./intlSpecPanel";
 import { PH_DATA_SPECS } from "../../data/phDataLayers";
 import type { PhDataKey } from "../../data/phDataKeys";
 import { VN_DATA_PANELS, VnAdminBoundariesPanel, VnPopulationPanel } from "./vnPanels";
@@ -80,17 +78,11 @@ import { ID_DATA_SPECS } from "../../data/idDataLayers";
 import type { IdDataKey } from "../../data/idDataKeys";
 import type { ThDataKey } from "../../data/thDataKeys";
 import { VN_DATA_SPECS } from "../../data/vnDataLayers";
-import { CA_WAVE_SPECS } from "../../data/caWavesLayers";
-import type { CaWaveKey } from "../../data/caWavesKeys";
 import type { VnDataKey } from "../../data/vnDataKeys";
 const PH_HEADER_LABELS = Object.fromEntries(PH_DATA_SPECS.map((s) => [s.key, `${s.title.fallback.zh} ${s.title.fallback.en}`])) as Record<PhDataKey, string>;
-/** 加拿大第 3–8 波（2026-11-17）：規格驅動，popup 重用 makePhPanel（自掛 SourceFooter）。 */
-const CA_WAVE_PANELS = Object.fromEntries(CA_WAVE_SPECS.map((s) => [s.key, makePhPanel(s)])) as Record<CaWaveKey, ReturnType<typeof makePhPanel>>;
-const CA_WAVE_HEADER_LABELS = Object.fromEntries(CA_WAVE_SPECS.map((s) => [s.key, `${s.title.fallback.zh} ${s.title.fallback.en}`])) as Record<CaWaveKey, string>;
 const ID_HEADER_LABELS = Object.fromEntries(ID_DATA_SPECS.map((s) => [s.key, `${s.title.fallback.zh} ${s.title.fallback.en}`])) as Record<IdDataKey, string>;
 const TH_HEADER_LABELS = Object.fromEntries(TH_DATA_SPECS.map((s) => [s.key, `${s.title.fallback.zh} ${s.title.fallback.en}`])) as Record<ThDataKey, string>;
 const VN_HEADER_LABELS = Object.fromEntries(VN_DATA_SPECS.map((s) => [s.key, `${s.title.fallback.zh} ${s.title.fallback.en}`])) as Record<VnDataKey, string>;
-import { CaClimateStationsPanel, CaAqhiStationsPanel, CaRadiationStationsPanel, CaNpriFacilitiesPanel, CaWastewaterSystemsPanel, CaEarthquakesPanel, CaEarthquakesLivePanel, CaPopulationGridPanel } from "./caEnvPanels";
 import { BridgeResiliencePanel } from "./bridgeResiliencePanels";
 import { BusCrowdingSimPanel, BusCrowdingSimVehiclePanel } from "./busCrowdingSimPanels";
 import { TransitReachGridPanel, TransitReachPlaybackPanel } from "./transitReachPanels";
@@ -472,7 +464,6 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   jpReligionWikidata: JpReligionWikidataPanel,
   jpAdminPrefecture: JpAdminPrefecturePanel,
   jpAdminBoundaries: JpAdminBoundariesPanel,
-  caAdminBoundaries: CaAdminBoundariesPanel,
   phAdminBoundaries: PhAdminBoundariesPanel,
   phPopulation: PhPopulationPanel,
   phOpenaqAir: PhOpenaqAirPanel,
@@ -487,30 +478,6 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   idPopulation: IdPopulationPanel,
   idRuralDevelopment: IdRuralDevelopmentPanel,
   ...ID_DATA_PANELS,
-  ...CA_WAVE_PANELS,
-  caTransitStops: CaTransitStopsPanel,
-  caAirportsPorts: CaAirportsPortsPanel,
-  caMajorRoads: CaMajorRoadsPanel,
-  caRailways: CaRailwaysPanel,
-  caPowerPlants: CaPowerPlantsPanel,
-  caWindTurbines: CaWindTurbinesPanel,
-  caPowerGrid: CaPowerGridPanel,
-  caOilGas: CaOilGasPanel,
-  caPopulationCentres: CaPopulationCentresPanel,
-  caFederalDistricts: CaFederalDistrictsPanel,
-  caPostalFsa: CaPostalFsaPanel,
-  caIndigenousLands: CaIndigenousLandsPanel,
-  caDeprivation: CaDeprivationPanel,
-  caRents: CaRentsPanel,
-  caPlaceNames: CaPlaceNamesPanel,
-  caClimateStations: CaClimateStationsPanel,
-  caAqhiStations: CaAqhiStationsPanel,
-  caRadiationStations: CaRadiationStationsPanel,
-  caNpriFacilities: CaNpriFacilitiesPanel,
-  caWastewaterSystems: CaWastewaterSystemsPanel,
-  caEarthquakes: CaEarthquakesPanel,
-  caEarthquakesLive: CaEarthquakesLivePanel,
-  caPopulationGrid: CaPopulationGridPanel,
   jpStations: JpStationsPanel,
   jpAirports: JpAirportsPanel,
   jpRailways: JpRailwaysPanel,
@@ -1113,7 +1080,6 @@ export const HEADER_LABELS = extensibleRecord("featureHeaderLabels", {
   jpReligionWikidata: "宗教設施 宗教施設（Wikidata）",
   jpAdminPrefecture: "都道府縣界 都道府県境",
   jpAdminBoundaries: "市區町村界 市区町村境",
-  caAdminBoundaries: "行政邊界 Administrative Boundaries",
   phAdminBoundaries: "行政邊界 Administrative Boundaries",
   phPopulation: "人口密度 Population Density",
   phOpenaqAir: "即時空品 Air Quality（OpenAQ）",
@@ -1128,30 +1094,6 @@ export const HEADER_LABELS = extensibleRecord("featureHeaderLabels", {
   idPopulation: "人口密度 Population Density",
   idRuralDevelopment: "農村發展指數 Village Development Index",
   ...ID_HEADER_LABELS,
-  ...CA_WAVE_HEADER_LABELS,
-  caTransitStops: "公共運輸站點 Transit Stops",
-  caAirportsPorts: "機場與港口 Airports & Ports",
-  caMajorRoads: "主要道路 Major Roads",
-  caRailways: "鐵路 Railways",
-  caPowerPlants: "電廠 Power Plants",
-  caWindTurbines: "風機 Wind Turbines",
-  caPowerGrid: "電網 Power Grid",
-  caOilGas: "油氣設施 Oil & Gas",
-  caPopulationCentres: "人口中心 Population Centres",
-  caFederalDistricts: "聯邦選區 Federal Electoral Districts",
-  caPostalFsa: "郵遞分區 Forward Sortation Areas",
-  caIndigenousLands: "原住民法定土地 Indigenous Lands",
-  caDeprivation: "剝奪指數 Deprivation Index",
-  caRents: "平均月租 Average Rents",
-  caPlaceNames: "地名 Geographical Names",
-  caClimateStations: "氣象站 Climate Stations",
-  caAqhiStations: "AQHI 地點 AQHI Locations",
-  caRadiationStations: "輻射監測站 Radiation Monitoring",
-  caNpriFacilities: "NPRI 申報設施 NPRI Facilities",
-  caWastewaterSystems: "污水處理系統 Wastewater Systems",
-  caEarthquakes: "地震 Earthquakes",
-  caEarthquakesLive: "即時地震 Recent Earthquakes",
-  caPopulationGrid: "人口網格 Population Grid",
   jpStations: "車站 駅",
   jpAirports: "機場 空港",
   jpRailways: "鐵道路線 鉄道路線",

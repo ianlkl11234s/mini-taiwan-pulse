@@ -7,7 +7,7 @@ import {
   Anchor, Baby, Beef, Bird, CarFront, Construction, Droplets, Dumbbell, Flame, Gavel, Hospital, Layers, Leaf, MountainSnow,
   Pickaxe, Recycle, School, Shield, Ship, Snowflake, Store, Sun, Tent, Theater, TriangleAlert, Trees, Warehouse, Waves, Waypoints, Wifi, Fish, KeyRound,
 } from "lucide-react";
-import type { CaWaveKey } from "./caWavesKeys";
+import type { CaWaveKey } from "./keys";
 
 export interface CaWaveEntryMeta { theme: string; group: string; zh: string; alt: string; icon: LucideIcon; dataset: string; description: string; topics: string[]; processing: string; note: string }
 

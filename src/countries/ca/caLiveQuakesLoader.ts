@@ -1,7 +1,7 @@
 // 加拿大即時地震：瀏覽器直連 NRCan FDSN event 服務（CORS `*`），比照 JMA 上游直連層（docs/features/jma-live-layers §P5）：
 // 不入我們的 DB／R2／分析倉庫（DISPLAY_ONLY）。只取「現在往前 30 天」快照，不跟時間軸；狀態 store 給圖例顯示筆數、最新事件與錯誤。
 
-import { withLoading } from "../lib/loadingRegistry";
+import { withLoading } from "../../lib/loadingRegistry";
 import { CA_QUAKE_LIVE_DAYS, CA_QUAKE_LIVE_QUERY_URL } from "./caEnvTypes";
 
 export type CaQuakeLiveType = "earthquake" | "industry" | "mining" | "blast";

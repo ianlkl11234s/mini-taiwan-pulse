@@ -1,10 +1,10 @@
 // 加拿大第 0＋1 波圖例（行政邊界、交通 4 層、能源 4 層、人口中心）。色票、類別、備註與署名 SSOT 在 data/caInfraTypes.ts。
 // 未涵蓋的省份寫「未涵蓋」；電廠、電網標資料年份；油氣標「亞伯達井點非全量」；GTFS 標「授權依各機構」。
 import type { ReactNode } from "react";
-import { LegendNote, LegendRow, LegendSizeRow, LegendTitle, SwatchDot, SwatchGradient, SwatchHatch, SwatchLine, SwatchSquare, SwatchSteps, useLegendTheme } from "./legendKit";
+import { LegendNote, LegendRow, LegendSizeRow, LegendTitle, SwatchDot, SwatchGradient, SwatchHatch, SwatchLine, SwatchSquare, SwatchSteps, useLegendTheme } from "../../components/legend/legendKit";
 import { useKeyOverlayParams } from "../../layers/layerParamsAccess";
-import { CA_NA_POINT_COLOR, caCimdColors, caCimdDimensionFromIdx, caRentColors, caRentUnitFromIdx } from "../../hooks/useCaAreaLayers";
-import { DenseHeatmapLegendRow } from "./legendShared";
+import { CA_NA_POINT_COLOR, caCimdColors, caCimdDimensionFromIdx, caRentColors, caRentUnitFromIdx } from "./useCaAreaLayers";
+import { DenseHeatmapLegendRow } from "../../components/legend/legendShared";
 import { LAYER_MANIFEST, type LayerName } from "../../data/layerManifest";
 import { localizeLayerName } from "../../i18n/layerText";
 import { useLocale } from "../../state/localeStore";
@@ -13,7 +13,7 @@ import {
   CA_ADMIN_NOTES, CA_AIRPORT_CLASSES, CA_AIRPORTS_NOTES, CA_CAPACITY_BANDS, CA_FALLBACK_COLOR, CA_GRID_NOTES,
   CA_MAJOR_FACILITY_TYPES, CA_OIL_GAS_FACILITY_COLOR, CA_OIL_GAS_NOTES, CA_OIL_GAS_PARTS, CA_OIL_GAS_PIPE_POINT_COLOR, CA_OIL_GAS_WELL_COLOR, CA_PIPELINE_SUBSTANCES, CA_PLANT_FUELS, CA_PLANTS_NOTES, CA_POP_BANDS, CA_POP_CLASSES, CA_POP_NOTES, CA_PORT_TYPES, CA_POWER_LINE_COLOR, CA_RAIL_NOTES, CA_RAIL_STATION_TYPES, CA_RAIL_TRACK_CLASSES, CA_ROAD_CLASSES, CA_ROADS_NOTES, CA_CIMD_DIMENSIONS, CA_CIMD_NOTES, CA_CIMD_QUINTILE_LABELS, CA_FED_NOTES, CA_FSA_CLASSES, CA_FSA_NOTES, CA_HILLSHADE_NOTES, CA_INDIGENOUS_NOTES, CA_INDIGENOUS_TYPES, CA_PLACE_GROUPS, CA_PLACE_NAMES_NOTES,
   CA_RENT_UNITS, CA_RENTS_NOTES, CA_SUBSTATION_COLOR, CA_TRANSIT_NOTES, CA_TRANSIT_TYPES, CA_WIND_COLOR, CA_WIND_NOTES, pickL3, type CaCat, type L3,
-} from "../../data/caInfraTypes";
+} from "./caInfraTypes";
 
 type I18n = ReturnType<typeof useLocale>;
 function useTitle(key: string): { title: string; i18n: I18n; pick: (t: L3) => string } {

@@ -1,11 +1,11 @@
 // 加拿大圖層 popup（第 0＋1 波）。欄位規格 SSOT 在 data/caInfraTypes.ts 的 CA_*_POPUP；
 // 同一 key 有多個 tile layer 時，點擊端（useMapInteraction）會把命中的 source-layer 放進 `_ca_source_layer`。
 // 來源與授權由 panel 自掛 SourceFooter（FOOTER_SELF_MANAGED）。
-import { Row, SourceFooter, Title } from "./shared";
+import { Row, SourceFooter, Title } from "../../components/featureInfo/shared";
 import { useLocale } from "../../state/localeStore";
-import { LinkRow } from "./atlasPanels";
-import { caCimdColors, caRentColors, CA_NA_POINT_COLOR } from "../../hooks/useCaAreaLayers";
-import { LIGHT_FEATURE, useFeatureTheme } from "./featureTheme";
+import { LinkRow } from "../../components/featureInfo/atlasPanels";
+import { caCimdColors, caRentColors, CA_NA_POINT_COLOR } from "./useCaAreaLayers";
+import { LIGHT_FEATURE, useFeatureTheme } from "../../components/featureInfo/featureTheme";
 import {
   CA_ADMIN_COLOR, CA_ADMIN_LEVEL_LABELS, CA_ADMIN_SOURCE, CA_AIRPORT_POPUP, CA_AIRPORTS_SOURCE, CA_FALLBACK_COLOR, CA_FETCHED_AT, CA_GRID_SOURCE,
   CA_NO_DATA, CA_OIL_GAS_POPUPS, CA_OIL_GAS_SOURCE, CA_PLANT_POPUP, CA_PLANTS_SOURCE, CA_POP_POPUP, CA_POP_PROVINCE_PART, CA_POP_SOURCE,
@@ -14,7 +14,7 @@ import {
   CA_WIND_POPUP, CA_WIND_SOURCE, CA_CIMD_DIMENSIONS, CA_CIMD_ETHNO_NOTE, CA_CIMD_SOURCE, CA_FED_POPUP, CA_FED_SOURCE, CA_FSA_CLASSES, CA_FSA_POPUP,
   CA_FSA_SOURCE, CA_INDIGENOUS_POPUP, CA_INDIGENOUS_SOURCE, CA_INDIGENOUS_TYPES, CA_PLACE_GROUPS, CA_PLACE_NAMES_POPUP, CA_PLACE_NAMES_SOURCE,
   CA_RENT_UNITS, CA_RENTS_NOT_PUBLISHED, CA_RENTS_SOURCE, caText, pickL3, type CaOilGasPart, type CaPopupSpec, type CaSource, type L3,
-} from "../../data/caInfraTypes";
+} from "./caInfraTypes";
 
 type P = { props: Record<string, unknown> };
 

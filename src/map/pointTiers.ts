@@ -317,27 +317,27 @@ export const HOOK_POINT_TIERS: Partial<Record<keyof LayerVisibility, PointTierOr
   krRenewables: "B", // 南韓再生能源點：半徑＝裝置容量 4 級（未標容量用最小級） · src/countries/kr/useKrEnergyLayers.ts
   krSubstations: "B", // 南韓變電所：半徑＝電壓 5 級 · src/countries/kr/useKrEnergyLayers.ts
   krPowerTowers: "S", // 南韓高壓鐵塔（z11 起） · src/countries/kr/useKrEnergyLayers.ts
-  caTransitStops: "S", // 加拿大公共運輸站點（13.3 萬點，z12 起單點、之下熱區） · src/hooks/useCaTransportLayers.ts
-  caAirportsPorts: "M", // 加拿大機場與港口（次要點 z7 起用 S） · src/hooks/useCaTransportLayers.ts
-  caRailways: "M", // 加拿大鐵道車站（z8 起） · src/hooks/useCaTransportLayers.ts
-  caPowerPlants: "B", // 加拿大電廠：半徑＝裝置容量 4 級 · src/hooks/useCaEnergyLayers.ts
-  caWindTurbines: "S", // 加拿大風機（7,841 點，不畫熱區） · src/hooks/useCaEnergyLayers.ts
-  caPowerGrid: "S", // 加拿大變電站（z7 起） · src/hooks/useCaEnergyLayers.ts
-  caOilGas: "S", // 加拿大油氣點位（井、設施 z10 起單點、之下熱區；主要設施 M） · src/hooks/useCaEnergyLayers.ts
-  caPopulationCentres: "B", // 加拿大人口中心代表點：半徑＝人口級距 · src/hooks/useCaEnergyLayers.ts
-  caFederalDistricts: "S", // 加拿大聯邦選區代表點（z<6） · src/hooks/useCaAreaLayers.ts
-  caIndigenousLands: "S", // 加拿大原住民土地代表點（z<7 或點模式） · src/hooks/useCaAreaLayers.ts
-  caDeprivation: "S", // 加拿大 CIMD DA 代表點（z<6，5.6 萬點依五分位上色、隨縮放 1.2–2.6px） · src/hooks/useCaAreaLayers.ts
-  caRents: "M", // 加拿大租金 CMA／CA 代表點（z<6） · src/hooks/useCaAreaLayers.ts
-  caPlaceNames: "S", // 加拿大地名點（依 relevance_scale 逐級出現） · src/hooks/useCaTerrainLayers.ts
-  caClimateStations: "S", // 加拿大氣象站（8,435 點，不畫熱區） · src/hooks/useCaEnvLayers.ts
-  caAqhiStations: "M", // 加拿大 AQHI 地點（134 點） · src/hooks/useCaEnvLayers.ts
-  caRadiationStations: "M", // 加拿大輻射監測站（46 點） · src/hooks/useCaEnvLayers.ts
-  caNpriFacilities: "S", // 加拿大 NPRI 申報設施（2.5 萬點，z10 起單點、之下熱區） · src/hooks/useCaEnvLayers.ts
-  caWastewaterSystems: "B", // 加拿大污水系統：半徑＝日均放流量級距 · src/hooks/useCaEnvLayers.ts
+  caTransitStops: "S", // 加拿大公共運輸站點（13.3 萬點，z12 起單點、之下熱區） · src/countries/ca/useCaTransportLayers.ts
+  caAirportsPorts: "M", // 加拿大機場與港口（次要點 z7 起用 S） · src/countries/ca/useCaTransportLayers.ts
+  caRailways: "M", // 加拿大鐵道車站（z8 起） · src/countries/ca/useCaTransportLayers.ts
+  caPowerPlants: "B", // 加拿大電廠：半徑＝裝置容量 4 級 · src/countries/ca/useCaEnergyLayers.ts
+  caWindTurbines: "S", // 加拿大風機（7,841 點，不畫熱區） · src/countries/ca/useCaEnergyLayers.ts
+  caPowerGrid: "S", // 加拿大變電站（z7 起） · src/countries/ca/useCaEnergyLayers.ts
+  caOilGas: "S", // 加拿大油氣點位（井、設施 z10 起單點、之下熱區；主要設施 M） · src/countries/ca/useCaEnergyLayers.ts
+  caPopulationCentres: "B", // 加拿大人口中心代表點：半徑＝人口級距 · src/countries/ca/useCaEnergyLayers.ts
+  caFederalDistricts: "S", // 加拿大聯邦選區代表點（z<6） · src/countries/ca/useCaAreaLayers.ts
+  caIndigenousLands: "S", // 加拿大原住民土地代表點（z<7 或點模式） · src/countries/ca/useCaAreaLayers.ts
+  caDeprivation: "S", // 加拿大 CIMD DA 代表點（z<6，5.6 萬點依五分位上色、隨縮放 1.2–2.6px） · src/countries/ca/useCaAreaLayers.ts
+  caRents: "M", // 加拿大租金 CMA／CA 代表點（z<6） · src/countries/ca/useCaAreaLayers.ts
+  caPlaceNames: "S", // 加拿大地名點（依 relevance_scale 逐級出現） · src/countries/ca/useCaTerrainLayers.ts
+  caClimateStations: "S", // 加拿大氣象站（8,435 點，不畫熱區） · src/countries/ca/useCaEnvLayers.ts
+  caAqhiStations: "M", // 加拿大 AQHI 地點（134 點） · src/countries/ca/useCaEnvLayers.ts
+  caRadiationStations: "M", // 加拿大輻射監測站（46 點） · src/countries/ca/useCaEnvLayers.ts
+  caNpriFacilities: "S", // 加拿大 NPRI 申報設施（2.5 萬點，z10 起單點、之下熱區） · src/countries/ca/useCaEnvLayers.ts
+  caWastewaterSystems: "B", // 加拿大污水系統：半徑＝日均放流量級距 · src/countries/ca/useCaEnvLayers.ts
   phOpenaqAir: "M", // 菲律賓空品（OpenAQ）：低價感測器 M、官方監測站 L＋白框 · src/hooks/usePhOpenaqAirLayer.ts
-  caEarthquakesLive: "B", // 加拿大即時地震：半徑＝規模（同 caEarthquakes） · src/hooks/useCaLiveEarthquakesLayer.ts
-  caEarthquakes: "B", // 加拿大地震：半徑＝規模（同 JMA／英國地震） · src/hooks/useCaEnvLayers.ts
+  caEarthquakesLive: "B", // 加拿大即時地震：半徑＝規模（同 caEarthquakes） · src/countries/ca/useCaLiveEarthquakesLayer.ts
+  caEarthquakes: "B", // 加拿大地震：半徑＝規模（同 JMA／英國地震） · src/countries/ca/useCaEnvLayers.ts
   gbPowerPlants: "B", // 英國電廠：半徑＝裝置容量 4 級 · src/countries/gb/useGbEnergyLayers.ts
   gbRenewables: "B", // 英國再生能源專案：半徑＝裝置容量 4 級、z5 起（P-4 例外不畫熱區；施工中黃框） · src/countries/gb/useGbEnergyLayers.ts
   gbFuelStations: "M", // 英國加油站 · src/countries/gb/useGbEnergyLayers.ts

@@ -58,18 +58,14 @@ import { AgriCompanyLegend, AgriPOILegend, CommonRegistrationAddressesLegend, Co
 import { DrinkingWaterProtectionZonesLegend, GroundwaterLegend, IotRiverLegend, IotStructureLegend, JpWaterFloodHazardLegend, JpWaterLegend, LakesPondsLegend, RainGaugeLegend, ReservoirStatusLegend, ReservoirStaticLegend, RiverLevelLegend, RiverRpiStationsLegend, SewageTreatmentPlantsLegend, TaipeiEvacuateLegend, TaipeiPumbLegend, TaipeiSewerLegend, WaterCanalLegend, WaterFacilityLegend, WaterFloodExtremeLegend, WaterMonitorStationLegend, WaterProtectionZoneLegend, WaterQualityStationsLegend } from "./legend/waterLegends";
 import { AnfrWirelessSitesLegend, CoverageLegend, EnergyFuelLegend, EnergyReserveLegend, EnergySpecialtyLegend, FacOffshoreLegend, FacilityFuelLegend, FossilFuelLegend, InternetExchangePointsLegend, LandingStationLegend, NetworkStructuresLegend, OoklaPerformanceGridLegend, OsmCommunicationSitesLegend, PowerGridLegend, PowerPolesLegend, RenewablePoiLegend, RipeAtlasProbesLegend, SubmarineCableLegend, SubstationEhvLegend, SubstationLocalLegend } from "./legend/energyTelecomLegends";
 import { AccessibleParkLegend, AnimalAdoptionLegend, AnimalShelterPressureLegend, AnimalWelfarePointsLegend, BicycleSupportLegend, EducationLegend, GovServiceOfficeLegend, GovernmentLifeLegend, JpMedicalLegend, JpPoliceFacilitiesLegend, JpEvacuationSitesLegend, JpLandslideWarningAreasLegend, JpInlandFloodAreasLegend, JpZoningUseDistrictsLegend, JpNationalForestsLegend, JpWelfareFacilitiesLegend, JpPublicOfficesLegend, JpBusStopsLegend, JpSchoolsLegend, EmergencyHospitalLegend, MedicalIsochroneLegend, MedicalLegend, PoliceIsochroneLegend, PoliceJusticeLegend, PublicLifeCoverageLegend, PublicLifeOsmLegend, PublicToiletLegend, WelfareLegend } from "./legend/civicServiceLegends";
-import { CaAdminBoundariesLegend, CaTransitStopsLegend, CaAirportsPortsLegend, CaMajorRoadsLegend, CaRailwaysLegend, CaPowerPlantsLegend, CaWindTurbinesLegend, CaPowerGridLegend, CaOilGasLegend, CaPopulationCentresLegend, CaFederalDistrictsLegend, CaPostalFsaLegend, CaIndigenousLandsLegend, CaDeprivationLegend, CaRentsLegend, CaPlaceNamesLegend, CaHillshadeLegend } from "./legend/caLegends";
 import { PH_DATA_KEYS, PH_RASTER_KEYS } from "../data/phDataKeys";
-import { PhAdminBoundariesLegend, PhDataLegend, PhOpenaqAirLegend, PhPopulationLegend, PhRasterLegend, PhSpecLegend } from "./legend/phLegends";
+import { PhAdminBoundariesLegend, PhDataLegend, PhOpenaqAirLegend, PhPopulationLegend, PhRasterLegend } from "./legend/phLegends";
 import { VN_DATA_KEYS, VN_RASTER_KEYS } from "../data/vnDataKeys";
 import { TH_DATA_KEYS, TH_RASTER_KEYS } from "../data/thDataKeys";
 import { ThAdminBoundariesLegend, ThDataLegend, ThPopulationLegend, ThRasterLegend } from "./legend/thLegends";
 import { ID_DATA_KEYS, ID_RASTER_KEYS } from "../data/idDataKeys";
 import { IdAdminBoundariesLegend, IdDataLegend, IdPopulationLegend, IdRasterLegend, IdRuralDevelopmentLegend } from "./legend/idLegends";
-import { CA_WAVE_KEYS } from "../data/caWavesKeys";
-import { CA_WAVE_SPEC_BY_KEY } from "../data/caWavesLayers";
 import { VnAdminBoundariesLegend, VnDataLegend, VnPopulationLegend, VnRasterLegend } from "./legend/vnLegends";
-import { CaClimateStationsLegend, CaAqhiStationsLegend, CaRadiationStationsLegend, CaNpriFacilitiesLegend, CaWastewaterSystemsLegend, CaEarthquakesLegend, CaEarthquakesLiveLegend, CaPopulationGridLegend } from "./legend/caEnvLegends";
 import { CountyMigrationFlowsLegend } from "./legend/countyMigrationLegends";
 import { JpGsiHillshadeLegend, JpGsiReliefLegend, HistoricalMapLegend, BuildingsGbaLegend, CanopyGiantsLegend, CanopyHeightLegend, EcoNetworkZonesLegend, JpBuildingHeightLegend, JpCanopyHeightLegend, JpPopulationMeshLegend, NonUrbanZoningLegend, ParksTaipeiLegend, PropertyValueAdminLegend, PropertyValueGridLegend, ProtectedTreesNationalLegend, RealEstateLegend, RiversideTreesTaipeiLegend, StreetTrees3epochLegend, StreetTreesNationalLegend, StreetTreesTaipeiDiffLegend, TreePitsTaipeiLegend, UrbanFormGridLegend, UrbanZoningLegend } from "./legend/urbanFormLegends";
 import { ArtsEventsLegend, CulturalFacilitiesLegend, CulturalMuseumsLegend, FuneralLegend, JpAccommodationDensityLegend, JpAccommodationTypesLegend, JpReligionLegend, LibrarySeatsLegend, PerformingVenuesLegend, ReligionLegend, SportsVenueLegend, TourAttractionsLegend, TourEventsLegend, TourHeritageLegend, TourHotelsLegend } from "./legend/cultureLegends";
@@ -352,7 +348,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = slottedList<LegendEntry>("legends"
   { id: "historicalThematic", render: ({ overlayParams }) => <HistoricalMapLegend groupKey="historicalThematic" eraIdx={overlayParams.historicalThematicEraIdx} /> },
   countrySlot("GB", 1), // 英國國家包（src/countries/gb/）
   countrySlot("KR", 1), // 南韓國家包（src/countries/kr/）
-  { id: "caAdminBoundaries", render: () => <CaAdminBoundariesLegend /> },
+  countrySlot("CA", 1), // 加拿大國家包（src/countries/ca/）
   countrySlot("IE", 1), // 愛爾蘭國家包（src/countries/ie/）
   { id: "phAdminBoundaries", render: () => <PhAdminBoundariesLegend /> },
   { id: "phPopulation", render: () => <PhPopulationLegend /> },
@@ -372,34 +368,10 @@ export const LEGEND_REGISTRY: LegendEntry[] = slottedList<LegendEntry>("legends"
   ...ID_DATA_KEYS.map((key) => ({ id: key, render: () => <IdDataLegend layerKey={key} /> })),
   ...ID_RASTER_KEYS.map((key) => ({ id: key, render: () => <IdRasterLegend layerKey={key} /> })),
   ...VN_RASTER_KEYS.map((key) => ({ id: key, render: () => <VnRasterLegend layerKey={key} /> })),
-  // 加拿大第 3–8 波（2026-11-17）：規格驅動 36 層，重用菲律賓 PhSpecLegend
-  ...CA_WAVE_KEYS.map((key) => ({ id: key, render: () => <PhSpecLegend spec={CA_WAVE_SPEC_BY_KEY[key]} /> })),
+  countrySlot("CA", 2), // 加拿大國家包（src/countries/ca/）
   countrySlot("CN", 1), // 中國國家包（src/countries/cn/）
   countrySlot("IE", 2), // 愛爾蘭國家包（src/countries/ie/）
-  { id: "caTransitStops", render: () => <CaTransitStopsLegend /> },
-  { id: "caAirportsPorts", render: () => <CaAirportsPortsLegend /> },
-  { id: "caMajorRoads", render: () => <CaMajorRoadsLegend /> },
-  { id: "caRailways", render: () => <CaRailwaysLegend /> },
-  { id: "caPowerPlants", render: () => <CaPowerPlantsLegend /> },
-  { id: "caWindTurbines", render: () => <CaWindTurbinesLegend /> },
-  { id: "caPowerGrid", render: () => <CaPowerGridLegend /> },
-  { id: "caOilGas", render: () => <CaOilGasLegend /> },
-  { id: "caPopulationCentres", render: () => <CaPopulationCentresLegend /> },
-  { id: "caFederalDistricts", render: () => <CaFederalDistrictsLegend /> },
-  { id: "caPostalFsa", render: () => <CaPostalFsaLegend /> },
-  { id: "caIndigenousLands", render: () => <CaIndigenousLandsLegend /> },
-  { id: "caDeprivation", render: () => <CaDeprivationLegend /> },
-  { id: "caRents", render: () => <CaRentsLegend /> },
-  { id: "caPlaceNames", render: () => <CaPlaceNamesLegend /> },
-  { id: "caHillshade", render: () => <CaHillshadeLegend /> },
-  { id: "caClimateStations", render: () => <CaClimateStationsLegend /> },
-  { id: "caAqhiStations", render: () => <CaAqhiStationsLegend /> },
-  { id: "caRadiationStations", render: () => <CaRadiationStationsLegend /> },
-  { id: "caNpriFacilities", render: () => <CaNpriFacilitiesLegend /> },
-  { id: "caWastewaterSystems", render: () => <CaWastewaterSystemsLegend /> },
-  { id: "caEarthquakes", render: () => <CaEarthquakesLegend /> },
-  { id: "caEarthquakesLive", render: () => <CaEarthquakesLiveLegend /> },
-  { id: "caPopulationGrid", render: () => <CaPopulationGridLegend /> },
+  countrySlot("CA", 3), // 加拿大國家包（src/countries/ca/）
   countrySlot("KR", 2), // 南韓國家包（src/countries/kr/）
   countrySlot("GB", 2), // 英國國家包（src/countries/gb/）
   { id: "jmaAmedas", render: () => <JmaAmedasLegend /> },

@@ -104,7 +104,6 @@ import {
   JpPopulationMeshHost,
   JpTourismHost, JpWaterHost,
 } from "./hosts/japanHosts";
-import { CaAdminHost, CaAirportsPortsHost, CaMajorRoadsHost, CaOilGasHost, CaPopulationCentresHost, CaPowerGridHost, CaPowerPlantsHost, CaRailwaysHost, CaTransitStopsHost, CaWindTurbinesHost, CaFederalDistrictsHost, CaPostalFsaHost, CaIndigenousLandsHost, CaDeprivationHost, CaRentsHost, CaPlaceNamesHost, CaHillshadeHost, CaClimateStationsHost, CaAqhiStationsHost, CaRadiationStationsHost, CaNpriFacilitiesHost, CaWastewaterSystemsHost, CaEarthquakesHost, CaEarthquakesLiveHost, CaPopulationGridHost, CaMaritimeZonesHost, CaPermafrostHost, CaDamsHost, CaRecyclingDepotsHost, CaFloodMapInventoryHost, CaAbFloodHazardHost, CaGlaciersHost, CaRiversLakesHost, CaProtectedAreasHost, CaCriticalHabitatHost, CaMarineConservationHost, CaTideStationsHost, CaEcozonesHost, CaForestManagementHost, CaBridgesTunnelsHost, CaFerryRoutesHost, CaTorontoKsiHost, CaLodeHealthHost, CaLodeSchoolsHost, CaLodeSportsHost, CaBcChildcareHost, CaLodeCultureHost, CaCbsaOfficesHost, CaParksCanadaAccommodationHost, CaCourtsCorrectionsHost, CaTorontoTheftFromVehicleHost, CaWildfirePointsHost, CaBroadbandHexHost, CaMinesHost, CaGrainElevatorsHost, CaDroughtMonitorHost, CaSoilLandscapesHost, CaNsAquacultureHost, CaAbattoirsHost, CaOdbusHost, CaTorontoDevApplicationsHost } from "./hosts/canadaHosts";
 import { IdAdminHost, IdPopulationHost, IdRuralDevelopmentHost, IdStationsHost, IdRailLinesHost, IdTransportHubsHost, IdPowerPlantsHost, IdPowerGridHost, IdRenewablesHost, IdFuelStationsHost, IdPlaceNamesHost, IdOuterIslandsHost, IdFaultsHost, IdMountainRescueHost, IdDibiHydrometHost, IdBridgesHost, IdWaterFacilitiesHost, IdWatershedsHost, IdSubsidenceHost, IdNatureSpotsHost, IdConservationForestHost, IdCampsHost, IdTerrainHillshadeHost, IdTerrainReliefHost, IdInariskLandslideHost, IdInariskFloodHost, IdInariskMultiHost, IdSchoolsHost, IdHealthFacilitiesHost, IdFireStationsHost, IdPoliceStationsHost, IdPrisonsCourtsHost, IdImmigrationOfficesHost, IdTransjakartaHost, IdSpecialEconomicZonesHost, IdIknHost, IdPostOfficesHost, IdMarketsHost, IdBanksHost, IdCulturalFacilitiesHost, IdHeritageSitesHost, IdCommTowersHost, IdPlacesOfWorshipHost, IdExperiencesHost, IdAccommodationHost, IdWeatherStationsHost, IdFactoriesHost, IdSportsVenuesHost, IdParksHost, IdCemeteriesHost, IdAquacultureHost, IdFarmlandHost, IdVeterinaryHost } from "./hosts/indonesiaHosts";
 import { ThAdminHost, ThPopulationHost, ThTransportHubsHost, ThStationsHost, ThMajorRoadsHost, ThPowerPlantsHost, ThPowerGridHost, ThRenewablesHost, ThFuelStationsHost, ThPipelinesHost, ThPlaceNamesHost, ThElectionConstituenciesHost, ThHighlandVillagesHost, ThProvinceSocioeconomicHost, ThFootbridgesHost, ThRailCrossingsHost, ThRoadAccidentsHost, ThEecHost, ThFloodHistoryHost, ThBasinsHost, ThIrrigationProjectsHost, ThLandslideSafePointsHost, ThLandfillsHost, ThTerrainHillshadeHost, ThTerrainReliefHost, ThSchoolsHost, ThKindergartensHost, ThElderlyHousingHost, ThHealthFacilitiesHost, ThPoliceStationsHost, ThJailsCourtsHost, ThNatureSpotsHost, ThNationalReservedForestsHost, ThNationalParksHost, ThRamsarSitesHost, ThForestParksHost, ThMuseumsLibrariesHost, ThArtsEventsHost, ThHistoricSitesHost, ThExperiencesHost, ThAccommodationHost, ThBanksHost, ThPlacesOfWorshipHost, ThPostOfficesHost, ThAirQualityStationsHost, ThWeatherStationsHost, ThMarineHabitatsHost, ThMarineProtectedAreasHost, ThSeaLevelStationsHost, ThCoastalChangeHost, ThSportsVenuesHost, ThParksHost, ThFactoriesHost, ThFarmMarketsHost, ThCropsHost, ThVeterinaryHost, ThSoilPhHost, ThSoilOrganicCarbonHost } from "./hosts/thailandHosts";
 import { VnAdminHost, VnPopulationHost, VnStationsHost, VnTransportHubsHost, VnMajorRoadsHost, VnPowerPlantsHost, VnRenewablesHost, VnPowerGridHost, VnFuelStationsHost, VnOilGasHost, VnEnvisoftStationsHost, VnAngiangDemoHost,
@@ -314,8 +313,7 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = slottedList<LayerH
   { id: "useJpPopulationMeshLayer", keys: ["jpPopulationMesh1km"], Host: JpPopulationMeshHost },
   countrySlot("GB", 1), // 英國國家包（src/countries/gb/）
   countrySlot("KR", 1), // 南韓國家包（src/countries/kr/）
-  // 加拿大（2026-11-04 第 0＋1 波：行政邊界、交通 4 層、能源 4 層、人口中心）
-  { id: "useCaAdminLayers", keys: ["caAdminBoundaries"], Host: CaAdminHost },
+  countrySlot("CA", 1), // 加拿大國家包（src/countries/ca/）
   countrySlot("IE", 1), // 愛爾蘭國家包（src/countries/ie/）
   // 菲律賓（2026-11-13 第 0–1 波：行政邊界、人口、交通 3 層、能源 5 層）
   { id: "usePhAdminLayers", keys: ["phAdminBoundaries"], Host: PhAdminHost },
@@ -548,67 +546,7 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = slottedList<LayerH
   { id: "usePhBuiltSurfaceLayer", keys: ["phBuiltSurface"], Host: PhBuiltSurfaceHost },
   { id: "usePhForestLossLayer", keys: ["phForestLoss"], Host: PhForestLossHost },
   countrySlot("CN", 1), // 中國國家包（src/countries/cn/）
-  { id: "useCaTransitStopsLayer", keys: ["caTransitStops"], Host: CaTransitStopsHost },
-  { id: "useCaAirportsPortsLayer", keys: ["caAirportsPorts"], Host: CaAirportsPortsHost },
-  { id: "useCaMajorRoadsLayer", keys: ["caMajorRoads"], Host: CaMajorRoadsHost },
-  { id: "useCaRailwaysLayer", keys: ["caRailways"], Host: CaRailwaysHost },
-  { id: "useCaPowerPlantsLayer", keys: ["caPowerPlants"], Host: CaPowerPlantsHost },
-  { id: "useCaWindTurbinesLayer", keys: ["caWindTurbines"], Host: CaWindTurbinesHost },
-  { id: "useCaPowerGridLayer", keys: ["caPowerGrid"], Host: CaPowerGridHost },
-  { id: "useCaOilGasLayer", keys: ["caOilGas"], Host: CaOilGasHost },
-  { id: "useCaPopulationCentresLayer", keys: ["caPopulationCentres"], Host: CaPopulationCentresHost },
-  { id: "useCaFederalDistrictsLayer", keys: ["caFederalDistricts"], Host: CaFederalDistrictsHost },
-  { id: "useCaPostalFsaLayer", keys: ["caPostalFsa"], Host: CaPostalFsaHost },
-  { id: "useCaIndigenousLandsLayer", keys: ["caIndigenousLands"], Host: CaIndigenousLandsHost },
-  { id: "useCaDeprivationLayer", keys: ["caDeprivation"], Host: CaDeprivationHost },
-  { id: "useCaRentsLayer", keys: ["caRents"], Host: CaRentsHost },
-  { id: "useCaPlaceNamesLayer", keys: ["caPlaceNames"], Host: CaPlaceNamesHost },
-  { id: "useCaHillshadeLayer", keys: ["caHillshade"], Host: CaHillshadeHost },
-  { id: "useCaClimateStationsLayer", keys: ["caClimateStations"], Host: CaClimateStationsHost },
-  { id: "useCaAqhiStationsLayer", keys: ["caAqhiStations"], Host: CaAqhiStationsHost },
-  { id: "useCaRadiationStationsLayer", keys: ["caRadiationStations"], Host: CaRadiationStationsHost },
-  { id: "useCaNpriFacilitiesLayer", keys: ["caNpriFacilities"], Host: CaNpriFacilitiesHost },
-  { id: "useCaWastewaterSystemsLayer", keys: ["caWastewaterSystems"], Host: CaWastewaterSystemsHost },
-  { id: "useCaEarthquakesLayer", keys: ["caEarthquakes"], Host: CaEarthquakesHost },
-  { id: "useCaLiveEarthquakesLayer", keys: ["caEarthquakesLive"], Host: CaEarthquakesLiveHost },
-  { id: "useCaPopulationGridLayer", keys: ["caPopulationGrid"], Host: CaPopulationGridHost },
-  // 加拿大第 3–8 波（2026-11-17，規格驅動 36 層）
-  { id: "useCaMaritimeZonesLayer", keys: ["caMaritimeZones"], Host: CaMaritimeZonesHost },
-  { id: "useCaPermafrostLayer", keys: ["caPermafrost"], Host: CaPermafrostHost },
-  { id: "useCaDamsLayer", keys: ["caDams"], Host: CaDamsHost },
-  { id: "useCaRecyclingDepotsLayer", keys: ["caRecyclingDepots"], Host: CaRecyclingDepotsHost },
-  { id: "useCaFloodMapInventoryLayer", keys: ["caFloodMapInventory"], Host: CaFloodMapInventoryHost },
-  { id: "useCaAbFloodHazardLayer", keys: ["caAbFloodHazard"], Host: CaAbFloodHazardHost },
-  { id: "useCaGlaciersLayer", keys: ["caGlaciers"], Host: CaGlaciersHost },
-  { id: "useCaRiversLakesLayer", keys: ["caRiversLakes"], Host: CaRiversLakesHost },
-  { id: "useCaProtectedAreasLayer", keys: ["caProtectedAreas"], Host: CaProtectedAreasHost },
-  { id: "useCaCriticalHabitatLayer", keys: ["caCriticalHabitat"], Host: CaCriticalHabitatHost },
-  { id: "useCaMarineConservationLayer", keys: ["caMarineConservation"], Host: CaMarineConservationHost },
-  { id: "useCaTideStationsLayer", keys: ["caTideStations"], Host: CaTideStationsHost },
-  { id: "useCaEcozonesLayer", keys: ["caEcozones"], Host: CaEcozonesHost },
-  { id: "useCaForestManagementLayer", keys: ["caForestManagement"], Host: CaForestManagementHost },
-  { id: "useCaBridgesTunnelsLayer", keys: ["caBridgesTunnels"], Host: CaBridgesTunnelsHost },
-  { id: "useCaFerryRoutesLayer", keys: ["caFerryRoutes"], Host: CaFerryRoutesHost },
-  { id: "useCaTorontoKsiLayer", keys: ["caTorontoKsi"], Host: CaTorontoKsiHost },
-  { id: "useCaLodeHealthLayer", keys: ["caLodeHealth"], Host: CaLodeHealthHost },
-  { id: "useCaLodeSchoolsLayer", keys: ["caLodeSchools"], Host: CaLodeSchoolsHost },
-  { id: "useCaLodeSportsLayer", keys: ["caLodeSports"], Host: CaLodeSportsHost },
-  { id: "useCaBcChildcareLayer", keys: ["caBcChildcare"], Host: CaBcChildcareHost },
-  { id: "useCaLodeCultureLayer", keys: ["caLodeCulture"], Host: CaLodeCultureHost },
-  { id: "useCaCbsaOfficesLayer", keys: ["caCbsaOffices"], Host: CaCbsaOfficesHost },
-  { id: "useCaParksCanadaAccommodationLayer", keys: ["caParksCanadaAccommodation"], Host: CaParksCanadaAccommodationHost },
-  { id: "useCaCourtsCorrectionsLayer", keys: ["caCourtsCorrections"], Host: CaCourtsCorrectionsHost },
-  { id: "useCaTorontoTheftFromVehicleLayer", keys: ["caTorontoTheftFromVehicle"], Host: CaTorontoTheftFromVehicleHost },
-  { id: "useCaWildfirePointsLayer", keys: ["caWildfirePoints"], Host: CaWildfirePointsHost },
-  { id: "useCaBroadbandHexLayer", keys: ["caBroadbandHex"], Host: CaBroadbandHexHost },
-  { id: "useCaMinesLayer", keys: ["caMines"], Host: CaMinesHost },
-  { id: "useCaGrainElevatorsLayer", keys: ["caGrainElevators"], Host: CaGrainElevatorsHost },
-  { id: "useCaDroughtMonitorLayer", keys: ["caDroughtMonitor"], Host: CaDroughtMonitorHost },
-  { id: "useCaSoilLandscapesLayer", keys: ["caSoilLandscapes"], Host: CaSoilLandscapesHost },
-  { id: "useCaNsAquacultureLayer", keys: ["caNsAquaculture"], Host: CaNsAquacultureHost },
-  { id: "useCaAbattoirsLayer", keys: ["caAbattoirs"], Host: CaAbattoirsHost },
-  { id: "useCaOdbusLayer", keys: ["caOdbus"], Host: CaOdbusHost },
-  { id: "useCaTorontoDevApplicationsLayer", keys: ["caTorontoDevApplications"], Host: CaTorontoDevApplicationsHost },
+  countrySlot("CA", 2), // 加拿大國家包（src/countries/ca/）
   countrySlot("GB", 2), // 英國國家包（src/countries/gb/）
   // 日本氣象廳即時 4 層（gis-platform migration 435）：當下快照
   { id: "useJmaLiveLayer:jmaAmedas", keys: ["jmaAmedas"], Host: JmaAmedasHost },

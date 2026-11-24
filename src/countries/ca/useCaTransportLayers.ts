@@ -1,15 +1,15 @@
 import type { AnyLayer, Map as MapboxMap } from "mapbox-gl";
-import { hookLineLayout, hookLinePaint } from "../map/lineFillSpec";
-import { LINE_WIDTH, densePointsFromZoom, heatmapMaxzoom, pointRadius, pointStrokePaint } from "../map/mapStyleScale";
-import { paramDefault } from "../data/layerParamsSpec";
-import { krGroupFilter, krStringProp } from "../data/intlLayerShared";
-import { useHeatmapStyleSignature } from "../state/layerPalette";
+import { hookLineLayout, hookLinePaint } from "../../map/lineFillSpec";
+import { LINE_WIDTH, densePointsFromZoom, heatmapMaxzoom, pointRadius, pointStrokePaint } from "../../map/mapStyleScale";
+import { paramDefault } from "../../data/layerParamsSpec";
+import { krGroupFilter, krStringProp } from "../../data/intlLayerShared";
+import { useHeatmapStyleSignature } from "../../state/layerPalette";
 import {
   CA_AIRPORT_CLASSES, CA_AIRPORT_MAJOR_IDS, CA_AIRPORTS_SOURCE, CA_FALLBACK_COLOR, CA_HUB_MINOR_FROM_ZOOM, CA_PORT_MAJOR_IDS, CA_PORT_TYPES,
   CA_RAIL_MINOR_FROM_ZOOM, CA_RAIL_SOURCE, CA_RAIL_STATION_TYPES, CA_RAIL_STATIONS_FROM_ZOOM, CA_RAIL_TRACK_CLASSES, CA_ROAD_CLASSES, CA_ROADS_SOURCE,
   CA_TRANSIT_COUNT, CA_TRANSIT_SOURCE, CA_TRANSIT_TYPES, type CaCat,
-} from "../data/caInfraTypes";
-import { gbHeatmapBuild, useGbPmtilesLayers, type LayerBuild, type SourceSpec } from "./intlPmtilesLayers";
+} from "./caInfraTypes";
+import { gbHeatmapBuild, useGbPmtilesLayers, type LayerBuild, type SourceSpec } from "../../hooks/intlPmtilesLayers";
 
 /**
  * 加拿大第 1 波交通 4 層（C009 站點、C013 機場港口、C012 道路與鐵道）。靜態 PMTiles、不訂閱時間。

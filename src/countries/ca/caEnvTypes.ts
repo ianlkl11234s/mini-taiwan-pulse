@@ -7,7 +7,7 @@
  * 色票沿用台灣同語意圖層（氣象站、空品站、環境輻射、污染申報、地震、污水設施），不另造色。
  * 涵蓋寫 n/13 省／地區，未涵蓋的省份寫「未涵蓋」（不補 0）。
  */
-import { STATISTICS_SEQUENTIAL_SCHEMES as SEQ } from "./statisticsVisuals";
+import { STATISTICS_SEQUENTIAL_SCHEMES as SEQ } from "../../data/statisticsVisuals";
 import type { CaCat, CaField, CaPopupSpec, CaSource, L3 } from "./caInfraTypes";
 
 const l3 = (zh: string, en: string, ja: string): L3 => ({ zh, en, ja });

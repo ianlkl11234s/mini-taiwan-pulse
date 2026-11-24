@@ -104,4 +104,19 @@ export const COUNTRY_PACK_CONFIG: Record<string, CountryPackConfig> = {
     specNotes: { specsImport: "./krDataLayers", specsName: "KR_DATA_SPECS", all: true },
     styleIds: { specsImport: "./krDataLayers", specsName: "KR_DATA_SPECS" },
   },
+  CA: {
+    dir: "ca",
+    nameZh: "加拿大",
+    dedicated: [
+      /^src\/data\/ca(?!StatisticsRecipes)[A-Z][A-Za-z]*\.ts$/,
+      /^src\/hooks\/useCa[A-Z][A-Za-z]*\.ts$/,
+      /^src\/components\/legend\/ca[A-Z][A-Za-z]*\.tsx$/,
+      /^src\/components\/featureInfo\/ca[A-Z][A-Za-z]*\.tsx$/,
+      /^src\/layers\/hosts\/canadaHosts\.tsx$/,
+    ],
+    rename: { "src/data/caWavesKeys.ts": "keys.ts" },
+    excludeKeys: /^statsCa/,
+    keyType: "CaLayerKey",
+    specNotes: { specsImport: "./caWavesLayers", specsName: "CA_WAVE_SPECS" },
+  },
 };

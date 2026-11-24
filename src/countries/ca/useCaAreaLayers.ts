@@ -1,16 +1,16 @@
 import type { AnyLayer, Map as MapboxMap } from "mapbox-gl";
-import { hookFillPaint, hookLineLayout, hookLinePaint } from "../map/lineFillSpec";
-import { BOUNDARY_GRAY, gradedSeamPaint, hatchImageData, hatchImageId, pointRadius, pointStrokePaint } from "../map/mapStyleScale";
-import { paletteRamp, resampleRamp } from "../map/palettes";
-import { paramDefault } from "../data/layerParamsSpec";
-import { useHeatmapStyleSignature } from "../state/layerPalette";
+import { hookFillPaint, hookLineLayout, hookLinePaint } from "../../map/lineFillSpec";
+import { BOUNDARY_GRAY, gradedSeamPaint, hatchImageData, hatchImageId, pointRadius, pointStrokePaint } from "../../map/mapStyleScale";
+import { paletteRamp, resampleRamp } from "../../map/palettes";
+import { paramDefault } from "../../data/layerParamsSpec";
+import { useHeatmapStyleSignature } from "../../state/layerPalette";
 import {
   CA_ADMIN_COLOR, CA_CIMD_DIMENSIONS, CA_CIMD_PALETTE_ID, CA_CIMD_POLYGON_FROM_ZOOM, CA_CIMD_SOURCE, CA_FED_POLYGON_FROM_ZOOM,
   CA_FED_SOURCE, CA_FSA_CLASSES, CA_FSA_POLYGON_FROM_ZOOM, CA_FSA_SOURCE, CA_INDIGENOUS_POLYGON_FROM_ZOOM, CA_INDIGENOUS_SOURCE,
   CA_INDIGENOUS_TYPES, CA_RENT_UNITS, CA_RENTS_PALETTE_ID, CA_RENTS_POLYGON_FROM_ZOOM, CA_RENTS_SOURCE, type CaCimdDimension, type CaRentUnit,
-} from "../data/caInfraTypes";
+} from "./caInfraTypes";
 import { caCatColor, caCatFilter } from "./useCaTransportLayers";
-import { gbHeatmapBuild, useGbPmtilesLayers, type LayerBuild, type SourceSpec } from "./intlPmtilesLayers";
+import { gbHeatmapBuild, useGbPmtilesLayers, type LayerBuild, type SourceSpec } from "../../hooks/intlPmtilesLayers";
 
 /**
  * 加拿大第 2 波面資料與社經 5 層（C134 聯邦選區、X010 FSA、C019 原住民法定土地、C023 CIMD、C026 CMHC 租金）。靜態 PMTiles、不訂閱時間。

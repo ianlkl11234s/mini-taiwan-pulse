@@ -1,9 +1,9 @@
 import type { AnyLayer, Map as MapboxMap } from "mapbox-gl";
-import { pointRadius, pointStrokePaint } from "../map/mapStyleScale";
-import { paramDefault } from "../data/layerParamsSpec";
-import { CA_HILLSHADE_SOURCE, CA_PLACE_GROUPS, CA_PLACE_NAMES_SOURCE } from "../data/caInfraTypes";
+import { pointRadius, pointStrokePaint } from "../../map/mapStyleScale";
+import { paramDefault } from "../../data/layerParamsSpec";
+import { CA_HILLSHADE_SOURCE, CA_PLACE_GROUPS, CA_PLACE_NAMES_SOURCE } from "./caInfraTypes";
 import { caCatColor, caCatFilter } from "./useCaTransportLayers";
-import { useGbPmtilesLayers, type SourceSpec } from "./intlPmtilesLayers";
+import { useGbPmtilesLayers, type SourceSpec } from "../../hooks/intlPmtilesLayers";
 
 /**
  * 加拿大第 2 波地名與地形（CGNDB 地名、MRDEM-30 山體陰影）。靜態 PMTiles、不訂閱時間。

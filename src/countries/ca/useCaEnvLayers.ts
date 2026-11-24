@@ -1,16 +1,16 @@
 import type { AnyLayer, Map as MapboxMap } from "mapbox-gl";
-import { hookFillPaint } from "../map/lineFillSpec";
-import { densePointsFromZoom, heatmapMaxzoom, pointRadius, pointStrokePaint } from "../map/mapStyleScale";
-import { paramDefault } from "../data/layerParamsSpec";
-import { gridRampFor, useGridPaletteSignature, useHeatmapStyleSignature } from "../state/layerPalette";
-import { JMA_QUAKE_RADIUS_STOPS } from "../data/jmaTypes";
+import { hookFillPaint } from "../../map/lineFillSpec";
+import { densePointsFromZoom, heatmapMaxzoom, pointRadius, pointStrokePaint } from "../../map/mapStyleScale";
+import { paramDefault } from "../../data/layerParamsSpec";
+import { gridRampFor, useGridPaletteSignature, useHeatmapStyleSignature } from "../../state/layerPalette";
+import { JMA_QUAKE_RADIUS_STOPS } from "../../data/jmaTypes";
 import {
   CA_AQHI_COLOR, CA_AQHI_SOURCE, CA_CLIMATE_SOURCE, CA_CLIMATE_STATUSES, CA_NPRI_COUNT, CA_NPRI_GROUPS, CA_NPRI_RECENT, CA_NPRI_SOURCE,
   CA_POP_GRID_BREAKS, CA_POP_GRID_LEVELS, CA_POP_GRID_SOURCE, CA_QUAKE_CLASSES, CA_QUAKE_COLOR, CA_QUAKE_COUNT, CA_QUAKE_SOURCE,
   CA_RADIATION_COLOR, CA_RADIATION_SOURCE, CA_WSER_BANDS, CA_WSER_SOURCE, CA_WSER_STATUSES,
-} from "../data/caEnvTypes";
+} from "./caEnvTypes";
 import { caCatColor, caCatFilter } from "./useCaTransportLayers";
-import { gbHeatmapBuild, useGbPmtilesLayers, type LayerBuild, type SourceSpec } from "./intlPmtilesLayers";
+import { gbHeatmapBuild, useGbPmtilesLayers, type LayerBuild, type SourceSpec } from "../../hooks/intlPmtilesLayers";
 
 /**
  * 加拿大第 3 波（C095 氣象站、C096 AQHI、C076 輻射監測站、C099 NPRI、C098 WSER、C070 歷史地震）＋ GHSL 人口網格。

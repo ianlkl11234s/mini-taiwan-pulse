@@ -1,23 +1,23 @@
 // 加拿大 Layer Host（2026-11-04 第 0＋1 波）。比照 hosts/koreaHosts.tsx：一個 key 一個 Host。
 
-import { useCaAdminLayers } from "../../hooks/useCaAdminLayers";
-import { useCaAirportsPortsLayer, useCaMajorRoadsLayer, useCaRailwaysLayer, useCaTransitStopsLayer } from "../../hooks/useCaTransportLayers";
-import { useCaOilGasLayer, useCaPopulationCentresLayer, useCaPowerGridLayer, useCaPowerPlantsLayer, useCaWindTurbinesLayer } from "../../hooks/useCaEnergyLayers";
+import { useCaAdminLayers } from "./useCaAdminLayers";
+import { useCaAirportsPortsLayer, useCaMajorRoadsLayer, useCaRailwaysLayer, useCaTransitStopsLayer } from "./useCaTransportLayers";
+import { useCaOilGasLayer, useCaPopulationCentresLayer, useCaPowerGridLayer, useCaPowerPlantsLayer, useCaWindTurbinesLayer } from "./useCaEnergyLayers";
 import {
   caCimdDimensionFromIdx, caRentUnitFromIdx, useCaDeprivationLayer, useCaFederalDistrictsLayer, useCaIndigenousLandsLayer, useCaPostalFsaLayer, useCaRentsLayer,
-} from "../../hooks/useCaAreaLayers";
-import { useCaHillshadeLayer, useCaPlaceNamesLayer } from "../../hooks/useCaTerrainLayers";
+} from "./useCaAreaLayers";
+import { useCaHillshadeLayer, useCaPlaceNamesLayer } from "./useCaTerrainLayers";
 import {
   useCaAqhiStationsLayer, useCaClimateStationsLayer, useCaEarthquakesLayer, useCaNpriFacilitiesLayer, useCaPopulationGridLayer, useCaRadiationStationsLayer,
   useCaWastewaterSystemsLayer,
-} from "../../hooks/useCaEnvLayers";
-import { useCaLiveEarthquakesLayer } from "../../hooks/useCaLiveEarthquakesLayer";
+} from "./useCaEnvLayers";
+import { useCaLiveEarthquakesLayer } from "./useCaLiveEarthquakesLayer";
 import { gbDisplayModeFromIdx } from "../../hooks/intlPmtilesLayers";
 import { usePhDataLayer } from "../../hooks/intlPhSpecLayers";
-import { CA_WAVE_SPEC_BY_KEY, caWaveDefaultCatMask } from "../../data/caWavesLayers";
-import type { CaWaveKey } from "../../data/caWavesKeys";
-import { bumpHostRender, type LayerHostComponent } from "../layerHostDeps";
-import { useKeyOverlayParams } from "../layerParamsAccess";
+import { CA_WAVE_SPEC_BY_KEY, caWaveDefaultCatMask } from "./caWavesLayers";
+import type { CaWaveKey } from "./keys";
+import { bumpHostRender, type LayerHostComponent } from "../../layers/layerHostDeps";
+import { useKeyOverlayParams } from "../../layers/layerParamsAccess";
 
 /** 行政邊界：省／地區、普查區、普查分區三層級（同一個 PMTiles，select 切換）。 */
 export const CaAdminHost: LayerHostComponent = ({ deps }) => {

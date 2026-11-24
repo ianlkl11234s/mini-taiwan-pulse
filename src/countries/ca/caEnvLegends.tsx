@@ -1,20 +1,20 @@
 // 加拿大第 3 波圖例（氣象站、AQHI、輻射監測站、NPRI、污水處理系統、歷史地震）＋人口網格。
 // 色票、類別、備註與署名 SSOT 在 data/caEnvTypes.ts；未涵蓋的省份寫「未涵蓋」，人口網格標「GHSL 模型推估、非普查」。
 import { useSyncExternalStore, type ReactNode } from "react";
-import { caQuakeLiveStatus } from "../../data/caLiveQuakesLoader";
-import { LegendNote, LegendRow, LegendSizeRow, LegendTitle, SwatchDot, SwatchSteps, useLegendTheme } from "./legendKit";
-import { DenseHeatmapLegendRow } from "./legendShared";
+import { caQuakeLiveStatus } from "./caLiveQuakesLoader";
+import { LegendNote, LegendRow, LegendSizeRow, LegendTitle, SwatchDot, SwatchSteps, useLegendTheme } from "../../components/legend/legendKit";
+import { DenseHeatmapLegendRow } from "../../components/legend/legendShared";
 import { LAYER_MANIFEST, type LayerName } from "../../data/layerManifest";
 import { localizeLayerName } from "../../i18n/layerText";
 import { useLocale } from "../../state/localeStore";
 import { usePaletteRamp } from "../../state/layerPalette";
 import { JMA_QUAKE_RADIUS_STOPS } from "../../data/jmaTypes";
-import { pickL3, type CaCat, type CaSource, type L3 } from "../../data/caInfraTypes";
+import { pickL3, type CaCat, type CaSource, type L3 } from "./caInfraTypes";
 import {
   CA_AQHI_COLOR, CA_AQHI_NOTES, CA_AQHI_SOURCE, CA_CLIMATE_NOTES, CA_CLIMATE_SOURCE, CA_CLIMATE_STATUSES, CA_NPRI_GROUPS, CA_NPRI_NOTES,
   CA_NPRI_SOURCE, CA_POP_GRID_BREAKS, CA_POP_GRID_NOTES, CA_POP_GRID_SOURCE, CA_QUAKE_COLOR, CA_QUAKE_LIVE_DAYS, CA_QUAKE_LIVE_NOTES, CA_QUAKE_LIVE_SOURCE, CA_QUAKE_LIVE_TYPES, CA_QUAKE_NOTES, CA_QUAKE_SOURCE,
   CA_RADIATION_COLOR, CA_RADIATION_NOTES, CA_RADIATION_SOURCE, CA_WSER_BANDS, CA_WSER_NOTES, CA_WSER_SOURCE, CA_WSER_STATUSES,
-} from "../../data/caEnvTypes";
+} from "./caEnvTypes";
 
 function useTitle(key: string): { title: string; pick: (t: L3) => string } {
   const i18n = useLocale();

@@ -1,17 +1,17 @@
 import type { AnyLayer, Map as MapboxMap } from "mapbox-gl";
-import { hookFillPaint, hookLineLayout, hookLinePaint } from "../map/lineFillSpec";
-import { LINE_DASH, densePointsFromZoom, heatmapMaxzoom, pointRadius, pointStrokePaint } from "../map/mapStyleScale";
-import { paramDefault } from "../data/layerParamsSpec";
-import { selectedMultiSelectValues } from "../data/multiSelectMapbox";
-import { useHeatmapStyleSignature } from "../state/layerPalette";
+import { hookFillPaint, hookLineLayout, hookLinePaint } from "../../map/lineFillSpec";
+import { LINE_DASH, densePointsFromZoom, heatmapMaxzoom, pointRadius, pointStrokePaint } from "../../map/mapStyleScale";
+import { paramDefault } from "../../data/layerParamsSpec";
+import { selectedMultiSelectValues } from "../../data/multiSelectMapbox";
+import { useHeatmapStyleSignature } from "../../state/layerPalette";
 import {
   CA_CAPACITY_BANDS, CA_GRID_PARTS, CA_GRID_SOURCE, CA_MAJOR_FACILITY_TYPES, CA_ODI_PIPE_POINTS_FROM_ZOOM, CA_ODI_PIPELINES_FROM_ZOOM, CA_OIL_GAS_FACILITIES_COUNT,
   CA_OIL_GAS_FACILITY_COLOR, CA_OIL_GAS_PARTS, CA_OIL_GAS_PIPE_POINT_COLOR, CA_OIL_GAS_SOURCE, CA_OIL_GAS_WELL_COLOR, CA_OIL_GAS_WELLS_COUNT,
   CA_PIPELINE_SUBSTANCES, CA_PLANT_FUELS, CA_PLANTS_SOURCE, CA_POP_BANDS, CA_POP_CLASSES, CA_POP_POLYGON_FROM_ZOOM, CA_POP_SOURCE, CA_POWER_LINE_COLOR,
   CA_SUBSTATION_COLOR, CA_SUBSTATIONS_FROM_ZOOM, CA_WIND_COLOR, CA_WIND_SOURCE, type CaOilGasPart,
-} from "../data/caInfraTypes";
+} from "./caInfraTypes";
 import { caCatColor, caCatFilter } from "./useCaTransportLayers";
-import { gbHeatmapBuild, useGbPmtilesLayers, type LayerBuild, type SourceSpec } from "./intlPmtilesLayers";
+import { gbHeatmapBuild, useGbPmtilesLayers, type LayerBuild, type SourceSpec } from "../../hooks/intlPmtilesLayers";
 
 /**
  * 加拿大第 1 波能源 4 層（C086 電廠、C088 風機、C087 電網、C090 油氣）＋人口中心（C022）。靜態 PMTiles、不訂閱時間。
