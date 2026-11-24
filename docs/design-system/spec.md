@@ -1141,14 +1141,15 @@
 - **版面**：右圖是右半幅容器（不用 clip-path），主地圖全寬、右 padding＝半寬，所以主地圖中心落在左半。中間分隔線固定 50%、不可拖（同拉桿的線，不畫圓鈕與熱區）。
 - **頂端列**（工具列下方，`pointer-events` 只在按鈕上）：左側國家 chip（下拉，任何國家＝圖層面板目前國家，換國家會飛到該國上次的鏡頭）｜比例尺同步開關（lucide `Ruler`，開著 accentFaint 底、`aria-pressed`）｜右側國家 chip 列（只列釘選的外國；目前右國永遠在列；「其他國家…」下拉可選任何外國，台灣不能放右邊）。下面左右各一條比例尺（各量各的地圖）；底部 dock 的比例尺在並排時不畫。
 - **比例尺同步**：預設開。`zoomB = zoomA + log2(cos φB / cos φA)`，雙向、每次移動重算、防重入；方位與傾角各自獨立。關掉後兩邊各自縮放，再打開時以左圖為準重新對齊。
-- **哪些圖層畫在右邊**：看 manifest `country`。右國圖層畫在右圖（右圖另掛一份 `<LayerHosts role="right">`，主圖同一批 Host 讀到的開關是 false）；其他國家、WORLD、SIM 都在左圖。例外：走 overlay registry 的圖層與立體層（`jpHistoricalFlightTrails`）仍只畫在左圖，圖層列標「只在左側」（滑過看原因），其他右國圖層列尾標「右」。拉桿專用的「顯示在」控制與統計左右合成圖例在並排時不出現。
+- **哪些圖層畫在右邊**：看 manifest `country`。右國圖層畫在右圖（右圖另掛一份 `<LayerHosts role="right">`，主圖同一批 Host 讀到的開關是 false）；其他國家、WORLD、SIM 都在左圖。走 overlay registry 的右國圖層由右圖自己掛一份 overlay（hydrate 紀錄以地圖實例分開；2026-11-24 G2-1b），主地圖把它們讀成關閉。例外：立體層（`jpHistoricalFlightTrails`）仍只畫在左圖，圖層列標「只在左側」（滑過看原因）；其他右國圖層列尾標「右」。拉桿專用的「顯示在」控制與統計左右合成圖例在並排時不出現。
 - **點擊**：右圖的點擊由右圖處理（命中順序同主地圖，`src/map/gisClickQuery.ts`），結果進同一個停靠 popup；選取圈只畫在被點的那一側。
 - **圖例**：仍只有一個面板，分「左・國家」「右・國家」兩段（小標 xs 600 `headerText`、下底線）。
 - **時間**：同一刻；時間軸展開時列出兩國當地時間（和台灣同時區的不另列；右側時間來源留給 G2-4「當地同時刻」）。
 - **分享網址**：`cmp=2`、`cmpc`（右國，小寫）、`cmpv`（右圖 `lng,lat,zoom[,bearing,pitch]`）、`cmpsl=0`（比例尺同步關）；`cmp=1` 照舊是拉桿。
 - **AI（MCP）**：只操作左圖；畫面摘要只算主地圖露出的左半，且不列右國圖層。
 - **手機**：不支援；帶 `cmp=2` 的網址用單一地圖開、參數原樣保留（同拉桿）。
-- **載入**：右圖建立登記 loadingRegistry（「右側地圖」）；換右國時整張右圖重建，舊國圖層不殘留。
+- **說明卡**：開並排時同一張提示卡（§5.42）說明左右分工；按「知道了」後記在這個瀏覽器（`pulse.compareCountriesTipSeen.v1`），之後不再出現。拉桿的說明照舊每次開比較出現一次。
+- **載入**：右圖建立登記 loadingRegistry（「右側地圖」），右圖 overlay 的載入任務加 `-right` 後綴；換右國時整張右圖重建，舊國圖層不殘留。
 - **實作**：`src/map/{CountryCompareMapView.tsx,compareCountrySides.ts,gisClickQuery.ts,compareSync.ts}`、`src/components/compare/CountryCompareChrome.tsx`、`src/components/toolbar/CompareMenu.tsx`、`src/state/compareStore.ts`、`src/layers/LayerHost.tsx`（`role`）、`src/research/visibleSummary.ts`（左半範圍）。
 
 ### 5.46 星期格子（popup 內的每週排程，2026-11-17，南韓 KRH-1）

@@ -137,7 +137,7 @@ import { CountryCompareChrome } from "./components/compare/CountryCompareChrome"
 import { CompareMenu } from "./components/toolbar/CompareMenu";
 import { CountryCompareMapView } from "./map/CountryCompareMapView";
 import { rightSideBlocker } from "./map/compareCountrySides";
-import { compareHydrateFromUrl, compareStore, isCompareSupported, pickRightCountry, useCompareSelector, type CompareMode } from "./state/compareStore";
+import { compareHydrateFromUrl, compareStore, countriesTipSeen, isCompareSupported, markCountriesTipSeen, pickRightCountry, useCompareSelector, type CompareMode } from "./state/compareStore";
 import { compareSelectionsForUrl, restoreSelectionsAfterLoad, singleSelectionsForUrl } from "./state/compareStatistics";
 import { layerParamsForUrl, resolveUrlLayerParams } from "./lib/urlLayerParams";
 import { statisticsDefaultOpacity } from "./data/statisticsVisuals";
@@ -568,6 +568,10 @@ export default function App() {
     const next = pickRightCountryRef.current(compareRightCountry);
     if (next !== compareRightCountry) compareStore.setRightCountry(next);
   }, [compareEnabled, compareMode, compareRightCountry, country, visibleCountryCodes.join(","), pinnedCountryCodes]);
+  // 右圖換國家或關掉：右圖點出來的資訊面板跟著關（那筆資料的地圖已經不在）
+  useEffect(() => {
+    setFeatureInfo((info) => (info?.properties?.compare_side === "right" ? null : info));
+  }, [compareRightCountry, countriesCompareActive]);
   /** 工具列比較入口選了模式（並排先補齊右側國家再開） */
   const handleOpenCompare = useCallback((mode: CompareMode) => {
     if (mode === "countries") compareStore.setRightCountry(pickRightCountryRef.current(compareStore.getSnapshot().rightCountry));
@@ -2340,15 +2344,20 @@ export default function App() {
       onDismiss: () => setHistoricalLabelTipDismissed(true),
     }
     : null;
-  // 比較模式剛開：同一張卡的第四段（§5.42）說明把手與「顯示在」，並列出幾個開著的圖層只在左側；每次開比較顯示一次
+  // 比較模式剛開：同一張卡的第四段（§5.42）說明把手與「顯示在」，並列出幾個開著的圖層只在左側；每次開比較顯示一次。
+  // 兩國並排的說明看過（按「知道了」）就記在這個瀏覽器，重整或再開都不再出現
   const [compareTipDismissed, setCompareTipDismissed] = useState(false);
+  const [countriesTipSeenState, setCountriesTipSeenState] = useState(countriesTipSeen);
   useEffect(() => { if (!compareActive) setCompareTipDismissed(false); }, [compareActive]);
-  const compareTip = compareActive && !compareTipDismissed && !captureMode && !chatOpen && !agentActivityVisible
+  const compareTip = compareActive && !compareTipDismissed && !(countriesCompareActive && countriesTipSeenState) && !captureMode && !chatOpen && !agentActivityVisible
     ? {
       unsupported: (Object.entries(layerVisibility) as [string, boolean][]).filter(([key, on]) => on && !lockedKeys.has(key as keyof LayerVisibility)
         && (countriesCompareActive ? rightSideBlocker(key, compareRightCountry) !== null : !isCompareSupported(key))).length,
       countries: countriesCompareActive,
-      onDismiss: () => setCompareTipDismissed(true),
+      onDismiss: () => {
+        setCompareTipDismissed(true);
+        if (countriesCompareActive) { markCountriesTipSeen(); setCountriesTipSeenState(true); }
+      },
     }
     : null;
   const layerHint = useLayerVisibilityHint({
