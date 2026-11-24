@@ -10,7 +10,7 @@ import {
 import type { ThDataKey, ThRasterKey } from "../../data/thDataKeys";
 import { TH_RASTER_BY_KEY } from "../../data/thWavesLayers";
 import { thDensityColors } from "../../hooks/useThLayers";
-import { PhSpecLegend } from "./phLegends";
+import { PhSpecLegend } from "./intlSpecLegend";
 
 function useLayerTitle(key: string): string {
   const i18n = useLocale();

@@ -9,7 +9,7 @@ import {
   GB_SOIL_ATTRIBUTION, GB_SOIL_DEPTHS, GB_SOIL_MINZOOM, GB_SOIL_TILE_ZOOM, GB_W12_FALLBACK_COLOR, GB_W12_HOLLOW_STROKE,
   gbAquacultureView, gbSoilDepthColors, type GbCountBucket,
 } from "../data/gbBusinessAgriTypes";
-import { gbMaskFilter, gbWithFilter, useGbPmtilesLayers, type SourceSpec } from "./useGbWaterLayers";
+import { gbMaskFilter, gbWithFilter, useGbPmtilesLayers, type SourceSpec } from "./intlPmtilesLayers";
 
 /**
  * 英國第 12 波 5 層：公司登記與製造業（同一檔，郵遞區號 district 聚合點，依家數分級半徑）、殯葬設施（OSM 火葬場／葬儀社）、

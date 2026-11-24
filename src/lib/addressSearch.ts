@@ -127,10 +127,17 @@ export function parseAddress(
   let s = normalizeAddressText(text)
     .replace(/^\d{3,6}/, "")
     .replace(/(嘉義|基隆|新竹)市\1市/, "$1市")
-    .replace(/^台灣省?|^台灣/, "")
+    .replace(/^台灣省/, "")
     .replace(/\([^)]*\)?/g, "")
     .replace(/(\d+(?:之\d+)*)(?:[、,;]\d+(?:之\d+)*)+(?=號)/, "$1")
     .replace(/(?<=號).*$/, "");
+  // 「台灣」只有接著縣市名才是國名；否則是路名的一部分（台灣大道）
+  if (s.startsWith("台灣")) {
+    const after = s.slice(2);
+    const isCountry = [...g.counties.keys()].some((ck) => after.startsWith(ck) || (ck.length > 2 && after.startsWith(ck.slice(0, -1))))
+      || (hints.county != null && after.startsWith(hints.county));
+    if (isCountry) s = after;
+  }
   let county = hints.county ?? null;
   if (county == null) {
     const found = [...g.counties.keys()].sort(byLenDesc).find((ck) => s.startsWith(ck));
@@ -237,6 +244,14 @@ export interface AddressHit {
   source: AddressHitSource;
   /** 站主版的細分來源（t＝TGOS、b＝稅籍／公司） */
   ownerTag?: string;
+  /** 完整門牌完全相符（相對於「以此開頭」的建議）；跨片合併排序用 */
+  exact?: boolean;
+}
+
+/** 合併多片結果的排序：完全相符的門牌 > 以此開頭的門牌 > 路段；同級維持原順序，最後才截斷 */
+export function rankAddressHits(hits: readonly AddressHit[], limit: number): AddressHit[] {
+  const rank = (h: AddressHit) => (h.kind === "road" ? 0 : h.exact ? 2 : 1);
+  return [...hits].sort((a, b) => rank(b) - rank(a)).slice(0, limit);
 }
 
 export interface ShardRef {
@@ -272,8 +287,9 @@ export function searchShard(ref: ShardRef, parsed: ParsedAddress, scale: number,
   const hits: AddressHit[] = [];
   const base = { countyCode: ref.countyCode, county: ref.county, town: ref.town, source: ref.source };
   const label = (road: IndexedRoad, rest: string) => `${ref.county}${ref.town}${road.display}${rest}`;
-  const addRow = (road: IndexedRoad, row: AddressRow) => hits.push({
+  const addRow = (road: IndexedRoad, row: AddressRow, exact = false) => hits.push({
     ...base, kind: "address", label: label(road, row[0]), center: pointOf(row, scale),
+    ...(exact ? { exact: true } : {}),
     ...(row.length > 3 ? { ownerTag: row[3] } : {}),
   });
   if (!parsed.rest) {
@@ -287,7 +303,7 @@ export function searchShard(ref: ShardRef, parsed: ParsedAddress, scale: number,
   for (const road of roads) {
     if (parsed.complete) {
       const row = road.rows.get(parsed.rest);
-      if (row) { addRow(road, row); continue; }
+      if (row) { addRow(road, row, true); continue; }
     }
     // 只打到一半（12、5巷）或完整門牌沒有：列出以它開頭的門牌（122號、122之1號…）
     const prefix = parsed.rest.replace(/號$/, "");

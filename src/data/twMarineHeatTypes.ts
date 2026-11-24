@@ -106,7 +106,7 @@ export const TW_CRW_VIEWS = [
 ] as const;
 
 /** 多選 bitmask（全選＝undefined 或全部位元）→ 某一級要不要畫 */
-function enabled(mask: number | undefined, i: number): boolean {
+export function enabled(mask: number | undefined, i: number): boolean {
   return mask === undefined || !Number.isFinite(mask) || (Math.trunc(mask) & (1 << i)) !== 0;
 }
 
@@ -138,6 +138,15 @@ export function twCrwBaaRasterColor(levelMask?: number): unknown[] {
 export function twCrwDhwRasterColor(classMask?: number): unknown[] {
   const thresholds = TW_CRW_DHW_CLASSES.map((c, i) => (i === 0 ? 0 : i === 1 ? 1 : c.value * 10));
   return stepExpr(thresholds, TW_CRW_DHW_CLASSES, classMask, 254);
+}
+
+/** DHW 月最大值 → 分級索引（和 twCrwDhwRasterColor 同一組門檻：raster 值＝DHW×10 四捨五入，上限 254） */
+export function twCrwDhwClassIndex(dhw: number): number {
+  const raster = Math.min(254, Math.round(dhw * 10));
+  const thresholds = TW_CRW_DHW_CLASSES.map((c, i) => (i === 0 ? 0 : i === 1 ? 1 : c.value * 10));
+  let idx = 0;
+  thresholds.forEach((t, i) => { if (raster >= t) idx = i; });
+  return idx;
 }
 
 /** raster paint（不含 raster-opacity 以外的動態欄位） */

@@ -7,7 +7,7 @@
  */
 import type { ThLayerSpec } from "./thDataLayers";
 import type { ThRasterSpec } from "./thWavesLayers";
-import type { L3, PhCat, PhCatGetter, PhField, PhNote, PhPart } from "./phDataLayers";
+import type { L3, PhCat, PhCatGetter, PhField, PhNote, PhPart } from "./intlLayerShared";
 
 const l3 = (zh: string, en: string, ja: string): L3 => ({ zh, en, ja });
 const str = (v: unknown) => (v == null ? "" : String(v));

@@ -6,7 +6,7 @@
  */
 import type { IdLayerSpec } from "./idWavesLayers";
 import { BNPB_URL, KAB_FIELDS, plain, NEAREST, ODBL, OSM_HOT, OSM_URL, OVERTURE_URL, POLY, PT, REDACT_TITLE, UNSTATED, cat, constGetter, l3, point, propGetter, str } from "./idWavesLayers";
-import type { L3, PhCat, PhCatGetter, PhField, PhPart } from "./phDataLayers";
+import type { L3, PhCat, PhCatGetter, PhField, PhPart } from "./intlLayerShared";
 
 export const ID_FETCHED_AT_W5 = "2026-11-24";
 const F = ID_FETCHED_AT_W5;

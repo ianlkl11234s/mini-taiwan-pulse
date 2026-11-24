@@ -14,10 +14,10 @@ import {
   CN_ADMIN_COLOR, CN_ADMIN_LEVELS, CN_DENSITY_BREAKS, CN_DENSITY_FIELD, CN_NOT_COVERED_COLOR, CN_PLANT_STATUSES, CN_PLANT_STATUS_DEFAULT,
   asPhPart, asPhSpec, cnOutlineId, type CnAdminLevel, type CnLayerSpec, type CnOwnerAsset, type CnPart, type CnRasterSpec,
 } from "../data/cnDataLayers";
-import { phText } from "../data/phDataLayers";
+import { phText } from "../data/intlLayerShared";
 import { OWNER_DATA_ENDPOINT } from "../data/ownerDataAssets";
-import { phColorExpr, phPartCatFilter } from "./usePhLayers";
-import { gbAllOf, gbHeatmapBuild, useGbPmtilesLayers, type LayerBuild, type PrivatePmtilesSource, type SourceSpec } from "./useGbWaterLayers";
+import { phColorExpr, phPartCatFilter } from "./intlPhSpecLayers";
+import { gbAllOf, gbHeatmapBuild, useGbPmtilesLayers, type LayerBuild, type PrivatePmtilesSource, type SourceSpec } from "./intlPmtilesLayers";
 
 /**
  * 中國第 0–1 波（2026-11-13）：9 層全部站主限定。圖磚走私人 owner-data（同源 Range API，每次請求帶當下 token），

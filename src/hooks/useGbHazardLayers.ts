@@ -11,7 +11,7 @@ import {
   GB_QUAKE_HOLLOW_STROKE, GB_QUAKE_MINOR_BELOW, GB_QUAKE_MINOR_MINZOOM, GB_QUAKE_TILE_ZOOM, GB_RADON_ATTRIBUTION,
   GB_RADON_CLASSES, GB_RADON_MINZOOM, GB_RADON_TILE_ZOOM, GB_SUSCEPTIBILITY, gbGeoHazardFromIdx, gbRadonColors,
 } from "../data/gbHazardTypes";
-import { gbHeatmapBuild, useGbPmtilesLayers, type SourceSpec } from "./useGbWaterLayers";
+import { gbHeatmapBuild, useGbPmtilesLayers, type SourceSpec } from "./intlPmtilesLayers";
 
 /**
  * 英國第 9 波災害地質 5 層：GeoSure 易發性（5 km 六角格面，一次一種災害）、山崩紀錄（點）、

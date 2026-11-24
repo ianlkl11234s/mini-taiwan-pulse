@@ -10,7 +10,7 @@ import {
   CN_ADMIN_NOTES, CN_DENSITY_LABELS, CN_GRID_LEGEND, CN_GRID_NOTES, CN_NOT_COVERED_COLOR, CN_POPULATION_NOTES,
   CN_RASTER_SPEC_BY_KEY, CN_SPEC_BY_KEY, pickL3, type CnLayerSpec,
 } from "../../data/cnDataLayers";
-import { type PhCat } from "../../data/phDataLayers";
+import { type PhCat } from "../../data/intlLayerShared";
 import type { CnDataKey, CnRasterKey } from "../../data/cnDataKeys";
 import { cnDensityColors } from "../../hooks/useCnLayers";
 

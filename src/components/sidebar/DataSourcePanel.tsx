@@ -392,13 +392,25 @@ export function DataSourceCard({
     const credits = (tableInfo?.attribution ?? []).map(text).filter(Boolean);
     const asOf = tableInfo?.asOf ? text(tableInfo.asOf) : "";
     const restrictions = [...new Set((tableInfo?.restrictions ?? []).map((r) => text(r.text)).filter(Boolean))];
+    // 目錄條目有機關＋授權卻沒有連結時，補上來源表的原始連結（獨立於機關／授權欄）
+    const tableLink = tableInfo ? tableInfo.url || tableInfo.attributionUrl : undefined;
+    const supplementLink = !showSource && tableLink && entries.length > 0 && !entries.some((e) => e.sourceUrl) ? tableLink : null;
     const extra = [
       asOf ? { k: t("dataSources.fact.asOf"), v: asOf, mono: true } : null,
       ...restrictions.map((restriction) => ({ k: t("dataSources.fact.restriction"), v: restriction })),
       ...credits.map((credit) => ({ k: t("dataSources.fact.attribution"), v: credit })),
     ];
-    if (!showSource && notes.length === 0 && credits.length === 0 && restrictions.length === 0) return null;
-    if (!tableInfo || !showSource) return { title: null, desc: notes.length ? notes.join(" ") : null, facts: facts(...extra) };
+    if (!showSource && notes.length === 0 && credits.length === 0 && restrictions.length === 0 && !asOf && !supplementLink) return null;
+    if (!tableInfo || !showSource) {
+      return {
+        title: null,
+        desc: notes.length ? notes.join(" ") : null,
+        facts: facts(
+          ...extra,
+          supplementLink ? { k: t("dataSources.fact.api"), v: <a href={supplementLink} target="_blank" rel="noreferrer" style={{ color: p.link, wordBreak: "break-all" }}>{supplementLink}</a> } : null,
+        ),
+      };
+    }
     const org = text(tableInfo.org);
     const license = tableInfo.license == null ? "" : text(tableInfo.license);
     const localize = tableInfo.from === "catalog";
@@ -413,7 +425,7 @@ export function DataSourceCard({
         link ? { k: t("dataSources.fact.api"), v: <a href={link} target="_blank" rel="noreferrer" style={{ color: p.link, wordBreak: "break-all" }}>{link}</a> } : null,
       ),
     };
-  }, [layerKey, tableInfo, catalogComplete, p, i18n]);
+  }, [layerKey, tableInfo, catalogComplete, entries, p, i18n]);
 
   const blocks: SourceBlock[] = [
     ...(statisticsBlock ? [statisticsBlock] : []),
