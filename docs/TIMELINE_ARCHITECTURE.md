@@ -39,7 +39,7 @@
 - 英、愛、加、法有日光節約時間，一天可能 23 或 25 小時，所以只能用時區名稱算，不能用固定位移。
 - 1980–2040 內位移固定的時區（台北、東京、馬尼拉…）走快速路徑，不碰 Intl，適合每幀呼叫。
 - 既有台北 helper（`taipeiDay.ts`、`timeStore` 的 `toDateKey`、`taipeiParts`、`newsFreshness` 的 `taipeiDayKey`、`cardStyle` 的 `taipeiDate*`、`useTimeline` 的 `dayStartUnix`／`dayEndUnix`）都是它的薄包裝，簽名與輸出不變。
-- **新程式碼不得再寫固定 +8／`+08:00` 算日界**；要換時區就傳時區名稱。各國預設時區在 `constants/countries.ts` 的 `timeZone`（目前尚未接任何使用端）。
+- **新程式碼不得再寫固定 +8／`+08:00` 算日界**；要換時區就傳時區名稱。各國預設時區在 `constants/countries.ts` 的 `timeZone`（正本 pulse-data `countries/countries.json`；目前尚未接任何使用端）。
 
 ## timeStore（外部時間來源）
 
