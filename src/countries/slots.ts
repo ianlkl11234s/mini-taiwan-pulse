@@ -116,11 +116,67 @@ const records = new Map<string, Rec>();
 const history = new Map<string, Rec[]>();
 const listeners = new Map<string, Set<Listener>>();
 
+/** 國家包的 key 在全域宣告順序裡的位置：[錨點＝前一個靜態 key, 全域序號]（由索引提供，見 setRecordOrder） */
+export type RecordOrderHint = readonly [anchor: string, rank: number];
+const orderHints = new Map<string, (key: string) => RecordOrderHint | undefined>();
+const extendedKeys = new Map<string, Set<string>>();
+
+/**
+ * 登記簿的 key 順序也是契約（MANIFEST_KEYS、MCP 能力清單分頁、熱區色盤清單都依宣告順序）。
+ * 設了順序提示的登記簿，國家包併入後依「錨點＋全域序號」把 key 排回搬家前的位置，與載入先後無關。
+ */
+export function setRecordOrder(name: string, hint: (key: string) => RecordOrderHint | undefined): void {
+  orderHints.set(name, hint);
+  const target = records.get(name);
+  if (target) reorder(name, target);
+}
+
+/** 由國家包併入的 key（索引產生器用來判斷哪些 key 要寫順序提示）。 */
+export function extendedRecordKeys(name: string): ReadonlySet<string> {
+  return extendedKeys.get(name) ?? new Set();
+}
+
+function reorder(name: string, target: Rec): void {
+  const hint = orderHints.get(name);
+  const ext = extendedKeys.get(name);
+  if (!hint || !ext?.size) return;
+  const hinted: { key: string; anchor: string; rank: number }[] = [];
+  const base: string[] = [];
+  for (const key of Object.keys(target)) {
+    const h = ext.has(key) ? hint(key) : undefined;
+    if (h) hinted.push({ key, anchor: h[0], rank: h[1] });
+    else base.push(key);
+  }
+  if (!hinted.length) return;
+  hinted.sort((a, b) => a.rank - b.rank);
+  const after = new Map<string, string[]>();
+  for (const h of hinted) {
+    // 錨點不在（理論上不會：錨點是靜態 key）就排到最後
+    const anchor = base.includes(h.anchor) ? h.anchor : "";
+    const list = after.get(anchor) ?? [];
+    list.push(h.key);
+    after.set(anchor, list);
+  }
+  const order: string[] = [];
+  for (const key of base) {
+    order.push(key);
+    for (const k of after.get(key) ?? []) order.push(k);
+  }
+  for (const k of after.get("") ?? []) order.push(k);
+  const entries = order.map((k) => [k, target[k]] as const);
+  for (const k of order) delete target[k];
+  for (const [k, v] of entries) target[k] = v;
+}
+
 function assignInto(name: string, target: Rec, added: Rec): void {
   for (const key of Object.keys(added)) {
     if (Object.prototype.hasOwnProperty.call(target, key)) throw new Error(`[countryPack] ${name} 已有 ${key}，國家包不可覆寫`);
   }
   Object.assign(target, added);
+  const ext = extendedKeys.get(name) ?? new Set<string>();
+  for (const key of Object.keys(added)) ext.add(key);
+  extendedKeys.set(name, ext);
+  reorder(name, target);
 }
 
 export function extensibleRecord<T extends object>(name: string, obj: T): T {

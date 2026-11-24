@@ -1,4 +1,5 @@
-import { extensibleRecord, onRecordExtended } from "../countries/slots";
+import { extensibleRecord, onRecordExtended, setRecordOrder } from "../countries/slots";
+import { layerIndexRow } from "./layerIndex";
 import type { PackLayerKey } from "../countries/packKeys";
 import { HISTORICAL_MAP_GROUPS, historicalMapEraOptionZh } from './historicalMapSinica';
 import { NAV_KINDS, NAV_KIND_IDS, NAV_LIFETIME_DEFAULT_IDS, NAV_LIFETIME_IDS, NAV_LIFETIME_OPTION_LABEL, TIDE_KINDS, TIDE_KIND_LABEL } from "./twLiveTypes";
@@ -5884,11 +5885,10 @@ for (const key of Object.keys(LAYER_PARAMS_SPEC) as MigratedParamsKey[]) {
 }
 
 // 國家包載入：key 清單與共用參數群組一起累加
+setRecordOrder("layerParamsSpec", (key) => layerIndexRow(key)?.po);
 onRecordExtended("layerParamsSpec", (added) => {
-  for (const [key, specs] of Object.entries(added)) {
-    if (!(MIGRATED_PARAMS_KEYS as string[]).includes(key)) MIGRATED_PARAMS_KEYS.push(key as MigratedParamsKey);
-    registerSharedParamGroups(key as MigratedParamsKey, specs as LayerParamSpec[]);
-  }
+  MIGRATED_PARAMS_KEYS.splice(0, MIGRATED_PARAMS_KEYS.length, ...(Object.keys(LAYER_PARAMS_SPEC) as MigratedParamsKey[]));
+  for (const [key, specs] of Object.entries(added)) registerSharedParamGroups(key as MigratedParamsKey, specs as LayerParamSpec[]);
 });
 
 /**

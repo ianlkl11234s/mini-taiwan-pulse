@@ -1,4 +1,5 @@
-import { extensibleRecord, onRecordExtended } from "../countries/slots";
+import { extensibleRecord, onRecordExtended, setRecordOrder } from "../countries/slots";
+import { layerIndexRow } from "./layerIndex";
 import type { PackLayerKey } from "../countries/packKeys";
 import type { CountryCode } from "../constants/countries";
 import type { LongTermSpec } from "./layerLongTerm";
@@ -18339,11 +18340,11 @@ export type ManifestKey = keyof typeof LAYER_MANIFEST;
 export const MANIFEST_KEYS: ManifestKey[] = Object.keys(LAYER_MANIFEST) as ManifestKey[];
 
 // 國家包載入（B1 P5a）：統計圖層照同一套規則改寫 icon／color，key 清單原地累加（宣告順序＝包內順序，接在最後）
+// 國家包的 key 排回搬家前的宣告位置（順序提示在索引裡，由 gen-layer-index 從全部載入後的 manifest 產生）
+setRecordOrder("layerManifest", (key) => layerIndexRow(key)?.mo);
 onRecordExtended("layerManifest", (added) => {
-  for (const [key, entry] of Object.entries(added)) {
-    normalizeStatisticsEntry(key, entry as LayerManifestEntry);
-    MANIFEST_KEYS.push(key as ManifestKey);
-  }
+  for (const [key, entry] of Object.entries(added)) normalizeStatisticsEntry(key, entry as LayerManifestEntry);
+  MANIFEST_KEYS.splice(0, MANIFEST_KEYS.length, ...(Object.keys(LAYER_MANIFEST) as ManifestKey[]));
 });
 
 // ── 派生 helper：下游表用這些函式取值，不要各自 reach into LAYER_MANIFEST ──

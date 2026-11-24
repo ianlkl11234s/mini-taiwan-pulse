@@ -99,8 +99,10 @@ export function registerHeatmapPaletteKeys(key: string, specs: readonly LayerPar
 
 for (const [key, specs] of Object.entries(LAYER_PARAMS_SPEC as Record<string, LayerParamSpec[]>)) registerHeatmapPaletteKeys(key, specs);
 // 國家包載入（B1 P5a）：新規格的熱區色盤 key 一起累加
-onRecordExtended("layerParamsSpec", (added) => {
-  for (const [key, specs] of Object.entries(added)) registerHeatmapPaletteKeys(key, specs as LayerParamSpec[]);
+onRecordExtended("layerParamsSpec", () => {
+  // 依規格表的宣告順序重建（國家包的 key 已由 setRecordOrder 排回原位）
+  heatmapPaletteKeys.length = 0;
+  for (const [key, specs] of Object.entries(LAYER_PARAMS_SPEC as Record<string, LayerParamSpec[]>)) registerHeatmapPaletteKeys(key, specs);
 });
 
 /** 同時開著的可換色熱區層數 */

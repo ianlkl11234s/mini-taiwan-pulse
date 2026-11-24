@@ -71,6 +71,7 @@ function walk(dir: string, out: string[] = []): string[] {
   }
   return out;
 }
+const ROOT_PATH_FILES = ["eslint.config.js", "eslint-suppressions.json"];
 const CODE_FILES = () => ["src", "scripts", "tests", "e2e"].filter((d) => existsSync(join(ROOT, d))).flatMap((d) => walk(join(ROOT, d)));
 function resolveSpec(fromAbs: string, spec: string): string | null {
   if (!spec.startsWith(".")) return null;
@@ -123,6 +124,15 @@ function moveDedicatedFiles(): Map<string, string> {
     for (const [a, b] of moves) next2 = next2.split(relRoot(a)).join(relRoot(b));
     if (next2 !== next) changed = true;
     if (changed) writeFileSync(file, next2);
+  }
+  // repo 根目錄的設定檔也寫死檔案路徑（lint 規則範圍、lint 例外基準）
+  for (const name of ROOT_PATH_FILES) {
+    const file = join(ROOT, name);
+    if (!existsSync(file)) continue;
+    const text = readFileSync(file, "utf8");
+    let next = text;
+    for (const [a, b] of moves) next = next.split(relRoot(a)).join(relRoot(b));
+    if (next !== text) writeFileSync(file, next);
   }
   mkdirSync(PACK_ABS, { recursive: true });
   for (const [a, b] of moves) execFileSync("git", ["mv", a, b], { cwd: ROOT });
