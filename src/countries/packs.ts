@@ -8,7 +8,7 @@
  *
  * ⚠️ 本檔只能被靜態 import 的輕量模組：不得靜態 import 任何 `./<cc>/` 底下的執行期模組（lint 擋）。
  */
-import { useSyncExternalStore } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 import type { CountryCode } from "../constants/countries";
 import { countryDef } from "../constants/countries";
 import { withLoading } from "../lib/loadingRegistry";
@@ -133,6 +133,16 @@ export function subscribeCountryPacks(l: () => void): () => void {
 /** 國家包狀態版本（任何一國開始／完成／失敗都 +1）；React 讀者用它重算登記簿衍生值。 */
 export function useCountryPackVersion(): number {
   return useSyncExternalStore(subscribe, () => version, () => version);
+}
+
+/**
+ * 需要全部國家細節的畫面（搜尋結果、資料來源總覽）：`active` 時載入全部國家包，回傳版本號（載完重新 render）。
+ */
+export function useAllCountryPacks(active: boolean): number {
+  useEffect(() => {
+    if (active) void loadAllPacks().catch(() => undefined);
+  }, [active]);
+  return useCountryPackVersion();
 }
 
 export function useCountryPackStatus(cc: CountryCode): PackStatus {

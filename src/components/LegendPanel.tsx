@@ -81,6 +81,7 @@ import { KrAdminBoundariesLegend, JpGsiHillshadeLegend, JpGsiReliefLegend, Histo
 import { KrEcologyNaturalnessLegend, KrWasteDisposalRulesLegend } from "./legend/krEcoWasteLegends";
 import { ArtsEventsLegend, CulturalFacilitiesLegend, CulturalMuseumsLegend, FuneralLegend, JpAccommodationDensityLegend, JpAccommodationTypesLegend, JpReligionLegend, LibrarySeatsLegend, PerformingVenuesLegend, ReligionLegend, SportsVenueLegend, TourAttractionsLegend, TourEventsLegend, TourHeritageLegend, TourHotelsLegend } from "./legend/cultureLegends";
 import { DenseSingleColorLegend } from "./legend/legendShared";
+import { useCountryPackVersion } from "../countries/packs";
 
 
 /**
@@ -751,6 +752,8 @@ export const LegendPanel = memo(function LegendPanel({
   // 分析結果剛出現時自動展開一次，否則圖例從 Agent 面板搬過來後會被預設收合藏住。
   useEffect(() => { if (hasAnalysisLegend) setExpanded(true); }, [hasAnalysisLegend]);
 
+  // 國家包（B1 P5a）載入後 LEGEND_REGISTRY 原地多了該國圖例：訂閱版本號，載完重新 render
+  useCountryPackVersion();
   const active = LEGEND_REGISTRY.filter((e) => legendKeys(e.id).some((k) => visibility[k]));
   // 兩國並排（G2-1）：同一個面板分「左・國家」「右・國家」兩段（圖例跟著圖層畫在哪一側；embed 沒有並排）
   const rightCountry = useCompareSelector(activeRightCountry);

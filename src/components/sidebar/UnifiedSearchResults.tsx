@@ -10,6 +10,7 @@ import type { AddressHit } from "../../lib/addressSearch";
 import { AddressAttribution } from "./AddressAttribution";
 import { localizeSectionTitle } from "../../i18n/layerText";
 import { useRailTheme } from "./railTheme";
+import { useAllCountryPacks } from "../../countries/packs";
 
 const LIMIT = 8;
 const KIND_KEY = { county: "placeSearch.kind.county", town: "placeSearch.kind.town", village: "placeSearch.kind.village" } as const;
@@ -57,9 +58,11 @@ export function UnifiedSearchResults({ query, indexState, lockedKeys, onPickPlac
   );
   const address = useAddressSearch(query, indexState.status === "ready" ? indexState.index : null);
   const addressHits = address.status === "ready" ? address.hits : [];
+  // 搜尋要涵蓋全部國家（B1 P5a）：載入全部國家包，載完重算
+  const packVersion = useAllCountryPacks(query.trim() !== "");
   const layers = useMemo(
     () => searchLayers(query, { limit: LIMIT, ...(lockedKeys ? { lockedKeys } : {}) }),
-    [query, lockedKeys],
+    [query, lockedKeys, packVersion],
   );
   return (
     <div data-testid="unified-search-results">

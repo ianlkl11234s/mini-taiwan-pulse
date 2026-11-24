@@ -60,6 +60,7 @@ import { AnalysisCardDraftSection } from "./AnalysisCardDraftSection";
 import { summarizeVisibleLayers, SUMMARY_LOADED_WAIT_MS as SUMMARY_WAIT_CAP, summarizeWhenLoaded, viewportBounds, type VisibleSummaryMap } from "./visibleSummary";
 import { restoreWarehouseResults } from "./warehouseResultRestore";
 import { parseAnalysisCardDraft, type AnalysisCardDraft } from "./analysisCardDraft";
+import { loadAllPacks } from "../countries/packs";
 
 /** 事件發生當下取目前語系翻譯（非 React 回呼用）。只用在畫面狀態文字；送給 Agent 的內容不經過這裡。 */
 const tr: LocaleSnapshot["t"] = (key, vars) => localeStore.getSnapshot().t(key, vars);
@@ -140,6 +141,8 @@ export function scheduleAnalysisResultStyleRestore(
 
 /** Paired adapter: map exploration plus bounded, session-local analysis over authorized dataset results. */
 export function MainMapConnection(props: Props) {
+  // Agent 配對後的工具（找圖層、描述圖層、分析）要看得到全部國家的圖層（B1 P5a）
+  useEffect(() => { void loadAllPacks().catch(() => undefined); }, []);
   const i18n = useLocale();
   const { t } = i18n;
   const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
@@ -449,6 +452,8 @@ export function MainMapConnection(props: Props) {
       if (!EXPLORATION_OPERATIONS.has(request.operation)) throw new Error("MAP_EXPLORATION_OPERATION_UNSUPPORTED");
       // PF-7: statistics-recipe datasets register after their lazily imported details load (loadingRegistry task).
       await ensureStatisticsResearchDatasets();
+      // B1 P5a：圖層查詢要涵蓋全部國家包（掛上時已開始載，這裡等它完成；失敗就照已載入的回答）
+      await loadAllPacks().catch(() => undefined);
       const current = latest.current;
       const visible = current.bridge.getVisibleLayerKeys();
       const discoveryContext = { locked: current.locked, visible: new Set(visible) };

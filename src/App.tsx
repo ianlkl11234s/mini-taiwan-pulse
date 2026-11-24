@@ -7,6 +7,9 @@ import { createTimelineControl, type ShipDateAvailability, type TimelineActions,
 import { useAllenCoralPrivateAccess } from "./hooks/useAllenCoralPrivateAccess";
 import { OWNER_PMTILES_ACCESS_DENIED_EVENT } from "./hooks/useOwnerPmtilesAccess";
 import { CN_ACCESS_DENIED_EVENT, CN_ALL_LAYER_KEYS } from "./countries/cn/keys";
+import { bootPacksReady, packCountriesForKeys } from "./countries/bootPacks";
+import { ensureCountryPacks, isCountryPackReady, subscribeCountryPacks, useCountryPackVersion } from "./countries/packs";
+import { layerCountryOf } from "./data/layerLookup";
 import { JP_WATER_ACCESS_DENIED_EVENT, useJpWaterPrivateAccess } from "./hooks/useJpWaterPrivateAccess";
 import { isJpWaterPrivateLayer, JP_WATER_PRIVATE_LAYER_KEYS } from "./data/jpWaterTypes";
 import { useSoilLiquefactionPrivateAccess } from "./hooks/useSoilLiquefactionPrivateAccess";
@@ -299,7 +302,8 @@ export default function App() {
   const pendingSceneDoneRef = useRef<((skipped: string[]) => void) | null>(null);
   const [pendingMemberScene, setPendingMemberScene] = useState<MemberSceneSnapshot | null>(null);
   const favoriteKeys = useMemo(() => new Set(memberLibrary.userId === (memberUser?.id ?? null) ? memberLibrary.favorites : []), [memberLibrary.favorites, memberLibrary.userId, memberUser?.id]);
-  const memberLabels = useMemo(() => getLayerSearchLabels() as Record<string, string>, []);
+  const countryPackVersion = useCountryPackVersion();
+  const memberLabels = useMemo(() => getLayerSearchLabels() as Record<string, string>, [countryPackVersion]);
   const knownMemberKeys = useMemo(() => new Set(Object.keys(memberLabels)), [memberLabels]);
   useEffect(() => { memberLibraryStore.setUser(memberUser?.id ?? null); }, [memberUser?.id]);
   useEffect(() => {
@@ -570,6 +574,16 @@ export default function App() {
     const next = pickRightCountryRef.current(compareRightCountry);
     if (next !== compareRightCountry) compareStore.setRightCountry(next);
   }, [compareEnabled, compareMode, compareRightCountry, country, visibleCountryCodes.join(","), pinnedCountryCodes]);
+  // B1 P5a 國家包：目前國家（國家選單、釘選、地圖視野提示都經 countryStore）與並排右國的包先載入；
+  // 另外任何開著的圖層（Agent、會員場景、批次開啟、記住的開關）所屬國家包沒載入就補載 —— 單一安全網
+  useEffect(() => {
+    void ensureCountryPacks(countriesCompareActive && compareRightCountry ? [country, compareRightCountry] : [country]).catch(() => undefined);
+  }, [country, compareRightCountry, countriesCompareActive]);
+  useEffect(() => {
+    const need = packCountriesForKeys(Object.keys(layerVisibility).filter((key) => layerVisibility[key as keyof LayerVisibility]))
+      .filter((cc) => !isCountryPackReady(cc));
+    if (need.length) void ensureCountryPacks(need).catch(() => undefined);
+  }, [layerVisibility]);
   // 右圖換國家或關掉：右圖點出來的資訊面板跟著關（那筆資料的地圖已經不在）
   useEffect(() => {
     setFeatureInfo((info) => (info?.properties?.compare_side === "right" ? null : info));
@@ -1808,10 +1822,12 @@ export default function App() {
    * 回傳的 Promise 在連動選單（統計期別、細項）也還原完才 resolve：那些值要等圖層開啟、選項載入後
    * 才能驗證（`restoreLinkedSelects`），不合法或逾時的列一併列進「略過項目」。
    */
-  const restoreMemberScene = (snapshot: MemberSceneSnapshot): Promise<string[]> => {
+  const restoreMemberScene = async (snapshot: MemberSceneSnapshot): Promise<string[]> => {
     const validated = validateScene(snapshot);
     if (!validated.ok) throw new Error(validated.errors.join("；"));
     if (!mapRef.current || !mapPrepared) throw new Error("地圖尚未就緒。");
+    // B1 P5a：場景裡國家包圖層的參數規格要等包載入，否則還原時會被當成未知參數略過
+    await ensureCountryPacks(packCountriesForKeys(validated.value.layers));
     const resolved = resolveSceneRestore(validated.value, knownMemberKeys, lockedKeysRef.current, MAP_STYLES.map((style) => style.id));
     markPrivateView(); setMemberPlaceGeometry(null); restoringMemberSceneRef.current = true;
     pendingSceneDoneRef.current?.(resolved.skipped);
@@ -2060,7 +2076,28 @@ export default function App() {
   useEffect(() => {
     if (urlStateAppliedRef.current) return;
     urlStateAppliedRef.current = true;
-    const { layers, date, hour, statisticsMode: urlStatisticsMode, presentation, compare: urlCompare, params: urlParams, selection: urlSelection } = urlStateRef.current;
+    // B1 P5a：網址圖層屬於國家包的，要等包載入（開站時 bootPacks 已平行發出）才套參數、開圖層；
+    // 載入失敗的國家先不開、參數先留著，之後重試成功（國家選單、釘選…）再補套，不靜默丟掉
+    void bootPacksReady.then(() => {
+      const urlLayers = urlStateRef.current.layers ?? [];
+      const waiting = new Set(packCountriesForKeys(urlLayers).filter((cc) => !isCountryPackReady(cc)));
+      const isWaiting = (key: string) => { const cc = layerCountryOf(key); return Boolean(cc && waiting.has(cc)); };
+      applyUrlState(urlLayers.filter((key) => !isWaiting(key)));
+      if (!waiting.size) return;
+      let pending = urlLayers.filter(isWaiting);
+      const off = subscribeCountryPacks(() => {
+        const ready = pending.filter((key) => isCountryPackReady(layerCountryOf(key)!));
+        if (!ready.length) return;
+        pending = pending.filter((key) => !ready.includes(key));
+        if (!pending.length) off();
+        const allowed = ready.filter((key) => !lockedKeysRef.current.has(key));
+        layerParamsStore.setManyDirect(resolveUrlLayerParams(urlStateRef.current.params, allowed, layerParamsStore.getAll()));
+        handleBulkSetVisibility(ready, true);
+      });
+    });
+    function applyUrlState(readyLayers: (keyof LayerVisibility)[]) {
+    const { date, hour, statisticsMode: urlStatisticsMode, presentation, compare: urlCompare, params: urlParams, selection: urlSelection } = urlStateRef.current;
+    const layers = readyLayers.length ? readyLayers : undefined;
     // 呈現方式（pm=）先套，圖層開啟時第一次畫就是比例圓
     applyPresentationUrlEntries(presentation);
     // 圖層參數（p.*，D8-1）：只套網址裡有開、目前沒上鎖的圖層（parseLayers 已濾掉站主限定與 HOLD；
@@ -2123,6 +2160,7 @@ export default function App() {
         timelineSetSelectedDate(selected);
         timeStore.setTime(Math.floor(ts / 1000));
       }
+    }
     }
   }, [handleBulkSetVisibility, timelineSetSelectedDate]);
 
