@@ -71,5 +71,6 @@
   "legend.atlas.wpHatchNote": "。斜線は選択した種別に連動します：1 種別のみ選ぶと、その種別の名簿がない県市に斜線が付きます。",
   "legend.atlas.fwyOpenShoulder": "路肩開放区間（位置を特定できない 24 件を除く）",
   "legend.atlas.fwyRoadsideSubtitle": "初期表示は可変情報板のみです。車両感知器は種別フィルターで選べます（データ日 2026-11-24）",
-  "legend.atlas.fwyFloraRow": "植物調査の記録"
+  "legend.atlas.fwyFloraRow": "植物調査の記録",
+  "legend.atlas.fwyFaunaSubtitle": "保護対象種の位置は約 1 km 区画の中心に秘匿しており、実際の位置ではありません"
 }

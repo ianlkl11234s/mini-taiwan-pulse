@@ -1341,6 +1341,7 @@ export const GIS_LAYERS: GisLayerEntry[] = [
   { layers: ["freeway-roadkill-circle", "freeway-roadkill-glow"], type: "freewayRoadkill" },
   { layers: ["freeway-eco-facilities-circle", "freeway-eco-facilities-glow"], type: "freewayEcoFacilities" },
   { layers: ["freeway-eco-survey-flora-circle", "freeway-eco-survey-flora-glow"], type: "freewayEcoSurveyFlora" },
+  { layers: ["freeway-eco-survey-fauna-circle", "freeway-eco-survey-fauna-glow"], type: "freewayEcoSurveyFauna" },
   { layers: ["antivenom-hospitals-circle", "antivenom-hospitals-glow"], type: "antivenomHospitals" },
   { layers: ["natural-vegetation-map-fill", "forest-types-4th-survey-fill"], type: "vegetationForestTypes" },
   { layers: ["vehicle-inspection-offices-circle", "vehicle-inspection-offices-glow", "vehicle-inspection-jurisdictions-fill"], type: "vehicleInspectionOffices" },

@@ -713,5 +713,16 @@
   "enum.atlasFreewayRoadkillGroup.unidentified": "識別不能",
   "enum.atlasFreewayRoadkillGroup.other": "その他",
   "enum.atlasFreewayEcoFacilityType.動物通道": "動物用通路",
-  "enum.atlasFreewayEcoFacilityType.防護網": "防護ネット"
+  "enum.atlasFreewayEcoFacilityType.防護網": "防護ネット",
+  "enum.atlasFreewayFaunaGroup.哺乳類": "哺乳類",
+  "enum.atlasFreewayFaunaGroup.鳥類": "鳥類",
+  "enum.atlasFreewayFaunaGroup.貓狗": "ネコ・イヌ",
+  "enum.atlasFreewayFaunaGroup.昆蟲": "昆虫",
+  "enum.atlasFreewayFaunaGroup.爬蟲類": "爬虫類",
+  "enum.atlasFreewayFaunaGroup.兩棲類": "両生類",
+  "enum.atlasFreewayFaunaGroup.魚類": "魚類",
+  "enum.atlasFreewayFaunaGroup.蝦蟹類": "甲殻類",
+  "enum.atlasFreewayFaunaGroup.螺貝類": "貝類",
+  "enum.atlasFreewayFaunaGroup.環節動物": "環形動物",
+  "enum.atlasNote.freewayEcoSurveyFauna": "交通部高速公路局の国道沿い動物生態調査 84,678 件（2008–2021、data.gov.tw 31285）。赤外線自動カメラが約 88% で、調査座標は約 334 か所、1 つの座標に数千件（最大 1.6 万件）の記録があります。農業部《陸域保育類野生動物名録》（2019-01-09 改正版）に該当する 7,677 件は、位置を約 1 km 区画の中心に秘匿しており、実際の位置ではなく、点間距離の計算には使えません。記録件数は調査の労力を反映し、個体数ではありません。縮小時は密度ヒートマップ、ズーム 11 から 1 件ずつ表示します。"
 }

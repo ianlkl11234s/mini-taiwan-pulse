@@ -71,5 +71,6 @@
   "legend.atlas.wpHatchNote": "；斜線依所選類別顯示：只勾一類時，斜線是沒有該類別名冊的縣市。",
   "legend.atlas.fwyOpenShoulder": "開放路肩（不含 24 筆無法定位的路段）",
   "legend.atlas.fwyRoadsideSubtitle": "預設只顯示資訊可變標誌，車輛偵測器可在類別篩選勾選（資料日 2026-11-24）",
-  "legend.atlas.fwyFloraRow": "植物調查紀錄"
+  "legend.atlas.fwyFloraRow": "植物調查紀錄",
+  "legend.atlas.fwyFaunaSubtitle": "保育類物種位置已模糊至約 1 公里方格中心，非實際位置"
 }

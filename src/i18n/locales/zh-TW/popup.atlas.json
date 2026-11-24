@@ -482,5 +482,14 @@
   "popup.atlas.fwyFloraTitle": "植物調查紀錄",
   "popup.atlas.fwyLatinName": "學名",
   "popup.atlas.fwySurveyOrg": "調查單位",
-  "popup.atlas.fwyFloraNote": "位置為調查座標，同一座標可有多筆紀錄"
+  "popup.atlas.fwyFloraNote": "位置為調查座標，同一座標可有多筆紀錄",
+  "popup.atlas.fwyFaunaTitle": "動物調查紀錄",
+  "popup.atlas.fwyProtected": "保育類等級",
+  "popup.atlas.fwyProtI": "I 瀕臨絕種",
+  "popup.atlas.fwyProtII": "II 珍貴稀有",
+  "popup.atlas.fwyProtIII": "III 其他應予保育",
+  "popup.atlas.fwyCount": "數量",
+  "popup.atlas.fwyColocated": "此位置共 {n} 筆紀錄（這裡只顯示第一筆）",
+  "popup.atlas.fwyFaunaBlurred": "保育類物種，位置已模糊至約 1 公里格子（格子中心，非實際位置）",
+  "popup.atlas.fwyFaunaExact": "位置為調查座標"
 }

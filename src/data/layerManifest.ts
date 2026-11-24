@@ -13768,6 +13768,15 @@ export const LAYER_MANIFEST = {
     description: "國道沿線植物生態調查 3.1 萬筆（2009–2018；拉遠為熱區，11 級起畫逐筆）。",
     topics: ["自然保育", "植物", "生態調查", "國道", "高速公路局"],
   },
+  freewayEcoSurveyFauna: {
+    key: "freewayEcoSurveyFauna", country: "TW", section: { theme: "自然保育 Conservation", group: "綠網與生態 Ecological Networks" }, ...layerName({ zh: "國道動物生態調查", alt: "Freeway Fauna Survey" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.freewayEcoSurveyFauna, icon: PawPrint,
+    upstream: { status: "catalog_missing", datasets: [], processing: "analytics transportation/freeway_eco_survey_fauna（pulse-data 登記尚未建立，2026-11-24）：保育類依農業部《陸域保育類野生動物名錄》（2019-01-09 修正版）比對，7,677 筆座標模糊至約 1 km 方格", note: "交通部高速公路局 data.gov.tw 31285；84,678 筆（2008–2021）；保育類位置為 1 km 方格中心、非實際位置，不可做點對點距離計算；紀錄量反映調查努力。" },
+    dataClass: "B", source: { kind: "pmtiles", sourceId: "freeway-eco-survey-fauna", url: "./geo/freeway_eco_survey_fauna_20261124.pmtiles", sourceLayer: "freeway_eco_survey_fauna", minzoom: 5, maxzoom: 14 },
+    legend: "freewayEcoSurveyFauna", popup: "freewayEcoSurveyFauna", params: { count: 4, kinds: ["palette", "multiSelect", "slider", "slider"] },
+    description: "國道沿線動物生態調查 8.5 萬筆（2008–2021；保育類位置已模糊至約 1 公里方格；拉遠為熱區，11 級起畫逐筆）。",
+    topics: ["自然保育", "動物調查", "生態調查", "國道", "高速公路局"],
+  },
   antivenomHospitals: {
     key: "antivenomHospitals", country: "TW", section: { theme: "醫療 Medical", group: "點位" }, ...layerName({ zh: "抗蛇毒血清儲備點", alt: "Antivenom Reserve Hospitals" }), expandable: true,
     color: ATLAS_LAYER_COLORS.antivenomHospitals, icon: Syringe,

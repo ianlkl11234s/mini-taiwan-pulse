@@ -71,5 +71,6 @@
   "legend.atlas.wpHatchNote": "; hatching follows the selected category: with one category selected, hatched counties are those with no list for it.",
   "legend.atlas.fwyOpenShoulder": "Open shoulder (excludes 24 sections that could not be located)",
   "legend.atlas.fwyRoadsideSubtitle": "Only variable message signs are shown by default; tick vehicle detectors in the category filter (data as of 2026-11-24)",
-  "legend.atlas.fwyFloraRow": "Flora survey record"
+  "legend.atlas.fwyFloraRow": "Flora survey record",
+  "legend.atlas.fwyFaunaSubtitle": "Protected-species positions are blurred to the center of a cell of about 1 km, not the actual position"
 }

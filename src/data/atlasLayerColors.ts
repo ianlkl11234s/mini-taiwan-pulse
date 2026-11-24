@@ -125,6 +125,7 @@ export const ATLAS_LAYER_COLORS = {
   freewayRoadkill: "#f87171",
   freewayEcoFacilities: "#34d399",
   freewayEcoSurveyFlora: "#a3e635",
+  freewayEcoSurveyFauna: "#f59e0b",
 } as const;
 
 /** 山坡地暗底版（2026-11-10）：土褐 0.3 疊暗灰陸地只剩泥色，改沙褐、透明度 ×1.5。地圖與圖例共用。 */

@@ -214,7 +214,7 @@ const NO_HOOK_LEDGER = new Set<string>([
   "postMailboxes", // G53 批 1（2026-11-09）：atlas overlay，無 hook
   "antivenomHospitals", // G53 批 1（2026-11-09）：atlas overlay，無 hook
   "freewayHundredMeterStakes", // G53 批 1（2026-11-09）：atlas overlay，無 hook
-  "freewaySpecialSections", "freewayRoadsideDevices", "freewayRoadkill", "freewayEcoFacilities", "freewayEcoSurveyFlora", // 國道靜態批（2026-11-24）：atlas overlay，無 hook
+  "freewaySpecialSections", "freewayRoadsideDevices", "freewayRoadkill", "freewayEcoFacilities", "freewayEcoSurveyFlora", "freewayEcoSurveyFauna", // 國道靜態批（2026-11-24）：atlas overlay，無 hook
   "swcSpecialZones", // G53 批 1（2026-11-09）：atlas overlay，無 hook
   "slopelandSwcAct", // G53 批 1（2026-11-09）：atlas overlay，無 hook
   "debrisFlowPotential", // G53 批 1（2026-11-09）：atlas overlay，無 hook

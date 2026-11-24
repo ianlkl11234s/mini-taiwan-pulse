@@ -482,5 +482,14 @@
   "popup.atlas.fwyFloraTitle": "植物調査の記録",
   "popup.atlas.fwyLatinName": "学名",
   "popup.atlas.fwySurveyOrg": "調査機関",
-  "popup.atlas.fwyFloraNote": "位置は調査地点の座標で、同じ座標に複数の記録があります"
+  "popup.atlas.fwyFloraNote": "位置は調査地点の座標で、同じ座標に複数の記録があります",
+  "popup.atlas.fwyFaunaTitle": "動物調査の記録",
+  "popup.atlas.fwyProtected": "保育類の等級",
+  "popup.atlas.fwyProtI": "I 絶滅危惧",
+  "popup.atlas.fwyProtII": "II 希少",
+  "popup.atlas.fwyProtIII": "III その他保護対象",
+  "popup.atlas.fwyCount": "個体数",
+  "popup.atlas.fwyColocated": "この位置に {n} 件の記録があります（最初の 1 件のみ表示）",
+  "popup.atlas.fwyFaunaBlurred": "保護対象種：位置を約 1 km の区画に秘匿しています（区画の中心で、実際の位置ではありません）",
+  "popup.atlas.fwyFaunaExact": "位置は調査地点の座標です"
 }

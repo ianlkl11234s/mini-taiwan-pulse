@@ -86,6 +86,7 @@ export const HEATMAP_PALETTE_OVERRIDES: Readonly<Record<string, PaletteId>> = {
   // 自然保育（國道靜態批 2026-11-24）：主題色 batlow 給物種調查點位，路殺、植物調查錯開
   freewayRoadkill: "rocket",
   freewayEcoSurveyFlora: "speed",
+  freewayEcoSurveyFauna: "turku",
   // 台灣 醫療
   medAED: "rocket",
   medLTC: "PuBuGn",

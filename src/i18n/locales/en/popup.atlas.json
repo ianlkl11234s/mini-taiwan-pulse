@@ -482,5 +482,14 @@
   "popup.atlas.fwyFloraTitle": "Flora survey record",
   "popup.atlas.fwyLatinName": "Scientific name",
   "popup.atlas.fwySurveyOrg": "Survey organization",
-  "popup.atlas.fwyFloraNote": "Position is the survey coordinate; one coordinate can hold many records"
+  "popup.atlas.fwyFloraNote": "Position is the survey coordinate; one coordinate can hold many records",
+  "popup.atlas.fwyFaunaTitle": "Fauna survey record",
+  "popup.atlas.fwyProtected": "Protected-species grade",
+  "popup.atlas.fwyProtI": "I Critically endangered",
+  "popup.atlas.fwyProtII": "II Rare and valuable",
+  "popup.atlas.fwyProtIII": "III Other species in need of conservation",
+  "popup.atlas.fwyCount": "Count",
+  "popup.atlas.fwyColocated": "{n} records at this position (only the first is shown)",
+  "popup.atlas.fwyFaunaBlurred": "Protected species: position blurred to a cell of about 1 km (cell center, not the actual position)",
+  "popup.atlas.fwyFaunaExact": "Position is the survey coordinate"
 }

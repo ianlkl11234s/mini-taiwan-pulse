@@ -713,5 +713,16 @@
   "enum.atlasFreewayRoadkillGroup.unidentified": "Unidentified",
   "enum.atlasFreewayRoadkillGroup.other": "Other",
   "enum.atlasFreewayEcoFacilityType.動物通道": "Wildlife crossing",
-  "enum.atlasFreewayEcoFacilityType.防護網": "Protective fence"
+  "enum.atlasFreewayEcoFacilityType.防護網": "Protective fence",
+  "enum.atlasFreewayFaunaGroup.哺乳類": "Mammals",
+  "enum.atlasFreewayFaunaGroup.鳥類": "Birds",
+  "enum.atlasFreewayFaunaGroup.貓狗": "Cats and dogs",
+  "enum.atlasFreewayFaunaGroup.昆蟲": "Insects",
+  "enum.atlasFreewayFaunaGroup.爬蟲類": "Reptiles",
+  "enum.atlasFreewayFaunaGroup.兩棲類": "Amphibians",
+  "enum.atlasFreewayFaunaGroup.魚類": "Fish",
+  "enum.atlasFreewayFaunaGroup.蝦蟹類": "Crustaceans",
+  "enum.atlasFreewayFaunaGroup.螺貝類": "Mollusks",
+  "enum.atlasFreewayFaunaGroup.環節動物": "Annelids",
+  "enum.atlasNote.freewayEcoSurveyFauna": "84,678 animal records from ecological surveys along freeways (Freeway Bureau, 2008–2021; data.gov.tw 31285), about 88% from infrared cameras, at about 334 survey coordinates; one coordinate can hold thousands of records (up to 16,000 at one site). 7,677 records matching the Ministry of Agriculture's list of protected terrestrial wildlife (amended 2019-01-09) have positions blurred to the center of a cell of about 1 km; these are not actual positions and must not be used for point-to-point distances. Record counts reflect survey effort, not population size. Zoomed out it shows a density heat map; individual records appear from zoom 11."
 }

@@ -3816,6 +3816,13 @@
    "s3_key": "deploy-assets/geo/freeway_eco_sensitive_sections.geojson"
   },
   {
+   "path": "public/geo/freeway_eco_survey_fauna_20261124.pmtiles",
+   "bytes": 6966126,
+   "sha256": "6e668345230c73942067389798036d0f7d2ca993331e33c65a1d9a9f08e8cda5",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/geo/freeway_eco_survey_fauna_20261124.pmtiles"
+  },
+  {
    "path": "public/geo/freeway_eco_survey_flora_20261124.pmtiles",
    "bytes": 3771182,
    "sha256": "33c72f80b3e88931733470824855df07070701d8c8e9e6b0f19e0df742fbc88a",

@@ -25,7 +25,7 @@ import {
   ALISHAN_RAIL_KIND_OPTIONS, ALISHAN_BRANCH_STATIONS, alishanRailKind, mountainMobileColor, mountainMobileGroupKey, ECO_HOTEL_LEVEL_OPTIONS,
   NAMR_BUOY_KIND_OPTIONS, AIRPORT_SURFACE_OPTIONS, NP_PARK_OPTIONS,
   HAKKA_SCHOOL_KIND_OPTIONS, SAND_GRAVEL_REG_OPTIONS, WELFARE_POINT_KIND_OPTIONS, EV_MOTO_KIND_OPTIONS, STREETLIGHT_LED_OPTIONS, STREETLIGHT_LED_UNKNOWN_COLOR,
-  FREEWAY_SPECIAL_KIND_OPTIONS, FREEWAY_ROADSIDE_KIND_OPTIONS, FREEWAY_ROADKILL_GROUP_OPTIONS, FREEWAY_ECO_FACILITY_OPTIONS,
+  FREEWAY_SPECIAL_KIND_OPTIONS, FREEWAY_ROADSIDE_KIND_OPTIONS, FREEWAY_ROADKILL_GROUP_OPTIONS, FREEWAY_ECO_FACILITY_OPTIONS, FREEWAY_FAUNA_GROUP_OPTIONS,
   optionColor, type AtlasLayerKey,
 } from "../../data/atlasLayerTypes";
 import { ToxicPermitsBlock } from "./pollutionPanels";
@@ -1755,6 +1755,31 @@ function FreewayFloraPanel({ props }: Props) {
   </>;
 }
 
+/** 國道靜態批（2026-11-24）動物生態調查：保育類位置已模糊至 1 km 方格；同一座標多筆時提示筆數（目前載入圖磚內）。 */
+function FreewayFaunaPanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const color = optionColor(FREEWAY_FAUNA_GROUP_OPTIONS, props.taxon_group);
+  const latin = str(props.species_latin);
+  const blurred = str(props.location_precision) === "grid_1km";
+  const level = str(props.protected_status);
+  const levelText = level === "I" || level === "II" || level === "III" ? t(`popup.atlas.fwyProt${level}`) : level;
+  const colocated = num(props._colocated_n);
+  return <>
+    <Title color={color}>{str(props.species_zh) || latin || t("popup.atlas.fwyFaunaTitle")}</Title>
+    <Row label={t("popup.atlas.fwyLatinName")} value={str(props.species_zh) ? latin : ""} />
+    <Row field="type" value={enumOf("atlasFreewayFaunaGroup", props.taxon_group, str(props.taxon_group), i18n)} color={color} />
+    {blurred ? <Row label={t("popup.atlas.fwyProtected")} value={levelText} color={ATLAS_FLAG_COLOR} /> : null}
+    <Row field="surveyDate" value={str(props.survey_date)} mono />
+    <Row label={t("popup.atlas.fwyCount")} value={fmt(props.count, 0, "", i18n) || str(props.count_raw) || "—"} mono />
+    <Row field="method" value={str(props.method)} />
+    <Row field="countyTownship" value={placeName(`${str(props.county)}${str(props.town)}`, i18n)} />
+    <Row label={t("popup.atlas.fwySurveyOrg")} value={str(props.survey_org)} />
+    {colocated != null && colocated > 1 ? <Row field="caution" value={t("popup.atlas.fwyColocated", { n: String(colocated) })} /> : null}
+    <Row field="caution" value={blurred ? t("popup.atlas.fwyFaunaBlurred") : t("popup.atlas.fwyFaunaExact")} />
+  </>;
+}
+
 /** G53 批 2／3 爆竹煙火場所：位置由地址推估；個人經營不顯示名稱、只到鄉鎮。 */
 function FireworksSitePanel({ props }: Props) {
   const i18n = useLocale();
@@ -1961,6 +1986,7 @@ const G53_SOURCES: Record<G53Key, { org: keyof typeof ATLAS_ORGS; dataset: (prop
   freewayRoadkill: { org: "freeway", dataset: () => "31291" },
   freewayEcoFacilities: { org: "freeway", dataset: () => "31292" },
   freewayEcoSurveyFlora: { org: "freeway", dataset: () => "31289" },
+  freewayEcoSurveyFauna: { org: "freeway", dataset: () => "31285" },
 };
 
 function withG53Footer(key: G53Key, Panel: FC<Props>): FC<Props> {
@@ -2011,6 +2037,7 @@ export const ATLAS_PANELS: Record<AtlasLayerKey, FC<Props>> = {
   freewayRoadkill: withG53Footer("freewayRoadkill", FreewayRoadkillPanel),
   freewayEcoFacilities: withG53Footer("freewayEcoFacilities", FreewayEcoFacilityPanel),
   freewayEcoSurveyFlora: withG53Footer("freewayEcoSurveyFlora", FreewayFloraPanel),
+  freewayEcoSurveyFauna: withG53Footer("freewayEcoSurveyFauna", FreewayFaunaPanel),
   antivenomHospitals: withG53Footer("antivenomHospitals", AntivenomHospitalPanel),
   postMailboxes: withG53Footer("postMailboxes", PostMailboxPanel),
   motorcycleInspectionStations: withG53Footer("motorcycleInspectionStations", MotorcycleInspectionPanel),
@@ -2093,6 +2120,7 @@ export const ATLAS_HEADER_LABELS: Record<AtlasLayerKey, string> = {
   freewayRoadkill: manifestZh("freewayRoadkill"),
   freewayEcoFacilities: manifestZh("freewayEcoFacilities"),
   freewayEcoSurveyFlora: manifestZh("freewayEcoSurveyFlora"),
+  freewayEcoSurveyFauna: manifestZh("freewayEcoSurveyFauna"),
   antivenomHospitals: manifestZh("antivenomHospitals"),
   landslideEventCatalog: manifestZh("landslideEventCatalog"),
   wraDisasterCctv: manifestZh("wraDisasterCctv"),

@@ -2194,5 +2194,6 @@
   "layer.freewayRoadsideDevices": "Freeway Roadside Devices",
   "layer.freewayRoadkill": "Freeway Roadkill Records",
   "layer.freewayEcoFacilities": "Freeway Wildlife Crossings",
-  "layer.freewayEcoSurveyFlora": "Freeway Flora Survey"
+  "layer.freewayEcoSurveyFlora": "Freeway Flora Survey",
+  "layer.freewayEcoSurveyFauna": "Freeway Fauna Survey"
 }

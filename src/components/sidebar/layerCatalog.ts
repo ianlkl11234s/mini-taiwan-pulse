@@ -2367,6 +2367,7 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("freewayRoadkill"), // 國道靜態批（2026-11-24）
           fromManifest("freewayEcoFacilities"),
           fromManifest("freewayEcoSurveyFlora"),
+          fromManifest("freewayEcoSurveyFauna"),
         ],
       },
       {

@@ -2194,5 +2194,6 @@
   "layer.freewayRoadsideDevices": "国道の路側設備",
   "layer.freewayRoadkill": "国道のロードキル記録",
   "layer.freewayEcoFacilities": "国道の生態配慮施設（動物用通路など）",
-  "layer.freewayEcoSurveyFlora": "国道の植物生態調査"
+  "layer.freewayEcoSurveyFlora": "国道の植物生態調査",
+  "layer.freewayEcoSurveyFauna": "国道の動物生態調査"
 }

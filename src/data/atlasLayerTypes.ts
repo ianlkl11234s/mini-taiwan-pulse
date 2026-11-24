@@ -618,7 +618,7 @@ export const G53_SELF_FOOTER_KEYS = [
   // 台灣圖層延伸 B7（2026-11-21）
   "hakkaLivingSchools", "sandGravelPlants", "countyWelfarePoints", "evMotorcycleCharging", "countyStreetlights",
   // 國道靜態批（2026-11-24）
-  "freewaySpecialSections", "freewayRoadsideDevices", "freewayRoadkill", "freewayEcoFacilities", "freewayEcoSurveyFlora",
+  "freewaySpecialSections", "freewayRoadsideDevices", "freewayRoadkill", "freewayEcoFacilities", "freewayEcoSurveyFlora", "freewayEcoSurveyFauna",
 ] as const;
 // ── 台灣圖層待辦池第二＋三批 G53 批 2／3（2026-11-10）──────────────────────
 /** 廣播發射站與電波監測站（上游 kind；英日文 enum.atlasBroadcastKind.*）。 */
@@ -991,6 +991,21 @@ export const FREEWAY_ECO_FACILITY_OPTIONS: readonly AtlasOption[] = [
   { value: "動物通道", label: "動物通道", color: "#34d399" },
   { value: "防護網", label: "防護網", color: "#fbbf24" },
 ];
+/** 國道動物生態調查類群（上游 taxon_group；英日文 enum.atlasFreewayFaunaGroup.*）。 */
+export const FREEWAY_FAUNA_GROUP_OPTIONS: readonly AtlasOption[] = [
+  { value: "哺乳類", label: "哺乳類", color: "#f59e0b" },
+  { value: "鳥類", label: "鳥類", color: "#38bdf8" },
+  { value: "貓狗", label: "貓狗", color: "#fb7185" },
+  { value: "昆蟲", label: "昆蟲", color: "#facc15" },
+  { value: "爬蟲類", label: "爬蟲類", color: "#22c55e" },
+  { value: "兩棲類", label: "兩棲類", color: "#2dd4bf" },
+  { value: "魚類", label: "魚類", color: "#818cf8" },
+  { value: "蝦蟹類", label: "蝦蟹類", color: "#f97316" },
+  { value: "螺貝類", label: "螺貝類", color: "#e879f9" },
+  { value: "環節動物", label: "環節動物", color: "#d6d3d1" },
+];
+/** 保育類等級（上游 protected_status；依《陸域保育類野生動物名錄》，2019-01-09 修正版）。 */
+export const FREEWAY_FAUNA_PROTECTED_LEVELS = ["I", "II", "III"] as const;
 /** 路殺紀錄、植物調查低縮放熱區的出點縮放（圖磚 z11 起帶全欄位）。 */
 export const FREEWAY_STATIC_POINTS_FROM_ZOOM = 11;
 /** 路邊設備預設只開 CMS（序列化多選值；spec 與測試共用）。 */
@@ -999,6 +1014,7 @@ export const G53_ORGS = { cdc: "衛生福利部疾病管制署", nlma: "內政�
 
 export const ATLAS_NOTES = {
   // 國道靜態批（2026-11-24）
+  freewayEcoSurveyFauna: "交通部高速公路局國道沿線動物生態調查 84,678 筆（2008–2021；data.gov.tw 31285），紅外線自動相機約占 88%；調查座標約 334 處，同一座標可有上千筆（單站最多 1.6 萬筆）。對到農業部《陸域保育類野生動物名錄》（2019-01-09 修正版）的 7,677 筆，位置已模糊至約 1 公里方格中心，不是實際位置，也不可用於點對點距離計算。紀錄量反映調查努力，不是族群量。拉遠為密度熱區，放大到 11 級起畫逐筆。",
   freewaySpecialSections: "交通部高速公路局國道特殊路段 127 條：隧道 64、開放路肩 35、爬坡道 28（data.gov.tw 31038、31035、95069）。位置由國道里程換算（主線中心線近似，精度約 0.1 km），來源只有起迄里程；南北向共用同一條線，同處雙向隧道會重疊。開放路肩來源 59 筆，不含 24 筆無法定位的路段（迄點在匝道或國 1 高架，沒有里程樁）。",
   freewayRoadsideDevices: "交通部高速公路局國道路邊設備位置 4,295 處：資訊可變標誌（CMS）999、車輛偵測器（VD）3,296（data.gov.tw 37667、37661；資料日 2026-11-24）。只有設備位置，不含即時訊息或車流值；3 筆來源座標為 0,0，已排除。預設只顯示資訊可變標誌，車輛偵測器約每公里一處，可在類別篩選勾選。國道 3,983、其他道路 312。",
   freewayRoadkill: "交通部高速公路局國道路殺動物紀錄 107,156 筆（2009–2026；data.gov.tw 31291）。位置由國道里程換算（主線中心線近似，精度約 0.1 km），不是實際路殺位置；同日同里程的多筆會疊在同一點。種類為目視登記。里程為 0 的 249 筆可能是缺值佔位，仍照原值畫出。拉遠為密度熱區，放大到 11 級起畫逐筆。",

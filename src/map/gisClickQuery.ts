@@ -172,5 +172,15 @@ export function gisHitProperties(
     }));
     if (unique.size) properties = { ...properties, coLocatedServices: [...unique.values()] };
   }
+  // 國道動物生態調查：同一調查座標常有上百到上萬筆；popup 顯示第一筆並提示「此位置共 N 筆」（以目前載入圖磚內命中的不重複 feature_id 計）
+  if (type === "freewayEcoSurveyFauna" && g?.type === "Point") {
+    const origin = g.coordinates;
+    const ids = new Set(features
+      .filter(item => item.geometry.type === "Point"
+        && Math.abs(item.geometry.coordinates[0]! - origin[0]!) < 1e-7
+        && Math.abs(item.geometry.coordinates[1]! - origin[1]!) < 1e-7)
+      .map(item => String(item.properties?.feature_id ?? item.id ?? "")));
+    properties = { ...properties, _colocated_n: ids.size };
+  }
   return { properties, coords, cellId };
 }

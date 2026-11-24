@@ -227,6 +227,7 @@ export const LAYER_SOURCE_INFO_DATA: Record<string, LayerSourceInfo> = {
   freewayRoadkill: { org: { "zh-TW": "交通部高速公路局", en: { key: "enum.atlasOrg.freeway" }, ja: { key: "enum.atlasOrg.freeway" } }, license: { key: "popup.environmentLayer.licenseGov" }, url: "https://data.gov.tw/dataset/31291", from: "legend" },
   freewayEcoFacilities: { org: { "zh-TW": "交通部高速公路局", en: { key: "enum.atlasOrg.freeway" }, ja: { key: "enum.atlasOrg.freeway" } }, license: { key: "popup.environmentLayer.licenseGov" }, url: "https://data.gov.tw/dataset/31292", from: "legend" },
   freewayEcoSurveyFlora: { org: { "zh-TW": "交通部高速公路局", en: { key: "enum.atlasOrg.freeway" }, ja: { key: "enum.atlasOrg.freeway" } }, license: { key: "popup.environmentLayer.licenseGov" }, url: "https://data.gov.tw/dataset/31289", from: "legend" },
+  freewayEcoSurveyFauna: { org: { "zh-TW": "交通部高速公路局", en: { key: "enum.atlasOrg.freeway" }, ja: { key: "enum.atlasOrg.freeway" } }, license: { key: "popup.environmentLayer.licenseGov" }, url: "https://data.gov.tw/dataset/31285", from: "legend" },
   freewayTdcsSim: { org: { key: "legend.freewayTdcsSim.source" }, from: "popup" },
   freewayTrafficSigns: { org: "交通部高速公路局", license: "政府資料開放授權條款-第1版", url: "https://data.gov.tw/dataset/98447", from: "catalog" },
   funeralFacilities: { org: "內政部宗教及禮制司", license: "政府資料開放授權條款-第1版（OGDL-Taiwan-1.0）", url: "https://opdadm.moi.gov.tw/api/v1/no-auth/resource/api/dataset/CFF7163A-8C96-417E-B93D-156461404881/resource/0B675274-AA5F-4163-8C9A-16604BC53A2E/download", from: "catalog" },
