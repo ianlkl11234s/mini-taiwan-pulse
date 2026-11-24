@@ -1,5 +1,5 @@
 ---
-title: 人多的地方什麼也跟著多？台灣人口與設施群聚地圖
+title: Day 4 - 人多的地方什麼也跟著多？台灣人口與設施群聚地圖
 description: 30 天地圖挑戰 Day 4（Clusters）：把台灣有人住的地方切成 2,773 個六角網格，比較人口和六種設施怎麼群聚。人口最密的一成格子住了約 61% 的人，也有 79% 的診所，但只有 25% 的登記寺廟。
 slug: mapchallenge-2026-day04-clusters
 topic: analysis

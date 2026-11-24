@@ -1,5 +1,5 @@
 ---
-title: 只靠提示詞做地圖：GIS 圖台 Claude Code Plugin
+title: Day 10 - 只靠提示詞做地圖：GIS 圖台 Claude Code Plugin
 description: 30 天地圖挑戰 Day 10（Prompting only）：把做地圖的經驗整理成 Claude Code Plugin，內含 197 張知識卡、17 個主題與 5 個 Skill，給 AI 一份開放資料就能開始做互動地圖。
 slug: mapchallenge-2026-day10-prompting-only
 topic: making
