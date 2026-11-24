@@ -19,7 +19,7 @@ entry-docs（PROJECTS ↔ BACKLOG 一致性＋已發布 CHANGELOG 段落凍結�
 changes ──┬─ quick（lint → 樣式盤點 → coral → worker → 監測腳本測試 → 入倉守門 → lock 外引用；sparse-checkout 跳過 public/）
           ├─ build（tsc -b ＋ vite build）
           ├─ test ×4 片（vitest --shard；sparse-checkout 只取 public/ 的網站素材）
-          └─ assets（資產測試：依 lock 從 R2 下載、比對 sha256 後驗內容）
+          └─ assets（資產測試：依 lock 從 R2 下載（還沒發版的新檔改從 S3）、比對 sha256 後驗內容）
                 └─ ci-ok（彙總 entry-docs 與上面全部；永遠會出現）
 ```
 
@@ -76,7 +76,13 @@ changes ──┬─ quick（lint → 樣式盤點 → coral → worker → 監�
 - **讀資料內容的測試**列在 `vitest.shared.ts` 的 `ASSET_TESTS`，由 `npm run check:assets` 跑：先依 `deploy/asset-test-files.txt` 準備檔案（本機有且 sha256 相符就沿用，否則從 R2 下載到 `.asset-cache/`），再跑 `vitest.assets.config.ts`。新測試要讀資料內容 → 加進 `ASSET_TESTS` 與 `deploy/asset-test-files.txt`。
 - **不可靜默略過**：資產測試用 `assetAvailable()` 守門，lock 的 r2 檔缺了直接失敗。
 - **防回流**：新資料檔不准 commit 到 public/（deployContract 的 ratchet，基準 `deploy/public-git-baseline.txt` 只減不增）；改用 `python3 scripts/deploy/build-public-assets-lock.py add <路徑>`，再由 `upload-deploy-assets.sh` 上傳 S3。
-- **R2 整檔核對**：`npm run check:assets -- --verify-only [--paths <清單>]`，移檔前的關卡。
+- **R2 整檔核對**：`npm run check:assets -- --verify-only [--paths <清單>]`，移檔前的關卡（只看 R2，不走下面的 S3 備援）。
+- **還沒發版的新檔改從 S3 驗（CI-10，2026-11-24 站主選方案 A）**：R2 只在發版後由 sync-assets 補檔，以前新資產的 PR 和發版 PR 都會卡在 assets 404。現在 R2 回 404 時：
+  - 路徑**不在基準 lock**（PR、develop push：`origin/master`；master push：推送前的 master）→ 用 lock 的 `s3_key` 從 S3 `deploy-assets/` 下載，**一樣比對 sha256 與 bytes**，照跑全部資產測試。檔案只在 runner 上（放 `$RUNNER_TEMP`，不進 `.asset-cache`，因為公開 repo 的 actions 快取可被 fork PR 還原），不寫回 R2、不提早公開。
+  - 路徑**已在基準 lock** → 紅：正式站應該已經有，R2 缺檔是真的壞了（用 deploy-workers 的 `sync_only` 補）。
+  - S3 也沒有、S3 內容與 lock 不符、讀不到基準 lock → 紅。只有 R2 的 404 會改走 S3；403、5xx、R2 內容不符照舊紅。
+  - 金鑰是既有的唯讀 `PULSE_SYNC_S3_*`（IAM `pulse-r2-sync`），只給 assets 那一步。fork PR 拿不到 secret，新檔會紅並印出「沒有 S3 唯讀金鑰」。log 第一行會印金鑰有沒有、基準是哪個 ref。
+  - 所以新增資產的流程是：`build-public-assets-lock.py add` → `upload-deploy-assets.sh` 上傳 S3 → 開 PR；**不必再為了 CI 先同步 R2**。決策邏輯在 `scripts/deploy/asset-source.mjs`（測試 `src/test/checkAssetsSource.test.ts`）。
 
 ## 7. 實測耗時
 
@@ -95,6 +101,7 @@ changes ──┬─ quick（lint → 樣式盤點 → coral → worker → 監�
   - 本次發版新增的 S3 資產，在同步完成前的幾分鐘內會 404。
   - sync 失敗不會擋住部署。看到 sync-assets 紅燈時，用 workflow_dispatch 選 `sync_only` 補跑。
 - 要讓新圖層一上線就有資料：先手動觸發 `sync_only`，等它跑完再發版。
+- 發版合進 master 後，master push 的 CI 若比 sync-assets 先跑，本次新增的檔會走 S3 備援（基準是推送前的 master），一樣綠；之後才發現 R2 還缺的舊檔仍然紅（§6a）。
 
 ## 9. 守門與排程監測（2026-11-10）
 

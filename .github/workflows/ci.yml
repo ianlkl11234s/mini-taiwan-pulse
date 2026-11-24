@@ -217,7 +217,30 @@ jobs:
           key: asset-cache-${{ hashFiles('deploy/asset-test-files.txt', 'deploy/public-assets.lock.json') }}
           restore-keys: asset-cache-
       - run: npm ci
+      # CI-10：R2 回 404 的檔若不在「基準 lock」裡（還沒發版的新檔），改從 S3 deploy-assets/ 取並比對 sha256。
+      # 基準：PR 與 develop push 用 origin/master；master push 用推送前的 master（github.event.before），
+      # 這樣發版那一刻 sync-assets 還沒補完 R2 也不會紅，但更早發版的檔 R2 缺了仍然紅。
+      # 取不到基準（fetch 失敗、before 全 0）一律紅，不靜默略過（docs/ci.md §1.3、§6a）。
+      - name: Fetch base lock ref
+        env:
+          IS_MASTER_PUSH: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
+          BEFORE: ${{ github.event.before }}
+        run: |
+          if [ "$IS_MASTER_PUSH" = "true" ]; then
+            case "$BEFORE" in ''|0000000000000000000000000000000000000000) echo "::error::master push 沒有前一個 commit，無法判斷新檔"; exit 1 ;; esac
+            git fetch --no-tags --depth=1 origin "$BEFORE"
+            echo "ASSET_BASE_REF=$BEFORE" >> "$GITHUB_ENV"
+          else
+            git fetch --no-tags --depth=1 origin +refs/heads/master:refs/remotes/origin/master
+            echo "ASSET_BASE_REF=origin/master" >> "$GITHUB_ENV"
+          fi
+      # S3 唯讀金鑰只給這一步；fork PR 拿不到 secret（空字串），R2 缺的新檔會紅並印出原因
       - name: Asset tests (R2 sha256 + content contracts)
+        env:
+          S3_ACCESS_KEY: ${{ secrets.PULSE_SYNC_S3_ACCESS_KEY }}
+          S3_SECRET_KEY: ${{ secrets.PULSE_SYNC_S3_SECRET_KEY }}
+          S3_REGION: ${{ secrets.S3_REGION }}
+          S3_BUCKET: ${{ secrets.S3_BUCKET }}
         run: npm run check:assets
 
   ci-ok:
