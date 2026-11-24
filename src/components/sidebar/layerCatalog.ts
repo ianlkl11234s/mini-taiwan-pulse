@@ -505,6 +505,20 @@ export const THEME_SCOPE: Readonly<Record<ThemeScope, readonly string[]>> = {
     "運動休閒",
     "農業",
   ],
+  PR: [
+    // 波多黎各（2026-11-25 第 0–1 波；title 沿用台灣主題中文短名，比照印尼）
+    "底圖",
+    "人口社經",
+    "交通",
+    "能源",
+  ],
+  GU: [
+    // 關島（2026-11-25 第 0–1 波；title 沿用台灣主題中文短名，比照印尼）
+    "底圖",
+    "人口社經",
+    "交通",
+    "能源",
+  ],
   GB: [
     // 英國（2026-10-29 英國第 0b 波；title 沿用台灣主題中文短名，與日本同名不衝突）
     "底圖",
@@ -4071,6 +4085,82 @@ const THEME_CATALOG: ThemeDef[] = [
   },
 
   // ───────────────────────────────────────────────────────────────
+  // 🇵🇷 波多黎各（2026-11-25 第 0–1 波：行政邊界、人口、交通、能源；群組比照印尼）
+  // ───────────────────────────────────────────────────────────────
+  {
+    title: "底圖",
+    country: "PR",
+    defaultCollapsed: true,
+    groups: [{ title: "行政邊界", layers: [fromManifest("prAdminBoundaries")] }],
+  },
+  {
+    title: "人口社經",
+    country: "PR",
+    defaultCollapsed: true,
+    groups: [{ title: "人口分布", layers: [fromManifest("prPopulation")] }],
+  },
+  {
+    title: "交通",
+    country: "PR",
+    defaultCollapsed: true,
+    groups: [
+      { title: "場站", layers: [fromManifest("prTransitStops")] },
+      { title: "樞紐節點", layers: [fromManifest("prTransportHubs")] },
+      { title: "路網", layers: [fromManifest("prMajorRoads")] },
+    ],
+  },
+  {
+    title: "能源",
+    country: "PR",
+    defaultCollapsed: true,
+    groups: [
+      { title: "電力 · 廠", layers: [fromManifest("prPowerPlants")] },
+      { title: "電力 · 電網", layers: [fromManifest("prPowerGrid")] },
+      { title: "再生能源", layers: [fromManifest("prRenewables")] },
+      { title: "石化 · 加油站", layers: [fromManifest("prFuelStations")] },
+      { title: "石化 · 油氣", layers: [fromManifest("prPetroleum")] },
+    ],
+  },
+
+  // ───────────────────────────────────────────────────────────────
+  // 🇬🇺 關島（2026-11-25 第 0–1 波：行政邊界、人口、交通、能源；群組比照印尼）
+  // ───────────────────────────────────────────────────────────────
+  {
+    title: "底圖",
+    country: "GU",
+    defaultCollapsed: true,
+    groups: [{ title: "行政邊界", layers: [fromManifest("guAdminBoundaries")] }],
+  },
+  {
+    title: "人口社經",
+    country: "GU",
+    defaultCollapsed: true,
+    groups: [{ title: "人口分布", layers: [fromManifest("guPopulation")] }],
+  },
+  {
+    title: "交通",
+    country: "GU",
+    defaultCollapsed: true,
+    groups: [
+      { title: "場站", layers: [fromManifest("guTransitStops")] },
+      { title: "樞紐節點", layers: [fromManifest("guTransportHubs")] },
+      { title: "路網", layers: [fromManifest("guMajorRoads")] },
+    ],
+  },
+  {
+    title: "能源",
+    country: "GU",
+    defaultCollapsed: true,
+    groups: [
+      { title: "電力 · 廠", layers: [fromManifest("guPowerPlants")] },
+      { title: "電力 · 電網", layers: [fromManifest("guPowerGrid")] },
+      { title: "再生能源", layers: [fromManifest("guRenewables")] },
+      { title: "石化 · 加油站", layers: [fromManifest("guFuelStations")] },
+      { title: "石化 · 油氣", layers: [fromManifest("guPetroleum")] },
+    ],
+  },
+
+  // ───────────────────────────────────────────────────────────────
   // 🇻🇳 越南（2026-11-13 第 0–1 波：行政邊界、人口、交通、能源、環境監測站、安江示範；群組比照菲律賓）
   // ───────────────────────────────────────────────────────────────
   {
@@ -4770,6 +4860,20 @@ const THEME_MACRO_GROUPS: Readonly<Record<ThemeScope, Readonly<Record<string, La
     "運動休閒": "publicLife",
     "農業": "environment",
   },
+  PR: {
+    // 波多黎各：大分類同印尼
+    "底圖": "baseline",
+    "人口社經": "city",
+    "交通": "city",
+    "能源": "environment",
+  },
+  GU: {
+    // 關島：大分類同印尼
+    "底圖": "baseline",
+    "人口社經": "city",
+    "交通": "city",
+    "能源": "environment",
+  },
   CN: {
     // 中國主題 title＝台灣主題中文短名，大分類同台灣對應主題（比照菲律賓）。
     "底圖": "baseline",
@@ -5112,6 +5216,18 @@ const THEME_NAMES: Readonly<Record<ThemeScope, Readonly<Record<string, ThemeName
     "環境氣候": { zh: "環境氣候", sub: "Environment" },
     "運動休閒": { zh: "運動休閒", sub: "Sports & Leisure" },
     "農業": { zh: "農業", sub: "Agriculture" },
+  },
+  PR: {
+    "底圖": { zh: "底圖", sub: "Base Map" },
+    "人口社經": { zh: "人口社經", sub: "People" },
+    "交通": { zh: "交通", sub: "Transport" },
+    "能源": { zh: "能源", sub: "Energy" },
+  },
+  GU: {
+    "底圖": { zh: "底圖", sub: "Base Map" },
+    "人口社經": { zh: "人口社經", sub: "People" },
+    "交通": { zh: "交通", sub: "Transport" },
+    "能源": { zh: "能源", sub: "Energy" },
   },
   CN: {
     // 中國主題副標用英文（比照菲律賓）

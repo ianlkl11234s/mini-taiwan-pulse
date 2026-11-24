@@ -44,6 +44,8 @@
   "country.ID": "Indonesia",
   "country.PH": "Philippines",
   "country.CN": "Mainland China",
+  "country.PR": "Puerto Rico",
+  "country.GU": "Guam",
   "country.menuAria": "Switch country (current: {country})",
   "country.pinnedAria": "Pinned countries",
   "country.pinnedChipAria": "Switch to {country} (back to where you left off)",

@@ -3213,5 +3213,11 @@
   "param.BWP 分區 C（共 6 區，名稱見 popup）": "BWP 区画 C（全 6 区。名称は popup）",
   "param.BWP 分區 D（共 6 區，名稱見 popup）": "BWP 区画 D（全 6 区。名称は popup）",
   "param.BWP 分區 E（共 6 區，名稱見 popup）": "BWP 区画 E（全 6 区。名称は popup）",
-  "param.BWP 分區 F（共 6 區，名稱見 popup）": "BWP 区画 F（全 6 区。名称は popup）"
+  "param.BWP 分區 F（共 6 區，名稱見 popup）": "BWP 区画 F（全 6 区。名称は popup）",
+  "param.屬地界（Territory）": "準州境（Territory）",
+  "param.市（Municipio，78）": "ムニシピオ（78）",
+  "param.區（Barrio，901）": "バリオ（901）",
+  "param.島界（Territory）": "島境（Territory）",
+  "param.村（Village，19）": "ビレッジ（19）",
+  "param.普查區塊群（Block Group，218）": "国勢調査ブロックグループ（218）"
 }

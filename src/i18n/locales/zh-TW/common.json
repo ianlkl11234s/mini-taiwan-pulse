@@ -44,6 +44,8 @@
   "country.ID": "印尼",
   "country.PH": "菲律賓",
   "country.CN": "中國大陸",
+  "country.PR": "波多黎各",
+  "country.GU": "關島",
   "country.menuAria": "切換國家（目前：{country}）",
   "country.pinnedAria": "釘選的國家",
   "country.pinnedChipAria": "切換到{country}（回到上次看的位置）",

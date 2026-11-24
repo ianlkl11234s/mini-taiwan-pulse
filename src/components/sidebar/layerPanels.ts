@@ -90,6 +90,9 @@ export const THAILAND_THEMES = withoutStatisticsLayers(scopeThemes("TH"));
 export const INDONESIA_THEMES = withoutStatisticsLayers(scopeThemes("ID"));
 /** 中國（2026-11-13 第 0–1 波，站主限定）：底圖、人口、交通、能源；統計不涵蓋。 */
 export const CHINA_THEMES = withoutStatisticsLayers(scopeThemes("CN"));
+/** 波多黎各、關島（2026-11-25 第 0–1 波）：底圖、人口、交通、能源；統計不涵蓋。 */
+export const PUERTO_RICO_THEMES = withoutStatisticsLayers(scopeThemes("PR"));
+export const GUAM_THEMES = withoutStatisticsLayers(scopeThemes("GU"));
 
 /** 台灣：沿用全站大分類（`THEME_MACRO_GROUPS`，同時決定 THEMES 排序）。 */
 const TAIWAN_MACRO_GROUPS: PanelMacroGroup[] = sharedMacroGroups(MAIN_THEMES);
@@ -161,6 +164,8 @@ export const THAILAND_MACRO_GROUPS: PanelMacroGroup[] = sharedMacroGroups(THAILA
 export const INDONESIA_MACRO_GROUPS: PanelMacroGroup[] = sharedMacroGroups(INDONESIA_THEMES);
 /** 中國：沿用全站大分類。 */
 export const CHINA_MACRO_GROUPS: PanelMacroGroup[] = sharedMacroGroups(CHINA_THEMES);
+export const PUERTO_RICO_MACRO_GROUPS: PanelMacroGroup[] = sharedMacroGroups(PUERTO_RICO_THEMES);
+export const GUAM_MACRO_GROUPS: PanelMacroGroup[] = sharedMacroGroups(GUAM_THEMES);
 
 /** 英國：沿用全站大分類。 */
 export const UK_MACRO_GROUPS: PanelMacroGroup[] = sharedMacroGroups(UK_THEMES);
@@ -182,6 +187,8 @@ const COUNTRY_LAYER_THEMES: Record<CountryCode, { themes: ThemeDef[]; macroGroup
   TH: { themes: THAILAND_THEMES, macroGroups: THAILAND_MACRO_GROUPS },
   ID: { themes: INDONESIA_THEMES, macroGroups: INDONESIA_MACRO_GROUPS },
   CN: { themes: CHINA_THEMES, macroGroups: CHINA_MACRO_GROUPS },
+  PR: { themes: PUERTO_RICO_THEMES, macroGroups: PUERTO_RICO_MACRO_GROUPS },
+  GU: { themes: GUAM_THEMES, macroGroups: GUAM_MACRO_GROUPS },
 };
 
 /** 某國在「圖層」入口的主題樹。 */

@@ -49,6 +49,8 @@ import { TH_RASTER_SPECS } from "./thWavesLayers";
 import type { ThDataKey, ThRasterKey } from "./thDataKeys";
 import { ID_DATA_SPECS } from "./idDataLayers";
 import { ID_RASTER_SPECS } from "./idWavesLayers";
+import { UST_DATA_SPECS, UST_NAME, type UstCc } from "./ustDataLayers";
+import type { UstAreaKey, UstDataKey } from "./ustDataKeys";
 import type { IdDataKey, IdRasterKey } from "./idDataKeys";
 import type { VnDataKey } from "./vnDataKeys";
 import { VN_RASTER_META, VN_WAVE_ENTRY_META } from "./vnWavesMeta";
@@ -1637,6 +1639,93 @@ const CN_RASTER_MANIFEST_ENTRIES = Object.fromEntries(CN_RASTER_SPECS.map((spec)
   }];
 })) as Record<CnRasterKey, LayerManifestEntry>;
 
+// ══════════════════════════════════════════════════════════════
+// 🇵🇷🇬🇺 美國屬地（2026-11-25 波多黎各、關島第 0–1 波）：行政邊界、人口＋規格驅動 8×2 層；兩地同一份規格（data/ustDataLayers.ts）
+// ══════════════════════════════════════════════════════════════
+const UST_DATA_ENTRY_META: Record<string, { theme: string; group: string; zh: string; alt: string; icon: LucideIcon; topics: string[]; processing: string; note: string; desc: Record<UstCc, string> }> = {
+  TransitStops: { theme: "交通", group: "場站", zh: "大眾運輸站點", alt: "Transit Stops", icon: Bus, topics: ["交通", "公車", "捷運", "渡輪", "GTFS"],
+    processing: "NTAD National Transit Map Stops（bbox）→ mode 依 GTFS stop_type；行政區判定；PMTiles stops z7–14", note: "公有領域；GTFS 彙整，非即時",
+    desc: { pr: "波多黎各大眾運輸站點 5,550 處（National Transit Map；Tren Urbano 16、渡輪 6）", gu: "關島 GRTA 公車站 124 處（National Transit Map 靜態 GTFS）" } },
+  TransportHubs: { theme: "交通", group: "樞紐節點", zh: "機場與港口", alt: "Airports & Ports", icon: Plane, topics: ["交通", "機場", "港口", "FAA"],
+    processing: "FAA NASR（NTAD Aviation Facilities）＋USACE 主要港口（PR）／GovGuamGIS Ng911 地標（GU）；PMTiles hubs z6–14", note: "FAA／USACE 公有領域；GovGuamGIS 授權未明示",
+    desc: { pr: "波多黎各機場 17、直升機場 27、主要港口 3（FAA、USACE）", gu: "關島機場 3、港口 2、遊艇港 3、下水坡道 7、直升機場 1（FAA、GovGuamGIS）" } },
+  MajorRoads: { theme: "交通", group: "路網", zh: "主要道路", alt: "Major Roads", icon: Route, topics: ["交通", "道路", "公路"],
+    processing: "PR：FHWA NHS（STFIPS=72）功能分類＋OSM Tren Urbano；GU：TIGER/Line 2026 S1200；PMTiles roads z6–13", note: "公有領域（Tren Urbano ODbL）",
+    desc: { pr: "波多黎各國道系統 9,598 段（FHWA，含交通量）＋Tren Urbano 捷運線", gu: "關島主要道路 347 段（Census TIGER/Line 2026）" } },
+  PowerPlants: { theme: "能源", group: "電力 · 廠", zh: "電廠", alt: "Power Plants", icon: Factory, topics: ["能源", "電廠", "發電", "HIFLD"],
+    processing: "HIFLD 存檔 Power Plants（bbox）；燃料依 EIA 主燃料代碼；GU 另以 Overture 補缺（<1 km 去重）；PMTiles plants z6–14", note: "HIFLD 存檔 CC BY 4.0（2025-08 後不更新）；容量缺值不補 0",
+    desc: { pr: "波多黎各電廠 48 座（HIFLD 存檔；依燃料分色）", gu: "關島電廠 18 處（HIFLD 存檔 12＋Overture 補 6）" } },
+  PowerGrid: { theme: "能源", group: "電力 · 電網", zh: "輸電線與變電所", alt: "Power Lines & Substations", icon: Zap, topics: ["能源", "電網", "輸電線", "變電所"],
+    processing: "PR：HIFLD 存檔輸電線＋OSM 變電所；GU：GovGuamGIS GPA 架空線、地下電纜、變電所（FOUO 照明層不收）；PMTiles lines／substations z6–14", note: "PR 逐列 CC BY 4.0／ODbL；GU 授權未明示",
+    desc: { pr: "波多黎各輸電線 268 段（HIFLD 存檔）、變電所 551 處（OSM）", gu: "關島電力局輸配電線 4,256 段、變電所 53 處（GovGuamGIS）" } },
+  Renewables: { theme: "能源", group: "再生能源", zh: "風機與太陽能", alt: "Wind Turbines & Solar", icon: Sun, topics: ["能源", "再生能源", "風電", "太陽能", "USWTDB"],
+    processing: "USGS USWTDB 風機＋OSM（PR）／Overture（GU）太陽能；PMTiles generators z6–14", note: "USWTDB 公有領域；OSM／Overture 非官方",
+    desc: { pr: "波多黎各風機 63 座、太陽能發電場 48 處", gu: "關島太陽能 83 處、風機 1 座" } },
+  FuelStations: { theme: "能源", group: "石化 · 加油站", zh: "加油站", alt: "Fuel Stations", icon: Fuel, topics: ["能源", "加油站"],
+    processing: "PR：Geofabrik OSM amenity=fuel；GU：Overture places gas_station；PMTiles stations z7–14", note: "非官方（OSM ODbL／Overture CDLA）",
+    desc: { pr: "波多黎各加油站 919 處（OSM，依品牌分色）", gu: "關島加油站 46 處（Overture）" } },
+  Petroleum: { theme: "能源", group: "石化 · 油氣", zh: "油氣設施", alt: "Oil & Gas Facilities", icon: Droplet, topics: ["能源", "油氣", "儲運站", "儲槽", "管線"],
+    processing: "HIFLD 存檔油品儲運站；GU 另加 Overture 儲槽、管線；PMTiles facilities／pipelines z6–14", note: "HIFLD 存檔 CC BY 4.0；OSM 儲槽內容物多未標",
+    desc: { pr: "波多黎各油品儲運站 4 處（HIFLD 存檔；聯邦名冊未列煉油廠、LNG）", gu: "關島油品儲運站 1、儲槽 150、管線 48（HIFLD、OSM）" } },
+};
+const UST_DATA_MANIFEST_ENTRIES = Object.fromEntries(UST_DATA_SPECS.map((spec) => {
+  const cc = spec.key.slice(0, 2) as UstCc;
+  const m = UST_DATA_ENTRY_META[spec.key.slice(2)]!;
+  const hasPoint = spec.parts.some((x) => x.geom === "point");
+  const layers = [...new Set(spec.parts.map((x) => x.sourceLayer))].join("／");
+  const kinds = ["multiSelect", "slider", ...(hasPoint ? ["slider"] : [])] as ("multiSelect" | "slider")[];
+  return [spec.key, {
+    key: spec.key,
+    country: cc.toUpperCase() as "PR" | "GU", section: { theme: m.theme, group: m.group },
+    ...layerName({ zh: m.zh, alt: m.alt }),
+    expandable: true,
+    color: spec.color,
+    icon: m.icon,
+    upstream: { status: "verified", datasets: [{ datasetId: spec.file.replace(/\.pmtiles$/, ""), confidence: "HIGH" }], processing: m.processing, note: m.note },
+    dataClass: "D",
+    source: { kind: "custom", note: `usePhDataLayer（美國屬地規格）自建 mapbox-pmtiles source；source-layer=${layers}`, staticAssets: [`./world/${spec.file}`] },
+    legend: spec.key,
+    popup: spec.key,
+    params: { count: kinds.length, kinds },
+    description: m.desc[cc],
+    topics: [UST_NAME[cc].zh, ...m.topics],
+  }];
+})) as Record<UstDataKey, LayerManifestEntry>;
+const ustArea = (cc: UstCc, kind: "admin" | "population"): LayerManifestEntry => {
+  const admin = kind === "admin";
+  const key = `${cc}${admin ? "AdminBoundaries" : "Population"}` as UstAreaKey;
+  const pr = cc === "pr";
+  return {
+    key,
+    country: cc.toUpperCase() as "PR" | "GU", section: admin ? { theme: "底圖", group: "行政邊界" } : { theme: "人口社經", group: "人口分布" },
+    ...layerName(admin ? { zh: "行政區界", alt: "Administrative Boundaries" } : { zh: "人口密度", alt: "Population Density", qualifier: pr ? "ACS 2020–2024" : "2020 普查" }),
+    expandable: true,
+    color: admin ? "#9ca3af" : "#f59e0b",
+    icon: admin ? Map : Users,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: `${cc}_${admin ? "admin_boundaries" : "population"}`, confidence: "HIGH" }],
+      processing: admin
+        ? (pr ? "Census Cartographic Boundary 2024 500k（state／county／cousub，STATEFP=72）→ territory、78 municipio、901 barrio；PMTiles z5–13" : "Census Cartographic Boundary 2024 500k（STATEFP=66）→ territory、19 village；PMTiles z6–14")
+        : (pr ? "ACS 2020–2024 五年 B01003（table-based summary file）接 CB 2024 市、區 → 密度（陸地面積）；全島 3,234,309 對帳一致；PMTiles z5–13" : "GovGuamGIS 2020 Census 區塊群表接 CB 2024 區塊群，加總到 19 村 → 密度；9 個區塊群來源表空白標未涵蓋；PMTiles z6–14"),
+      note: admin ? "公有領域；不畫海域主張線" : (pr ? "公有領域；五年估計含誤差範圍" : "GovGuamGIS 授權未明示；7 村總數偏低（來源表空白）"),
+    },
+    dataClass: "D",
+    source: { kind: "custom", note: `useUst${admin ? "Admin" : "Population"}Layers 自建 mapbox-pmtiles source（select 擇一層級）`, staticAssets: [`./world/${cc}_${admin ? "admin_boundaries" : "population"}.pmtiles`] },
+    legend: key,
+    popup: key,
+    params: { count: 2, kinds: admin ? ["slider", "select"] : ["select", "slider"] },
+    description: admin
+      ? (pr ? "波多黎各行政區界（屬地、78 市、901 區；Census 製圖邊界 2024）" : "關島行政區界（島界、19 村；Census 製圖邊界 2024）")
+      : (pr ? "波多黎各人口密度（ACS 2020–2024 五年估計；市、區兩層級）" : "關島人口密度（2020 普查；村、區塊群兩層級）"),
+    topics: [UST_NAME[cc].zh, admin ? "行政區" : "人口", admin ? "邊界" : "人口密度", "Census"],
+  };
+};
+const UST_AREA_MANIFEST_ENTRIES: Record<UstAreaKey, LayerManifestEntry> = {
+  prAdminBoundaries: ustArea("pr", "admin"), prPopulation: ustArea("pr", "population"),
+  guAdminBoundaries: ustArea("gu", "admin"), guPopulation: ustArea("gu", "population"),
+};
+
 export const LAYER_MANIFEST = {
   ...KR_DATA_MANIFEST_ENTRIES,
   ...IE_DATA_MANIFEST_ENTRIES,
@@ -1646,6 +1735,8 @@ export const LAYER_MANIFEST = {
   ...TH_DATA_MANIFEST_ENTRIES,
   ...ID_DATA_MANIFEST_ENTRIES,
   ...ID_RASTER_MANIFEST_ENTRIES,
+  ...UST_DATA_MANIFEST_ENTRIES,
+  ...UST_AREA_MANIFEST_ENTRIES,
   ...TH_RASTER_MANIFEST_ENTRIES,
   ...VN_RASTER_MANIFEST_ENTRIES,
   ...CA_WAVE_MANIFEST_ENTRIES,

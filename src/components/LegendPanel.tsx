@@ -81,6 +81,8 @@ import { TH_DATA_KEYS, TH_RASTER_KEYS } from "../data/thDataKeys";
 import { ThAdminBoundariesLegend, ThDataLegend, ThPopulationLegend, ThRasterLegend } from "./legend/thLegends";
 import { ID_DATA_KEYS, ID_RASTER_KEYS } from "../data/idDataKeys";
 import { IdAdminBoundariesLegend, IdDataLegend, IdPopulationLegend, IdRasterLegend, IdRuralDevelopmentLegend } from "./legend/idLegends";
+import { UST_DATA_KEYS } from "../data/ustDataKeys";
+import { UstAdminBoundariesLegend, UstDataLegend, UstPopulationLegend } from "./legend/ustLegends";
 import { CA_WAVE_KEYS } from "../data/caWavesKeys";
 import { CA_WAVE_SPEC_BY_KEY } from "../data/caWavesLayers";
 import { VnAdminBoundariesLegend, VnDataLegend, VnPopulationLegend, VnRasterLegend } from "./legend/vnLegends";
@@ -399,6 +401,12 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "idRuralDevelopment", render: () => <IdRuralDevelopmentLegend /> },
   ...ID_DATA_KEYS.map((key) => ({ id: key, render: () => <IdDataLegend layerKey={key} /> })),
   ...ID_RASTER_KEYS.map((key) => ({ id: key, render: () => <IdRasterLegend layerKey={key} /> })),
+  // 美國屬地（2026-11-25 波多黎各、關島第 0–1 波）
+  { id: "prAdminBoundaries", render: () => <UstAdminBoundariesLegend cc="pr" /> },
+  { id: "prPopulation", render: () => <UstPopulationLegend cc="pr" /> },
+  { id: "guAdminBoundaries", render: () => <UstAdminBoundariesLegend cc="gu" /> },
+  { id: "guPopulation", render: () => <UstPopulationLegend cc="gu" /> },
+  ...UST_DATA_KEYS.map((key) => ({ id: key, render: () => <UstDataLegend layerKey={key} /> })),
   ...VN_RASTER_KEYS.map((key) => ({ id: key, render: () => <VnRasterLegend layerKey={key} /> })),
   // 加拿大第 3–8 波（2026-11-17）：規格驅動 36 層，重用菲律賓 PhSpecLegend
   ...CA_WAVE_KEYS.map((key) => ({ id: key, render: () => <PhSpecLegend spec={CA_WAVE_SPEC_BY_KEY[key]} /> })),

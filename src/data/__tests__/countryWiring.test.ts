@@ -102,6 +102,8 @@ const NO_STATISTICS: Readonly<Partial<Record<string, string>>> = {
   TH: "泰國第 0 波明定統計不涵蓋（layerPanels.ts THAILAND_THEMES 註解）",
   ID: "印尼第 0–4 波明定統計不涵蓋（layerPanels.ts INDONESIA_THEMES 註解）",
   CN: "中國第 0–1 波站主限定，統計不涵蓋（layerPanels.ts CHINA_THEMES 註解）",
+  PR: "波多黎各第 0–1 波明定統計不涵蓋（layerPanels.ts PUERTO_RICO_THEMES 註解）",
+  GU: "關島第 0–1 波明定統計不涵蓋（layerPanels.ts GUAM_THEMES 註解）",
 };
 
 /** 第 7 點：台灣是 atlas topics 的預設（不加國名標籤），其餘有統計的國家都要有分支。 */

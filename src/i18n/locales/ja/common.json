@@ -44,6 +44,8 @@
   "country.ID": "インドネシア",
   "country.PH": "フィリピン",
   "country.CN": "中国大陸",
+  "country.PR": "プエルトリコ",
+  "country.GU": "グアム",
   "country.menuAria": "国を切り替え（現在：{country}）",
   "country.pinnedAria": "ピン留めした国",
   "country.pinnedChipAria": "{country}に切り替え（前回の表示位置へ）",

@@ -1,0 +1,449 @@
+{
+  "count": 10,
+  "gisLayers": {
+    "guAdminBoundaries": {
+      "layers": [
+        "gu-admin-village-fill",
+        "gu-admin-territory-fill"
+      ],
+      "type": "guAdminBoundaries"
+    },
+    "guFuelStations": {
+      "layers": [
+        "gu-fuel-stations-circle"
+      ],
+      "type": "guFuelStations"
+    },
+    "guMajorRoads": {
+      "layers": [
+        "gu-major-roads-line"
+      ],
+      "type": "guMajorRoads"
+    },
+    "guPetroleum": {
+      "layers": [
+        "gu-petroleum-circle",
+        "gu-petroleum-pipelines-line",
+        "gu-petroleum-fill"
+      ],
+      "type": "guPetroleum"
+    },
+    "guPopulation": {
+      "layers": [
+        "gu-population-blockgroup-fill",
+        "gu-population-village-fill"
+      ],
+      "type": "guPopulation"
+    },
+    "guPowerGrid": {
+      "layers": [
+        "gu-power-substations-circle",
+        "gu-power-lines-line",
+        "gu-power-lines-ug-line",
+        "gu-power-substations-fill"
+      ],
+      "type": "guPowerGrid"
+    },
+    "guPowerPlants": {
+      "layers": [
+        "gu-power-plants-circle",
+        "gu-power-plants-fill"
+      ],
+      "type": "guPowerPlants"
+    },
+    "guRenewables": {
+      "layers": [
+        "gu-renewables-circle",
+        "gu-renewables-fill"
+      ],
+      "type": "guRenewables"
+    },
+    "guTransitStops": {
+      "layers": [
+        "gu-transit-stops-circle"
+      ],
+      "type": "guTransitStops"
+    },
+    "guTransportHubs": {
+      "layers": [
+        "gu-transport-hubs-circle"
+      ],
+      "type": "guTransportHubs"
+    }
+  },
+  "overlays": {},
+  "params": {
+    "guAdminBoundaries": [
+      {
+        "label": "行政層級",
+        "options": [
+          {
+            "label": "島界（Territory）",
+            "value": "territory"
+          },
+          {
+            "label": "村（Village，19）",
+            "value": "village"
+          }
+        ],
+        "type": "select",
+        "value": "village"
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      }
+    ],
+    "guFuelStations": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "Mobil",
+            "value": "Mobil"
+          },
+          {
+            "label": "Shell",
+            "value": "Shell"
+          },
+          {
+            "label": "其他品牌、未標品牌",
+            "value": "other_brand"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "Mobil",
+          "Shell",
+          "other_brand"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "guMajorRoads": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "主要道路（TIGER S1200，島上無 S1100）",
+            "value": "secondary"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "secondary"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      }
+    ],
+    "guPetroleum": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "油品儲運站（HIFLD）",
+            "value": "terminal"
+          },
+          {
+            "label": "儲槽（OSM 登記，內容物多未標，可能含水槽）",
+            "value": "storage_tank"
+          },
+          {
+            "label": "管線（OSM 登記）",
+            "value": "pipeline"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "terminal",
+          "storage_tank",
+          "pipeline"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "guPopulation": [
+      {
+        "label": "行政層級",
+        "options": [
+          {
+            "label": "村（Village，19）",
+            "value": "village"
+          },
+          {
+            "label": "普查區塊群（Block Group，218）",
+            "value": "blockgroup"
+          }
+        ],
+        "type": "select",
+        "value": "village"
+      },
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      }
+    ],
+    "guPowerGrid": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "115 kV",
+            "value": "kv115"
+          },
+          {
+            "label": "34.5–38 kV",
+            "value": "kv38"
+          },
+          {
+            "label": "電壓未知",
+            "value": "unknown"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "kv115",
+          "kv38",
+          "unknown"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "guPowerPlants": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "石油、柴油",
+            "value": "oil"
+          },
+          {
+            "label": "太陽能",
+            "value": "solar"
+          },
+          {
+            "label": "燃料未標",
+            "value": "other"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "oil",
+          "solar",
+          "other"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "guRenewables": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "太陽能（發電場、板陣）",
+            "value": "solar"
+          },
+          {
+            "label": "風機（USWTDB）",
+            "value": "wind"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "solar",
+          "wind"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "guTransitStops": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "公車站",
+            "value": "bus"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "bus"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "guTransportHubs": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "機場",
+            "value": "airport"
+          },
+          {
+            "label": "直升機場",
+            "value": "heliport"
+          },
+          {
+            "label": "港口",
+            "value": "port"
+          },
+          {
+            "label": "遊艇港",
+            "value": "marina"
+          },
+          {
+            "label": "下水坡道",
+            "value": "boat_ramp"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "airport",
+          "heliport",
+          "port",
+          "marina",
+          "boat_ramp"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ]
+  }
+}
