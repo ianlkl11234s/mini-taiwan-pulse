@@ -153,8 +153,9 @@ describe("Global Events Intel tab", () => {
     expect(all).toContain("1H");
     expect(all).toContain("回放");
     expect(all).toContain("更新 ");
-    // 「共 N 則」維持新聞語意，不被國際筆數污染（數字另包 span，故先去標籤再比對）
-    expect(all.replace(/<[^>]+>/g, "")).toContain("共 0 則");
+    // IN-1：標頭「共 N 則」＝目前分頁的角標（「全部」＝新聞 0＋警報 0＋國際 2），不再只算新聞
+    // （數字另包 span，故先去標籤再比對）
+    expect(all.replace(/<[^>]+>/g, "")).toContain("共 2 則");
     harness.tab = "alerts";
     expect(renderToStaticMarkup(panel())).toContain("嚴重度 ≥");
   });

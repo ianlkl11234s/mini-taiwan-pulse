@@ -2,6 +2,7 @@ import { FONT_CJK, FONT_DATA, withAlpha } from "../intelTokens";
 import { useLocale } from "../../../state/localeStore";
 import { useIntelTheme } from "../intelTheme";
 import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
+import { feedCounts } from "./feedCounts";
 
 export type FeedTab = "all" | "news" | "alerts" | "globalEvents";
 
@@ -30,6 +31,7 @@ const TABS = [
 export function FeedTabs({ tab, onTab, newsCount, alertCount, alertCountInAll, alertSevere, globalCount, globalCountInAll }: Props) {
   const palette = useIntelTheme();
   const { t } = useLocale();
+  const counts = feedCounts({ news: newsCount, alerts: alertCount, alertsInAll: alertCountInAll, globalEvents: globalCount, globalInAll: globalCountInAll });
   return (
     <div
       style={{
@@ -53,10 +55,7 @@ export function FeedTabs({ tab, onTab, newsCount, alertCount, alertCountInAll, a
           const active = tab === key;
           const isAlerts = key === "alerts";
           const hot = isAlerts && alertSevere > 0;
-          const count =
-            key === "globalEvents" ? globalCount : key === "news" ? newsCount
-              : key === "alerts" ? alertCount
-                : newsCount + alertCountInAll + globalCountInAll;
+          const count = counts[key];
           return (
             <button
               key={key}

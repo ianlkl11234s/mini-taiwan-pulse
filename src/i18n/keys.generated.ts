@@ -42,6 +42,7 @@ export type GeneratedStaticKey =
   | "alerts.drawer.none"
   | "alerts.drawer.title"
   | "alerts.lastSuccess"
+  | "alerts.noneInFilter"
   | "alerts.summary.count"
   | "alerts.summary.denied"
   | "alerts.summary.error"
