@@ -36,6 +36,7 @@ import { compareRightMap } from "./compareRightMap";
 import { sessionTracker } from "../lib/sessionTracker";
 import { loadingRegistry } from "../lib/loadingRegistry";
 import { LayerHosts } from "../layers/LayerHost";
+import { rightClock, SideClockContext } from "../state/sideClock";
 import { useOverlayParams } from "../layers/layerParamsAccess";
 import { OVERLAY_REGISTRY } from "./overlayRegistry";
 import { isRightSideKey } from "./compareCountrySides";
@@ -317,5 +318,10 @@ function RightCountryLayers({ mapRef, rightCountry, hostDeps, featureInfo }: {
   // 選取圈只畫右圖點出來的
   useSelectionRing(mapRef, featureInfo?.properties?.compare_side === "right" ? featureInfo : null);
   // LayerHosts 逐欄位比較 deps：mapRef 換成右圖、mapPrepared 恆為 true（右圖 load 後才掛）
-  return <LayerHosts role="right" rightCountry={rightCountry} deps={{ ...hostDeps, mapRef, mapPrepared: true }} />;
+  // 右圖的圖層讀右側時鐘（當地同時刻時換算成右國同一個當地鐘點；G2-4，state/sideClock.ts）
+  return (
+    <SideClockContext.Provider value={rightClock}>
+      <LayerHosts role="right" rightCountry={rightCountry} deps={{ ...hostDeps, mapRef, mapPrepared: true }} />
+    </SideClockContext.Provider>
+  );
 }

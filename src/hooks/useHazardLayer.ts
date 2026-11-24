@@ -11,6 +11,7 @@ import {
   type NuclearDay,
 } from "../data/nuclearLoader";
 import { timeStore } from "../state/timeStore";
+import { useSideClock } from "../state/sideClock";
 import { subscribePrefetchWindow } from "../lib/dayPrefetch";
 import { shiftDateKey } from "../lib/zonedTime";
 import { useMapReadyTick } from "./useMapReadyTick";
@@ -88,6 +89,7 @@ export function useLightningLayer(
   source: LightningSource = DEFAULT_LIGHTNING_SOURCE,
 ) {
   const fcRef = useRef<GeoJSON.FeatureCollection | null>(null);
+  const clock = useSideClock();
   const srcId = source === "cwa" ? SRC_LIGHTNING_CWA : source === "jma" ? SRC_LIGHTNING_JMA : SRC_LIGHTNING;
   const feed = useSourceFeed(mapRef, visible, srcId, fcRef);
   // 整天 events buffer，scrub / minutes 變動只在這份上 client-side filter
@@ -115,25 +117,25 @@ export function useLightningLayer(
         .then(([today, yesterday]) => {
           if (cancelled) return;
           dayBufferRef.current = [...yesterday, ...today];
-          recompute(timeStore.getTime());
+          recompute(clock.getTime());
         })
         .catch((err) => console.warn("[HAZARD/lightning] day load failed:", err));
     };
 
-    loadDay(timeStore.getDateKey());
+    loadDay(clock.getDateKey());
     // 視窗內其他日 → silent prefetch（共用 cachedByKey，不灌 LOADING panel）
     const unsubPrefetch = subscribePrefetchWindow(
       (key) => prefetchLightningDay(key, source),
       `[HAZARD/lightning:${source}]`,
     );
 
-    const unsubDate = timeStore.subscribeDate((key) => loadDay(key));
-    const unsubTime = timeStore.subscribeThrottled(SCRUB_THROTTLE_LIGHTNING, recompute);
+    const unsubDate = clock.subscribeDate((key) => loadDay(key));
+    const unsubTime = clock.subscribeThrottled(SCRUB_THROTTLE_LIGHTNING, recompute);
 
     const id = window.setInterval(() => {
       // 只清「這一源的當前日」—— 不帶參數會連另一源的快取一起清掉
-      invalidateLightningDay(timeStore.getDateKey(), source);
-      loadDay(timeStore.getDateKey());
+      invalidateLightningDay(clock.getDateKey(), source);
+      loadDay(clock.getDateKey());
     }, LIGHTNING_RELOAD_MS);
 
     return () => {
@@ -143,15 +145,15 @@ export function useLightningLayer(
       unsubTime();
       window.clearInterval(id);
     };
-  }, [visible, feed, source]);
+  }, [visible, feed, source, clock]);
 
   // minutes 變動立即重算（不靠 throttle）
   useEffect(() => {
     if (!visible) return;
     const lifeSec = Math.max(60, minutes * 60);
-    fcRef.current = toLightningFCAt(dayBufferRef.current, timeStore.getTime(), lifeSec, source);
+    fcRef.current = toLightningFCAt(dayBufferRef.current, clock.getTime(), lifeSec, source);
     feed();
-  }, [minutes, visible, feed, source]);
+  }, [minutes, visible, feed, source, clock]);
 }
 
 export function useNuclearLayer(

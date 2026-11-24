@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { timeStore } from "../state/timeStore";
+import { useSideClock } from "../state/sideClock";
 import {
   fetchJmaTimeCoverage, getJmaLiveStatus, jmaCoverageGate, jmaHumanError, jmaTimeRequest, setJmaLiveStatus,
   type JmaTimeRequest, type JmaTimedKey, type JmaTimedResult,
@@ -26,6 +26,7 @@ export function useJmaTimeDriver<T>(opts: {
   /** 額外的重查觸發（例如 map 重新就緒） */
   tick?: unknown;
 }) {
+  const clock = useSideClock();
   const { visible, key, pollMs, tick } = opts;
   const fetchRef = useRef(opts.fetch);
   const invalidateRef = useRef(opts.invalidate);
@@ -89,10 +90,10 @@ export function useJmaTimeDriver<T>(opts: {
         });
     };
 
-    run(timeStore.getTime(), true);
-    const unsub = timeStore.subscribeThrottled(SCRUB_THROTTLE_MS, (t) => run(t));
+    run(clock.getTime(), true);
+    const unsub = clock.subscribeThrottled(SCRUB_THROTTLE_MS, (t) => run(t));
     const id = window.setInterval(() => {
-      const t = timeStore.getTime();
+      const t = clock.getTime();
       const req = jmaTimeRequest(key, t);
       if (req.history && key !== "jmaVolcanoes") return; // 歷史時刻不輪詢
       invalidateRef.current(req);
@@ -104,5 +105,5 @@ export function useJmaTimeDriver<T>(opts: {
       unsub();
       window.clearInterval(id);
     };
-  }, [visible, key, pollMs, tick]);
+  }, [visible, key, pollMs, tick, clock]);
 }

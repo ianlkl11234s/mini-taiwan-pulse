@@ -54,7 +54,7 @@ export interface UrlState {
    * `cmpdl=`／`cmpdr=` 比較中統計層左／右側的期別與細項：`<layerKey>:<控制項後綴>=<值>;…`，多層以 `,` 分隔
    * （後綴＝統計連動選單的 name 去掉 layerKey，例 `Period`、`DimSex`）。這裡只驗格式；圖層是否支援、值是否還存在由主站套用時驗。
    * 兩國並排（G2-1）：`cmp=2`；`cmpc=<國碼小寫>` 右側國家（台灣不收）；`cmpv=<lng>,<lat>,<zoom>[,<bearing>,<pitch>]` 右圖鏡頭；
-   * `cmpsl=0` 關掉比例尺同步（預設開不寫）。並排不寫 `cmpx`／`cmpl`／`cmpr`（側別由圖層國家推出）。
+   * `cmpsl=0` 關掉比例尺同步（預設開不寫）；`cmpt=local` 當地同時刻（G2-4；同一刻＝預設不寫）。並排不寫 `cmpx`／`cmpl`／`cmpr`（側別由圖層國家推出）。
    */
   compare?: UrlCompareState;
   /**
@@ -115,6 +115,8 @@ export interface UrlCompareState {
   rightCamera?: UrlCamera;
   /** `false`＝關掉比例尺同步（`cmpsl=0`）；缺省＝開 */
   scaleLocked?: false;
+  /** `local`＝當地同時刻（`cmpt=local`）；缺省＝同一刻 */
+  timeAlign?: "local";
   split?: number;
   left?: string[];
   right?: string[];
@@ -299,6 +301,7 @@ function parseCountriesCompare(q: URLSearchParams): UrlCompareState {
     if (camera) compare.rightCamera = camera;
   }
   if (q.get("cmpsl") === "0") compare.scaleLocked = false;
+  if (q.get("cmpt") === "local") compare.timeAlign = "local";
   return compare;
 }
 
@@ -446,7 +449,7 @@ export function buildUrl(state: UrlState, base: string): string {
     if (entries.length) q.set("pm", entries.map(([key, mode]) => `${key}:${mode}`).join(","));
   }
   if (state.compare?.mode === "countries") {
-    const { rightCountry, rightCamera, scaleLocked } = state.compare;
+    const { rightCountry, rightCamera, scaleLocked, timeAlign } = state.compare;
     q.set("cmp", "2");
     if (rightCountry && rightCountry !== DEFAULT_COUNTRY) {
       q.set("cmpc", rightCountry.toLowerCase());
@@ -458,6 +461,7 @@ export function buildUrl(state: UrlState, base: string): string {
       }
     }
     if (scaleLocked === false) q.set("cmpsl", "0");
+    if (timeAlign === "local") q.set("cmpt", "local");
   } else if (state.compare) {
     const { split, left, right, leftSelection, rightSelection } = state.compare;
     q.set("cmp", "1");
