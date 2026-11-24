@@ -466,11 +466,13 @@ const overlayParams = encodeParamsToOverlay(layerParamsStore.getAll());
 const byOverlay = new Map<string, OverlayCfg[]>();
 for (const o of overlays) byOverlay.set(o.id, [...(byOverlay.get(o.id) ?? []), o]);
 
-const overlayRegistryText = text("src/map/overlayRegistry.ts");
+// overlay 條目：中央 registry，加上國家包的 overlays.ts（B1 P5b）
+const OVERLAY_FILES = ["src/map/overlayRegistry.ts", ...SRC_FILES.filter((f) => /^src\/countries\/[a-z]+\/overlays\.ts$/.test(f))];
+const overlayFileTexts = OVERLAY_FILES.map((f) => [f, text(f)] as const);
 /** evidence 只記檔名不記行號（行號會隨無關改動位移，讓 CI 一致性比對誤報）；以 layer key 在檔內搜尋 */
 function overlayLines(id: string): string[] {
   const re = new RegExp(`id:\\s*["'\`]${id}["'\`]`);
-  return re.test(overlayRegistryText) ? ["src/map/overlayRegistry.ts"] : [];
+  return overlayFileTexts.filter(([, t]) => re.test(t)).map(([f]) => f);
 }
 
 const hookOfKey = new Map<string, string[]>();
