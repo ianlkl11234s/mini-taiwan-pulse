@@ -510,6 +510,32 @@ describe("Ookla static overlay 的 attribution / loading 契約", () => {
     }
   });
 
+  // 2026-11-23：細格（z=10）只在圖磚縮放 ≥3；縮放分界靠 layer minzoom／maxzoom（filter 內的 zoom 不隨地圖縮放重算）。
+  it("global 格網：-lo 層與一般層縮放區間互補（分界 2.5），選「細」時低縮放退回 z=8", () => {
+    for (const [id, sourceId, paramKey] of [
+      ["ooklaMobilePerformance", "ookla-mobile-global", "ooklaMobileGridZoom"],
+      ["ooklaFixedPerformance", "ookla-fixed-global", "ooklaFixedGridZoom"],
+    ] as const) {
+      const config = ookla(id, sourceId);
+      expect(config.sourceUrl).toMatch(/_20260930_t3\.pmtiles$/);
+      const by = (suffix: string) => config.layers.find((l) => l.suffix === suffix)!;
+      const filterOf = (suffix: string, grid: number) => (by(suffix).filter as (p: Record<string, number>) => unknown)({ [paramKey]: grid });
+      for (const [lo, hi] of [["fill-lo", "fill"], ["line-lo", "line"]] as const) {
+        expect(by(lo).maxzoom).toBe(2.5);
+        expect(by(hi).minzoom).toBe(2.5);
+        expect(by(lo).minzoom).toBeUndefined();
+        expect(by(hi).maxzoom).toBeUndefined();
+        expect(filterOf(lo, 10)).toEqual(["==", ["get", "z"], 8]);   // zoom<3 選細 → 中格
+        expect(filterOf(hi, 10)).toEqual(["==", ["get", "z"], 10]);  // zoom≥3 選細 → 細格
+        for (const grid of [6, 8]) {
+          expect(filterOf(lo, grid)).toEqual(["==", ["get", "z"], grid]);
+          expect(filterOf(hi, grid)).toEqual(["==", ["get", "z"], grid]);
+        }
+      }
+      expect(config.rebuildOnParamChange).toEqual(expect.arrayContaining(["fill", "line", "fill-lo", "line-lo"]));
+    }
+  });
+
   it("global PMTiles 不再整包 fetch GeoJSON（hydrate 直接略過）", async () => {
     const config = ookla("ooklaMobilePerformance", "ookla-mobile-global");
     const fetchSpy = vi.fn();

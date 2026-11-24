@@ -10,6 +10,9 @@ export interface GlobalCandidateAssessment {
   taiwanImpact: string | null; reason: string | null;
 }
 
+/** GDELT 已解析的人物／組織（collector 保留前 5 名）。上游 migration 套用前 RPC 不回這欄，前端欄位存在才用。 */
+export interface GlobalEventEntity { kind: "person" | "org"; name: string }
+
 export interface GlobalEventPoint {
   eventId: string;
   versionId: string;
@@ -61,6 +64,7 @@ export interface GlobalEventPoint {
   aiGroupId?: string | null;
   candidateIds?: string[];
   candidateAssessments?: GlobalCandidateAssessment[];
+  entities?: GlobalEventEntity[];
 }
 
 export interface GlobalEventRecord extends Omit<GlobalEventPoint, "coordinates"> {
@@ -113,6 +117,16 @@ function pointCoordinates(value: unknown): [number, number] | null {
   if (typeof lng !== "number" || typeof lat !== "number" || !Number.isFinite(lng) || !Number.isFinite(lat)) return null;
   if (lng < -180 || lng > 180 || lat < -90 || lat > 90) return null;
   return [lng, lat];
+}
+
+function parseEntities(value: unknown): GlobalEventEntity[] | undefined {
+  if (!Array.isArray(value)) return undefined;
+  const entities = value.flatMap((item): GlobalEventEntity[] => {
+    if (!item || typeof item !== "object") return [];
+    const { kind, name } = item as JsonObject;
+    return (kind === "person" || kind === "org") && typeof name === "string" && name.trim() ? [{ kind, name: name.trim().slice(0, 120) }] : [];
+  });
+  return entities.slice(0, 5);
 }
 
 function parseGlobalEventFields(row: JsonObject): Omit<GlobalEventPoint, "coordinates"> {
@@ -181,6 +195,7 @@ export function parseGlobalEventCandidate(row: JsonObject): GlobalEventCandidate
     canonicalLatestLifecycle: lifecycle(row.canonical_latest_lifecycle), linkedEffectiveAt: nullableString(row.linked_effective_at),
     sourceKind: nullableString(row.source_kind), countryCodeScheme: nullableString(row.country_code_scheme),
     aiGroupId: typeof row.ai_group_id === "string" && /^aigroup_[a-f0-9]{24}$/.test(row.ai_group_id) ? row.ai_group_id : null,
+    ...(Array.isArray(row.entities) ? { entities: parseEntities(row.entities) } : {}),
   };
 }
 

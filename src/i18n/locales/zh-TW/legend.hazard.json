@@ -106,7 +106,7 @@
   "legend.hazard.globalUpdated": "版本更新",
   "legend.hazard.globalNote": "點位可能是來源支持的事件點，或城市／國家代表中心；代表點不是精確發生座標，詳見 popup。 同位置不同事件並排；數字點可點開展開。弧線僅表示跨國事件關聯，沒有移動方向或時間順序。",
   "legend.hazard.globalLineAssoc": "實線＝同一則報導提到的不同國家",
-  "legend.hazard.globalLineStory": "虛線＝標題相近、可能是同一件事的不同報導；點選事件會加亮相關報導。線不代表移動或因果。",
+  "legend.hazard.globalLineStory": "虛線＝標題或摘要相近、可能是同一件事的不同報導（保守判斷，會漏）；點選事件會加亮相關報導並在說明裡列出。線不代表移動或因果。",
   "legend.hazard.globalStatus": "地圖上 {mapped} 件；未定位 {unlocated} 件只在 INTEL 列表",
   "legend.hazard.globalLatest": "資料最新收到 {time}（約 {hours} 小時前）",
   "legend.hazard.nuclearTitle": "核安劑量",
@@ -157,5 +157,6 @@
   "legend.hazard.gbQuakeUnknown": "規模未知 {n} 筆，以最小點表示",
   "legend.hazard.gbQuakeMinor": "規模 <2 的儀器記錄放大到 z{zoom} 以上才顯示",
   "legend.hazard.gbQuakeOffshore": "含海上事件 {n} 筆（不屬任一地區）",
-  "legend.hazard.disasterResourceNote": "消防署救災資源資料庫 5,568 處中有座標的 5,379 處；保管單位類型依名稱關鍵字粗分。多數品項數量登錄為 0，popup 只列數量大於 0 的品項"
+  "legend.hazard.disasterResourceNote": "消防署救災資源資料庫 5,568 處中有座標的 5,379 處；保管單位類型依名稱關鍵字粗分。多數品項數量登錄為 0，popup 只列數量大於 0 的品項",
+  "legend.hazard.globalNoiseHidden": "地圖已隱藏 AI 判為雜訊的報導 {n} 件（圖層設定可打開）"
 }

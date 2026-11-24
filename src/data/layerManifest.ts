@@ -408,6 +408,15 @@ interface LayerManifestBase {
    * 型別與各欄說明見 `layerLongTerm.ts`，檢查見 `__tests__/layerLongTerm.test.ts`。
    */
   longTerm?: LongTermSpec;
+
+  // ── 資料時區 ──
+  /**
+   * 上游按哪個時區切「一天」（IANA 名稱，如 `Europe/London`）；缺席＝`Asia/Taipei`。
+   * 依日期取資料（日期進 URL／檔名、RPC 帶日期、依日界篩快照）的外國圖層必寫，
+   * 取資料時用 `lib/layerDataTime.ts` 的 `dataDateKeyFor(key, unixSec)` 換成當地日期。
+   * 時間軸顯示仍是台北時間。規範：`docs/TIMELINE_ARCHITECTURE.md`「資料時區宣告」。
+   */
+  dataTimeZone?: string;
 }
 
 /**
@@ -3045,7 +3054,7 @@ export const LAYER_MANIFEST = {
     },
     legend: "globalEvents",
     popup: "globalEvent",
-    params: { count: 8, kinds: ["slider", "select", "select", "select", "select", "toggle", "toggle", "toggle"] },
+    params: { count: 9, kinds: ["slider", "select", "select", "select", "select", "toggle", "toggle", "toggle", "toggle"] },
     description: "全球情勢最近七天總覽與時間軸回放；同位置事件可展開，跨國弧線只表示事件關聯，不是移動軌跡",
     topics: ["世界", "重要事件", "情報"],
   },
@@ -3102,6 +3111,7 @@ export const LAYER_MANIFEST = {
 
   gfwHourlyGrid: {
     key: "gfwHourlyGrid",
+    dataTimeZone: "UTC", // release_id 是 UTC 日，小時從 T00:00Z 起算
     country: "WORLD", section: { theme: "全球海事 Global Maritime", group: "船舶" },
     ...layerName({ zh: "GFW 小時船舶網格", alt: "Hourly Grid" }),
     expandable: true,
@@ -3128,6 +3138,7 @@ export const LAYER_MANIFEST = {
 
   gfwHourlyTracks: {
     key: "gfwHourlyTracks",
+    dataTimeZone: "UTC", // 每日檔 days/{UTC 日}.geojson
     country: "WORLD", section: { theme: "全球海事 Global Maritime", group: "船舶" },
     ...layerName({ zh: "GFW 小時近似航跡", alt: "Hourly Tracks" }),
     expandable: true,
@@ -3154,6 +3165,7 @@ export const LAYER_MANIFEST = {
 
   gfwFishingEffort: {
     key: "gfwFishingEffort",
+    dataTimeZone: "UTC", // GFW 每日 fishing effort 以 UTC 日彙整
     country: "WORLD", section: { theme: "全球海事 Global Maritime", group: "船舶" },
     ...layerName({ zh: "GFW 每日捕撈活動", alt: "Fishing Effort" }),
     expandable: true,
@@ -4393,6 +4405,7 @@ export const LAYER_MANIFEST = {
   // RPC 契約 gis-platform docs/jma-time-rpcs.md（migration 463/464）。
   jmaLightning: {
     key: "jmaLightning",
+    dataTimeZone: "Asia/Taipei", // get_lightning_day 的日界是台北日（gis-platform migration 338），不是 JST
     country: "JP", section: { theme: "災害", group: "雷暴" },
     ...layerName({ zh: "落雷", alt: "雷監視 LIDEN", qualifier: "日本" }),
     expandable: true,
@@ -4435,6 +4448,7 @@ export const LAYER_MANIFEST = {
   },
   jmaSnowcap: {
     key: "jmaSnowcap",
+    dataTimeZone: "Asia/Tokyo", // get_jma_snowcap_asof 的 p_date 是 JST 日
     country: "JP", section: { theme: "環境氣候", group: "季節觀測" },
     ...layerName({ zh: "山頂初冠雪", alt: "初冠雪" }),
     expandable: true,
@@ -4456,6 +4470,7 @@ export const LAYER_MANIFEST = {
   },
   jmaAutumnLeaves: {
     key: "jmaAutumnLeaves",
+    dataTimeZone: "Asia/Tokyo", // get_jma_phenology_asof 的 p_date 是 JST 日
     country: "JP", section: { theme: "環境氣候", group: "季節觀測" },
     ...layerName({ zh: "紅葉・黃葉前線", alt: "紅葉前線" }),
     expandable: true,
@@ -4477,6 +4492,7 @@ export const LAYER_MANIFEST = {
   },
   jmaSakura: {
     key: "jmaSakura",
+    dataTimeZone: "Asia/Tokyo", // get_jma_phenology_asof 的 p_date 是 JST 日
     country: "JP", section: { theme: "環境氣候", group: "季節觀測" },
     ...layerName({ zh: "櫻花前線", alt: "桜前線" }),
     expandable: true,
@@ -4498,6 +4514,7 @@ export const LAYER_MANIFEST = {
   },
   jmaRainySeason: {
     key: "jmaRainySeason",
+    dataTimeZone: "Asia/Tokyo", // get_jma_rainy_season_asof 的 p_date 是 JST 日
     country: "JP", section: { theme: "環境氣候", group: "季節觀測" },
     ...layerName({ zh: "梅雨入梅・出梅", alt: "梅雨入り・明け" }),
     expandable: true,
@@ -4861,6 +4878,7 @@ export const LAYER_MANIFEST = {
   },
   gibsSnowCover: {
     key: "gibsSnowCover",
+    dataTimeZone: "UTC", // GIBS 日產品以 UTC 日為界
     country: "JP", section: { theme: "環境氣候", group: "積雪" },
     ...layerName({ zh: "衛星雪覆蓋", alt: "積雪域（衛星 NDSI）", qualifier: "NASA GIBS" }),
     expandable: true,
@@ -7027,6 +7045,7 @@ export const LAYER_MANIFEST = {
   // Darwin 前一日（2026-11-21，週六）實際／預估時刻，沿 OSM 鐵軌內插；倫敦與東南部。非即時，自成「列車重播」群組。
   gbRailReplay: {
     key: "gbRailReplay",
+    dataTimeZone: "Europe/London", // 服務日按英國當地時間；時間軸以倫敦牆上時刻對齊（londonClock）
     country: "GB", section: { theme: "交通", group: "列車重播" },
     ...layerName({ zh: "列車重播", alt: "Rail Replay", qualifier: "2026-11-21" }),
     expandable: true,
@@ -8436,7 +8455,7 @@ export const LAYER_MANIFEST = {
       note: "Ookla Speedtest 使用者樣本聚合格網；非 coverage map；CC BY-NC-SA 4.0。2026-Q1 官方 z16 Parquet 聚合，產物為 --slim（整層常數在 FeatureCollection metadata／前端 OOKLA_GRID_META，不逐格重複）。",
     },
     dataClass: "B",
-    source: { kind: "pmtiles", sourceId: "ookla-mobile-global", url: "./geo/ookla_mobile_global_20260930.pmtiles", sourceLayer: "ookla", minzoom: 0, maxzoom: 6 },
+    source: { kind: "pmtiles", sourceId: "ookla-mobile-global", url: "./geo/ookla_mobile_global_20260930_t3.pmtiles", sourceLayer: "ookla", minzoom: 0, maxzoom: 6 },
     legend: "ooklaPerformanceGrid",
     popup: "ooklaMobileGrid",
     params: { count: 3, kinds: ["select", "select", "slider"] },
@@ -8457,7 +8476,7 @@ export const LAYER_MANIFEST = {
       note: "Ookla Speedtest 使用者樣本聚合格網；非 coverage map；CC BY-NC-SA 4.0。2026-Q1 官方 z16 Parquet 聚合，產物為 --slim（整層常數在 FeatureCollection metadata／前端 OOKLA_GRID_META，不逐格重複）。",
     },
     dataClass: "B",
-    source: { kind: "pmtiles", sourceId: "ookla-fixed-global", url: "./geo/ookla_fixed_global_20260930.pmtiles", sourceLayer: "ookla", minzoom: 0, maxzoom: 6 },
+    source: { kind: "pmtiles", sourceId: "ookla-fixed-global", url: "./geo/ookla_fixed_global_20260930_t3.pmtiles", sourceLayer: "ookla", minzoom: 0, maxzoom: 6 },
     legend: "ooklaPerformanceGrid",
     popup: "ooklaFixedGrid",
     params: { count: 3, kinds: ["select", "select", "slider"] },

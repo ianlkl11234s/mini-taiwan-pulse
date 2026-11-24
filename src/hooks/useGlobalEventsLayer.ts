@@ -19,10 +19,10 @@ import { timeStore } from "../state/timeStore";
 import type { TimeMode } from "../types";
 import { useMapReadyTick } from "./useMapReadyTick";
 import { hookLineLayout, hookLineOpacity, hookLinePaint, hookLineWidth } from "../map/lineFillSpec";
-import { GLOBAL_EVENT_ICON_RADIUS, filterGlobalEvents, globalEventRelations, globalEventStoryLinks, layoutGlobalEventPoints, recentGlobalEventWindow, selectGlobalEventsOverview, type GlobalEventsView } from "../data/globalEventsPresentation";
+import { GLOBAL_EVENT_ICON_RADIUS, GLOBAL_EVENT_LABEL_MIN_ZOOM, GLOBAL_EVENT_STORY_LIST_MAX, filterGlobalEvents, globalEventShortLabel, globalEventRelations, globalEventStoryLinks, layoutGlobalEventPoints, recentGlobalEventWindow, selectGlobalEventsOverview, type GlobalEventsView } from "../data/globalEventsPresentation";
 import { globalEventsViewStore } from "../state/globalEventsViewStore";
 import { startThrottledRaf } from "../utils/throttledRaf";
-import { badgeLabelLayout, labelHaloPaint } from "../map/mapStyleScale";
+import { badgeLabelLayout, labelHaloPaint, poiLabelLayout } from "../map/mapStyleScale";
 
 const SOURCE_ID = "global-events-current";
 export const GLOBAL_EVENTS_LAYER_ID = "global-events-current-circle";
@@ -148,8 +148,18 @@ function ensureLayers(map: MapboxMap, isDarkTheme: boolean): void {
         "icon-allow-overlap": true,
         "icon-ignore-placement": true,
         "icon-padding": 0,
+        // 短標題：全球縮放不顯示，放大到區域尺度才出現；文字互相碰撞時自動隱藏，點永遠保留。
+        "text-field": ["step", ["zoom"], "", GLOBAL_EVENT_LABEL_MIN_ZOOM, ["get", "label_short"]],
+        "text-optional": true,
+        ...poiLabelLayout(),
+        "text-max-width": 9,
+        "text-anchor": "top",
+        "text-offset": [0, 1.1],
+        "text-font": ["DIN Pro Medium", "Arial Unicode MS Regular"],
       },
       paint: {
+        "text-color": isDarkTheme ? "#e2e8f0" : "#1e293b",
+        ...labelHaloPaint(isDarkTheme),
         "icon-color": GLOBAL_EVENT_CATEGORY_COLOR_EXPR,
         "icon-opacity": 0.9,
         "icon-halo-color": ["case", ["==", ["get", "research_status"], "ai_assessed"], "#e2e8f0", "#0f172a"],
@@ -228,6 +238,7 @@ export function useGlobalEventsLayer(
   minSeverity = 0,
   taiwanOnly = false,
   isDarkTheme = true,
+  showNoise = false,
 ) {
   const mapTick = useMapReadyTick(mapRef, visible);
   const allEventsRef = useRef<GlobalEventRecord[]>([]);
@@ -248,6 +259,9 @@ export function useGlobalEventsLayer(
   /** eventId → 可能同一件事的其他 eventId；feed() 每次重算，applyPaint 讀它做點選加亮。 */
   const storyNeighboursRef = useRef(new Map<string, Set<string>>());
   const expandedGroupsRef = useRef(new Set<string>());
+  /** 同一批事件只算一次「可能同一件事」（7 天全量約 0.7 秒）；展開群聚、pulse 轉場不重算。 */
+  const storyCacheRef = useRef<{ key: string; story: ReturnType<typeof globalEventStoryLinks> } | null>(null);
+  const fedFeaturesRef = useRef<Map<string, { properties: Record<string, unknown>; coords: [number, number] }>>(new Map());
   opacityRef.current = opacity;
   themeRef.current = isDarkTheme;
 
@@ -258,6 +272,11 @@ export function useGlobalEventsLayer(
     const related = selected && relationsRef.current ? [...(storyNeighboursRef.current.get(selected) ?? [])] : [];
     const isRelated = ["in", ["get", "event_id"], ["literal", related]];
     if (map.getLayer(GLOBAL_EVENTS_LAYER_ID)) {
+      const labelHalo = labelHaloPaint(themeRef.current);
+      map.setPaintProperty(GLOBAL_EVENTS_LAYER_ID, "text-color", themeRef.current ? "#e2e8f0" : "#1e293b");
+      map.setPaintProperty(GLOBAL_EVENTS_LAYER_ID, "text-halo-color", labelHalo["text-halo-color"]);
+      map.setPaintProperty(GLOBAL_EVENTS_LAYER_ID, "text-opacity", selected && related.length
+        ? ["case", ["any", ["==", ["get", "event_id"], selected], isRelated], safeOpacity, safeOpacity * 0.3] : safeOpacity);
       map.setPaintProperty(GLOBAL_EVENTS_LAYER_ID, "icon-opacity", selected && related.length
         ? ["case", ["any", ["==", ["get", "event_id"], selected], isRelated], safeOpacity, safeOpacity * 0.3] : safeOpacity);
       map.setPaintProperty(GLOBAL_EVENTS_LAYER_ID, "icon-halo-width", ["case", ["==", ["get", "event_id"], selected], 3, isRelated, 2.5, 1.5]);
@@ -348,14 +367,26 @@ export function useGlobalEventsLayer(
       displayedRowsRef.current = [...events];
       const layout = layoutGlobalEventPoints(events, expandedGroupsRef.current);
       const collection = layout.points;
-      const story = globalEventStoryLinks(events);
+      const storyKey = events.map((event) => `${event.eventId}@${event.versionId}`).join("|");
+      if (storyCacheRef.current?.key !== storyKey) storyCacheRef.current = { key: storyKey, story: globalEventStoryLinks(events) };
+      const story = storyCacheRef.current.story;
       storyNeighboursRef.current = story.neighbours;
+      const fed = new Map<string, { properties: Record<string, unknown>; coords: [number, number] }>();
       for (const feature of collection.features) {
         if (!feature.properties) continue;
         const eventId = String(feature.properties.event_id);
         feature.properties.transition_kind = transitions.get(eventId) ?? null;
-        feature.properties.story_link_count = story.neighbours.get(eventId)?.size ?? 0;
+        const related = story.related.get(eventId) ?? [];
+        feature.properties.story_link_count = related.length;
+        // popup 清單只帶前幾則（標題＋id），其餘寫「還有 N 則」；大型事件會有上百則。
+        feature.properties.story_links = JSON.stringify(related.slice(0, GLOBAL_EVENT_STORY_LIST_MAX).map((item) => ({ id: item.eventId, title: item.title })));
+        const entities = story.entityLinks.get(eventId);
+        feature.properties.entity_link_count = entities?.size ?? 0;
+        feature.properties.entity_names = JSON.stringify([...new Set([...(entities?.values() ?? [])].flat())].slice(0, 6));
+        feature.properties.label_short = globalEventShortLabel(String(feature.properties.title_zh_tw ?? ""));
+        if (feature.geometry.type === "Point") fed.set(eventId, { properties: feature.properties, coords: feature.geometry.coordinates as [number, number] });
       }
+      fedFeaturesRef.current = fed;
       const source = map.getSource(SOURCE_ID) as GeoJSONSource | undefined;
       source?.setData(collection);
       (map.getSource(CONNECTORS_SOURCE_ID) as GeoJSONSource | undefined)?.setData(layout.anchors);
@@ -375,7 +406,13 @@ export function useGlobalEventsLayer(
       const entries = selectGlobalSituationEntries(
         filterGlobalEvents(published, asOf, days, category, minSeverity, taiwanOnly),
         filterGlobalEvents(includeAI ? candidatesRef.current : [], asOf, days, category, minSeverity, taiwanOnly), asOf);
-      const events = entries.filter((entry): entry is GlobalEventPoint => entry.coordinates !== null && !entry.mapSuppressed);
+      const located = entries.filter((entry): entry is GlobalEventPoint => entry.coordinates !== null && !entry.mapSuppressed);
+      // 站主 11-23（D4）：地圖預設不畫 AI 判為雜訊的報導；INTEL 列表不受影響（它讀自己的 feed store）。
+      const events = showNoise ? located : located.filter((entry) => entry.decision !== "drop_noise");
+      const noiseHidden = new Set(located.filter((entry) => entry.decision === "drop_noise").map((entry) => entry.eventId)).size;
+      if (showNoise ? globalEventsViewStore.getSnapshot().noiseHidden !== 0 : globalEventsViewStore.getSnapshot().noiseHidden !== noiseHidden) {
+        globalEventsViewStore.set({ ...globalEventsViewStore.getSnapshot(), noiseHidden: showNoise ? 0 : noiseHidden });
+      }
       const listSignature = entries.map((entry) => `${entry.eventId}/${entry.versionId}/${entry.eventPlaceId}/${entry.mapSuppressed ?? false}`).sort().join("|");
       if (listSignature !== listSignatureRef.current) {
         listSignatureRef.current = listSignature;
@@ -425,7 +462,7 @@ export function useGlobalEventsLayer(
         signatureRef.current = "";
         listSignatureRef.current = "";
         feed([]);
-        globalEventsViewStore.set({ entries: [], status: "loading", message: null,
+        globalEventsViewStore.set({ entries: [], status: "loading", message: null, noiseHidden: 0,
           windowLabel: view === "recent7d" || current ? `最近 ${days} 天` : `跟隨時間軸・過去 ${days} 天` });
       } else {
         // 同一個 window 的背景刷新（例如 recent7d 每 5 分鐘 interval）：保留舊
@@ -512,6 +549,7 @@ export function useGlobalEventsLayer(
       map.easeTo({ center: point.coordinates, duration: prefersReducedMotion() ? 0 : 500 });
       feed(displayedRowsRef.current);
     });
+    globalEventsViewStore.setFeatureLookup((eventId) => fedFeaturesRef.current.get(eventId) ?? null);
 
     let refreshTimer: ReturnType<typeof setInterval> | undefined;
     if (view === "recent7d") {
@@ -538,13 +576,14 @@ export function useGlobalEventsLayer(
       map.off("click", onClick);
       clearInterval(refreshTimer);
       globalEventsViewStore.setSelectHandler(null);
+      globalEventsViewStore.setFeatureLookup(null);
       // 圖層關閉／unmount：清空共用 store，避免 IntelPanel 之後重新開啟時
       // 先閃一下上一輪的殘留 entries／status。
-      globalEventsViewStore.set({ entries: [], status: "idle", message: null, windowLabel: "最近七天" });
+      globalEventsViewStore.set({ entries: [], status: "idle", message: null, windowLabel: "最近七天", noiseHidden: 0 });
       stopPulse(map);
       setLayerVisibility(map, false);
     };
-  }, [mapRef, mapTick, startPulse, stopPulse, timeMode, view, visible, applyPaint, includeAI, days, category, minSeverity, taiwanOnly]);
+  }, [mapRef, mapTick, startPulse, stopPulse, timeMode, view, visible, applyPaint, includeAI, days, category, minSeverity, taiwanOnly, showNoise]);
 
   useEffect(() => {
     const map = mapRef.current;
