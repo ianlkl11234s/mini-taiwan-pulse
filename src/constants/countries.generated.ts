@@ -1,12 +1,12 @@
 // ⚠️ 自動產生，請勿手改：PULSE_DATA_ROOT=<pulse-data> npx tsx scripts/countries/gen-countries.ts
 // 正本：pulse-data countries/countries.json（網站與 MCP 共用；陣列順序是語意，判國先比國家順序、再比框順序）
-// source-sha256: b5a1dfe057ff97adf0f786405163044cda34ee4c6e592d9e83ef64cbd71a12e9
-// payload-sha256: fd5a6fe58f63488c0faecefbda8d948fa70d09b79935a326be57600c2c312d68
+// source-sha256: bb1440faed3e8734cd36f9477ec53d7d1f1b250d16d3fe97bb999f4775cd32b2
+// payload-sha256: fb5b673d7c586f5474fbe4bc92c5c103f711b5701baccb354b749beaef4847c6
 
-export type CountryCode = "TW" | "JP" | "FR" | "GB" | "KR" | "CA" | "IE" | "PH" | "VN" | "TH" | "CN";
+export type CountryCode = "TW" | "JP" | "FR" | "GB" | "KR" | "CA" | "IE" | "PH" | "VN" | "TH" | "ID" | "CN";
 
 /** 國名 i18n 鍵（common.json 的 country.*）；寫成字面值，i18n 的「沒人用的 key」檢查才找得到。 */
-export const COUNTRY_LABEL_KEYS = { TW: "country.TW", JP: "country.JP", FR: "country.FR", GB: "country.GB", KR: "country.KR", CA: "country.CA", IE: "country.IE", PH: "country.PH", VN: "country.VN", TH: "country.TH", CN: "country.CN" } as const;
+export const COUNTRY_LABEL_KEYS = { TW: "country.TW", JP: "country.JP", FR: "country.FR", GB: "country.GB", KR: "country.KR", CA: "country.CA", IE: "country.IE", PH: "country.PH", VN: "country.VN", TH: "country.TH", ID: "country.ID", CN: "country.CN" } as const;
 
 export interface GeneratedCountry {
   code: CountryCode;
@@ -273,6 +273,41 @@ export const GENERATED_COUNTRIES: readonly GeneratedCountry[] =
       [104.6,16.9,104.8,17.6],
       [98.6,9.6,98.75,10.4],
       [99.8,20.25,100,20.44]
+    ]
+  },
+  {
+    "code": "ID",
+    "chip": "ID",
+    "timeZone": "Asia/Jakarta",
+    "timeZones": ["Asia/Jakarta","Asia/Makassar","Asia/Jayapura"],
+    "camera": {"center":[118,-2.5],"zoom":4.2,"pitch":0,"bearing":0},
+    "bboxes": [
+      [95,2.6,98.9,6.2],
+      [96.9,0,101.7,2.6],
+      [101.7,0.5,102.9,1.9],
+      [97.9,-6.2,106.2,0.5],
+      [103.3,0.5,104.8,1.15],
+      [105.5,2.5,109,4.8],
+      [105,-3.6,108.8,-1],
+      [108.8,-3.1,110,1.4],
+      [109.55,1.4,109.7,2.1],
+      [110,-4.2,114.2,1],
+      [114.2,-4.2,119.1,1.9],
+      [115.7,1.9,117.8,4.2],
+      [105,-8.9,114.4,-5.8],
+      [114.4,-10.5,123.3,-8],
+      [123.3,-10.6,125,-8],
+      [125.9,-8.4,127,-7.5],
+      [127,-8.5,128.5,-7.4],
+      [118.8,-7.2,125.4,1.3],
+      [123,0.8,125.4,1.9],
+      [124.9,1.9,126,3.9],
+      [126.5,3.6,127,4.3],
+      [125.3,4.6,125.6,4.9],
+      [126.5,5.4,126.7,5.6],
+      [125.2,-3,129.2,2.5],
+      [125.8,-5.5,131,-2],
+      [130,-9.2,141,0.5]
     ]
   },
   {
