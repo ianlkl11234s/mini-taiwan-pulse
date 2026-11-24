@@ -124,6 +124,31 @@ describe("國家包沒載入時", () => {
     expect(offending).toEqual([]);
   });
 
+  it("一個國家包都不載：靜態登記簿每個圖層的設定、來源、popup、圖例，和全部載入時一樣找得到（固定驗收）", async () => {
+    // 抓「台灣（或留在靜態的外國圖層）其實靠某國家包才有登記」：全部載入後的比對看不出這種依賴
+    const r = await freshRegistries();
+    const { PANEL_REGISTRY } = await import("../../components/featureInfo/registry");
+    const { LAYER_SOURCE_INFO_DATA } = await import("../../data/layerSourceInfo.data");
+    const staticEntries = Object.entries(r.manifest as Record<string, { popup?: string | readonly string[] | null; legend?: string | null }>);
+    const misses = () => {
+      const legends = new Set(r.legends.map((e) => e.id));
+      const out = new Set<string>();
+      for (const [key, entry] of staticEntries) {
+        if (!(key in r.params)) out.add(`${key} 設定規格`);
+        if (!(key in LAYER_SOURCE_INFO_DATA)) out.add(`${key} 來源說明`);
+        const popups = entry.popup === undefined ? [key] : entry.popup === null ? [] : typeof entry.popup === "string" ? [entry.popup] : entry.popup;
+        for (const t of popups) if (!(t in PANEL_REGISTRY)) out.add(`${key} popup ${t}`);
+        const legend = entry.legend === undefined ? key : entry.legend;
+        if (legend !== null && !legends.has(legend)) out.add(`${key} 圖例 ${legend}`);
+      }
+      return out;
+    };
+    const withoutPacks = misses();
+    await r.packs.loadAllPacks();
+    const withPacks = misses();
+    expect([...withoutPacks].filter((m) => !withPacks.has(m))).toEqual([]);
+  }, 120_000);
+
   it("嵌入頁的白名單沒有搬進國家包的圖層（embed 不載國家包；之後若要放行，要先在 embed 接 ensureCountryPack）", async () => {
     const { EMBED_ALLOWED } = await import("../../embed/embedWhitelist");
     const { LAYER_MANIFEST } = await import("../../data/layerManifest");
