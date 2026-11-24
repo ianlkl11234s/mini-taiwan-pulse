@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { JP_TOURISM_DATASETS } from "../jpTourismLoader";
+import { JP_TOURISM_DATASETS } from "../../countries/jp/jpTourismLoader";
 import {
   JP_ACCOMMODATION_CATEGORY_COLOR_EXPRESSION,
   JP_ACCOMMODATION_DENSITY_ATTRIBUTION,
@@ -9,6 +9,10 @@ import { OVERLAY_REGISTRY } from "../../map/overlayRegistry";
 import { isOverlayVisible } from "../../map/overlayManager";
 import { GIS_LAYERS } from "../../map/gisClickRegistry";
 import type { LayerVisibility } from "../../types";
+import { loadAllPacks } from "../../countries/packs";
+
+// 全部圖層（含延後載入的國家包，B1 P5）一起驗
+await loadAllPacks();
 
 describe("Japan tourism delivery policy", () => {
   it("ships only licence-cleared datasets to production", () => {

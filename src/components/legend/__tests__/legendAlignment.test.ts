@@ -7,6 +7,10 @@ import { legendKeys } from "../../../data/legendGroups";
 import { encodeParamsToOverlay, layerParamsStore } from "../../../state/layerParamsStore";
 import { localeStore } from "../../../state/localeStore";
 import type { LayerVisibility } from "../../../types";
+import { loadAllPacks } from "../../../countries/packs";
+
+// 全部圖層（含延後載入的國家包，B1 P5）一起驗
+await loadAllPacks();
 
 const params = encodeParamsToOverlay(layerParamsStore.getAll());
 const themeIds = ["companyCapitalGrid", "ecoNetworkZones", "forestCompartments", "industrialParkBoundaries", "industrialParkComparison", "jpAccommodationDensity", "medHospital", "newsEvents", "ooklaPerformanceGrid", "realEstateRentalGrid", "schools", "waterCanals"];

@@ -2,7 +2,8 @@ import { describe, expect, it } from "vitest";
 import { GATED_LAYERS, RELEASE_HOLD_LAYERS } from "../../components/sidebar/layerCatalog";
 import { EMBED_ALLOWED } from "../../embed/embedWhitelist";
 import { parseUrlState, URL_STATE_VERSION } from "../../lib/urlState";
-import { LAYER_MANIFEST } from "../layerManifest";
+// 日本已搬成國家包（B1 P5b）：直接讀包裡的 manifest
+import { JP_PACK_MANIFEST as LAYER_MANIFEST } from "../../countries/jp/manifest";
 import { JP_WATER_PRIVATE_LAYER_KEYS } from "../jpWaterTypes";
 
 // 2026-09-29 站主決定：日本水資源全國 8 層走站主限定（同土壤液化／BSS 橋梁），

@@ -78,6 +78,10 @@ export function krRampColors(spec: Pick<KrLayerSpec, "ramp">, isDark: boolean): 
 // 分類多選 filter（V-4）
 /** 多選「其他」選項的固定 id（圖例有「其他」列的層才有）。 */
 export const KR_CAT_OTHER_ID = "other";
+
+/** 規格的多選選項 id（宣告順序；有 `otherLabel` 者最後加「其他」）。參數規格（中央）與南韓／愛爾蘭國家包共用。 */
+export const krCatOptionIds = (spec: Pick<KrLayerSpec, "cats" | "otherLabel">): string[] =>
+  spec.cats ? [...spec.cats.map((c) => c.id), ...(spec.otherLabel ? [KR_CAT_OTHER_ID] : [])] : [];
 export interface KrFilterGroup { id: string; values: readonly string[] }
 
 /**

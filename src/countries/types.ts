@@ -26,6 +26,7 @@ export type PackRecordName =
   | "layerSpecNotes"
   | "featurePanels"
   | "featureHeaderLabels"
-  | "atlasFamilies";
+  | "atlasFamilies"
+  | "layerStyleIds";
 
-export type PackListName = "layerHosts" | "gisClickLayers" | "legends";
+export type PackListName = "layerHosts" | "gisClickLayers" | "legends" | "overlays";

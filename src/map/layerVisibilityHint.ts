@@ -13,7 +13,7 @@
  * 純函式與 React 分開（`hooks/useLayerVisibilityHint.ts` 接線），單元測試直接打這些函式。
  */
 import { LAYER_MANIFEST, type LayerSource } from "../data/layerManifest";
-import { KR_DATA_SPECS } from "../data/krDataLayers";
+import { extensibleRecord, onRecordExtended } from "../countries/slots";
 import { COVERAGE_AREAS, layerCoverage, type CoverageAreaId, type CoverageBbox } from "../data/layerCoverage";
 import { GIS_LAYERS } from "./gisClickRegistry";
 import { registryStyleLayerIds } from "../research/visibleSummary";
@@ -35,6 +35,12 @@ type ManifestLike = { source?: LayerSource | LayerSource[]; popup?: string | str
 
 const seedCache = new Map<string, HintSeeds>();
 
+/** 規格層自建的 style layer id（key → id）：由國家包登記（南韓規格層，B1 P5b） */
+const LAYER_STYLE_IDS = extensibleRecord<Record<string, readonly string[]>>("layerStyleIds", {});
+// 國家包晚到：manifest、style id 都可能變，種子重算
+onRecordExtended("layerStyleIds", () => seedCache.clear());
+onRecordExtended("layerManifest", () => seedCache.clear());
+
 /**
  * 一個圖層 key 擁有的 style layer id 與 source id（靜態可知的部分）：
  * overlay registry 的 `${sourceId}-${suffix}`、南韓資料層 `layerId`、manifest `popup` 反查點擊登記簿、
@@ -44,7 +50,7 @@ export function layerHintSeeds(key: string): HintSeeds {
   const cached = seedCache.get(key);
   if (cached) return cached;
   const ids = new Set<string>(registryStyleLayerIds(key) ?? []);
-  for (const spec of KR_DATA_SPECS) if (spec.key === key) ids.add(spec.layerId);
+  for (const id of LAYER_STYLE_IDS[key] ?? []) ids.add(id);
   const entry = (LAYER_MANIFEST as Record<string, ManifestLike | undefined>)[key];
   const popups = entry?.popup == null ? [] : Array.isArray(entry.popup) ? entry.popup : [entry.popup];
   // 統計圖層共用同一個 renderer（popup "regionalStatistic"），反查會把所有統計層混在一起，不用

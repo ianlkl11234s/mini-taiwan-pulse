@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { shardsInView, type PmtilesShard } from "../useViewportPmtilesShards";
-import { KR_ECO_CLICK_LAYER_IDS, KR_ECO_CODES, krEcoGrade, krWasteDaysState } from "../../data/krEcoWasteTypes";
+import { KR_ECO_CLICK_LAYER_IDS, KR_ECO_CODES, krEcoGrade, krWasteDaysState } from "../../countries/kr/krEcoWasteTypes";
 import { GIS_LAYERS } from "../../map/gisClickRegistry";
+import { loadAllPacks } from "../../countries/packs";
+
+// 全部圖層（含延後載入的國家包，B1 P5）一起驗
+await loadAllPacks();
 
 const shards: PmtilesShard[] = [
   { id: "11", file: "kr_eco_nature_11.pmtiles", bbox: [126.77, 37.43, 127.18, 37.7] },

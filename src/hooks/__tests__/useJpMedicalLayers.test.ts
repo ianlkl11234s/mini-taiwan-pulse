@@ -49,7 +49,12 @@ vi.mock("../../data/jpMedicalLoader", () => ({
   jpMedicalLayerAsset: vi.fn(async () => ({ url: "http://assets/points.pmtiles", asset: { source_layer: "points", minimum_point_zoom: 0 } })),
   fetchJpMedicalAggregate: vi.fn(async () => aggregate),
 }));
-import { useJpMedicalLayers } from "../useJpMedicalLayers";
+import { useJpMedicalLayers } from "../../countries/jp/useJpMedicalLayers";
+import { extendRecord } from "../../countries/slots";
+import { JP_PACK_PARAMS } from "../../countries/jp/params";
+
+// 日本已搬成國家包（B1 P5b）：只登記參數規格（這檔 mock 了 react，不能載入整包）
+extendRecord("layerParamsSpec", JP_PACK_PARAMS);
 
 function mapAt(zoom: number) {
   const sources = new Map<string, { data?: unknown; setData: ReturnType<typeof vi.fn> }>();

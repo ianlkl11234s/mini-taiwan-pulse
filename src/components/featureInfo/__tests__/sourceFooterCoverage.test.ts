@@ -5,6 +5,10 @@ import { FeatureInfoPanel } from "../../FeatureInfoPanel";
 import { HEADER_LABELS } from "../registry";
 import type { FeatureInfo } from "../../../types";
 import baseline from "./sourceFooterPendingBaseline.json";
+import { loadAllPacks } from "../../../countries/packs";
+
+// 全部圖層（含延後載入的國家包，B1 P5）一起驗
+await loadAllPacks();
 
 /**
  * popup 來源列 ratchet：每個 layerType 以「空屬性」渲染 FeatureInfoPanel，

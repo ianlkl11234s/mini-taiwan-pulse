@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { GIS_LAYERS } from "../gisClickRegistry";
 import { OVERLAY_REGISTRY } from "../overlayRegistry";
+import { loadAllPacks } from "../../countries/packs";
+
+// 全部圖層（含延後載入的國家包，B1 P5）一起驗
+await loadAllPacks();
 
 const LABEL_MINZOOM: Record<string, number> = {
   publicWasteBaskets: 15,

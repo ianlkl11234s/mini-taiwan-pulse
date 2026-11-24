@@ -9,6 +9,10 @@ import {
 import { waterEffluentStatus } from "../environmentLiveLoaders";
 import { LAYER_MANIFEST } from "../layerManifest";
 import { OVERLAY_REGISTRY } from "../../map/overlayRegistry";
+import { loadAllPacks } from "../../countries/packs";
+
+// 全部圖層（含延後載入的國家包，B1 P5）一起驗
+await loadAllPacks();
 
 type Collection = { features: Array<{ properties: Record<string, unknown>; geometry: { type: string } }> };
 const read = (name: string) => JSON.parse(readFileSync(resolve("public/environment", name), "utf8")) as Collection;

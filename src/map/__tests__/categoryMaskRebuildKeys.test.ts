@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { OVERLAY_REGISTRY } from "../overlayRegistry";
 import { CATEGORY_FILTERS, categoryDefs, categoryMaskKey } from "../../data/categoryFilters";
+import { loadAllPacks } from "../../countries/packs";
+
+// 全部圖層（含延後載入的國家包，B1 P5）一起驗
+await loadAllPacks();
 
 /** Codex review K6：有明列 rebuildOnParamKeys 的圖層，類別多選的 mask 也要在清單內（否則只改類別不會重建 filter） */
 describe("類別多選 mask 併入 rebuildOnParamKeys", () => {

@@ -1,7 +1,7 @@
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import { JpWaterPanel } from "../japanPanels";
+import { JpWaterPanel } from "../../../countries/jp/japanPanels";
 
 describe("JpWaterPanel", () => {
   it("shows a name-derived supply category without overstating the source", () => {

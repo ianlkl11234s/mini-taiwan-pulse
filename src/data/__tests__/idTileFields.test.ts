@@ -5,8 +5,8 @@
  */
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { ID_DATA_SPECS } from "../idDataLayers";
-import { ID_RASTER_SPECS } from "../idWavesLayers";
+import { ID_DATA_SPECS } from "../../countries/id/idDataLayers";
+import { ID_RASTER_SPECS } from "../../countries/id/idWavesLayers";
 
 interface TileLayer { minzoom: number; maxzoom: number; fields: string[]; values: Record<string, (string | number)[]> }
 const FIXTURE = JSON.parse(readFileSync(new URL("./__fixtures__/id-tile-fields.json", import.meta.url), "utf8")) as Record<string, Record<string, TileLayer>>;

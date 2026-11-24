@@ -37,6 +37,7 @@ describe("layerIndex（外國圖層索引）", () => {
   });
 
   it("每一列與 manifest 對應欄位一致", () => {
+    const icons = layerIconTable();
     for (const [key, e] of foreign) {
       const row = layerIndexRow(key)!;
       const x = e as LayerManifestEntry & { dataTimeZone?: string; longTerm?: { kind: string } };
@@ -44,7 +45,7 @@ describe("layerIndex（外國圖層索引）", () => {
       expect(row.name, key).toEqual(e.name);
       expect(row.section, key).toEqual(e.section);
       expect(row.color, key).toBe(e.color);
-      expect(layerIconTable()[key as never], key).toBe(e.icon);
+      expect(icons[key as never], key).toBe(e.icon);
       expect(!!row.gated, key).toBe(e.topics.includes("OWNER_ONLY"));
       expect(!!row.expandable, key).toBe(!!e.expandable);
       expect(indexPopup(key), key).toEqual(e.popup);

@@ -2,7 +2,11 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { layerNotesZh } from "./layerNotesText";
-import { JpBusStopsPanel, JpEvacuationSitesPanel, JpInlandFloodAreasPanel, JpLandslideWarningAreasPanel, JpNationalForestsPanel, JpPublicOfficesPanel, JpZoningUseDistrictsPanel } from "../japanPanels";
+import { JpBusStopsPanel, JpEvacuationSitesPanel, JpInlandFloodAreasPanel, JpLandslideWarningAreasPanel, JpNationalForestsPanel, JpPublicOfficesPanel, JpZoningUseDistrictsPanel } from "../../../countries/jp/japanPanels";
+import { loadAllPacks } from "../../../countries/packs";
+
+// 全部圖層（含延後載入的國家包，B1 P5）一起驗
+await loadAllPacks();
 
 describe("日本第一波 popup 資料語意", () => {
   it("避難場所：緊急避難場所列出適用災害，並保留法定意義與資料時效警語", () => {

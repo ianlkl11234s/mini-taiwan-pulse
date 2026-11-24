@@ -13,6 +13,10 @@ import { existsSync, openSync, readFileSync, readSync, statSync } from "node:fs"
 import { createHash } from "node:crypto";
 import { PMTiles, type Source, type RangeResponse } from "pmtiles";
 import { OVERLAY_REGISTRY } from "../overlayRegistry";
+import { loadAllPacks } from "../../countries/packs";
+
+// 全部圖層（含延後載入的國家包，B1 P5）一起驗
+await loadAllPacks();
 
 /** pmtiles 套件的 Source 介面 node 版（套件只內建 fetch 版） */
 class NodeFileSource implements Source {

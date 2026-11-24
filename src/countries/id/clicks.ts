@@ -1,0 +1,60 @@
+// 印尼國家包：clicks.ts（B1 P5a；由 scripts/layers/move-country-pack.ts 從中央登記簿搬來，之後就在這裡維護）。
+// ⚠️ 只能經 src/countries/packs.ts 的 ensureCountryPack 動態載入，不可從國家目錄以外靜態 import（lint 擋）。
+import type { GisLayerEntry } from "../../map/gisClickRegistry";
+
+/** 插槽序號 → 條目；序號對應中央陣列裡的 countrySlot("ID", n)。 */
+export const ID_PACK_CLICK_SLOTS: Readonly<Record<number, readonly GisLayerEntry[]>> = {
+  1: [
+  // 印尼第 5–9 波（2026-11-24）
+  { layers: ["id-schools-circle"], type: "idSchools" },
+  { layers: ["id-health-circle"], type: "idHealthFacilities" },
+  { layers: ["id-fire-circle"], type: "idFireStations" },
+  { layers: ["id-police-circle"], type: "idPoliceStations" },
+  { layers: ["id-prisons-circle"], type: "idPrisonsCourts" },
+  { layers: ["id-immigration-circle"], type: "idImmigrationOffices" },
+  { layers: ["id-tj-stops-circle", "id-tj-routes-line"], type: "idTransjakarta" },
+  { layers: ["id-post-circle"], type: "idPostOffices" },
+  { layers: ["id-markets-circle"], type: "idMarkets" },
+  { layers: ["id-banks-bank-circle", "id-banks-atm-circle"], type: "idBanks" },
+  { layers: ["id-cultural-circle"], type: "idCulturalFacilities" },
+  { layers: ["id-heritage-circle"], type: "idHeritageSites" },
+  { layers: ["id-comm-towers-circle"], type: "idCommTowers" },
+  { layers: ["id-worship-circle"], type: "idPlacesOfWorship" },
+  { layers: ["id-experiences-circle"], type: "idExperiences" },
+  { layers: ["id-accommodation-circle"], type: "idAccommodation" },
+  { layers: ["id-weather-circle"], type: "idWeatherStations" },
+  { layers: ["id-factories-circle"], type: "idFactories" },
+  { layers: ["id-veterinary-circle"], type: "idVeterinary" },
+  // 印尼（2026-11-23 第 0–4 波）：點、線在前，面（人口、IDM、行政界）最後
+  { layers: ["id-stations-circle"], type: "idStations" },
+  { layers: ["id-rail-lines-line"], type: "idRailLines" },
+  { layers: ["id-hubs-circle"], type: "idTransportHubs" },
+  { layers: ["id-power-plants-circle", "id-power-plants-fill"], type: "idPowerPlants" },
+  { layers: ["id-power-substations-circle", "id-power-lines-line", "id-power-substations-fill"], type: "idPowerGrid" },
+  { layers: ["id-renewables-circle", "id-renewables-fill", "id-solar-potential-fill"], type: "idRenewables" },
+  { layers: ["id-fuel-stations-circle"], type: "idFuelStations" },
+  { layers: ["id-place-names-circle"], type: "idPlaceNames" },
+  { layers: ["id-outer-islands-circle"], type: "idOuterIslands" },
+  { layers: ["id-faults-pvmbg-line", "id-faults-pusgen-line"], type: "idFaults" },
+  { layers: ["id-mountain-rescue-circle"], type: "idMountainRescue" },
+  { layers: ["id-dibi-fill"], type: "idDibiHydromet" },
+  { layers: ["id-bridges-circle"], type: "idBridges" },
+  { layers: ["id-water-facilities-circle"], type: "idWaterFacilities" },
+  { layers: ["id-watersheds-fill"], type: "idWatersheds" },
+  { layers: ["id-subsidence-circle"], type: "idSubsidence" },
+  { layers: ["id-nature-spots-circle"], type: "idNatureSpots" },
+  { layers: ["id-forest-fill"], type: "idConservationForest" },
+  { layers: ["id-camps-circle"], type: "idCamps" },
+  { layers: ["id-farmland-fill"], type: "idFarmland" },
+  { layers: ["id-aquaculture-fill"], type: "idAquaculture" },
+  { layers: ["id-cemeteries-fill"], type: "idCemeteries" },
+  { layers: ["id-parks-fill"], type: "idParks" },
+  { layers: ["id-sports-fill"], type: "idSportsVenues" },
+  { layers: ["id-ikn-bwp-fill", "id-ikn-utara-fill", "id-ikn-rdtr-fill", "id-ikn-delineasi-fill"], type: "idIkn" },
+  { layers: ["id-kek-fill"], type: "idSpecialEconomicZones" },
+  { layers: ["id-rural-kabkota-fill", "id-rural-province-fill"], type: "idRuralDevelopment" },
+  { layers: ["id-population-kabkota-fill", "id-population-province-fill"], type: "idPopulation" },
+  { layers: ["id-admin-kabkota-fill", "id-admin-province-fill", "id-admin-country-fill"], type: "idAdminBoundaries" },
+  ],
+  // <codemod:append ID_PACK_CLICK_SLOTS>
+};

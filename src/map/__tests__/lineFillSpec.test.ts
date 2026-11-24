@@ -5,6 +5,10 @@ import { valueAtZ14 } from "../lineFillSpec";
 import { FILL_DARK_OPACITY_OVERRIDE, FILL_TIERS, LINE_TIERS } from "../lineFillTiers";
 import { FILL_OPACITY, FILL_OPACITY_DARK, LINE_OPACITY, LINE_WIDTH } from "../mapStyleScale";
 import { encodeKeyOverlay } from "../../layers/layerParamsAccess";
+import { loadAllPacks } from "../../countries/packs";
+
+// 全部圖層（含延後載入的國家包，B1 P5）一起驗
+await loadAllPacks();
 
 const defaults = (key: string) => encodeKeyOverlay(key, {});
 const isMain = (suffix: string) => !DECORATION_SUFFIX_RE.test(suffix);

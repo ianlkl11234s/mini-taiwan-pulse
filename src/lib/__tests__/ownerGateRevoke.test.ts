@@ -5,6 +5,10 @@ import {
 } from "../ownerGateRevoke";
 import { GATED_LAYERS } from "../../components/sidebar/layerCatalog";
 import { OVERLAY_REGISTRY } from "../../map/overlayRegistry";
+import { loadAllPacks } from "../../countries/packs";
+
+// 全部圖層（含延後載入的國家包，B1 P5）一起驗
+await loadAllPacks();
 
 // review F088：登出／失去站主權限時，已開的站主限定圖層要關掉、快取與 Mapbox source 資料要清掉。
 afterEach(() => resetOwnerGateHandlersForTest());

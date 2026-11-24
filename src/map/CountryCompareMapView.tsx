@@ -17,7 +17,7 @@
  *   microtask，讓右國 hook 的 cleanup 先拿到仍存活的地圖（不必逐支補 try/catch）。
  * - Agent（MCP）：map_context 另給 `compare.right`（右圖鏡頭、範圍、摘要），指令可帶 `side: "right"` 移動右圖、在右圖畫結果（G2-3，`research/compareBridge.ts`）。
  */
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import mapboxgl from "mapbox-gl";
 import type { FeatureInfo } from "../types";
 import { resolvedCjkFont } from "../styles/designTokens";
@@ -40,7 +40,8 @@ import { rightClock, SideClockContext } from "../state/sideClock";
 import { useOverlayParams } from "../layers/layerParamsAccess";
 import { OVERLAY_REGISTRY } from "./overlayRegistry";
 import { isRightSideKey } from "./compareCountrySides";
-import { addAllOverlays, hydrateOverlayIfNeeded, isOverlayVisible, refreshFallbackHydratedOverlay, resetOverlayHydration, setOverlayTaskSuffix, setOverlayVisible, updateAllOverlayThemes } from "./overlayManager";
+import { useCountryPackVersion } from "../countries/packs";
+import { addAllOverlays, addLateOverlays, hydrateOverlayIfNeeded, isOverlayVisible, refreshFallbackHydratedOverlay, resetOverlayHydration, setOverlayTaskSuffix, setOverlayVisible, updateAllOverlayThemes } from "./overlayManager";
 import { createJpHeightLifecycle } from "./jpHeightLifecycle";
 import { onLayerAssetIndexReady } from "../data/layerAssetIndex";
 import type { AppLayerHostDeps } from "../layers/layerHostDeps";
@@ -90,11 +91,19 @@ export function CountryCompareMapView({ mainMap, rightCountry, styleUrl, pureBla
   const hiddenLabelsRef = useRef(new Set<string>());
   const onFeatureInfoRef = useRef(onFeatureInfo);
   const loadingLabelRef = useRef(t("compare.rightMapLoading"));
-  // overlay 型右國圖層（右圖只管右國那幾筆；換右國由 key 重建，掛載時算一次即可）
+  // overlay 型右國圖層（右圖只管右國那幾筆；換右國由 key 重建）。右國的國家包可能在右圖建好後才載入（B1 P5b），
+  // 所以跟著國家包版本重算，新到的由下面的 effect 補進圖上
   const overlayParams = useOverlayParams();
   const overlayParamsRef = useRef(overlayParams);
   overlayParamsRef.current = overlayParams;
-  const [rightOverlays] = useState(() => OVERLAY_REGISTRY.filter((config) => isRightSideKey(String(config.id), rightCountry)));
+  const packVersion = useCountryPackVersion();
+  const rightOverlays = useMemo(
+    () => OVERLAY_REGISTRY.filter((config) => isRightSideKey(String(config.id), rightCountry)),
+    // packVersion：國家包併入 registry（原地 splice）後重算
+    [rightCountry, packVersion],
+  );
+  const rightOverlaysRef = useRef(rightOverlays);
+  rightOverlaysRef.current = rightOverlays;
   const jpHeightRef = useRef<ReturnType<typeof createJpHeightLifecycle> | null>(null);
   isDarkRef.current = isDarkTheme;
   pureBlackRef.current = pureBlack;
@@ -135,6 +144,7 @@ export function CountryCompareMapView({ mainMap, rightCountry, styleUrl, pureBla
       setBasemapLabelsVisible(map, labelsRef.current, hiddenLabelsRef.current);
       ensureTerrainIfTilted(map);
       // 右國 overlay：每次 style.load（含換底圖）重建 source／layer，這張圖的 hydrate 紀錄清掉重抓
+      const rightOverlays = rightOverlaysRef.current;
       if (rightOverlays.length === 0) return;
       resetOverlayHydration(map);
       const vis = layerVisibilityStore.getAll();
@@ -147,7 +157,7 @@ export function CountryCompareMapView({ mainMap, rightCountry, styleUrl, pureBla
     // 資產索引就緒：先前以部署時版本 hydrate 的改抓 CDN（同主地圖）
     const offAssetIndex = onLayerAssetIndexReady(() => {
       const vis = layerVisibilityStore.getAll();
-      for (const config of rightOverlays) {
+      for (const config of rightOverlaysRef.current) {
         if (!config.pmtiles && !config.dynamicData) refreshFallbackHydratedOverlay(map, config, isOverlayVisible(config, vis, overlayParamsRef.current));
       }
     });
@@ -253,6 +263,19 @@ export function CountryCompareMapView({ mainMap, rightCountry, styleUrl, pureBla
       map.setStyle(styleUrl, { diff: false } as never);
     }
   }, [styleUrl, pureBlack, ready]);
+
+  // 右國國家包晚到的 overlay：右圖已就緒就照 registry 順序補建（已在圖上的略過）
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !ready || rightOverlays.length === 0) return;
+    const vis = layerVisibilityStore.getAll();
+    try {
+      addLateOverlays(map, rightOverlays, rightOverlays, isDarkRef.current, vis, overlayParamsRef.current, { deferJpHeightSources: true });
+      jpHeightRef.current?.refresh(rightOverlays, vis, isDarkRef.current, overlayParamsRef.current);
+    } catch (error) {
+      console.warn("[overlay] 右圖國家包 overlay 補建失敗（換底圖途中會由 style.load 補上）", error);
+    }
+  }, [ready, rightOverlays]);
 
   // 右國 overlay 開關：跟著圖層開關 store（同主地圖 applyOverlayVisibility，只管右國那幾筆）
   useEffect(() => {

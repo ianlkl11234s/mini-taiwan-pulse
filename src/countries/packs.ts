@@ -20,15 +20,23 @@ import type { CountryPack, PackListName, PackRecordName } from "./types";
 const PACK_LOADERS: Partial<Record<CountryCode, () => Promise<{ default: CountryPack }>>> = {
   CN: () => import("./cn/pack"),
   GB: () => import("./gb/pack"),
+  IE: () => import("./ie/pack"),
+  KR: () => import("./kr/pack"),
+  CA: () => import("./ca/pack"),
+  TH: () => import("./th/pack"),
+  PH: () => import("./ph/pack"),
+  VN: () => import("./vn/pack"),
+  ID: () => import("./id/pack"),
+  JP: () => import("./jp/pack"),
   // <codemod:pack-loaders>
 };
 
 /** 註冊順序：manifest 先（其他登記簿的訂閱者會讀它），有序登記簿最後（Host 掛上時規格都已就緒）。 */
 const RECORD_ORDER: readonly PackRecordName[] = [
   "layerManifest", "layerParamsSpec", "layerSourceInfo", "layerNotes", "layerSpecNotes",
-  "featurePanels", "featureHeaderLabels", "atlasFamilies",
+  "featurePanels", "featureHeaderLabels", "atlasFamilies", "layerStyleIds",
 ];
-const LIST_ORDER: readonly PackListName[] = ["legends", "gisClickLayers", "layerHosts"];
+const LIST_ORDER: readonly PackListName[] = ["legends", "gisClickLayers", "overlays", "layerHosts"];
 
 export type PackStatus = "none" | "idle" | "loading" | "ready" | "error";
 

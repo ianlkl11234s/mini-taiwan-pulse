@@ -24,6 +24,10 @@ export function countrySlot(country: string, n: number): CountrySlot {
   return { [SLOT_MARK]: `${country}:${n}` };
 }
 
+export function isCountrySlot(value: unknown): value is CountrySlot {
+  return isSlot(value);
+}
+
 function isSlot(value: unknown): value is CountrySlot {
   return typeof value === "object" && value !== null && SLOT_MARK in value;
 }
@@ -40,6 +44,25 @@ interface ListState {
   items: unknown[];
   slots: Map<string, SlotPos>;
   onFill?: (items: unknown[]) => void;
+  transform?: (items: unknown[]) => unknown[];
+}
+
+/** 有序登記簿的建立選項 */
+export interface SlottedListOptions<T> {
+  /** 插槽內容插入前先轉換（例：overlay 要經過和靜態條目同一串包裝函式；可一筆變多筆） */
+  transform?: (items: T[]) => T[];
+  /** 直接填進這個既有陣列（原地清空後放入），讓已經 export 的陣列物件不變 */
+  into?: T[];
+}
+
+const fillListeners = new Map<string, Set<(items: unknown[]) => void>>();
+
+/** 訂閱某個有序登記簿的插入（例：地圖要把晚到的 overlay 加進已載入的 style）；回傳取消訂閱。 */
+export function subscribeListFill<T>(name: string, listener: (items: T[]) => void): () => void {
+  const set = fillListeners.get(name) ?? new Set();
+  set.add(listener as (items: unknown[]) => void);
+  fillListeners.set(name, set);
+  return () => { set.delete(listener as (items: unknown[]) => void); };
 }
 
 const lists = new Map<string, ListState>();
@@ -49,6 +72,7 @@ function fillNow(state: ListState, id: string, payload: unknown[]): void {
   const pos = state.slots.get(id);
   if (!pos) throw new Error(`[countrySlot] ${state.name} 沒有插槽 ${id}（靜態陣列的 countrySlot 標記與國家包不一致，重跑 codemod）`);
   if (pos.filled) return;
+  if (state.transform) payload = state.transform(payload);
   let at = 0;
   if (pos.anchor !== null) {
     const i = state.items.indexOf(pos.anchor);
@@ -62,15 +86,17 @@ function fillNow(state: ListState, id: string, payload: unknown[]): void {
   state.items.splice(at, 0, ...payload);
   pos.filled = payload;
   state.onFill?.(payload);
+  for (const listener of fillListeners.get(state.name) ?? []) listener(payload);
 }
 
 /**
  * 建立有序登記簿。`entries` 可以夾 `countrySlot` 標記；回傳的陣列不含標記，之後由 `fillSlots` 原地插入。
  * `onFill` 在每次插入後呼叫（例如點擊表要對新條目補代表點 layer id）。
  */
-export function slottedList<T>(name: string, entries: ReadonlyArray<T | CountrySlot>, onFill?: (items: T[]) => void): T[] {
+export function slottedList<T>(name: string, entries: ReadonlyArray<T | CountrySlot>, onFill?: (items: T[]) => void, options: SlottedListOptions<T> = {}): T[] {
   if (lists.has(name)) throw new Error(`[countrySlot] 登記簿 ${name} 重複建立`);
-  const items: T[] = [];
+  const items: T[] = options.into ?? [];
+  items.length = 0;
   const slots = new Map<string, SlotPos>();
   let ordinal = 0;
   for (const entry of entries) {
@@ -80,7 +106,11 @@ export function slottedList<T>(name: string, entries: ReadonlyArray<T | CountryS
       slots.set(id, { anchor: items.length ? items[items.length - 1] : null, ordinal: ordinal++, filled: null });
     } else items.push(entry);
   }
-  const state: ListState = { name, items, slots, onFill: onFill as ((items: unknown[]) => void) | undefined };
+  const state: ListState = {
+    name, items, slots,
+    onFill: onFill as ((items: unknown[]) => void) | undefined,
+    transform: options.transform as ((items: unknown[]) => unknown[]) | undefined,
+  };
   lists.set(name, state);
   for (const [id, payload] of pendingFills.get(name) ?? []) fillNow(state, id, payload);
   pendingFills.delete(name);
@@ -136,6 +166,8 @@ export function extendedRecordKeys(name: string): ReadonlySet<string> {
   return extendedKeys.get(name) ?? new Set();
 }
 
+const END = "\u0000end";
+
 function reorder(name: string, target: Rec): void {
   const hint = orderHints.get(name);
   const ext = extendedKeys.get(name);
@@ -151,18 +183,18 @@ function reorder(name: string, target: Rec): void {
   hinted.sort((a, b) => a.rank - b.rank);
   const after = new Map<string, string[]>();
   for (const h of hinted) {
-    // 錨點不在（理論上不會：錨點是靜態 key）就排到最後
-    const anchor = base.includes(h.anchor) ? h.anchor : "";
+    // 錨點 ""＝排在最前面（搬家前就是第一個）；錨點不在（理論上不會：錨點是靜態 key）就排到最後
+    const anchor = h.anchor === "" || base.includes(h.anchor) ? h.anchor : END;
     const list = after.get(anchor) ?? [];
     list.push(h.key);
     after.set(anchor, list);
   }
-  const order: string[] = [];
+  const order: string[] = [...(after.get("") ?? [])];
   for (const key of base) {
     order.push(key);
     for (const k of after.get(key) ?? []) order.push(k);
   }
-  for (const k of after.get("") ?? []) order.push(k);
+  for (const k of after.get(END) ?? []) order.push(k);
   const entries = order.map((k) => [k, target[k]] as const);
   for (const k of order) delete target[k];
   for (const [k, v] of entries) target[k] = v;

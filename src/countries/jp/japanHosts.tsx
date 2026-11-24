@@ -1,0 +1,422 @@
+import { JpMedicalAlert } from "../../components/JpMedicalStatus";
+import { JpWaterAlert } from "../../components/JpWaterStatus";
+import { useJpMedicalLayers } from "./useJpMedicalLayers";
+// 日本 Japan Batch 2 的 Layer Host：行政區 2 層（PMTiles polygon）＋ 交通 2 層（GeoJSON）。
+// clone hosts/climateHosts.tsx 的 JpReligionHost 慣例。
+
+import { useJpAdminLayers } from "./useJpAdminLayers";
+import { useJpStationsLayer } from "./useJpStationsLayer";
+import { useJpAirportsLayer } from "./useJpAirportsLayer";
+import { useJpRailwaysLayer } from "./useJpRailwaysLayer";
+import { useJpPoliceFacilitiesLayer } from "./useJpPoliceFacilitiesLayer";
+import { useJpSchoolsLayer } from "./useJpSchoolsLayer";
+import { useJpEvacuationSitesLayer } from "./useJpEvacuationSitesLayer";
+import { useJpPublicOfficesLayer } from "./useJpPublicOfficesLayer";
+import { useJpBusStopsLayer } from "./useJpBusStopsLayer";
+import { useJpLandslideWarningAreasLayer } from "./useJpLandslideWarningAreasLayer";
+import { useJpInlandFloodAreasLayer } from "./useJpInlandFloodAreasLayer";
+import { useJpZoningUseDistrictsLayer } from "./useJpZoningUseDistrictsLayer";
+import { useJpNationalForestsLayer } from "./useJpNationalForestsLayer";
+import { useJpWelfareFacilitiesLayer } from "./useJpWelfareFacilitiesLayer";
+import { useJpMajorRoadsLayer } from "./useJpMajorRoadsLayer";
+import { useJpMunicipalRoadsLayer } from "./useJpMunicipalRoadsLayer";
+import { useJpExpresswaysLayer } from "./useJpExpresswaysLayer";
+import { useJpGsiTerrainLayer } from "./useJpGsiTerrainLayers";
+import { useJpPopulationMeshLayer } from "./useJpPopulationMeshLayer";
+import { jpTourismModeFor, useJpTourismLayers, useJpTourismRepPoints, type JpTourismRepKey } from "./useJpTourismLayers";
+import { repPointLayer, repPointModeFromIdx } from "../../data/repPointLayers";
+import { useJpWaterLayers } from "./useJpWaterLayers";
+import { JP_TOURISM_LAYER_KEYS, type JpTourismLayerKey } from "../../data/jpTourismTypes";
+import { JP_WATER_LAYER_KEYS } from "../../data/jpWaterTypes";
+import { bumpHostRender, type LayerHostComponent } from "../../layers/layerHostDeps";
+import { useKeyOverlayParams } from "../../layers/layerParamsAccess";
+import { RASTER } from "../../map/mapStyleScale";
+
+/** 日本行政區：都道府県界 + 市区町村界（各自獨立的 PMTiles polygon 子層）。 */
+export const JpAdminHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useJpAdminLayers");
+  const prefecture = useKeyOverlayParams("jpAdminPrefecture");
+  const municipality = useKeyOverlayParams("jpAdminBoundaries");
+  useJpAdminLayers(
+    deps.mapRef,
+    {
+      jpAdminPrefecture: deps.layerVisibility.jpAdminPrefecture,
+      jpAdminBoundaries: deps.layerVisibility.jpAdminBoundaries,
+    },
+    {
+      jpAdminPrefecture: prefecture.jpAdminPrefectureOpacity ?? 0.2,
+      jpAdminBoundaries: municipality.jpAdminBoundariesOpacity ?? 0.15,
+    },
+    deps.isDarkTheme,
+  );
+  return null;
+};
+
+/** 日本車站：GeoJSON circle，lazy fetch。 */
+export const JpStationsHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useJpStationsLayer");
+  const p = useKeyOverlayParams("jpStations");
+  const colorMode = p.jpStationsColorModeIdx === 1 ? "ridership" : "type";
+  useJpStationsLayer(
+    deps.mapRef,
+    deps.layerVisibility.jpStations,
+    p.jpStationsOpacity ?? 0.8,
+    p.jpStationsScale ?? 1,
+    colorMode,
+    deps.isDarkTheme,
+    p.jpStationsCatMask,
+  );
+  return null;
+};
+
+/** 日本機場：GeoJSON fill+line，lazy fetch。 */
+export const JpAirportsHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useJpAirportsLayer");
+  const p = useKeyOverlayParams("jpAirports");
+  const displayMode = p.jpAirportsDisplayModeIdx === 1 ? "polygon" : "point";
+  useJpAirportsLayer(
+    deps.mapRef,
+    deps.layerVisibility.jpAirports,
+    p.jpAirportsOpacity ?? 0.5,
+    displayMode,
+    deps.isDarkTheme,
+  );
+  return null;
+};
+
+/** 日本鐵道路線：PMTiles line，按事業者種別分色，無時間維度。 */
+export const JpRailwaysHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useJpRailwaysLayer");
+  const p = useKeyOverlayParams("jpRailways");
+  useJpRailwaysLayer(
+    deps.mapRef,
+    deps.layerVisibility.jpRailways,
+    p.jpRailwaysOpacity ?? 0.9,
+    p.jpRailwaysCatMask,
+  );
+  return null;
+};
+
+/** 日本學校：PMTiles point，按学校分類 13 色分色，無時間維度。 */
+export const JpSchoolsHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useJpSchoolsLayer");
+  const p = useKeyOverlayParams("jpSchools");
+  useJpSchoolsLayer(
+    deps.mapRef,
+    deps.layerVisibility.jpSchools,
+    p.jpSchoolsOpacity ?? 0.75,
+    p.jpSchoolsScale ?? 1,
+    deps.isDarkTheme,
+    p.jpSchoolsCatMask,
+  );
+  return null;
+};
+
+/** 日本 1km 人口網格：PMTiles polygon choropleth，9 種指標／年份由 select 切換。 */
+export const JpPopulationMeshHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useJpPopulationMeshLayer");
+  const p = useKeyOverlayParams("jpPopulationMesh1km");
+  useJpPopulationMeshLayer(
+    deps.mapRef,
+    deps.layerVisibility.jpPopulationMesh1km,
+    p.jpPopulationMeshOpacity ?? 0.55,
+    p.jpPopulationMeshModeIdx ?? 0,
+    deps.isDarkTheme,
+  );
+  return null;
+};
+
+export const JpPoliceFacilitiesHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useJpPoliceFacilitiesLayer");
+  const p = useKeyOverlayParams("jpPoliceFacilities");
+  useJpPoliceFacilitiesLayer(deps.mapRef, deps.layerVisibility.jpPoliceFacilities,
+    p.jpPoliceFacilitiesOpacity ?? 0.75, p.jpPoliceFacilitiesScale ?? 1,
+    p.jpPoliceFacilitiesTypeIdx ?? 0, deps.isDarkTheme);
+  return null;
+};
+
+export const JpEvacuationSitesHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useJpEvacuationSitesLayer");
+  const p = useKeyOverlayParams("jpEvacuationSites");
+  useJpEvacuationSitesLayer(deps.mapRef, deps.layerVisibility.jpEvacuationSites,
+    p.jpEvacuationSitesOpacity ?? 0.6, p.jpEvacuationSitesScale ?? 1,
+    p.jpEvacuationSitesFilterIdx ?? 0, deps.isDarkTheme, p.jpEvacuationSitesCatMask);
+  return null;
+};
+
+export const JpPublicOfficesHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useJpPublicOfficesLayer");
+  const p = useKeyOverlayParams("jpPublicOffices");
+  useJpPublicOfficesLayer(deps.mapRef, deps.layerVisibility.jpPublicOffices,
+    p.jpPublicOfficesOpacity ?? 0.75, p.jpPublicOfficesScale ?? 1,
+    p.jpPublicOfficesClassIdx ?? 0, deps.isDarkTheme);
+  return null;
+};
+
+export const JpBusStopsHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useJpBusStopsLayer");
+  const p = useKeyOverlayParams("jpBusStops");
+  useJpBusStopsLayer(deps.mapRef, deps.layerVisibility.jpBusStops,
+    p.jpBusStopsOpacity ?? 0.6, p.jpBusStopsScale ?? 1, deps.isDarkTheme, p.jpBusStopsCatMask);
+  return null;
+};
+
+export const JpLandslideWarningAreasHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useJpLandslideWarningAreasLayer");
+  const p = useKeyOverlayParams("jpLandslideWarningAreas");
+  useJpLandslideWarningAreasLayer(deps.mapRef, deps.layerVisibility.jpLandslideWarningAreas,
+    p.jpLandslideWarningAreasOpacity ?? 0.7,
+    p.jpLandslideWarningAreasZoneIdx ?? 0, p.jpLandslideWarningAreasPhenomenonIdx ?? 0, deps.isDarkTheme);
+  return null;
+};
+
+export const JpInlandFloodAreasHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useJpInlandFloodAreasLayer");
+  const p = useKeyOverlayParams("jpInlandFloodAreas");
+  useJpInlandFloodAreasLayer(deps.mapRef, deps.layerVisibility.jpInlandFloodAreas,
+    p.jpInlandFloodAreasOpacity ?? 0.7, deps.isDarkTheme,
+    repPointModeFromIdx(p.jpInlandFloodAreasDisplayModeIdx, repPointLayer("jpInlandFloodAreas")!.def), p.jpInlandFloodAreasScale ?? 1);
+  return null;
+};
+
+export const JpZoningUseDistrictsHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useJpZoningUseDistrictsLayer");
+  const p = useKeyOverlayParams("jpZoningUseDistricts");
+  useJpZoningUseDistrictsLayer(deps.mapRef, deps.layerVisibility.jpZoningUseDistricts,
+    p.jpZoningUseDistrictsOpacity ?? 0.7, p.jpZoningUseDistrictsClassIdx ?? 0,
+    repPointModeFromIdx(p.jpZoningUseDistrictsDisplayModeIdx, repPointLayer("jpZoningUseDistricts")!.def),
+    p.jpZoningUseDistrictsScale ?? 1, deps.isDarkTheme);
+  return null;
+};
+
+export const JpNationalForestsHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useJpNationalForestsLayer");
+  const p = useKeyOverlayParams("jpNationalForests");
+  useJpNationalForestsLayer(deps.mapRef, deps.layerVisibility.jpNationalForests, p.jpNationalForestsOpacity ?? 0.7, p.jpNationalForestsCatMask,
+    repPointModeFromIdx(p.jpNationalForestsDisplayModeIdx, repPointLayer("jpNationalForests")!.def),
+    p.jpNationalForestsScale ?? 1, deps.isDarkTheme);
+  return null;
+};
+
+export const JpWelfareFacilitiesHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useJpWelfareFacilitiesLayer");
+  const d = useKeyOverlayParams("jpWelfareDisability");
+  const c = useKeyOverlayParams("jpWelfareChild");
+  useJpWelfareFacilitiesLayer(deps.mapRef, "jpWelfareDisability", deps.layerVisibility.jpWelfareDisability,
+    d.jpWelfareDisabilityOpacity ?? 0.6, d.jpWelfareDisabilityScale ?? 1,
+    d.jpWelfareDisabilityCategoryIdx ?? 0, d.jpWelfareDisabilityAccuracyIdx ?? 0, deps.isDarkTheme);
+  useJpWelfareFacilitiesLayer(deps.mapRef, "jpWelfareChild", deps.layerVisibility.jpWelfareChild,
+    c.jpWelfareChildOpacity ?? 0.6, c.jpWelfareChildScale ?? 1,
+    c.jpWelfareChildCategoryIdx ?? 0, c.jpWelfareChildAccuracyIdx ?? 0, deps.isDarkTheme);
+  return null;
+};
+
+export const JpMajorRoadsHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useJpMajorRoadsLayer");
+  const p = useKeyOverlayParams("jpMajorRoads");
+  useJpMajorRoadsLayer(deps.mapRef, deps.layerVisibility.jpMajorRoads, p.jpMajorRoadsOpacity ?? 0.85, p.jpMajorRoadsClassIdx ?? 0);
+  return null;
+};
+
+export const JpMunicipalRoadsHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useJpMunicipalRoadsLayer");
+  const p = useKeyOverlayParams("jpMunicipalRoads");
+  useJpMunicipalRoadsLayer(deps.mapRef, deps.layerVisibility.jpMunicipalRoads, p.jpMunicipalRoadsOpacity ?? 0.85);
+  return null;
+};
+
+export const JpExpresswaysHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useJpExpresswaysLayer");
+  const p = useKeyOverlayParams("jpExpressways");
+  useJpExpresswaysLayer(deps.mapRef, deps.layerVisibility.jpExpressways, p.jpExpresswaysOpacity ?? 0.85,
+    p.jpExpresswaysCategoryIdx ?? 0, deps.isDarkTheme);
+  return null;
+};
+
+export const JpGsiTerrainHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useJpGsiTerrainLayers");
+  const h = useKeyOverlayParams("jpGsiHillshade");
+  const r = useKeyOverlayParams("jpGsiRelief");
+  useJpGsiTerrainLayer(deps.mapRef, "jpGsiRelief", deps.layerVisibility.jpGsiRelief, r.jpGsiReliefOpacity ?? 0.7);
+  useJpGsiTerrainLayer(deps.mapRef, "jpGsiHillshade", deps.layerVisibility.jpGsiHillshade, h.jpGsiHillshadeOpacity ?? 0.7);
+  return null;
+};
+
+export const JpWaterHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useJpWaterLayers");
+  const lakes = useKeyOverlayParams("jpWaterLakes");
+  const dams = useKeyOverlayParams("jpWaterDams");
+  const rivers = useKeyOverlayParams("jpWaterRivers");
+  const supply = useKeyOverlayParams("jpWaterSupplyFacilities");
+  const supplyAreas = useKeyOverlayParams("jpWaterSupplyAreas");
+  const sewer = useKeyOverlayParams("jpWaterSewerFacilities");
+  const groundwater = useKeyOverlayParams("jpWaterGroundwaterSites");
+  const nilim = useKeyOverlayParams("jpWaterNilimDams");
+  const agri = useKeyOverlayParams("jpWaterAgriculturalPonds");
+  const flood = useKeyOverlayParams("jpWaterFloodHazard");
+  const facilities = useKeyOverlayParams("jpWaterLocalFacilities");
+  const quality = useKeyOverlayParams("jpWaterQualityStations");
+  const levels = useKeyOverlayParams("jpWaterLevelStations");
+  useJpWaterLayers(deps.mapRef, {
+    jpWaterDams: deps.layerVisibility.jpWaterDams,
+    jpWaterLakes: deps.layerVisibility.jpWaterLakes,
+    jpWaterRivers: deps.layerVisibility.jpWaterRivers,
+    jpWaterSupplyFacilities: deps.layerVisibility.jpWaterSupplyFacilities,
+    jpWaterSupplyAreas: deps.layerVisibility.jpWaterSupplyAreas,
+    jpWaterSewerFacilities: deps.layerVisibility.jpWaterSewerFacilities,
+    jpWaterGroundwaterSites: deps.layerVisibility.jpWaterGroundwaterSites,
+    jpWaterNilimDams: deps.layerVisibility.jpWaterNilimDams,
+    jpWaterAgriculturalPonds: deps.layerVisibility.jpWaterAgriculturalPonds,
+    jpWaterFloodHazard: deps.layerVisibility.jpWaterFloodHazard,
+    jpWaterLocalFacilities: deps.layerVisibility.jpWaterLocalFacilities,
+    jpWaterQualityStations: deps.layerVisibility.jpWaterQualityStations,
+    jpWaterLevelStations: deps.layerVisibility.jpWaterLevelStations,
+  }, {
+    jpWaterDams: dams.jpWaterDamsOpacity ?? 0.8,
+    jpWaterLakes: lakes.jpWaterLakesOpacity ?? 0.35,
+    jpWaterRivers: rivers.jpWaterRiversOpacity ?? 0.75,
+    jpWaterSupplyFacilities: supply.jpWaterSupplyFacilitiesOpacity ?? 0.8,
+    jpWaterSupplyAreas: supplyAreas.jpWaterSupplyAreasOpacity ?? 0.18,
+    jpWaterSewerFacilities: sewer.jpWaterSewerFacilitiesOpacity ?? 0.8,
+    jpWaterGroundwaterSites: groundwater.jpWaterGroundwaterSitesOpacity ?? 0.8,
+    jpWaterNilimDams: nilim.jpWaterNilimDamsOpacity ?? 0.82,
+    jpWaterAgriculturalPonds: agri.jpWaterAgriculturalPondsOpacity ?? 0.6,
+    jpWaterFloodHazard: flood.jpWaterFloodHazardOpacity ?? RASTER.opacity,
+    jpWaterLocalFacilities: facilities.jpWaterLocalFacilitiesOpacity ?? 0.85,
+    jpWaterQualityStations: quality.jpWaterQualityStationsOpacity ?? 0.8,
+    jpWaterLevelStations: levels.jpWaterLevelStationsOpacity ?? 0.85,
+  }, deps.isDarkTheme, {
+    jpWaterSupplyFacilities: supply.jpWaterSupplyFacilitiesCatMask,
+    jpWaterSewerFacilities: sewer.jpWaterSewerFacilitiesCatMask,
+  }, { mode: repPointModeFromIdx(lakes.jpWaterLakesDisplayModeIdx, repPointLayer("jpWaterLakes")!.def), scale: lakes.jpWaterLakesScale ?? 1 });
+  // 登入時的權限探測失敗不該對沒開日本水資源圖層的人跳全域錯誤框
+  const anyJpWaterVisible = JP_WATER_LAYER_KEYS.some((key) => key !== "jpWaterLocalPipes" && deps.layerVisibility[key]);
+  return anyJpWaterVisible ? <JpWaterAlert /> : null;
+};
+
+/** 日本旅宿、自然保護與世界遺產：production PMTiles/GeoJSON + DEV-only research layers。 */
+export const JpTourismHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useJpTourismLayers");
+  const canonical = useKeyOverlayParams("jpAccommodationCanonical");
+  const jta = useKeyOverlayParams("jpAccommodationJta");
+  const local = useKeyOverlayParams("jpAccommodationLocal");
+  const osm = useKeyOverlayParams("jpAccommodationOsm");
+  const parksNational = useKeyOverlayParams("jpNaturalParksNational");
+  const parksQuasi = useKeyOverlayParams("jpNaturalParksQuasiNational");
+  const parksPrefectural = useKeyOverlayParams("jpNaturalParksPrefectural");
+  const conservation = useKeyOverlayParams("jpNatureConservationArea");
+  const primitive = useKeyOverlayParams("jpPrimitiveNatureEnvironmentArea");
+  const specialConservation = useKeyOverlayParams("jpNatureConservationSpecialDistrict");
+  const wildlife = useKeyOverlayParams("jpWildlifeProtectionNational");
+  const wildlifeSpecial = useKeyOverlayParams("jpWildlifeSpecialProtectionDistrict");
+  const wildlifeDesignated = useKeyOverlayParams("jpWildlifeSpecialProtectionDesignatedArea");
+  const unescoCultural = useKeyOverlayParams("jpWorldHeritageCultural");
+  const unescoNatural = useKeyOverlayParams("jpWorldHeritageNatural");
+  const a28 = useKeyOverlayParams("jpWorldNaturalHeritageHistorical");
+  const ramsar = useKeyOverlayParams("jpRamsarSites");
+  const ebsa = useKeyOverlayParams("jpMarineEbsaCoastal");
+
+  const visibility = useMemo(() => Object.fromEntries(
+    JP_TOURISM_LAYER_KEYS.map((key) => [key, deps.layerVisibility[key]]),
+  ) as Record<JpTourismLayerKey, boolean>, [deps.layerVisibility]);
+  const opacity = useMemo(() => ({
+    jpAccommodationCanonical: canonical.jpAccommodationCanonicalOpacity ?? 0.75,
+    jpAccommodationJta: jta.jpAccommodationJtaOpacity ?? 0.8,
+    jpAccommodationLocal: local.jpAccommodationLocalOpacity ?? 0.8,
+    jpAccommodationOsm: osm.jpAccommodationOsmOpacity ?? 0.75,
+    jpNaturalParksNational: parksNational.jpNaturalParksNationalOpacity ?? 0.28,
+    jpNaturalParksQuasiNational: parksQuasi.jpNaturalParksQuasiNationalOpacity ?? 0.25,
+    jpNaturalParksPrefectural: parksPrefectural.jpNaturalParksPrefecturalOpacity ?? 0.22,
+    jpNatureConservationArea: conservation.jpNatureConservationAreaOpacity ?? 0.25,
+    jpPrimitiveNatureEnvironmentArea: primitive.jpPrimitiveNatureEnvironmentAreaOpacity ?? 0.3,
+    jpNatureConservationSpecialDistrict: specialConservation.jpNatureConservationSpecialDistrictOpacity ?? 0.28,
+    jpWildlifeProtectionNational: wildlife.jpWildlifeProtectionNationalOpacity ?? 0.25,
+    jpWildlifeSpecialProtectionDistrict: wildlifeSpecial.jpWildlifeSpecialProtectionDistrictOpacity ?? 0.28,
+    jpWildlifeSpecialProtectionDesignatedArea: wildlifeDesignated.jpWildlifeSpecialProtectionDesignatedAreaOpacity ?? 0.32,
+    jpWorldHeritageCultural: unescoCultural.jpWorldHeritageCulturalOpacity ?? 0.9,
+    jpWorldHeritageNatural: unescoNatural.jpWorldHeritageNaturalOpacity ?? 0.9,
+    jpWorldNaturalHeritageHistorical: a28.jpWorldNaturalHeritageHistoricalOpacity ?? 0.25,
+    jpRamsarSites: ramsar.jpRamsarSitesOpacity ?? 0.9,
+    jpMarineEbsaCoastal: ebsa.jpMarineEbsaCoastalOpacity ?? 0.22,
+  }), [canonical, jta, local, osm, parksNational, parksQuasi, parksPrefectural, conservation, primitive, specialConservation, wildlife, wildlifeSpecial, wildlifeDesignated, unescoCultural, unescoNatural, a28, ramsar, ebsa]);
+  const scale = useMemo(() => ({
+    jpAccommodationCanonical: canonical.jpAccommodationCanonicalScale ?? 1,
+    jpAccommodationJta: jta.jpAccommodationJtaScale ?? 1,
+    jpAccommodationLocal: local.jpAccommodationLocalScale ?? 1,
+    jpAccommodationOsm: osm.jpAccommodationOsmScale ?? 1,
+    jpWorldHeritageCultural: unescoCultural.jpWorldHeritageCulturalScale ?? 1,
+    jpWorldHeritageNatural: unescoNatural.jpWorldHeritageNaturalScale ?? 1,
+    jpRamsarSites: ramsar.jpRamsarSitesScale ?? 1,
+    jpWorldNaturalHeritageHistorical: a28.jpWorldNaturalHeritageHistoricalScale ?? 1,
+  }), [canonical, jta, local, osm, unescoCultural, unescoNatural, ramsar, a28]);
+  const ramsarMode = (["name_match", "degraded", "all"] as const)[ramsar.jpRamsarGeometryIdx ?? 0] ?? "name_match";
+  const catMasks = useMemo(() => ({
+    jpAccommodationCanonical: canonical.jpAccommodationCanonicalCatMask,
+    jpAccommodationOsm: osm.jpAccommodationOsmCatMask,
+  }), [canonical, osm]);
+  const repParams: Record<JpTourismRepKey, Record<string, number | undefined>> = {
+    jpNaturalParksNational: parksNational, jpNaturalParksQuasiNational: parksQuasi, jpNaturalParksPrefectural: parksPrefectural,
+    jpNatureConservationArea: conservation, jpNatureConservationSpecialDistrict: specialConservation,
+    jpPrimitiveNatureEnvironmentArea: primitive, jpWildlifeProtectionNational: wildlife,
+    jpWildlifeSpecialProtectionDesignatedArea: wildlifeDesignated, jpWildlifeSpecialProtectionDistrict: wildlifeSpecial,
+    jpMarineEbsaCoastal: ebsa, jpWorldNaturalHeritageHistorical: a28,
+  };
+  const repKeys = Object.keys(repParams) as JpTourismRepKey[];
+  const repState = Object.fromEntries(repKeys.map((k) => [k, {
+    visible: Boolean(deps.layerVisibility[k]),
+    mode: jpTourismModeFor(k, repParams[k][`${k}DisplayModeIdx`]),
+    opacity: opacity[k],
+    scale: repParams[k][`${k}Scale`] ?? 1,
+  }])) as Record<JpTourismRepKey, { visible: boolean; mode: "point" | "polygon"; opacity: number; scale: number }>;
+  const modeKey = repKeys.map((k) => repState[k].mode).join(",");
+  const modes = useMemo(() => Object.fromEntries(repKeys.map((k) => [k, repState[k].mode])), [modeKey]);
+  useJpTourismLayers(deps.mapRef, visibility, opacity, scale, ramsarMode, deps.isDarkTheme, catMasks, modes);
+  useJpTourismRepPoints(deps.mapRef, repState, deps.isDarkTheme);
+  return null;
+};
+
+/** 日本靜態醫療：可見時才讀 allowlist，點位與詳情均按需載入。 */
+export const JpMedicalHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useJpMedicalLayers");
+  const hospitals = useKeyOverlayParams("jpMedicalHospitals");
+  const clinics = useKeyOverlayParams("jpMedicalClinics");
+  const dental = useKeyOverlayParams("jpMedicalDental");
+  const maternity = useKeyOverlayParams("jpMedicalMaternity");
+  const pharmacies = useKeyOverlayParams("jpMedicalPharmacies");
+  const carePlanning = useKeyOverlayParams("jpCarePlanning");
+  const careHomeVisit = useKeyOverlayParams("jpCareHomeVisit");
+  const careDayServices = useKeyOverlayParams("jpCareDayServices");
+  const careResidential = useKeyOverlayParams("jpCareResidential");
+  const careCombined = useKeyOverlayParams("jpCareCombined");
+  const careEquipment = useKeyOverlayParams("jpCareEquipment");
+  const areasPrimary = useKeyOverlayParams("jpMedicalAreasPrimary");
+  const areasSecondary = useKeyOverlayParams("jpMedicalAreasSecondary");
+  const areasTertiary = useKeyOverlayParams("jpMedicalAreasTertiary");
+  const medicalKeys = [
+    "jpMedicalHospitals", "jpMedicalClinics", "jpMedicalDental", "jpMedicalMaternity", "jpMedicalPharmacies",
+    "jpCarePlanning", "jpCareHomeVisit", "jpCareDayServices", "jpCareResidential", "jpCareCombined", "jpCareEquipment",
+    "jpMedicalAreasPrimary", "jpMedicalAreasSecondary", "jpMedicalAreasTertiary",
+  ] as const;
+  useJpMedicalLayers(deps.mapRef, {
+    jpMedicalHospitals: deps.layerVisibility.jpMedicalHospitals,
+    jpMedicalClinics: deps.layerVisibility.jpMedicalClinics,
+    jpMedicalDental: deps.layerVisibility.jpMedicalDental,
+    jpMedicalMaternity: deps.layerVisibility.jpMedicalMaternity,
+    jpMedicalPharmacies: deps.layerVisibility.jpMedicalPharmacies,
+    jpCarePlanning: deps.layerVisibility.jpCarePlanning,
+    jpCareHomeVisit: deps.layerVisibility.jpCareHomeVisit,
+    jpCareDayServices: deps.layerVisibility.jpCareDayServices,
+    jpCareResidential: deps.layerVisibility.jpCareResidential,
+    jpCareCombined: deps.layerVisibility.jpCareCombined,
+    jpCareEquipment: deps.layerVisibility.jpCareEquipment,
+    jpMedicalAreasPrimary: deps.layerVisibility.jpMedicalAreasPrimary,
+    jpMedicalAreasSecondary: deps.layerVisibility.jpMedicalAreasSecondary,
+    jpMedicalAreasTertiary: deps.layerVisibility.jpMedicalAreasTertiary,
+  }, {
+    ...hospitals, ...clinics, ...dental, ...maternity, ...pharmacies,
+    ...carePlanning, ...careHomeVisit, ...careDayServices, ...careResidential, ...careCombined, ...careEquipment,
+    ...areasPrimary, ...areasSecondary, ...areasTertiary,
+  }, deps.isDarkTheme);
+  return medicalKeys.some((key) => deps.layerVisibility[key]) ? <JpMedicalAlert /> : null;
+};
+import { useMemo } from "react";

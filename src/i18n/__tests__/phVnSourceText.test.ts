@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { PH_ADMIN_SOURCE, PH_DATA_SPECS, PH_POPULATION_SOURCE } from "../../data/phDataLayers";
-import { VN_ADMIN_SOURCE, VN_DATA_SPECS, VN_POPULATION_SOURCE } from "../../data/vnDataLayers";
-import { VN_RASTER_SPECS, VN_WAVE_SPECS } from "../../data/vnWavesLayers";
-import { PH_RASTER_SPECS, PH_WAVE_SPECS } from "../../data/phWavesLayers";
+import { PH_ADMIN_SOURCE, PH_DATA_SPECS, PH_POPULATION_SOURCE } from "../../countries/ph/phDataLayers";
+import { VN_ADMIN_SOURCE, VN_DATA_SPECS, VN_POPULATION_SOURCE } from "../../countries/vn/vnDataLayers";
+import { VN_RASTER_SPECS, VN_WAVE_SPECS } from "../../countries/vn/vnWavesLayers";
+import { PH_RASTER_SPECS, PH_WAVE_SPECS } from "../../countries/ph/phWavesLayers";
 
 /** 菲律賓、越南圖層的來源、授權、單位、級距標籤：英／日介面不得出現中文（I18N-2，2026-11-21）。 */
 const HAN = /[㐀-鿿]/;

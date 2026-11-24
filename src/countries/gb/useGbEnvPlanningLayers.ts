@@ -10,7 +10,7 @@ import {
   GB_POLLUTION_COLOR, GB_POLLUTION_MINZOOM, GB_POLLUTION_TILE_ZOOM, GB_RECYCLING_ATTRIBUTION, GB_RECYCLING_CENTRE_MINZOOM,
   GB_RECYCLING_CONTAINER_MINZOOM, GB_RECYCLING_KINDS, GB_RECYCLING_TILE_ZOOM, GB_WASTE_PERMITS_ATTRIBUTION, GB_WASTE_PERMITS_COLOR,
   GB_WASTE_PERMITS_MINZOOM, GB_WASTE_PERMITS_TILE_ZOOM, type GbRecyclingKind, gbBrownfieldView, gbNoiseSourceView, gbPlanningView, gbWasteAuthorityView,
-} from "../../data/gbEnvPlanningTypes";
+} from "./gbEnvPlanningTypes";
 import { gbHeatmapBuild, gbMaskFilter, gbWithFilter, useGbPmtilesLayers, useGbRepPointLayers, type GbDisplayMode, type SourceSpec } from "../../hooks/intlPmtilesLayers";
 
 /**

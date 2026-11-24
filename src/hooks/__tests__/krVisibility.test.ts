@@ -1,8 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { LAYER_PARAMS_SPEC, type LayerParamSpec } from "../../data/layerParamsSpec";
-import { KR_DATA_SPECS, krCatOptionIds, krGroupFilter, krSpecCatFilter } from "../../data/krDataLayers";
-import { KR_FUEL_TYPES, KR_OIL_GAS_TYPES, KR_RAIL_LINE_CLASSES, KR_RAIL_NETWORKS, KR_VOLTAGE_CLASSES, KR_PLANT_FUELS, KR_RENEWABLE_FUELS } from "../../data/krInfraTypes";
-import { KR_PLANT_FUEL_GROUPS, KR_RENEWABLE_FUEL_GROUPS, KR_PIPELINE_SUBSTANCES } from "../useKrEnergyLayers";
+import { KR_DATA_SPECS, krCatOptionIds, krGroupFilter, krSpecCatFilter } from "../../countries/kr/krDataLayers";
+import { KR_FUEL_TYPES, KR_OIL_GAS_TYPES, KR_RAIL_LINE_CLASSES, KR_RAIL_NETWORKS, KR_VOLTAGE_CLASSES, KR_PLANT_FUELS, KR_RENEWABLE_FUELS } from "../../countries/kr/krInfraTypes";
+import { KR_PLANT_FUEL_GROUPS, KR_RENEWABLE_FUEL_GROUPS, KR_PIPELINE_SUBSTANCES } from "../../countries/kr/useKrEnergyLayers";
+import { loadAllPacks } from "../../countries/packs";
+
+// 全部圖層（含延後載入的國家包，B1 P5）一起驗
+await loadAllPacks();
 
 const specOf = (key: string) => (LAYER_PARAMS_SPEC as Record<string, readonly LayerParamSpec[]>)[key]!;
 const optionValues = (key: string, name: string) => {

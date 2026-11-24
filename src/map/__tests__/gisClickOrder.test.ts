@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { GIS_LAYERS, dropHiddenLandUseHex } from "../gisClickRegistry";
+import { loadAllPacks } from "../../countries/packs";
+
+// 全部圖層（含延後載入的國家包，B1 P5）一起驗
+await loadAllPacks();
 
 describe("GIS_LAYERS 點擊順序（first-hit-wins）", () => {
   const order = (type: string) => GIS_LAYERS.findIndex((entry) => entry.type === type);

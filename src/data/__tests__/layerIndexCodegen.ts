@@ -13,12 +13,20 @@ import { GIS_LAYERS } from "../../map/gisClickRegistry";
 import { LAYER_PARAMS_SPEC } from "../layerParamsSpec";
 import { extendedRecordKeys } from "../../countries/slots";
 
-/** 國家包 key 的宣告順序提示：[前一個非國家包 key, 全域序號]（slots.setRecordOrder 讀）。需先 loadAllPacks。 */
-function orderHints(name: string, record: object): Map<string, [string, number]> {
+/**
+ * 國家包 key 的宣告順序提示：[前一個非國家包 key, 全域序號]（slots.setRecordOrder 讀）。需先 loadAllPacks。
+ * seed：搬家前（全部國家包載入後）的 key 順序（`gen-layer-index.ts --seed-out` 產生）。剛搬的國家還沒有提示，
+ * 執行期順序是「接在最後」，要用搬家前的順序算；之後重產時執行期順序已排回原位，不帶 seed 結果相同。
+ */
+export type LayerOrderSeed = Partial<Record<"layerManifest" | "layerParamsSpec", string[]>>;
+
+function orderHints(name: keyof LayerOrderSeed, record: object, seed?: LayerOrderSeed): Map<string, [string, number]> {
   const ext = extendedRecordKeys(name);
   const out = new Map<string, [string, number]>();
   let anchor = "";
-  Object.keys(record).forEach((key, i) => {
+  const keys = seed?.[name] ? seed[name].filter((k) => k in record) : Object.keys(record);
+  if (keys.length !== Object.keys(record).length) throw new Error(`layerIndex：seed 的 ${name} 少了 ${Object.keys(record).length - keys.length} 個 key（seed 要在搬家前、全部國家包載入後產生）`);
+  keys.forEach((key, i) => {
     if (ext.has(key)) out.set(key, [anchor, i]);
     else anchor = key;
   });
@@ -55,7 +63,8 @@ function row(key: string, entry: LayerManifestEntry, iconName: string, draw: num
   };
   // 站主限定的唯一來源是 topics 的 OWNER_ONLY（layerCatalog.GATED_LAYERS 同口徑），不是 entry.gated
   if (entry.topics.includes("OWNER_ONLY")) out.gated = true;
-  if (entry.expandable) out.expandable = true;
+  // 明寫 false 的也保留（側欄列照抄，和靜態 manifest 一致）
+  if (entry.expandable !== undefined) out.expandable = entry.expandable;
   // 與 key 同名就省略（讀時補回 key）；null＝有意識地沒有
   if (entry.popup !== key) out.popup = entry.popup as Json;
   if (entry.legend !== key) out.legend = entry.legend;
@@ -75,15 +84,15 @@ export function collectLayerIndex(): { key: string; entry: LayerManifestEntry }[
     .sort((a, b) => (a.key < b.key ? -1 : a.key > b.key ? 1 : 0));
 }
 
-export function renderLayerIndexModule(): string {
+export function renderLayerIndexModule(seed?: LayerOrderSeed): string {
   const rows = collectLayerIndex();
   const drawOrder = new Map<string, number>();
   OVERLAY_REGISTRY.forEach((cfg, i) => { if (!drawOrder.has(cfg.id)) drawOrder.set(cfg.id, i); });
   const clickOrder = new Map<string, number>();
   GIS_LAYERS.forEach((g, i) => { if (!clickOrder.has(g.type)) clickOrder.set(g.type, i); });
 
-  const mo = orderHints("layerManifest", LAYER_MANIFEST);
-  const po = orderHints("layerParamsSpec", LAYER_PARAMS_SPEC);
+  const mo = orderHints("layerManifest", LAYER_MANIFEST, seed);
+  const po = orderHints("layerParamsSpec", LAYER_PARAMS_SPEC, seed);
   const iconNames = new Set<string>();
   const body: string[] = [];
   for (const { key, entry } of rows) {

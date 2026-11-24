@@ -41,23 +41,34 @@ function signature(r: Registries) {
   return {
     manifest: Object.keys(r.manifest),
     params: Object.keys(r.params),
+    // 派生控件（類別多選、點／面樣式）晚到也要補上，且只補一次
+    paramNames: Object.entries(r.params).map(([k, v]) => `${k}:${(v as { name: string }[]).map((s) => s.name).join(",")}`),
     hosts: r.hosts.map((e) => e.id),
     clicks: r.clicks.map((e) => e.type),
+    // 代表點 circle 別名只補一次
+    clickLayers: r.clicks.map((e) => `${e.type}:${(e as unknown as { layers: string[] }).layers.join(",")}`),
     legends: r.legends.map((e) => e.id),
   };
 }
 type Signature = ReturnType<typeof signature>;
 
+const PACK_MODULES = import.meta.glob<{ default: import("../types").CountryPack }>("../*/pack.ts");
+
 /** 某國國家包自己帶的 key／條目 id（用來從完整順序扣掉沒載入的國家） */
-async function packMembers(cc: "CN" | "GB"): Promise<Signature> {
-  const pack = (cc === "CN" ? await import("../cn/pack") : await import("../gb/pack")).default;
-  const ids = <T,>(slots: Readonly<Record<number, readonly T[]>> | undefined, f: (x: T) => string) =>
+async function packMembers(cc: CountryCode): Promise<Signature> {
+  const pack = (await PACK_MODULES[`../${cc.toLowerCase()}/pack.ts`]!()).default;
+  const ids = <T, R = string>(slots: Readonly<Record<number, readonly T[]>> | undefined, f: (x: T) => R) =>
     Object.values(slots ?? {}).flat().map(f);
+  const params = Object.keys(pack.records.layerParamsSpec ?? {});
+  const clickEntries = ids(pack.slots.gisClickLayers as Record<number, { type: string; layers: string[] }[]>, (e) => e);
   return {
     manifest: Object.keys(pack.records.layerManifest ?? {}),
-    params: Object.keys(pack.records.layerParamsSpec ?? {}),
+    params,
+    paramNames: params,
+    clicks: clickEntries.map((e) => e.type),
+    // 以「type:第一個圖層 id」認條目（共用 type 例 lightningStrike 台灣也在用，不能整個 type 扣掉）
+    clickLayers: clickEntries.map((e) => `${e.type}:${e.layers[0]}`),
     hosts: ids(pack.slots.layerHosts as Record<number, { id: string }[]>, (e) => e.id),
-    clicks: ids(pack.slots.gisClickLayers as Record<number, { type: string }[]>, (e) => e.type),
     legends: ids(pack.slots.legends as Record<number, { id: string }[]>, (e) => e.id),
   };
 }
@@ -90,19 +101,48 @@ describe("國家包沒載入時", () => {
     expect(r.packs.isCountryPackReady("GB")).toBe(false);
   }, 120_000);
 
-  it("嵌入頁的白名單沒有國家包的圖層（embed 不載國家包；之後若要放行，要先在 embed 接 ensureCountryPack）", async () => {
+  it("留在靜態的圖層（台灣、整層留在中央的外國圖層）不靠國家包的 popup 與圖例", async () => {
+    // 例：日本搬家時 rasterProbe、lightningStrike（台灣雷擊）、historicalFlightTrails 曾被當成日本的搬走，台灣圖層就點不出 popup、看不到圖例
+    const { readdirSync, readFileSync } = await import("node:fs");
+    const root = new URL("../", import.meta.url);
+    const packPopups = new Set<string>();
+    const packLegends = new Set<string>();
+    for (const dir of readdirSync(root)) {
+      if (!/^[a-z]{2}$/.test(dir)) continue;
+      const read = (f: string) => { try { return readFileSync(new URL(`${dir}/${f}`, root), "utf8"); } catch { return ""; } };
+      for (const m of read("popupTypes.ts").matchAll(/"([A-Za-z0-9_]+)"/g)) packPopups.add(m[1]!);
+      for (const m of read("legends.tsx").matchAll(/\{ id: "([A-Za-z0-9_]+)"/g)) packLegends.add(m[1]!);
+    }
+    const { LAYER_MANIFEST } = await import("../../data/layerManifest");
+    const offending: string[] = [];
+    for (const [key, entry] of Object.entries(LAYER_MANIFEST as Record<string, { popup?: string | readonly string[] | null; legend?: string | null }>)) {
+      const popups = entry.popup === undefined ? [key] : entry.popup === null ? [] : typeof entry.popup === "string" ? [entry.popup] : entry.popup;
+      for (const t of popups) if (packPopups.has(t)) offending.push(`${key} popup ${t}`);
+      const legend = entry.legend === undefined ? key : entry.legend;
+      if (legend !== null && packLegends.has(legend)) offending.push(`${key} legend ${legend}`);
+    }
+    expect(offending).toEqual([]);
+  });
+
+  it("嵌入頁的白名單沒有搬進國家包的圖層（embed 不載國家包；之後若要放行，要先在 embed 接 ensureCountryPack）", async () => {
     const { EMBED_ALLOWED } = await import("../../embed/embedWhitelist");
-    const { layerCountryOf } = await import("../../data/layerLookup");
-    const { hasCountryPack } = await import("../packs");
-    const offending = [...EMBED_ALLOWED].filter((k) => { const cc = layerCountryOf(k); return cc && hasCountryPack(cc); });
+    const { LAYER_MANIFEST } = await import("../../data/layerManifest");
+    const { LEGEND_REGISTRY } = await import("../../components/LegendPanel") as unknown as { LEGEND_REGISTRY: readonly { id: string }[] };
+    // 有國家包的國家也可能有整層留在靜態的圖層（例：日本住宿密度、交通事故）：只要 manifest 與圖例在靜態登記簿就可嵌入
+    const legends = new Set(LEGEND_REGISTRY.map((e) => e.id));
+    const offending = [...EMBED_ALLOWED].filter((k) => {
+      const entry = (LAYER_MANIFEST as Record<string, { legend?: string | null } | undefined>)[k];
+      return !entry || (entry.legend != null && !legends.has(entry.legend));
+    });
     expect(offending).toEqual([]);
   });
 });
 
 describe("任意子集、任意載入順序都排回搬家前的位置", () => {
-  const ORDERS: CountryCode[][] = [[], ["CN"], ["GB"], ["CN", "GB"], ["GB", "CN"]];
+  const ALL = Object.keys(PACK_MODULES).map((p) => p.split("/")[1]!.toUpperCase() as CountryCode).sort();
+  const ORDERS: CountryCode[][] = [[], ...ALL.map((cc) => [cc]), ALL, [...ALL].reverse(), ALL.filter((_, i) => i % 2 === 1)];
   let full: Signature | null = null;
-  const members: Partial<Record<"CN" | "GB", Signature>> = {};
+  const members: Partial<Record<CountryCode, Signature>> = {};
 
   async function expected(loaded: readonly CountryCode[]): Promise<Signature> {
     if (!full) {
@@ -110,18 +150,30 @@ describe("任意子集、任意載入順序都排回搬家前的位置", () => {
       const r = await freshRegistries();
       await r.packs.loadAllPacks();
       full = signature(r);
-      members.CN = await packMembers("CN");
-      members.GB = await packMembers("GB");
+      const { pendingDerivedParamKeys } = await import("../../data/layerParamsSpec");
+      expect(pendingDerivedParamKeys()).toEqual([]);
+      for (const cc of ALL) members[cc] = await packMembers(cc);
       vi.resetModules();
     }
     const out = structuredClone(full);
-    for (const cc of ["CN", "GB"] as const) {
+    for (const cc of ALL) {
       if (loaded.includes(cc)) continue;
       const m = members[cc]!;
       for (const k of Object.keys(out) as (keyof Signature)[]) {
+        if (k === "clicks") {
+          // type 可重複、也可能和中央條目共用：每個條目只扣一次
+          const left = [...m.clicks];
+          out.clicks = out.clicks.filter((x) => { const i = left.indexOf(x); if (i < 0) return true; left.splice(i, 1); return false; });
+          continue;
+        }
+        if (k === "clickLayers") {
+          const drop = new Set(m.clickLayers);
+          out.clickLayers = out.clickLayers.filter((x) => !drop.has(x.split(",")[0]!));
+          continue;
+        }
         const drop = new Set(m[k]);
-        // clicks 的 type 可能跨國重複（不會，但保險）：只扣國家包帶的那幾筆的數量
-        out[k] = out[k].filter((x) => !drop.has(x));
+        // paramNames 的字串以「key:」開頭
+        out[k] = out[k].filter((x) => !drop.has(x) && !drop.has(x.split(":")[0]!));
       }
     }
     return out;

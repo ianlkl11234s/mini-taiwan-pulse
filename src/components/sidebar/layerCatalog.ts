@@ -187,7 +187,7 @@ function fromManifest(key: ManifestKey): LayerDef {
   const row = (LAYER_MANIFEST as Partial<Record<string, LayerManifestEntry>>)[key] ? undefined : layerIndexRow(key);
   if (row) {
     const def: LayerDef = { key, name: row.name, label: composeLayerLabel(row.name) };
-    if (row.expandable) def.expandable = true;
+    if (row.expandable !== undefined) def.expandable = row.expandable;
     return def;
   }
   const m: LayerManifestEntry = LAYER_MANIFEST[key];

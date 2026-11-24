@@ -37,7 +37,6 @@ import { repPointClickLayerIds } from './repPointOverlays';
  *   本表每個 type 也都要有 manifest key 宣告它。宣告與接線任一邊漂移 = 紅。
  */
 import type { FeatureInfo } from "../types";
-import { KR_ECO_CLICK_LAYER_IDS, KR_WASTE_CLICK_LAYER_IDS } from "../data/krEcoWasteTypes";
 import { DISASTER_ALERT_CLICK_LAYERS } from "../hooks/useDisasterAlertLayer";
 import { PLA_ACTIVITY_CLICK_LAYERS } from "../hooks/usePlaActivityLayer";
 import { VESSEL_WATCH_CLICK_LAYERS } from "../hooks/useVesselWatchLayer";
@@ -67,6 +66,9 @@ const MAPCHALLENGE_DAY23_CLICK_LAYERS: GisLayerEntry[] = [
 const MAPCHALLENGE_DAY21_CLICK_LAYERS: GisLayerEntry[] = [
   { layers: ["mapchallenge-day21-osm-roads-line"], type: "mapchallengeDay21OsmRoads" },
 ];
+
+/** 已補過代表點 layer id 的條目：國家包可能在本檔求值前就到（插入時補一次），開站的整批補不能再補第二次 */
+const REP_POINT_ALIASED = new WeakSet<GisLayerEntry>();
 
 /** 查詢 Mapbox GIS 層（順序 load-bearing，見檔頭 first-hit-wins 段） */
 export const GIS_LAYERS: GisLayerEntry[] = slottedList<GisLayerEntry>("gisClickLayers", [
@@ -212,7 +214,7 @@ export const GIS_LAYERS: GisLayerEntry[] = slottedList<GisLayerEntry>("gisClickL
   { layers: ["coverage-ev-island-line"], type: "evIsland" },
   { layers: ["hazard-lightning-core", "hazard-lightning-halo"], type: "lightningStrike" },
   { layers: ["hazard-lightning-cwa-core", "hazard-lightning-cwa-halo"], type: "lightningStrike" },
-  { layers: ["jma-lightning-core", "jma-lightning-halo"], type: "lightningStrike" },
+  countrySlot("JP", 1), // 日本國家包（src/countries/jp/）
   { layers: ["hazard-nuclear-core", "hazard-nuclear-halo"], type: "nuclearStation" },
   // 本土地震（useEarthquakeLayer 的 pre/post 兩態，穩定半徑可點；
   // ripple 動畫圈半徑會瞬時放大到 60~80px+ 且持續變動，納入點擊會蓋過其他層的既有命中範圍，故不收）
@@ -234,78 +236,10 @@ export const GIS_LAYERS: GisLayerEntry[] = slottedList<GisLayerEntry>("gisClickL
   { layers: ["world-trash-debris-circle"], type: "worldTrashDebris" },
   // 大面積 polygon 排在點層後，避免吃掉同位置的事件／船舶 popup。
   { layers: ["coral-reef-distribution-fill", "coral-reef-distribution-line"], type: "coralReefDistribution" },
-  // 日本 Japan：車站點層排在所有面層之前（first-hit-wins）。
-  // 日本氣象廳即時點層（火山／AMeDAS 小點排在地震大泡泡之前）
-  { layers: ["jma-volcanoes-circle"], type: "jmaVolcanoes" },
-  { layers: ["jma-snowcap-circle"], type: "jmaSnowcap" },
-  { layers: ["jma-sakura-circle"], type: "jmaSakura" },
-  { layers: ["jma-autumn-leaves-circle"], type: "jmaAutumnLeaves" },
-  { layers: ["jma-wbgt-circle"], type: "jmaWbgt" },
-  { layers: ["jma-amedas-circle"], type: "jmaAmedas" },
-  { layers: ["jma-quakes-circle"], type: "jmaQuakes" },
-  { layers: ["jp-medical-facilities-hospital"], type: "jpMedicalHospitals" },
-  { layers: ["jp-medical-facilities-clinic"], type: "jpMedicalClinics" },
-  { layers: ["jp-medical-facilities-dental"], type: "jpMedicalDental" },
-  { layers: ["jp-medical-facilities-maternity"], type: "jpMedicalMaternity" },
-  { layers: ["jp-medical-facilities-pharmacy"], type: "jpMedicalPharmacies" },
-  { layers: ["jp-medical-care-jpCarePlanning"], type: "jpCarePlanning" },
-  { layers: ["jp-medical-care-jpCareHomeVisit"], type: "jpCareHomeVisit" },
-  { layers: ["jp-medical-care-jpCareDayServices"], type: "jpCareDayServices" },
-  { layers: ["jp-medical-care-jpCareResidential"], type: "jpCareResidential" },
-  { layers: ["jp-medical-care-jpCareCombined"], type: "jpCareCombined" },
-  { layers: ["jp-medical-care-jpCareEquipment"], type: "jpCareEquipment" },
-  { layers: ["jp-stations-circle"], type: "jpStations" },
-  { layers: ["jp-tourism-jp-accommodation-canonical-circle"], type: "jpAccommodationCanonical" },
-  { layers: ["jp-tourism-jp-accommodation-jta-circle"], type: "jpAccommodationJta" },
-  { layers: ["jp-tourism-jp-accommodation-local-circle"], type: "jpAccommodationLocal" },
-  { layers: ["jp-tourism-jp-accommodation-osm-circle"], type: "jpAccommodationOsm" },
-  { layers: ["jp-tourism-jp-world-heritage-cultural-circle"], type: "jpWorldHeritageCultural" },
-  { layers: ["jp-tourism-jp-world-heritage-natural-circle"], type: "jpWorldHeritageNatural" },
-  { layers: ["jp-tourism-jp-ramsar-sites-circle"], type: "jpRamsarSites" },
-  // raw 三源之間優先命中內容最完整者，避免 GSI 無名記號點搶走 popup。
-  { layers: ["jp-religion-wikidata-circle"], type: "jpReligionWikidata" },
-  { layers: ["jp-religion-osm-circle"], type: "jpReligionOsm" },
-  { layers: ["jp-religion-gsi-circle"], type: "jpReligionGsi" },
-  // 學校 56,807 點排在宗教三源之後：三源同為點層互不遮蔽，此處僅維持「點層群組」的末位。
-  { layers: ["jp-police-facilities-circle"], type: "jpPoliceFacilities" },
-  { layers: ["jp-schools-circle"], type: "jpSchools" },
-  { layers: ["jp-evacuation-sites-circle"], type: "jpEvacuationSites" },
-  { layers: ["jp-public-offices-circle"], type: "jpPublicOffices" },
-  { layers: ["jp-bus-stops-circle"], type: "jpBusStops" },
-  { layers: ["jp-landslide-warning-areas-fill"], type: "jpLandslideWarningAreas" },
-  { layers: ["jp-inland-flood-areas-fill"], type: "jpInlandFloodAreas" },
-  { layers: ["jp-zoning-use-districts-fill"], type: "jpZoningUseDistricts" },
-  { layers: ["jp-national-forests-fill"], type: "jpNationalForests" },
-  { layers: ["jp-natural-park-areas-2015-fill"], type: "jpNaturalParkAreas2015" },
-  { layers: ["jp-national-parks-moe-fill"], type: "jpNationalParksMoe" },
-  { layers: ["jp-wildlife-protection-moe-fill"], type: "jpWildlifeProtectionMoe" },
-  { layers: ["jp-did-fill"], type: "jpDid" },
-  { layers: ["jp-welfare-disability-circle"], type: "jpWelfareDisability" },
-  { layers: ["jp-welfare-child-circle"], type: "jpWelfareChild" },
-  { layers: ["jp-expressway-junctions-circle", "jp-expressways-line"], type: "jpExpressways" },
-  { layers: ["jp-major-roads-line", "jp-major-roads-z5-line"], type: "jpMajorRoads" },
-  { layers: ["jp-municipal-roads-hokkaido_tohoku-line", "jp-municipal-roads-kanto-line", "jp-municipal-roads-chubu-line", "jp-municipal-roads-kinki-line", "jp-municipal-roads-chugoku_shikoku-line", "jp-municipal-roads-kyushu_okinawa-line"], type: "jpMunicipalRoads" },
-  { layers: ["jp-water-jpWaterDams"], type: "jpWaterDams" },
-  { layers: ["jp-water-jpWaterSupplyFacilities"], type: "jpWaterSupplyFacilities" },
-  { layers: ["jp-water-jpWaterSewerFacilities"], type: "jpWaterSewerFacilities" },
-  { layers: ["jp-water-jpWaterGroundwaterSites"], type: "jpWaterGroundwaterSites" },
-  { layers: ["jp-water-jpWaterNilimDams"], type: "jpWaterNilimDams" },
-  { layers: ["jp-water-jpWaterAgriculturalPonds"], type: "jpWaterAgriculturalPonds" },
-  { layers: ["jp-water-jpWaterLocalFacilities"], type: "jpWaterLocalFacilities" },
-  { layers: ["jp-water-jpWaterQualityStations"], type: "jpWaterQualityStations" },
-  { layers: ["jp-water-jpWaterLevelStations"], type: "jpWaterLevelStations" },
+  countrySlot("JP", 2), // 日本國家包（src/countries/jp/）
   // 土壤液化監測站（owner-only 11 點）：點層，排在面層之前。
   { layers: ["soil-liquefaction-monitoring-sites-circle"], type: "liquefactionMonitoringSites" },
-  // 日本 Japan 線層：鐵道線是細目標，排在所有點層之後、所有面層之前
-  // （面層若搶先會吃掉線上的點擊）。
-  { layers: ["jp-railways-line"], type: "jpRailways" },
-  { layers: ["jp-water-jpWaterRivers"], type: "jpWaterRivers" },
-  { layers: ["jma-warnings-fill"], type: "jmaWarnings" },
-  { layers: ["jma-rainy-season-fill"], type: "jmaRainySeason" },
-  { layers: ["jp-medical-areas-1-fill"], type: "jpMedicalAreasPrimary" },
-  { layers: ["jp-medical-areas-2-fill"], type: "jpMedicalAreasSecondary" },
-  { layers: ["jp-medical-areas-3-fill"], type: "jpMedicalAreasTertiary" },
-  { layers: ["jp-water-jpWaterLakes"], type: "jpWaterLakes" },
+  countrySlot("JP", 3), // 日本國家包（src/countries/jp/）
   // 檢測點優先於承載線；橋梁輪廓是面，排在細線之後，避免先吃掉同位置點擊。
   { layers: ["tainan-bridge-inspections-circle"], type: "tainanBridgeInspections" },
   { layers: ["changhua-traffic-signals-circle"], type: "changhuaTrafficSignals" },
@@ -325,478 +259,25 @@ export const GIS_LAYERS: GisLayerEntry[] = slottedList<GisLayerEntry>("gisClickL
   { layers: ["osm-bridge-footprints-fill", "osm-bridge-footprints-outline"], type: "osmBridgeFootprints" },
   // Allen 覆蓋面排在日本點與線之後，避免攔截細目標的 popup。
   { layers: ["allen-coral-atlas-benthic-fill", "allen-coral-atlas-geomorphic-fill"], type: "allenCoralAtlas" },
-  // 日本 Japan 面層：小面 → 大面，排在**所有點層之後**（車站 / 宗教三源 / 學校 / 鐵道線）。
-  // ⚠️ 縣界 fill 覆蓋全日本且 tab 開啟時預設開，若排在點層之前會吃掉所有點擊
-  // → 車站與宗教點永遠開不出 popup。機場 footprint 也是面，同理排點層後。
-  { layers: ["jp-airports-circle", "jp-airports-fill"], type: "jpAirports" },
-  { layers: ["jp-tourism-jp-natural-parks-national-fill"], type: "jpNaturalParksNational" },
-  { layers: ["jp-tourism-jp-natural-parks-quasi-national-fill"], type: "jpNaturalParksQuasiNational" },
-  { layers: ["jp-tourism-jp-natural-parks-prefectural-fill"], type: "jpNaturalParksPrefectural" },
-  { layers: ["jp-tourism-jp-nature-conservation-area-fill"], type: "jpNatureConservationArea" },
-  { layers: ["jp-tourism-jp-primitive-nature-environment-area-fill"], type: "jpPrimitiveNatureEnvironmentArea" },
-  { layers: ["jp-tourism-jp-nature-conservation-special-district-fill"], type: "jpNatureConservationSpecialDistrict" },
-  { layers: ["jp-tourism-jp-wildlife-protection-national-fill"], type: "jpWildlifeProtectionNational" },
-  { layers: ["jp-tourism-jp-wildlife-special-protection-district-fill"], type: "jpWildlifeSpecialProtectionDistrict" },
-  { layers: ["jp-tourism-jp-wildlife-special-protection-designated-area-fill"], type: "jpWildlifeSpecialProtectionDesignatedArea" },
-  { layers: ["jp-tourism-jp-world-natural-heritage-historical-fill"], type: "jpWorldNaturalHeritageHistorical" },
-  { layers: ["jp-tourism-jp-marine-ebsa-coastal-fill"], type: "jpMarineEbsaCoastal" },
+  countrySlot("JP", 4), // 日本國家包（src/countries/jp/）
   // 450m 旅宿密度格比人口 1km 網格更細，必須先命中；1.5km 密度格則排在人口網格後。
   { layers: ["jp-accommodation-density-450-fill", "jp-accommodation-density-450-outline"], type: "jpAccommodationDensity" },
-  // 人口網格 1km 格小於 1.5km 旅宿密度格、市区町村與都道府県，依「小面 → 大面」排序。
-  // ⚠️ 縣界 tab 開啟時預設開且與網格同樣無縫鋪滿全日本；若人口網格排在行政區界後，
-  // first-hit-wins 會由縣界吃掉每一次點擊。
-  { layers: ["jp-population-mesh-fill"], type: "jpPopulationMesh1km" },
+  countrySlot("JP", 5), // 日本國家包（src/countries/jp/）
   { layers: ["jp-accommodation-density-1500-fill", "jp-accommodation-density-1500-outline"], type: "jpAccommodationDensity" },
-  { layers: ["jp-admin-municipality-fill"], type: "jpAdminBoundaries" },
+  countrySlot("JP", 6), // 日本國家包（src/countries/jp/）
   countrySlot("GB", 1), // 英國國家包（src/countries/gb/）
-  // 南韓第 3–5 波：點 → 線 → 面，都排在行政界（大面積背景）前面
-  { layers: ["kr-street-trees-circle"], type: "krStreetTrees" },
-  { layers: ["kr-water-level-stations-circle"], type: "krWaterLevelStations" },
-  { layers: ["kr-sluice-gates-circle"], type: "krSluiceGates" },
-  { layers: ["kr-water-quality-stations-circle"], type: "krWaterQualityStations" },
-  { layers: ["kr-coastal-erosion-facilities-circle"], type: "krCoastalErosionFacilities" },
-  { layers: ["kr-marine-pollution-incidents-circle"], type: "krMarinePollutionIncidents" },
-  { layers: ["kr-marine-env-sites-circle"], type: "krMarineEnvSites" },
-  { layers: ["kr-public-bicycle-stations-circle"], type: "krPublicBicycleStations" },
-  { layers: ["kr-seoul-subway-congestion-circle"], type: "krSeoulSubwayCongestion" },
-  { layers: ["kr-parking-lots-circle"], type: "krParkingLots" },
-  { layers: ["kr-bridges-circle"], type: "krBridges" },
-  { layers: ["kr-speed-cameras-circle"], type: "krSpeedCameras" },
-  { layers: ["kr-child-protection-zones-circle"], type: "krChildProtectionZones" },
-  { layers: ["kr-np-location-signs-circle"], type: "krNpLocationSigns" },
-  { layers: ["kr-urban-parks-circle"], type: "krUrbanParks" },
-  { layers: ["kr-sports-facilities-circle"], type: "krSportsFacilities" },
-  { layers: ["kr-schools-circle"], type: "krSchools" },
-  { layers: ["kr-hospitals-pharmacies-circle"], type: "krHospitalsPharmacies" },
-  { layers: ["kr-fire-stations-circle"], type: "krFireStations" },
-  { layers: ["kr-civil-defense-shelters-circle"], type: "krCivilDefenseShelters" },
-  { layers: ["kr-police-boxes-circle"], type: "krPoliceBoxes" },
-  { layers: ["kr-libraries-circle"], type: "krLibraries" },
-  { layers: ["kr-museums-circle"], type: "krMuseums" },
-  { layers: ["kr-performances-circle"], type: "krPerformances" },
-  { layers: ["kr-festivals-circle"], type: "krFestivals" },
-  { layers: ["kr-heritage-circle"], type: "krHeritage" },
-  { layers: ["kr-lodging-circle"], type: "krLodging" },
-  { layers: ["kr-safe-delivery-boxes-circle"], type: "krSafeDeliveryBoxes" },
-  { layers: ["kr-senior-centers-circle"], type: "krSeniorCenters" },
-  { layers: ["kr-noise-sites-circle"], type: "krNoiseSites" },
-  { layers: ["kr-clothing-bins-circle"], type: "krClothingBins" },
-  { layers: ["kr-animal-hospitals-circle"], type: "krAnimalHospitals" },
-  { layers: ["kr-local-culture-centers-circle"], type: "krLocalCultureCenters" },
-  { layers: ["kr-traditional-temples-circle"], type: "krTraditionalTemples" },
-  { layers: ["kr-protected-trees-circle"], type: "krProtectedTrees" },
-  { layers: ["kr-bicycle-parking-circle"], type: "krBicycleParking" },
-  { layers: ["kr-civil-defense-water-circle"], type: "krCivilDefenseWater" },
-  { layers: ["kr-emergency-bells-circle"], type: "krEmergencyBells" },
-  { layers: ["kr-rural-experience-villages-circle"], type: "krRuralExperienceVillages" },
-  { layers: ["kr-slaughterhouses-circle"], type: "krSlaughterhouses" },
-  { layers: ["kr-np-trails-line"], type: "krNpTrails" },
-  { layers: ["kr-territorial-sea-line"], type: "krTerritorialSea" },
-  { layers: ["kr-rivers-osm-line", "kr-rivers-osm-major-line"], type: "krRiversOsm" },
-  // 南韓第 1 波：點（機場 → 電廠 → 再生能源 → 變電所 → 燃料站 → 鐵道站 → 公車站 → 鐵塔）→ 線（電網、國道、鐵道）→ 面（油氣、港灣）
-  { layers: ["kr-airports-circle"], type: "krAirports" },
-  { layers: ["kr-power-plants-circle", "kr-power-plants-minor-circle"], type: "krPowerPlants" },
-  { layers: ["kr-renewables-circle", "kr-renewables-minor-circle"], type: "krRenewables" },
-  { layers: ["kr-substations-circle"], type: "krSubstations" },
-  { layers: ["kr-fuel-stations-circle"], type: "krFuelStations" },
-  { layers: ["kr-rail-stations-circle"], type: "krRailStations" },
-  { layers: ["kr-oil-gas-pts-facility-circle", "kr-oil-gas-pts-pipeline-circle", "kr-oil-gas-point", "kr-oil-gas-pipelines-line", "kr-oil-gas-line", "kr-oil-gas-fill"], type: "krOilGas" },
-  { layers: ["ca-airports-circle", "ca-airports-minor-circle", "ca-ports-circle", "ca-ports-minor-circle"], type: "caAirportsPorts" },
-  { layers: ["ca-rail-stations-circle", "ca-rail-tracks-line", "ca-rail-tracks-minor-line"], type: "caRailways" },
-  { layers: ["ca-transit-stops-circle"], type: "caTransitStops" },
-  { layers: ["ca-power-plants-circle"], type: "caPowerPlants" },
-  { layers: ["ca-wind-turbines-circle"], type: "caWindTurbines" },
-  { layers: ["ca-oil-gas-major-facilities-circle", "ca-oil-gas-facilities-circle", "ca-oil-gas-wells-circle", "ca-oil-gas-pipeline-points-circle", "ca-oil-gas-major-pipelines-line", "ca-oil-gas-pipelines-line"], type: "caOilGas" },
-  { layers: ["ca-power-substations-circle", "ca-power-lines-line", "ca-power-cables-line"], type: "caPowerGrid" },
-  { layers: ["ca-major-roads-line"], type: "caMajorRoads" },
-  { layers: ["ca-population-centres-points-circle"], type: "caPopulationCentres" },
-  { layers: ["ca-place-names-circle"], type: "caPlaceNames" },
-  { layers: ["ca-climate-stations-circle"], type: "caClimateStations" },
-  { layers: ["ca-aqhi-stations-circle"], type: "caAqhiStations" },
-  { layers: ["ca-radiation-stations-circle"], type: "caRadiationStations" },
-  { layers: ["ca-npri-facilities-circle"], type: "caNpriFacilities" },
-  { layers: ["ca-wastewater-systems-circle"], type: "caWastewaterSystems" },
-  { layers: ["ca-earthquakes-major-circle", "ca-earthquakes-circle"], type: "caEarthquakes" },
-  { layers: ["ca-earthquakes-live-circle"], type: "caEarthquakesLive" },
-  { layers: ["ca-indigenous-lands-points-circle"], type: "caIndigenousLands" },
-  { layers: ["ca-rents-points-circle"], type: "caRents" },
-  { layers: ["ca-cimd-points-circle"], type: "caDeprivation" },
-  { layers: ["ca-fed-points-circle"], type: "caFederalDistricts" },
-  { layers: ["kr-bus-stops-circle"], type: "krBusStops" },
-  { layers: ["kr-power-towers-circle"], type: "krPowerTowers" },
-  { layers: ["kr-power-lines-line", "kr-power-cables-line"], type: "krPowerLines" },
-  { layers: ["kr-national-roads-line"], type: "krNationalRoads" },
-  { layers: ["kr-rail-lines-line"], type: "krRailLines" },
-  { layers: ["kr-ports-line", "kr-ports-fill"], type: "krPorts" },
-  // 南韓面層（海洋保護區、國家公園、墓園、工業區、漁場、首爾分區）：排在所有點、線之後，避免吃掉點擊
-  { layers: ["kr-marine-protected-areas-fill"], type: "krMarineProtectedAreas" },
-  { layers: ["kr-national-parks-fill"], type: "krNationalParks" },
-  { layers: ["kr-cemeteries-osm-fill"], type: "krCemeteriesOsm" },
-  { layers: ["kr-industrial-complexes-fill"], type: "krIndustrialComplexes" },
-  { layers: ["kr-fishing-grounds-fill"], type: "krFishingGrounds" },
-  { layers: ["kr-seoul-zoning-fill"], type: "krSeoulZoning" },
-  // 南韓 KRH-1：垃圾排出規則（掛行政界 sgg 面）排在行政界之前，同開時先命中規則；生態自然圖 17 個 시·도 分片＋空錨點
-  { layers: [...KR_WASTE_CLICK_LAYER_IDS], type: "krWasteDisposalRules" },
-  { layers: [...KR_ECO_CLICK_LAYER_IDS], type: "krEcologyNaturalness" },
-  // 南韓：三層級一次只開一層
-  { layers: ["kr-admin-emd-fill", "kr-admin-sgg-fill", "kr-admin-sido-fill"], type: "krAdminBoundaries" },
-  // 加拿大第 3–8 波（2026-11-17，規格驅動；點層在前，面層在後，避免大面吃掉點擊）
-  { layers: ["ca-dams-circle"], type: "caDams" },
-  { layers: ["ca-recycling-depots-circle"], type: "caRecyclingDepots" },
-  { layers: ["ca-critical-habitat-circle", "ca-critical-habitat-line", "ca-critical-habitat-fill"], type: "caCriticalHabitat" },
-  { layers: ["ca-tide-stations-circle"], type: "caTideStations" },
-  { layers: ["ca-bridges-tunnels-circle"], type: "caBridgesTunnels" },
-  { layers: ["ca-toronto-ksi-circle"], type: "caTorontoKsi" },
-  { layers: ["ca-lode-health-circle"], type: "caLodeHealth" },
-  { layers: ["ca-lode-schools-circle"], type: "caLodeSchools" },
-  { layers: ["ca-lode-sports-circle"], type: "caLodeSports" },
-  { layers: ["ca-bc-childcare-circle"], type: "caBcChildcare" },
-  { layers: ["ca-lode-culture-circle"], type: "caLodeCulture" },
-  { layers: ["ca-cbsa-offices-circle"], type: "caCbsaOffices" },
-  { layers: ["ca-parks-canada-accommodation-circle"], type: "caParksCanadaAccommodation" },
-  { layers: ["ca-courts-corrections-circle"], type: "caCourtsCorrections" },
-  { layers: ["ca-toronto-theft-from-vehicle-circle"], type: "caTorontoTheftFromVehicle" },
-  { layers: ["ca-wildfire-points-circle"], type: "caWildfirePoints" },
-  { layers: ["ca-mines-circle"], type: "caMines" },
-  { layers: ["ca-grain-elevators-circle"], type: "caGrainElevators" },
-  { layers: ["ca-abattoirs-circle"], type: "caAbattoirs" },
-  { layers: ["ca-odbus-circle"], type: "caOdbus" },
-  { layers: ["ca-toronto-dev-applications-circle"], type: "caTorontoDevApplications" },
-  // 加拿大原住民土地、人口中心、人口網格面：排在所有點層之後
-  { layers: ["ca-indigenous-lands-fill"], type: "caIndigenousLands" },
-  { layers: ["ca-population-centres-fill"], type: "caPopulationCentres" },
-  { layers: ["ca-population-grid-r7-fill", "ca-population-grid-r6-fill", "ca-population-grid-r5-fill"], type: "caPopulationGrid" },
-  { layers: ["ca-maritime-boundaries-line", "ca-maritime-zones-fill"], type: "caMaritimeZones" },
-  { layers: ["ca-rivers-line", "ca-rivers-lakes-fill"], type: "caRiversLakes" },
-  { layers: ["ca-ecoregions-line", "ca-ecozones-fill"], type: "caEcozones" },
-  { layers: ["ca-ferry-routes-line"], type: "caFerryRoutes" },
-  { layers: ["ca-soil-landscapes-uncovered-line", "ca-soil-landscapes-fill"], type: "caSoilLandscapes" },
-  { layers: ["ca-permafrost-fill"], type: "caPermafrost" },
-  { layers: ["ca-flood-map-inventory-fill"], type: "caFloodMapInventory" },
-  { layers: ["ca-ab-flood-hazard-fill"], type: "caAbFloodHazard" },
-  { layers: ["ca-glaciers-fill"], type: "caGlaciers" },
-  { layers: ["ca-protected-areas-fill"], type: "caProtectedAreas" },
-  { layers: ["ca-marine-conservation-fill"], type: "caMarineConservation" },
-  { layers: ["ca-forest-management-fill"], type: "caForestManagement" },
-  { layers: ["ca-broadband-hex-fill"], type: "caBroadbandHex" },
-  { layers: ["ca-drought-monitor-fill"], type: "caDroughtMonitor" },
-  { layers: ["ca-ns-aquaculture-fill"], type: "caNsAquaculture" },
-  { layers: ["ca-rents-fill", "ca-rents-na-fill"], type: "caRents" },
-  { layers: ["ca-cimd-fill", "ca-cimd-na-fill"], type: "caDeprivation" },
-  { layers: ["ca-fsa-fill"], type: "caPostalFsa" },
-  { layers: ["ca-fed-fill"], type: "caFederalDistricts" },
-  { layers: ["ca-admin-csd-fill", "ca-admin-cd-fill", "ca-admin-pr-fill"], type: "caAdminBoundaries" },
-  // 愛爾蘭第 1 波（規格驅動，layer id 見 data/ieDataLayers.ts；公園代表點 circle 由 repPointClickLayerIds 補）。點層在前，面層（Gaeltacht、公園）最後才命中
-  { layers: ["ie-place-names-circle"], type: "iePlaceNames" },
-  { layers: ["ie-activity-locations-circle"], type: "ieActivityLocations" },
-  { layers: ["ie-graveyards-circle"], type: "ieGraveyards" },
-  { layers: ["ie-commercial-valuations-circle"], type: "ieCommercialValuations" },
-  { layers: ["ie-hydrometric-stations-circle"], type: "ieHydrometricStations" },
-  { layers: ["ie-water-monitoring-circle"], type: "ieWaterMonitoring" },
-  // 第 3b 波：浴場、漁業調查站位（點）
-  { layers: ["ie-bathing-waters-circle"], type: "ieBathingWaters" },
-  { layers: ["ie-marine-survey-stations-circle"], type: "ieMarineSurveyStations" },
-  { layers: ["ie-maritime-boundaries-line"], type: "ieMaritimeBoundaries" },
-  { layers: ["ie-arterial-drainage-line"], type: "ieArterialDrainage" },
-  { layers: ["ie-coastal-erosion-line"], type: "ieCoastalErosion" },
-  // 第 4 波：交通（點在線之前，點擊點優先）
-  { layers: ["ie-transit-stops-circle"], type: "ieTransitStops" },
-  { layers: ["ie-dublinbikes-stations-circle"], type: "ieDublinbikesStations" },
-  { layers: ["ie-road-markers-circle"], type: "ieRoadMarkers" },
-  { layers: ["ie-traffic-counters-circle"], type: "ieTrafficCounters" },
-  { layers: ["ie-airports-ports-circle"], type: "ieAirportsPorts" },
-  // 第 6 波：能源（點在線之前，點擊點優先）
-  { layers: ["ie-power-plants-circle"], type: "iePowerPlants" },
-  { layers: ["ie-substations-circle"], type: "ieSubstations" },
-  { layers: ["ie-wind-farms-circle"], type: "ieWindFarms" },
-  { layers: ["ie-ev-charging-circle"], type: "ieEvCharging" },
-  { layers: ["ie-fuel-stations-circle"], type: "ieFuelStations" },
-  // 第 7b 波：醫療照護、消防警政、司法
-  { layers: ["ie-health-facilities-circle"], type: "ieHealthFacilities" },
-  { layers: ["ie-care-homes-circle"], type: "ieCareHomes" },
-  { layers: ["ie-fire-stations-circle"], type: "ieFireStations" },
-  { layers: ["ie-garda-stations-circle"], type: "ieGardaStations" },
-  { layers: ["ie-courts-circle"], type: "ieCourts" },
-  // 第 10 波：工商（點）
-  { layers: ["ie-industrial-facilities-circle"], type: "ieIndustrialFacilities" },
-  // 第 9 波：規劃申請、回收點、PRTR（點）；分區、廢棄物設施、噪音（面）在面段
-  { layers: ["ie-planning-applications-circle"], type: "iePlanningApplications" },
-  { layers: ["ie-recycling-points-circle"], type: "ieRecyclingPoints" },
-  { layers: ["ie-prtr-facilities-circle"], type: "iePrtrFacilities" },
-  // 第 11 波：點（AED、監獄）
-  { layers: ["ie-defibrillators-circle"], type: "ieDefibrillators" },
-  { layers: ["ie-prisons-circle"], type: "iePrisons" },
-  { layers: ["ie-road-rail-network-line"], type: "ieRoadRailNetwork" },
-  // 第 5 波：點（輻射站、樹木、崩塌事件）→ 線（步道、Wild Atlantic Way）；面在後（代表點 circle 由 repPointClickLayerIds 補）
-  { layers: ["ie-radiation-stations-circle"], type: "ieRadiationStations" },
-  { layers: ["ie-landslide-events-circle"], type: "ieLandslideEvents" },
-  { layers: ["ie-street-trees-circle"], type: "ieStreetTrees" },
-  { layers: ["ie-coillte-recreation-site-circle", "ie-coillte-recreation-entrance-circle"], type: "ieCoillteRecreation" },
-  { layers: ["ie-national-trails-line"], type: "ieNationalTrails" },
-  { layers: ["ie-coillte-forest-roads-line"], type: "ieCoillteForestRoads" },
-  { layers: ["ie-wild-atlantic-way-line"], type: "ieWildAtlanticWay" },
-  { layers: ["ie-power-lines-line"], type: "iePowerLines" },
-  // 第 7a 波：學校、托育點（點優先）
-  { layers: ["ie-schools-circle"], type: "ieSchools" },
-  { layers: ["ie-childcare-services-circle"], type: "ieChildcareServices" },
-  // 第 8 波：文化遺產與生活據點（點優先）
-  { layers: ["ie-museums-circle"], type: "ieMuseums" },
-  { layers: ["ie-arts-venues-circle"], type: "ieArtsVenues" },
-  { layers: ["ie-public-facilities-circle"], type: "iePublicFacilities" },
-  { layers: ["ie-religious-sites-circle"], type: "ieReligiousSites" },
-  { layers: ["ie-heritage-sites-circle"], type: "ieHeritageSites" },
-  { layers: ["ie-river-water-bodies-line"], type: "ieRiverWaterBodies" },
-  { layers: ["ie-parks-fill"], type: "ieParks" },
-  { layers: ["ie-gaeltacht-fill"], type: "ieGaeltacht" },
-  // 第 2 波：國有登記土地面（代表點 circle 由 repPointClickLayerIds 補）
-  { layers: ["ie-state-assets-fill"], type: "ieStateAssets" },
-  // 第 3a 波：淹水、湖泊面
-  { layers: ["ie-lake-water-bodies-fill"], type: "ieLakeWaterBodies" },
-  // 第 11 波：郡議會淹水分區（小，代表點 circle 由 repPointClickLayerIds 補）、GSI 地下水淹水，在 OPW 河川淹水之前
-  { layers: ["ie-flood-zones-fill"], type: "ieFloodZones" },
-  { layers: ["ie-groundwater-flooding-fill"], type: "ieGroundwaterFlooding" },
-  { layers: ["ie-river-flood-extents-fill"], type: "ieRiverFloodExtents" },
-  // 第 3b 波：受保護海域（代表點 circle 由 repPointClickLayerIds 補）、離岸能源、海床調查範圍（大面最後命中）
-  { layers: ["ie-protected-marine-sites-fill"], type: "ieProtectedMarineSites" },
-  { layers: ["ie-offshore-renewables-fill"], type: "ieOffshoreRenewables" },
-  { layers: ["ie-seabed-survey-coverage-fill"], type: "ieSeabedSurveyCoverage" },
-  // 第 5 波面：崩塌範圍（小）→ 保護區 → 國家公園 → 氡氣（鋪滿國土，最後命中）
-  { layers: ["ie-landslide-extents-fill"], type: "ieLandslideExtents" },
-  { layers: ["ie-protected-sites-fill"], type: "ieProtectedSites" },
-  // 第 11 波：提議中自然遺產區（代表點 circle 由 repPointClickLayerIds 補）
-  { layers: ["ie-proposed-nha-fill"], type: "ieProposedNha" },
-  { layers: ["ie-national-parks-fill"], type: "ieNationalParks" },
-  { layers: ["ie-radon-risk-fill"], type: "ieRadonRisk" },
-  // 第 10 波面：養殖場（小，代表點 circle 由 repPointClickLayerIds 補）→ 泥炭土壤 → 土壤圖（鋪滿國土）
-  { layers: ["ie-aquaculture-fill"], type: "ieAquaculture" },
-  // 第 11 波：泥炭開採沼地（代表點 circle 由 repPointClickLayerIds 補），在泥炭土壤之前
-  { layers: ["ie-peat-extraction-bogs-fill"], type: "iePeatExtractionBogs" },
-  { layers: ["ie-peat-soils-fill"], type: "iePeatSoils" },
-  { layers: ["ie-soils-fill"], type: "ieSoils" },
-  // 第 7a 波：學校規劃區（鋪滿國土，在行政界之前）
-  { layers: ["ie-school-planning-areas-fill"], type: "ieSchoolPlanningAreas" },
-  { layers: ["ie-waste-facilities-fill"], type: "ieWasteFacilities" },
-  { layers: ["ie-zoning-fill"], type: "ieZoning" },
-  { layers: ["ie-noise-maps-fill"], type: "ieNoiseMaps" },
-  { layers: ["ie-admin-sa-fill", "ie-admin-ed-fill", "ie-admin-la-fill"], type: "ieAdminBoundaries" },
-  // 菲律賓（2026-11-13 第 0–1 波）：點、線在前，人口面、行政界最後
-  // 第 2 波（2026-11-14）：車站點在線之前；高速公路排在主要道路之前（兩層同開時點到收費資訊）
-  // 菲律賓觀光波與第 2–9 波（2026-11-16）：點優先於線、面
-  { layers: ["ph-tourist-attractions-circle"], type: "phTouristAttractions" },
-  { layers: ["ph-coast-islands-circle"], type: "phCoastIslands" },
-  { layers: ["ph-nature-spots-circle"], type: "phNatureSpots" },
-  { layers: ["ph-tourism-services-circle"], type: "phTourismServices" },
-  { layers: ["ph-tda-line"], type: "phTourismDevelopmentAreas" },
-  { layers: ["ph-place-names-circle"], type: "phPlaceNames" },
-  { layers: ["ph-earthquakes-circle"], type: "phEarthquakes" },
-  { layers: ["ph-water-permits-circle"], type: "phWaterPermits" },
-  { layers: ["ph-dams-circle", "ph-reservoirs-fill"], type: "phDams" },
-  { layers: ["ph-bridges-circle"], type: "phBridges" },
-  { layers: ["ph-parking-circle"], type: "phParking" },
-  { layers: ["ph-km-posts-circle"], type: "phKmPosts" },
-  { layers: ["ph-ecozones-circle"], type: "phEcozones" },
-  { layers: ["ph-reclamation-circle"], type: "phReclamation" },
-  { layers: ["ph-schools-circle"], type: "phSchools" },
-  { layers: ["ph-school-campuses-line", "ph-school-campuses-fill"], type: "phSchoolCampuses" },
-  { layers: ["ph-health-facilities-circle"], type: "phHealthFacilities" },
-  { layers: ["ph-fire-stations-circle"], type: "phFireStations" },
-  { layers: ["ph-police-stations-circle"], type: "phPoliceStations" },
-  { layers: ["ph-jails-circle"], type: "phJails" },
-  { layers: ["ph-trees-circle", "ph-tree-rows-line"], type: "phTrees" },
-  { layers: ["ph-trails-line"], type: "phTrails" },
-  { layers: ["ph-kba-line", "ph-kba-proposed-line", "ph-kba-fill"], type: "phKba" },
-  { layers: ["ph-wetlands-official-fill", "ph-wetlands-osm-fill"], type: "phWetlands" },
-  { layers: ["ph-forestry-programs-fill"], type: "phForestryPrograms" },
-  { layers: ["ph-coastal-resources-fill"], type: "phCoastalResources" },
-  { layers: ["ph-marine-stations-circle"], type: "phMarineStations" },
-  { layers: ["ph-wdpca-line", "ph-wdpca-fill"], type: "phWdpca" },
-  { layers: ["ph-waste-facilities-circle"], type: "phWasteFacilities" },
-  { layers: ["ph-openaq-air-circle"], type: "phOpenaqAir" },
-  { layers: ["ph-pollution-sources-circle"], type: "phPollutionSources" },
-  { layers: ["ph-arts-venues-circle"], type: "phArtsVenues" },
-  { layers: ["ph-post-offices-circle"], type: "phPostOffices" },
-  { layers: ["ph-public-facilities-circle"], type: "phPublicFacilities" },
-  { layers: ["ph-financial-services-circle"], type: "phFinancialServices" },
-  { layers: ["ph-places-of-worship-circle"], type: "phPlacesOfWorship" },
-  { layers: ["ph-sports-venues-circle"], type: "phSportsVenues" },
-  { layers: ["ph-parks-circle", "ph-parks-fill"], type: "phParks" },
-  { layers: ["ph-cemeteries-circle", "ph-cemeteries-fill"], type: "phCemeteries" },
-  { layers: ["ph-fish-ports-circle"], type: "phFishPorts" },
-  { layers: ["ph-aquaculture-fill"], type: "phAquaculture" },
-  { layers: ["ph-urban-rail-stations-circle", "ph-urban-rail-line"], type: "phUrbanRail" },
-  { layers: ["ph-bus-stops-circle"], type: "phBusStops" },
-  { layers: ["ph-expressways-line"], type: "phExpressways" },
-  { layers: ["ph-transport-hubs-circle"], type: "phTransportHubs" },
-  { layers: ["ph-stations-circle"], type: "phStations" },
-  { layers: ["ph-power-plants-circle"], type: "phPowerPlants" },
-  { layers: ["ph-power-substations-circle", "ph-power-lines-line", "ph-power-cables-line"], type: "phPowerGrid" },
-  { layers: ["ph-renewables-circle"], type: "phRenewables" },
-  { layers: ["ph-fuel-stations-circle"], type: "phFuelStations" },
-  { layers: ["ph-tanks-circle", "ph-pipelines-line"], type: "phPipelines" },
-  { layers: ["ph-major-roads-line", "ph-major-rail-line"], type: "phMajorRoads" },
-  // 菲律賓廣域面（觀光發展區、貧窮、NOAH 災害、湖泊、NCR 安全開放空間）：排在所有點、線之後、人口面之前，避免吃掉點擊
-  { layers: ["ph-tda-fill"], type: "phTourismDevelopmentAreas" },
-  { layers: ["ph-poverty-fill"], type: "phPoverty" },
-  { layers: ["ph-noah-flood-fill", "ph-noah-flood-fill-central", "ph-noah-flood-fill-south"], type: "phNoahFlood100yr" },
-  { layers: ["ph-noah-landslide-fill", "ph-noah-landslide-fill-central", "ph-noah-landslide-fill-south"], type: "phNoahLandslide" },
-  { layers: ["ph-lakes-fill"], type: "phLakes" },
-  { layers: ["ph-ncr-safe-open-spaces-fill"], type: "phNcrSafeOpenSpaces" },
-  { layers: ["ph-population-barangay-fill", "ph-population-municipality-fill", "ph-population-province-fill", "ph-population-region-fill"], type: "phPopulation" },
-  { layers: ["ph-admin-barangay-fill", "ph-admin-municipality-fill", "ph-admin-province-fill", "ph-admin-region-fill"], type: "phAdminBoundaries" },
-  // 越南（2026-11-13 第 0–1 波）：點、線在前，面（安江工業群、人口、行政界）最後
-  { layers: ["vn-airports-circle", "vn-ports-circle", "vn-airports-osm-circle"], type: "vnTransportHubs" },
-  { layers: ["vn-stations-circle"], type: "vnStations" },
-  { layers: ["vn-power-plants-circle"], type: "vnPowerPlants" },
-  { layers: ["vn-renewables-wind-solar-circle", "vn-renewables-solar-tz-circle", "vn-charging-circle"], type: "vnRenewables" },
-  { layers: ["vn-power-substations-circle", "vn-power-lines-line", "vn-power-cables-line"], type: "vnPowerGrid" },
-  { layers: ["vn-fuel-stations-circle"], type: "vnFuelStations" },
-  { layers: ["vn-lng-terminals-circle", "vn-coal-terminals-circle", "vn-refineries-circle", "vn-tanks-circle", "vn-pipelines-gem-line", "vn-pipelines-osm-line"], type: "vnOilGas" },
-  { layers: ["vn-envisoft-stations-circle"], type: "vnEnvisoftStations" },
-  // 越南觀光波與第 2–7 波（2026-11-17）：點、線
-  { layers: ["vn-tour-attractions-circle"], type: "vnTourAttractions" },
-  { layers: ["vn-tour-nature-circle"], type: "vnTourNature" },
-  { layers: ["vn-tour-services-circle"], type: "vnTourServices" },
-  { layers: ["vn-national-tourist-areas-circle"], type: "vnNationalTouristAreas" },
-  { layers: ["vn-glide-events-circle"], type: "vnGlideEvents" },
-  { layers: ["vn-riverbank-erosion-circle"], type: "vnRiverbankErosion" },
-  { layers: ["vn-coal-mines-circle"], type: "vnCoalMines" },
-  { layers: ["vn-bicycle-rental-circle"], type: "vnBicycleRental" },
-  { layers: ["vn-parking-circle"], type: "vnParking" },
-  { layers: ["vn-water-supply-circle"], type: "vnWaterSupply" },
-  { layers: ["vn-water-structures-circle"], type: "vnWaterStructures" },
-  { layers: ["vn-schools-circle"], type: "vnSchools" },
-  { layers: ["vn-kindergartens-circle"], type: "vnKindergartens" },
-  { layers: ["vn-health-facilities-circle"], type: "vnHealthFacilities" },
-  { layers: ["vn-police-circle"], type: "vnPolice" },
-  { layers: ["vn-courts-prisons-circle"], type: "vnCourtsPrisons" },
-  { layers: ["vn-postal-services-circle"], type: "vnPostalServices" },
-  { layers: ["vn-public-amenities-circle"], type: "vnPublicAmenities" },
-  { layers: ["vn-financial-services-circle"], type: "vnFinancialServices" },
-  { layers: ["vn-places-of-worship-circle"], type: "vnPlacesOfWorship" },
-  { layers: ["vn-place-names-circle"], type: "vnPlaceNames" },
-  { layers: ["vn-bridges-line"], type: "vnBridges" },
-  { layers: ["vn-rivers-line"], type: "vnRivers" },
-  { layers: ["vn-farm-tracks-line"], type: "vnFarmTracks" },
-  { layers: ["vn-angiang-flood-circle", "vn-angiang-clusters-outline", "vn-angiang-clusters-fill"], type: "vnAngiangDemo" },
-  { layers: ["vn-major-roads-line", "vn-major-rail-line", "vn-major-rail-construction-line"], type: "vnMajorRoads" },
-  // 越南第 2–7 波（2026-11-17）：含面者（小面在前、土壤與保護區大面在後）
-  { layers: ["vn-dams-circle", "vn-reservoirs-fill"], type: "vnDams" },
-  { layers: ["vn-parks-circle", "vn-parks-fill"], type: "vnParks" },
-  { layers: ["vn-school-campuses-line", "vn-school-campuses-fill"], type: "vnSchoolCampuses" },
-  { layers: ["vn-angiang-aquaculture-fill"], type: "vnAngiangAquaculture" },
-  { layers: ["vn-field-boundaries-line", "vn-field-boundaries-fill"], type: "vnFieldBoundaries" },
-  { layers: ["vn-protected-areas-odm-line", "vn-protected-areas-odm-fill"], type: "vnProtectedAreasOdm" },
-  { layers: ["vn-soil-fill"], type: "vnSoil" },
-  { layers: ["th-hubs-circle"], type: "thTransportHubs" },
-  { layers: ["th-stations-circle", "th-bus-stops-circle"], type: "thStations" },
-  { layers: ["th-power-plants-circle"], type: "thPowerPlants" },
-  { layers: ["th-renewables-circle", "th-wind-turbines-circle"], type: "thRenewables" },
-  { layers: ["th-power-substations-circle", "th-power-lines-line"], type: "thPowerGrid" },
-  { layers: ["th-fuel-stations-circle"], type: "thFuelStations" },
-  { layers: ["th-pipeline-facilities-circle", "th-pipelines-line"], type: "thPipelines" },
-  { layers: ["th-major-roads-line", "th-major-rail-line"], type: "thMajorRoads" },
-  { layers: ["th-place-names-circle"], type: "thPlaceNames" },
-  { layers: ["th-highland-villages-circle"], type: "thHighlandVillages" },
-  { layers: ["th-footbridges-circle"], type: "thFootbridges" },
-  { layers: ["th-rail-crossings-circle"], type: "thRailCrossings" },
-  { layers: ["th-road-accidents-circle"], type: "thRoadAccidents" },
-  { layers: ["th-irrigation-projects-circle"], type: "thIrrigationProjects" },
-  { layers: ["th-landslide-safe-points-circle"], type: "thLandslideSafePoints" },
-  { layers: ["th-landfill-survey-circle", "th-landfill-pcd-circle"], type: "thLandfills" },
-  { layers: ["th-eec-tambon-fill", "th-eec-boundary-fill"], type: "thEec" },
-  { layers: ["th-flood-history-fill"], type: "thFloodHistory" },
-  { layers: ["th-basin-sub-fill", "th-basin-main-fill"], type: "thBasins" },
-  { layers: ["th-election-2569-fill", "th-election-2566-fill"], type: "thElectionConstituencies" },
-  { layers: ["th-socio-gini-fill", "th-socio-change-fill"], type: "thProvinceSocioeconomic" },
-  // 泰國第 5–7 波（2026-11-22）：點在前、面（保護區類）在後
-  { layers: ["th-schools-obec-circle", "th-schools-other-circle"], type: "thSchools" },
-  { layers: ["th-kindergartens-obec-circle", "th-kindergartens-overture-circle"], type: "thKindergartens" },
-  { layers: ["th-elderly-housing-circle"], type: "thElderlyHousing" },
-  { layers: ["th-health-gistda-circle", "th-health-osm-circle"], type: "thHealthFacilities" },
-  { layers: ["th-police-gistda-circle", "th-police-overture-circle"], type: "thPoliceStations" },
-  { layers: ["th-prisons-circle", "th-courthouses-circle"], type: "thJailsCourts" },
-  { layers: ["th-nature-moc-circle", "th-nature-osm-circle", "th-nature-overture-circle"], type: "thNatureSpots" },
-  { layers: ["th-ramsar-circle"], type: "thRamsarSites" },
-  { layers: ["th-moc-museums-circle", "th-moc-libraries-circle", "th-osm-museums-circle", "th-osm-libraries-circle"], type: "thMuseumsLibraries" },
-  { layers: ["th-arts-events-circle", "th-arts-venues-circle"], type: "thArtsEvents" },
-  { layers: ["th-historic-parks-circle", "th-historic-moc-circle", "th-historic-osm-circle"], type: "thHistoricSites" },
-  { layers: ["th-camps-circle", "th-attractions-circle"], type: "thExperiences" },
-  { layers: ["th-accommodation-tat-circle", "th-accommodation-osm-circle"], type: "thAccommodation" },
-  { layers: ["th-banks-overture-circle", "th-banks-osm-circle", "th-atms-osm-circle"], type: "thBanks" },
-  { layers: ["th-worship-moc-circle", "th-worship-osm-circle", "th-worship-overture-circle"], type: "thPlacesOfWorship" },
-  { layers: ["th-post-overture-circle", "th-post-osm-circle"], type: "thPostOffices" },
-  { layers: ["th-forest-parks-fill"], type: "thForestParks" },
-  { layers: ["th-parks-fill", "th-sanctuary-fill"], type: "thNationalParks" },
-  { layers: ["th-nrf-fill"], type: "thNationalReservedForests" },
-  // 泰國第 8–9 波（2026-11-23）：點、線在前，面在後
-  { layers: ["th-air4thai-circle", "th-pcd-stations-circle"], type: "thAirQualityStations" },
-  { layers: ["th-noaa-stations-circle", "th-tmd-stations-circle"], type: "thWeatherStations" },
-  { layers: ["th-sea-level-circle"], type: "thSeaLevelStations" },
-  { layers: ["th-sports-venues-circle", "th-sports-general-circle"], type: "thSportsVenues" },
-  { layers: ["th-parks-circle", "th-parks-other-circle"], type: "thParks" },
-  { layers: ["th-factories-operating-circle", "th-factories-inactive-circle"], type: "thFactories" },
-  { layers: ["th-farm-markets-circle"], type: "thFarmMarkets" },
-  { layers: ["th-vet-gistda-circle", "th-vet-overture-circle"], type: "thVeterinary" },
-  { layers: ["th-coastal-change-line"], type: "thCoastalChange" },
-  { layers: ["th-habitat-coral-fill", "th-habitat-seagrass-fill", "th-habitat-mangrove-fill"], type: "thMarineHabitats" },
-  { layers: ["th-mpa-fill"], type: "thMarineProtectedAreas" },
-  { layers: ["th-crops-rubber-fill", "th-crops-palm-fill", "th-crops-sugarcane-fill", "th-crops-maize-fill", "th-crops-cassava-fill", "th-crops-rice-fill"], type: "thCrops" },
-  { layers: ["th-population-amphoe-fill", "th-population-province-fill"], type: "thPopulation" },
-  { layers: ["th-admin-tambon-fill", "th-admin-amphoe-fill", "th-admin-province-fill", "th-admin-country-fill"], type: "thAdminBoundaries" },
-  // 印尼第 5–9 波（2026-11-24）
-  { layers: ["id-schools-circle"], type: "idSchools" },
-  { layers: ["id-health-circle"], type: "idHealthFacilities" },
-  { layers: ["id-fire-circle"], type: "idFireStations" },
-  { layers: ["id-police-circle"], type: "idPoliceStations" },
-  { layers: ["id-prisons-circle"], type: "idPrisonsCourts" },
-  { layers: ["id-immigration-circle"], type: "idImmigrationOffices" },
-  { layers: ["id-tj-stops-circle", "id-tj-routes-line"], type: "idTransjakarta" },
-  { layers: ["id-post-circle"], type: "idPostOffices" },
-  { layers: ["id-markets-circle"], type: "idMarkets" },
-  { layers: ["id-banks-bank-circle", "id-banks-atm-circle"], type: "idBanks" },
-  { layers: ["id-cultural-circle"], type: "idCulturalFacilities" },
-  { layers: ["id-heritage-circle"], type: "idHeritageSites" },
-  { layers: ["id-comm-towers-circle"], type: "idCommTowers" },
-  { layers: ["id-worship-circle"], type: "idPlacesOfWorship" },
-  { layers: ["id-experiences-circle"], type: "idExperiences" },
-  { layers: ["id-accommodation-circle"], type: "idAccommodation" },
-  { layers: ["id-weather-circle"], type: "idWeatherStations" },
-  { layers: ["id-factories-circle"], type: "idFactories" },
-  { layers: ["id-veterinary-circle"], type: "idVeterinary" },
-  // 印尼（2026-11-23 第 0–4 波）：點、線在前，面（人口、IDM、行政界）最後
-  { layers: ["id-stations-circle"], type: "idStations" },
-  { layers: ["id-rail-lines-line"], type: "idRailLines" },
-  { layers: ["id-hubs-circle"], type: "idTransportHubs" },
-  { layers: ["id-power-plants-circle", "id-power-plants-fill"], type: "idPowerPlants" },
-  { layers: ["id-power-substations-circle", "id-power-lines-line", "id-power-substations-fill"], type: "idPowerGrid" },
-  { layers: ["id-renewables-circle", "id-renewables-fill", "id-solar-potential-fill"], type: "idRenewables" },
-  { layers: ["id-fuel-stations-circle"], type: "idFuelStations" },
-  { layers: ["id-place-names-circle"], type: "idPlaceNames" },
-  { layers: ["id-outer-islands-circle"], type: "idOuterIslands" },
-  { layers: ["id-faults-pvmbg-line", "id-faults-pusgen-line"], type: "idFaults" },
-  { layers: ["id-mountain-rescue-circle"], type: "idMountainRescue" },
-  { layers: ["id-dibi-fill"], type: "idDibiHydromet" },
-  { layers: ["id-bridges-circle"], type: "idBridges" },
-  { layers: ["id-water-facilities-circle"], type: "idWaterFacilities" },
-  { layers: ["id-watersheds-fill"], type: "idWatersheds" },
-  { layers: ["id-subsidence-circle"], type: "idSubsidence" },
-  { layers: ["id-nature-spots-circle"], type: "idNatureSpots" },
-  { layers: ["id-forest-fill"], type: "idConservationForest" },
-  { layers: ["id-camps-circle"], type: "idCamps" },
-  { layers: ["id-farmland-fill"], type: "idFarmland" },
-  { layers: ["id-aquaculture-fill"], type: "idAquaculture" },
-  { layers: ["id-cemeteries-fill"], type: "idCemeteries" },
-  { layers: ["id-parks-fill"], type: "idParks" },
-  { layers: ["id-sports-fill"], type: "idSportsVenues" },
-  { layers: ["id-ikn-bwp-fill", "id-ikn-utara-fill", "id-ikn-rdtr-fill", "id-ikn-delineasi-fill"], type: "idIkn" },
-  { layers: ["id-kek-fill"], type: "idSpecialEconomicZones" },
-  { layers: ["id-rural-kabkota-fill", "id-rural-province-fill"], type: "idRuralDevelopment" },
-  { layers: ["id-population-kabkota-fill", "id-population-province-fill"], type: "idPopulation" },
-  { layers: ["id-admin-kabkota-fill", "id-admin-province-fill", "id-admin-country-fill"], type: "idAdminBoundaries" },
-  { layers: ["vn-population-province-fill"], type: "vnPopulation" },
-  { layers: ["vn-admin-province-fill"], type: "vnAdminBoundaries" },
+  countrySlot("KR", 1), // 南韓國家包（src/countries/kr/）
+  countrySlot("CA", 1), // 加拿大國家包（src/countries/ca/）
+  countrySlot("KR", 2), // 南韓國家包（src/countries/kr/）
+  countrySlot("CA", 2), // 加拿大國家包（src/countries/ca/）
+  countrySlot("IE", 1), // 愛爾蘭國家包（src/countries/ie/）
+  countrySlot("PH", 1), // 菲律賓國家包（src/countries/ph/）
+  countrySlot("VN", 1), // 越南國家包（src/countries/vn/）
+  countrySlot("TH", 1), // 泰國國家包（src/countries/th/）
+  countrySlot("ID", 1), // 印尼國家包（src/countries/id/）
+  countrySlot("VN", 2), // 越南國家包（src/countries/vn/）
   countrySlot("CN", 1), // 中國國家包（src/countries/cn/）
-  { layers: ["jp-admin-prefecture-fill"], type: "jpAdminPrefecture" },
+  countrySlot("JP", 7), // 日本國家包（src/countries/jp/）
   { layers: ["typhoon-agency-forecasts-points", "typhoon-agency-forecasts-line"], type: "typhoonAgencyForecast" },
   { layers: ["typhoon-tracks-current-ring", "typhoon-tracks-current-dot", "typhoon-tracks-points", "typhoon-tracks-radii-fill"], type: "typhoonTrack" },
   { layers: ["port-centroids-point-core", "port-centroids-point-glow"], type: "port" },
@@ -846,7 +327,7 @@ export const GIS_LAYERS: GisLayerEntry[] = slottedList<GisLayerEntry>("gisClickL
   { layers: ["street-trees-national-circle"], type: "streetTreesNational" },
   { layers: ["tree-pits-taipei-fill", "tree-pits-taipei-line"], type: "treePitsTaipei" },
   { layers: ["buildings-gba-fill", "buildings-gba-extrusion"], type: "buildingsGba" },
-  { layers: ["jp-building-height-grid-fill", "jp-building-height-fill", "jp-building-height-extrusion"], type: "jpBuildingHeight" },
+  countrySlot("JP", 8), // 日本國家包（src/countries/jp/）
   // 網格背景層：細（總市值 150m/450m/1.5km）排前、粗（500m 都市紋理）排後 —— first-hit-wins。
   // 三個尺度的 layer id 都收（同時只有一個 visible，隱形的不會被 query 命中）；
   // 每尺度兩個 sublayer 都收（3D 模式看到的是 extrusion 側面，點它才要能開 popup，同 buildingsGba）
@@ -1347,9 +828,7 @@ export const GIS_LAYERS: GisLayerEntry[] = slottedList<GisLayerEntry>("gisClickL
   // 🏙️ 公共生活 OSM 覆蓋度 H3：鋪滿整個分析範圍的面層，排在最前會吞掉其下所有圖層的點擊
   //    （first-hit-wins）→ 與其他 H3 格一起放在大面積面層段。
   { layers: ["public-life-osm-coverage-fill", "public-life-osm-coverage-outline"], type: "publicLifeOsmCoverage" },
-  // 南韓人口 H3 格：覆蓋全國的面，排在南韓點線 entry 之前會搶走設施點擊 → 放面層段
-  { layers: ["kr-population-h3-fill"], type: "krPopulationH3" },
-  { layers: ["kr-school-districts-fill"], type: "krSchoolDistricts" },
+  countrySlot("KR", 3), // 南韓國家包（src/countries/kr/）
   // 航船布告的面（射擊區、施工區可達數十公里）：放面層段，避免吞掉海上測站與船點的點擊（B8）
   { layers: ["tw-nav-notices-fill"], type: "navNotice" },
   // 🏞️ 國家公園：大面積面層，排在道路、站點與 POI 之前會讓園區內的點擊先命中公園 → 放大面積面層段。
@@ -1368,9 +847,7 @@ export const GIS_LAYERS: GisLayerEntry[] = slottedList<GisLayerEntry>("gisClickL
   //    → 放在整個陣列的**真正最末**，不搶任何點 / 線 / 面層的命中。
   //    只收 `-fill`：`-outline` 是同一批幾何的邊框，收了只是重複命中同一 feature。
   { layers: ["agri-ftw-fields-fill"], type: "agricultureField" },
-  // Transparent supply areas are intentionally the final click candidate across the map,
-  // so a coverage polygon never intercepts any detailed point, line, or other fill.
-  { layers: ["jp-water-jpWaterSupplyAreas"], type: "jpWaterSupplyAreas" },
+  countrySlot("JP", 9), // 日本國家包（src/countries/jp/）
 ], applyRepPointClickAliases);
 
 /**
@@ -1387,8 +864,10 @@ export function dropHiddenLandUseHex<F extends { layer?: { id?: string; paint?: 
 
 // V-5：面層的代表點 circle 沿用同一個 FeatureInfo 類型（點樣式下面層隱藏，點擊落在代表點上）
 function applyRepPointClickAliases(entries: readonly GisLayerEntry[]): void {
+  const fresh = entries.filter((entry) => !REP_POINT_ALIASED.has(entry));
+  for (const entry of fresh) REP_POINT_ALIASED.add(entry);
   for (const { polygonLayerId, circleIds } of repPointClickLayerIds()) {
-    for (const entry of entries) if (entry.layers.includes(polygonLayerId)) entry.layers.push(...circleIds);
+    for (const entry of fresh) if (entry.layers.includes(polygonLayerId)) entry.layers.push(...circleIds);
   }
 }
 applyRepPointClickAliases(GIS_LAYERS);

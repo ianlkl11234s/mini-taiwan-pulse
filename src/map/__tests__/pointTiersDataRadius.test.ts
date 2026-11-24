@@ -9,6 +9,10 @@ vi.mock("../pointSpec", async (importOriginal) => ({
 import { OVERLAY_REGISTRY } from "../overlayRegistry";
 import { DECORATION_SUFFIX_RE, isDataDriven } from "../pointSpec";
 import { POINT_TIERS } from "../pointTiers";
+import { loadAllPacks } from "../../countries/packs";
+
+// 全部圖層（含延後載入的國家包，B1 P5）一起驗
+await loadAllPacks();
 
 describe("R2 分階不得吃掉資料編碼的半徑", () => {
   it("原始半徑依 feature 資料（嚴重度、容量、床數…）的主體 circle 必須是泡泡 B，不能套 S／M／L 固定階", () => {

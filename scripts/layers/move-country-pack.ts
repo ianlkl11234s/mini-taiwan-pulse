@@ -57,6 +57,14 @@ for (const k of KEYS) {
   const l = r.legend === undefined ? k : r.legend;
   if (l !== null) LEGENDS.add(l);
 }
+// 共用的 popup 類型／圖例 id（例：rasterProbe、lightningStrike、historicalFlightTrails 台灣圖層也在用）留在中央：
+// 索引只有外國圖層看不到台灣的使用者，所以只收「就是這國的 key」或「帶這國前綴」的 id。
+const OWN_ID = cfg.ownIdPrefix ?? new RegExp(`^${cfg.dir}[A-Z0-9]`);
+const SHARED_KEPT: string[] = [];
+for (const set of [POPUPS, LEGENDS]) {
+  for (const id of [...set]) if (!KEYS.has(id) && !OWN_ID.test(id)) { set.delete(id); SHARED_KEPT.push(id); }
+}
+if (SHARED_KEPT.length) console.log(`• 共用 id 留在中央：${[...new Set(SHARED_KEPT)].join("、")}`);
 console.log(`${CC}：索引 ${ALL_KEYS.length} 個 key，這輪搬 ${KEYS.size} 個；popup 類型 ${POPUPS.size}、legend id ${LEGENDS.size}`);
 
 // ── 檔案工具 ───────────────────────────────────────────────────────
@@ -389,17 +397,59 @@ function moveRecordEntries(fileRel: string, varName: string, match: (name: strin
 }
 
 // ── 規則：有序陣列（插槽） ─────────────────────────────────────────
-function existingSlotNumbers(sf: ts.SourceFile): number[] {
+function existingSlotNumbers(sf: ts.SourceFile, marker: string): number[] {
   const out: number[] = [];
-  for (const m of sf.text.matchAll(new RegExp(`countrySlot\\("${CC}", (\\d+)\\)`, "g"))) out.push(Number(m[1]));
+  for (const m of sf.text.matchAll(new RegExp(`${marker}\\("${CC}", (\\d+)\\)`, "g"))) out.push(Number(m[1]));
   return out;
 }
 
-function moveListEntries(fileRel: string, varName: string, match: (el: ts.Expression, sf: ts.SourceFile) => boolean, sec: Section): number {
+interface ListOptions {
+  /** 插槽標記函式名（預設 countrySlot；overlay 用 overlaySlot，型別上是 OverlayConfig） */
+  marker?: string;
+  /** 也掃巢狀的 `...[ … ]` 陣列與 `<varName>.push(…)` 的引數（overlayRegistry 的條目散在這些地方） */
+  nested?: boolean;
+  /** 符合但留在中央的條目（例：由 jpHeightLifecycle 管的 overlay 樣板） */
+  keep?: (el: ts.Expression) => boolean;
+  /** false＝展開元素（...X）一律不搬 */
+  spreads?: boolean;
+}
+
+function unwrapExpr(e: ts.Expression): ts.Expression {
+  while (ts.isParenthesizedExpression(e) || ts.isAsExpression(e) || ts.isSatisfiesExpression(e)) e = e.expression;
+  return e;
+}
+
+/** 有序陣列的「條目清單」：主陣列，加上（nested 時）巢狀展開陣列與 push 呼叫的引數 */
+function elementLists(sf: ts.SourceFile, arr: ts.ArrayLiteralExpression, varName: string, nested: boolean): ts.NodeArray<ts.Expression>[] {
+  const out: ts.NodeArray<ts.Expression>[] = [arr.elements];
+  if (!nested) return out;
+  const unwrap = unwrapExpr;
+  const addNested = (els: ts.NodeArray<ts.Expression>) => {
+    for (const el of els) {
+      if (!ts.isSpreadElement(el)) continue;
+      const inner = unwrap(el.expression);
+      if (ts.isArrayLiteralExpression(inner)) { out.push(inner.elements); addNested(inner.elements); }
+    }
+  };
+  addNested(arr.elements);
+  const visit = (n: ts.Node) => {
+    if (ts.isCallExpression(n) && ts.isPropertyAccessExpression(n.expression) && n.expression.name.text === "push"
+      && ts.isIdentifier(n.expression.expression) && n.expression.expression.text === varName) {
+      out.push(n.arguments);
+      addNested(n.arguments);
+    }
+    n.forEachChild(visit);
+  };
+  for (const st of sf.statements) if (ts.isExpressionStatement(st)) visit(st);
+  return out;
+}
+
+function moveListEntries(fileRel: string, varName: string, match: (el: ts.Expression, sf: ts.SourceFile) => boolean, sec: Section, opts: ListOptions = {}): number {
   const abs = join(ROOT, fileRel);
   const sf = parse(abs);
   const arr = findContainer(sf, varName) as ts.ArrayLiteralExpression;
-  let next = Math.max(0, ...existingSlotNumbers(sf)) + 1;
+  const marker = opts.marker ?? "countrySlot";
+  let next = Math.max(0, ...existingSlotNumbers(sf, marker)) + 1;
   const picked: ts.Node[] = [];
   let run: ts.Expression[] = [];
   const flush = () => {
@@ -411,15 +461,20 @@ function moveListEntries(fileRel: string, varName: string, match: (el: ts.Expres
     const indent = sf.text.slice(sf.text.lastIndexOf("\n", first.getStart(sf)) + 1, first.getStart(sf)).match(/^\s*/)![0];
     const texts = run.map((el) => entryText(el, sf));
     sec.slotBodies.set(n, texts);
-    pushEdit(abs, { start: s0, end: e1, text: `${indent}countrySlot("${CC}", ${n}), // ${cfg!.nameZh}國家包（src/countries/${cfg!.dir}/）\n` });
+    pushEdit(abs, { start: s0, end: e1, text: `${indent}${marker}("${CC}", ${n}), // ${cfg!.nameZh}國家包（src/countries/${cfg!.dir}/）\n` });
     picked.push(...run);
     run = [];
   };
-  for (const el of arr.elements) {
-    if (ts.isSpreadElement(el) ? spreadIsCountry(sf, el.expression) : match(el, sf)) run.push(el);
-    else if (!ts.isOmittedExpression(el)) flush();
+  for (const list of elementLists(sf, arr, varName, !!opts.nested)) {
+    for (const el of list) {
+      const inner = ts.isSpreadElement(el) ? el.expression : null;
+      const nestedArray = inner && opts.nested && ts.isArrayLiteralExpression(unwrapExpr(inner));
+      const hit = !opts.keep?.(el) && (inner ? !nestedArray && opts.spreads !== false && spreadIsCountry(sf, inner) : match(el, sf));
+      if (hit) run.push(el);
+      else if (!ts.isOmittedExpression(el)) flush();
+    }
+    flush();
   }
-  flush();
   if (picked.length === 0) return 0;
   carryDependencies(sf, picked, sec);
   if (!sf.text.includes("countrySlot")) {
@@ -434,6 +489,7 @@ function moveListEntries(fileRel: string, varName: string, match: (el: ts.Expres
 }
 
 function objField(el: ts.Expression, field: string): ts.Expression | undefined {
+  el = unwrapExpr(el); // `{ … } satisfies OverlayConfig`
   if (!ts.isObjectLiteralExpression(el)) return undefined;
   for (const p of el.properties) if (ts.isPropertyAssignment(p) && propName(p) === field) return p.initializer;
   return undefined;
@@ -652,7 +708,7 @@ const sParams = section("params.ts", `${CC}_PACK_PARAMS`, "record", `satisfies P
 moveRecordEntries("src/data/layerParamsSpec.ts", "STATIC_LAYER_PARAMS_SPEC", inKeys, sParams);
 const sSource = section("sourceInfo.ts", `${CC}_PACK_SOURCE_INFO`, "record", `satisfies Partial<Record<${KEY_T}, LayerSourceInfo>>`,
   [keyTypeImport, 'import type { LayerSourceInfo } from "../../data/layerSourceInfo";']);
-moveRecordEntries("src/data/layerSourceInfo.data.ts", "LAYER_SOURCE_INFO_DATA", inKeys, sSource, false);
+moveRecordEntries("src/data/layerSourceInfo.data.ts", "LAYER_SOURCE_INFO_DATA", inKeys, sSource);
 const sNotes = section("notes.ts", `${CC}_PACK_NOTES`, "record", `satisfies Partial<Record<${KEY_T}, SourceText[]>>`,
   [keyTypeImport, 'import type { SourceText } from "../../data/layerSourceInfo";']);
 moveRecordEntries("src/data/layerSourceInfo.data.ts", "LAYER_NOTES_DATA", inKeys, sNotes, false);
@@ -674,6 +730,12 @@ moveListEntries("src/map/gisClickRegistry.ts", "GIS_LAYERS", (el) => { const t =
 const sLegends = section("legends.tsx", `${CC}_PACK_LEGEND_SLOTS`, "slots", "Readonly<Record<number, readonly LegendEntry[]>>",
   ['import type { LegendEntry } from "../../components/LegendPanel";']);
 moveListEntries("src/components/LegendPanel.tsx", "LEGEND_REGISTRY", (el) => { const id = strOf(objField(el, "id")); return id !== null && LEGENDS.has(id); }, sLegends);
+const sOverlays = section("overlays.ts", `${CC}_PACK_OVERLAY_SLOTS`, "slots", "Readonly<Record<number, readonly OverlayConfig[]>>",
+  ['import type { OverlayConfig } from "../../types";']);
+const keepOverlay = (el: ts.Expression) => { const id = strOf(objField(el, "id")); return id !== null && !!cfg.keepOverlays?.includes(id); };
+moveListEntries("src/map/overlayRegistry.ts", "OVERLAY_REGISTRY", (el) => { const id = strOf(objField(el, "id")); return id !== null && KEYS.has(id); }, sOverlays,
+  // overlay 的展開（...G36_SAFETY_OVERLAYS 等）多半混了台灣圖層：不整包搬，留在中央
+  { marker: "overlaySlot", nested: true, keep: keepOverlay, spreads: false });
 
 const nonEmpty = [...sections.values()].filter((s) => s.exportName && (s.body.length || s.slotBodies.size));
 if (nonEmpty.length === 0 && moves.size === 0 && !(cfg.moveNamed?.length)) {
@@ -683,7 +745,17 @@ if (nonEmpty.length === 0 && moves.size === 0 && !(cfg.moveNamed?.length)) {
 flushSourceEdits();
 for (const s of sections.values()) if (s.exportName === "" || s.body.length || s.slotBodies.size) writeSection(s);
 
-// ── 5. keys.ts／popupTypes.ts／specNotes.ts／pack.ts／packKeys.ts ──────
+// ── 5. keys.ts／popupTypes.ts／specNotes.ts／styleIds.ts／pack.ts／packKeys.ts ──────
+if (cfg.styleIds && !existsSync(join(PACK_ABS, "styleIds.ts"))) {
+  mkdirSync(PACK_ABS, { recursive: true });
+  writeFileSync(join(PACK_ABS, "styleIds.ts"), `${HEADER("規格層自建的 style layer id（視野提示卡判斷「看不到」用，map/layerVisibilityHint）")}import { ${cfg.styleIds.specsName} } from "${cfg.styleIds.specsImport}";
+
+export const ${CC}_PACK_STYLE_IDS: Record<string, readonly string[]> = Object.fromEntries(
+  ${cfg.styleIds.specsName}.map((spec) => [spec.key, [spec.layerId]] as const),
+);
+`);
+  log.push(`產生 ${PACK_DIR}/styleIds.ts（設定 styleIds）`);
+}
 mkdirSync(PACK_ABS, { recursive: true });
 const keysAbs = join(PACK_ABS, "keys.ts");
 if (!existsSync(keysAbs)) {
@@ -699,6 +771,18 @@ ${ALL_KEYS.map((k) => `  "${k}",`).join("\n")}
 export type ${KEY_T} = (typeof ${constName})[number];
 `);
   log.push(`產生 ${PACK_DIR}/keys.ts（${ALL_KEYS.length} 個 key）`);
+} else if (!new RegExp(`export type ${KEY_T}\\b`).test(readFileSync(keysAbs, "utf8"))) {
+  // 既有 key 檔（例：xxDataKeys.ts 改名成 keys.ts）只列了規格層：補上這國全部圖層的 key 與型別
+  const constName = `${CC}_LAYER_KEYS`;
+  writeFileSync(keysAbs, `${readFileSync(keysAbs, "utf8").trimEnd()}
+
+/** ${cfg.nameZh}全部圖層 key（B1 P5；索引裡這國的 key）。型別給 LayerVisibility、packKeys 用。 */
+export const ${constName} = [
+${ALL_KEYS.map((k) => `  "${k}",`).join("\n")}
+] as const;
+export type ${KEY_T} = (typeof ${constName})[number];
+`);
+  log.push(`${PACK_DIR}/keys.ts 補上 ${KEY_T}（${ALL_KEYS.length} 個 key）`);
 }
 writeFileSync(join(PACK_ABS, "popupTypes.ts"), `// ⚠️ 自動產生（move-country-pack.ts，依索引的 popup 欄位）：這國搬進國家包的 popup 類型，HEADER_LABELS 的完整性型別用。
 export type ${Cc}PopupType =
@@ -707,16 +791,30 @@ ${[...POPUPS].sort().map((p) => `  | "${p}"`).join("\n")};
 if (cfg.specNotes) {
   const p = join(PACK_ABS, "specNotes.ts");
   if (!existsSync(p)) {
-    writeFileSync(p, `${HEADER("規格層 popupNotes 的固定備註（圖層側說明）")}import { specLayerNotes } from "../../data/layerSourceInfo";
+    const fn = cfg.specNotes.all ? "specLayerNotesAll" : "specLayerNotes";
+    writeFileSync(p, `${HEADER("規格層 popupNotes 的固定備註（圖層側說明）")}import { ${fn} } from "../../data/layerSourceInfo";
 import type { SourceText } from "../../data/layerSourceInfo";
 import { ${cfg.specNotes.specsName} } from "${cfg.specNotes.specsImport}";
 
 export const ${CC}_PACK_SPEC_NOTES: Record<string, SourceText[]> = Object.fromEntries(
-  ${cfg.specNotes.specsName}.map((spec) => [spec.key, specLayerNotes(spec)] as const).filter(([, notes]) => notes.length > 0),
+  ${cfg.specNotes.specsName}.map((spec) => [spec.key, ${fn}(spec)] as const).filter(([, notes]) => notes.length > 0),
 );
 `);
     log.push(`產生 ${PACK_DIR}/specNotes.ts（設定 specNotes）`);
   }
+  // layerSourceInfo.ts 的中央 SPEC_NOTES 拿掉這國的規格（改由國家包登記），沒人用的 import 一起刪
+  const lsAbs = join(ROOT, "src/data/layerSourceInfo.ts");
+  let ls = readFileSync(lsAbs, "utf8");
+  const name = cfg.specNotes.specsName;
+  const before = ls;
+  ls = ls.replace(new RegExp(`\\.\\.\\.${name}, |, \\.\\.\\.${name}\\b|\\.\\.\\.${name}\\b`), "");
+  ls = ls.replace(/^\s*for \(const spec of \[\]\) [^\n]*\n/m, "");
+  // 兩個迴圈都清空了：整個區塊（只剩沒人用的 add）一起刪
+  ls = ls.replace(/\{\n  const add = \(key: string, notes: SourceText\[\]\) => \{[^\n]*\};\n\}\n/, "");
+  if (!new RegExp(`\\b${name}\\b`).test(ls.replace(new RegExp(`^import \\{ ${name} \\} from "[^"]+";\\n`, "m"), ""))) {
+    ls = ls.replace(new RegExp(`^import \\{ ${name} \\} from "[^"]+";\\n`, "m"), "");
+  }
+  if (ls !== before) { writeFileSync(lsAbs, ls); log.push(`layerSourceInfo.ts 中央 SPEC_NOTES 拿掉 ${name}`); }
 }
 // pack.ts：依實際存在的區段檔接線
 const REC: Array<[string, string, string]> = [
@@ -724,9 +822,11 @@ const REC: Array<[string, string, string]> = [
   ["layerSourceInfo", "sourceInfo", `${CC}_PACK_SOURCE_INFO`], ["layerNotes", "notes", `${CC}_PACK_NOTES`],
   ["layerSpecNotes", "specNotes", `${CC}_PACK_SPEC_NOTES`], ["featurePanels", "panels", `${CC}_PACK_PANELS`],
   ["featureHeaderLabels", "headerLabels", `${CC}_PACK_HEADER_LABELS`],
+  ["layerStyleIds", "styleIds", `${CC}_PACK_STYLE_IDS`],
 ];
 const LIST: Array<[string, string, string]> = [
-  ["legends", "legends", `${CC}_PACK_LEGEND_SLOTS`], ["gisClickLayers", "clicks", `${CC}_PACK_CLICK_SLOTS`], ["layerHosts", "hosts", `${CC}_PACK_HOST_SLOTS`],
+  ["legends", "legends", `${CC}_PACK_LEGEND_SLOTS`], ["gisClickLayers", "clicks", `${CC}_PACK_CLICK_SLOTS`],
+  ["overlays", "overlays", `${CC}_PACK_OVERLAY_SLOTS`], ["layerHosts", "hosts", `${CC}_PACK_HOST_SLOTS`],
 ];
 const exists = (f: string) => existsSync(join(PACK_ABS, `${f}.ts`)) || existsSync(join(PACK_ABS, `${f}.tsx`));
 const recs = REC.filter(([, f]) => exists(f));

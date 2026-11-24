@@ -5,7 +5,8 @@ import { PANEL_REGISTRY } from "../../components/featureInfo/registry";
 import { LAYER_MANIFEST } from "../layerManifest";
 import { LAYER_NOTES_DATA } from "../layerSourceInfo.data";
 import type { MessageKey } from "../../i18n/keys";
-import { getLayerNotes, LAYER_SOURCE_INFO, POPUP_PER_FEATURE_SOURCE, popupSourceMode, resolveSourceText, type SourceText } from "../layerSourceInfo";
+import { getLayerNotes, LAYER_SOURCE_INFO, POPUP_PER_FEATURE_SOURCE, popupSourceMode, resolveSourceText, type SourceText, VN_SOURCE_SWITCH } from "../layerSourceInfo";
+import { VN_DATA_SPECS } from "../../countries/vn/vnDataLayers";
 import { loadAllPacks } from "../../countries/packs";
 
 // 全部圖層（含延後載入的國家包，B1 P5a）一起驗
@@ -122,5 +123,11 @@ describe("圖層來源表（popup 來源移到圖層側）", () => {
       }
     }
     expect(bad).toEqual([]);
+  });
+});
+
+describe("越南依來源欄切換署名的層", () => {
+  it("VN_SOURCE_SWITCH＝規格有 more 的層（越南是國家包，中央改列 key）", () => {
+    expect([...VN_SOURCE_SWITCH]).toEqual(VN_DATA_SPECS.filter((spec) => "more" in spec && spec.more).map((spec) => spec.key));
   });
 });

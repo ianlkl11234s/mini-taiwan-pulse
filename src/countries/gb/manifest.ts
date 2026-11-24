@@ -2,7 +2,7 @@
 // ⚠️ 只能經 src/countries/packs.ts 的 ensureCountryPack 動態載入，不可從國家目錄以外靜態 import（lint 擋）。
 import type { GbLayerKey } from "./keys";
 import type { LayerManifestEntry } from "../../data/layerManifest";
-import { GB_BROWNFIELD_COLOR, GB_NOISE_COLOR, GB_PLANNING_COLOR, GB_POLLUTION_COLOR, GB_RECYCLING_COLOR, GB_WASTE_PERMITS_COLOR } from "../../data/gbEnvPlanningTypes";
+import { GB_BROWNFIELD_COLOR, GB_NOISE_COLOR, GB_PLANNING_COLOR, GB_POLLUTION_COLOR, GB_RECYCLING_COLOR, GB_WASTE_PERMITS_COLOR } from "./gbEnvPlanningTypes";
 import { layerName } from "../../data/layerManifest";
 import { GB_AQUACULTURE_COLOR, GB_COMPANIES_COLOR, GB_FUNERAL_COLOR, GB_MANUFACTURING_COLOR, GB_SOIL_COLOR } from "./gbBusinessAgriTypes";
 import { GB_CARE_HOMES_COLOR, GB_CARE_SERVICES_COLOR, GB_COURTS_COLOR, GB_FIRE_COLOR, GB_HEALTH_COLOR, GB_SCHOOLS_COLOR } from "./gbCivicTypes";

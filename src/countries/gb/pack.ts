@@ -8,6 +8,7 @@ import { GB_PACK_PANELS } from "./panels";
 import { GB_PACK_HEADER_LABELS } from "./headerLabels";
 import { GB_PACK_LEGEND_SLOTS } from "./legends";
 import { GB_PACK_CLICK_SLOTS } from "./clicks";
+import { GB_PACK_OVERLAY_SLOTS } from "./overlays";
 import { GB_PACK_HOST_SLOTS } from "./hosts";
 
 const pack: CountryPack = {
@@ -23,6 +24,7 @@ const pack: CountryPack = {
   slots: {
     legends: GB_PACK_LEGEND_SLOTS,
     gisClickLayers: GB_PACK_CLICK_SLOTS,
+    overlays: GB_PACK_OVERLAY_SLOTS,
     layerHosts: GB_PACK_HOST_SLOTS,
   },
 };

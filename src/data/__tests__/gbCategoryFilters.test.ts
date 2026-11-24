@@ -4,7 +4,7 @@ import { GB_CARE_KINDS, GB_COURT_KINDS, GB_HEALTH_KINDS, GB_SCHOOL_CATEGORIES } 
 import { GB_ARTS_KINDS, GB_CULTURAL_KINDS, GB_VISITOR_KINDS } from "../../countries/gb/gbCultureTypes";
 import { GB_HUB_TYPES, GB_LONDON_RAIL_MODES } from "../../countries/gb/gbTransportTypes";
 import { GB_FIELD_TYPES, GB_FUEL_GROUPS } from "../../countries/gb/gbEnergyTypes";
-import { GB_RECYCLING_KINDS } from "../gbEnvPlanningTypes";
+import { GB_RECYCLING_KINDS } from "../../countries/gb/gbEnvPlanningTypes";
 import { GB_AQUACULTURE_KINDS, GB_FUNERAL_KINDS } from "../../countries/gb/gbBusinessAgriTypes";
 import { GB_ACCESS_TYPES, GB_MPA_TYPES, GB_RECREATION_CATEGORIES, GB_TREE_CATEGORIES } from "../../countries/gb/gbNatureTypes";
 import { GB_GREENSPACE_CATEGORIES } from "../../countries/gb/gbOpenSpaceTypes";

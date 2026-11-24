@@ -7,14 +7,46 @@
 
 import type { CnLayerKey } from "./cn/keys";
 import type { GbLayerKey } from "./gb/keys";
+import type { IeLayerKey } from "./ie/keys";
+import type { KrLayerKey } from "./kr/keys";
+import type { CaLayerKey } from "./ca/keys";
+import type { ThLayerKey } from "./th/keys";
+import type { PhLayerKey } from "./ph/keys";
+import type { VnLayerKey } from "./vn/keys";
+import type { IdLayerKey } from "./id/keys";
+import type { JpLayerKey } from "./jp/keys";
 export type PackLayerKey =
   | never
   | CnLayerKey
-  | GbLayerKey;
+  | GbLayerKey
+  | IeLayerKey
+  | KrLayerKey
+  | CaLayerKey
+  | ThLayerKey
+  | PhLayerKey
+  | VnLayerKey
+  | IdLayerKey
+  | JpLayerKey;
 
 import type { CnPopupType } from "./cn/popupTypes";
 import type { GbPopupType } from "./gb/popupTypes";
+import type { IePopupType } from "./ie/popupTypes";
+import type { KrPopupType } from "./kr/popupTypes";
+import type { CaPopupType } from "./ca/popupTypes";
+import type { ThPopupType } from "./th/popupTypes";
+import type { PhPopupType } from "./ph/popupTypes";
+import type { VnPopupType } from "./vn/popupTypes";
+import type { IdPopupType } from "./id/popupTypes";
+import type { JpPopupType } from "./jp/popupTypes";
 export type PackPopupType =
   | never
   | CnPopupType
-  | GbPopupType;
+  | GbPopupType
+  | IePopupType
+  | KrPopupType
+  | CaPopupType
+  | ThPopupType
+  | PhPopupType
+  | VnPopupType
+  | IdPopupType
+  | JpPopupType;

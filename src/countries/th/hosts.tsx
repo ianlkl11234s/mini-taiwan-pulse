@@ -1,0 +1,72 @@
+// 泰國國家包：hosts.tsx（B1 P5a；由 scripts/layers/move-country-pack.ts 從中央登記簿搬來，之後就在這裡維護）。
+// ⚠️ 只能經 src/countries/packs.ts 的 ensureCountryPack 動態載入，不可從國家目錄以外靜態 import（lint 擋）。
+import type { LayerHookEntry } from "../../layers/layerHookRegistry";
+import { ThAccommodationHost, ThAdminHost, ThAirQualityStationsHost, ThArtsEventsHost, ThBanksHost, ThBasinsHost, ThCoastalChangeHost, ThCropsHost, ThEecHost, ThElderlyHousingHost, ThElectionConstituenciesHost, ThExperiencesHost, ThFactoriesHost, ThFarmMarketsHost, ThFloodHistoryHost, ThFootbridgesHost, ThForestParksHost, ThFuelStationsHost, ThHealthFacilitiesHost, ThHighlandVillagesHost, ThHistoricSitesHost, ThIrrigationProjectsHost, ThJailsCourtsHost, ThKindergartensHost, ThLandfillsHost, ThLandslideSafePointsHost, ThMajorRoadsHost, ThMarineHabitatsHost, ThMarineProtectedAreasHost, ThMuseumsLibrariesHost, ThNationalParksHost, ThNationalReservedForestsHost, ThNatureSpotsHost, ThParksHost, ThPipelinesHost, ThPlaceNamesHost, ThPlacesOfWorshipHost, ThPoliceStationsHost, ThPopulationHost, ThPostOfficesHost, ThPowerGridHost, ThPowerPlantsHost, ThProvinceSocioeconomicHost, ThRailCrossingsHost, ThRamsarSitesHost, ThRenewablesHost, ThRoadAccidentsHost, ThSchoolsHost, ThSeaLevelStationsHost, ThSoilOrganicCarbonHost, ThSoilPhHost, ThSportsVenuesHost, ThStationsHost, ThTerrainHillshadeHost, ThTerrainReliefHost, ThTransportHubsHost, ThVeterinaryHost, ThWeatherStationsHost } from "./thailandHosts";
+
+/** 插槽序號 → 條目；序號對應中央陣列裡的 countrySlot("TH", n)。 */
+export const TH_PACK_HOST_SLOTS: Readonly<Record<number, readonly LayerHookEntry[]>> = {
+  1: [
+  { id: "useThAdminLayers", keys: ["thAdminBoundaries"], Host: ThAdminHost },
+  { id: "useThPopulationLayers", keys: ["thPopulation"], Host: ThPopulationHost },
+  { id: "useThTransportHubsLayer", keys: ["thTransportHubs"], Host: ThTransportHubsHost },
+  { id: "useThStationsLayer", keys: ["thStations"], Host: ThStationsHost },
+  { id: "useThMajorRoadsLayer", keys: ["thMajorRoads"], Host: ThMajorRoadsHost },
+  { id: "useThPowerPlantsLayer", keys: ["thPowerPlants"], Host: ThPowerPlantsHost },
+  { id: "useThPowerGridLayer", keys: ["thPowerGrid"], Host: ThPowerGridHost },
+  { id: "useThRenewablesLayer", keys: ["thRenewables"], Host: ThRenewablesHost },
+  { id: "useThFuelStationsLayer", keys: ["thFuelStations"], Host: ThFuelStationsHost },
+  { id: "useThPipelinesLayer", keys: ["thPipelines"], Host: ThPipelinesHost },
+  // 泰國第 2–4 波（2026-11-22）
+  { id: "useThPlaceNamesLayer", keys: ["thPlaceNames"], Host: ThPlaceNamesHost },
+  { id: "useThElectionConstituenciesLayer", keys: ["thElectionConstituencies"], Host: ThElectionConstituenciesHost },
+  { id: "useThHighlandVillagesLayer", keys: ["thHighlandVillages"], Host: ThHighlandVillagesHost },
+  { id: "useThProvinceSocioeconomicLayer", keys: ["thProvinceSocioeconomic"], Host: ThProvinceSocioeconomicHost },
+  { id: "useThFootbridgesLayer", keys: ["thFootbridges"], Host: ThFootbridgesHost },
+  { id: "useThRailCrossingsLayer", keys: ["thRailCrossings"], Host: ThRailCrossingsHost },
+  { id: "useThRoadAccidentsLayer", keys: ["thRoadAccidents"], Host: ThRoadAccidentsHost },
+  { id: "useThEecLayer", keys: ["thEec"], Host: ThEecHost },
+  { id: "useThFloodHistoryLayer", keys: ["thFloodHistory"], Host: ThFloodHistoryHost },
+  { id: "useThBasinsLayer", keys: ["thBasins"], Host: ThBasinsHost },
+  { id: "useThIrrigationProjectsLayer", keys: ["thIrrigationProjects"], Host: ThIrrigationProjectsHost },
+  { id: "useThLandslideSafePointsLayer", keys: ["thLandslideSafePoints"], Host: ThLandslideSafePointsHost },
+  { id: "useThLandfillsLayer", keys: ["thLandfills"], Host: ThLandfillsHost },
+  { id: "useThTerrainHillshadeLayer", keys: ["thTerrainHillshade"], Host: ThTerrainHillshadeHost },
+  { id: "useThTerrainReliefLayer", keys: ["thTerrainRelief"], Host: ThTerrainReliefHost },
+  // 泰國第 5–7 波（2026-11-22）
+  { id: "useThSchoolsLayer", keys: ["thSchools"], Host: ThSchoolsHost },
+  { id: "useThKindergartensLayer", keys: ["thKindergartens"], Host: ThKindergartensHost },
+  { id: "useThElderlyHousingLayer", keys: ["thElderlyHousing"], Host: ThElderlyHousingHost },
+  { id: "useThHealthFacilitiesLayer", keys: ["thHealthFacilities"], Host: ThHealthFacilitiesHost },
+  { id: "useThPoliceStationsLayer", keys: ["thPoliceStations"], Host: ThPoliceStationsHost },
+  { id: "useThJailsCourtsLayer", keys: ["thJailsCourts"], Host: ThJailsCourtsHost },
+  { id: "useThNatureSpotsLayer", keys: ["thNatureSpots"], Host: ThNatureSpotsHost },
+  { id: "useThNationalReservedForestsLayer", keys: ["thNationalReservedForests"], Host: ThNationalReservedForestsHost },
+  { id: "useThNationalParksLayer", keys: ["thNationalParks"], Host: ThNationalParksHost },
+  { id: "useThRamsarSitesLayer", keys: ["thRamsarSites"], Host: ThRamsarSitesHost },
+  { id: "useThForestParksLayer", keys: ["thForestParks"], Host: ThForestParksHost },
+  { id: "useThMuseumsLibrariesLayer", keys: ["thMuseumsLibraries"], Host: ThMuseumsLibrariesHost },
+  { id: "useThArtsEventsLayer", keys: ["thArtsEvents"], Host: ThArtsEventsHost },
+  { id: "useThHistoricSitesLayer", keys: ["thHistoricSites"], Host: ThHistoricSitesHost },
+  { id: "useThExperiencesLayer", keys: ["thExperiences"], Host: ThExperiencesHost },
+  { id: "useThAccommodationLayer", keys: ["thAccommodation"], Host: ThAccommodationHost },
+  { id: "useThBanksLayer", keys: ["thBanks"], Host: ThBanksHost },
+  { id: "useThPlacesOfWorshipLayer", keys: ["thPlacesOfWorship"], Host: ThPlacesOfWorshipHost },
+  { id: "useThPostOfficesLayer", keys: ["thPostOffices"], Host: ThPostOfficesHost },
+  // 泰國第 8–9 波（2026-11-23）
+  { id: "useThAirQualityStationsLayer", keys: ["thAirQualityStations"], Host: ThAirQualityStationsHost },
+  { id: "useThWeatherStationsLayer", keys: ["thWeatherStations"], Host: ThWeatherStationsHost },
+  { id: "useThMarineHabitatsLayer", keys: ["thMarineHabitats"], Host: ThMarineHabitatsHost },
+  { id: "useThMarineProtectedAreasLayer", keys: ["thMarineProtectedAreas"], Host: ThMarineProtectedAreasHost },
+  { id: "useThSeaLevelStationsLayer", keys: ["thSeaLevelStations"], Host: ThSeaLevelStationsHost },
+  { id: "useThCoastalChangeLayer", keys: ["thCoastalChange"], Host: ThCoastalChangeHost },
+  { id: "useThSportsVenuesLayer", keys: ["thSportsVenues"], Host: ThSportsVenuesHost },
+  { id: "useThParksLayer", keys: ["thParks"], Host: ThParksHost },
+  { id: "useThFactoriesLayer", keys: ["thFactories"], Host: ThFactoriesHost },
+  { id: "useThFarmMarketsLayer", keys: ["thFarmMarkets"], Host: ThFarmMarketsHost },
+  { id: "useThCropsLayer", keys: ["thCrops"], Host: ThCropsHost },
+  { id: "useThVeterinaryLayer", keys: ["thVeterinary"], Host: ThVeterinaryHost },
+  { id: "useThSoilPhLayer", keys: ["thSoilPh"], Host: ThSoilPhHost },
+  { id: "useThSoilOrganicCarbonLayer", keys: ["thSoilOrganicCarbon"], Host: ThSoilOrganicCarbonHost },
+  ],
+  // <codemod:append TH_PACK_HOST_SLOTS>
+};

@@ -2,7 +2,11 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { layerNotesZh } from "./layerNotesText";
-import { JpExpresswaysPanel, JpMajorRoadsPanel, JpMunicipalRoadsPanel, JpWelfareChildPanel, JpWelfareDisabilityPanel } from "../japanPanels";
+import { JpExpresswaysPanel, JpMajorRoadsPanel, JpMunicipalRoadsPanel, JpWelfareChildPanel, JpWelfareDisabilityPanel } from "../../../countries/jp/japanPanels";
+import { loadAllPacks } from "../../../countries/packs";
+
+// 全部圖層（含延後載入的國家包，B1 P5）一起驗
+await loadAllPacks();
 
 describe("日本第四波 popup 資料語意", () => {
   it("福祉：license_note 非空才顯示；代表點標示位置正確度", () => {

@@ -5,7 +5,7 @@ import { feedDynamicSource } from "../../map/dynamicSourceFeed";
 import { isAccessDenied } from "../../lib/layerGates";
 import { registerOwnerGateReset } from "../../lib/ownerGateRevoke";
 import { fetchGbEaPollution, isMissingGbEaPollutionRpc } from "./gbEaPollutionLoader";
-import { GB_EA_POLLUTION_RPC, GB_EA_POLLUTION_SOURCE_ID } from "../../data/gbEnvPlanningTypes";
+import { GB_EA_POLLUTION_RPC, GB_EA_POLLUTION_SOURCE_ID } from "./gbEnvPlanningTypes";
 
 /**
  * 英格蘭污染排放申報（站主限定）資料供應 hook。

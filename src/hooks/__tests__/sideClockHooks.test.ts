@@ -26,7 +26,7 @@ vi.mock("react", async (importOriginal) => ({
   },
 }));
 
-vi.mock("../../data/jmaLiveLoaders", () => ({
+vi.mock("../../countries/jp/jmaLiveLoaders", () => ({
   jmaTimeRequest: (key: string, tSec: number) => {
     h.requested.push(tSec);
     return { key, cacheKey: String(tSec), history: false, at: null, coverageLayer: null, emptyIsUncovered: false };
@@ -38,7 +38,7 @@ vi.mock("../../data/jmaLiveLoaders", () => ({
   jmaHumanError: () => "",
 }));
 
-import { useJmaTimeDriver } from "../useJmaTimeDriver";
+import { useJmaTimeDriver } from "../../countries/jp/useJmaTimeDriver";
 import { leftClock, rightClock } from "../../state/sideClock";
 import { compareStore } from "../../state/compareStore";
 import { countryStore } from "../../state/countryStore";
@@ -90,5 +90,21 @@ describe("useJmaTimeDriver 讀本側時鐘", () => {
     compareStore.hydrate({ enabled: true, mode: "countries", rightCountry: "JP", timeAlign: "local" });
     render();
     expect(h.requested).toEqual([T]);
+  });
+});
+
+describe("搬進國家包的時間 hook 仍讀本側時鐘（B1 P5b）", () => {
+  // G2-4 時讀 useSideClock() 的外國時間 hook；搬家後路徑變了，呼叫不能掉
+  const HOOKS = [
+    "countries/jp/useJmaTimeDriver.ts",
+    "countries/jp/useJmaImageryLayer.ts",
+    "countries/jp/useJmaLightningCoverage.ts",
+    "countries/jp/useJmaRiskFloodLayer.ts",
+    "countries/gb/useGbRailReplayLayer.ts",
+  ];
+  it.each(HOOKS)("%s 呼叫 useSideClock()", async (rel) => {
+    const { readFileSync } = await import("node:fs");
+    const text = readFileSync(new URL(`../../${rel}`, import.meta.url), "utf8");
+    expect(text).toMatch(/useSideClock\(\)/);
   });
 });
