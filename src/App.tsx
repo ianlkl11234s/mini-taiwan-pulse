@@ -2034,7 +2034,16 @@ export default function App() {
     if (urlCompare) {
       if (isMobile) {
         mobileCompareRef.current = urlCompare;
-        showTransientNotice(t("compare.mobileFallback"));
+        // 語系包是 lazy 載入：開頁當下 t 還停在預設語系，等目標語系載完（active＝locale）再翻，否則英日文介面會看到中文
+        const notify = () => showTransientNotice(localeStore.getSnapshot().t("compare.mobileFallback"));
+        const snap = localeStore.getSnapshot();
+        if (snap.active === snap.locale) notify();
+        else {
+          const off = localeStore.subscribe(() => {
+            const next = localeStore.getSnapshot();
+            if (next.active === next.locale) { off(); notify(); }
+          });
+        }
       } else compareStore.hydrate({
         enabled: true,
         ...(urlCompare.split !== undefined ? { split: urlCompare.split } : {}),
