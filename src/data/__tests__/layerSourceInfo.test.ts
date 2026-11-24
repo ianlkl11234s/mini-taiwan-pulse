@@ -6,6 +6,10 @@ import { LAYER_MANIFEST } from "../layerManifest";
 import { LAYER_NOTES_DATA } from "../layerSourceInfo.data";
 import type { MessageKey } from "../../i18n/keys";
 import { getLayerNotes, LAYER_SOURCE_INFO, POPUP_PER_FEATURE_SOURCE, popupSourceMode, resolveSourceText, type SourceText } from "../layerSourceInfo";
+import { loadAllPacks } from "../../countries/packs";
+
+// 全部圖層（含延後載入的國家包，B1 P5a）一起驗
+await loadAllPacks();
 
 /**
  * 站主 2026-11-23：來源與資料說明放圖層的「說明・來源」，popup 只放使用者需要的資料。

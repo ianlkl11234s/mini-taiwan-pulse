@@ -21,7 +21,9 @@ import { PinnedOpenLayers } from "./PinnedOpenLayers";
 import { groupPinnedOpenLayers } from "./pinnedOpenGroups";
 import { MacroGroupLabel, SubGroupLabel, ThemeBanner } from "./ThemeBanner";
 import { useRailTheme } from "./railTheme";
+import { CountryPackGate } from "./CountryPackGate";
 import { LAYER_ICONS } from "./layerIcons";
+import { useAllCountryPacks } from "../../countries/packs";
 
 export { LAYER_ICONS };
 
@@ -122,6 +124,8 @@ export function LayersPanel({
     }
     return context;
   }, [themesToRender, active, t]);
+  // 搜尋要涵蓋全部國家（B1 P5a）：有輸入時載入全部國家包，載完重新 render
+  useAllCountryPacks(search.trim() !== "");
   const searchResults = searchLayers(search, {
     favoriteKeys,
     scopeKeys: new Set(searchContext.keys()),
@@ -343,7 +347,7 @@ export function LayersPanel({
               </button>
             )}
           </div>
-        ) : themesToRender.map((theme, themeIndex) => {
+        ) : (<CountryPackGate country={panelId === "statistics" ? undefined : country}>{themesToRender.map((theme, themeIndex) => {
           const isCollapsed = collapsedThemes.has(themeKey(theme));
           const allKeys = theme.groups.flatMap((g) => g.layers.map((l) => l.key));
           const onCount = allKeys.filter((k) => visibility[k]).length;
@@ -446,7 +450,7 @@ export function LayersPanel({
               ))}
             </div>
           );
-        })}
+        })}</CountryPackGate>)}
       </div>
       {!q && onCountrySelect && (
         <PinnedOpenLayers

@@ -9,6 +9,10 @@ import { renderKeysModule } from "./keysCodegen";
 import { translate } from "../translate";
 import { localizeLayerName, localizeSectionTitle } from "../layerText";
 import { collectParamTexts } from "./paramTexts";
+import { loadAllPacks } from "../../countries/packs";
+
+// 全部圖層（含延後載入的國家包，B1 P5a）一起驗
+await loadAllPacks();
 
 const LOCALES_DIR = join(__dirname, "..", "locales");
 

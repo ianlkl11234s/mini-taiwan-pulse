@@ -12,6 +12,7 @@
  *  - expandable、popup（FeatureInfo layerType）、legend（圖例群組 id）；兩者與 key 同名時省略（用 indexPopup／indexLegend 讀）
  *  - dataTimeZone：上游切日的 IANA 時區（缺＝Asia/Taipei）
  *  - longTerm：長期時間條類別；live：即時時間軸圖層（topics 含「即時」且無 longTerm）
+ *  - mo／po：國家包的 key 在 manifest／params 宣告順序中的位置（錨點＝前一個靜態 key、全域序號），包載入後排回原位
  *  - draw：OVERLAY_REGISTRY 內第一筆 config 的序號（疊放順序）；click：GIS_LAYERS 內第一筆對應 popup 的序號（first-hit-wins）
  */
 import type { LucideIcon } from "lucide-react";
@@ -37,6 +38,9 @@ export interface LayerIndexRow {
   live?: true;
   draw?: number;
   click?: number;
+  /** 國家包的 key：manifest／params 宣告順序提示 [前一個靜態 key, 全域序號]（slots.setRecordOrder） */
+  mo?: readonly [string, number];
+  po?: readonly [string, number];
 }
 
 export type IndexedLayerKey = keyof typeof LAYER_INDEX;

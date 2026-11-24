@@ -13,6 +13,10 @@ import { countryForLayerKeys } from "../../research/explorationNavigation";
 import { isCountryCode } from "../../constants/countries";
 import { layerDataTimeZone } from "../../lib/layerDataTime";
 import { DEFAULT_TIME_ZONE } from "../../lib/zonedTime";
+import { loadAllPacks } from "../../countries/packs";
+
+// 全部圖層（含延後載入的國家包，B1 P5a）一起驗
+await loadAllPacks();
 
 const entries = LAYER_MANIFEST as unknown as Record<string, LayerManifestEntry>;
 const foreign = Object.entries(entries).filter(([, e]) => isForeignEntry(e));

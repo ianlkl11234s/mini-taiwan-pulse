@@ -9,6 +9,7 @@
  *   使用者在色盤選單選過的值照舊。
  */
 import { LAYER_MANIFEST } from "../data/layerManifest";
+import { layerIndexRow } from "../data/layerIndex";
 import type { PaletteId } from "./palettes";
 
 /** 主題表查不到時（例：統計主題、沒有 section 的舊 key） */
@@ -178,7 +179,8 @@ type ManifestLike = { section?: { theme?: string } | null };
 
 /** 這一層的主題鍵（manifest 沒有這個 key 或沒有 section → undefined） */
 export function layerHeatmapTheme(key: string): string | undefined {
-  return heatmapThemeKey((LAYER_MANIFEST as Record<string, ManifestLike | undefined>)[key]?.section?.theme);
+  // 國家包的 params 在包載入、manifest 併入之前就求值（B1 P5a）：manifest 沒有就讀索引
+  return heatmapThemeKey((LAYER_MANIFEST as Record<string, ManifestLike | undefined>)[key]?.section?.theme ?? layerIndexRow(key)?.section.theme);
 }
 
 /** 這一層熱區的預設色盤：覆寫 > 主題表 > magma */

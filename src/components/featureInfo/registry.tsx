@@ -1,3 +1,5 @@
+import { extensibleRecord } from "../../countries/slots";
+import type { PackPopupType } from "../../countries/packKeys";
 import { JpDidPanel, JpNationalParksMoePanel, JpNaturalParkAreas2015Panel, JpWildlifeProtectionMoePanel } from "./jpNatureR2Panels";
 import { JmaAmedasPanel, JmaQuakesPanel, JmaVolcanoesPanel, JmaWarningsPanel } from "./jmaPanels";
 import { JmaAutumnLeavesPanel, JmaRainySeasonPanel, JmaSakuraPanel, JmaSnowcapPanel, JmaWbgtPanel } from "./jmaPointPanels";
@@ -65,13 +67,6 @@ import {
   JpRailwaysPanel, JpSchoolsPanel, JpPoliceFacilitiesPanel, JpEvacuationSitesPanel, JpPublicOfficesPanel, JpBusStopsPanel, JpLandslideWarningAreasPanel, JpInlandFloodAreasPanel, JpZoningUseDistrictsPanel, JpNationalForestsPanel, JpWelfareDisabilityPanel, JpWelfareChildPanel, JpMajorRoadsPanel, JpMunicipalRoadsPanel, JpExpresswaysPanel, JpPopulationMeshPanel,
   JpTourismPanel, JpAccommodationDensityPanel, JpWaterPanel,
 } from "./japanPanels";
-import { GbArtsVenuesPanel, GbCulturalFacilitiesPanel, GbMajorRoadsPanel, GbSurplusLandPanel, GbTrafficCountsAadfPanel, GbVisitorExperiencePanel } from "./ukPanels";
-import { GbAquaculturePanel, GbCompaniesPanel, GbFuneralPanel, GbManufacturingPanel, GbSoilParentMaterialPanel } from "./ukPanels";
-import { GbBrownfieldPanel, GbNoisePanel, GbPlanningConstraintsPanel, GbPollutionInventoryPanel, GbPollutionInventoryEnglandPanel, GbRecyclingCentresPanel, GbWastePermitsPanel } from "./ukPanels";
-import { GbEarthquakesPanel, GbGroundStabilityPanel, GbLandslidePanel, GbRadiationPanel, GbRadonPanel } from "./ukPanels";
-import { GbCareHomesPanel, GbCareServicesPanel, GbCourtsPanel, GbFireStationsPanel, GbHealthFacilitiesPanel, GbSchoolsPanel } from "./ukPanels";
-import { GbBridgesTunnelsPanel, GbPlacesOfWorshipPanel, GbPublicFacilitiesPanel, GbRoadFacilitiesPanel } from "./ukPanels";
-import { GbRailReplayPanel } from "./gbRailReplayPanel";
 import { KR_DATA_SPECS } from "../../data/krDataLayers";
 import type { KrDataKey } from "../../data/krDataKeys";
 
@@ -83,9 +78,6 @@ import { CaAdminBoundariesPanel, CaTransitStopsPanel, CaAirportsPortsPanel, CaMa
 import { IE_DATA_PANELS, IeAdminBoundariesPanel, makeIePanel } from "./iePanels";
 import { PH_DATA_PANELS, PhAdminBoundariesPanel, PhOpenaqAirPanel, PhPopulationPanel } from "./phPanels";
 import { makePhPanel } from "./intlSpecPanel";
-import { CN_DATA_PANELS, CnAdminBoundariesPanel, CnPopulationPanel } from "./cnPanels";
-import { CN_DATA_SPECS } from "../../data/cnDataLayers";
-import type { CnDataKey } from "../../data/cnDataKeys";
 import { PH_DATA_SPECS } from "../../data/phDataLayers";
 import type { PhDataKey } from "../../data/phDataKeys";
 import { VN_DATA_PANELS, VnAdminBoundariesPanel, VnPopulationPanel } from "./vnPanels";
@@ -103,7 +95,6 @@ import { IE_COILLTE_FOREST_ROADS, IE_COILLTE_RECREATION } from "../../data/ieCoi
 import { IE_DATA_SPECS } from "../../data/ieDataLayers";
 import type { IeDataKey } from "../../data/ieDataKeys";
 const IE_HEADER_LABELS = Object.fromEntries(IE_DATA_SPECS.map((s) => [s.key, `${s.title.fallback.zh} ${s.title.fallback.en}`])) as Record<IeDataKey, string>;
-const CN_HEADER_LABELS = Object.fromEntries(CN_DATA_SPECS.map((s) => [s.key, `${s.title.fallback.zh} ${s.title.fallback.en}`])) as Record<CnDataKey, string>;
 const PH_HEADER_LABELS = Object.fromEntries(PH_DATA_SPECS.map((s) => [s.key, `${s.title.fallback.zh} ${s.title.fallback.en}`])) as Record<PhDataKey, string>;
 /** 加拿大第 3–8 波（2026-11-17）：規格驅動，popup 重用 makePhPanel（自掛 SourceFooter）。 */
 const CA_WAVE_PANELS = Object.fromEntries(CA_WAVE_SPECS.map((s) => [s.key, makePhPanel(s)])) as Record<CaWaveKey, ReturnType<typeof makePhPanel>>;
@@ -112,7 +103,6 @@ const ID_HEADER_LABELS = Object.fromEntries(ID_DATA_SPECS.map((s) => [s.key, `${
 const TH_HEADER_LABELS = Object.fromEntries(TH_DATA_SPECS.map((s) => [s.key, `${s.title.fallback.zh} ${s.title.fallback.en}`])) as Record<ThDataKey, string>;
 const VN_HEADER_LABELS = Object.fromEntries(VN_DATA_SPECS.map((s) => [s.key, `${s.title.fallback.zh} ${s.title.fallback.en}`])) as Record<VnDataKey, string>;
 import { CaClimateStationsPanel, CaAqhiStationsPanel, CaRadiationStationsPanel, CaNpriFacilitiesPanel, CaWastewaterSystemsPanel, CaEarthquakesPanel, CaEarthquakesLivePanel, CaPopulationGridPanel } from "./caEnvPanels";
-import { GbAdminBoundariesPanel, GbFuelStationsPanel, GbOilGasFieldsPanel, GbPowerLinesPanel, GbPowerPlantsPanel, GbRenewablesPanel, GbSubstationsPanel, GbBathingWatersPanel, GbBuiltUpAreasPanel, GbCemeteriesPanel, GbCoastalErosionRiskPanel, GbFloodDefenceAssetsPanel, GbForestRecreationPanel, GbGolfCoursesPanel, GbGreenspacePanel, GbMarineProtectedAreasPanel, GbOpenAccessLandPanel, GbProtectedAreasPanel, GbTrailsPanel, GbTreeProtectionPanel, GbWoodlandPanel, GbHydroStationsPanel, GbLondonBikePointsPanel, GbLondonChargingZonesPanel, GbLondonJamCamsPanel, GbLondonRailLinesPanel, GbLondonStationsPanel, GbMaritimeLimitsPanel, GbRiversPanel, GbSmallAreaBoundariesPanel, GbSportsFacilitiesPanel, GbStationUsagePanel, GbTransportHubsPanel } from "./ukPanels";
 import { BridgeResiliencePanel } from "./bridgeResiliencePanels";
 import { BusCrowdingSimPanel, BusCrowdingSimVehiclePanel } from "./busCrowdingSimPanels";
 import { TransitReachGridPanel, TransitReachPlaybackPanel } from "./transitReachPanels";
@@ -238,7 +228,8 @@ export interface PanelProps {
  * ⚠️ `iotWraRiver` / `iotWraStructure` / `osmExpressway` 原本也在該 baseline，
  *    W2 popup 補強已接上 panel（見 docs/features/layer-manifest/no-popup-audit.md §5）。
  */
-export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelProps>>> = {
+/** popup 元件登記簿；國家包載入後原地併入（B1 P5a，`src/countries/<cc>/panels.tsx`）。 */
+export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelProps>>> = extensibleRecord("featurePanels", {
   submarineCable: SubmarineCablePanel,
   landingStation: LandingStationPanel,
   internetExchangePoint: InternetExchangePointPanel,
@@ -493,7 +484,6 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   jpReligionWikidata: JpReligionWikidataPanel,
   jpAdminPrefecture: JpAdminPrefecturePanel,
   jpAdminBoundaries: JpAdminBoundariesPanel,
-  gbAdminBoundaries: GbAdminBoundariesPanel,
   krAdminBoundaries: KrAdminBoundariesPanel,
   krEcologyNaturalness: KrEcologyNaturalnessPanel,
   krWasteDisposalRules: KrWasteDisposalRulesPanel,
@@ -529,9 +519,6 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   idRuralDevelopment: IdRuralDevelopmentPanel,
   ...ID_DATA_PANELS,
   ...CA_WAVE_PANELS,
-  cnAdminBoundaries: CnAdminBoundariesPanel,
-  cnPopulation: CnPopulationPanel,
-  ...CN_DATA_PANELS,
   ieCoillteRecreation: makeIePanel(IE_COILLTE_RECREATION),
   ieCoillteForestRoads: makeIePanel(IE_COILLTE_FOREST_ROADS),
   caTransitStops: CaTransitStopsPanel,
@@ -557,72 +544,6 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   caEarthquakes: CaEarthquakesPanel,
   caEarthquakesLive: CaEarthquakesLivePanel,
   caPopulationGrid: CaPopulationGridPanel,
-  gbSmallAreaBoundaries: GbSmallAreaBoundariesPanel,
-  gbMaritimeLimits: GbMaritimeLimitsPanel,
-  gbBuiltUpAreas: GbBuiltUpAreasPanel,
-  gbGreenspace: GbGreenspacePanel,
-  gbSportsFacilities: GbSportsFacilitiesPanel,
-  gbGolfCourses: GbGolfCoursesPanel,
-  gbCemeteries: GbCemeteriesPanel,
-  gbRivers: GbRiversPanel,
-  gbHydroStations: GbHydroStationsPanel,
-  gbFloodDefenceAssets: GbFloodDefenceAssetsPanel,
-  gbCoastalErosionRisk: GbCoastalErosionRiskPanel,
-  gbBathingWaters: GbBathingWatersPanel,
-  gbTransportHubs: GbTransportHubsPanel,
-  gbStationUsage: GbStationUsagePanel,
-  gbLondonRailLines: GbLondonRailLinesPanel,
-  gbLondonStations: GbLondonStationsPanel,
-  gbRailReplay: GbRailReplayPanel,
-  gbLondonBikePoints: GbLondonBikePointsPanel,
-  gbLondonJamCams: GbLondonJamCamsPanel,
-  gbLondonChargingZones: GbLondonChargingZonesPanel,
-  gbMajorRoads: GbMajorRoadsPanel,
-  gbBridgesTunnels: GbBridgesTunnelsPanel,
-  gbRoadFacilities: GbRoadFacilitiesPanel,
-  gbPublicFacilities: GbPublicFacilitiesPanel,
-  gbPlacesOfWorship: GbPlacesOfWorshipPanel,
-  gbCompanies: GbCompaniesPanel,
-  gbManufacturing: GbManufacturingPanel,
-  gbFuneral: GbFuneralPanel,
-  gbAquaculture: GbAquaculturePanel,
-  gbSoilParentMaterial: GbSoilParentMaterialPanel,
-  gbPlanningConstraints: GbPlanningConstraintsPanel,
-  gbBrownfield: GbBrownfieldPanel,
-  gbRecyclingCentres: GbRecyclingCentresPanel,
-  gbWastePermits: GbWastePermitsPanel,
-  gbPollutionInventory: GbPollutionInventoryPanel,
-  gbPollutionInventoryEngland: GbPollutionInventoryEnglandPanel,
-  gbNoise: GbNoisePanel,
-  gbTrafficCountsAadf: GbTrafficCountsAadfPanel,
-  gbProtectedAreas: GbProtectedAreasPanel,
-  gbMarineProtectedAreas: GbMarineProtectedAreasPanel,
-  gbWoodland: GbWoodlandPanel,
-  gbForestRecreation: GbForestRecreationPanel,
-  gbTrails: GbTrailsPanel,
-  gbOpenAccessLand: GbOpenAccessLandPanel,
-  gbTreeProtection: GbTreeProtectionPanel,
-  gbPowerPlants: GbPowerPlantsPanel,
-  gbRenewables: GbRenewablesPanel,
-  gbPowerLines: GbPowerLinesPanel,
-  gbSubstations: GbSubstationsPanel,
-  gbFuelStations: GbFuelStationsPanel,
-  gbOilGasFields: GbOilGasFieldsPanel,
-  gbSchools: GbSchoolsPanel,
-  gbHealthFacilities: GbHealthFacilitiesPanel,
-  gbCareHomes: GbCareHomesPanel,
-  gbCareServices: GbCareServicesPanel,
-  gbFireStations: GbFireStationsPanel,
-  gbCourts: GbCourtsPanel,
-  gbCulturalFacilities: GbCulturalFacilitiesPanel,
-  gbArtsVenues: GbArtsVenuesPanel,
-  gbVisitorExperience: GbVisitorExperiencePanel,
-  gbSurplusLand: GbSurplusLandPanel,
-  gbGroundStability: GbGroundStabilityPanel,
-  gbLandslide: GbLandslidePanel,
-  gbRadon: GbRadonPanel,
-  gbRadiation: GbRadiationPanel,
-  gbEarthquakes: GbEarthquakesPanel,
   jpStations: JpStationsPanel,
   jpAirports: JpAirportsPanel,
   jpRailways: JpRailwaysPanel,
@@ -885,9 +806,10 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   tourCamping: CampingPanel,
   tourHotels: HotelsPanel,
   tourRestaurants: RestaurantsPanel,
-};
+});
 
-export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
+/** popup 標題登記簿；國家包的 popup 類型在包載入後併入（型別上先排除，見 `PackPopupType`）。 */
+export const HEADER_LABELS = extensibleRecord("featureHeaderLabels", {
   jpWaterLakes: "湖沼 湖沼（2005）",
   jpWaterDams: "水壩 ダム（2014）",
   jpWaterRivers: "河川流路 河川（2006–2009）",
@@ -1224,7 +1146,6 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   jpReligionWikidata: "宗教設施 宗教施設（Wikidata）",
   jpAdminPrefecture: "都道府縣界 都道府県境",
   jpAdminBoundaries: "市區町村界 市区町村境",
-  gbAdminBoundaries: "地方政府區 LAD",
   krAdminBoundaries: "南韓行政區界",
   krEcologyNaturalness: "生態自然圖 생태자연도",
   krWasteDisposalRules: "垃圾排出規則 생활쓰레기 배출",
@@ -1260,9 +1181,6 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   idRuralDevelopment: "農村發展指數 Village Development Index",
   ...ID_HEADER_LABELS,
   ...CA_WAVE_HEADER_LABELS,
-  cnAdminBoundaries: "行政邊界 Administrative Boundaries",
-  cnPopulation: "人口密度 Population Density",
-  ...CN_HEADER_LABELS,
   ieCoillteRecreation: "Coillte 國有林遊憩點 Coillte Recreation",
   ieCoillteForestRoads: "Coillte 林道與步道 Coillte Forest Roads",
   caTransitStops: "公共運輸站點 Transit Stops",
@@ -1288,72 +1206,6 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   caEarthquakes: "地震 Earthquakes",
   caEarthquakesLive: "即時地震 Recent Earthquakes",
   caPopulationGrid: "人口網格 Population Grid",
-  gbSmallAreaBoundaries: "統計小區 Small Areas",
-  gbMaritimeLimits: "海域界線 Maritime Limits",
-  gbBuiltUpAreas: "建成區 Built Up Areas",
-  gbGreenspace: "公園綠地 Greenspace",
-  gbSportsFacilities: "運動場地 Sports Facilities",
-  gbGolfCourses: "高爾夫球場 Golf Courses",
-  gbCemeteries: "墓園與宗教場地 Cemeteries",
-  gbRivers: "河川 Rivers",
-  gbHydroStations: "水文測站 Hydrometric Stations",
-  gbFloodDefenceAssets: "防洪設施 Flood Defences",
-  gbCoastalErosionRisk: "海岸侵蝕風險 Coastal Erosion",
-  gbBathingWaters: "浴場水質 Bathing Waters",
-  gbTransportHubs: "交通樞紐 Transport Hubs",
-  gbStationUsage: "車站年進出人次 Station Usage",
-  gbLondonRailLines: "倫敦軌道路線 London Rail Lines",
-  gbLondonStations: "倫敦軌道車站 London Rail Stations",
-  gbRailReplay: "列車重播 Rail Replay",
-  gbLondonBikePoints: "倫敦公共自行車 Santander Cycles",
-  gbLondonJamCams: "倫敦道路攝影機 TfL JamCams",
-  gbLondonChargingZones: "倫敦收費與低排放區 Charging Zones",
-  gbMajorRoads: "主要路網 Major Roads",
-  gbBridgesTunnels: "橋梁與隧道 Road Bridges & Tunnels",
-  gbRoadFacilities: "道路設施 Road Facilities",
-  gbPublicFacilities: "公共設施 Public Facilities",
-  gbPlacesOfWorship: "宗教場所 Places of Worship",
-  gbCompanies: "公司登記 Registered Companies",
-  gbManufacturing: "製造業公司 Manufacturing Companies",
-  gbFuneral: "火葬場與葬儀社 Crematoria & Funeral Directors",
-  gbAquaculture: "養殖場 Aquaculture Sites",
-  gbSoilParentMaterial: "土壤母質 Soil Parent Material",
-  gbPlanningConstraints: "規劃限制區 Planning Constraints",
-  gbBrownfield: "棕地登記冊 Brownfield Land",
-  gbRecyclingCentres: "回收點 Recycling Points",
-  gbWastePermits: "廢棄物處理許可 Waste Permits",
-  gbPollutionInventory: "污染排放申報 Pollution Releases",
-  gbPollutionInventoryEngland: "污染排放申報（英格蘭）Pollution Releases",
-  gbNoise: "策略噪音地圖 Strategic Noise Map",
-  gbTrafficCountsAadf: "年平均日交通量 AADF",
-  gbProtectedAreas: "保護區 Protected Areas",
-  gbMarineProtectedAreas: "海洋保護區 Marine Protected Areas",
-  gbWoodland: "林地 Woodland",
-  gbForestRecreation: "森林遊憩設施 Forest Recreation",
-  gbTrails: "步道 Trails",
-  gbOpenAccessLand: "開放進入地 Open Access Land",
-  gbTreeProtection: "樹木保護 Tree Protection",
-  gbPowerPlants: "電廠 Power Stations",
-  gbRenewables: "再生能源專案 Renewable Energy Projects",
-  gbPowerLines: "輸配電線 Power Lines",
-  gbSubstations: "變電所 Substations",
-  gbFuelStations: "加油站 Fuel Stations",
-  gbOilGasFields: "離岸油氣田 Offshore Oil & Gas Fields",
-  gbSchools: "學校 Schools",
-  gbHealthFacilities: "醫療院所 Health Facilities",
-  gbCareHomes: "照護之家 Care Homes",
-  gbCareServices: "長照服務 Care Services",
-  gbFireStations: "消防站 Fire Stations",
-  gbCourts: "法院 Courts & Tribunals",
-  gbCulturalFacilities: "文化設施 Museums, Galleries & Libraries",
-  gbArtsVenues: "藝文場館 Arts Venues",
-  gbVisitorExperience: "觀光體驗 Visitor Attractions",
-  gbSurplusLand: "公有地標售 Surplus Public Land",
-  gbGroundStability: "地質災害易發性 GeoSure",
-  gbLandslide: "山崩紀錄 Landslide",
-  gbRadon: "氡氣指示圖 Radon",
-  gbRadiation: "環境輻射 Gamma Dose",
-  gbEarthquakes: "地震目錄 Earthquakes",
   jpStations: "車站 駅",
   jpAirports: "機場 空港",
   jpRailways: "鐵道路線 鉄道路線",
@@ -1528,4 +1380,4 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   chatHighlight: "地圖標記",
   // 與 Agent 協作：暫時分析結果
   analysisResult: "分析結果",
-};
+} satisfies Record<Exclude<FeatureInfo["layerType"], PackPopupType>, string>) as Record<FeatureInfo["layerType"], string>;

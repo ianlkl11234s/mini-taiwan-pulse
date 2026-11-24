@@ -1,3 +1,4 @@
+import { countrySlot, slottedList } from "../countries/slots";
 import { CoralReefDistributionHost } from "./hosts/coralReefHost";
 import { HistoricalFlightTrailsHost } from "./hosts/historicalFlightHosts";
 import { AllenCoralAtlasHost } from "./hosts/allenCoralHost";
@@ -103,14 +104,7 @@ import {
   JpPopulationMeshHost,
   JpTourismHost, JpWaterHost,
 } from "./hosts/japanHosts";
-import { GbArtsVenuesHost, GbCulturalFacilitiesHost, GbMajorRoadsHost, GbTrafficCountsAadfHost, GbVisitorExperienceHost } from "./hosts/ukHosts";
-import { GbSurplusLandHost, GbTerrainHost } from "./hosts/ukHosts";
-import { GbAquacultureHost, GbCompaniesHost, GbFuneralHost, GbManufacturingHost, GbSoilParentMaterialHost } from "./hosts/ukHosts";
-import { GbBrownfieldHost, GbNoiseHost, GbPlanningConstraintsHost, GbPollutionInventoryHost, GbPollutionInventoryEnglandHost, GbRecyclingCentresHost, GbWastePermitsHost } from "./hosts/ukHosts";
-import { GbEarthquakesHost, GbGroundStabilityHost, GbLandslideHost, GbRadiationHost, GbRadonHost } from "./hosts/ukHosts";
-import { GbCareHomesHost, GbCareServicesHost, GbCourtsHost, GbFireStationsHost, GbHealthFacilitiesHost, GbSchoolsHost } from "./hosts/ukHosts";
 import { KrEcologyNaturalnessHost, KrWasteDisposalRulesHost, KrAdminHost, KrWaterLevelStationsHost, KrSluiceGatesHost, KrWaterQualityStationsHost, KrCoastalErosionFacilitiesHost, KrRiversOsmHost, KrMarinePollutionIncidentsHost, KrMarineEnvSitesHost, KrMarineProtectedAreasHost, KrPublicBicycleStationsHost, KrSeoulSubwayCongestionHost, KrBridgesHost, KrParkingLotsHost, KrSpeedCamerasHost, KrChildProtectionZonesHost, KrNationalParksHost, KrNpLocationSignsHost, KrNpTrailsHost, KrStreetTreesHost, KrTerritorialSeaHost, KrUrbanParksHost, KrSportsFacilitiesHost, KrCemeteriesOsmHost, KrPopulationH3Host, KrSchoolsHost, KrSchoolDistrictsHost, KrHospitalsPharmaciesHost, KrFireStationsHost, KrCivilDefenseSheltersHost, KrPoliceBoxesHost, KrLibrariesHost, KrMuseumsHost, KrPerformancesHost, KrFestivalsHost, KrHeritageHost, KrLodgingHost, KrSafeDeliveryBoxesHost, KrSeniorCentersHost, KrIndustrialComplexesHost, KrNoiseSitesHost, KrClothingBinsHost, KrAnimalHospitalsHost, KrLocalCultureCentersHost, KrTraditionalTemplesHost, KrProtectedTreesHost, KrFishingGroundsHost, KrBicycleParkingHost, KrCivilDefenseWaterHost, KrEmergencyBellsHost, KrRuralExperienceVillagesHost, KrSlaughterhousesHost, KrSeoulZoningHost, KrBusStopsHost, KrRailStationsHost, KrAirportsHost, KrPortsHost, KrNationalRoadsHost, KrRailLinesHost, KrFuelStationsHost, KrPowerPlantsHost, KrRenewablesHost, KrPowerLinesHost, KrSubstationsHost, KrPowerTowersHost, KrOilGasHost } from "./hosts/koreaHosts";
-import { GbBridgesTunnelsHost, GbPlacesOfWorshipHost, GbPublicFacilitiesHost, GbRoadFacilitiesHost } from "./hosts/ukHosts";
 import { CaAdminHost, CaAirportsPortsHost, CaMajorRoadsHost, CaOilGasHost, CaPopulationCentresHost, CaPowerGridHost, CaPowerPlantsHost, CaRailwaysHost, CaTransitStopsHost, CaWindTurbinesHost, CaFederalDistrictsHost, CaPostalFsaHost, CaIndigenousLandsHost, CaDeprivationHost, CaRentsHost, CaPlaceNamesHost, CaHillshadeHost, CaClimateStationsHost, CaAqhiStationsHost, CaRadiationStationsHost, CaNpriFacilitiesHost, CaWastewaterSystemsHost, CaEarthquakesHost, CaEarthquakesLiveHost, CaPopulationGridHost, CaMaritimeZonesHost, CaPermafrostHost, CaDamsHost, CaRecyclingDepotsHost, CaFloodMapInventoryHost, CaAbFloodHazardHost, CaGlaciersHost, CaRiversLakesHost, CaProtectedAreasHost, CaCriticalHabitatHost, CaMarineConservationHost, CaTideStationsHost, CaEcozonesHost, CaForestManagementHost, CaBridgesTunnelsHost, CaFerryRoutesHost, CaTorontoKsiHost, CaLodeHealthHost, CaLodeSchoolsHost, CaLodeSportsHost, CaBcChildcareHost, CaLodeCultureHost, CaCbsaOfficesHost, CaParksCanadaAccommodationHost, CaCourtsCorrectionsHost, CaTorontoTheftFromVehicleHost, CaWildfirePointsHost, CaBroadbandHexHost, CaMinesHost, CaGrainElevatorsHost, CaDroughtMonitorHost, CaSoilLandscapesHost, CaNsAquacultureHost, CaAbattoirsHost, CaOdbusHost, CaTorontoDevApplicationsHost } from "./hosts/canadaHosts";
 import { IeAdminHost, IeMaritimeBoundariesHost, IePlaceNamesHost, IeGaeltachtHost, IeActivityLocationsHost, IeParksHost, IeGraveyardsHost, IeBathymetryHost, IeCommercialValuationsHost, IeStateAssetsHost, IeHydrometricStationsHost, IeWaterMonitoringHost, IeRiverWaterBodiesHost, IeLakeWaterBodiesHost, IeArterialDrainageHost, IeRiverFloodExtentsHost, IeCoastalErosionHost, IeBathingWatersHost, IeMarineSurveyStationsHost, IeSeabedSurveyCoverageHost, IeProtectedMarineSitesHost, IeOffshoreRenewablesHost, IeTransitStopsHost, IeDublinbikesStationsHost, IeRoadRailNetworkHost, IeRoadMarkersHost, IeTrafficCountersHost, IeAirportsPortsHost, IeNationalParksHost, IeWildAtlanticWayHost, IeProtectedSitesHost, IeNationalTrailsHost, IeStreetTreesHost, IeRadiationStationsHost, IeLandslideEventsHost, IeLandslideExtentsHost, IeRadonRiskHost, IePowerPlantsHost, IePowerLinesHost, IeSubstationsHost, IeWindFarmsHost, IeEvChargingHost, IeFuelStationsHost, IeSchoolsHost, IeSchoolPlanningAreasHost, IeChildcareServicesHost, IeHeritageSitesHost, IeMuseumsHost, IeArtsVenuesHost, IePublicFacilitiesHost, IeReligiousSitesHost, IeHealthFacilitiesHost, IeCareHomesHost, IeFireStationsHost, IeGardaStationsHost, IeCourtsHost, IeIndustrialFacilitiesHost, IeSoilsHost, IePeatSoilsHost, IeAquacultureHost, IeZoningHost, IePlanningApplicationsHost, IeNoiseMapsHost, IeRecyclingPointsHost, IeWasteFacilitiesHost, IePrtrFacilitiesHost, IeCoillteRecreationHost, IeCoillteForestRoadsHost, IeDefibrillatorsHost, IePrisonsHost, IeProposedNhaHost, IeFloodZonesHost, IeGroundwaterFloodingHost, IePeatExtractionBogsHost } from "./hosts/irelandHosts";
 import { IdAdminHost, IdPopulationHost, IdRuralDevelopmentHost, IdStationsHost, IdRailLinesHost, IdTransportHubsHost, IdPowerPlantsHost, IdPowerGridHost, IdRenewablesHost, IdFuelStationsHost, IdPlaceNamesHost, IdOuterIslandsHost, IdFaultsHost, IdMountainRescueHost, IdDibiHydrometHost, IdBridgesHost, IdWaterFacilitiesHost, IdWatershedsHost, IdSubsidenceHost, IdNatureSpotsHost, IdConservationForestHost, IdCampsHost, IdTerrainHillshadeHost, IdTerrainReliefHost, IdInariskLandslideHost, IdInariskFloodHost, IdInariskMultiHost, IdSchoolsHost, IdHealthFacilitiesHost, IdFireStationsHost, IdPoliceStationsHost, IdPrisonsCourtsHost, IdImmigrationOfficesHost, IdTransjakartaHost, IdSpecialEconomicZonesHost, IdIknHost, IdPostOfficesHost, IdMarketsHost, IdBanksHost, IdCulturalFacilitiesHost, IdHeritageSitesHost, IdCommTowersHost, IdPlacesOfWorshipHost, IdExperiencesHost, IdAccommodationHost, IdWeatherStationsHost, IdFactoriesHost, IdSportsVenuesHost, IdParksHost, IdCemeteriesHost, IdAquacultureHost, IdFarmlandHost, IdVeterinaryHost } from "./hosts/indonesiaHosts";
@@ -119,10 +113,6 @@ import { VnAdminHost, VnPopulationHost, VnStationsHost, VnTransportHubsHost, VnM
   VnTourAttractionsHost, VnTourNatureHost, VnTourServicesHost, VnNationalTouristAreasHost, VnPlaceNamesHost, VnBicycleRentalHost, VnBridgesHost, VnParkingHost, VnGlideEventsHost, VnDamsHost, VnRiversHost, VnWaterSupplyHost, VnWaterStructuresHost, VnRiverbankErosionHost, VnSchoolsHost, VnSchoolCampusesHost, VnKindergartensHost, VnHealthFacilitiesHost, VnPoliceHost, VnCourtsPrisonsHost, VnPostalServicesHost, VnPublicAmenitiesHost, VnFinancialServicesHost, VnPlacesOfWorshipHost, VnParksHost, VnProtectedAreasOdmHost, VnAngiangAquacultureHost, VnFieldBoundariesHost, VnSoilHost, VnFarmTracksHost, VnCoalMinesHost, VnTerrainHillshadeHost, VnTerrainReliefHost, VnLandslideSusceptibilityHost, VnWdpcaHost } from "./hosts/vietnamHosts";
 import { PhAdminHost, PhPopulationHost, PhOpenaqAirHost, PhTransportHubsHost, PhStationsHost, PhMajorRoadsHost, PhPowerPlantsHost, PhPowerGridHost, PhRenewablesHost, PhFuelStationsHost, PhPipelinesHost, PhBusStopsHost, PhUrbanRailHost, PhExpresswaysHost,
   PhTouristAttractionsHost, PhCoastIslandsHost, PhNatureSpotsHost, PhTourismServicesHost, PhTourismDevelopmentAreasHost, PhPlaceNamesHost, PhPovertyHost, PhEarthquakesHost, PhNoahFlood100yrHost, PhNoahLandslideHost, PhWaterPermitsHost, PhLakesHost, PhDamsHost, PhBridgesHost, PhParkingHost, PhKmPostsHost, PhEcozonesHost, PhReclamationHost, PhSchoolsHost, PhSchoolCampusesHost, PhHealthFacilitiesHost, PhFireStationsHost, PhNcrSafeOpenSpacesHost, PhPoliceStationsHost, PhJailsHost, PhTreesHost, PhTrailsHost, PhKbaHost, PhWetlandsHost, PhForestryProgramsHost, PhCoastalResourcesHost, PhMarineStationsHost, PhWdpcaHost, PhWasteFacilitiesHost, PhPollutionSourcesHost, PhArtsVenuesHost, PhPostOfficesHost, PhPublicFacilitiesHost, PhFinancialServicesHost, PhPlacesOfWorshipHost, PhSportsVenuesHost, PhParksHost, PhCemeteriesHost, PhFishPortsHost, PhAquacultureHost, PhTerrainHillshadeHost, PhTerrainReliefHost, PhBuiltSurfaceHost, PhForestLossHost } from "./hosts/philippinesHosts";
-import { CnAdminHost, CnPopulationHost, CnPopulationGridHost, CnBusStopsHost, CnTransportHubsHost, CnMajorRoadsHost, CnPowerPlantsHost, CnPowerGridHost, CnPipelinesHost,
-  CnEezHost, CnPlaceNamesHost, CnEthnicAutonomyHost, CnDamsHost, CnRiversHost, CnActiveFaultsHost, CnNatureReservesHost, CnWdpaHost, CnBridgesTunnelsHost, CnSchoolsHost, CnMedicalHost, CnNuclearPlantsHost, CnTerrainHost, CnAquacultureHost, CnSoilHost,
-} from "./hosts/chinaHosts";
-import { GbAdminHost, GbFuelStationsHost, GbOilGasFieldsHost, GbPowerLinesHost, GbPowerPlantsHost, GbRenewablesHost, GbSubstationsHost, GbBathingWatersHost, GbCoastalErosionHost, GbFloodDefencesHost, GbForestRecreationHost, GbHydroStationsHost, GbMarineProtectedAreasHost, GbOpenAccessLandHost, GbProtectedAreasHost, GbTrailsHost, GbTreeProtectionHost, GbWoodlandHost, GbLondonBikePointsHost, GbLondonChargingZonesHost, GbLondonJamCamsHost, GbLondonRailHost, GbMaritimeLimitsHost, GbRailReplayHost, GbOpenSpaceHost, GbRiversHost, GbTransportHubsHost } from "./hosts/ukHosts";
 
 export interface LayerHookEntry {
   /** hook 名（同名多次呼叫加 `:後綴` 區分）—— 也是 `window.__layerRenderCounts` 的 key */
@@ -133,7 +123,7 @@ export interface LayerHookEntry {
 }
 
 /** ⚠️ 有序陣列。順序 = 凍結的 App.tsx 呼叫順序（見檔頭），嚴禁重排。 */
-export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
+export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = slottedList<LayerHookEntry>("layerHosts", [
   { id: "useHistoricalFlightTrailsLayer", keys: ["historicalFlightTrails", "jpHistoricalFlightTrails"], Host: HistoricalFlightTrailsHost },
   { id: "useJpWaterLayers", keys: ["jpWaterDams", "jpWaterLakes", "jpWaterRivers", "jpWaterSupplyFacilities", "jpWaterSupplyAreas", "jpWaterSewerFacilities", "jpWaterGroundwaterSites", "jpWaterNilimDams", "jpWaterAgriculturalPonds", "jpWaterFloodHazard", "jpWaterLocalFacilities", "jpWaterQualityStations", "jpWaterLevelStations"], Host: JpWaterHost },
   { id: "useJpMedicalLayers", keys: [
@@ -324,8 +314,7 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
   { id: "useHistoricalMapSinicaLayer", keys: ["historicalMapSinica", "historicalMapPostwar", "historicalImagery", "historicalBoundaries", "historicalLandUse", "historicalThematic"], Host: HistoricalMapSinicaHost },
   { id: "useJpGsiTerrainLayers", keys: ["jpGsiHillshade", "jpGsiRelief"], Host: JpGsiTerrainHost },
   { id: "useJpPopulationMeshLayer", keys: ["jpPopulationMesh1km"], Host: JpPopulationMeshHost },
-  // 英國（2026-10-29 第 0b 波）
-  { id: "useGbAdminLayers", keys: ["gbAdminBoundaries", "gbSmallAreaBoundaries"], Host: GbAdminHost },
+  countrySlot("GB", 1), // 英國國家包（src/countries/gb/）
   // 南韓（2026-10-31 第 0 波）
   { id: "useKrAdminLayers", keys: ["krAdminBoundaries"], Host: KrAdminHost },
   { id: "useKrEcologyNaturalnessLayer", keys: ["krEcologyNaturalness"], Host: KrEcologyNaturalnessHost },
@@ -707,32 +696,7 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
   { id: "usePhTerrainReliefLayer", keys: ["phTerrainRelief"], Host: PhTerrainReliefHost },
   { id: "usePhBuiltSurfaceLayer", keys: ["phBuiltSurface"], Host: PhBuiltSurfaceHost },
   { id: "usePhForestLossLayer", keys: ["phForestLoss"], Host: PhForestLossHost },
-  // 中國（2026-11-13 第 0–1 波，站主限定私人圖磚：行政邊界、人口、人口網格、交通 3 層、能源 3 層）
-  { id: "useCnAdminLayers", keys: ["cnAdminBoundaries"], Host: CnAdminHost },
-  { id: "useCnPopulationLayers", keys: ["cnPopulation"], Host: CnPopulationHost },
-  { id: "useCnPopulationGridLayer", keys: ["cnPopulationGrid"], Host: CnPopulationGridHost },
-  { id: "useCnBusStopsLayer", keys: ["cnBusStops"], Host: CnBusStopsHost },
-  { id: "useCnTransportHubsLayer", keys: ["cnTransportHubs"], Host: CnTransportHubsHost },
-  { id: "useCnMajorRoadsLayer", keys: ["cnMajorRoads"], Host: CnMajorRoadsHost },
-  { id: "useCnPowerPlantsLayer", keys: ["cnPowerPlants"], Host: CnPowerPlantsHost },
-  { id: "useCnPowerGridLayer", keys: ["cnPowerGrid"], Host: CnPowerGridHost },
-  { id: "useCnPipelinesLayer", keys: ["cnPipelines"], Host: CnPipelinesHost },
-  // 中國第 2–5 波（2026-11-16，站主限定）：向量 12 層＋raster 3 層
-  { id: "useCnEezLayer", keys: ["cnEez"], Host: CnEezHost },
-  { id: "useCnPlaceNamesLayer", keys: ["cnPlaceNames"], Host: CnPlaceNamesHost },
-  { id: "useCnEthnicAutonomyLayer", keys: ["cnEthnicAutonomy"], Host: CnEthnicAutonomyHost },
-  { id: "useCnDamsLayer", keys: ["cnDams"], Host: CnDamsHost },
-  { id: "useCnRiversLayer", keys: ["cnRivers"], Host: CnRiversHost },
-  { id: "useCnActiveFaultsLayer", keys: ["cnActiveFaults"], Host: CnActiveFaultsHost },
-  { id: "useCnNatureReservesLayer", keys: ["cnNatureReserves"], Host: CnNatureReservesHost },
-  { id: "useCnWdpaLayer", keys: ["cnWdpa"], Host: CnWdpaHost },
-  { id: "useCnBridgesTunnelsLayer", keys: ["cnBridgesTunnels"], Host: CnBridgesTunnelsHost },
-  { id: "useCnSchoolsLayer", keys: ["cnSchools"], Host: CnSchoolsHost },
-  { id: "useCnMedicalLayer", keys: ["cnMedical"], Host: CnMedicalHost },
-  { id: "useCnNuclearPlantsLayer", keys: ["cnNuclearPlants"], Host: CnNuclearPlantsHost },
-  { id: "useCnTerrainLayer", keys: ["cnTerrain"], Host: CnTerrainHost },
-  { id: "useCnAquacultureLayer", keys: ["cnAquaculture"], Host: CnAquacultureHost },
-  { id: "useCnSoilLayer", keys: ["cnSoil"], Host: CnSoilHost },
+  countrySlot("CN", 1), // 中國國家包（src/countries/cn/）
   { id: "useCaTransitStopsLayer", keys: ["caTransitStops"], Host: CaTransitStopsHost },
   { id: "useCaAirportsPortsLayer", keys: ["caAirportsPorts"], Host: CaAirportsPortsHost },
   { id: "useCaMajorRoadsLayer", keys: ["caMajorRoads"], Host: CaMajorRoadsHost },
@@ -794,79 +758,7 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
   { id: "useCaAbattoirsLayer", keys: ["caAbattoirs"], Host: CaAbattoirsHost },
   { id: "useCaOdbusLayer", keys: ["caOdbus"], Host: CaOdbusHost },
   { id: "useCaTorontoDevApplicationsLayer", keys: ["caTorontoDevApplications"], Host: CaTorontoDevApplicationsHost },
-  // 英國第 1 波（海域界線、建成區、綠地三層）
-  { id: "useGbMaritimeLimitsLayer", keys: ["gbMaritimeLimits"], Host: GbMaritimeLimitsHost },
-  { id: "useGbOpenSpaceLayers", keys: ["gbBuiltUpAreas", "gbGreenspace", "gbSportsFacilities", "gbGolfCourses", "gbCemeteries"], Host: GbOpenSpaceHost },
-  // 英國第 3 波（河川、水文測站、防洪設施、海岸侵蝕、浴場）
-  { id: "useGbRiversLayer", keys: ["gbRivers"], Host: GbRiversHost },
-  { id: "useGbHydroStationsLayer", keys: ["gbHydroStations"], Host: GbHydroStationsHost },
-  { id: "useGbFloodDefencesLayer", keys: ["gbFloodDefenceAssets"], Host: GbFloodDefencesHost },
-  { id: "useGbCoastalErosionLayer", keys: ["gbCoastalErosionRisk"], Host: GbCoastalErosionHost },
-  { id: "useGbBathingWatersLayer", keys: ["gbBathingWaters"], Host: GbBathingWatersHost },
-  // 英國第 4 波（交通樞紐＋站客流、倫敦軌道線＋車站、單車站、攝影機、收費區）
-  { id: "useGbTransportHubsLayer", keys: ["gbTransportHubs", "gbStationUsage"], Host: GbTransportHubsHost },
-  { id: "useGbLondonRailLayers", keys: ["gbLondonRailLines", "gbLondonStations"], Host: GbLondonRailHost },
-  { id: "useGbLondonBikePointsLayer", keys: ["gbLondonBikePoints"], Host: GbLondonBikePointsHost },
-  { id: "useGbRailReplayLayer", keys: ["gbRailReplay"], Host: GbRailReplayHost },
-  { id: "useGbLondonJamCamsLayer", keys: ["gbLondonJamCams"], Host: GbLondonJamCamsHost },
-  { id: "useGbLondonChargingZonesLayer", keys: ["gbLondonChargingZones"], Host: GbLondonChargingZonesHost },
-  // 英國第 12 波（公司登記、製造業、殯葬、養殖、土壤母質）
-  { id: "useGbCompaniesLayer", keys: ["gbCompanies"], Host: GbCompaniesHost },
-  { id: "useGbManufacturingLayer", keys: ["gbManufacturing"], Host: GbManufacturingHost },
-  { id: "useGbFuneralLayer", keys: ["gbFuneral"], Host: GbFuneralHost },
-  { id: "useGbAquacultureLayer", keys: ["gbAquaculture"], Host: GbAquacultureHost },
-  { id: "useGbSoilParentMaterialLayer", keys: ["gbSoilParentMaterial"], Host: GbSoilParentMaterialHost },
-  // 英國第 11 波（規劃限制區、棕地、回收點、廢棄物許可、污染排放、噪音）
-  { id: "useGbPlanningConstraintsLayer", keys: ["gbPlanningConstraints"], Host: GbPlanningConstraintsHost },
-  { id: "useGbBrownfieldLayer", keys: ["gbBrownfield"], Host: GbBrownfieldHost },
-  { id: "useGbRecyclingCentresLayer", keys: ["gbRecyclingCentres"], Host: GbRecyclingCentresHost },
-  { id: "useGbWastePermitsLayer", keys: ["gbWastePermits"], Host: GbWastePermitsHost },
-  { id: "useGbPollutionInventoryLayer", keys: ["gbPollutionInventory"], Host: GbPollutionInventoryHost },
-  { id: "useGbEaPollutionInventoryLayer", keys: ["gbPollutionInventoryEngland"], Host: GbPollutionInventoryEnglandHost },
-  { id: "useGbNoiseLayer", keys: ["gbNoise"], Host: GbNoiseHost },
-  // 英國第 10 波（主要路網、AADF 交通計數點）
-  { id: "useGbMajorRoadsLayer", keys: ["gbMajorRoads"], Host: GbMajorRoadsHost },
-  { id: "useGbTrafficCountsAadfLayer", keys: ["gbTrafficCountsAadf"], Host: GbTrafficCountsAadfHost },
-  // 英國第 13 波 OSM（橋梁與隧道、道路設施、公共設施、宗教場所）
-  { id: "useGbBridgesTunnelsLayer", keys: ["gbBridgesTunnels"], Host: GbBridgesTunnelsHost },
-  { id: "useGbRoadFacilitiesLayer", keys: ["gbRoadFacilities"], Host: GbRoadFacilitiesHost },
-  { id: "useGbPublicFacilitiesLayer", keys: ["gbPublicFacilities"], Host: GbPublicFacilitiesHost },
-  { id: "useGbPlacesOfWorshipLayer", keys: ["gbPlacesOfWorship"], Host: GbPlacesOfWorshipHost },
-  // 英國第 5 波（保護區、海洋保護區、林地、森林遊憩、步道、開放進入地、樹木保護）
-  { id: "useGbProtectedAreasLayer", keys: ["gbProtectedAreas"], Host: GbProtectedAreasHost },
-  { id: "useGbMarineProtectedAreasLayer", keys: ["gbMarineProtectedAreas"], Host: GbMarineProtectedAreasHost },
-  { id: "useGbWoodlandLayer", keys: ["gbWoodland"], Host: GbWoodlandHost },
-  { id: "useGbForestRecreationLayer", keys: ["gbForestRecreation"], Host: GbForestRecreationHost },
-  { id: "useGbTrailsLayer", keys: ["gbTrails"], Host: GbTrailsHost },
-  { id: "useGbOpenAccessLandLayer", keys: ["gbOpenAccessLand"], Host: GbOpenAccessLandHost },
-  { id: "useGbTreeProtectionLayer", keys: ["gbTreeProtection"], Host: GbTreeProtectionHost },
-  // 英國第 6 波（電廠、再生能源、電網線、變電所、加油站、離岸油氣田）
-  { id: "useGbPowerPlantsLayer", keys: ["gbPowerPlants"], Host: GbPowerPlantsHost },
-  { id: "useGbRenewablesLayer", keys: ["gbRenewables"], Host: GbRenewablesHost },
-  { id: "useGbPowerLinesLayer", keys: ["gbPowerLines"], Host: GbPowerLinesHost },
-  { id: "useGbSubstationsLayer", keys: ["gbSubstations"], Host: GbSubstationsHost },
-  { id: "useGbFuelStationsLayer", keys: ["gbFuelStations"], Host: GbFuelStationsHost },
-  { id: "useGbOilGasFieldsLayer", keys: ["gbOilGasFields"], Host: GbOilGasFieldsHost },
-  // 英國第 7 波（學校、醫療、照護之家、長照服務、消防站、法院）
-  { id: "useGbSchoolsLayer", keys: ["gbSchools"], Host: GbSchoolsHost },
-  { id: "useGbHealthFacilitiesLayer", keys: ["gbHealthFacilities"], Host: GbHealthFacilitiesHost },
-  { id: "useGbCareHomesLayer", keys: ["gbCareHomes"], Host: GbCareHomesHost },
-  { id: "useGbCareServicesLayer", keys: ["gbCareServices"], Host: GbCareServicesHost },
-  { id: "useGbFireStationsLayer", keys: ["gbFireStations"], Host: GbFireStationsHost },
-  { id: "useGbCourtsLayer", keys: ["gbCourts"], Host: GbCourtsHost },
-  // 英國第 8 波（文化設施、藝文場館、觀光體驗）
-  { id: "useGbCulturalFacilitiesLayer", keys: ["gbCulturalFacilities"], Host: GbCulturalFacilitiesHost },
-  { id: "useGbArtsVenuesLayer", keys: ["gbArtsVenues"], Host: GbArtsVenuesHost },
-  { id: "useGbVisitorExperienceLayer", keys: ["gbVisitorExperience"], Host: GbVisitorExperienceHost },
-  // 英國 C003 地形（raster 兩層）、C028 公有地標售
-  { id: "useGbTerrainLayers", keys: ["gbTerrainHillshade", "gbTerrainRelief"], Host: GbTerrainHost },
-  { id: "useGbSurplusLandLayer", keys: ["gbSurplusLand"], Host: GbSurplusLandHost },
-  // 英國第 9 波災害地質
-  { id: "useGbGroundStabilityLayer", keys: ["gbGroundStability"], Host: GbGroundStabilityHost },
-  { id: "useGbLandslideLayer", keys: ["gbLandslide"], Host: GbLandslideHost },
-  { id: "useGbRadonLayer", keys: ["gbRadon"], Host: GbRadonHost },
-  { id: "useGbRadiationLayer", keys: ["gbRadiation"], Host: GbRadiationHost },
-  { id: "useGbEarthquakesLayer", keys: ["gbEarthquakes"], Host: GbEarthquakesHost },
+  countrySlot("GB", 2), // 英國國家包（src/countries/gb/）
   // 日本氣象廳即時 4 層（gis-platform migration 435）：當下快照
   { id: "useJmaLiveLayer:jmaAmedas", keys: ["jmaAmedas"], Host: JmaAmedasHost },
   { id: "useJmaWarningsLayer", keys: ["jmaWarnings"], Host: JmaWarningsHost },
@@ -1006,4 +898,4 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
   { id: "useMapchallengeDay19PotentialLayer", keys: ["mapchallengeDay19Potential"], Host: MapchallengeDay19PotentialHost },
   // 台灣圖層延伸 B5：縣市間遷徙流向（geojson 弧線＋端點，年份與統計底色連動）
   { id: "useCountyMigrationFlowsLayer", keys: ["twCountyMigrationFlows"], Host: CountyMigrationFlowsHost },
-];
+]);

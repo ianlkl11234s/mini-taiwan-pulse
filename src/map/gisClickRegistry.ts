@@ -1,3 +1,4 @@
+import { countrySlot, slottedList } from "../countries/slots";
 import { STATISTICS_RENDER_KEYS } from '../data/regionalStatisticsRecipes';
 import { PRESENTATION_KEYS } from '../state/statisticsPresentationStore';
 import { repPointClickLayerIds } from './repPointOverlays';
@@ -46,7 +47,7 @@ import { GFW_V4_TRACK_CLICK_LAYERS } from "../hooks/useGfwV4TracksLayer";
 import { GFW_FISHING_EFFORT_CLICK_LAYERS } from "../hooks/useGfwFishingEffortLayer";
 import { MARINE_OBSERVATION_CLICK_LAYERS } from "../hooks/useMarineObservationLayer";
 
-type GisLayerEntry = { layers: string[]; type: FeatureInfo["layerType"] };
+export type GisLayerEntry = { layers: string[]; type: FeatureInfo["layerType"] };
 /**
  * GIS_LAYERS 的陣列字面已約 1,000 筆，再多一筆物件字面 tsc 會報 TS2590（union type too complex，2026-11-21 Day 21 實測）。
  * 新增的條目先宣告成具名常數（型別已定，不再增加字面 union），再在 GIS_LAYERS 對應位置展開。
@@ -68,7 +69,7 @@ const MAPCHALLENGE_DAY21_CLICK_LAYERS: GisLayerEntry[] = [
 ];
 
 /** 查詢 Mapbox GIS 層（順序 load-bearing，見檔頭 first-hit-wins 段） */
-export const GIS_LAYERS: GisLayerEntry[] = [
+export const GIS_LAYERS: GisLayerEntry[] = slottedList<GisLayerEntry>("gisClickLayers", [
   // 🏯 30 天地圖挑戰 Day 6 復古點與線（燈塔歷史／今日點、祠廟、今日地名、海岸線）：小目標，
   //    放在所有大面積面層（溫度網格、校地等）之前，兩層同開時才點得到（review F007）
   { layers: ["mapchallenge-day06-lighthouses-circle", "mapchallenge-day06-lighthouses-today-circle"], type: "mapchallengeDay06Lighthouses" },
@@ -347,92 +348,7 @@ export const GIS_LAYERS: GisLayerEntry[] = [
   { layers: ["jp-population-mesh-fill"], type: "jpPopulationMesh1km" },
   { layers: ["jp-accommodation-density-1500-fill", "jp-accommodation-density-1500-outline"], type: "jpAccommodationDensity" },
   { layers: ["jp-admin-municipality-fill"], type: "jpAdminBoundaries" },
-  // 英國第 1 波：海域界線（線）與綠地三層（小面）排在建成區、行政界（大面積背景）前面
-  { layers: ["gb-maritime-limits-line", "gb-maritime-limits-dashed", "gb-maritime-limits-closing"], type: "gbMaritimeLimits" },
-  { layers: ["gb-greenspace-park-fill"], type: "gbGreenspace" },
-  // 英國第 3 波：點（測站、浴場）→ 線（防洪、北愛侵蝕風險、河川）→ 侵蝕面，都排在建成區、行政界前面
-  // 英國第 4 波：倫敦車站排在樞紐前（King's Cross 等共站），點 → 線 → 收費區大面
-  // 英國第 5 波：點（TPO 單株、森林遊憩）→ 線（步道）排最前；小面（TPO 範圍、開放進入地、古老林地、林地）→ 海洋保護區 → 保護區大面
-  // 英國第 7 波：公共服務點（消防站、法院、醫院 → GP／藥局 → 學校 → 照護）排在 GB 點層最前
-  { layers: ["gb-fire-stations-circle"], type: "gbFireStations" },
-  { layers: ["gb-courts-circle"], type: "gbCourts" },
-  { layers: ["gb-health-hospital-circle", "gb-health-primary-circle"], type: "gbHealthFacilities" },
-  { layers: ["gb-schools-circle"], type: "gbSchools" },
-  { layers: ["gb-public-facilities-circle"], type: "gbPublicFacilities" },
-  { layers: ["gb-places-of-worship-circle"], type: "gbPlacesOfWorship" },
-  { layers: ["gb-care-homes-circle"], type: "gbCareHomes" },
-  { layers: ["gb-care-services-circle"], type: "gbCareServices" },
-  // 英國第 8 波：文化與觀光點（藝文場館 → 文化設施 → 觀光體驗非景點 → 景點）
-  { layers: ["gb-arts-venues-circle"], type: "gbArtsVenues" },
-  { layers: ["gb-cultural-facilities-circle"], type: "gbCulturalFacilities" },
-  { layers: ["gb-visitor-other-circle", "gb-visitor-attraction-circle"], type: "gbVisitorExperience" },
-  // 英國 C028 公有地標售（點）
-  { layers: ["gb-surplus-land-circle"], type: "gbSurplusLand" },
-  // 英國第 9 波災害地質：點（地震 → 加馬站 → 山崩）先於面（氡氣方格、GeoSure 六角格）
-  { layers: ["gb-earthquakes-major-circle", "gb-earthquakes-minor-circle"], type: "gbEarthquakes" },
-  { layers: ["gb-gamma-dose-circle"], type: "gbRadiation" },
-  { layers: ["gb-landslides-circle"], type: "gbLandslide" },
-  { layers: ["gb-radon-fill"], type: "gbRadon" },
-  { layers: ["gb-geosure-fill"], type: "gbGroundStability" },
-  // 英國第 6 波：點（電廠 → 再生能源 → 加油站 → 變電所）→ 電網線 → 油氣田大面
-  { layers: ["gb-power-plants-circle"], type: "gbPowerPlants" },
-  { layers: ["gb-renewables-circle"], type: "gbRenewables" },
-  { layers: ["gb-fuel-stations-circle"], type: "gbFuelStations" },
-  { layers: ["gb-substations-circle"], type: "gbSubstations" },
-  { layers: ["gb-power-lines-line", "gb-power-cables-line"], type: "gbPowerLines" },
-  { layers: ["gb-tpo-circle"], type: "gbTreeProtection" },
-  { layers: ["gb-forest-recreation-circle", "gb-forest-recreation-signage-circle"], type: "gbForestRecreation" },
-  { layers: ["gb-trails-national-line", "gb-trails-forest-line"], type: "gbTrails" },
-  { layers: ["gb-rail-replay-trains-circle"], type: "gbRailReplay" },
-  { layers: ["gb-london-stations-circle"], type: "gbLondonStations" },
-  { layers: ["gb-london-jamcams-circle"], type: "gbLondonJamCams" },
-  { layers: ["gb-london-bikepoints-circle"], type: "gbLondonBikePoints" },
-  { layers: ["gb-station-usage-circle"], type: "gbStationUsage" },
-  { layers: ["gb-transport-hubs-circle"], type: "gbTransportHubs" },
-  { layers: ["gb-london-rail-lines-line"], type: "gbLondonRailLines" },
-  // 英國第 12 波：點（殯葬 → 養殖 → 製造業 → 公司）先於面（土壤母質）
-  { layers: ["gb-funeral-crematorium-circle", "gb-funeral-directors-circle"], type: "gbFuneral" },
-  { layers: ["gb-aquaculture-circle"], type: "gbAquaculture" },
-  { layers: ["gb-manufacturing-circle"], type: "gbManufacturing" },
-  { layers: ["gb-companies-circle"], type: "gbCompanies" },
-  { layers: ["gb-soil-parent-material-fill", "gb-soil-parent-material-na"], type: "gbSoilParentMaterial" },
-  // 英國第 11 波：點（污染 → 廢棄物許可 → 回收中心 → 回收桶 → 棕地）先於面（規劃限制區、噪音）
-  { layers: ["gb-pollution-inventory-circle"], type: "gbPollutionInventory" },
-  { layers: ["gb-ea-pollution-inventory-circle"], type: "gbPollutionInventoryEngland" },
-  { layers: ["gb-waste-permits-circle"], type: "gbWastePermits" },
-  { layers: ["gb-recycling-centre-circle", "gb-recycling-container-circle"], type: "gbRecyclingCentres" },
-  { layers: ["gb-brownfield-circle"], type: "gbBrownfield" },
-  { layers: ["gb-planning-constraints-fill", "gb-planning-constraints-points-circle"], type: "gbPlanningConstraints" },
-  { layers: ["gb-noise-fill"], type: "gbNoise" },
-  // 英國第 10 波：計數點（點）排在主要路網（線）前面
-  { layers: ["gb-traffic-counts-aadf-major-circle", "gb-traffic-counts-aadf-minor-circle"], type: "gbTrafficCountsAadf" },
-  { layers: ["gb-road-facilities-circle"], type: "gbRoadFacilities" },
-  { layers: ["gb-bridges-tunnels-bridge-line", "gb-bridges-tunnels-tunnel-line"], type: "gbBridgesTunnels" },
-  { layers: ["gb-major-roads-line"], type: "gbMajorRoads" },
-  { layers: ["gb-hydro-stations-circle"], type: "gbHydroStations" },
-  { layers: ["gb-bathing-waters-circle"], type: "gbBathingWaters" },
-  { layers: ["gb-flood-defences-line", "gb-flood-defences-z5-6-line"], type: "gbFloodDefenceAssets" },
-  { layers: ["gb-coastal-erosion-points-circle", "gb-coastal-erosion-ni-line", "gb-coastal-erosion-fill"], type: "gbCoastalErosionRisk" },
-  { layers: ["gb-rivers-line"], type: "gbRivers" },
-  // §3.8 V-5 綠地四層的代表點（「點」模式；高爾夫球場「面」模式 z<10 也用），點先於面
-  { layers: ["gb-greenspace-park-point-circle"], type: "gbGreenspace" },
-  { layers: ["gb-greenspace-sports-point-circle"], type: "gbSportsFacilities" },
-  { layers: ["gb-greenspace-golf-circle"], type: "gbGolfCourses" },
-  { layers: ["gb-greenspace-burial-point-circle"], type: "gbCemeteries" },
-  { layers: ["gb-greenspace-sports-fill"], type: "gbSportsFacilities" },
-  { layers: ["gb-greenspace-golf-fill"], type: "gbGolfCourses" },
-  { layers: ["gb-greenspace-burial-fill"], type: "gbCemeteries" },
-  { layers: ["gb-london-charging-zones-line", "gb-london-charging-zones-fill"], type: "gbLondonChargingZones" },
-  { layers: ["gb-tpo-fill", "gb-ancient-woodland-fill", "gb-tree-protection-points-circle"], type: "gbTreeProtection" },
-  { layers: ["gb-open-access-land-fill", "gb-open-access-land-z5-fill", "gb-open-access-points-circle"], type: "gbOpenAccessLand" },
-  { layers: ["gb-woodland-fill", "gb-woodland-points-circle"], type: "gbWoodland" },
-  { layers: ["gb-marine-protected-areas-points-circle", "gb-marine-protected-areas-line", "gb-marine-protected-areas-fill"], type: "gbMarineProtectedAreas" },
-  { layers: ["gb-protected-areas-points-circle", "gb-protected-areas-line", "gb-protected-areas-fill"], type: "gbProtectedAreas" },
-  { layers: ["gb-oil-gas-points-circle", "gb-oil-gas-fields-line", "gb-oil-gas-fields-fill"], type: "gbOilGasFields" },
-  { layers: ["gb-built-up-areas-points-circle", "gb-built-up-areas-fill"], type: "gbBuiltUpAreas" },
-  // 英國：小區（細）排在 LAD（大面積背景）前面；北愛 DZ／SDZ 只會有一個可見
-  { layers: ["gb-small-areas-fill", "gb-ni-sdz-fill", "gb-small-areas-low-fill", "gb-ni-sdz-low-fill"], type: "gbSmallAreaBoundaries" },
-  { layers: ["gb-admin-lad-fill"], type: "gbAdminBoundaries" },
+  countrySlot("GB", 1), // 英國國家包（src/countries/gb/）
   // 南韓第 3–5 波：點 → 線 → 面，都排在行政界（大面積背景）前面
   { layers: ["kr-street-trees-circle"], type: "krStreetTrees" },
   { layers: ["kr-water-level-stations-circle"], type: "krWaterLevelStations" },
@@ -879,28 +795,7 @@ export const GIS_LAYERS: GisLayerEntry[] = [
   { layers: ["id-admin-kabkota-fill", "id-admin-province-fill", "id-admin-country-fill"], type: "idAdminBoundaries" },
   { layers: ["vn-population-province-fill"], type: "vnPopulation" },
   { layers: ["vn-admin-province-fill"], type: "vnAdminBoundaries" },
-  // 中國（2026-11-13 第 0–1 波，站主限定）：點、線在前，人口面、行政界最後；人口網格是 raster，不可點
-  { layers: ["cn-airports-circle", "cn-ports-circle"], type: "cnTransportHubs" },
-  { layers: ["cn-power-plants-circle"], type: "cnPowerPlants" },
-  { layers: ["cn-lng-terminals-circle", "cn-pipelines-line", "cn-pipelines-planned-line"], type: "cnPipelines" },
-  { layers: ["cn-power-substations-circle", "cn-power-lines-line"], type: "cnPowerGrid" },
-  { layers: ["cn-bus-stops-circle"], type: "cnBusStops" },
-  { layers: ["cn-major-rail-line", "cn-major-roads-line"], type: "cnMajorRoads" },
-  // 中國第 2–5 波（2026-11-16）：點、線在前，面在後；地形、養殖、土壤是 raster，不可點
-  { layers: ["cn-nuclear-plants-circle", "cn-nuclear-reactors-circle"], type: "cnNuclearPlants" },
-  { layers: ["cn-medical-circle"], type: "cnMedical" },
-  { layers: ["cn-schools-circle"], type: "cnSchools" },
-  { layers: ["cn-bridges-tunnels-circle"], type: "cnBridgesTunnels" },
-  { layers: ["cn-place-names-circle"], type: "cnPlaceNames" },
-  { layers: ["cn-dams-circle", "cn-reservoirs-fill"], type: "cnDams" },
-  { layers: ["cn-wdpa-circle", "cn-wdpa-fill"], type: "cnWdpa" },
-  { layers: ["cn-active-faults-line"], type: "cnActiveFaults" },
-  { layers: ["cn-rivers-line"], type: "cnRivers" },
-  { layers: ["cn-nature-reserves-fill"], type: "cnNatureReserves" },
-  { layers: ["cn-ethnic-autonomy-fill"], type: "cnEthnicAutonomy" },
-  { layers: ["cn-eez-fill"], type: "cnEez" },
-  { layers: ["cn-population-prefecture-fill", "cn-population-province-fill"], type: "cnPopulation" },
-  { layers: ["cn-admin-prefecture-fill", "cn-admin-province-fill"], type: "cnAdminBoundaries" },
+  countrySlot("CN", 1), // 中國國家包（src/countries/cn/）
   { layers: ["jp-admin-prefecture-fill"], type: "jpAdminPrefecture" },
   { layers: ["typhoon-agency-forecasts-points", "typhoon-agency-forecasts-line"], type: "typhoonAgencyForecast" },
   { layers: ["typhoon-tracks-current-ring", "typhoon-tracks-current-dot", "typhoon-tracks-points", "typhoon-tracks-radii-fill"], type: "typhoonTrack" },
@@ -1476,7 +1371,7 @@ export const GIS_LAYERS: GisLayerEntry[] = [
   // Transparent supply areas are intentionally the final click candidate across the map,
   // so a coverage polygon never intercepts any detailed point, line, or other fill.
   { layers: ["jp-water-jpWaterSupplyAreas"], type: "jpWaterSupplyAreas" },
-];
+], applyRepPointClickAliases);
 
 /**
  * 國土利用監測六角格篩選時以 fill-opacity 0 隱藏零權重格（不走 filter），queryRenderedFeatures 仍會命中。
@@ -1491,6 +1386,9 @@ export function dropHiddenLandUseHex<F extends { layer?: { id?: string; paint?: 
 }
 
 // V-5：面層的代表點 circle 沿用同一個 FeatureInfo 類型（點樣式下面層隱藏，點擊落在代表點上）
-for (const { polygonLayerId, circleIds } of repPointClickLayerIds()) {
-  for (const entry of GIS_LAYERS) if (entry.layers.includes(polygonLayerId)) entry.layers.push(...circleIds);
+function applyRepPointClickAliases(entries: readonly GisLayerEntry[]): void {
+  for (const { polygonLayerId, circleIds } of repPointClickLayerIds()) {
+    for (const entry of entries) if (entry.layers.includes(polygonLayerId)) entry.layers.push(...circleIds);
+  }
 }
+applyRepPointClickAliases(GIS_LAYERS);

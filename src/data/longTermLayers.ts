@@ -22,6 +22,8 @@ export const LONG_TERM_BAR_ADAPTERS: ReadonlySet<ManifestKey> = new Set<Manifest
 
 /** 完整規格（細節分層等）只在 manifest；外國圖層 P5 後要等國家包。索引只提供類別與旗標。 */
 export function longTermSpecOf(key: string): LongTermSpec | null {
+  // 索引說這層沒有長期類別就不必碰 manifest（側欄每列都會問；國家包沒載入時讀 manifest 會報錯）
+  if (!layerLongTermKindOf(key)) return null;
   return getLayerEntry(key)?.longTerm ?? null;
 }
 

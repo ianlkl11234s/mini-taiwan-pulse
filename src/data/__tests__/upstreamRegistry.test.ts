@@ -15,6 +15,10 @@ import { join, resolve } from "node:path";
 import { LAYER_COLORS } from "../../components/sidebar/layerCatalog";
 import { UPSTREAM_REGISTRY, resolveUpstreamDatasets } from "../upstreamRegistry";
 import { OWNER_TESTS } from "../../test/ownerAssets";
+import { loadAllPacks } from "../../countries/packs";
+
+// 全部圖層（含延後載入的國家包，B1 P5a）一起驗
+await loadAllPacks();
 
 // 解析 catalog 所有 dataset_id（從 frontmatter + 檔名 fallback）
 function loadCatalogDatasetIds(): Set<string> {

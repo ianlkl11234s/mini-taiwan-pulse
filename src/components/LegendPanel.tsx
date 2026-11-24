@@ -1,3 +1,4 @@
+import { countrySlot, slottedList } from "../countries/slots";
 import { JpDidLegend, JpNationalParksMoeLegend, JpNaturalParkAreas2015Legend, JpWildlifeProtectionMoeLegend } from "./legend/jpNatureR2Legends";
 import { COMPARISON_ENABLED_RECIPES } from "../data/comparisonStatisticsRecipes";
 import { KR_DATA_KEYS } from "../data/krDataKeys";
@@ -55,17 +56,7 @@ import { CouncilDistrictsLegend, ElectionEventsLegend, PollingStationsLegend } f
 import { Fire119LiveLegend, PbsRoadEventsLiveLegend } from "./legend/liveIncidentsLegends";
 import { DengueClustersLegend, NavNoticesLegend, TideSwellAlertsLegend } from "./legend/twLiveLegends";
 import { AgriCompanyLegend, AgriPOILegend, CommonRegistrationAddressesLegend, CompanyAgeStructureLegend, CompanyCapitalGridLegend, CompanyIndustryDistributionLegend, CompanyPointsLegend, CropSuitabilityLegend, FactoryLocationsLegend, ForestryLegend, IndustrialDensityGridLegend, IndustrialParkBoundariesLegend, IndustrialParkComparisonLegend, LivestockFacilityLegend, LivestockFarmLegend, RegulatedFacilitiesLegend, SoilFertilityLegend } from "./legend/agriIndustryLegends";
-import { DrinkingWaterProtectionZonesLegend, GbBathingWatersLegend, GbCoastalErosionRiskLegend, GbFloodDefenceAssetsLegend, GbHydroStationsLegend, GbRiversLegend, GroundwaterLegend, IotRiverLegend, IotStructureLegend, JpWaterFloodHazardLegend, JpWaterLegend, LakesPondsLegend, RainGaugeLegend, ReservoirStatusLegend, ReservoirStaticLegend, RiverLevelLegend, RiverRpiStationsLegend, SewageTreatmentPlantsLegend, TaipeiEvacuateLegend, TaipeiPumbLegend, TaipeiSewerLegend, WaterCanalLegend, WaterFacilityLegend, WaterFloodExtremeLegend, WaterMonitorStationLegend, WaterProtectionZoneLegend, WaterQualityStationsLegend } from "./legend/waterLegends";
-import { GbArtsVenuesLegend, GbCulturalFacilitiesLegend, GbVisitorExperienceLegend } from "./legend/gbCultureLegends";
-import { GbSurplusLandLegend, GbTerrainHillshadeLegend, GbTerrainReliefLegend } from "./legend/gbLandLegends";
-import { GbAquacultureLegend, GbCompaniesLegend, GbFuneralLegend, GbManufacturingLegend, GbSoilParentMaterialLegend } from "./legend/gbBusinessAgriLegends";
-import { GbBridgesTunnelsLegend, GbPlacesOfWorshipLegend, GbPublicFacilitiesLegend, GbRoadFacilitiesLegend } from "./legend/gbOsmLegends";
-import { GbBrownfieldLegend, GbNoiseLegend, GbPlanningConstraintsLegend, GbPollutionInventoryLegend, GbPollutionInventoryEnglandLegend, GbRecyclingCentresLegend, GbWastePermitsLegend } from "./legend/gbEnvPlanningLegends";
-import { GbEarthquakesLegend, GbGroundStabilityLegend, GbLandslideLegend, GbRadiationLegend, GbRadonLegend } from "./legend/gbHazardLegends";
-import { GbCareHomesLegend, GbCareServicesLegend, GbCourtsLegend, GbFireStationsLegend, GbHealthFacilitiesLegend, GbSchoolsLegend } from "./legend/gbCivicLegends";
-import { GbFuelStationsLegend, GbOilGasFieldsLegend, GbPowerLinesLegend, GbPowerPlantsLegend, GbRenewablesLegend, GbSubstationsLegend } from "./legend/gbEnergyLegends";
-import { GbForestRecreationLegend, GbMarineProtectedAreasLegend, GbOpenAccessLandLegend, GbProtectedAreasLegend, GbTrailsLegend, GbTreeProtectionLegend, GbWoodlandLegend } from "./legend/gbNatureLegends";
-import { GbLondonBikePointsLegend, GbLondonChargingZonesLegend, GbLondonJamCamsLegend, GbLondonRailLinesLegend, GbLondonStationsLegend, GbMajorRoadsLegend, GbRailReplayLegend, GbStationUsageLegend, GbTrafficCountsAadfLegend, GbTransportHubsLegend } from "./legend/gbTransportLegends";
+import { DrinkingWaterProtectionZonesLegend, GroundwaterLegend, IotRiverLegend, IotStructureLegend, JpWaterFloodHazardLegend, JpWaterLegend, LakesPondsLegend, RainGaugeLegend, ReservoirStatusLegend, ReservoirStaticLegend, RiverLevelLegend, RiverRpiStationsLegend, SewageTreatmentPlantsLegend, TaipeiEvacuateLegend, TaipeiPumbLegend, TaipeiSewerLegend, WaterCanalLegend, WaterFacilityLegend, WaterFloodExtremeLegend, WaterMonitorStationLegend, WaterProtectionZoneLegend, WaterQualityStationsLegend } from "./legend/waterLegends";
 import { AnfrWirelessSitesLegend, CoverageLegend, EnergyFuelLegend, EnergyReserveLegend, EnergySpecialtyLegend, FacOffshoreLegend, FacilityFuelLegend, FossilFuelLegend, InternetExchangePointsLegend, LandingStationLegend, NetworkStructuresLegend, OoklaPerformanceGridLegend, OsmCommunicationSitesLegend, PowerGridLegend, PowerPolesLegend, RenewablePoiLegend, RipeAtlasProbesLegend, SubmarineCableLegend, SubstationEhvLegend, SubstationLocalLegend } from "./legend/energyTelecomLegends";
 import { AccessibleParkLegend, AnimalAdoptionLegend, AnimalShelterPressureLegend, AnimalWelfarePointsLegend, BicycleSupportLegend, EducationLegend, GovServiceOfficeLegend, GovernmentLifeLegend, JpMedicalLegend, JpPoliceFacilitiesLegend, JpEvacuationSitesLegend, JpLandslideWarningAreasLegend, JpInlandFloodAreasLegend, JpZoningUseDistrictsLegend, JpNationalForestsLegend, JpWelfareFacilitiesLegend, JpPublicOfficesLegend, JpBusStopsLegend, JpSchoolsLegend, EmergencyHospitalLegend, MedicalIsochroneLegend, MedicalLegend, PoliceIsochroneLegend, PoliceJusticeLegend, PublicLifeCoverageLegend, PublicLifeOsmLegend, PublicToiletLegend, WelfareLegend } from "./legend/civicServiceLegends";
 import { KrDataLegend, KrAirportsLegend, KrBusStopsLegend, KrFuelStationsLegend, KrNationalRoadsLegend, KrOilGasLegend, KrPortsLegend, KrPowerLinesLegend, KrPowerPlantsLegend, KrPowerTowersLegend, KrRailLinesLegend, KrRailStationsLegend, KrRenewablesLegend, KrSubstationsLegend } from "./legend/krLegends";
@@ -84,14 +75,13 @@ import { IdAdminBoundariesLegend, IdDataLegend, IdPopulationLegend, IdRasterLege
 import { CA_WAVE_KEYS } from "../data/caWavesKeys";
 import { CA_WAVE_SPEC_BY_KEY } from "../data/caWavesLayers";
 import { VnAdminBoundariesLegend, VnDataLegend, VnPopulationLegend, VnRasterLegend } from "./legend/vnLegends";
-import { CN_DATA_KEYS, CN_RASTER_KEYS } from "../data/cnDataKeys";
-import { CnAdminBoundariesLegend, CnDataLegend, CnPopulationGridLegend, CnPopulationLegend, CnRasterLegend } from "./legend/cnLegends";
 import { CaClimateStationsLegend, CaAqhiStationsLegend, CaRadiationStationsLegend, CaNpriFacilitiesLegend, CaWastewaterSystemsLegend, CaEarthquakesLegend, CaEarthquakesLiveLegend, CaPopulationGridLegend } from "./legend/caEnvLegends";
 import { CountyMigrationFlowsLegend } from "./legend/countyMigrationLegends";
-import { KrAdminBoundariesLegend, GbAdminBoundariesLegend, GbBuiltUpAreasLegend, GbGreenspaceLegend, GbMaritimeLimitsLegend, GbSmallAreaBoundariesLegend, JpGsiHillshadeLegend, JpGsiReliefLegend, HistoricalMapLegend, BuildingsGbaLegend, CanopyGiantsLegend, CanopyHeightLegend, EcoNetworkZonesLegend, JpBuildingHeightLegend, JpCanopyHeightLegend, JpPopulationMeshLegend, NonUrbanZoningLegend, ParksTaipeiLegend, PropertyValueAdminLegend, PropertyValueGridLegend, ProtectedTreesNationalLegend, RealEstateLegend, RiversideTreesTaipeiLegend, StreetTrees3epochLegend, StreetTreesNationalLegend, StreetTreesTaipeiDiffLegend, TreePitsTaipeiLegend, UrbanFormGridLegend, UrbanZoningLegend } from "./legend/urbanFormLegends";
+import { KrAdminBoundariesLegend, JpGsiHillshadeLegend, JpGsiReliefLegend, HistoricalMapLegend, BuildingsGbaLegend, CanopyGiantsLegend, CanopyHeightLegend, EcoNetworkZonesLegend, JpBuildingHeightLegend, JpCanopyHeightLegend, JpPopulationMeshLegend, NonUrbanZoningLegend, ParksTaipeiLegend, PropertyValueAdminLegend, PropertyValueGridLegend, ProtectedTreesNationalLegend, RealEstateLegend, RiversideTreesTaipeiLegend, StreetTrees3epochLegend, StreetTreesNationalLegend, StreetTreesTaipeiDiffLegend, TreePitsTaipeiLegend, UrbanFormGridLegend, UrbanZoningLegend } from "./legend/urbanFormLegends";
 import { KrEcologyNaturalnessLegend, KrWasteDisposalRulesLegend } from "./legend/krEcoWasteLegends";
 import { ArtsEventsLegend, CulturalFacilitiesLegend, CulturalMuseumsLegend, FuneralLegend, JpAccommodationDensityLegend, JpAccommodationTypesLegend, JpReligionLegend, LibrarySeatsLegend, PerformingVenuesLegend, ReligionLegend, SportsVenueLegend, TourAttractionsLegend, TourEventsLegend, TourHeritageLegend, TourHotelsLegend } from "./legend/cultureLegends";
 import { DenseSingleColorLegend } from "./legend/legendShared";
+import { useCountryPackVersion } from "../countries/packs";
 
 
 /**
@@ -170,7 +160,7 @@ export interface LegendEntry {
  * ⚠️ AR-22 Phase 4b 起 `keys` 不再手寫 —— 見 `data/legendGroups.ts` 檔頭
  * （含「派生的代價：填錯 id 會自我實現」那段）。
  */
-export const LEGEND_REGISTRY: LegendEntry[] = [
+export const LEGEND_REGISTRY: LegendEntry[] = slottedList<LegendEntry>("legends", [
   { id: "landslideDodAreas", render: () => <LandslideDodAreasLegend /> },
   { id: "landslideDodImpact", render: () => <LandslideDodImpactLegend /> },
   { id: "highwayDisasterHistory", render: () => <HighwayDisasterHistoryLegend /> },
@@ -367,7 +357,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "historicalBoundaries", render: ({ overlayParams }) => <HistoricalMapLegend groupKey="historicalBoundaries" eraIdx={overlayParams.historicalBoundariesEraIdx} /> },
   { id: "historicalLandUse", render: ({ overlayParams }) => <HistoricalMapLegend groupKey="historicalLandUse" eraIdx={overlayParams.historicalLandUseEraIdx} /> },
   { id: "historicalThematic", render: ({ overlayParams }) => <HistoricalMapLegend groupKey="historicalThematic" eraIdx={overlayParams.historicalThematicEraIdx} /> },
-  { id: "gbAdminBoundaries", render: () => <GbAdminBoundariesLegend /> },
+  countrySlot("GB", 1), // 英國國家包（src/countries/gb/）
   { id: "krAdminBoundaries", render: () => <KrAdminBoundariesLegend /> },
   { id: "krEcologyNaturalness", render: () => <KrEcologyNaturalnessLegend /> },
   { id: "krWasteDisposalRules", render: () => <KrWasteDisposalRulesLegend /> },
@@ -402,12 +392,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   ...VN_RASTER_KEYS.map((key) => ({ id: key, render: () => <VnRasterLegend layerKey={key} /> })),
   // 加拿大第 3–8 波（2026-11-17）：規格驅動 36 層，重用菲律賓 PhSpecLegend
   ...CA_WAVE_KEYS.map((key) => ({ id: key, render: () => <PhSpecLegend spec={CA_WAVE_SPEC_BY_KEY[key]} /> })),
-  // 中國第 0–1 波（站主限定）
-  { id: "cnAdminBoundaries", render: () => <CnAdminBoundariesLegend /> },
-  { id: "cnPopulation", render: () => <CnPopulationLegend /> },
-  { id: "cnPopulationGrid", render: () => <CnPopulationGridLegend /> },
-  ...CN_DATA_KEYS.map((key) => ({ id: key, render: () => <CnDataLegend layerKey={key} /> })),
-  ...CN_RASTER_KEYS.map((key) => ({ id: key, render: () => <CnRasterLegend layerKey={key} /> })),
+  countrySlot("CN", 1), // 中國國家包（src/countries/cn/）
   { id: "ieCoillteRecreation", render: () => <IeSpecLegend layerKey="ieCoillteRecreation" spec={IE_COILLTE_RECREATION}><DenseHeatmapLegendRow layers={["ieCoillteRecreation"]} /></IeSpecLegend> },
   { id: "ieCoillteForestRoads", render: () => <IeSpecLegend layerKey="ieCoillteForestRoads" spec={IE_COILLTE_FOREST_ROADS} /> },
   { id: "ieBathymetry", render: () => <IeBathymetryLegend /> },
@@ -443,74 +428,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "krRailStations", render: () => <KrRailStationsLegend /> },
   { id: "krRenewables", render: () => <KrRenewablesLegend /> },
   { id: "krSubstations", render: () => <KrSubstationsLegend /> },
-  { id: "gbSmallAreaBoundaries", render: () => <GbSmallAreaBoundariesLegend /> },
-  { id: "gbMaritimeLimits", render: () => <GbMaritimeLimitsLegend /> },
-  { id: "gbBuiltUpAreas", render: () => <GbBuiltUpAreasLegend /> },
-  { id: "gbGreenspace", render: () => <GbGreenspaceLegend layerKey="gbGreenspace" /> },
-  { id: "gbSportsFacilities", render: () => <GbGreenspaceLegend layerKey="gbSportsFacilities" /> },
-  { id: "gbGolfCourses", render: () => <GbGreenspaceLegend layerKey="gbGolfCourses" /> },
-  { id: "gbCemeteries", render: () => <GbGreenspaceLegend layerKey="gbCemeteries" /> },
-  { id: "gbRivers", render: () => <GbRiversLegend /> },
-  { id: "gbHydroStations", render: () => <GbHydroStationsLegend /> },
-  { id: "gbFloodDefenceAssets", render: () => <GbFloodDefenceAssetsLegend /> },
-  { id: "gbCoastalErosionRisk", render: () => <GbCoastalErosionRiskLegend /> },
-  { id: "gbBathingWaters", render: () => <GbBathingWatersLegend /> },
-  { id: "gbTransportHubs", render: () => <GbTransportHubsLegend /> },
-  { id: "gbStationUsage", render: () => <GbStationUsageLegend /> },
-  { id: "gbLondonRailLines", render: () => <GbLondonRailLinesLegend /> },
-  { id: "gbRailReplay", render: () => <GbRailReplayLegend /> },
-  { id: "gbLondonStations", render: () => <GbLondonStationsLegend /> },
-  { id: "gbLondonBikePoints", render: () => <GbLondonBikePointsLegend /> },
-  { id: "gbLondonJamCams", render: () => <GbLondonJamCamsLegend /> },
-  { id: "gbLondonChargingZones", render: () => <GbLondonChargingZonesLegend /> },
-  { id: "gbMajorRoads", render: () => <GbMajorRoadsLegend /> },
-  { id: "gbBridgesTunnels", render: () => <GbBridgesTunnelsLegend /> },
-  { id: "gbRoadFacilities", render: () => <GbRoadFacilitiesLegend /> },
-  { id: "gbPublicFacilities", render: () => <GbPublicFacilitiesLegend /> },
-  { id: "gbPlacesOfWorship", render: () => <GbPlacesOfWorshipLegend /> },
-  { id: "gbCompanies", render: () => <GbCompaniesLegend /> },
-  { id: "gbManufacturing", render: () => <GbManufacturingLegend /> },
-  { id: "gbFuneral", render: () => <GbFuneralLegend /> },
-  { id: "gbAquaculture", render: () => <GbAquacultureLegend /> },
-  { id: "gbSoilParentMaterial", render: () => <GbSoilParentMaterialLegend /> },
-  { id: "gbPlanningConstraints", render: () => <GbPlanningConstraintsLegend /> },
-  { id: "gbBrownfield", render: () => <GbBrownfieldLegend /> },
-  { id: "gbRecyclingCentres", render: () => <GbRecyclingCentresLegend /> },
-  { id: "gbWastePermits", render: () => <GbWastePermitsLegend /> },
-  { id: "gbPollutionInventory", render: () => <GbPollutionInventoryLegend /> },
-  { id: "gbPollutionInventoryEngland", render: () => <GbPollutionInventoryEnglandLegend /> },
-  { id: "gbNoise", render: () => <GbNoiseLegend /> },
-  { id: "gbTrafficCountsAadf", render: () => <GbTrafficCountsAadfLegend /> },
-  { id: "gbProtectedAreas", render: () => <GbProtectedAreasLegend /> },
-  { id: "gbMarineProtectedAreas", render: () => <GbMarineProtectedAreasLegend /> },
-  { id: "gbWoodland", render: () => <GbWoodlandLegend /> },
-  { id: "gbForestRecreation", render: () => <GbForestRecreationLegend /> },
-  { id: "gbTrails", render: () => <GbTrailsLegend /> },
-  { id: "gbOpenAccessLand", render: () => <GbOpenAccessLandLegend /> },
-  { id: "gbTreeProtection", render: () => <GbTreeProtectionLegend /> },
-  { id: "gbPowerPlants", render: () => <GbPowerPlantsLegend /> },
-  { id: "gbRenewables", render: () => <GbRenewablesLegend /> },
-  { id: "gbPowerLines", render: () => <GbPowerLinesLegend /> },
-  { id: "gbSubstations", render: () => <GbSubstationsLegend /> },
-  { id: "gbFuelStations", render: () => <GbFuelStationsLegend /> },
-  { id: "gbOilGasFields", render: () => <GbOilGasFieldsLegend /> },
-  { id: "gbSchools", render: () => <GbSchoolsLegend /> },
-  { id: "gbHealthFacilities", render: () => <GbHealthFacilitiesLegend /> },
-  { id: "gbCareHomes", render: () => <GbCareHomesLegend /> },
-  { id: "gbCareServices", render: () => <GbCareServicesLegend /> },
-  { id: "gbFireStations", render: () => <GbFireStationsLegend /> },
-  { id: "gbCourts", render: () => <GbCourtsLegend /> },
-  { id: "gbCulturalFacilities", render: () => <GbCulturalFacilitiesLegend /> },
-  { id: "gbArtsVenues", render: () => <GbArtsVenuesLegend /> },
-  { id: "gbVisitorExperience", render: () => <GbVisitorExperienceLegend /> },
-  { id: "gbTerrainHillshade", render: () => <GbTerrainHillshadeLegend /> },
-  { id: "gbTerrainRelief", render: () => <GbTerrainReliefLegend /> },
-  { id: "gbSurplusLand", render: () => <GbSurplusLandLegend /> },
-  { id: "gbGroundStability", render: () => <GbGroundStabilityLegend /> },
-  { id: "gbLandslide", render: () => <GbLandslideLegend /> },
-  { id: "gbRadon", render: () => <GbRadonLegend /> },
-  { id: "gbRadiation", render: () => <GbRadiationLegend /> },
-  { id: "gbEarthquakes", render: () => <GbEarthquakesLegend /> },
+  countrySlot("GB", 2), // 英國國家包（src/countries/gb/）
   { id: "jmaAmedas", render: () => <JmaAmedasLegend /> },
   { id: "jmaWarnings", render: () => <JmaWarningsLegend /> },
   { id: "jmaQuakes", render: () => <JmaQuakesLegend /> },
@@ -801,7 +719,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
     id: "schools",
     render: ({ visibility, overlayParams, isDark }) => <EducationLegend schoolLevelColor={overlayParams.schoolLevelColor ?? 0} visibility={visibility}  isDark={isDark} />,
   },
-];
+]);
 
 export const LegendPanel = memo(function LegendPanel({
   visibility: visibilityProp, overlayParams: overlayParamsProp, isDarkTheme = true, railSystems, compact = false, embedded = false,
@@ -834,6 +752,8 @@ export const LegendPanel = memo(function LegendPanel({
   // 分析結果剛出現時自動展開一次，否則圖例從 Agent 面板搬過來後會被預設收合藏住。
   useEffect(() => { if (hasAnalysisLegend) setExpanded(true); }, [hasAnalysisLegend]);
 
+  // 國家包（B1 P5a）載入後 LEGEND_REGISTRY 原地多了該國圖例：訂閱版本號，載完重新 render
+  useCountryPackVersion();
   const active = LEGEND_REGISTRY.filter((e) => legendKeys(e.id).some((k) => visibility[k]));
   // 兩國並排（G2-1）：同一個面板分「左・國家」「右・國家」兩段（圖例跟著圖層畫在哪一側；embed 沒有並排）
   const rightCountry = useCompareSelector(activeRightCountry);

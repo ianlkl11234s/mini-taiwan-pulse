@@ -10,6 +10,20 @@ import { isCountryCode } from "../../constants/countries";
 import { LAYER_MANIFEST, type LayerManifestEntry } from "../layerManifest";
 import { OVERLAY_REGISTRY } from "../../map/overlayRegistry";
 import { GIS_LAYERS } from "../../map/gisClickRegistry";
+import { LAYER_PARAMS_SPEC } from "../layerParamsSpec";
+import { extendedRecordKeys } from "../../countries/slots";
+
+/** 國家包 key 的宣告順序提示：[前一個非國家包 key, 全域序號]（slots.setRecordOrder 讀）。需先 loadAllPacks。 */
+function orderHints(name: string, record: object): Map<string, [string, number]> {
+  const ext = extendedRecordKeys(name);
+  const out = new Map<string, [string, number]>();
+  let anchor = "";
+  Object.keys(record).forEach((key, i) => {
+    if (ext.has(key)) out.set(key, [anchor, i]);
+    else anchor = key;
+  });
+  return out;
+}
 
 /** 外國圖層：manifest entry 的國家是 CountryCode 且不是台灣。 */
 export function isForeignEntry(entry: LayerManifestEntry): boolean {
@@ -68,6 +82,8 @@ export function renderLayerIndexModule(): string {
   const clickOrder = new Map<string, number>();
   GIS_LAYERS.forEach((g, i) => { if (!clickOrder.has(g.type)) clickOrder.set(g.type, i); });
 
+  const mo = orderHints("layerManifest", LAYER_MANIFEST);
+  const po = orderHints("layerParamsSpec", LAYER_PARAMS_SPEC);
   const iconNames = new Set<string>();
   const body: string[] = [];
   for (const { key, entry } of rows) {
@@ -76,6 +92,8 @@ export function renderLayerIndexModule(): string {
     const types = entry.popup === null ? [] : Array.isArray(entry.popup) ? entry.popup : [entry.popup];
     const clicks = types.map((t) => clickOrder.get(t)).filter((n): n is number => n !== undefined);
     const r = row(key, entry, iconName, drawOrder.get(key), clicks.length ? Math.min(...clicks) : undefined);
+    const m = mo.get(key); if (m) r.mo = m;
+    const q = po.get(key); if (q) r.po = q;
     body.push(`  ${JSON.stringify(key)}: ${JSON.stringify(r)},`);
   }
   const icons = [...iconNames].sort();
