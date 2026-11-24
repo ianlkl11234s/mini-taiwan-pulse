@@ -81,7 +81,7 @@ export const UST_POP_NOTES: Record<UstCc, readonly L3[]> = {
     l3("級距依波多黎各分布（市、區各自取百分位），不可與其他國家直接比色", "Classes follow Puerto Rico's own distribution (percentiles per level); not comparable with other countries", "区分はプエルトリコ国内の分布（階層ごとの百分位）。他国と色を直接比較しない"),
   ],
   gu: [
-    l3("2020 Island Areas 普查（關島不在 ACS，只有十年一次）；GovGuamGIS 區塊群表加總到村", "2020 Island Areas Census (Guam is not in ACS; decennial only); GovGuamGIS block-group table summed to villages", "2020 年 Island Areas 国勢調査（グアムは ACS 対象外で 10 年ごと）。GovGuamGIS のブロックグループ表を村に集計"),
+    l3("2020 Island Areas 普查（關島不在 ACS，只有十年一次）；GovGuamGIS 區塊群表加總到村（授權未明示）", "2020 Island Areas Census (Guam is not in ACS; decennial only); GovGuamGIS block-group table summed to villages (license not stated)", "2020 年 Island Areas 国勢調査（グアムは ACS 対象外で 10 年ごと）。GovGuamGIS のブロックグループ表を村に集計（ライセンス未明示）"),
     l3("來源表 9 個區塊群 2020 人口為空 → 畫灰「未涵蓋」，所在 7 村總數偏低（popup 標示）", "9 block groups have no 2020 population in the source table → grey 'not covered'; totals of the 7 villages containing them are partial (marked in popup)", "元表の 9 ブロックグループは 2020 年人口が空 → 灰色「未収録」。含まれる 7 村の合計は過小（ポップアップに表示）"),
     l3("級距依關島分布；人口 0 的區塊群（軍事用地等）屬最低級", "Classes follow Guam's own distribution; zero-population block groups (e.g. military land) fall in the lowest class", "区分はグアム国内の分布。人口 0 のブロックグループ（軍用地など）は最下位"),
   ],
@@ -363,7 +363,20 @@ function specsFor(cc: UstCc): UstLayerSpec[] {
   ];
 }
 
-export const UST_DATA_SPECS: readonly UstLayerSpec[] = [...specsFor("pr"), ...specsFor("gu")];
+const zhOf = (t: string | L3 | undefined) => (t == null ? "" : typeof t === "string" ? t : t.zh);
+const GOVGUAM_NOTE = l3("含 GovGuamGIS 資料，授權未明示", "Includes GovGuamGIS data; license not stated", "GovGuamGIS のデータを含む。ライセンス未明示");
+const HIFLD_NOTE = l3("含 HIFLD 存檔 2025-08 資料", "Includes HIFLD archive 2025-08 data", "HIFLD アーカイブ 2025-08 のデータを含む");
+/** 盤點 §4 授權規則：GovGuamGIS 圖例註明「授權未明示」、HIFLD 存檔圖例寫「HIFLD 存檔 2025-08」（規格本身已寫的不重複）。 */
+function withLicenseNotes(spec: UstLayerSpec): UstLayerSpec {
+  const src = zhOf(spec.sourceOrg) + " " + zhOf(spec.license);
+  const said = spec.legendNotes.map((n) => n.zh).join(" ");
+  const extra: L3[] = [];
+  if (src.includes("GovGuamGIS") && !said.includes("授權未明示")) extra.push(GOVGUAM_NOTE);
+  if (src.includes("HIFLD") && !said.includes("HIFLD 存檔 2025-08")) extra.push(HIFLD_NOTE);
+  return extra.length ? { ...spec, legendNotes: [...spec.legendNotes, ...extra] } : spec;
+}
+
+export const UST_DATA_SPECS: readonly UstLayerSpec[] = [...specsFor("pr"), ...specsFor("gu")].map(withLicenseNotes);
 export const UST_SPEC_BY_KEY = Object.fromEntries(UST_DATA_SPECS.map((s) => [s.key, s])) as Readonly<Record<UstDataKey, UstLayerSpec>>;
 
 // ═════════════════════════ 圖層來源表（「說明・來源」） ═════════════════════════
