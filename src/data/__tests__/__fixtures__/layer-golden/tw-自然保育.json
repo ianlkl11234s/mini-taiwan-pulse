@@ -1853,8 +1853,42 @@
       "layers": [
         {
           "filter": [
-            "has",
-            "species_group"
+            "all",
+            [
+              "has",
+              "species_group"
+            ],
+            [
+              "all",
+              [
+                "has",
+                "year"
+              ],
+              [
+                ">=",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "year"
+                  ],
+                  -1
+                ],
+                2022
+              ],
+              [
+                "<=",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "year"
+                  ],
+                  -1
+                ],
+                2026
+              ]
+            ]
           ],
           "layout": null,
           "maxzoom": 12.01,
@@ -1896,9 +1930,9 @@
                   "zoom"
                 ],
                 4,
-                0.0005859375,
+                0.001171875,
                 12,
-                0.15
+                0.3
               ],
               "heatmap-opacity": 0.8,
               "heatmap-radius": [
@@ -1954,9 +1988,9 @@
                   "zoom"
                 ],
                 4,
-                0.0005859375,
+                0.001171875,
                 12,
-                0.15
+                0.3
               ],
               "heatmap-opacity": 0.8,
               "heatmap-radius": [
@@ -1982,8 +2016,42 @@
         },
         {
           "filter": [
-            "has",
-            "species_group"
+            "all",
+            [
+              "has",
+              "species_group"
+            ],
+            [
+              "all",
+              [
+                "has",
+                "year"
+              ],
+              [
+                ">=",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "year"
+                  ],
+                  -1
+                ],
+                2022
+              ],
+              [
+                "<=",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "year"
+                  ],
+                  -1
+                ],
+                2026
+              ]
+            ]
           ],
           "layout": null,
           "minzoom": 12,
@@ -2076,8 +2144,42 @@
         },
         {
           "filter": [
-            "has",
-            "species_group"
+            "all",
+            [
+              "has",
+              "species_group"
+            ],
+            [
+              "all",
+              [
+                "has",
+                "year"
+              ],
+              [
+                ">=",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "year"
+                  ],
+                  -1
+                ],
+                2022
+              ],
+              [
+                "<=",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "year"
+                  ],
+                  -1
+                ],
+                2026
+              ]
+            ]
           ],
           "layout": null,
           "minzoom": 12,
@@ -4604,6 +4706,33 @@
           "unidentified",
           "other"
         ]
+      },
+      {
+        "label": "期間",
+        "options": [
+          {
+            "label": "近 1 年（2025–2026）",
+            "value": "recent1"
+          },
+          {
+            "label": "近 5 年（2022–2026）",
+            "value": "recent5"
+          },
+          {
+            "label": "2016–2021",
+            "value": "y2016"
+          },
+          {
+            "label": "2009–2015",
+            "value": "y2009"
+          },
+          {
+            "label": "全部（2009–2026）",
+            "value": "all"
+          }
+        ],
+        "type": "select",
+        "value": "recent5"
       },
       {
         "defaultValue": "rocket",

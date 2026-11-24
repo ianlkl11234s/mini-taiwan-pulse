@@ -72,5 +72,11 @@
   "legend.atlas.fwyOpenShoulder": "Open shoulder (excludes 24 sections that could not be located)",
   "legend.atlas.fwyRoadsideSubtitle": "Only variable message signs are shown by default; tick vehicle detectors in the category filter (data as of 2026-11-24)",
   "legend.atlas.fwyFloraRow": "Flora survey record",
-  "legend.atlas.fwyFaunaSubtitle": "Protected-species positions are blurred to the center of a cell of about 1 km, not the actual position"
+  "legend.atlas.fwyFaunaSubtitle": "Protected-species positions are blurred to the center of a cell of about 1 km, not the actual position",
+  "legend.atlas.fwyRkRecent1": "Last 1 year (2025–2026)",
+  "legend.atlas.fwyRkRecent5": "Last 5 years (2022–2026)",
+  "legend.atlas.fwyRkY2016": "2016–2021",
+  "legend.atlas.fwyRkY2009": "2009–2015",
+  "legend.atlas.fwyRkAll": "All (2009–2026)",
+  "legend.atlas.fwyRoadkillPeriod": "Showing: {period}; data cover 2009–2026, and the 38 records without a year appear only under \"All\""
 }

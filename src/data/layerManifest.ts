@@ -13746,7 +13746,7 @@ export const LAYER_MANIFEST = {
     color: ATLAS_LAYER_COLORS.freewayRoadkill, icon: PawPrint,
     upstream: { status: "catalog_missing", datasets: [], processing: "analytics transportation/freeway_roadkill_records（pulse-data 登記尚未建立，2026-11-24）", note: "交通部高速公路局 data.gov.tw 31291；107,156 筆（2009–2026）。位置由國道里程換算（主線中心線近似，精度約 0.1 km），非實際路殺位置；低縮放圖磚（z5–10）只帶類群、年份、路線欄。" },
     dataClass: "B", source: { kind: "pmtiles", sourceId: "freeway-roadkill", url: "./geo/freeway_roadkill_records_20261124.pmtiles", sourceLayer: "freeway_roadkill_records", minzoom: 5, maxzoom: 14 },
-    legend: "freewayRoadkill", popup: "freewayRoadkill", params: { count: 4, kinds: ["palette", "multiSelect", "slider", "slider"] },
+    legend: "freewayRoadkill", popup: "freewayRoadkill", params: { count: 5, kinds: ["palette", "multiSelect", "select", "slider", "slider"] },
     description: "國道路殺動物紀錄 10.7 萬筆（2009–2026；位置由里程換算，精度約 0.1 km；拉遠為熱區，11 級起畫逐筆）。",
     topics: ["自然保育", "路殺", "國道", "生態", "高速公路局"],
   },

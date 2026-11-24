@@ -986,6 +986,27 @@ export const FREEWAY_ROADKILL_GROUP_OPTIONS: readonly AtlasOption[] = [
   { value: "unidentified", label: "無法辨識", color: ATLAS_OTHER_COLOR },
   { value: "other", label: "其他", color: "#f472b6" },
 ];
+/**
+ * 國道路殺紀錄「期間」（上游 year；低縮放圖磚也帶 year）。value 順序＝spec encode＝熱區權重表。
+ * 筆數（2026-11-24 資料）：近 1 年 6,341／近 5 年 19,402／2016–2021 34,933／2009–2015 52,783／全部 107,156（year 缺值 38 筆只在「全部」）。
+ */
+export const FREEWAY_ROADKILL_PERIOD_OPTIONS = [
+  { value: "recent1", label: "近 1 年（2025–2026）", from: 2025, to: 2026, weight: 2 },
+  { value: "recent5", label: "近 5 年（2022–2026）", from: 2022, to: 2026, weight: 1 },
+  { value: "y2016", label: "2016–2021", from: 2016, to: 2021, weight: 0.6 },
+  { value: "y2009", label: "2009–2015", from: 2009, to: 2015, weight: 0.45 },
+  { value: "all", label: "全部（2009–2026）", from: null, to: null, weight: 0.3 },
+] as const;
+export const FREEWAY_ROADKILL_PERIOD_DEFAULT = "recent5";
+const roadkillPeriodOf = (idx: number | undefined) => FREEWAY_ROADKILL_PERIOD_OPTIONS[idx ?? 1] ?? FREEWAY_ROADKILL_PERIOD_OPTIONS[1];
+/** 期間篩選：year 缺值的紀錄只在「全部」顯示。 */
+export function freewayRoadkillPeriodFilter(idx?: number): unknown[] {
+  const o = roadkillPeriodOf(idx);
+  if (o.from == null) return ["all"];
+  return ["all", ["has", "year"], [">=", ["to-number", ["get", "year"], -1], o.from], ["<=", ["to-number", ["get", "year"], -1], o.to]];
+}
+/** 熱區權重：點數隨期間差 5 倍以上，用權重把各期間的濃淡拉回同一量級（近 5 年＝1）。 */
+export const freewayRoadkillPeriodWeight = (idx?: number): number => roadkillPeriodOf(idx).weight;
 /** 國道生態友善設施類型（上游 facility_type；英日文 enum.atlasFreewayEcoFacilityType.*）。 */
 export const FREEWAY_ECO_FACILITY_OPTIONS: readonly AtlasOption[] = [
   { value: "動物通道", label: "動物通道", color: "#34d399" },

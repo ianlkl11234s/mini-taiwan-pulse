@@ -72,5 +72,11 @@
   "legend.atlas.fwyOpenShoulder": "路肩開放区間（位置を特定できない 24 件を除く）",
   "legend.atlas.fwyRoadsideSubtitle": "初期表示は可変情報板のみです。車両感知器は種別フィルターで選べます（データ日 2026-11-24）",
   "legend.atlas.fwyFloraRow": "植物調査の記録",
-  "legend.atlas.fwyFaunaSubtitle": "保護対象種の位置は約 1 km 区画の中心に秘匿しており、実際の位置ではありません"
+  "legend.atlas.fwyFaunaSubtitle": "保護対象種の位置は約 1 km 区画の中心に秘匿しており、実際の位置ではありません",
+  "legend.atlas.fwyRkRecent1": "直近 1 年（2025–2026）",
+  "legend.atlas.fwyRkRecent5": "直近 5 年（2022–2026）",
+  "legend.atlas.fwyRkY2016": "2016–2021",
+  "legend.atlas.fwyRkY2009": "2009–2015",
+  "legend.atlas.fwyRkAll": "全期間（2009–2026）",
+  "legend.atlas.fwyRoadkillPeriod": "表示中：{period}。データは 2009–2026 を含み、年が空の 38 件は「全期間」でのみ表示します"
 }
