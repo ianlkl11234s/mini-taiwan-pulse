@@ -1,6 +1,6 @@
 // 越南 Layer Host（2026-11-13 第 0–1 波）。比照 hosts/philippinesHosts.tsx：一個 key 一個 Host；規格驅動層重用 usePhDataLayer。
 
-import { usePhDataLayer } from "../../hooks/usePhLayers";
+import { usePhDataLayer } from "../../hooks/intlPhSpecLayers";
 import { useVnAdminLayers, useVnPopulationLayers, useVnRasterLayer } from "../../hooks/useVnLayers";
 import { useOwnerPmtilesSource, useOwnerRevokeCleanup } from "../../hooks/useOwnerPmtilesAccess";
 import { VN_RASTER_BY_KEY } from "../../data/vnWavesLayers";

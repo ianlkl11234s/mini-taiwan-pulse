@@ -9,7 +9,7 @@ import { LINE_DASH, POINT_STROKE_DATA_ENCODED, densePointsFromZoom, heatmapMaxzo
 import { paramDefault } from "../data/layerParamsSpec";
 import { selectedMultiSelectValues } from "../data/multiSelectMapbox";
 import { useHeatmapStyleSignature } from "../state/layerPalette";
-import { PH_CAT_OTHER_ID, phCatOptionIds, phText, type PhLayerSpec, type PhPart } from "../data/phDataLayers";
+import { PH_CAT_OTHER_ID, phCatOptionIds, phText, type PhLayerSpec, type PhPart } from "../data/intlLayerShared";
 import { gbAllOf, gbHeatmapBuild, useGbPmtilesLayers, type LayerBuild, type SourceSpec } from "./intlPmtilesLayers";
 
 export type Expr = unknown[];

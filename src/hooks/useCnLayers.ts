@@ -16,7 +16,7 @@ import {
 } from "../data/cnDataLayers";
 import { phText } from "../data/intlLayerShared";
 import { OWNER_DATA_ENDPOINT } from "../data/ownerDataAssets";
-import { phColorExpr, phPartCatFilter } from "./usePhLayers";
+import { phColorExpr, phPartCatFilter } from "./intlPhSpecLayers";
 import { gbAllOf, gbHeatmapBuild, useGbPmtilesLayers, type LayerBuild, type PrivatePmtilesSource, type SourceSpec } from "./intlPmtilesLayers";
 
 /**

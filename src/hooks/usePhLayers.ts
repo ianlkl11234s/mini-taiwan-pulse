@@ -5,6 +5,7 @@ import { paletteRamp, resampleRamp } from "../map/palettes";
 import { paramDefault } from "../data/layerParamsSpec";
 import { selectedMultiSelectValues } from "../data/multiSelectMapbox";
 import { PH_ADMIN_COLOR, PH_ADMIN_LEVELS, PH_DENSITY_BREAKS, PH_NOT_COVERED_COLOR, PH_PLANT_STATUSES, PH_PLANT_STATUS_DEFAULT, phKigExcludeFilter, phText, type PhAdminLevel } from "../data/phDataLayers";
+import { NONE, setPaint } from "./intlPhSpecLayers";
 export { phColorExpr, phPartCatFilter, phHeatmapId, phSourceSpec, usePhDataLayer } from "./intlPhSpecLayers";
 import type { PhRasterSpec } from "../data/phWavesLayers";
 import { useGbPmtilesLayers, type SourceSpec } from "./intlPmtilesLayers";
@@ -20,8 +21,6 @@ type Expr = unknown[];
 type MapRef = React.RefObject<MapboxMap | null>;
 const clamp01 = (value: number) => Math.max(0, Math.min(1, value));
 const opacityDefault = (key: string, fallback: number) => Number(paramDefault(key, `${key}Opacity`) ?? fallback);
-const scaleDefault = (key: string) => Number(paramDefault(key, `${key}Scale`) ?? 1);
-const sig = (v: unknown) => JSON.stringify(v);
 const levelAt = (idx: number | undefined, fallback: PhAdminLevel): PhAdminLevel => PH_ADMIN_LEVELS[idx ?? -1]?.value ?? fallback;
 
 

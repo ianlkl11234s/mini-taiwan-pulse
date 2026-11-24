@@ -13,7 +13,7 @@ import {
 } from "../../hooks/useCaEnvLayers";
 import { useCaLiveEarthquakesLayer } from "../../hooks/useCaLiveEarthquakesLayer";
 import { gbDisplayModeFromIdx } from "../../hooks/intlPmtilesLayers";
-import { usePhDataLayer } from "../../hooks/usePhLayers";
+import { usePhDataLayer } from "../../hooks/intlPhSpecLayers";
 import { CA_WAVE_SPEC_BY_KEY, caWaveDefaultCatMask } from "../../data/caWavesLayers";
 import type { CaWaveKey } from "../../data/caWavesKeys";
 import { bumpHostRender, type LayerHostComponent } from "../layerHostDeps";
