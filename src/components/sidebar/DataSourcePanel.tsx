@@ -510,6 +510,11 @@ function Row({
   );
 }
 
+/** 圖層展開區「說明・來源」用：不帶啟用鈕的上游資料卡（LayerInfoLine 以 lazy 載入，避免整個面板進開站）。 */
+export function LayerInfoSourceCard({ layerKey, isDarkTheme }: { layerKey: string; isDarkTheme: boolean }) {
+  return <DataSourceCard p={dataSourcePalette(isDarkTheme)} layerKey={layerKey as keyof LayerVisibility} locked={false} hideActivate />;
+}
+
 // ── 主面板 ──
 
 interface DataSourcePanelProps {

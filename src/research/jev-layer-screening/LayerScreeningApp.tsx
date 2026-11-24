@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { GATED_LAYERS } from "../../components/sidebar/layerCatalog";
-import { LAYER_SEARCH_INDEX } from "../../lib/layerSearch";
+import { getLayerSearchIndex } from "../../lib/layerSearch";
 import { Slider } from "../../components/controls/Slider";
 import { LIGHT } from "../../styles/designTokens";
 import {
@@ -31,7 +31,7 @@ export function LayerScreeningApp() {
   const [currentIndexFingerprint, setCurrentIndexFingerprint] = useState<string | null>(null);
 
   const candidates = useMemo(
-    () => LAYER_SEARCH_INDEX.filter((item) => !GATED_LAYERS.has(item.key)),
+    () => getLayerSearchIndex().filter((item) => !GATED_LAYERS.has(item.key)),
     [],
   );
   const layers = useMemo(() => receipt
@@ -71,7 +71,7 @@ export function LayerScreeningApp() {
   };
 
   useEffect(() => {
-    void fingerprintSearchIndex(LAYER_SEARCH_INDEX).then(setCurrentIndexFingerprint);
+    void fingerprintSearchIndex(getLayerSearchIndex()).then(setCurrentIndexFingerprint);
     loadReceipt();
   }, []);
 

@@ -13,7 +13,7 @@ import { dirname, relative, resolve } from "node:path";
 
 import { GATED_LAYERS } from "../../src/components/sidebar/layerCatalog";
 import { LAYER_MANIFEST, MANIFEST_KEYS } from "../../src/data/layerManifest";
-import { LAYER_SEARCH_INDEX, type LayerSearchResult } from "../../src/lib/layerSearch";
+import { getLayerSearchIndex, type LayerSearchResult } from "../../src/lib/layerSearch";
 
 export const OPENROUTER_DECISIONS_URL = "https://openrouter.ai/api/alpha/decisions";
 export const JEV_MODEL = "typesafe/jev-1.13";
@@ -190,7 +190,7 @@ function toCandidate(item: LayerSearchResult): ScreeningCandidate {
 
 /** Candidate selection is index-derived and remains fail-closed for guests. */
 export function collectCandidates(
-  index: readonly LayerSearchResult[] = LAYER_SEARCH_INDEX,
+  index: readonly LayerSearchResult[] = getLayerSearchIndex(),
   lockedKeys: ReadonlySet<string> = GATED_LAYERS,
 ): { candidates: readonly ScreeningCandidate[]; lockedExcludedCount: number } {
   const lockedExcludedCount = index.filter((item) => lockedKeys.has(item.key)).length;
@@ -383,7 +383,7 @@ export async function runLayerScreening(options: RunOptions): Promise<ScreeningR
   const dryRun = options.dryRun ?? false;
   const concurrency = options.concurrency ?? DEFAULT_CONCURRENCY;
   if (!Number.isInteger(concurrency) || concurrency < 1 || concurrency > 8) throw new Error("concurrency must be an integer from 1 to 8");
-  const index = options.index ?? LAYER_SEARCH_INDEX;
+  const index = options.index ?? getLayerSearchIndex();
   const { candidates, lockedExcludedCount } = collectCandidates(index);
   const plans = batchCandidates(query, candidates, options.requestByteBudget);
   const startedAt = new Date();

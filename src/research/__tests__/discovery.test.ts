@@ -1,9 +1,12 @@
 import { beforeAll, describe, expect, it } from "vitest";
 import { describeLayer, discoverLayers, findPlaces } from "../discovery";
 import { ensureStatisticsResearchDatasets } from "../researchDatasets";
+import { getLayerSearchIndex } from "../../lib/layerSearch";
 
 // PF-7: statistics-recipe datasets register after their lazily imported details load.
 beforeAll(() => ensureStatisticsResearchDatasets());
+// B1 P4：搜尋索引改成第一次使用才建；先暖機，避免建索引的時間算進第一個測試的逾時。
+beforeAll(() => { getLayerSearchIndex(); }, 60_000);
 
 describe("research discovery", () => {
   it("derives searchable layers from the manifest and hides unauthorized metadata", () => {

@@ -1,6 +1,6 @@
 import { searchScore } from "./researchSearch";
 import { LAYER_MANIFEST, type ManifestKey } from "../data/layerManifest";
-import { LAYER_SEARCH_INDEX } from "../lib/layerSearch";
+import { getLayerSearchIndex } from "../lib/layerSearch";
 import { ALL_PRESETS } from "../map/cameraPresets";
 import { registeredDatasetsForLayer } from "./researchDatasets";
 
@@ -97,7 +97,7 @@ export function discoverLayers(query: string, offset = 0, limit = 20, context: D
 } {
   const safeOffset = bounded(offset, 0, 0, 10_000);
   const safeLimit = bounded(limit, 20, 1, 20);
-  const matched = LAYER_SEARCH_INDEX
+  const matched = getLayerSearchIndex()
     .filter(item => !context.locked.has(item.key))
     .map(item => ({ item, score: searchScore(query, `${item.key} ${item.label}`) * 3 + searchScore(query, `${item.description} ${item.topics.join(" ")} ${item.aliases.join(" ")} ${item.source}`) }))
     .filter(({ score }) => score > 0)
