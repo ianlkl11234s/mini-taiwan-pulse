@@ -20,7 +20,10 @@ import type { MapBridge } from "../chat/types";
 import { layerVisibilityStore } from "../state/layerVisibilityStore";
 import { layerParamsStore } from "../state/layerParamsStore";
 import { countryStore } from "../state/countryStore";
-import { shownOnLeft } from "../state/compareStore";
+import { compareStore, isCountriesCompare, shownOnLeft, shownOnRight } from "../state/compareStore";
+import { compareRightMap } from "../map/compareRightMap";
+import type { CountryCode } from "../constants/countries";
+import { compareContext, planRightScene, type RightMapReading, type RightScene } from "./compareBridge";
 import { ResearchConnection } from "./ResearchConnection";
 import { StudyController } from "./StudyController";
 import { visibleResultIds, type BridgeConnectionContext, type ResultCollection, type Scene, type StudyState, type BrowserQuery } from "./bridgeClient";
@@ -33,7 +36,7 @@ import { applyLayerControl, describeLayerControls, validateLayerControl } from "
 import { resolveOfflineLocation } from "./addressLookup";
 import { describeDataset, ensureDataset, ensureStatisticsResearchDatasets, searchDatasets } from "./researchDatasets";
 import { describeDatasetLayerStatistics, summarizeDatasetLayer } from "./datasetLayerStatistics";
-import { ResearchAnalysisSession, presentationMetrics, type AnalysisQueryOperation } from "./researchAnalysisSession";
+import { RESULT_COLLECTION_LIMITS, ResearchAnalysisSession, presentationMetrics, type AnalysisQueryOperation } from "./researchAnalysisSession";
 import { boundsOfPositions, buildFramingCheck } from "./framingCheck";
 import type { QueryRecordsInput } from "./queryExecutor";
 import { isStyleReady, waitForLayoutFrame, waitForMapStyle, waitForSceneRender, waitForValue } from "./sceneReadiness";
@@ -77,6 +80,8 @@ const MAP_PREPARE_WAIT_MS = 20_000;
 const MAP_CONTEXT_WAIT_MS = 10_000;
 /** map_context total (map-ready wait + data_not_loaded re-poll) stays under ~12 s: the MCP side gives up on a query shortly after, so the re-poll only gets what the map wait left over (max 6 s). */
 const MAP_CONTEXT_TOTAL_BUDGET_MS = 12_000;
+/** G2-3: opening side-by-side builds the right map (a new Mapbox load); a right-side command waits this long for it. */
+const RIGHT_MAP_WAIT_MS = 12_000;
 export const EXPLORATION_OPERATIONS = new Set<BrowserQuery["operation"]>(["describe_layer_statistics", "summarize_layer", "list_layer_capabilities", "search_layer_records", "search_layers", "describe_layer", "layer_details", "layer_controls", "map_context", "find_places", "geocode_address", "route_distance", "walking_isochrone", "time_context", "search_datasets", "describe_dataset", "query_records", "plan_data_access", "materialize_data", "import_warehouse_result", "analysis_card_draft", ...ANALYSIS_OPERATIONS]);
 
 /** 顯示用的活動卡文案（不送回 Agent）：依介面語系翻譯。 */
@@ -177,6 +182,52 @@ export function MainMapConnection(props: Props) {
    *  mid-command would cancel that command's report), so the server keeps re-sending the uncapped
    *  collection; activations must diff against that, or the hidden slot rotates on every command. */
   const requestedResultsRef = useRef<ResultCollection | null>(null);
+  /** G2-3: results drawn on the side-by-side right map (its own slots; legend lists them after the left ones). */
+  const rightPresentedRef = useRef<AnalysisResultPresentation[]>([]);
+  const [rightPresented, setRightPresented] = useState<AnalysisResultPresentation[]>([]);
+  /** The right-map collection currently installed (scene.right.results as last applied). */
+  const rightCollectionRef = useRef<ResultCollection | null>(null);
+  /** Installs (or clears) the right map's results; validation follows the left side (every declared id must be presentable). */
+  const installRightResults = (map: MapboxMap | null, collection: ResultCollection | null): AnalysisResultPresentation[] => {
+    const session = analysis.current;
+    const all = collection && session ? session.mapPresentable(collection.items.map(item => item.resultId)) : [];
+    const visibleIds = new Set(visibleResultIds(collection));
+    const shown = all.filter(result => visibleIds.has(result.resultId));
+    let installed: AnalysisResultPresentation[] = [];
+    if (map && isStyleReady(map)) {
+      if (shown.length) installed = installAnalysisResults(map, shown, analysisOpacityRef.current, vizThemeForBasemap(latest.current.isDarkTheme));
+      else removeAnalysisResults(map);
+    }
+    rightPresentedRef.current = installed; rightCollectionRef.current = collection; setRightPresented(installed);
+    return installed;
+  };
+  /** Pins every result either map shows, so neither side's results are evicted by later analysis. */
+  const pinResults = (left: ResultCollection | null | undefined, right: ResultCollection | null | undefined) => {
+    const session = analysis.current;
+    if (!session) return;
+    const leftIds = left?.items.map(item => item.resultId) ?? [];
+    // Left keeps the original contract (its ids must exist); right ids are added while room and still stored.
+    const rightIds = (right?.items ?? []).map(item => item.resultId).filter(resultId => !leftIds.includes(resultId) && session.hasResult(resultId));
+    session.setActiveResultCollection([...leftIds, ...rightIds].slice(0, Math.max(leftIds.length, RESULT_COLLECTION_LIMITS.maxLogicalResults)));
+  };
+  /** Current right map, only while side-by-side is really on (desktop); mobile A/B has no right map. */
+  const liveRightMap = (): MapboxMap | null => {
+    const map = compareRightMap.get();
+    return map && isCountriesCompare(compareStore.getSnapshot()) ? map : null;
+  };
+  /** The scene's right sub-scene as the page now shows it (only once the gateway has carried a `right` key). */
+  const captureRight = (): RightScene | null => {
+    const map = liveRightMap();
+    const country = compareStore.getSnapshot().rightCountry;
+    if (!map || !country) return null;
+    const center = map.getCenter();
+    const stored = previous.current?.right;
+    return {
+      country,
+      camera: { center: [((center.lng + 180) % 360 + 360) % 360 - 180, Math.max(-85, Math.min(85, center.lat))], zoom: Math.max(0, Math.min(18, map.getZoom())) },
+      results: stored && stored.country === country ? stored.results ?? null : null,
+    };
+  };
   /** map_context.framingCheck: lets the Agent notice "too far out / outline only / duplicate legend" without a screenshot. */
   const readFramingCheck = (map: MapboxMap) => {
     const presentedIds = new Set(presentedAnalysisRef.current.map(result => result.resultId));
@@ -262,19 +313,25 @@ export function MainMapConnection(props: Props) {
     const map = latest.current.map;
     const center = map?.getCenter();
     const camera = center && map ? { lng: center.lng, lat: center.lat, zoom: map.getZoom() } : latest.current.bridge.getCamera();
-    return { camera: { center: [((camera.lng + 180) % 360 + 360) % 360 - 180, Math.max(-85, Math.min(85, camera.lat))], zoom: Math.max(0, Math.min(18, camera.zoom)) }, resultMode: "empty", layers: captureLayerOverrides(previous.current?.layers, latest.current.bridge.getVisibleLayerKeys()), layerControl: null, framing: null, timeline: null, results: previous.current?.results ?? null };
+    return { camera: { center: [((camera.lng + 180) % 360 + 360) % 360 - 180, Math.max(-85, Math.min(85, camera.lat))], zoom: Math.max(0, Math.min(18, camera.zoom)) }, resultMode: "empty", layers: captureLayerOverrides(previous.current?.layers, latest.current.bridge.getVisibleLayerKeys()), layerControl: null, framing: null, timeline: null, results: previous.current?.results ?? null,
+      // An older gateway rejects unknown scene keys, so `right` is only sent back once it came from the gateway.
+      ...(previous.current && "right" in previous.current ? { right: captureRight() } : {}) };
   }, []);
   const clearAnalysisPresentation = useCallback((syncScene: boolean) => {
     ++generation.current;
     latest.current.onAnalysisResultFeature?.(null);
     if (latest.current.map) removeAnalysisResults(latest.current.map);
+    const rightMap = compareRightMap.get();
+    if (rightMap && isStyleReady(rightMap)) removeAnalysisResults(rightMap);
+    rightPresentedRef.current = []; rightCollectionRef.current = null; setRightPresented([]);
     clearAnalysisPlayback();
     presentedAnalysisRef.current = []; setPresentedAnalysis([]); setAvailableAnalysis([]); setAnalysisOpacityValue({ defaultOpacity: 0.85, byResult: {} });
     resultCollectionRef.current = null; setResultCollection(null);
     requestedResultsRef.current = null; analysisActivationsRef.current = new globalThis.Map(); analysisOutlineOnlyRef.current = []; installedOutlineKeyRef.current = "";
     analysis.current?.setActiveResultCollection([]);
     if (syncScene && controller.current) {
-      const scene = { ...capture(), results: null };
+      const captured = capture();
+      const scene = { ...captured, results: null, ...(captured.right ? { right: { ...captured.right, results: null } } : {}) };
       previous.current = scene; controller.current.manual(scene);
     }
   }, [capture]);
@@ -310,7 +367,7 @@ export function MainMapConnection(props: Props) {
       if (scene.results != null) throw new Error("RESULT_NOT_FOUND_OR_EXPIRED");
       previous.current = scene; return "ready";
     }
-    if (scene.results && !analysis.current) throw new Error("ANALYSIS_SESSION_UNAVAILABLE");
+    if ((scene.results || patch?.right?.results) && !analysis.current) throw new Error("ANALYSIS_SESSION_UNAVAILABLE");
     // P1: a reloaded tab keeps the scene's warehouse ids but not their rows. Re-import them from
     // the gateway before validation; the 1 s expiry watchdog only starts after setResultCollection.
     let expiredResults = 0;
@@ -327,6 +384,19 @@ export function MainMapConnection(props: Props) {
       // Legacy split ids may be remapped (review F018) even when nothing was dropped.
       if (restore.collection !== scene.results) scene = { ...scene, results: restore.collection };
       if (restore.dropped.length) expiredResults = restore.dropped.length;
+    }
+    // G2-3: right-map results from this command go through the same re-import (a reloaded tab).
+    if (patch?.right?.results && connection) {
+      const session = analysis.current!;
+      const restore = await restoreWarehouseResults(patch.right.results, {
+        has: resultId => session.hasResult(resultId),
+        meta: baseIds => connection.client.resultsMeta(connection.studyId, connection.tabId, baseIds),
+        importResult: args => session.importWarehouseResult(args, id => connection.client.fetchResult(connection.studyId, connection.tabId, id)),
+        expired: expiredWarehouseIds.current,
+      });
+      if (run !== generation.current || analysis.current !== session) return "error";
+      if (restore.collection !== patch.right.results) { const right = { ...patch.right, results: restore.collection }; scene = { ...scene, right }; patch = { ...patch, right }; }
+      if (restore.dropped.length) expiredResults += restore.dropped.length;
     }
     // Validate every declared ID, including hidden collection entries, before
     // acknowledging the scene. Hidden must not become a way to retain an
@@ -356,6 +426,8 @@ export function MainMapConnection(props: Props) {
       try { validateLayerControl(scene.layerControl, locked); } catch { scene = { ...scene, layerControl: previous.current?.layerControl }; }
     }
     let movement: Promise<boolean> = Promise.resolve(true);
+    let rightMap: MapboxMap | null = null;
+    let rightMovement: Promise<boolean> = Promise.resolve(true);
     setActivity({ phase: "presenting", title: tr("research.msg.syncingTitle") });
     applying.current = true;
     try {
@@ -389,7 +461,47 @@ export function MainMapConnection(props: Props) {
       syncPlaybackForResults(installed);
       setAvailableAnalysis(availableResults);
       resultCollectionRef.current = scene.results ?? null; setResultCollection(scene.results ?? null);
-      analysis.current?.setActiveResultCollection(scene.results?.items.map(item => item.resultId) ?? []);
+      pinResults(scene.results, rightCollectionRef.current);
+      // G2-3: the side-by-side right map (only when this command's patch carries `right`).
+      const rightPlan = planRightScene(patch?.right, previous.current?.right, liveRightMap() ? compareStore.getSnapshot().rightCountry : null);
+      if (rightPlan.kind === "close") {
+        if (compareStore.getSnapshot().enabled) compareStore.setEnabled(false);
+        installRightResults(null, null);
+        pinResults(scene.results, null);
+      } else if (rightPlan.kind === "apply") {
+        const before = compareRightMap.get();
+        const prior = compareStore.getSnapshot();
+        const wanted = rightPlan.openCountry;
+        if (wanted) { compareStore.setRightCountry(wanted as CountryCode); compareStore.open("countries"); }
+        else if (!liveRightMap()) throw new Error("COMPARE_NOT_ACTIVE");
+        // Opening builds a new right map (a full Mapbox load). The App may refuse the country (same as the
+        // left one, not visible to this identity) by replacing it, and mobile has no right map at all.
+        const refused = () => !!wanted && (!compareStore.getSnapshot().enabled || compareStore.getSnapshot().rightCountry !== wanted);
+        rightMap = await waitForValue(() => {
+          const map = liveRightMap();
+          return map && isStyleReady(map) && (!wanted || map !== before) && !refused() ? map : null;
+        }, () => run === generation.current && !refused(), RIGHT_MAP_WAIT_MS);
+        if (run !== generation.current) return "error";
+        if (!rightMap) {
+          const code = refused() ? "COMPARE_COUNTRY_UNAVAILABLE" : "COMPARE_RIGHT_MAP_UNAVAILABLE";
+          // Do not leave a half-opened side-by-side behind (e.g. on mobile, where there is no right map).
+          if (wanted) {
+            if (!prior.enabled) compareStore.setEnabled(false);
+            else if (prior.mode === "slider") compareStore.open("slider");
+            else if (prior.rightCountry) compareStore.setRightCountry(prior.rightCountry);
+          }
+          throw new Error(code);
+        }
+        if (rightPlan.results !== undefined || wanted) {
+          installRightResults(rightMap, rightPlan.results ?? null);
+          pinResults(scene.results, rightCollectionRef.current);
+        }
+        if (rightPlan.move && followingRef.current) {
+          await waitForLayoutFrame();
+          if (run !== generation.current) return "error";
+          rightMovement = moveResearchCamera(rightMap, "framing" in rightPlan.move ? resolveViewportCamera(rightMap, rightPlan.move.framing) : rightPlan.move.camera);
+        }
+      }
       if (cameraChanged && followingRef.current) {
         // Measure after panel selection and activity card have committed to layout.
         await waitForLayoutFrame();
@@ -400,6 +512,7 @@ export function MainMapConnection(props: Props) {
       previous.current = scene;
     } finally { applying.current = false; }
     let cameraMoved = await movement;
+    const rightMoved = await rightMovement;
     // Correct against Mapbox's actual projection after layout settles. Keep this
     // bounded and never resume a camera move the user interrupted.
     for (let attempt = 0; attempt < 2 && framingChanged && scene.framing; attempt++) {
@@ -423,12 +536,15 @@ export function MainMapConnection(props: Props) {
     }
     const visible = new Set(bridge.getVisibleLayerKeys());
     let resultReadback = readAnalysisResultPresentation(map, presentedAnalysisRef.current, resultCollectionRef.current);
+    const readRight = () => rightMap ? readAnalysisResultPresentation(rightMap, rightPresentedRef.current, rightCollectionRef.current).ready : true;
+    let rightReady = readRight();
     const resultDeadline = Date.now() + 5_000;
-    while (!resultReadback.ready && run === generation.current && Date.now() < resultDeadline) {
+    while ((!resultReadback.ready || !rightReady) && run === generation.current && Date.now() < resultDeadline) {
       await new Promise(resolve => setTimeout(resolve, 50));
       resultReadback = readAnalysisResultPresentation(map, presentedAnalysisRef.current, resultCollectionRef.current);
+      rightReady = readRight();
     }
-    const matches = cameraReady && renderReady === "ready" && resultReadback.ready && layerPlan.rejected.length === 0 && Object.entries(scene.layers ?? {}).every(([key, on]) => visible.has(key) === on);
+    const matches = cameraReady && renderReady === "ready" && resultReadback.ready && rightMoved && rightReady && layerPlan.rejected.length === 0 && Object.entries(scene.layers ?? {}).every(([key, on]) => visible.has(key) === on);
     const resultMessage = resultReadback.featureCount > 0 ? tr("research.msg.highlighted", { count: resultReadback.featureCount }) : patch?.results === null ? tr("research.msg.resultsCleared") : null;
     setMessage(matches ? `r${revision} ${resultMessage ?? tr("research.msg.synced")}` : layerPlan.rejected.length ? tr("research.msg.skippedLayers", { layers: layerPlan.rejected.join(tr("researchResult.sep.comma")) }) : tr("research.msg.conflict"));
     setActivity({ phase: matches ? "ready" : "error", title: matches ? resultMessage ? tr("research.msg.presentedTitle") : tr("research.msg.mapUpdatedTitle") : !cameraReady && !followingRef.current ? tr("research.msg.keptViewTitle") : tr("research.msg.notFinishedTitle"), detail: matches && resultMessage ? resultMessage : !cameraReady && !followingRef.current ? tr("research.msg.followPausedDetail") : undefined });
@@ -486,19 +602,42 @@ export function MainMapConnection(props: Props) {
           const live = latest.current;
           const liveVisible = live.bridge.getVisibleLayerKeys();
           // Custom-drawn layers report data_not_loaded until their fetch lands; re-poll (250 ms, <= 6 s, within the total budget) so one read can return real numbers.
-          const visibleSummary = await summarizeWhenLoaded(
-            // 兩國並排：右國圖層畫在右圖、Agent 只看左圖（G2-3 另做），摘要不列
-            () => summarizeVisibleLayers(liveMap as unknown as VisibleSummaryMap, liveVisible.filter(key => shownOnLeft(key, true)), { labelFor: key => live.labels[key] ?? key }),
-            Math.max(0, Math.min(SUMMARY_WAIT_CAP, MAP_CONTEXT_TOTAL_BUDGET_MS - (Date.now() - contextStarted))),
-            undefined,
-            () => epoch === connectionEpoch.current,
-          );
+          const summaryBudget = Math.max(0, Math.min(SUMMARY_WAIT_CAP, MAP_CONTEXT_TOTAL_BUDGET_MS - (Date.now() - contextStarted)));
+          const labelFor = (key: string) => live.labels[key] ?? key;
+          // 兩國並排：最上層＝左圖（右國圖層畫在右圖，不列進左圖摘要）；右圖另算一份放進 compare.right（G2-3）
+          const rightMap = liveRightMap();
+          const rightReadable = rightMap && isStyleReady(rightMap) ? rightMap : null;
+          const rightKeys = rightReadable ? liveVisible.filter(key => shownOnRight(key, true)) : [];
+          const [visibleSummary, rightSummary] = await Promise.all([
+            summarizeWhenLoaded(
+              () => summarizeVisibleLayers(liveMap as unknown as VisibleSummaryMap, liveVisible.filter(key => shownOnLeft(key, true)), { labelFor }),
+              summaryBudget, undefined, () => epoch === connectionEpoch.current,
+            ),
+            rightReadable ? summarizeWhenLoaded(
+              () => summarizeVisibleLayers(rightReadable as unknown as VisibleSummaryMap, rightKeys, { labelFor }),
+              summaryBudget, undefined, () => epoch === connectionEpoch.current,
+            ) : Promise.resolve(null),
+          ]);
+          let rightReading: RightMapReading | null = null;
+          if (rightReadable && rightSummary) {
+            const center = rightReadable.getCenter();
+            rightReading = {
+              camera: { center: [center.lng, center.lat], zoom: rightReadable.getZoom() },
+              bounds: viewportBounds(rightReadable as unknown as VisibleSummaryMap),
+              visibleLayerKeys: rightKeys.slice(0, 100),
+              visibleSummary: rightSummary,
+              resultPresentation: readAnalysisResultPresentation(rightReadable, rightPresentedRef.current, rightCollectionRef.current),
+            };
+          }
+          const compare = compareContext(compareStore.getSnapshot(), rightReading);
           // tilesSettled=false: sources/tiles still loading (or an animated layer keeps reloading); camera/layers below are still authoritative.
           // country: the panel's current country subject ("TW"/"JP"/"FR"), not derived from the camera centre.
           result = { observedAt: new Date().toISOString(), country: countryStore.getSnapshot(), tilesSettled: liveMap.isStyleLoaded(), camera: live.bridge.getCamera(), viewport: resolveViewportContext(liveMap), time: live.timeline?.getContext() ?? null, following: followingRef.current, selection: live.selection ?? null, selectionSource: live.selection ? "feature" : null, visibleLayerKeys: liveVisible.slice(0, 100), totalVisible: liveVisible.length, truncated: liveVisible.length > 100, loading: loadingRegistry.snapshot().slice(0, 20).map(task => task.label), totalLoading: loadingRegistry.snapshot().length, loadingTruncated: loadingRegistry.snapshot().length > 20, dataReadiness: "not_inferred_from_visibility", resultPresentation: readAnalysisResultPresentation(liveMap, presentedAnalysisRef.current, resultCollectionRef.current),
             framingCheck: readFramingCheck(liveMap),
             // AG-1: rendered-viewport digest; counts drawn features only (SPEC-prod-connect §2.7).
-            bounds: viewportBounds(liveMap as unknown as VisibleSummaryMap), visibleSummary };
+            bounds: viewportBounds(liveMap as unknown as VisibleSummaryMap), visibleSummary,
+            // G2-3：並排時右圖的鏡頭、範圍、摘要與結果；不在並排也回 mode，讓 MCP 知道這個網頁支援 side 指令
+            compare };
           break;
         }
         case "search_layers": result = discoverLayers(String(request.args.query ?? ""), Number(request.args.offset ?? 0), Number(request.args.limit ?? 20), discoveryContext); break;
@@ -637,6 +776,36 @@ export function MainMapConnection(props: Props) {
     map?.on("movestart", started); map?.on("moveend", moved);
     return () => { unsubscribe(); unsubscribeParams(); map?.off("movestart", started); map?.off("moveend", moved); if (map) cancelResearchMotion(map); };
   }, [props.map]);
+  // G2-3: right-map lifecycle. The right map is rebuilt when its country changes and destroyed when
+  // side-by-side closes; its results are re-installed on a basemap switch (style.load wipes them) and
+  // kept only while the right country stays the same. A user-side change is reported back as a manual
+  // scene (only once the gateway carries `right`; never in the middle of an Agent command).
+  useEffect(() => {
+    let attached: MapboxMap | null = null;
+    const reinstall = () => {
+      const map = attached;
+      if (!map || !isStyleReady(map)) return;
+      try { installRightResults(map, rightCollectionRef.current); } catch { installRightResults(map, null); }
+    };
+    const sync = () => {
+      const map = liveRightMap();
+      if (map === attached) return;
+      attached?.off("style.load", reinstall);
+      attached = map;
+      const stored = previous.current?.right;
+      const keep = map && stored?.results && stored.country === compareStore.getSnapshot().rightCountry ? stored.results : null;
+      rightCollectionRef.current = keep;
+      rightPresentedRef.current = []; setRightPresented([]);
+      if (map) { map.on("style.load", reinstall); if (keep) reinstall(); }
+      if (applying.current || !controller.current || !previous.current || !("right" in previous.current)) return;
+      ++generation.current;
+      const scene = capture(); previous.current = scene; controller.current.manual(scene);
+    };
+    sync();
+    const offMap = compareRightMap.subscribe(sync);
+    const offStore = compareStore.subscribe(sync);
+    return () => { offMap(); offStore(); attached?.off("style.load", reinstall); };
+  }, [capture]);
   // P3: a scene whose render gave up before the map was prepared is rendered again once it is.
   useEffect(() => { if (props.map) controller.current?.represent(); }, [props.map]);
   useEffect(() => {
@@ -840,7 +1009,8 @@ export function MainMapConnection(props: Props) {
   useEffect(() => {
     publishAnalysisLegend({
       // Source line = the dataset descriptor's name (not the result title, which is often the same text).
-      entries: analysisLegendEntries(presentedAnalysis, (datasetId, _displayLabel, sourceDatasets) => {
+      // G2-3: results on the side-by-side right map follow the left ones (same legend panel).
+      entries: analysisLegendEntries([...presentedAnalysis, ...rightPresented], (datasetId, _displayLabel, sourceDatasets) => {
         const label = researchResultDatasetLabel(datasetId, null, id => describeDataset(id, latest.current.locked).label);
         if (label !== UNNAMED_DATASET_LABEL) return label;
         // warehouse:<id> 不在前端 descriptor：改用匯入 lineage 的上游資料集，解析不出名稱的不顯示。
@@ -849,7 +1019,7 @@ export function MainMapConnection(props: Props) {
       compact: !!props.analysisResultSelected,
     });
     // playbackVersion: republishes on every tick/scrub so the bar's index/playing stay live.
-  }, [presentedAnalysis, availableAnalysis, props.analysisResultSelected, playbackVersion, analysisPlaybackFor]);
+  }, [presentedAnalysis, rightPresented, availableAnalysis, props.analysisResultSelected, playbackVersion, analysisPlaybackFor]);
   useEffect(() => () => publishAnalysisLegend({ entries: [], compact: false }), []);
   // I2: closing the docked panel, or selecting another layer's feature, restores every result.
   useEffect(() => {

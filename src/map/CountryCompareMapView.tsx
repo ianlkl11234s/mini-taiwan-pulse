@@ -15,7 +15,7 @@
  *   properties 帶 `compare_side: "right"`，選取圈畫在右圖。
  * - **卸載順序**：React 刪除子樹時由上而下跑 cleanup，本元件的 cleanup 早於子層 Host；`map.remove()` 延到
  *   microtask，讓右國 hook 的 cleanup 先拿到仍存活的地圖（不必逐支補 try/catch）。
- * - Agent（MCP）只操作主地圖（站主決定 7，G2-3 另做）。
+ * - Agent（MCP）：map_context 另給 `compare.right`（右圖鏡頭、範圍、摘要），指令可帶 `side: "right"` 移動右圖、在右圖畫結果（G2-3，`research/compareBridge.ts`）。
  */
 import { useEffect, useRef, useState } from "react";
 import mapboxgl from "mapbox-gl";
