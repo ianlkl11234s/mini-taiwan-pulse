@@ -388,7 +388,7 @@ export const ID_WAVE_SPECS: readonly IdLayerSpec[] = [
   {
     key: "idRenewables", file: "id_renewables.pmtiles", sourceId: "id-renewables", srcMinzoom: 3, srcMaxzoom: 14, color: "#F2E085", count: 206, opacity: 0.8,
     parts: [
-      { id: "id-solar-potential-fill", sourceLayer: "solar_potential", geom: "fill", minzoom: 3, cat: propGetter("solar_class"), fillOpacity: 0.4 },
+      { id: "id-solar-potential-fill", sourceLayer: "solar_potential", geom: "fill", minzoom: 3, cat: propGetter("solar_class"), fillOpacity: 0.2 },
       point("id-renewables-circle", "generators", 4, propGetter("energy"), { filter: PT, size: undefined }),
       { id: "id-renewables-fill", sourceLayer: "generators", geom: "fill", minzoom: 7, cat: propGetter("energy"), filter: POLY, fillOpacity: 0.7 },
     ],
