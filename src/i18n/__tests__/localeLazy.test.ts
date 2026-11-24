@@ -48,6 +48,21 @@ describe("英日文分批載入", () => {
     expect(store.getSnapshot().t(key)).toBe((en.default as Record<string, string>)[key]);
   });
 
+  it("檔還在抓時重複查不到同一個字：只抓一次、只重發一次 snapshot", async () => {
+    const store = await freshStore("?lang=en");
+    store.init();
+    await settle(store, "en");
+    let publishes = 0;
+    const off = store.subscribe(() => { publishes++; });
+    store.getSnapshot().t("paramsPanel.loading");
+    await Promise.resolve(); // flush 開始抓
+    for (let i = 0; i < 5; i++) store.getSnapshot().t("paramsPanel.loading");
+    await new Promise((r) => setTimeout(r, 50));
+    off();
+    expect(store.loadedFiles("en")).toContain("paramsPanel");
+    expect(publishes).toBe(1);
+  });
+
   it("enum 前綴對不到檔名時查索引（enum.jpWelfareCategory 在 enums.japan）", async () => {
     const store = await freshStore("?lang=en");
     store.init();

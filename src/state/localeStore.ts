@@ -122,15 +122,17 @@ function noteMiss(active: Locale, key: string): void {
   for (const code of [active, ...LOCALES[active].fallback].filter(isLocale)) {
     if (code === DEFAULT_LOCALE) break;
     if (hasKey(merged.get(code), key)) break;
-    const todo = filesForKey(key, (f) => hasFile(code, f))
+    const open = filesForKey(key, (f) => hasFile(code, f))
       .filter((f) => !isSettled(code, f) && !failedFiles.has(`${code}/${f}`));
+    // 正在抓的檔不重排（否則每次 render 查不到都開一批新任務）；也先不記成「沒檔可載」，抓完再查
+    const todo = open.filter((f) => !pendingFiles.has(`${code}/${f}`));
     if (todo.length) {
       const queue = missQueue.get(code) ?? new Set<string>();
       for (const f of todo) queue.add(f);
       missQueue.set(code, queue);
       scheduleMissFlush();
-      return;
     }
+    if (open.length) return;
   }
   settled.add(key);
 }

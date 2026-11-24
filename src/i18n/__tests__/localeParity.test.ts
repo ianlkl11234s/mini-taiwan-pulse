@@ -134,6 +134,14 @@ describe("locale parity", () => {
     for (const locale of foreign.slice(1)) expect(list(locale), locale).toEqual(list(foreign[0]!));
   });
 
+  it("英日文圖層名 key 完全相同（日文介面不會為了缺字去抓英文圖層名檔，缺了就直接顯示中文）", () => {
+    const foreign = SUPPORTED_LOCALES.filter((l) => l !== DEFAULT_LOCALE);
+    for (const file of layerFilesOf(foreign[0]!)) {
+      const base = Object.keys(readLocaleFile(foreign[0]!, file)).sort();
+      for (const locale of foreign.slice(1)) expect(Object.keys(readLocaleFile(locale, file)).sort(), `${locale}/${file}`).toEqual(base);
+    }
+  });
+
   it("localeFileIndex.generated.ts 是最新的（改了英日文 JSON 請跑 npx tsx scripts/i18n/gen-keys.ts）", () => {
     const root = join(__dirname, "..", "..", "..");
     expect(readFileSync(join(root, "src/i18n/localeFileIndex.generated.ts"), "utf8")).toBe(renderLocaleFileIndexModule(root));
