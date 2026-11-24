@@ -7,20 +7,42 @@
  * - 統計左右不同的期別／細項不存在這裡：選擇只存在 `regionalStatisticsStore`（右側另一份 `key::R`，
  *   見 `compareStatistics.ts`），這裡只放開關、把手位置、側別。
  * - 側別只活在這次瀏覽（不寫 localStorage）；分享網址另外記（`urlState` 的 `cmp*` 參數）。
+ *
+ * 兩種模式（同一個「比較」入口，站主 2026-11-24 決定 3）：
+ * - `slider`＝同地點拉桿（上面描述的 P1）。
+ * - `countries`＝兩國並排（G2-1）：左＝主地圖（目前國家），右＝`rightCountry`（只能是外國）。側別不看 `sides`，
+ *   改由圖層的國家決定（`map/compareCountrySides.ts`）；比例尺預設同步（`scaleLocked`），可關。
+ *   `rightCamera` 是右圖目前（或要建立時用）的鏡頭：右圖 moveend 寫回，分享網址 `cmpv` 讀它。
  */
-import { useSyncExternalStore } from "react";
+import { useMemo, useSyncExternalStore } from "react";
 import { HISTORICAL_MAP_GROUPS } from "../data/historicalMapSinica";
 import { isStatisticsRenderLayer } from "../data/regionalStatisticsRecipes";
+import { isRightSideKey } from "../map/compareCountrySides";
+import type { CountryCamera, CountryCode } from "../constants/countries";
+import type { UrlCompareState } from "../lib/urlState";
 
 export type CompareSide = "left" | "right" | "both";
+/** 比較模式：同地點拉桿／兩國並排；之後新增的比較模式加在這裡（入口選單依序列出） */
+export type CompareMode = "slider" | "countries";
+export const COMPARE_MODES: readonly CompareMode[] = ["slider", "countries"];
 
 export interface CompareState {
   enabled: boolean;
-  /** 把手位置（0..1，畫面寬度比例） */
+  mode: CompareMode;
+  /** 把手位置（0..1，畫面寬度比例；只用在 slider） */
   split: number;
-  /** 圖層側別；缺省＝兩側 */
+  /** 圖層側別；缺省＝兩側（只用在 slider） */
   sides: Readonly<Record<string, CompareSide>>;
+  /** 並排的右側國家（countries；台灣不能放右邊，站主 2026-11-24 決定 1） */
+  rightCountry: CountryCode | null;
+  /** 並排時兩邊比例尺一致（依緯度換算縮放級數；預設開） */
+  scaleLocked: boolean;
+  /** 並排右圖的鏡頭（null＝用該國上次的鏡頭） */
+  rightCamera: CountryCamera | null;
 }
+
+/** 判斷側別需要的欄位（元件只訂這幾個，拖把手、右圖平移不重繪） */
+export type CompareSideState = Pick<CompareState, "enabled" | "mode" | "sides" | "rightCountry">;
 
 export const COMPARE_DEFAULT_SPLIT = 0.5;
 export const COMPARE_SPLIT_MIN = 0.05;
@@ -40,7 +62,7 @@ export function clampSplit(value: number): number {
   return Math.min(COMPARE_SPLIT_MAX, Math.max(COMPARE_SPLIT_MIN, value));
 }
 
-const INITIAL: CompareState = { enabled: false, split: COMPARE_DEFAULT_SPLIT, sides: {} };
+const INITIAL: CompareState = { enabled: false, mode: "slider", split: COMPARE_DEFAULT_SPLIT, sides: {}, rightCountry: null, scaleLocked: true, rightCamera: null };
 let state: CompareState = INITIAL;
 const listeners = new Set<() => void>();
 
@@ -50,20 +72,71 @@ function commit(next: CompareState) {
   listeners.forEach((listener) => listener());
 }
 
-/** 圖層在比較模式的側別（不支援的圖層一律「左」） */
-export function compareSideOf(key: string, snapshot: CompareState = state): CompareSide {
+/**
+ * 並排的右側國家（站主決定 1、6）：只能是外國、不能和左側同國、要是這個身分看得到的國家。
+ * 目前的還合法就留著；否則取「左側之後的下一個釘選外國」（輪回清單開頭），沒有釘選外國時取國家清單第一個外國。
+ */
+export function pickRightCountry(
+  left: CountryCode,
+  pinned: readonly CountryCode[],
+  visible: readonly CountryCode[],
+  current: CountryCode | null = null,
+): CountryCode | null {
+  const ok = (code: CountryCode) => code !== "TW" && code !== left && visible.includes(code);
+  if (current && ok(current)) return current;
+  const at = pinned.indexOf(left);
+  const ordered = at >= 0 ? [...pinned.slice(at + 1), ...pinned.slice(0, at)] : pinned;
+  return ordered.find(ok) ?? visible.find(ok) ?? null;
+}
+
+/** 分享網址（或手機寄放）的比較狀態 → `compareStore.hydrate` 的參數（開啟比較） */
+export function compareHydrateFromUrl(url: UrlCompareState): Parameters<typeof compareStore.hydrate>[0] {
+  if (url.mode === "countries") {
+    return {
+      enabled: true,
+      mode: "countries",
+      ...(url.rightCountry ? { rightCountry: url.rightCountry } : {}),
+      ...(url.rightCamera ? { rightCamera: url.rightCamera } : {}),
+      scaleLocked: url.scaleLocked !== false,
+    };
+  }
+  return {
+    enabled: true,
+    mode: "slider",
+    ...(url.split !== undefined ? { split: url.split } : {}),
+    sides: Object.fromEntries([...(url.left ?? []).map((key) => [key, "left"] as const), ...(url.right ?? []).map((key) => [key, "right"] as const)]),
+  };
+}
+
+/** 兩國並排中（右側國家已定） */
+export function isCountriesCompare(snapshot: CompareSideState = state): boolean {
+  return snapshot.enabled && snapshot.mode === "countries" && !!snapshot.rightCountry;
+}
+
+/** 並排中的右側國家（不在並排回 null） */
+export function activeRightCountry(snapshot: CompareSideState = state): CountryCode | null {
+  return isCountriesCompare(snapshot) ? snapshot.rightCountry : null;
+}
+
+/**
+ * 圖層在比較模式的側別。拉桿：不支援的圖層一律「左」；並排：右國圖層「右」、其他「左」（沒有兩側）。
+ */
+export function compareSideOf(key: string, snapshot: CompareSideState = state): CompareSide {
+  if (snapshot.mode === "countries") return isRightSideKey(key, snapshot.rightCountry) ? "right" : "left";
   if (!isCompareSupported(key)) return "left";
   return snapshot.sides[key] ?? "both";
 }
 
 /** 主地圖（左）畫不畫：比較關閉時＝圖層開關 */
-export function shownOnLeft(key: string, visible: boolean, snapshot: CompareState = state): boolean {
+export function shownOnLeft(key: string, visible: boolean, snapshot: CompareSideState = state): boolean {
   return visible && (!snapshot.enabled || compareSideOf(key, snapshot) !== "right");
 }
 
-/** 右圖畫不畫：只有比較中、支援的圖層 */
-export function shownOnRight(key: string, visible: boolean, snapshot: CompareState = state): boolean {
-  return visible && snapshot.enabled && isCompareSupported(key) && compareSideOf(key, snapshot) !== "left";
+/** 右圖畫不畫：拉桿只有支援的圖層；並排只有右國圖層 */
+export function shownOnRight(key: string, visible: boolean, snapshot: CompareSideState = state): boolean {
+  if (!visible || !snapshot.enabled) return false;
+  if (snapshot.mode === "countries") return compareSideOf(key, snapshot) === "right";
+  return isCompareSupported(key) && compareSideOf(key, snapshot) !== "left";
 }
 
 export const compareStore = {
@@ -75,6 +148,25 @@ export const compareStore = {
   setEnabled(enabled: boolean) {
     if (state.enabled === enabled) return;
     commit({ ...state, enabled });
+  },
+  /** 從入口選模式並開啟（已開同一模式＝不變） */
+  open(mode: CompareMode) {
+    if (state.enabled && state.mode === mode) return;
+    commit({ ...state, enabled: true, mode });
+  },
+  /** 換右側國家：鏡頭改用該國上次的鏡頭（`rightCamera` 清掉） */
+  setRightCountry(rightCountry: CountryCode | null) {
+    if (rightCountry === "TW") return;
+    if (state.rightCountry === rightCountry) return;
+    commit({ ...state, rightCountry, rightCamera: null });
+  },
+  setScaleLocked(scaleLocked: boolean) {
+    if (state.scaleLocked === scaleLocked) return;
+    commit({ ...state, scaleLocked });
+  },
+  /** 右圖 moveend 寫回（分享網址用） */
+  setRightCamera(rightCamera: CountryCamera | null) {
+    commit({ ...state, rightCamera });
   },
   setSplit(split: number) {
     const next = clampSplit(split);
@@ -89,12 +181,23 @@ export const compareStore = {
     commit({ ...state, sides });
   },
   /** 一次套用（分享網址還原用）；非法值略過 */
-  hydrate(next: { enabled?: boolean; split?: number; sides?: Readonly<Record<string, CompareSide>> }) {
+  hydrate(next: {
+    enabled?: boolean; split?: number; sides?: Readonly<Record<string, CompareSide>>;
+    mode?: CompareMode; rightCountry?: CountryCode; scaleLocked?: boolean; rightCamera?: CountryCamera;
+  }) {
     const sides: Record<string, CompareSide> = {};
     for (const [key, side] of Object.entries(next.sides ?? {})) {
       if (isCompareSupported(key) && (side === "left" || side === "right")) sides[key] = side;
     }
-    commit({ enabled: next.enabled ?? state.enabled, split: next.split === undefined ? state.split : clampSplit(next.split), sides: { ...state.sides, ...sides } });
+    commit({
+      ...state,
+      enabled: next.enabled ?? state.enabled,
+      mode: next.mode ?? state.mode,
+      split: next.split === undefined ? state.split : clampSplit(next.split),
+      sides: { ...state.sides, ...sides },
+      ...(next.rightCountry && next.rightCountry !== "TW" ? { rightCountry: next.rightCountry, rightCamera: next.rightCamera ?? null } : {}),
+      ...(next.scaleLocked !== undefined ? { scaleLocked: next.scaleLocked } : {}),
+    });
   },
   /** 測試用 */
   reset() { commit(INITIAL); },
@@ -110,4 +213,13 @@ export function useCompareState(): CompareState {
 export function useCompareSelector<T>(select: (state: CompareState) => T): T {
   const get = () => select(state);
   return useSyncExternalStore(compareStore.subscribe, get, get);
+}
+
+/** 判斷側別用的欄位（參照穩定：拖把手、右圖平移、切比例尺開關都不換新） */
+export function useCompareSideState(): CompareSideState {
+  const enabled = useCompareSelector((s) => s.enabled);
+  const mode = useCompareSelector((s) => s.mode);
+  const sides = useCompareSelector((s) => s.sides);
+  const rightCountry = useCompareSelector((s) => s.rightCountry);
+  return useMemo(() => ({ enabled, mode, sides, rightCountry }), [enabled, mode, sides, rightCountry]);
 }

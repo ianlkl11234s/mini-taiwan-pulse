@@ -11,7 +11,7 @@
  */
 import { isStatisticsRenderLayer } from "../data/regionalStatisticsRecipes";
 import type { LocaleSnapshot } from "./localeStore";
-import { compareSideOf, isCompareSupported, type CompareSide, type CompareState } from "./compareStore";
+import { compareSideOf, isCompareSupported, type CompareSide, type CompareSideState } from "./compareStore";
 import { rightStatisticsSpecs, setCompareSide, leftStatisticsSpecs } from "./compareStatistics";
 import { linkedSelectSnapshot, setLinkedSelect, canRetryLinkedSelect, retryLinkedSelects } from "./linkedSelect";
 import { paramText } from "../i18n/paramText";
@@ -23,8 +23,9 @@ type I18n = Pick<LocaleSnapshot, "active" | "lookup" | "t">;
 const SIDES: readonly CompareSide[] = ["left", "right", "both"];
 const SIDE_TEXT = { left: "compare.sideLeft", right: "compare.sideRight", both: "compare.sideBoth" } as const;
 
-export function buildCompareControls(key: string, snapshot: CompareState, i18n: I18n): ParamControl[] {
-  if (!snapshot.enabled) return [];
+export function buildCompareControls(key: string, snapshot: CompareSideState, i18n: I18n): ParamControl[] {
+  // 兩國並排：側別由圖層國家決定，不給「顯示在」（列尾標籤另外標，LayerRow）
+  if (!snapshot.enabled || snapshot.mode === "countries") return [];
   const supported = isCompareSupported(key);
   const side = compareSideOf(key, snapshot);
   const sideControl: SelectConfig = {
@@ -68,7 +69,7 @@ export function buildCompareControls(key: string, snapshot: CompareState, i18n: 
  * （面板層改名，不改規格中文：Agent 與黃金快照照舊），右側的期別／細項緊接在左側最後一列之後。
  * `visible` 是 `visibleControlSpecs(key)`，與 `controls` 逐位對應。
  */
-export function withCompareControls(key: string, snapshot: CompareState, controls: readonly ParamControl[], visible: readonly LayerParamSpec[], i18n: I18n): ParamControl[] {
+export function withCompareControls(key: string, snapshot: CompareSideState, controls: readonly ParamControl[], visible: readonly LayerParamSpec[], i18n: I18n): ParamControl[] {
   const [side, ...right] = buildCompareControls(key, snapshot, i18n);
   if (!side) return [...controls];
   if (!right.length) return [side, ...controls];
