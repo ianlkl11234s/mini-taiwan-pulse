@@ -474,7 +474,7 @@ export const ID_WAVE_SPECS: readonly IdLayerSpec[] = [
       // BIG 屬性值帶行政代碼前綴（「.01  Cilacap」「33 Jawa Tengah」）：顯示時去掉；資料端也該清（見 PR 說明）
       { prop: "kabkota_big", label: l3("所屬縣（BIG 登記）", "Regency (BIG record)", "所属県（BIG 登録）"), stripCodePrefix: true },
       { prop: "province_big", label: l3("所屬省（BIG 登記）", "Province (BIG record)", "所属州（BIG 登録）"), stripCodePrefix: true },
-      { prop: "remark", label: l3("BIG 備註（印尼文原文：有無居民、燈塔）", "BIG remark (Indonesian original: inhabited, lighthouse)", "BIG 備考（インドネシア語原文：居住の有無・灯台）") },
+      { prop: "remark", label: l3("備註（印尼文原文）", "Remark (Indonesian original)", "備考（インドネシア語原文）") },
     ],
     legendNotes: [l3("只畫島點，不畫任何海上主張線；111 處", "Island points only, no maritime claim lines; 111 islands", "島の点のみで海上の主張線は描かない。111 島")],
     popupNotes: [], sourceOrg: l3("Badan Informasi Geospasial（BIG）PPKT 外圍小島 2024，存取 2026-11-23", "Badan Informasi Geospasial (BIG), PPKT outer small islands 2024, accessed 2026-11-23", "Badan Informasi Geospasial（BIG）PPKT 外縁小島 2024、2026-11-23 取得"),
