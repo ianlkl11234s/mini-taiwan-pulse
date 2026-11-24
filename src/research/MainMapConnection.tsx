@@ -67,6 +67,8 @@ import { loadAllPacks } from "../countries/packs";
 
 /** 事件發生當下取目前語系翻譯（非 React 回呼用）。只用在畫面狀態文字；送給 Agent 的內容不經過這裡。 */
 const tr: LocaleSnapshot["t"] = (key, vars) => localeStore.getSnapshot().t(key, vars);
+// 英日文：研究面板的字在操作當下一次讀取（活動紀錄、證據、圖例），配對元件載入時就把這幾個翻譯檔先抓好（B1 P6）
+void localeStore.need(["research", "researchResult", "analysisCard"]);
 type Props = { timeline?: TimelineAdapter; bridge: MapBridge; map: MapboxMap | null; labels: Record<string, string>; locked: ReadonlySet<string>; selection?: [number, number] | null; embedded?: boolean; isDarkTheme?: boolean; open?: boolean; onOpenChange?: (open: boolean) => void; showToggle?: boolean; uiHidden?: boolean;
   /** Opens (properties) or closes (null) the App-level docked FeatureInfoPanel for a clicked analysis result. Null must only close an analysis-result panel, never another layer's. */
   onAnalysisResultFeature?: (properties: AnalysisResultPanelProperties | null) => void;
@@ -967,13 +969,14 @@ export function MainMapConnection(props: Props) {
   // this panel — both to re-paint the map (the effect below) and to republish the legend's playback
   // bar (index/playing) live.
   // F142: 圖例與 styleFact 在 installAnalysisResults 時才依當下語系翻譯；切語系後重裝一次，不等下次結果。
+  // 看 t 而不是 active：英日文翻譯檔分批載入（B1 P6），補到字時 t 會換新，也要重裝。
   const redrawRef = useRef<(() => void) | null>(null);
-  const localeSeen = useRef(i18n.active);
+  const localeSeen = useRef(i18n.t);
   useEffect(() => {
-    if (localeSeen.current === i18n.active) return;
-    localeSeen.current = i18n.active;
+    if (localeSeen.current === i18n.t) return;
+    localeSeen.current = i18n.t;
     redrawRef.current?.();
-  }, [i18n.active]);
+  }, [i18n.t]);
   const playbackVersion = useSyncExternalStore(subscribeAnalysisPlayback, getAnalysisPlaybackVersion, getAnalysisPlaybackVersion);
   // F118: keep an open timed-choropleth popup in step with the playback (tick/scrub).
   useEffect(() => {

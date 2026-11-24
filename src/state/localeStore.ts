@@ -7,8 +7,13 @@
  * URL 不受 urlState 的 `v=1` 版本閘門限制 —— `?lang=en` 單獨出現也要生效，
  * 方便直接分享英文／日文版連結。
  *
- * 訊息檔：預設語系同步打包；其他語系第一次切換時才 lazy import，
- * 載入完成前畫面維持原語系（不閃 key）。
+ * 訊息檔：預設語系（zh-TW）同步打包，開站行為不變。英日文分批載入（B1 P6，規則見 `src/i18n/localeFiles.ts`）：
+ * - 切到英日文時先載開站檔（`BOOT_FILES`＋已登記需要的檔，例如已載入國家包的 `layers.<cc>`），
+ *   載完才換語系，載入期間畫面維持原語系（不閃 key）；
+ * - 其餘的檔在第一次查不到字時才載。載入期間該字回退到中文（中文檔一直都在：介面字有中文原文，
+ *   名稱類 key 由呼叫端的 `lookup` 回退中文名），載完重發 snapshot，畫面換成該語言。
+ *   選「先顯示中文」而不是「等載完」：說明框、圖例、設定面板是使用者點開才出現的，等待會讓點擊沒反應；
+ *   中文後備一定是正確內容，不會是 key 或空白。
  */
 import { useSyncExternalStore } from "react";
 import { DEFAULT_LOCALE, LOCALES, isLocale, matchLocale, type Locale } from "../i18n/locales";
@@ -16,6 +21,8 @@ import { lookup, translate, type Messages, type TranslateVars } from "../i18n/tr
 import type { MessageKey } from "../i18n/keys";
 import { formatDateTime, formatNumber } from "../i18n/format";
 import { syncCanonicalLink } from "../i18n/canonical";
+import { BOOT_FILES, filesForKey } from "../i18n/localeFiles";
+import { withLoading } from "../lib/loadingRegistry";
 
 const STORAGE_KEY = "mini-taiwan:locale:v1";
 
@@ -28,26 +35,121 @@ function mergeModules(modules: Record<string, Messages>): Messages {
   return Object.assign({}, ...Object.keys(modules).sort().map((path) => modules[path]));
 }
 
-const loaded = new Map<Locale, Messages>([[DEFAULT_LOCALE, defaultMessages]]);
-const pending = new Map<Locale, Promise<void>>();
-
-/** 載入語系本身與它的回退語系（ja 缺字要能回退到 en，en 也得先載入）。 */
-function loadLocale(locale: Locale): Promise<void> {
-  const chain = [locale, ...LOCALES[locale].fallback].filter(isLocale);
-  return Promise.all(chain.map(loadOne)).then(() => undefined);
+const filePath = (locale: Locale, file: string) => `../i18n/locales/${locale}/${file}.json`;
+const hasFile = (locale: Locale, file: string) => filePath(locale, file) in lazyModules;
+function allFiles(locale: Locale): string[] {
+  const prefix = `../i18n/locales/${locale}/`;
+  return Object.keys(lazyModules).filter((p) => p.startsWith(prefix)).map((p) => p.slice(prefix.length, -".json".length));
 }
 
-function loadOne(locale: Locale): Promise<void> {
-  if (loaded.has(locale)) return Promise.resolve();
-  const existing = pending.get(locale);
-  if (existing) return existing;
-  const prefix = `../i18n/locales/${locale}/`;
-  const paths = Object.keys(lazyModules).filter((path) => path.startsWith(prefix));
-  const promise = Promise.all(paths.map(async (path) => [path, await lazyModules[path]!()] as const))
-    .then((entries) => { loaded.set(locale, mergeModules(Object.fromEntries(entries))); })
-    .finally(() => pending.delete(locale));
-  pending.set(locale, promise);
-  return promise;
+/** 各語系已載入的檔 → 內容；`merged` 是合併後的查字表（依檔名排序合併，與整包載入時相同）。 */
+const loadedFiles = new Map<Locale, Map<string, Messages>>();
+const merged = new Map<Locale, Messages>([[DEFAULT_LOCALE, defaultMessages]]);
+/** 正在抓的檔（`<locale>/<file>`） */
+const pendingFiles = new Map<string, Promise<void>>();
+/** 抓過但失敗的檔：查不到字時不再自動重抓（避免迴圈），下次切換語系時清掉重試。 */
+const failedFiles = new Set<string>();
+/** 開站要載的檔＋之後登記需要的檔（國家包的 `layers.<cc>`）。換語系時這些都載完才切過去。 */
+const wantedFiles = new Set<string>(BOOT_FILES);
+let wantAllFiles = false;
+let loadSeq = 0;
+
+function filesOf(locale: Locale): Map<string, Messages> {
+  let files = loadedFiles.get(locale);
+  if (!files) { files = new Map(); loadedFiles.set(locale, files); }
+  return files;
+}
+
+function isSettled(locale: Locale, file: string): boolean {
+  return !hasFile(locale, file) || filesOf(locale).has(file);
+}
+
+/**
+ * 載入某語系的幾個檔；全部成功才 resolve（任一失敗就 reject，已成功的照樣可用）。
+ * 一批登記成一個 loadingRegistry 任務。
+ */
+function loadFiles(locale: Locale, files: Iterable<string>): Promise<void> {
+  if (locale === DEFAULT_LOCALE) return Promise.resolve();
+  const todo = [...new Set(files)].filter((f) => !isSettled(locale, f));
+  if (!todo.length) return Promise.resolve();
+  const jobs = todo.map((file) => {
+    const id = `${locale}/${file}`;
+    const existing = pendingFiles.get(id);
+    if (existing) return existing;
+    const job = lazyModules[filePath(locale, file)]!()
+      .then((messages) => { filesOf(locale).set(file, messages); failedFiles.delete(id); })
+      .catch((err: unknown) => { failedFiles.add(id); throw err; })
+      .finally(() => pendingFiles.delete(id));
+    pendingFiles.set(id, job);
+    return job;
+  });
+  const batch = Promise.allSettled(jobs).then((results) => {
+    const files = filesOf(locale);
+    merged.set(locale, Object.assign({}, ...[...files.keys()].sort().map((f) => files.get(f))));
+    const failed = results.find((r): r is PromiseRejectedResult => r.status === "rejected");
+    if (failed) throw failed.reason;
+  });
+  return withLoading(`locale:${locale}:${++loadSeq}`, `載入${LOCALE_LABEL_ZH[locale]}翻譯`, batch);
+}
+
+const LOCALE_LABEL_ZH: Record<Locale, string> = { "zh-TW": "中文", en: "英文", ja: "日文" };
+
+/** 某語系換過去前必須載完的檔。 */
+function requiredFiles(locale: Locale): string[] {
+  return wantAllFiles ? allFiles(locale) : [...wantedFiles];
+}
+
+/** 載入語系本身與它的回退語系的全部檔（測試與 embed／card 等獨立入口用）。 */
+function loadLocale(locale: Locale): Promise<void> {
+  const chain = [locale, ...LOCALES[locale].fallback].filter(isLocale);
+  return Promise.all(chain.map((code) => loadFiles(code, allFiles(code)))).then(() => undefined);
+}
+
+/** 查不到字時要補載的檔（per 語系排隊，同一個 microtask 內合成一批）。 */
+const missQueue = new Map<Locale, Set<string>>();
+/** 已確認「沒有檔可再載」的 key，之後不再找（per 語系）。 */
+const missSettled = new Map<Locale, Set<string>>();
+let missFlushScheduled = false;
+
+function hasKey(messages: Messages | undefined, key: string): boolean {
+  return messages != null && (messages[key] != null || messages[`${key}_other`] != null);
+}
+
+function noteMiss(active: Locale, key: string): void {
+  let settled = missSettled.get(active);
+  if (!settled) { settled = new Set(); missSettled.set(active, settled); }
+  if (settled.has(key)) return;
+  for (const code of [active, ...LOCALES[active].fallback].filter(isLocale)) {
+    if (code === DEFAULT_LOCALE) break;
+    if (hasKey(merged.get(code), key)) break;
+    const todo = filesForKey(key, (f) => hasFile(code, f))
+      .filter((f) => !isSettled(code, f) && !failedFiles.has(`${code}/${f}`));
+    if (todo.length) {
+      const queue = missQueue.get(code) ?? new Set<string>();
+      for (const f of todo) queue.add(f);
+      missQueue.set(code, queue);
+      scheduleMissFlush();
+      return;
+    }
+  }
+  settled.add(key);
+}
+
+function scheduleMissFlush(): void {
+  if (missFlushScheduled) return;
+  missFlushScheduled = true;
+  queueMicrotask(() => {
+    missFlushScheduled = false;
+    const batches = [...missQueue];
+    missQueue.clear();
+    for (const [code, files] of batches) {
+      void loadFiles(code, files).catch(() => undefined).then(() => {
+        // 補到的字要讓畫面重畫：重發同一語系的 snapshot（t／lookup 換新身分）
+        const { locale, active } = snapshot;
+        if (active !== DEFAULT_LOCALE && [active, ...LOCALES[active].fallback].includes(code)) publish(buildSnapshot(locale, active));
+      });
+    }
+  });
 }
 
 function readInitialLocale(): Locale {
@@ -89,14 +191,17 @@ export interface LocaleSnapshot {
 function buildSnapshot(locale: Locale, active: Locale): LocaleSnapshot {
   const chain = [active, ...LOCALES[active].fallback, DEFAULT_LOCALE]
     .filter((code, index, all): code is Locale => isLocale(code) && all.indexOf(code) === index)
-    .map((code) => loaded.get(code))
+    .map((code) => merged.get(code))
     .filter((messages): messages is Messages => messages != null);
   const intl = LOCALES[active].intl;
+  const own = merged.get(active);
+  // 英日文查不到字 → 找出它所在的檔補載（中文整包都在，不必查）
+  const check = active === DEFAULT_LOCALE ? null : (key: string) => { if (!hasKey(own, key)) noteMiss(active, key); };
   return {
     locale,
     active,
-    t: (key, vars) => translate(chain, intl, key, vars),
-    lookup: (key, vars) => lookup(chain, intl, key, vars),
+    t: (key, vars) => { check?.(key); return translate(chain, intl, key, vars); },
+    lookup: (key, vars) => { check?.(key); return lookup(chain, intl, key, vars); },
     formatNumber: (value, options) => formatNumber(active, value, options),
     formatDateTime: (value, options) => formatDateTime(active, value, options),
   };
@@ -112,10 +217,11 @@ function publish(next: LocaleSnapshot) {
 }
 
 function activate(locale: Locale) {
-  const ready = [locale, ...LOCALES[locale].fallback].filter(isLocale).every((code) => loaded.has(code));
+  const required = requiredFiles(locale);
+  const ready = locale === DEFAULT_LOCALE || required.every((f) => isSettled(locale, f));
   publish(buildSnapshot(locale, ready ? locale : snapshot.active));
   if (ready) return;
-  void loadLocale(locale).then(
+  void loadFiles(locale, required).then(
     () => { if (snapshot.locale === locale) publish(buildSnapshot(locale, locale)); },
     () => { /* 網路失敗：維持目前語系，下次切換再試 */ },
   );
@@ -128,19 +234,40 @@ export const localeStore = {
     return () => listeners.delete(listener);
   },
   /** App 啟動時呼叫一次：讀 URL／偏好／瀏覽器語言。 */
-  init(): void {
+  init(options: { allFiles?: boolean } = {}): void {
+    // embed／card 等獨立入口：一次載全部檔（它們有用 setHTML 一次畫好的文字，補載後不會重畫）
+    if (options.allFiles) wantAllFiles = true;
     activate(readInitialLocale());
   },
   set(locale: Locale): void {
     // 語系包下載失敗時 snapshot.locale 已是新語系、active 仍是舊的 → 再點同語言要能重試
     if (locale === snapshot.locale && snapshot.active === locale) return;
+    // 上次抓失敗的檔，這次切換重試
+    failedFiles.clear();
+    missSettled.clear();
     try {
       if (typeof localStorage !== "undefined") localStorage.setItem(STORAGE_KEY, locale);
     } catch { /* 偏好存不了不影響切換 */ }
     activate(locale);
   },
-  /** 測試用：等待 lazy 訊息載入 */
+  /** 測試用：載入語系（含回退語系）的全部檔 */
   ready: (locale: Locale): Promise<void> => loadLocale(locale),
+  /**
+   * 登記需要的檔並在目前選的語系（非中文時）載入，例如國家包的 `layers.<cc>`。
+   * 之後切換語系也會先載這些檔。失敗不 reject（字會回退中文），回傳的 Promise 只用來等待。
+   */
+  need(files: readonly string[]): Promise<void> {
+    for (const f of files) wantedFiles.add(f);
+    const target = snapshot.locale;
+    if (target === DEFAULT_LOCALE) return Promise.resolve();
+    const chainReady = files.every((f) => isSettled(target, f));
+    if (chainReady) return Promise.resolve();
+    return loadFiles(target, files).catch(() => undefined).then(() => {
+      if (snapshot.active === target) publish(buildSnapshot(snapshot.locale, target));
+    });
+  },
+  /** 除錯與量測：某語系已載入的檔 */
+  loadedFiles: (locale: Locale): string[] => [...filesOf(locale).keys()].sort(),
 };
 
 /** React 端入口：`const { t, active } = useLocale();` */

@@ -100,6 +100,17 @@ function registerPack(pack: CountryPack): void {
   }
 }
 
+/**
+ * 國家包的英日文翻譯檔載入函式（main.tsx 接上 localeStore.need）。用注入而不是直接 import localeStore：
+ * vite.config 會經由搜尋索引 import 本檔，而 localeStore 用 import.meta.glob，Node 端讀不了。
+ */
+let packLocaleLoader: (cc: CountryCode) => Promise<void> = () => Promise.resolve();
+export function setPackLocaleLoader(loader: (cc: CountryCode) => Promise<void>): void {
+  packLocaleLoader = loader;
+  // 開站國家包（bootPacks）在模組載入時就開始抓，早於接線：補登記它們的翻譯檔
+  for (const [cc, st] of status) if (st === "loading" || st === "ready") void loader(cc).catch(() => undefined);
+}
+
 /** 載入標籤：「載入〈國名〉圖層清單」（國名取 zh-TW 字典；loadingRegistry 標籤全站都是中文）。 */
 export function packLoadingLabel(cc: CountryCode): string {
   const name = (ZH_COMMON as Record<string, string>)[countryDef(cc).labelKey] ?? cc;
@@ -120,7 +131,10 @@ export function ensureCountryPack(cc: CountryCode): Promise<void> {
   // 效能量測（DevTools Performance／performance.getEntriesByName）：國家包從開始抓到登記完成
   globalThis.performance?.mark?.(`country-pack:${cc}:start`);
   const failure = lastFailure.get(cc);
-  const p = withLoading(`country-pack:${cc}`, packLoadingLabel(cc), retryImport(cc, loader, failure))
+  // 英日文介面：這國的圖層名檔（layers.<cc>）和國家包平行抓、一起等，切國家時圖層名不會先閃中文。
+  // 翻譯檔失敗不算國家包失敗（載入函式不 reject，圖層名回退中文）。
+  const localeReady = packLocaleLoader(cc).catch(() => undefined);
+  const p = withLoading(`country-pack:${cc}`, packLoadingLabel(cc), Promise.all([retryImport(cc, loader, failure), localeReady]).then(([mod]) => mod))
     .then((mod) => {
       registerPack(mod.default);
       status.set(cc, "ready");
