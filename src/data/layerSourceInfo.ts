@@ -10,11 +10,11 @@
 import type { MessageKey } from "../i18n/keys";
 import type { Locale } from "../i18n/locales";
 import { LAYER_MANIFEST } from "./layerManifest";
+import { onRecordExtended } from "../countries/slots";
 import { LAYER_NOTES_DATA, LAYER_SOURCE_INFO_DATA } from "./layerSourceInfo.data";
 import { PH_DATA_SPECS } from "./phDataLayers";
 import { CA_WAVE_SPECS } from "./caWavesLayers";
 import { VN_DATA_SPECS } from "./vnDataLayers";
-import { CN_DATA_SPECS } from "./cnDataLayers";
 import { KR_DATA_SPECS } from "./krDataLayers";
 import { IE_DATA_SPECS } from "./ieDataLayers";
 
@@ -79,15 +79,21 @@ const fromL3 = (text: L3): SourceText => ({ "zh-TW": text.zh, en: text.en, ja: t
  * 外國規格層（菲、加、越、中、韓、愛）的 `popupNotes`：每筆都一樣的備註搬到圖層側；
  * 有 `when` 條件（只對部分 feature 成立）的留在 popup。
  */
-const SPEC_NOTES: ReadonlyMap<string, SourceText[]> = (() => {
-  const map = new Map<string, SourceText[]>();
-  const add = (key: string, notes: SourceText[]) => { if (notes.length) map.set(key, notes); };
-  for (const spec of [...PH_DATA_SPECS, ...CA_WAVE_SPECS, ...VN_DATA_SPECS, ...CN_DATA_SPECS]) {
-    add(spec.key, spec.popupNotes.filter((note) => !note.when).map((note) => fromL3(note.text)));
-  }
+/** 規格層 popupNotes 裡「每筆都一樣」的備註（有 `when` 條件的留在 popup）。國家包用同一條規則產生自己的。 */
+export function specLayerNotes(spec: { popupNotes: ReadonlyArray<{ text: L3; when?: unknown }> }): SourceText[] {
+  return spec.popupNotes.filter((note) => !note.when).map((note) => fromL3(note.text));
+}
+
+const SPEC_NOTES = new Map<string, SourceText[]>();
+{
+  const add = (key: string, notes: SourceText[]) => { if (notes.length) SPEC_NOTES.set(key, notes); };
+  for (const spec of [...PH_DATA_SPECS, ...CA_WAVE_SPECS, ...VN_DATA_SPECS]) add(spec.key, specLayerNotes(spec));
   for (const spec of [...KR_DATA_SPECS, ...IE_DATA_SPECS]) add(spec.key, spec.popupNotes.map(fromL3));
-  return map;
-})();
+}
+// 國家包（B1 P5a）帶來的規格層備註：`layerSpecNotes` 登記簿（key → notes，空的不登記）
+onRecordExtended("layerSpecNotes", (added) => {
+  for (const [key, notes] of Object.entries(added)) SPEC_NOTES.set(key, notes as SourceText[]);
+});
 
 export function getLayerSourceInfo(layerKey: string): LayerSourceInfo | null {
   return LAYER_SOURCE_INFO[layerKey] ?? null;
@@ -140,7 +146,7 @@ export const POPUP_PER_FEATURE_SOURCE = new Set<string>([
   ...VN_SOURCE_SWITCH,
 ]);
 
-const POPUP_TO_LAYER_KEYS: ReadonlyMap<string, string[]> = (() => {
+function buildPopupToLayerKeys(): Map<string, string[]> {
   const map = new Map<string, string[]>();
   for (const [key, entry] of Object.entries(LAYER_MANIFEST as Record<string, { popup?: string | string[] | null }>)) {
     const popup = entry.popup;
@@ -151,7 +157,10 @@ const POPUP_TO_LAYER_KEYS: ReadonlyMap<string, string[]> = (() => {
     }
   }
   return map;
-})();
+}
+let POPUP_TO_LAYER_KEYS = buildPopupToLayerKeys();
+// 國家包載入（B1 P5a）後重建
+onRecordExtended("layerManifest", () => { POPUP_TO_LAYER_KEYS = buildPopupToLayerKeys(); });
 
 export function layerKeysForPopup(layerType: string): readonly string[] {
   return POPUP_TO_LAYER_KEYS.get(layerType) ?? [];

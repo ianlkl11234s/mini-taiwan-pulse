@@ -1,3 +1,5 @@
+import { extensibleRecord } from "../../countries/slots";
+import type { PackPopupType } from "../../countries/packKeys";
 import { JpDidPanel, JpNationalParksMoePanel, JpNaturalParkAreas2015Panel, JpWildlifeProtectionMoePanel } from "./jpNatureR2Panels";
 import { JmaAmedasPanel, JmaQuakesPanel, JmaVolcanoesPanel, JmaWarningsPanel } from "./jmaPanels";
 import { JmaAutumnLeavesPanel, JmaRainySeasonPanel, JmaSakuraPanel, JmaSnowcapPanel, JmaWbgtPanel } from "./jmaPointPanels";
@@ -238,7 +240,8 @@ export interface PanelProps {
  * ⚠️ `iotWraRiver` / `iotWraStructure` / `osmExpressway` 原本也在該 baseline，
  *    W2 popup 補強已接上 panel（見 docs/features/layer-manifest/no-popup-audit.md §5）。
  */
-export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelProps>>> = {
+/** popup 元件登記簿；國家包載入後原地併入（B1 P5a，`src/countries/<cc>/panels.tsx`）。 */
+export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelProps>>> = extensibleRecord("featurePanels", {
   submarineCable: SubmarineCablePanel,
   landingStation: LandingStationPanel,
   internetExchangePoint: InternetExchangePointPanel,
@@ -885,9 +888,10 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   tourCamping: CampingPanel,
   tourHotels: HotelsPanel,
   tourRestaurants: RestaurantsPanel,
-};
+});
 
-export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
+/** popup 標題登記簿；國家包的 popup 類型在包載入後併入（型別上先排除，見 `PackPopupType`）。 */
+export const HEADER_LABELS = extensibleRecord("featureHeaderLabels", {
   jpWaterLakes: "湖沼 湖沼（2005）",
   jpWaterDams: "水壩 ダム（2014）",
   jpWaterRivers: "河川流路 河川（2006–2009）",
@@ -1528,4 +1532,4 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   chatHighlight: "地圖標記",
   // 與 Agent 協作：暫時分析結果
   analysisResult: "分析結果",
-};
+} satisfies Record<Exclude<FeatureInfo["layerType"], PackPopupType>, string>) as Record<FeatureInfo["layerType"], string>;

@@ -1,3 +1,4 @@
+import { slottedList } from "../countries/slots";
 import { JpDidLegend, JpNationalParksMoeLegend, JpNaturalParkAreas2015Legend, JpWildlifeProtectionMoeLegend } from "./legend/jpNatureR2Legends";
 import { COMPARISON_ENABLED_RECIPES } from "../data/comparisonStatisticsRecipes";
 import { KR_DATA_KEYS } from "../data/krDataKeys";
@@ -170,7 +171,7 @@ export interface LegendEntry {
  * ⚠️ AR-22 Phase 4b 起 `keys` 不再手寫 —— 見 `data/legendGroups.ts` 檔頭
  * （含「派生的代價：填錯 id 會自我實現」那段）。
  */
-export const LEGEND_REGISTRY: LegendEntry[] = [
+export const LEGEND_REGISTRY: LegendEntry[] = slottedList<LegendEntry>("legends", [
   { id: "landslideDodAreas", render: () => <LandslideDodAreasLegend /> },
   { id: "landslideDodImpact", render: () => <LandslideDodImpactLegend /> },
   { id: "highwayDisasterHistory", render: () => <HighwayDisasterHistoryLegend /> },
@@ -801,7 +802,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
     id: "schools",
     render: ({ visibility, overlayParams, isDark }) => <EducationLegend schoolLevelColor={overlayParams.schoolLevelColor ?? 0} visibility={visibility}  isDark={isDark} />,
   },
-];
+]);
 
 export const LegendPanel = memo(function LegendPanel({
   visibility: visibilityProp, overlayParams: overlayParamsProp, isDarkTheme = true, railSystems, compact = false, embedded = false,

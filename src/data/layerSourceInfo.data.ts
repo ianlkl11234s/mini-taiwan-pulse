@@ -5,8 +5,9 @@
 // 型別與解析在 ./layerSourceInfo.ts。
 import type { LayerSourceInfo, SourceText } from "./layerSourceInfo";
 import { ID_SOURCE_INFO } from "./idDataLayers";
+import { extensibleRecord } from "../countries/slots";
 
-export const LAYER_SOURCE_INFO_DATA: Record<string, LayerSourceInfo> = {
+export const LAYER_SOURCE_INFO_DATA: Record<string, LayerSourceInfo> = extensibleRecord("layerSourceInfo", {
   ...ID_SOURCE_INFO,
   a1AccidentRealtime: { org: "內政部警政署（NPA）", license: "政府資料開放授權 OGDL-Taiwan-1.0", url: "https://data.gov.tw/dataset/12197", from: "catalog" },
   accessibleParkFacilities: { org: "OpenStreetMap contributors", license: "ODbL 1.0", url: "https://www.openstreetmap.org/copyright", attribution: ["© OpenStreetMap contributors"], from: "legend" },
@@ -1024,13 +1025,13 @@ export const LAYER_SOURCE_INFO_DATA: Record<string, LayerSourceInfo> = {
   wraEcologySurveySites: { org: { "zh-TW": "經濟部水利署", en: { key: "enum.atlasOrg.wra" }, ja: { key: "enum.atlasOrg.wra" } }, license: { key: "popup.environmentLayer.licenseGov" }, from: "legend" },
   wraFloodgatesCentral: { org: { "zh-TW": "經濟部水利署", en: { key: "enum.atlasOrg.wra" }, ja: { key: "enum.atlasOrg.wra" } }, license: { key: "popup.environmentLayer.licenseGov" }, url: "https://data.gov.tw/dataset/32722", from: "legend" },
   youbikeFullness: { org: { key: "popup.h3Metric.youbikeSourceOrg" }, from: "popup" },
-};
+});
 
 /**
  * 圖層說明（每筆都一樣的備註、方法說明、資料時點），2026-11-23 從 popup 的固定列搬來。
  * 顯示在圖層「說明・來源」；逐筆不同的值仍留在 popup。
  */
-export const LAYER_NOTES_DATA: Record<string, SourceText[]> = {
+export const LAYER_NOTES_DATA: Record<string, SourceText[]> = extensibleRecord("layerNotes", {
   airportHeightSurfaces: [{ key: "dataSources.noteWithLabel", vars: { label: { key: "popup.field.caution" }, text: { key: "popup.atlas.ahQuery" } } }],
   allenCoralAtlas: [{ key: "dataSources.noteWithLabel", vars: { label: { key: "popup.field.attribution" }, text: { key: "popup.allenCoral.attribution" } } }],
   antivenomHospitals: [{ key: "dataSources.noteWithLabel", vars: { label: { key: "popup.field.caution" }, text: { key: "popup.atlas.avCaution" } } }, { "zh-TW": "來源 428 列是院所依血清種類拆列，這裡依院所合併", en: "The source's 428 rows list each hospital once per antivenom type; they are merged by hospital here", ja: "出典の 428 行は医療機関を血清の種類ごとに分けたもので、ここでは医療機関ごとに統合" }],
@@ -1296,4 +1297,4 @@ export const LAYER_NOTES_DATA: Record<string, SourceText[]> = {
   wraDredgingPoints: [{ "zh-TW": "點位為某一時點的快照", en: "Points are a one-time snapshot", ja: "地点はある時点のスナップショット" }],
   wraEcologySurveySites: [{ key: "dataSources.noteWithLabel", vars: { label: { key: "popup.field.caution" }, text: { key: "popup.atlas.ecologyCaution" } } }, { "zh-TW": "2019 年後停止更新", en: "Not updated after 2019", ja: "2019年以降は更新停止" }],
   wraFloodgatesCentral: [{ key: "dataSources.noteWithLabel", vars: { label: { key: "popup.field.caution" }, text: { key: "popup.atlas.floodgateCaution" } } }],
-};
+});

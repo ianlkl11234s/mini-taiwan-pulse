@@ -1,3 +1,4 @@
+import { slottedList } from "../countries/slots";
 import { STATISTICS_RENDER_KEYS } from '../data/regionalStatisticsRecipes';
 import { PRESENTATION_KEYS } from '../state/statisticsPresentationStore';
 import { repPointClickLayerIds } from './repPointOverlays';
@@ -46,7 +47,7 @@ import { GFW_V4_TRACK_CLICK_LAYERS } from "../hooks/useGfwV4TracksLayer";
 import { GFW_FISHING_EFFORT_CLICK_LAYERS } from "../hooks/useGfwFishingEffortLayer";
 import { MARINE_OBSERVATION_CLICK_LAYERS } from "../hooks/useMarineObservationLayer";
 
-type GisLayerEntry = { layers: string[]; type: FeatureInfo["layerType"] };
+export type GisLayerEntry = { layers: string[]; type: FeatureInfo["layerType"] };
 /**
  * GIS_LAYERS 的陣列字面已約 1,000 筆，再多一筆物件字面 tsc 會報 TS2590（union type too complex，2026-11-21 Day 21 實測）。
  * 新增的條目先宣告成具名常數（型別已定，不再增加字面 union），再在 GIS_LAYERS 對應位置展開。
@@ -68,7 +69,7 @@ const MAPCHALLENGE_DAY21_CLICK_LAYERS: GisLayerEntry[] = [
 ];
 
 /** 查詢 Mapbox GIS 層（順序 load-bearing，見檔頭 first-hit-wins 段） */
-export const GIS_LAYERS: GisLayerEntry[] = [
+export const GIS_LAYERS: GisLayerEntry[] = slottedList<GisLayerEntry>("gisClickLayers", [
   // 🏯 30 天地圖挑戰 Day 6 復古點與線（燈塔歷史／今日點、祠廟、今日地名、海岸線）：小目標，
   //    放在所有大面積面層（溫度網格、校地等）之前，兩層同開時才點得到（review F007）
   { layers: ["mapchallenge-day06-lighthouses-circle", "mapchallenge-day06-lighthouses-today-circle"], type: "mapchallengeDay06Lighthouses" },
@@ -1476,7 +1477,7 @@ export const GIS_LAYERS: GisLayerEntry[] = [
   // Transparent supply areas are intentionally the final click candidate across the map,
   // so a coverage polygon never intercepts any detailed point, line, or other fill.
   { layers: ["jp-water-jpWaterSupplyAreas"], type: "jpWaterSupplyAreas" },
-];
+], applyRepPointClickAliases);
 
 /**
  * 國土利用監測六角格篩選時以 fill-opacity 0 隱藏零權重格（不走 filter），queryRenderedFeatures 仍會命中。
@@ -1491,6 +1492,9 @@ export function dropHiddenLandUseHex<F extends { layer?: { id?: string; paint?: 
 }
 
 // V-5：面層的代表點 circle 沿用同一個 FeatureInfo 類型（點樣式下面層隱藏，點擊落在代表點上）
-for (const { polygonLayerId, circleIds } of repPointClickLayerIds()) {
-  for (const entry of GIS_LAYERS) if (entry.layers.includes(polygonLayerId)) entry.layers.push(...circleIds);
+function applyRepPointClickAliases(entries: readonly GisLayerEntry[]): void {
+  for (const { polygonLayerId, circleIds } of repPointClickLayerIds()) {
+    for (const entry of entries) if (entry.layers.includes(polygonLayerId)) entry.layers.push(...circleIds);
+  }
 }
+applyRepPointClickAliases(GIS_LAYERS);

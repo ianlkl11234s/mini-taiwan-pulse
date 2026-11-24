@@ -1,3 +1,5 @@
+import { extensibleRecord, onRecordExtended } from "../countries/slots";
+import type { PackLayerKey } from "../countries/packKeys";
 import type { CountryCode } from "../constants/countries";
 import type { LongTermSpec } from "./layerLongTerm";
 import { FOREST_RESERVE_PMTILES_URL } from "./forestReserveTypes";
@@ -1637,7 +1639,7 @@ const CN_RASTER_MANIFEST_ENTRIES = Object.fromEntries(CN_RASTER_SPECS.map((spec)
   }];
 })) as Record<CnRasterKey, LayerManifestEntry>;
 
-export const LAYER_MANIFEST = {
+const STATIC_LAYER_MANIFEST = {
   ...KR_DATA_MANIFEST_ENTRIES,
   ...IE_DATA_MANIFEST_ENTRIES,
   ...PH_DATA_MANIFEST_ENTRIES,
@@ -20305,18 +20307,34 @@ export const LAYER_MANIFEST = {
   },
 } satisfies Partial<Record<keyof LayerVisibility, LayerManifestEntry>>;
 
+/**
+ * 圖層登記簿。外國國家包（`src/countries/<cc>/manifest.ts`）載入後原地併入（B1 P5a）。
+ * 型別含國家包的 key（`PackLayerKey`），但**執行期沒載入就沒有**：單一 key 一律用 `layerLookup.getLayerEntry`；
+ * 需要全部國家的讀者用索引（`layerLookup`），或先 `loadAllPacks()`。
+ */
+export const LAYER_MANIFEST = extensibleRecord("layerManifest", STATIC_LAYER_MANIFEST) as typeof STATIC_LAYER_MANIFEST & Record<PackLayerKey, LayerManifestEntry>;
+
 /** Statistics presentation policy: normalize the manifest itself so every derived consumer agrees. */
-for (const [key, entry] of Object.entries(LAYER_MANIFEST)) {
-  if (!key.startsWith('stats')) continue;
+export function normalizeStatisticsEntry(key: string, entry: LayerManifestEntry): void {
+  if (!key.startsWith('stats')) return;
   const visual = getStatisticsVisual(key, 'label' in entry ? entry.label : undefined, entry.section?.group);
   Object.assign(entry, { icon: visual.icon, color: visual.accent });
 }
+for (const [key, entry] of Object.entries(STATIC_LAYER_MANIFEST)) normalizeStatisticsEntry(key, entry as LayerManifestEntry);
 
 /** 已收進 manifest 的 key（literal union）—— 下游手寫表用它 Omit 出「還沒搬的」 */
 export type ManifestKey = keyof typeof LAYER_MANIFEST;
 
 /** runtime 用的 key 清單（測試與派生 helper 共用） */
-export const MANIFEST_KEYS = Object.keys(LAYER_MANIFEST) as ManifestKey[];
+export const MANIFEST_KEYS: ManifestKey[] = Object.keys(LAYER_MANIFEST) as ManifestKey[];
+
+// 國家包載入（B1 P5a）：統計圖層照同一套規則改寫 icon／color，key 清單原地累加（宣告順序＝包內順序，接在最後）
+onRecordExtended("layerManifest", (added) => {
+  for (const [key, entry] of Object.entries(added)) {
+    normalizeStatisticsEntry(key, entry as LayerManifestEntry);
+    MANIFEST_KEYS.push(key as ManifestKey);
+  }
+});
 
 // ── 派生 helper：下游表用這些函式取值，不要各自 reach into LAYER_MANIFEST ──
 

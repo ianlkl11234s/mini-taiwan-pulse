@@ -1,3 +1,4 @@
+import { slottedList } from "../countries/slots";
 import { CoralReefDistributionHost } from "./hosts/coralReefHost";
 import { HistoricalFlightTrailsHost } from "./hosts/historicalFlightHosts";
 import { AllenCoralAtlasHost } from "./hosts/allenCoralHost";
@@ -133,7 +134,7 @@ export interface LayerHookEntry {
 }
 
 /** ⚠️ 有序陣列。順序 = 凍結的 App.tsx 呼叫順序（見檔頭），嚴禁重排。 */
-export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
+export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = slottedList<LayerHookEntry>("layerHosts", [
   { id: "useHistoricalFlightTrailsLayer", keys: ["historicalFlightTrails", "jpHistoricalFlightTrails"], Host: HistoricalFlightTrailsHost },
   { id: "useJpWaterLayers", keys: ["jpWaterDams", "jpWaterLakes", "jpWaterRivers", "jpWaterSupplyFacilities", "jpWaterSupplyAreas", "jpWaterSewerFacilities", "jpWaterGroundwaterSites", "jpWaterNilimDams", "jpWaterAgriculturalPonds", "jpWaterFloodHazard", "jpWaterLocalFacilities", "jpWaterQualityStations", "jpWaterLevelStations"], Host: JpWaterHost },
   { id: "useJpMedicalLayers", keys: [
@@ -1006,4 +1007,4 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
   { id: "useMapchallengeDay19PotentialLayer", keys: ["mapchallengeDay19Potential"], Host: MapchallengeDay19PotentialHost },
   // 台灣圖層延伸 B5：縣市間遷徙流向（geojson 弧線＋端點，年份與統計底色連動）
   { id: "useCountyMigrationFlowsLayer", keys: ["twCountyMigrationFlows"], Host: CountyMigrationFlowsHost },
-];
+]);

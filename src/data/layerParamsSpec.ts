@@ -1,3 +1,5 @@
+import { extensibleRecord, onRecordExtended } from "../countries/slots";
+import type { PackLayerKey } from "../countries/packKeys";
 import { HISTORICAL_MAP_GROUPS, historicalMapEraOptionZh } from './historicalMapSinica';
 import { NAV_KINDS, NAV_KIND_IDS, NAV_LIFETIME_DEFAULT_IDS, NAV_LIFETIME_IDS, NAV_LIFETIME_OPTION_LABEL, TIDE_KINDS, TIDE_KIND_LABEL } from "./twLiveTypes";
 import { COMPARISON_STATISTICS_KEYS, type ComparisonStatisticsLayerKey } from './comparisonStatisticsKeys';
@@ -1321,7 +1323,7 @@ const WELFARE_PRECISION_ENCODE = WELFARE_PRECISION_MODES.map((m) => m.value);
  *
  * ⚠️ 陣列順序 = 控件在面板上的顯示順序，也是黃金快照比對的順序。
  */
-export const LAYER_PARAMS_SPEC = {
+const STATIC_LAYER_PARAMS_SPEC = {
   ...Object.fromEntries(COMPARISON_STATISTICS_KEYS.map(key => [key, [opacitySlider(`${key}Opacity`, 0.55)]])) as Record<ComparisonStatisticsLayerKey, ReturnType<typeof opacitySlider>[]>,
   // 環境統計 37 層同 comparison：dynamic renderer 只吃共通透明度；期別／細項由 recipe exact whitelist 提供。
   ...Object.fromEntries(ENVIRONMENT_ENABLED_STATISTICS_KEYS.map(key => [key, [opacitySlider(`${key}Opacity`, 0.55)]])) as Record<EnvironmentStatisticsLayerKey, ReturnType<typeof opacitySlider>[]>,
@@ -5920,6 +5922,12 @@ export const LAYER_PARAMS_SPEC = {
 } satisfies Partial<Record<keyof LayerVisibility, LayerParamSpec[]>>;
 
 /**
+ * 參數規格登記簿。國家包（`src/countries/<cc>/params.ts`）載入後原地併入（B1 P5a）：型別含國家包的 key，
+ * 執行期沒載入就沒有該 key —— 讀單一 key 一律用 `getParamsSpec`（回 null 時呼叫端要先 `ensureCountryPack`）。
+ */
+export const LAYER_PARAMS_SPEC = extensibleRecord("layerParamsSpec", STATIC_LAYER_PARAMS_SPEC) as typeof STATIC_LAYER_PARAMS_SPEC & Record<PackLayerKey, LayerParamSpec[]>;
+
+/**
  * 已遷移的 key 集合。
  * 用 `satisfies` 而非型別標註 —— 標註會把 key 的 literal 型別打平成
  * `keyof LayerVisibility` 全集，`MigratedParamsKey` 就退化成 348 key，
@@ -5961,7 +5969,8 @@ for (const l of REP_POINT_LAYERS) {
 
 export type MigratedParamsKey = keyof typeof LAYER_PARAMS_SPEC;
 
-export const MIGRATED_PARAMS_KEYS = Object.keys(LAYER_PARAMS_SPEC) as MigratedParamsKey[];
+/** 已登記規格的 key；國家包載入時原地累加（同一個陣列物件）。 */
+export const MIGRATED_PARAMS_KEYS: MigratedParamsKey[] = Object.keys(LAYER_PARAMS_SPEC) as MigratedParamsKey[];
 
 const SPEC_BY_KEY: Record<string, LayerParamSpec[]> = LAYER_PARAMS_SPEC;
 
@@ -6106,6 +6115,14 @@ export function registerSharedParamGroups(key: MigratedParamsKey, specs: readonl
 for (const key of Object.keys(LAYER_PARAMS_SPEC) as MigratedParamsKey[]) {
   registerSharedParamGroups(key, LAYER_PARAMS_SPEC[key] as LayerParamSpec[]);
 }
+
+// 國家包載入：key 清單與共用參數群組一起累加
+onRecordExtended("layerParamsSpec", (added) => {
+  for (const [key, specs] of Object.entries(added)) {
+    if (!(MIGRATED_PARAMS_KEYS as string[]).includes(key)) MIGRATED_PARAMS_KEYS.push(key as MigratedParamsKey);
+    registerSharedParamGroups(key as MigratedParamsKey, specs as LayerParamSpec[]);
+  }
+});
 
 /**
  * 與 (key, name) 共用同一份值的全部成員（含自己）。獨佔參數回 null，
