@@ -83,6 +83,12 @@ changes ──┬─ quick（lint → 樣式盤點 → coral → worker → 監�
   - S3 也沒有、S3 內容與 lock 不符、讀不到基準 lock → 紅。只有 R2 的 404 會改走 S3；403、5xx、R2 內容不符照舊紅。
   - 金鑰是既有的唯讀 `PULSE_SYNC_S3_*`（IAM `pulse-r2-sync`），只給 assets 那一步。fork PR 拿不到 secret，新檔會紅並印出「沒有 S3 唯讀金鑰」。log 第一行會印金鑰有沒有、基準是哪個 ref。
   - 所以新增資產的流程是：`build-public-assets-lock.py add` → `upload-deploy-assets.sh` 上傳 S3 → 開 PR；**不必再為了 CI 先同步 R2**。決策邏輯在 `scripts/deploy/asset-source.mjs`（測試 `src/test/checkAssetsSource.test.ts`）。
+- **lock 新增的檔都要真的上傳了（CI-11，2026-11-24）**：上面只管 `asset-test-files.txt` 列的測試用檔；`check:assets` 另外在準備檔案前，把 lock 相對基準 lock（同上：PR 與 develop push 用 `origin/master`，master push 用推送前的 master）**新增或改了內容**的每一筆 r2 條目做 HEAD 核對，不下載：
+  - 公開空間（`r2_base`）HEAD 200 且 `Content-Length` 等於 lock 的 bytes → 綠。
+  - 否則查 S3 `deploy-assets/<s3_key>`（HeadObject，同一組唯讀金鑰）：大小相符、有 `sha256` metadata 時也相符 → 綠（還沒發版、發版時 sync-assets 才同步到公開空間，CI-10 的流程照舊可行）。
+  - 兩邊都沒有、大小不符、沒有 S3 金鑰（fork PR）、讀不到基準 lock → 紅，log 逐檔寫原因與補法。逾時與 5xx 重試 3 次，6 路並行。
+  - 本機只跑這段：`node scripts/deploy/check-assets.mjs --presence-only [--base <ref>]`（本機沒有 S3 金鑰，只在 S3 的檔會顯示紅）；`--lock <檔>` 可拿一份改過的 lock 演練紅燈。
+  - 和排程 `asset-lock-audit`（`scripts/monitor/audit_asset_lock.py`）的分工：排程每天核對 master 的**整份** lock 與公開空間是否一致（發版後的狀態）；CI-11 在合併**前**只看這次新增的條目。
 
 ## 7. 實測耗時
 
