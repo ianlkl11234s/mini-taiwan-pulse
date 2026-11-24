@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { LIGHT, RADIUS } from "../styles/designTokens";
+import { useLocale } from "../state/localeStore";
 
 type SheetLevel = "collapsed" | "half" | "full";
 
@@ -31,6 +32,7 @@ function getHeight(level: SheetLevel, isLandscape: boolean): number {
 }
 
 export function MobileBottomSheet({ isLandscape, isDarkTheme = true, forceCollapsed = false, onExpandedChange, children }: Props) {
+  const { t } = useLocale();
   const [level, setLevel] = useState<SheetLevel>("collapsed");
   // 最新的 callback（App 每次重繪傳新函式）；只在 forceCollapsed 變化時呼叫
   const onExpandedChangeRef = useRef(onExpandedChange);
@@ -90,7 +92,7 @@ export function MobileBottomSheet({ isLandscape, isDarkTheme = true, forceCollap
       {/* Drag handle */}
       <button
         type="button"
-        aria-label={level === "full" ? "收起圖層與搜尋" : "展開圖層與搜尋"}
+        aria-label={level === "full" ? t("mobileSheet.collapse") : t("mobileSheet.expand")}
         aria-expanded={level !== "collapsed"}
         onClick={cycleLevel}
         style={{
@@ -107,7 +109,7 @@ export function MobileBottomSheet({ isLandscape, isDarkTheme = true, forceCollap
           flexShrink: 0,
         }}
       >
-        <span>圖層與搜尋</span>
+        <span>{t("mobileSheet.label")}</span>
         <div
           style={{
             width: 36,
