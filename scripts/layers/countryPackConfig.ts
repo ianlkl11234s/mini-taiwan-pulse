@@ -52,6 +52,18 @@ export const COUNTRY_PACK_CONFIG: Record<string, CountryPackConfig> = {
       /^src\/components\/featureInfo\/(ukPanels|gbRailReplayPanel)\.tsx$/,
       /^src\/layers\/hosts\/ukHosts\.tsx$/,
     ],
+    moveNamed: [
+      {
+        file: "src/components/legend/waterLegends.tsx",
+        names: ["GbRiversLegend", "GbHydroStationsLegend", "GbFloodDefenceAssetsLegend", "GbCoastalErosionRiskLegend", "GbBathingWatersLegend"],
+        to: "gbWaterSharedLegends.tsx",
+      },
+      {
+        file: "src/components/legend/urbanFormLegends.tsx",
+        names: ["GbAdminBoundariesLegend", "GbSmallAreaBoundariesLegend", "GbMaritimeLimitsLegend", "GbBuiltUpAreasLegend", "GbGreenspaceLegend"],
+        to: "gbUrbanFormLegends.tsx",
+      },
+    ],
     excludeKeys: /^statsGb/,
     keyType: "GbLayerKey",
   },

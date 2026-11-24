@@ -431,9 +431,12 @@ function objField(el: ts.Expression, field: string): ts.Expression | undefined {
 const strOf = (e: ts.Expression | undefined) => (e && (ts.isStringLiteral(e) || ts.isNoSubstitutionTemplateLiteral(e)) ? e.text : null);
 
 // ── 2. moveNamed ───────────────────────────────────────────────────
+/** moveNamed 搬走的名稱：`<原檔絕對路徑>#<名稱>` → 新檔絕對路徑（各段落的 import 由原檔改指向新檔） */
+const NAMED_MOVES = new Map<string, string>();
 function moveNamed(): void {
   for (const mv of cfg!.moveNamed ?? []) {
     const abs = join(ROOT, mv.file);
+    for (const n of mv.names) NAMED_MOVES.set(`${abs}#${n}`, join(PACK_ABS, mv.to));
     const sf = parse(abs);
     const decls = topDecls(sf);
     const nodes = mv.names.map((n) => { const d = decls.get(n); if (!d) throw new Error(`${mv.file} 沒有 ${n}`); return d; });
@@ -470,8 +473,10 @@ function moveNamed(): void {
 function renderImports(targetAbs: string, imps: Iterable<ImportBinding & { fromAbs: string }>, extra: string[] = []): string {
   const extraNames = new Set(extra.flatMap((l) => (l.match(/\{([^}]*)\}/)?.[1] ?? "").split(",").map((x) => x.replace(/^\s*type\s+/, "").trim()).filter(Boolean)));
   const byTarget = new Map<string, { named: Map<string, string>; def?: string; ns?: string }>();
-  for (const i of imps) {
+  for (let i of imps) {
     if (extraNames.has(i.local)) continue;
+    const movedTo = i.target && i.kind === "named" ? NAMED_MOVES.get(`${i.target}#${i.imported}`) : undefined;
+    if (movedTo) i = { ...i, target: movedTo };
     const key = i.target ? specFrom(targetAbs, i.target) : i.spec;
     if (i.target && i.target === targetAbs) continue;
     const g = byTarget.get(key) ?? { named: new Map() };
