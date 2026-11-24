@@ -3,9 +3,9 @@ import { useLocale } from "../../state/localeStore";
 import { placeName, placeTown } from "../../i18n/placeText";
 import { enumLabel } from "../../i18n/dataText";
 import {
-  maritimeBoundaryType, MARITIME_BOUNDARY_SOURCE_NOTE,
+  maritimeBoundaryType,
 } from "../../data/maritimeBoundaryTypes";
-import { formatIsobathRange, ISOBATH_ATTRIBUTION } from "../../data/isobathTypes";
+import { formatIsobathRange } from "../../data/isobathTypes";
 
 // Base map popup panels — 行政邊界 + 海域界線 + 等高線 + OSM 路網
 // PMTiles 來源 taipei-gis-analytics，欄位由 _manifest.json / catalog 各檔定義
@@ -30,14 +30,11 @@ export function CountyBoundaryPanel({ props }: { props: Record<string, unknown> 
   const i18n = useLocale();
   const { t: tr } = i18n;
   const name = String(props["名稱"] ?? "");
-  const code = String(props["行政區域代碼"] ?? "");
   const scale = String(props["比例尺分母"] ?? "");
   return (
     <div>
       <Row field="county" value={placeName(name, i18n)} />
-      <Row label={tr("popup.baseMap.adminCode")} value={code} />
       <Row label={tr("popup.baseMap.sourceScale")} value={scale ? `1:${scale}` : ""} />
-      <Row field="source" value={tr("popup.baseMap.nlsc")} />
     </div>
   );
 }
@@ -54,8 +51,6 @@ export function TownshipBoundaryPanel({ props }: { props: Record<string, unknown
       <Row label={tr("popup.baseMap.township")} value={placeTown(county, town, i18n, id)} />
       <Row field="county" value={placeName(county, i18n)} />
       <Row field="englishShort" value={eng} />
-      <Row label="TOWNID" value={id} />
-      <Row field="source" value={tr("popup.baseMap.nlsc")} />
     </div>
   );
 }
@@ -67,7 +62,6 @@ export function VillageBoundaryPanel({ props }: { props: Record<string, unknown>
   const town = String(props.TOWNNAME ?? "");
   const vill = String(props.VILLNAME ?? "");
   const eng = String(props.VILLENG ?? "");
-  const code = String(props.VILLCODE ?? "");
   const note = String(props.NOTE ?? "");
   return (
     <div>
@@ -75,9 +69,7 @@ export function VillageBoundaryPanel({ props }: { props: Record<string, unknown>
       <Row label={tr("popup.baseMap.township")} value={placeTown(county, town, i18n)} />
       <Row field="county" value={placeName(county, i18n)} />
       <Row field="englishShort" value={eng} />
-      <Row label="VILLCODE" value={code} />
       <Row field="remarks" value={note} />
-      <Row field="source" value={tr("popup.baseMap.nlscShort")} />
     </div>
   );
 }
@@ -99,10 +91,8 @@ export function MaritimeBoundaryPanel({ props }: { props: Record<string, unknown
       <Row field="type" value={kind} color={meta?.color} />
       <Row field="region" value={region} />
       {isPoint && <Row label={tr("popup.baseMap.basepointName")} value={String(props.name ?? "")} />}
-      {isPoint && <Row label={tr("popup.baseMap.basepointId")} value={String(props.base_point_id ?? "")} />}
       {isPoint && <Row label={tr("popup.baseMap.basepointType")} value={String(props.type ?? "")} />}
       <Row label={tr("popup.baseMap.legalMeaning")} value={meta?.meaning ?? ""} />
-      <Row field="source" value={MARITIME_BOUNDARY_SOURCE_NOTE} />
     </div>
   );
 }
@@ -117,18 +107,15 @@ export function Contour25kPanel({ props }: { props: Record<string, unknown> }) {
       <Row field="elevation" value={typeof elev === "number" ? `${elev} m` : String(elev ?? "")} />
       <Row label={tr("popup.baseMap.sheet")} value={sheet} />
       <Row label={tr("popup.baseMap.releasePeriod")} value={period} />
-      <Row field="source" value={tr("popup.baseMap.contour25kSource")} />
     </div>
   );
 }
 
 export function ContourDtm20Panel({ props }: { props: Record<string, unknown> }) {
-  const { t: tr } = useLocale();
   const elev = props.elev_m;
   return (
     <div>
       <Row field="elevation" value={typeof elev === "number" ? `${elev} m` : String(elev ?? "")} />
-      <Row field="source" value={tr("popup.baseMap.contourDtmSource")} />
     </div>
   );
 }
@@ -145,7 +132,6 @@ export function SlopeVectorPanel({ props }: { props: Record<string, unknown> }) 
   return (
     <div>
       <Row label={tr("popup.baseMap.slopeClass")} value={cls ? tr("popup.baseMap.slopeValue", { cls, range }) : tr("popup.common.noData")} />
-      <Row field="source" value={tr("popup.baseMap.slopeSource")} />
     </div>
   );
 }
@@ -164,7 +150,6 @@ export function AspectVectorPanel({ props }: { props: Record<string, unknown> })
   return (
     <div>
       <Row label={tr("popup.baseMap.aspect")} value={cls ? enumLabel("baseMapAspect", cls, name, i18n) : tr("popup.common.noData")} />
-      <Row field="source" value={tr("popup.baseMap.aspectSource")} />
     </div>
   );
 }
@@ -176,7 +161,6 @@ export function IsobathLinePanel({ props }: { props: Record<string, unknown> }) 
   return (
     <div>
       <Row label={tr("popup.baseMap.waterDepth")} value={depth ? `${formatNumber(Math.abs(depth))} m` : ""} />
-      <Row field="source" value={ISOBATH_ATTRIBUTION} />
     </div>
   );
 }
@@ -189,7 +173,6 @@ export function IsobathBandPanel({ props }: { props: Record<string, unknown> }) 
   return (
     <div>
       <Row label={tr("popup.baseMap.depthRange")} value={formatIsobathRange(dmin, dmax)} />
-      <Row field="source" value={ISOBATH_ATTRIBUTION} />
     </div>
   );
 }
@@ -198,7 +181,6 @@ export function OsmRoadDrivePanel({ props }: { props: Record<string, unknown> })
   const i18n = useLocale();
   const { t: tr } = i18n;
   const name = String(props.name ?? "");
-  const ref = String(props.ref ?? "");
   const highway = String(props.highway ?? "");
   const oneway = props.oneway;
   const maxspeed = String(props.maxspeed ?? "");
@@ -209,7 +191,6 @@ export function OsmRoadDrivePanel({ props }: { props: Record<string, unknown> })
   return (
     <div>
       <Row field="name" value={name} />
-      <Row field="number" value={ref} />
       <Row field="level" value={highway ? enumLabel("baseMapHighway", highway, HIGHWAY_LABEL[highway] ?? highway, i18n) : ""} />
       <Row label={tr("popup.baseMap.oneway")} value={oneway ? tr("popup.common.yes") : ""} />
       <Row field="speedLimit" value={maxspeed} />

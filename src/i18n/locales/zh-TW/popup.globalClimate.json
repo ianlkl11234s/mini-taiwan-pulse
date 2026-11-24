@@ -24,6 +24,8 @@
   "popup.globalClimate.categorySeverity": "分類／嚴重度",
   "popup.globalClimate.taiwanImpact": "臺灣影響",
   "popup.globalClimate.reason": "判斷理由",
+  "popup.globalClimate.storyLinks": "可能相關報導",
+  "popup.globalClimate.storyLinksValue": "{n} 則可能是同一件事的不同報導（地圖上加亮；不同地點以虛線連起，不代表因果）",
   "popup.globalClimate.locationSemantics": "落點語意",
   "popup.globalClimate.collectedAt": "來源收集時間",
   "popup.globalClimate.locationSource": "位置來源",
@@ -93,9 +95,6 @@
   "popup.globalClimate.selectedUtcDay": "選定 UTC 日",
   "popup.globalClimate.fishingActivity": "捕撈活動",
   "popup.globalClimate.components": "彙整 components",
-  "popup.globalClimate.facetsValue_one": "{count} 組",
-  "popup.globalClimate.facetsValue_other": "{count} 組",
-  "popup.globalClimate.viewFacets": "查看完整 aggregation facets",
   "popup.globalClimate.metric": "指標",
   "popup.globalClimate.latestDate": "最新可用日期",
   "popup.globalClimate.obsTimeUtc": "觀測時間（UTC）",
@@ -130,5 +129,8 @@
   "popup.globalClimate.typLeadValue": "+{h} 小時",
   "popup.globalClimate.typValidAt": "預報時刻",
   "popup.globalClimate.typUnmatched": "未對上颱風（不標名稱）",
-  "popup.globalClimate.typAgencyNote": "國家災害防救科技中心彙整，每家每 24 小時一點，比各家原始預報粗，只適合比較路線。"
+  "popup.globalClimate.typAgencyNote": "國家災害防救科技中心彙整，每家每 24 小時一點，比各家原始預報粗，只適合比較路線。",
+  "popup.globalClimate.storyLinksMore": "還有 {n} 則（地圖上已加亮）",
+  "popup.globalClimate.entityLinks": "共同人物／組織",
+  "popup.globalClimate.entityLinksValue": "{n} 則報導提到相同的人物或組織：{names}"
 }

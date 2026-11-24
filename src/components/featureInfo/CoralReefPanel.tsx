@@ -1,4 +1,4 @@
-import { CORAL_REEF_ATTRIBUTION, CORAL_REEF_COLOR } from "../../data/coralReefTypes";
+import { CORAL_REEF_COLOR } from "../../data/coralReefTypes";
 import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
 import { useFeatureTheme } from "./featureTheme";
 import { Row } from "./shared";
@@ -31,7 +31,6 @@ export function CoralReefPanel({ props }: { props: Record<string, unknown> }) {
       <span style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong }}>{tr("popup.coralReef.title")}</span>
     </div>
     <Row label={tr("popup.coralReef.reefName")} value={text_(props.reef_name)} />
-    <Row label={tr("popup.coralReef.featureId")} value={text_(props.feature_id)} />
     <Row field="dataset" value={text_(props.source_dataset)} />
     <Row field="version" value={text_(props.source_version)} />
     <Row label={tr("popup.coralReef.observedYear")} value={text_(props.source_year)} />
@@ -47,7 +46,6 @@ export function CoralReefPanel({ props }: { props: Record<string, unknown> }) {
       <Row label={tr("popup.coralReef.originalCompiler")} value={text_(props.origin_org)} />
       <Row label={tr("popup.coralReef.distributor")} value={text_(props.distribution_org)} />
       <Row field="license" value={text_(props.license)} />
-      <Row label={tr("popup.coralReef.metadataId")} value={text_(props.source_metadata_id)} />
       <Row label={tr("popup.coralReef.startDate")} value={text_(props.source_start_date)} />
       <Row label={tr("popup.coralReef.endDate")} value={text_(props.source_end_date)} />
       <Row label={tr("popup.coralReef.dateType")} value={text_(props.source_date_type)} />
@@ -55,6 +53,5 @@ export function CoralReefPanel({ props }: { props: Record<string, unknown> }) {
       <Row label={tr("popup.coralReef.sourceVerification")} value={text_(props.source_verification)} />
       <Row label={tr("popup.coralReef.sourceLayer")} value={text_(props.source_layer_name)} />
     </details>
-    <Row field="attribution" value={CORAL_REEF_ATTRIBUTION} />
   </>;
 }

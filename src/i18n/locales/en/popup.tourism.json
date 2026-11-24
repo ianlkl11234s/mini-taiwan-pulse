@@ -22,7 +22,6 @@
   "popup.tourism.totalRooms": "Total rooms",
   "popup.tourism.roomPrice": "Room rate",
   "popup.tourism.restaurant": "Tourist restaurant",
-  "popup.tourism.cuisineCode": "Category code",
   "popup.tourism.yoy": " ({value}% year over year)",
   "popup.tourism.visitorCount": "{count} visits",
   "popup.tourism.visitors2024": "2024 visitors",

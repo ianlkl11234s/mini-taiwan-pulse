@@ -1,7 +1,7 @@
 {
   "name": "mini-taiwan-pulse",
   "private": true,
-  "version": "2.43.0",
+  "version": "2.44.0",
   "type": "module",
   "packageManager": "npm@11.4.2",
   "scripts": {
@@ -19,9 +19,12 @@
     "lint": "eslint src --no-inline-config",
     "lint:prune": "eslint src --no-inline-config --prune-suppressions",
     "contrast:baseline": "vite-node scripts/design/gen-contrast-baseline.ts",
-    "verify": "tsc -b && npm run lint && node scripts/design/check-layer-inventory.mjs && vitest run --changed origin/develop --passWithNoTests",
-    "check": "npm run check:entry-docs && npm run check:lint && npm run check:inventory && npm run check:coral && npm run check:worker && npm run check:monitor && npm run check:warehouse-gate && npm run check:asset-refs && npm run check:build && npm run check:test && npm run check:assets",
+    "size:entry": "node scripts/perf/measure-first-load.mjs --baseline scripts/perf/first-load-baseline.json --summary",
+    "verify": "tsc -b && npm run lint && node scripts/design/check-layer-inventory.mjs && node scripts/dev/check-changelog-frozen.mjs && vitest run --changed origin/develop --passWithNoTests",
+    "check": "npm run check:entry-docs && npm run check:changelog && npm run check:lint && npm run check:inventory && npm run check:coral && npm run check:worker && npm run check:monitor && npm run check:warehouse-gate && npm run check:asset-refs && npm run check:build && npm run check:test && npm run check:assets",
+    "merge:develop": "node scripts/dev/merge-develop.mjs",
     "check:entry-docs": "node scripts/dev/check-entry-docs.mjs",
+    "check:changelog": "node scripts/dev/check-changelog-frozen.mjs",
     "check:lint": "npm run lint",
     "check:build": "npm run build",
     "check:test": "vitest run",

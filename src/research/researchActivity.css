@@ -1,7 +1,8 @@
 /* 右上活動卡（Agent 執行步驟）：工具列列底實測 58px（top 16 + 高 42）＋ 42px 間距。
+ * 桌機品牌列換行時加上 --top-bar-shift（App 量測，單行為 0）跟著往下讓。
  * 不隨左側 Agent 面板開關（見 MainMapConnection activityCardVisible）。
  * 底部預留 112px：右下停靠區底邊 64（LAYOUT.mapBottomInset）＋圖例收合列＋間距。 */
-.research-activity-position { --research-activity-top: 100px; position: absolute; top: var(--research-activity-top); right: 18px; z-index: var(--z-floating-panel); max-height: calc(100% - var(--research-activity-top) - 112px); overflow: auto; pointer-events: none; }
+.research-activity-position { --research-activity-top: calc(100px + var(--top-bar-shift, 0px)); position: absolute; top: var(--research-activity-top); right: 18px; z-index: var(--z-floating-panel); max-height: calc(100% - var(--research-activity-top) - 112px); overflow: auto; pointer-events: none; }
 /* Agent 處理中光暈（design-system §5.31）：強調色內光暈，常駐節點以 class 淡入 0.6s／淡出 0.9s；不再用白色、不再無限閃動。
  * 淡色底圖時 --accent 由 .research-activity-position--light 換成 --light-accent。 */
 .research-activity__viewport-glow { position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: 0; box-shadow: inset 0 0 40px color-mix(in srgb, var(--accent) 22%, transparent), inset 0 0 110px color-mix(in srgb, var(--accent) 10%, transparent); transition: opacity .9s ease; }

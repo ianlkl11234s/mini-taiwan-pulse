@@ -51,15 +51,6 @@ const FACILITY_CLASS_LABELS: Record<string, string> = {
   foot_or_rail_register_only: "人行／鐵道（不列入汽車分析）",
 };
 
-function candidateWayIds(value: unknown, { t }: L): string {
-  try {
-    const ids: unknown = JSON.parse(String(value));
-    return Array.isArray(ids) && ids.every((id) => typeof id === "string") ? ids.join(t("popup.common.listSeparator")) : t("popup.common.notProvided");
-  } catch {
-    return t("popup.common.notProvided");
-  }
-}
-
 function listItem(value: unknown, i18n: L): string {
   const { t } = i18n;
   if (value == null) return t("popup.common.notProvided");
@@ -121,14 +112,12 @@ export function OsmBridgeCarrierPanel({ props }: { props: Record<string, unknown
   const carrierKind = CARRIER_KINDS.find((kind) => kind.value === props.carrier_kind);
   return <>
     <Title color={NETWORK_STRUCTURES_COLORS.carriers}>{text(props.name, t("popup.networkStructures.carrierTitle"))}</Title>
-    <Row field="osmId" value={`${text(props.osm_type)} / ${text(props.osm_id)}`} />
     <Row label={t("popup.networkStructures.carrierKind")} value={carrierKind ? enumLabel("networkCarrierKind", carrierKind.value, carrierKind.label, i18n) : text(props.carrier_kind)} />
     <Row label={t("popup.networkStructures.road")} value={text(props.highway)} />
     <Row label={t("popup.networkStructures.rail")} value={text(props.railway)} />
     <Row label={t("popup.networkStructures.waterway")} value={text(props.waterway)} />
     <Row label={t("popup.networkStructures.bridgeTag")} value={text(props.bridge)} />
     <GeometryRow role={props.geometry_role} />
-    <Row field="caution" value={t("popup.networkStructures.carrierCaution")} />
     <SourceRows props={props} />
   </>;
 }
@@ -139,9 +128,7 @@ export function OsmBridgeFootprintPanel({ props }: { props: Record<string, unkno
   const text = textWith(i18n);
   return <>
     <Title color={NETWORK_STRUCTURES_COLORS.footprint}>{text(props.name, t("popup.networkStructures.footprintTitle"))}</Title>
-    <Row field="osmId" value={`${text(props.osm_type)} / ${text(props.osm_id)}`} />
     <GeometryRow role={props.geometry_role} />
-    <Row field="caution" value={t("popup.networkStructures.footprintCaution")} />
     <SourceRows props={props} />
   </>;
 }
@@ -225,8 +212,6 @@ export function BssNationalBridgePreviewPanel({ props }: { props: Record<string,
         <Row label={t("popup.networkStructures.elevatedForm")} value={props.facility_form_review_hint === "elevated_form_review" ? t("popup.networkStructures.elevatedHint") : t("popup.networkStructures.formUndetermined")} />
         {!!props.facility_form_hint_evidence && <Row label={t("popup.networkStructures.formHint")} value={text(props.facility_form_hint_evidence)} />}
         <Row label={t("popup.networkStructures.connectivity")} value={text(props.network_connectivity_status, "not_evaluated")} />
-        <Row label="BSS source key" value={text(props.source_key)} />
-        <Row label={t("popup.networkStructures.entityId")} value={text(props.entity_id)} />
         <Row label={t("popup.networkStructures.matchScore")} value={numberText(props.match_score)} />
         <Row label={t("popup.networkStructures.nameSimilarity")} value={numberText(props.name_similarity)} />
         <Row label={t("popup.networkStructures.lengthRatio")} value={numberText(props.length_ratio)} />
@@ -236,7 +221,6 @@ export function BssNationalBridgePreviewPanel({ props }: { props: Record<string,
           <Row label={t("popup.networkStructures.directionTier")} value={isStage1LocalDirectionCandidate ? t("popup.networkStructures.tierStage1Local") : isNoCrossingNearestRoute ? t("popup.networkStructures.tierNoCrossing") : isNoWaterwayCarrierConsensus ? t("popup.networkStructures.tierNoWaterwayConsensus") : isTiedRouteConsensus ? t("popup.networkStructures.tierTiedConsensus") : isMultiBridgeCrossing ? t("popup.networkStructures.tierMultiBridge") : isWaterwayCrossing ? t("popup.networkStructures.tierWaterway") : isCurvedLocal ? t("popup.networkStructures.tierCurved") : isOrdinaryRoute ? t("popup.networkStructures.tierOrdinary") : isOffset ? t("popup.networkStructures.tierOffset") : isOsmEntityLine ? t("popup.networkStructures.tierOsmEntity") : t("popup.networkStructures.tierOriginal")} />
           <Row label={t("popup.networkStructures.dirSource")} value={isNoCrossingNearestRoute ? t("popup.networkStructures.dirSourceNoCrossing") : isTiedRouteConsensus ? t("popup.networkStructures.dirSourceTied") : isNoWaterwayCarrierConsensus ? t("popup.networkStructures.dirSourceNoWaterway") : lineSourceKindText} />
           {isStage1LocalDirectionCandidate && <Row label={t("popup.networkStructures.nearbyBridgeLines")} value={t("popup.networkStructures.nearbyBridgeLinesValue", { ids: text(props.carrier_ids_json) })} />}
-          {!isLowConfidenceConsensus && !isNoCrossingNearestRoute && <Row label={t("popup.networkStructures.dirFeatureId")} value={text(props.line_source_feature_id)} />}
           {!isLowConfidenceConsensus && !isNoCrossingNearestRoute && <Row label={t("popup.networkStructures.dirUrl")} value={text(props.line_source_url)} />}
           <Row label={t("popup.networkStructures.dirDate")} value={text(props.line_source_date_or_snapshot)} />
           <Row label={t("popup.networkStructures.dirLicense")} value={text(props.line_source_license_label)} />
@@ -255,7 +239,6 @@ export function BssNationalBridgePreviewPanel({ props }: { props: Record<string,
         </>}
         {isOffset && <>
           <Row label={t("popup.networkStructures.offsetDistance")} value={numberText(props.offset_distance_m, " m")} />
-          <Row label="OSM way ID" value={text(props.line_source_feature_id)} />
         </>}
         {isOrdinaryRoute && <>
           <Row label={t("popup.networkStructures.routeDistance")} value={numberText(props.offset_distance_m, " m")} />
@@ -265,17 +248,14 @@ export function BssNationalBridgePreviewPanel({ props }: { props: Record<string,
         {(isCurvedLocal || isWaterwayCrossing || isMultiBridgeCrossing) && <>
           <Row label={t("popup.networkStructures.pointToRef")} value={numberText(props.offset_distance_m, " m")} />
           <Row label={t("popup.networkStructures.trialResult")} value={text(props.direction_context_outcome)} />
-          {(isWaterwayCrossing || isMultiBridgeCrossing) && <Row label={t("popup.networkStructures.crossingWaterwayWay")} value={text(props.secondary_osm_waterway_way_id)} />}
           <Row label={t("popup.networkStructures.lineRole")} value={t("popup.networkStructures.lineRoleValue")} />
         </>}
         {isLowConfidenceConsensus && <>
-          <Row label={t("popup.networkStructures.candidateWayIds")} value={candidateWayIds(isTiedRouteConsensus ? props.candidate_osm_way_ids_json : props.candidate_osm_carrier_ids_json, i18n)} />
           <Row label={t("popup.networkStructures.commonAxisAngle")} value={numberText(props.axis_degrees_from_east_mod_180, t("popup.networkStructures.axisUnit"))} />
           <Row label={t("popup.networkStructures.axisSpread")} value={numberText(props.candidate_axis_spread_degrees, "°")} />
           <Row field="limits" value={t("popup.networkStructures.limitsConsensus")} />
         </>}
         {isNoCrossingNearestRoute && <>
-          <Row label={t("popup.networkStructures.nearestRouteWay")} value={text(props.candidate_osm_way_id)} />
           <Row label={t("popup.networkStructures.routeDistance")} value={numberText(props.nearest_route_distance_m, " m")} />
           <Row label={t("popup.networkStructures.nearestMargin")} value={numberText(props.nearest_route_margin_m, " m")} />
           <Row label={t("popup.networkStructures.axisAngle")} value={numberText(props.axis_degrees_from_east_mod_180, t("popup.networkStructures.axisUnit"))} />
@@ -313,7 +293,6 @@ export function OfficialBridgeNewTaipeiPanel({ props }: { props: Record<string, 
   const numberText = numberTextWith(i18n);
   return <>
     <Title color={NETWORK_STRUCTURES_COLORS.official}>{text(props.name, t("popup.networkStructures.ntTitle"))}</Title>
-    <Row label={t("popup.networkStructures.officialId")} value={text(props.official_id)} />
     <Row field="district" value={placeTown(isMissing(props.county) ? "" : String(props.county), text(props.town), i18n)} />
     <Row field="level" value={text(props.grade)} />
     <Row label={t("popup.networkStructures.registeredLength")} value={numberText(props.official_length_m, " m")} />
@@ -333,14 +312,11 @@ export function BridgeComparisonNewTaipeiPanel({ props }: { props: Record<string
   const scoreMissing = props.match_status === "NOT_EVALUATED" ? t("popup.networkStructures.cmpNotEvaluated") : t("popup.networkStructures.cmpNotComputed");
   return <>
     <Title color={status?.color ?? NETWORK_STRUCTURES_COLORS.notEvaluated}>{text(props.name, t("popup.networkStructures.cmpTitle"))}</Title>
-    <Row label={t("popup.networkStructures.officialId")} value={text(props.official_id)} />
     <Row label={t("popup.networkStructures.matchStatus")} value={status ? enumLabel("networkMatchStatus", status.value, status.label, i18n) : text(props.match_status)} />
     <Row field="method" value={text(props.match_method)} />
     <Row label={t("popup.networkStructures.reasons")} value={jsonList(props.match_reasons, i18n)} />
-    <Row label="OSM way" value={jsonList(props.osm_way_ids, i18n)} />
     <Row label={t("popup.networkStructures.matchConfidence")} value={numberText(props.match_confidence, "", scoreMissing)} />
     <GeometryRow role={props.geometry_role} />
-    <Row field="caution" value={t("popup.networkStructures.cmpCaution")} />
     <SourceRows props={props} />
   </>;
 }
@@ -360,7 +336,6 @@ export function TainanBridgeInspectionsPanel({ props }: { props: Record<string, 
     <Row label={t("popup.networkStructures.totalLength")} value={numberText(props.bridge_total_length_m, " m")} />
     <Row label={t("popup.networkStructures.clearWidth")} value={numberText(props.bridge_clear_width_m, " m")} />
     <GeometryRow role={props.geometry_role} />
-    <Row field="dataLimits" value={t("popup.networkStructures.tnLimits")} />
     <SourceRows props={props} />
   </>;
 }
@@ -374,9 +349,7 @@ export function OfficialBridgeHsinchuPanel({ props }: { props: Record<string, un
     <Title color="#22d3ee">{text(props.name, t("popup.networkStructures.hcTitle"))}</Title>
     <Row field="route" value={text(props.route)} />
     <Row label={t("popup.networkStructures.registeredLength")} value={numberText(props.official_length_m, " m")} />
-    <Row label={t("popup.networkStructures.registerId")} value={t("popup.networkStructures.registerIdValue")} />
     <GeometryRow role={props.geometry_role} />
-    <Row field="dataLimits" value={t("popup.networkStructures.hcLimits")} />
     <SourceRows props={props} />
   </>;
 }
@@ -388,14 +361,12 @@ export function TaipeiRoadTunnelPanel({ props }: { props: Record<string, unknown
   const numberText = numberTextWith(i18n);
   return <>
     <Title color="#f59e0b">{text(props.name, t("popup.networkStructures.tpTitle"))}</Title>
-    <Row label={t("popup.networkStructures.tunnelId")} value={text(props.official_tunnel_id)} />
     <Row label={t("popup.networkStructures.tunnelKind")} value={text(props.tunnel_kind)} />
     <Row field="managingAgency" value={text(props.manager)} />
     <Row field="route" value={text(props.route_description)} />
     <Row label={t("popup.networkStructures.directionDetail")} value={numberText(props.direction_count, t("popup.networkStructures.unitRecord"))} />
     <Row label={t("popup.networkStructures.directionalLengthSum")} value={numberText(props.directional_length_sum_m, " m")} />
     <GeometryRow role={props.geometry_role} />
-    <Row field="dataLimits" value={t("popup.networkStructures.tpLimits")} />
     <SourceRows props={props} />
   </>;
 }
@@ -413,7 +384,6 @@ export function TainanRoadTunnelPanel({ props }: { props: Record<string, unknown
     <Row label={t("popup.networkStructures.registeredWidth")} value={numberText(props.official_width_m, " m")} />
     <Row label={t("popup.networkStructures.laneCount")} value={numberText(props.lane_count)} />
     <GeometryRow role={props.geometry_role} />
-    <Row label={t("popup.networkStructures.crsLimit")} value={t("popup.networkStructures.crsLimitValue")} />
     <SourceRows props={props} />
   </>;
 }
@@ -424,12 +394,10 @@ export function ChanghuaTrafficSignalPanel({ props }: { props: Record<string, un
   const text = textWith(i18n);
   return <>
     <Title color="#84cc16">{text(props.name, t("popup.networkStructures.chTitle"))}</Title>
-    <Row label={t("popup.networkStructures.sourceRecordId")} value={text(props.source_record_id)} />
     <Row label={t("popup.networkStructures.signalKind")} value={text(props.signal_kind)} />
     <Row label={t("popup.networkStructures.responsibleAuthority")} value={text(props.responsible_authority)} />
     <Row label={t("popup.networkStructures.district")} value={placeTown("", text(props.district), i18n)} />
     <GeometryRow role={props.geometry_role} />
-    <Row field="dataLimits" value={t("popup.networkStructures.chLimits")} />
     <SourceRows props={props} />
   </>;
 }

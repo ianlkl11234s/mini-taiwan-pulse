@@ -1,5 +1,4 @@
 {
-  "popup.hazard.caseId": "事案番号",
   "popup.hazard.year": "年",
   "popup.hazard.mountainArea": "山域",
   "popup.hazard.entryPoint": "入山口",
@@ -67,7 +66,6 @@
   "popup.hazard.gbLastYear": "最終確認年",
   "popup.hazard.gbRecordNote": "1 点＝1 件の調査記録で、地すべりの範囲ではありません",
   "popup.hazard.gbRadonTitle": "ラドン指標地図",
-  "popup.hazard.gbGridTile": "メッシュコード",
   "popup.hazard.gbRadonBand": "対策レベル超過の住宅の割合",
   "popup.hazard.gbRadonClassValue": "区分 {c}（{band}）",
   "popup.hazard.gbRadonNote": "各メッシュは内部の最も高い区分で表示した目安で、個別の判定には UKHSA の報告書が必要です",
@@ -89,6 +87,5 @@
   "popup.hazard.gbQuakeSetting": "位置",
   "popup.hazard.gbOffshore": "海域",
   "popup.hazard.gbOnshore": "陸域",
-  "popup.hazard.gbQuakeDataEnd": "BGS 地震カタログは {date} までのデータ",
   "popup.hazard.gbMagTypeBgs": "BGS 総合マグニチュード"
 }

@@ -40,9 +40,14 @@ import { MAPCHALLENGE_DAY08_SCENARIO_KEYS, MAPCHALLENGE_DAY08_SITE_CLASS_KEYS, M
 import { MAPCHALLENGE_DAY21_YEAR_MIN, mapchallengeDay21ClassOf, mapchallengeDay21YearColor } from "../../data/mapchallengeDay21Types";
 import { MAPCHALLENGE_DAY21_CLASS_KEYS } from "../legend/mapchallengeLegends";
 import {
-  MAPCHALLENGE_DAY23_CELL_KM2, MAPCHALLENGE_DAY23_DATA_DATE, mapchallengeDay23GroupById, mapchallengeDay23TermById, mapchallengeDay23TermColor,
+  MAPCHALLENGE_DAY23_CELL_KM2, mapchallengeDay23GroupById, mapchallengeDay23TermById, mapchallengeDay23TermColor,
+  MAPCHALLENGE_DAY23_FOREIGN_DOMINANT, mapchallengeDay23ForeignById, mapchallengeDay23PlaceById,
+  mapchallengeDay23IntlByKey, mapchallengeDay23IntlTermById, type MapchallengeDay23IntlKey,
 } from "../../data/mapchallengeDay23Types";
-import { MAPCHALLENGE_DAY23_GROUP_KEYS, MAPCHALLENGE_DAY23_TERM_KEYS } from "../legend/mapchallengeLegends";
+import {
+  MAPCHALLENGE_DAY23_FOREIGN_KEYS, MAPCHALLENGE_DAY23_GROUP_KEYS, MAPCHALLENGE_DAY23_HOME_KEYS, MAPCHALLENGE_DAY23_SIGN_KEYS, MAPCHALLENGE_DAY23_TERM_KEYS,
+  MAPCHALLENGE_DAY23_INTL_KEYS, useMapchallengeDay23IntlTermName,
+} from "../legend/mapchallengeLegends";
 import { LinkRow } from "./atlasPanels";
 import { Row, SourceFooter, Title } from "./shared";
 import { LIGHT_FEATURE, useFeatureTheme } from "./featureTheme";
@@ -274,7 +279,6 @@ function Day08Footer({ historical = false }: { historical?: boolean }) {
 function Day08ParksFooter() {
   const { t } = useLocale();
   return <>
-    <Row label={t("popup.mapchallenge.day08.caveatLabel")} value={t("legend.mapchallenge.day08.caveat")} />
     <SourceFooter props={{ source: t("legend.mapchallenge.day08.parksSource") }} />
   </>;
 }
@@ -461,7 +465,6 @@ export function MapchallengeDay17LedSharePanel({ props }: Props) {
     <Row label={t("popup.mapchallenge.day17.ledShare", { year })} value={has(share) ? `${(num(share) * 100).toFixed(1)}%` : t("popup.mapchallenge.day17.ledNoData")} mono />
     <Row label={t("popup.mapchallenge.day17.ledKwh")} value={t("popup.mapchallenge.day17.ledOfTotal", { a: fmt(props[`led_kwh_${year}`]), b: fmt(props[`total_kwh_${year}`]), unit: "kWh" })} mono />
     <Row label={t("popup.mapchallenge.day17.ledAccounts")} value={t("popup.mapchallenge.day17.ledOfTotal", { a: fmt(props[`led_count_${year}`]), b: fmt(props[`total_${year}`]), unit: t("popup.mapchallenge.day17.ledAcctUnit") })} mono />
-    <Row label={t("popup.mapchallenge.day17.note")} value={t("popup.mapchallenge.day17.ledNote")} />
     <SourceFooter props={{ source: t("legend.mapchallenge.day17.ledSource") }} />
   </div>;
 }
@@ -508,7 +511,6 @@ export function MapchallengeDay19ComplaintsPanel({ props }: Props) {
         <span style={{ color: theme.textStrong, textAlign: "right", fontFamily: FONT_DATA, fontVariantNumeric: "tabular-nums" }}>{formatNumber(c.n)}</span>
       </div>)}
     </div>
-    <Row label={t("popup.mapchallenge.day19.note")} value={t("popup.mapchallenge.day19.complaintsNote")} />
     <SourceFooter props={{ source: t("legend.mapchallenge.day19.complaintsSource") }} />
   </div>;
 }
@@ -565,7 +567,6 @@ export function MapchallengeDay19PenaltiesPanel({ props }: Props) {
     {Number.isFinite(y0) && <Row label={t("popup.mapchallenge.day19.years")} value={y0 === y1 || !Number.isFinite(y1) ? String(y0) : `${y0}–${y1}`} mono />}
     <Row label={t("popup.mapchallenge.day19.maxRatio")} value={hasRatio ? t("popup.mapchallenge.day19.ratioValue", { n: formatNumber(ratio) }) : t("popup.mapchallenge.day19.ratioNull")} mono={hasRatio} />
     {Number.isFinite(money) && <Row label={t("popup.mapchallenge.day19.money")} value={t("popup.mapchallenge.day19.moneyValue", { n: formatNumber(money) })} mono />}
-    <Row label={t("popup.mapchallenge.day19.note")} value={t("popup.mapchallenge.day19.penaltiesNote")} />
     <SourceFooter props={{ source: t("legend.mapchallenge.day19.penaltiesSource") }} />
   </div>;
 }
@@ -583,20 +584,18 @@ export function MapchallengeDay21OsmRoadsPanel({ props }: Props) {
     <Row label={t("popup.mapchallenge.day21.class")} value={hw ? `${t(MAPCHALLENGE_DAY21_CLASS_KEYS[mapchallengeDay21ClassOf(hw)])}（${hw}）` : t("popup.mapchallenge.day21.noClass")} />
     {Number.isFinite(num(props.len_m)) && <Row label={t("popup.mapchallenge.day21.length")} value={t("popup.mapchallenge.day21.meters", { n: formatNumber(num(props.len_m)) })} mono />}
     {/^(way|node|relation)\/\d+$/.test(osmId) && <LinkRow label="OSM" url={`https://www.openstreetmap.org/${osmId}`} />}
-    <Row label={t("popup.mapchallenge.day21.note")} value={t("popup.mapchallenge.day21.yearNote")} />
     <SourceFooter props={{ source: t("legend.mapchallenge.day21.source") }} />
   </div>;
 }
 
 // ── Day 23 味覺 ────────────────────────────────────────────────
-/** 兩層共用的後半段：格網大小、資料日期、口徑說明、來源（只有彙總家數，沒有店名） */
-function MapchallengeDay23Footer({ props }: Props) {
+/** 四層共用的後半段：格網大小、資料日期、口徑說明、來源（只有彙總家數，沒有店名）。scope＝口徑句（預設小吃詞那一句） */
+function MapchallengeDay23Footer({ props, scope }: Props & { scope?: string }) {
   const { t, formatNumber } = useLocale();
   const km2 = MAPCHALLENGE_DAY23_CELL_KM2[num(props.res)];
   return <>
     {km2 !== undefined && <Row label={t("popup.mapchallenge.day23.cell")} value={t("popup.mapchallenge.day23.cellValue", { km2: formatNumber(km2) })} />}
-    <Row label={t("popup.mapchallenge.day23.date")} value={MAPCHALLENGE_DAY23_DATA_DATE} mono />
-    <Row label={t("popup.mapchallenge.day23.note")} value={t("legend.mapchallenge.day23.scope")} />
+    <Row label={t("popup.mapchallenge.day23.note")} value={scope ?? t("legend.mapchallenge.day23.scope")} />
     <Row label={t("popup.mapchallenge.day23.position")} value={t("popup.mapchallenge.day23.positionNote")} />
     <SourceFooter props={{ source: t("legend.mapchallenge.day23.source") }} />
   </>;
@@ -629,3 +628,55 @@ export function MapchallengeDay23TasteVariantsPanel({ props }: Props) {
     <MapchallengeDay23Footer props={props} />
   </div>;
 }
+
+export function MapchallengeDay23TastePlacesPanel({ props }: Props) {
+  const { t, formatNumber } = useLocale();
+  const isDark = useFeatureTheme() !== LIGHT_FEATURE;
+  const place = mapchallengeDay23PlaceById(props.sign);
+  if (!place) return null;
+  const home = t(MAPCHALLENGE_DAY23_HOME_KEYS[place.value]);
+  return <div>
+    <Title color={mapchallengeDay23TermColor(place, isDark)}>{t(MAPCHALLENGE_DAY23_SIGN_KEYS[place.value])}</Title>
+    <Row label={t("popup.mapchallenge.day23.placeCount")} value={t("popup.mapchallenge.day23.countValue", { n: formatNumber(num(props.n)) })} mono />
+    <Row label={t("popup.mapchallenge.day23.placeRange")} value={t("popup.mapchallenge.day23.placeRangeValue", { home, out: formatNumber(place.outside), n: formatNumber(place.stores) })} />
+    <Row label={t("popup.mapchallenge.day23.arc")} value={t("legend.mapchallenge.day23.arcNote")} />
+    <MapchallengeDay23Footer props={props} scope={t("legend.mapchallenge.day23.placesScope")} />
+  </div>;
+}
+
+export function MapchallengeDay23TasteForeignPanel({ props }: Props) {
+  const { t, formatNumber } = useLocale();
+  const isDark = useFeatureTheme() !== LIGHT_FEATURE;
+  const group = mapchallengeDay23ForeignById(props.group);
+  if (!group) return null;
+  const dominant = MAPCHALLENGE_DAY23_FOREIGN_DOMINANT[group.value];
+  return <div>
+    <Title color={mapchallengeDay23TermColor(group, isDark)}>{t(MAPCHALLENGE_DAY23_FOREIGN_KEYS[group.value])}</Title>
+    <Row label={t("popup.mapchallenge.day23.foreignCount")} value={t("popup.mapchallenge.day23.countValue", { n: formatNumber(num(props.n)) })} mono />
+    <Row label={t("popup.mapchallenge.day23.words")} value={group.words.join("、")} />
+    {dominant && <Row label={t("popup.mapchallenge.day23.dominant")} value={t("legend.mapchallenge.day23.foreignDominant", { word: dominant.word, hits: formatNumber(dominant.hits), n: formatNumber(group.stores), pct: Math.round((dominant.hits / group.stores) * 100) })} />}
+    <MapchallengeDay23Footer props={props} scope={t("legend.mapchallenge.day23.foreignScope")} />
+  </div>;
+}
+
+// ── Day 23 味覺第三批：南韓／英國／日本（共用一個說明框；口徑依國別） ──
+function MapchallengeDay23TasteIntlPanel({ props, layerKey }: Props & { layerKey: MapchallengeDay23IntlKey }) {
+  const { t, formatNumber } = useLocale();
+  const termName = useMapchallengeDay23IntlTermName();
+  const isDark = useFeatureTheme() !== LIGHT_FEATURE;
+  const country = mapchallengeDay23IntlByKey(layerKey);
+  const term = country && mapchallengeDay23IntlTermById(country, props.term);
+  if (!country || !term) return null;
+  const km2 = MAPCHALLENGE_DAY23_CELL_KM2[num(props.res)];
+  return <div>
+    <Title color={mapchallengeDay23TermColor(term, isDark)}>{termName(country, term)}</Title>
+    <Row label={t("popup.mapchallenge.day23.count")} value={t("popup.mapchallenge.day23.countValue", { n: formatNumber(num(props.n)) })} mono />
+    {km2 !== undefined && <Row label={t("popup.mapchallenge.day23.cell")} value={t("popup.mapchallenge.day23.cellValue", { km2: formatNumber(km2) })} />}
+    <Row label={t("popup.mapchallenge.day23.note")} value={t("legend.mapchallenge.day23.intl.scope")} />
+    <Row label={t("popup.mapchallenge.day23.position")} value={t("popup.mapchallenge.day23.positionNote")} />
+    <SourceFooter props={{ source: t(MAPCHALLENGE_DAY23_INTL_KEYS.source[country.cc]) }} />
+  </div>;
+}
+export const MapchallengeDay23TasteKrPanel = ({ props }: Props) => <MapchallengeDay23TasteIntlPanel props={props} layerKey="mapchallengeDay23TasteKr" />;
+export const MapchallengeDay23TasteGbPanel = ({ props }: Props) => <MapchallengeDay23TasteIntlPanel props={props} layerKey="mapchallengeDay23TasteGb" />;
+export const MapchallengeDay23TasteJpPanel = ({ props }: Props) => <MapchallengeDay23TasteIntlPanel props={props} layerKey="mapchallengeDay23TasteJp" />;

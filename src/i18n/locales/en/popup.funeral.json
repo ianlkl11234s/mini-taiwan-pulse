@@ -20,7 +20,6 @@
   "popup.funeral.osmNote": "ⓘ Crowd-sourced OpenStreetMap data, {note}",
   "popup.funeral.zoningFallback": "Burial-type land",
   "popup.funeral.zoningGroup": "Zoning group",
-  "popup.funeral.zoningId": "Zone ID",
   "popup.funeral.zoningNote1": "ⓘ This is the ",
   "popup.funeral.zoningNoteBold": "statutory designation",
   "popup.funeral.zoningNote2": " under urban planning (not the actual area in use); currently only Taipei and New Taipei have this data",

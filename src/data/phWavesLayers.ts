@@ -33,7 +33,7 @@ const j3 = (...parts: (string | L3)[]): L3 => ({
 const SEP = l3("；", "; ", "。");
 const GAP_FILL = l3("；補缺 ", "; gap-fill: ", "。補完：");
 const COND_OSM = j3(CONDITIONAL, l3("；OSM ", "; OSM ", "。OSM "), ODBL);
-const OSM_NOTE = l3("OpenStreetMap（ODbL）；非官方名冊，標註不全處不代表沒有", "OpenStreetMap (ODbL); not an official register — gaps do not mean absence", "OpenStreetMap（ODbL）。公式名簿ではなく、未登録は「ない」という意味ではない");
+const OSM_NOTE = l3("OpenStreetMap 非官方名冊，標註不全處不代表沒有", "OpenStreetMap is not an official register — gaps do not mean absence", "OpenStreetMap は公式名簿ではなく、未登録は「ない」という意味ではない");
 const BARMM_SPARSE = l3("BARMM：OSM 稀疏（每 10 萬人筆數不到全國中位數 1/3）", "BARMM: sparse in OSM (fewer than a third of the national median per 100,000 people)", "BARMM：OSM が疎（10 万人あたり件数が全国中央値の 1/3 未満）");
 const PARTIAL = l3("部分：Geoportal 查詢所得，完整性未驗證", "Partial: obtained by Geoportal queries; completeness not verified", "部分的：Geoportal の照会で取得、網羅性は未確認");
 
@@ -89,7 +89,6 @@ const TOURISM_FIELDS = (cats: readonly PhCat[]): PhField[] => [
   { prop: "whc_inscribed", label: l3("登錄年", "Inscribed", "登録年"), kind: "year" },
   { prop: "coord_quality", label: l3("座標", "Coordinates", "座標"), map: COORD_QUALITY },
   { prop: "sources", label: l3("資料來源", "Sources", "出典"), kind: "code" },
-  { prop: "wd_qid", label: l3("Wikidata", "Wikidata", "Wikidata"), kind: "code" },
   PROV, REGION,
 ];
 const TOURISM_POPUP_NOTES = [{ text: l3("近似位置：DOT 清單多筆共用同一市鎮中心座標，不是景點實際位置", "Approximate: several DOT entries share one town-centre coordinate; not the exact site", "概略位置：DOT 一覧の複数項目が同じ市町中心の座標を共有し、実際の場所ではない"), when: (p: Record<string, unknown>) => str(p.coord_quality) === "dot_approximate" }];
@@ -176,7 +175,6 @@ const TOURISM_SPECS: PhLayerSpec[] = [
     cats: TDA_CATS,
     title: { props: ["cluster_name", "tda_code"], fallback: l3("觀光發展區", "Tourism development area", "観光開発地域") },
     fields: [
-      { prop: "tda_code", label: l3("TDA 代碼", "TDA code", "TDA コード"), kind: "code" },
       { prop: "cluster_name", label: l3("觀光群", "Cluster", "観光クラスター") },
       { prop: "macro_area", label: l3("大區", "Macro area", "大区分"), map: catMap(TDA_CATS) },
       { prop: "lgus_listed", label: l3("計畫列出的地方政府", "LGUs listed", "計画に記載の自治体") },
@@ -184,7 +182,7 @@ const TOURISM_SPECS: PhLayerSpec[] = [
       { prop: "area_km2", label: l3("面積", "Area", "面積"), kind: "num", unit: "km²", digits: 0 },
     ],
     legendNotes: [
-      l3("DOT 國家觀光發展計畫 2023–2028 Table 22：20 個觀光群、50 個 TDA；政府規劃文件，授權未明示；不代表遊客量", "DOT National Tourism Development Plan 2023–2028, Table 22: 20 clusters, 50 TDAs; a government planning document (licence not stated); not visitor numbers", "DOT 国家観光開発計画 2023–2028 表 22：20 クラスター・50 TDA。政府の計画文書（ライセンス未記載）で、来訪者数ではない"),
+      l3("DOT 國家觀光發展計畫 2023–2028 Table 22：20 個觀光群、50 個 TDA；不代表遊客量", "DOT National Tourism Development Plan 2023–2028, Table 22: 20 clusters, 50 TDAs; not visitor numbers", "DOT 国家観光開発計画 2023–2028 表 22：20 クラスター・50 TDA。来訪者数ではない"),
       l3("Palawan 南北分界（以 Puerto Princesa 為界）與 Siargao 市鎮名單為本站依地理自訂", "The Palawan north/south split (at Puerto Princesa) and the Siargao municipality list are this site's geographic interpretation", "Palawan の南北境界（Puerto Princesa で区分）と Siargao の市町一覧は本サイトが地理的に設定"),
       l3("Cuyo、Agutaya、Magsaysay、Cagayancillo 與 BARMM Special Geographic Area 8 市鎮（共 12 個）不在任何 TDA：空白＝不在計畫內，不是缺資料；Clark、Subic 自由港未另畫", "Cuyo, Agutaya, Magsaysay, Cagayancillo and the 8 BARMM Special Geographic Area municipalities (12 in all) are in no TDA: blank = outside the plan, not missing data; Clark and Subic freeports not drawn separately", "Cuyo・Agutaya・Magsaysay・Cagayancillo と BARMM 特別地理区域の 8 市町（計 12）はどの TDA にも属さない。空白＝計画外でデータ欠落ではない。Clark・Subic 自由港は別途描画しない"),
     ],
@@ -539,7 +537,6 @@ const W4_SPECS: PhLayerSpec[] = [
     title: { props: ["name", "location"], fallback: l3("填海造地", "Reclamation project", "埋立事業") },
     fields: [
       { prop: "proponent", label: l3("申請者", "Proponent", "事業者") },
-      { prop: "status_code", label: l3("PRA 狀態代碼（原文，意義未查到）", "PRA status code (as listed; meaning not documented)", "PRA 状態コード（原文、意味は未確認）"), kind: "code" },
       { prop: "area_ha", label: l3("面積", "Area", "面積"), kind: "num", unit: "ha", digits: 1 },
       { prop: "location", label: l3("地點", "Location", "所在地") },
       PROV,
@@ -891,7 +888,6 @@ const W7_SPECS: PhLayerSpec[] = [
     ],
     legendNotes: [
       l3("WDPA 菲律賓 302 處（保護區 260＋OECM 42；18/18 region）；國界外與卡拉延 6 處不畫", "302 WDPA sites in the Philippines (260 protected areas + 42 OECMs; 18 of 18 regions); 6 outside the national boundary or in Kalayaan not drawn", "WDPA フィリピン 302 件（保護区 260＋OECM 42、18 地方すべて）。国境外とカラヤンの 6 件は描かない"),
-      l3("非商用授權（UNEP-WCMC／IUCN Terms of Use）：只供顯示，不提供原始檔、不進分析倉庫", "Non-commercial licence (UNEP-WCMC / IUCN Terms of Use): display only; no raw download and not in the analysis warehouse", "非商用ライセンス（UNEP-WCMC／IUCN 利用規約）：表示のみ。元データの提供・分析倉庫への登録はしない"),
       l3("DENR-BMB 官方保護區圖層查詢未收斂，暫以 WDPA 當主層", "The official DENR-BMB protected-area layer did not converge; WDPA is used as the main layer for now", "DENR-BMB の公式保護区レイヤーは照会が収束せず、当面 WDPA を主レイヤーとする"),
     ],
     popupNotes: [],

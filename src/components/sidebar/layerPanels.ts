@@ -84,6 +84,10 @@ export const IRELAND_THEMES = withoutStatisticsLayers(scopeThemes("IE"));
 export const PHILIPPINES_THEMES = withoutStatisticsLayers(scopeThemes("PH"));
 /** 越南（2026-11-13 第 0–1 波）：底圖、人口、交通、能源、環境監測站、安江示範；統計不涵蓋。 */
 export const VIETNAM_THEMES = withoutStatisticsLayers(scopeThemes("VN"));
+/** 泰國（2026-11-22 第 0 波）：先只有國家選項，圖層待後續波次；統計不涵蓋。 */
+export const THAILAND_THEMES = withoutStatisticsLayers(scopeThemes("TH"));
+/** 印尼（2026-11-23 第 0–4 波）：底圖、人口、交通、能源、災害、水資源、保育林、景點；統計不涵蓋。 */
+export const INDONESIA_THEMES = withoutStatisticsLayers(scopeThemes("ID"));
 /** 中國（2026-11-13 第 0–1 波，站主限定）：底圖、人口、交通、能源；統計不涵蓋。 */
 export const CHINA_THEMES = withoutStatisticsLayers(scopeThemes("CN"));
 
@@ -151,6 +155,10 @@ export const PHILIPPINES_MACRO_GROUPS: PanelMacroGroup[] = sharedMacroGroups(PHI
 
 /** 越南：沿用全站大分類。 */
 export const VIETNAM_MACRO_GROUPS: PanelMacroGroup[] = sharedMacroGroups(VIETNAM_THEMES);
+/** 泰國：沿用全站大分類。 */
+export const THAILAND_MACRO_GROUPS: PanelMacroGroup[] = sharedMacroGroups(THAILAND_THEMES);
+/** 印尼：沿用全站大分類。 */
+export const INDONESIA_MACRO_GROUPS: PanelMacroGroup[] = sharedMacroGroups(INDONESIA_THEMES);
 /** 中國：沿用全站大分類。 */
 export const CHINA_MACRO_GROUPS: PanelMacroGroup[] = sharedMacroGroups(CHINA_THEMES);
 
@@ -171,6 +179,8 @@ const COUNTRY_LAYER_THEMES: Record<CountryCode, { themes: ThemeDef[]; macroGroup
   IE: { themes: IRELAND_THEMES, macroGroups: IRELAND_MACRO_GROUPS },
   PH: { themes: PHILIPPINES_THEMES, macroGroups: PHILIPPINES_MACRO_GROUPS },
   VN: { themes: VIETNAM_THEMES, macroGroups: VIETNAM_MACRO_GROUPS },
+  TH: { themes: THAILAND_THEMES, macroGroups: THAILAND_MACRO_GROUPS },
+  ID: { themes: INDONESIA_THEMES, macroGroups: INDONESIA_MACRO_GROUPS },
   CN: { themes: CHINA_THEMES, macroGroups: CHINA_MACRO_GROUPS },
 };
 

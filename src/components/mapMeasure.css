@@ -238,6 +238,32 @@
   display: none;
 }
 
+/* 桌機浮動量測條（App.tsx .measure-float）：容器＝地圖可用區（top／left／right 由 App inline，top 讀 --top-bar-bottom），
+   高 0、不吃點擊；量測條放在 .measure-float__slot，left／top 由 measureFloatPlacement.ts 依右上卡片實際外框算
+   （放得下置中、放不下排到卡片下方維持單行，連全寬都放不下才加 --wrap 折行；2026-11-23 根治版）。 */
+.measure-float {
+  position: absolute;
+  z-index: var(--z-toolbar);
+  height: 0;
+  pointer-events: none;
+}
+.measure-float__slot {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: max-content;
+  visibility: hidden;
+}
+.measure-float__slot--wrap { width: auto; }
+.measure-float__slot--wrap > .measure-bar {
+  flex-wrap: wrap;
+  justify-content: center;
+  height: auto;
+  min-height: 36px;
+  row-gap: var(--space-xs);
+  padding-block: var(--space-xs);
+}
+
 /* ── 地圖上的標籤（DOM Marker） ── */
 .measure-label {
   display: flex;

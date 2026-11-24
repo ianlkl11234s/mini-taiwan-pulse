@@ -14,8 +14,7 @@ import { PORT_CLASSES, PORT_CLASS_FALLBACK } from "../../data/transportHubTypes"
 import { JP_STATION_TYPES, JP_STATION_TYPE_OTHER, JP_STATION_PAX_BUCKETS, JP_STATION_PAX_NO_DATA } from "../../data/jpStationTypes";
 import { JP_RAILWAY_TYPES } from "../../data/jpRailwayTypes";
 import {
-  JP_ROAD_CLASSES, JP_ROAD_ATTRIBUTION, JP_EXPRESSWAY_CATEGORIES, JP_EXPRESSWAY_PROVISIONAL_MIX, JP_EXPRESSWAY_JUNCTION_TYPES, JP_EXPRESSWAY_ATTRIBUTION,
-  JP_MUNICIPAL_ROAD, JP_MUNICIPAL_ROAD_COLOR,
+  JP_ROAD_CLASSES, JP_EXPRESSWAY_CATEGORIES, JP_EXPRESSWAY_PROVISIONAL_MIX, JP_EXPRESSWAY_JUNCTION_TYPES, JP_MUNICIPAL_ROAD, JP_MUNICIPAL_ROAD_COLOR,
 } from "../../data/jpRoadTypes";
 import { mixWithWhite } from "../../data/jpZoningUseDistrictTypes";
 import { LINE_WIDTH } from "../../map/mapStyleScale";
@@ -283,7 +282,6 @@ export function JpMajorRoadsLegend() {
       <LegendNote>{i18n.t("legend.transport.jpRoadScope")}</LegendNote>
       <LegendNote>{i18n.t("legend.transport.jpRoadZoom")}</LegendNote>
       <LegendNote>{i18n.t("legend.transport.jpRoadOverlap")}</LegendNote>
-      <LegendNote>{JP_ROAD_ATTRIBUTION}</LegendNote>
     </div>
   );
 }
@@ -297,7 +295,6 @@ export function JpMunicipalRoadsLegend() {
       <LegendRow swatch={<SwatchLine color={JP_MUNICIPAL_ROAD_COLOR} width={LINE_WIDTH[JP_MUNICIPAL_ROAD.tier][1]} />}>{i18n.t("legend.transport.jpMunicipalRoadRow")}</LegendRow>
       <LegendNote>{i18n.t("legend.transport.jpMunicipalRoadZoom")}</LegendNote>
       <LegendNote>{i18n.t("legend.transport.jpMunicipalRoadScope")}</LegendNote>
-      <LegendNote>{JP_ROAD_ATTRIBUTION}</LegendNote>
     </div>
   );
 }
@@ -314,7 +311,6 @@ export function JpExpresswaysLegend() {
       <LegendNote>{i18n.t("legend.transport.jpExpresswayAsOf")}</LegendNote>
       <LegendNote>{i18n.t("legend.transport.jpExpresswaySaPa")}</LegendNote>
       <LegendNote>{i18n.t("legend.transport.jpExpresswayZoom")}</LegendNote>
-      <LegendNote>{JP_EXPRESSWAY_ATTRIBUTION}</LegendNote>
     </div>
   );
 }
@@ -517,7 +513,6 @@ export function AviationAirspaceLegend({ visibility }: { visibility: LayerVisibi
         </>
       )}
       <LegendNote style={{ marginTop: 6, lineHeight: 1.35 }}>
-        {i18n.t("legend.transport.aviNote1")}<br />
         {i18n.t("legend.transport.aviNote2")}<br />
         {i18n.t("legend.transport.aviNote3")}
       </LegendNote>

@@ -55,17 +55,16 @@ export function HarmReductionPreventionCentersLegend() {
   return <div>
     <LegendTitle zh={localizeLayerName("harmReductionPreventionCenters", LAYER_MANIFEST.harmReductionPreventionCenters.name, i18n).primary} en="Drug Abuse Prevention Centers" />
     <LegendRow swatch={<SwatchDot color={HARM_REDUCTION_COLORS.harmReductionPreventionCenters} />}>{i18n.t("legend.harmReduction.preventionRow")}</LegendRow>
-    <LegendNote>{i18n.t("legend.harmReduction.preventionNote")}</LegendNote>
   </div>;
 }
 
 // ══════════ 第二批（2026-10-06）══════════
 
-function SingleColorLegend({ title, en, color, row, note }: { title: string; en: string; color: string; row: string; note: string }) {
+function SingleColorLegend({ title, en, color, row, note }: { title: string; en: string; color: string; row: string; note?: string }) {
   return <div>
     <LegendTitle zh={title} en={en} />
     <LegendRow swatch={<SwatchDot color={color} />}>{row}</LegendRow>
-    <LegendNote>{note}</LegendNote>
+    {note ? <LegendNote>{note}</LegendNote> : null}
   </div>;
 }
 
@@ -98,8 +97,7 @@ export function HarmReductionAftercareLegend() {
   const i18n = useLocale();
   const { t } = i18n;
   return <SingleColorLegend title={localizeLayerName("harmReductionAftercare", LAYER_MANIFEST.harmReductionAftercare.name, i18n).primary} en="Offender Aftercare Offices"
-    color={HARM_REDUCTION_COLORS.harmReductionAftercare} row={t("legend.harmReduction.aftercareRow")}
-    note={t("legend.harmReduction.aftercareNote")} />;
+    color={HARM_REDUCTION_COLORS.harmReductionAftercare} row={t("legend.harmReduction.aftercareRow")} />;
 }
 
 export function HarmReductionSmokingCessationLegend() {

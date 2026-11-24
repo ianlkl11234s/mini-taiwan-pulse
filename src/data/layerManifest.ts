@@ -44,6 +44,12 @@ import type { PhDataKey } from "./phDataKeys";
 import { PH_WAVE_ENTRY_META } from "./phWavesMeta";
 import { PH_RASTER_SPECS } from "./phWavesLayers";
 import { VN_DATA_SPECS } from "./vnDataLayers";
+import { TH_DATA_SPECS } from "./thDataLayers";
+import { TH_RASTER_SPECS } from "./thWavesLayers";
+import type { ThDataKey, ThRasterKey } from "./thDataKeys";
+import { ID_DATA_SPECS } from "./idDataLayers";
+import { ID_RASTER_SPECS } from "./idWavesLayers";
+import type { IdDataKey, IdRasterKey } from "./idDataKeys";
 import type { VnDataKey } from "./vnDataKeys";
 import { VN_RASTER_META, VN_WAVE_ENTRY_META } from "./vnWavesMeta";
 import { CA_WAVE_SPECS } from "./caWavesLayers";
@@ -226,7 +232,7 @@ import { MAPCHALLENGE_DAY08_COLOR } from "./mapchallengeDay08Types";
 import { MAPCHALLENGE_DAY09_COLOR } from "./mapchallengeDay09Types";
 import { MAPCHALLENGE_DAY17_DARK_SKY_COLOR, MAPCHALLENGE_DAY17_LED_COLOR, MAPCHALLENGE_DAY17_NIGHT_FALL_COLOR, MAPCHALLENGE_DAY17_ROADS_COLOR } from "./mapchallengeDay17Types";
 import { MAPCHALLENGE_DAY21_COLOR } from "./mapchallengeDay21Types";
-import { MAPCHALLENGE_DAY23_TERMS_COLOR, MAPCHALLENGE_DAY23_VARIANTS_COLOR } from "./mapchallengeDay23Types";
+import { MAPCHALLENGE_DAY23_FOREIGN_COLOR, MAPCHALLENGE_DAY23_INTL_COLOR, MAPCHALLENGE_DAY23_PLACES_COLOR, MAPCHALLENGE_DAY23_TERMS_COLOR, MAPCHALLENGE_DAY23_VARIANTS_COLOR } from "./mapchallengeDay23Types";
 import { MAPCHALLENGE_DAY19_COMPLAINTS_COLOR, MAPCHALLENGE_DAY19_PENALTIES_COLOR, MAPCHALLENGE_DAY19_POTENTIAL_COLOR } from "./mapchallengeDay19Types";
 
 /**
@@ -405,6 +411,15 @@ interface LayerManifestBase {
    * 型別與各欄說明見 `layerLongTerm.ts`，檢查見 `__tests__/layerLongTerm.test.ts`。
    */
   longTerm?: LongTermSpec;
+
+  // ── 資料時區 ──
+  /**
+   * 上游按哪個時區切「一天」（IANA 名稱，如 `Europe/London`）；缺席＝`Asia/Taipei`。
+   * 依日期取資料（日期進 URL／檔名、RPC 帶日期、依日界篩快照）的外國圖層必寫，
+   * 取資料時用 `lib/layerDataTime.ts` 的 `dataDateKeyFor(key, unixSec)` 換成當地日期。
+   * 時間軸顯示仍是台北時間。規範：`docs/TIMELINE_ARCHITECTURE.md`「資料時區宣告」。
+   */
+  dataTimeZone?: string;
 }
 
 /**
@@ -1163,6 +1178,316 @@ const VN_DATA_MANIFEST_ENTRIES = Object.fromEntries(VN_DATA_SPECS.map((spec) => 
   }];
 })) as Record<VnDataKey, LayerManifestEntry>;
 
+/** 泰國第 1 波規格驅動 8 層（規格 SSOT 在 thDataLayers.ts；畫法重用 usePhDataLayer；主題與群組比照菲律賓、越南）。 */
+const TH_DATA_ENTRY_META: Record<ThDataKey, { theme: string; group: string; zh: string; alt: string; icon: LucideIcon; dataset: string; description: string; topics: string[]; processing: string; note: string }> = {
+  thTransportHubs: { theme: "交通", group: "樞紐節點", zh: "機場、港口與渡輪碼頭", alt: "Airports, Ports & Ferry Terminals", icon: Plane, dataset: "th_transport_hubs", topics: ["泰國", "交通", "機場", "港口", "渡輪碼頭", "NGIS", "GISTDA", "OSM"],
+    description: "泰國機場 144（NGIS L14、GISTDA Hosted，授權未明示；預設不顯示 51 筆無名機場）＋港口 38、渡輪碼頭 524（OpenStreetMap 補缺）", processing: "NGIS L14 與 GISTDA Airport 合併（座標距離配對）→ 4326；機場分類由名稱推定；HOT／HDX OSM 港口、渡輪碼頭補缺；77 府空間判定；PMTiles hubs z4–14", note: "機場授權未明示；港口與碼頭 ODbL；旅客數欄單位來源未標；無名機場前端預設濾掉" },
+  thStations: { theme: "交通", group: "場站", zh: "鐵路、渡輪車站與公車站", alt: "Rail, Ferry & Bus Stops", icon: TrainFront, dataset: "th_stations", topics: ["泰國", "交通", "車站", "鐵路", "BTS", "MRT", "SRT", "渡輪", "公車", "Namtang"],
+    description: "泰國鐵路與渡輪站 533（輕軌 BTS＋SRT 紅線、MRT、國鐵 SRT、渡輪碼頭）＋公車站 16,600（z11 起顯示）；OTP Namtang GTFS", processing: "OTP Namtang 全國 GTFS 靜態檔 stops → 依路線類型分 kind；Pakse（寮）站排除；77 府空間判定；PMTiles stations、bus_stops z4–14", note: "CC BY 4.0 僅見 Transitland 轉述；鐵路、渡輪站涵蓋 40/77 府；agency_name 不輸出" },
+  thMajorRoads: { theme: "交通", group: "路網", zh: "國道與鐵道", alt: "Highways & Railways", icon: Route, dataset: "th_major_roads", topics: ["泰國", "交通", "道路", "國道", "高速公路", "鐵道", "DOH", "NGIS"],
+    description: "泰國 DOH 國道 3,083 段（高速公路、國道、區域／府／縣級連結）＋鐵道 643 段（NGIS L02008）；授權未明示", processing: "DOH 路線中心線 BE 2568 → 4326；依 hierarchy 分 road_class；NGIS 鐵路中心線；線中點空間判定 77 府；PMTiles roads、rail z4–13", note: "授權未明示；只含 DOH 國道（無鄉道 DRR）；鐵道只有 47/77 府有線段、版本 BE 2554" },
+  thPowerPlants: { theme: "能源", group: "電力 · 廠", zh: "電廠", alt: "Power Plants", icon: Factory, dataset: "th_power_plants", topics: ["泰國", "能源", "電廠", "發電", "太陽能", "水力", "DEDE", "GEM", "OSM"],
+    description: "泰國電廠 1,367 處（DEDE 再生能源 1,076＋GEM 火力 91＋OSM 補缺 200；GEM 預設只顯示運轉中＋興建中；51 筆個人名義已遮蔽）", processing: "NGIS DEDE RE_Powerplant → 4326（個人名義記錄級遮蔽）；GEM Coal／Oil & Gas Plant Tracker 濾泰國；Overture 電廠補缺只取距官方點 >1.5 km；PMTiles plants z3–14", note: "逐筆授權：DEDE 未明示／GEM CC BY 4.0／OSM ODbL；EGAT 大水電靠 GEM／OSM；太陽能含屋頂型" },
+  thPowerGrid: { theme: "能源", group: "電力 · 電網", zh: "輸電線與變電所", alt: "Power Lines & Substations", icon: Zap, dataset: "th_power_grid", topics: ["泰國", "能源", "電網", "輸電線", "變電所", "OSM", "Overture"],
+    description: "泰國輸電線 1,524 段（依電壓分級）＋變電所 776 處（OpenStreetMap via Overture，非官方）", processing: "Overture base/infrastructure power_line／substation → 4326；依 voltage 最大值分 kv_class；PMTiles lines、substations z4–14", note: "ODbL 1.0；OSM 覆蓋不均，非官方電網圖" },
+  thRenewables: { theme: "能源", group: "再生能源", zh: "風電與太陽能", alt: "Wind & Solar", icon: Sun, dataset: "th_renewables", topics: ["泰國", "能源", "再生能源", "風電", "太陽能", "地熱", "DEDE", "OSM"],
+    description: "泰國風場 27、太陽能 562、地熱 1（DEDE，授權未明示）＋OSM 風機機組點 546（z9 起）；太陽能含屋頂型", processing: "NGIS DEDE RE_Powerplant type_code 1／6／8 與 Wind／Solar 子層對帳 → 4326；Overture generator（wind）補風機；PMTiles renewables z4–14", note: "DEDE 授權未明示、OSM ODbL；沒有點的府是未涵蓋，不是沒有" },
+  thFuelStations: { theme: "能源", group: "石化 · 加油站", zh: "加油站", alt: "Fuel Stations", icon: Fuel, dataset: "th_fuel_stations", topics: ["泰國", "能源", "加油站", "Overture", "PTT", "Bangchak", "Shell"],
+    description: "泰國加油站 14,838 處（Overture 補缺，非官方；PTT、Bangchak、Shell、Esso、Caltex、PT、Susco 分色）", processing: "Overture places taxonomy gas_station／fueling_station（confidence ≥0.5、泰國面內）→ 品牌正規化；PMTiles fuel z5–14", note: "CDLA-Permissive-2.0；筆數為登記數、可能含歇業" },
+  thPipelines: { theme: "能源", group: "管線與儲槽", zh: "儲槽與管線", alt: "Storage Tanks & Pipelines", icon: Spline, dataset: "th_pipelines", topics: ["泰國", "能源", "儲槽", "管線", "LNG", "油氣", "GEM", "OSM"],
+    description: "泰國儲槽 1,377、氣櫃 81、LNG 接收站 6（GEM）、管線 176 段；依內容物分油氣、水、污水、其他、未標示（預設只顯示油氣與 LNG）", processing: "Overture base/infrastructure storage_tank／gasometer／pipeline → 4326；GEM GGIT／GOIT 泰國列與 LNG Terminals；依 substance／content 分 content_group；PMTiles facilities、pipelines z5–14", note: "ODbL 1.0／CC BY 4.0（逐筆）；多數未標示內容物，不是油氣管線全圖；GEM 管線為示意路徑" },
+  thPlaceNames: { theme: "底圖", group: "地名", zh: "聚落地名", alt: "Place Names", icon: MapPin, dataset: "th_place_names", topics: ["泰國", "底圖", "地名", "聚落", "村", "OSM"],
+    description: "泰國 OSM 聚落地名 32,514 筆（城市 37、鎮 1,041、村 18,280、小聚落 4,211…；依等級逐級出現，低縮放只有城市）", processing: "HOT／HDX OSM 泰國 place 圖層 → 代表點；依 place 設 per-feature minzoom（city z4、town z6、village z8、hamlet z10）；77 府空間判定；PMTiles places z4–14（-r1）", note: "ODbL 1.0；OSM 聚落名稱，非官方村里名冊；三角點未涵蓋" },
+  thElectionConstituencies: { theme: "人口社經", group: "選區", zh: "國會選區", alt: "Electoral Constituencies", icon: Landmark, dataset: "th_election_constituencies", topics: ["泰國", "選舉", "選區", "國會", "ECT"],
+    description: "泰國國會小選區邊界兩版（2023 年 400 區、2026 年 400 區；預設 2026）；沒有得票與投票所", processing: "Thai-ECT-election-map（MIT，第三方鏡像；底層 กกต. 選區公告）→ 4326；77 府空間判定；PMTiles constituency_2566、constituency_2569 z4–12", note: "MIT（第三方鏡像），上游 ECT 條款未明示；得票、投票所未涵蓋" },
+  thHighlandVillages: { theme: "人口社經", group: "高地村", zh: "高地村", alt: "Highland Villages", icon: Tent, dataset: "th_highland_villages", topics: ["泰國", "人口", "高地", "族群", "村", "HRDI"],
+    description: "泰國高地村 4,212 點（HRDI；族群、人口、戶數、所在保護林；只涵蓋 21 個高地府）", processing: "HRDI 高地村調查（UTM 座標轉 4326；zone 推定）→ 77 府空間判定；族群前 7 名分色；PMTiles villages z5–14（-r1）", note: "授權未明示；調查年未標；只涵蓋 21/77 府" },
+  thProvinceSocioeconomic: { theme: "人口社經", group: "府級社經", zh: "府級社經（Gini 與收入變動）", alt: "Province Socio-economics (Gini & Income Change)", icon: Gauge, dataset: "th_province_socioeconomic", topics: ["泰國", "社經", "Gini", "所得", "貧窮", "NSO"],
+    description: "泰國 77 府 Gini 係數（2013–2023）與收入變動（2011–2025；來源未附定義）；圖例兩指標二選一，預設 Gini", processing: "NSO 府級表接 COD-AB 府面（NSO 表 3 個府名拼字更正）→ PMTiles province z3–10", note: "Creative Commons Attributions（版本未見）；只有府級；收入變動來源未附定義" },
+  thFootbridges: { theme: "交通", group: "道路設施", zh: "人行天橋", alt: "Pedestrian Footbridges", icon: Footprints, dataset: "th_footbridges", topics: ["泰國", "交通", "人行天橋", "DOH"],
+    description: "泰國國道上的人行天橋 2,147 座（DOH；76/77 府；鋼筋混凝土 2,055、全鋼 92）", processing: "DOH 人行天橋 API → 4326；77 府空間判定；PMTiles footbridges z6–14（-r1）", note: "授權未明示；人行天橋，不是公路橋（DRR 公路橋境外連不上）" },
+  thRailCrossings: { theme: "交通", group: "道路設施", zh: "國道與鐵路交會處", alt: "Highway–Railway Crossings", icon: AlertTriangle, dataset: "th_rail_crossings", topics: ["泰國", "交通", "平交道", "鐵路", "DOH"],
+    description: "泰國國道與鐵路交會處 290 處（同平面 171、立體 119；45/77 府）", processing: "DOH 國道鐵路交會處 API → 4326；PMTiles rail_crossings z6–14（-r1）", note: "授權未明示；只含國道交會處，非全國平交道" },
+  thRoadAccidents: { theme: "交通", group: "交通事故", zh: "道路交通事故（2025）", alt: "Road Traffic Accidents (2025)", icon: Car, dataset: "th_road_accidents", topics: ["泰國", "交通", "事故", "死亡", "GISTDA"],
+    description: "泰國 2025-01-01～12-12 道路事故 23,543 件（依死傷分 4 級；低縮放為熱區；不含個人可識別欄位）", processing: "GISTDA Hosted 事故點（來源 DOH／DRR／高速公路局）→ 4326；severity 依死亡、重傷、輕傷分級；PMTiles accidents z6–14（-r1）", note: "授權未明示；非全年；非 A1／A2 分級；169 筆無座標、3 筆在境外已排除" },
+  thEec: { theme: "工商登記", group: "產業園區", zh: "東部經濟走廊 EEC", alt: "Eastern Economic Corridor (EEC)", icon: Factory, dataset: "th_eec", topics: ["泰國", "工業", "EEC", "經濟走廊", "GISTDA"],
+    description: "泰國東部經濟走廊 EEC 3 府（Chon Buri、Rayong、Chachoengsao）邊界與 290 個鄉面；只涵蓋 3/77 府", processing: "GISTDA Hosted EEC 鄉面 → 4326；3 府邊界取 COD-AB 府面合併；PMTiles eec_tambon z6–13、eec_boundary z4–12", note: "授權未明示（鄉）／CC BY-IGO（邊界）；統計欄名被截斷、語意未驗，不顯示；SEZ 未涵蓋" },
+  thFloodHistory: { theme: "災害", group: "淹水", zh: "歷史淹水範圍（2005–2012）", alt: "Historical Flood Extent (2005–2012)", icon: Waves, dataset: "th_flood_history", topics: ["泰國", "災害", "淹水", "歷史", "GISTDA"],
+    description: "泰國 2005–2012 歷史淹水範圍 118,727 面（依淹水頻率 1–7 年分級；只涵蓋 16/77 府）", processing: "GISTDA Hosted 歷史淹水面（衛星判釋、一般化）→ 4326；77 府空間判定；PMTiles flood z6–12", note: "授權未明示；只涵蓋 16 府；頻率與逐年旗標加總不一致，popup 並列" },
+  thBasins: { theme: "水資源", group: "流域", zh: "流域（DWR 25 主流域）", alt: "River Basins (DWR 25 Main Basins)", icon: Droplets, dataset: "th_basins", topics: ["泰國", "水資源", "流域", "DWR"],
+    description: "泰國 DWR 25 主流域與 254 子流域（主流域各色、子流域邊界）；河線與水體面未涵蓋", processing: "NGIS DWR 流域面 → 4326；PMTiles main_basin z3–9、sub_basin z5–12", note: "授權未明示；DWR 25 流域與 ONWR 22 流域不同" },
+  thIrrigationProjects: { theme: "水資源", group: "灌溉", zh: "灌溉專案", alt: "Irrigation Projects", icon: Droplet, dataset: "th_irrigation_projects", topics: ["泰國", "水資源", "灌溉", "水庫", "RID"],
+    description: "泰國 RID 灌溉專案 796 處（水庫 409、堰 143、水門 88、抽水站 33…；設施類型由名稱推導；71/77 府）", processing: "NGIS RID 灌溉專案點 → 4326；依專案名稱推導 facility_type；PMTiles projects z5–14（-r1）", note: "授權未明示；設施類型為推導；專案面積單位來源未標" },
+  thLandslideSafePoints: { theme: "災害", group: "避難場所", zh: "坍方臨時安全點", alt: "Landslide Temporary Safe Points", icon: House, dataset: "th_landslide_safe_points", topics: ["泰國", "災害", "坍方", "避難", "DMR"],
+    description: "泰國 DMR 坍方臨時安全點 8,286 處（46/77 府）；崩塌潛勢面圖無可用幾何，未涵蓋", processing: "DMR 安全點 CSV（UTM 座標轉 4326）→ 77 府空間判定；PMTiles safe_points z6–14（-r1）", note: "Creative Commons Attributions（版本未標）；潛勢面圖未涵蓋" },
+  thLandfills: { theme: "廢棄物", group: "垃圾場址", zh: "垃圾場址與處理設施", alt: "Landfills & Waste Facilities", icon: Trash2, dataset: "th_landfills", topics: ["泰國", "廢棄物", "垃圾場", "掩埋場", "焚化爐", "PCD", "GISTDA"],
+    description: "泰國垃圾場址調查 3,129 處（開放傾倒場 2,893…）與 PCD 設施 2,609 處（兩份調查分開、不可相加；調查年約 2010–2014）", processing: "GISTDA Hosted 垃圾場址調查與 PCD 設施清單 → 4326；site_type 正規化；PMTiles landfill_survey、pcd_facilities z5–14（-r1）", note: "授權未明示；PCD 2566 新版連線失敗未納入；進場廢棄物量單位來源未標" },
+  thSchools: { theme: "教育", group: "學校", zh: "學校（OBEC 名冊＋GISTDA 非 OBEC）", alt: "Schools", icon: GraduationCap, dataset: "th_schools", topics: ["泰國", "教育", "學校", "OBEC"],
+    description: "泰國學校 41,443 處（OBEC 2563 學年名冊 29,641＋GISTDA 非 OBEC 11,802；低縮放熱區，z7 起個別點）", processing: "OBEC 名冊 API＋GISTDA School_new2 → 4326（OBEC 座標約 100 m）；PMTiles obec z7、other_departments z8（-r1）；不輸出電話、網站、地址", note: "Open Data Common（OBEC）；GISTDA 部分授權未明示；大專學生數、補習班未涵蓋" },
+  thKindergartens: { theme: "教育", group: "幼兒教育", zh: "幼兒班與幼兒園", alt: "Kindergartens", icon: Baby, dataset: "th_kindergartens", topics: ["泰國", "教育", "幼兒園", "OBEC", "Overture"],
+    description: "泰國幼兒班與幼兒園 31,403 處（OBEC 學校附設 26,418＋Overture 補缺 4,985；點位＝學校位置）", processing: "OBEC 附設班別 → 學校位置；Overture preschool／day_care；PMTiles obec_attached z7、overture z6（-r1）", note: "OGL（OBEC）／CDLA（Overture）；ศพด. 約 2 萬無座標未涵蓋" },
+  thElderlyHousing: { theme: "社福長照", group: "長者住宿", zh: "長者住宿（Overture 補缺）", alt: "Elderly Housing (Overture)", icon: Users, dataset: "th_elderly_housing", topics: ["泰國", "社福", "長者", "養老院", "Overture"],
+    description: "泰國長者住宿 733 處（Overture 補缺，完整度不明，非官方名冊）", processing: "Overture places retirement_home → 4326；PMTiles retirement_homes z5–14", note: "CDLA-Permissive-2.0；官方 DOP 名冊未涵蓋" },
+  thHealthFacilities: { theme: "醫療", group: "點位", zh: "醫療院所", alt: "Health Facilities", icon: Stethoscope, dataset: "th_health_facilities", topics: ["泰國", "醫療", "醫院", "診所", "藥局", "GISTDA", "OSM"],
+    description: "泰國醫療點 13,481（GISTDA POI 6,734＋OSM 補缺 6,747；兩來源不去重）", processing: "GISTDA Hospital_POI（名稱前綴推導 kind）＋OSM amenity 醫療類；PMTiles gistda_poi、osm_health z6–14（-r1）", note: "GISTDA 授權未明示＋ODbL；官方 hcode 名冊未取" },
+  thPoliceStations: { theme: "執法治安", group: "警政", zh: "警察據點", alt: "Police Stations", icon: Siren, dataset: "th_police_stations", topics: ["泰國", "執法治安", "警察", "GISTDA", "Overture"],
+    description: "泰國警察據點 4,707（GISTDA 1,399＋Overture 補缺 3,308；預設只顯示警察局）", processing: "GISTDA 12_police＋Overture police_station → unit_kind；PMTiles gistda、overture z5–14（-r1）", note: "GISTDA 授權未明示＋CDLA；RTP 全國名冊未涵蓋" },
+  thJailsCourts: { theme: "執法治安", group: "司法矯正", zh: "監所與法院", alt: "Prisons & Courthouses", icon: Gavel, dataset: "th_jails_courts", topics: ["泰國", "執法治安", "監所", "法院", "DOC", "Overture"],
+    description: "泰國監所 142（DOC 2021 版）＋法院 291（Overture 補缺，非 COJ 官方名冊）", processing: "DOC 監所清單（機關地址定位）＋Overture courthouse；PMTiles doc_prisons、overture_courthouse z5–14", note: "DOC 授權未明示＋CDLA；COJ 名單無座標" },
+  thNatureSpots: { theme: "觀光", group: "玩・自然", zh: "自然景點（MOC＋OSM／Overture 補缺）", alt: "Nature Spots", icon: Mountain, dataset: "th_nature_spots", topics: ["泰國", "觀光", "景點", "瀑布", "洞穴", "海灘", "MOC", "OSM"],
+    description: "泰國自然景點：MOC 官方 573＋OSM 景點與觀景點 5,895＋Overture 瀑布、洞穴、海灘 5,009（海灘預設不開）", processing: "MOC natural 圖層＋OSM tourism＋Overture 類別；PMTiles moc_natural z5、osm_attractions z7、overture_nature z9", note: "MOC CC BY（版本未標）／ODbL／CDLA；TAT 官方景點需登入未取" },
+  thNationalReservedForests: { theme: "自然保育", group: "林地", zh: "國有保留林", alt: "National Reserved Forests", icon: Trees, dataset: "th_national_reserved_forests", topics: ["泰國", "自然保育", "保留林", "RFD"],
+    description: "泰國國有保留林 1,221 塊（RFD；68/77 府；只有邊界）", processing: "NGIS／RFD 保留林面 → 4326；PMTiles nrf z4–12", note: "授權未明示；保留林地不全是水源保護；林型向量無" },
+  thNationalParks: { theme: "自然保育", group: "保護區", zh: "國家公園與野生動物保護區", alt: "National Parks & Wildlife Sanctuaries", icon: Leaf, dataset: "th_national_parks", topics: ["泰國", "自然保育", "國家公園", "保護區", "DNP"],
+    description: "泰國國家公園 126、野生動物保護區 58（DNP；含海域部分）", processing: "NGIS／DNP 面 → 4326；PMTiles national_park、wildlife_sanctuary z4–12", note: "授權未明示；非狩獵區、MPA 未涵蓋" },
+  thRamsarSites: { theme: "自然保育", group: "濕地", zh: "拉姆薩濕地（代表點）", alt: "Ramsar Sites (Points)", icon: Droplets, dataset: "th_ramsar_sites", topics: ["泰國", "自然保育", "濕地", "Ramsar", "ONEP"],
+    description: "泰國拉姆薩濕地 15 處代表點（沒有邊界；12/77 府）", processing: "ONEP Ramsar 名冊 → 代表點；PMTiles ramsar z3–14", note: "CC BY（版本未標）；邊界來源 WDPA 非商用不取" },
+  thForestParks: { theme: "自然保育", group: "林地", zh: "森林公園", alt: "Forest Parks", icon: TreePine, dataset: "th_forest_parks", topics: ["泰國", "自然保育", "森林公園", "RFD"],
+    description: "泰國森林公園 109 處（RFD；40/77 府；可能與保留林重疊）", processing: "NGIS／RFD 森林公園面 → 4326；PMTiles forest_parks z5–13", note: "授權未明示；未做重疊檢查" },
+  thMuseumsLibraries: { theme: "文化", group: "文化設施", zh: "博物館與圖書館（MOC＋OSM 補缺）", alt: "Museums & Libraries", icon: Library, dataset: "th_museums_libraries", topics: ["泰國", "文化", "博物館", "圖書館", "MOC", "OSM"],
+    description: "泰國博物館 503＋圖書館 319（MOC 官方）＋OSM 補缺 博物館 606、圖書館 306", processing: "MOC vw_* CSV（去 319 筆完全重複）＋OSM；PMTiles moc_museums、moc_libraries、osm_museums、osm_libraries z5–14", note: "MOC CC BY（版本未標）／ODbL；FAD、SAC 館所未涵蓋" },
+  thArtsEvents: { theme: "文化", group: "藝文活動", zh: "藝文場館與歷史活動（2020–2022）", alt: "Arts Venues & Past Events (2020–2022)", icon: Theater, dataset: "th_arts_events", topics: ["泰國", "文化", "藝文", "活動", "劇場", "電影院", "MOC", "OSM"],
+    description: "泰國藝文場館 254（OSM 補缺）＋MOC 歷史活動 1,114（2020–2022，非當前；預設隱藏）", processing: "MOC 活動表（府級定位）＋OSM theatre／cinema／arts_centre；PMTiles events z5、venues z6", note: "MOC CC BY（版本未標）／ODbL；活動只有 2020–2022" },
+  thHistoricSites: { theme: "文化", group: "文化資產", zh: "古蹟（MOC＋OSM 補缺）", alt: "Historic Sites", icon: Castle, dataset: "th_historic_sites", topics: ["泰國", "文化", "古蹟", "歷史", "MOC", "OSM"],
+    description: "泰國古蹟 MOC 1,855＋歷史公園 9＋OSM 補缺 4,442（排除路旁祠與界石）", processing: "MOC 古蹟與歷史公園＋OSM historic；PMTiles moc_parks z4、moc_sites z6、osm_historic z8", note: "MOC CC BY（版本未標）／ODbL；FAD 名冊未取" },
+  thExperiences: { theme: "觀光", group: "玩・體驗", zh: "露營與遊樂園區（補缺）", alt: "Camps & Theme Parks (Gap-fill)", icon: FerrisWheel, dataset: "th_experiences", topics: ["泰國", "觀光", "露營", "遊樂園", "動物園", "OSM", "Overture"],
+    description: "泰國露營地 569（OSM）＋遊樂園、水上樂園、動物園、水族館 1,127（Overture）；全為補缺", processing: "OSM camp_site＋Overture amusement_park／water_park／zoo／aquarium；PMTiles osm_camps、overture_attractions z6–14", note: "ODbL／CDLA；無官方名冊" },
+  thAccommodation: { theme: "觀光", group: "住・食", zh: "住宿（TAT＋OSM 補缺，僅含有座標者）", alt: "Accommodation (with coordinates only)", icon: BedDouble, dataset: "th_accommodation", topics: ["泰國", "觀光", "住宿", "旅館", "TAT", "OSM"],
+    description: "泰國住宿 26,417 處（TAT 名冊有座標者 9,309＋OSM 補缺 17,108；聯絡資訊不輸出）", processing: "TAT 住宿名冊（約 1/3 有座標；無座標列不 geocode）＋OSM tourism；PMTiles tat z7、osm z8（-r1）", note: "TAT Open Data Common／ODbL；Overture hotel 不取" },
+  thBanks: { theme: "基礎建設", group: "金融據點", zh: "銀行與 ATM（補缺）", alt: "Banks & ATMs (Gap-fill)", icon: Landmark, dataset: "th_banks", topics: ["泰國", "基礎建設", "銀行", "ATM", "Overture", "OSM"],
+    description: "泰國銀行分行 Overture 8,637＋OSM 2,644，ATM OSM 3,371（無官方名冊；ATM 預設不開）", processing: "Overture bank＋OSM amenity=bank／atm；PMTiles overture_banks z7、osm_banks z7、osm_atms z8（-r1）", note: "CDLA／ODbL；證券、保險、外幣經辦局未涵蓋" },
+  thPlacesOfWorship: { theme: "宗教", group: "點位", zh: "宗教場所（MOC 名冊＋Overture／OSM 補缺）", alt: "Places of Worship (MOC + Overture/OSM gap-fill)", icon: Church, dataset: "th_places_of_worship", topics: ["泰國", "宗教", "寺院", "清真寺", "教堂", "MOC", "Overture", "OSM"],
+    description: "泰國宗教場所：MOC 12,262（宗教別由名稱推導）＋OSM 補缺 26,657＋Overture 補缺 70,441；Overture／OSM 為補缺，非官方寺院名冊", processing: "MOC religious_place（religion_guess 名稱推導）＋OSM＋Overture（religion taxonomy）；PMTiles moc_official z7、osm_hot z8、overture z9（-r1）", note: "MOC CC BY／ODbL／CDLA；DRA 清真寺名冊被擋" },
+  thPostOffices: { theme: "基礎建設", group: "郵政與便民", zh: "郵局（補缺）", alt: "Post Offices (Gap-fill)", icon: Mail, dataset: "th_post_offices", topics: ["泰國", "基礎建設", "郵局", "Overture", "OSM"],
+    description: "泰國郵局 Overture 2,116＋OSM 758（可能含代辦所）", processing: "Overture＋OSM post_office；PMTiles overture、osm z6–14（-r1）", note: "CDLA／ODbL；MDES 官方 CSV 境外不通" },
+  thAirQualityStations: { theme: "環境氣候", group: "空品", zh: "空氣品質測站位置（無觀測值）", alt: "Air Quality Station Locations (No Readings)", icon: Wind, dataset: "th_air_quality_stations", topics: ["泰國", "環境", "空氣品質", "測站", "Air4Thai", "PCD"],
+    description: "泰國空氣品質測站位置 267 處（Air4Thai 180＋GISTDA PCD 87）；只有位置、沒有任何觀測值，移動站 8 個座標會變", processing: "Air4Thai 站清單與 GISTDA station_pcd → 4326；77 府空間判定；PMTiles air4thai z4、gistda_station_pcd z5（-r1）；不輸出即時值", note: "授權未明示；只有站位，不是即時資料" },
+  thWeatherStations: { theme: "環境氣候", group: "氣象", zh: "氣象測站位置（無觀測值）", alt: "Weather Station Locations (No Readings)", icon: Cloud, dataset: "th_weather_stations", topics: ["泰國", "氣象", "測站", "NOAA", "GISTDA"],
+    description: "泰國氣象測站位置 294 處（NOAA ISD 170＋GISTDA 124）；只有位置、沒有任何觀測值", processing: "NOAA ISD 清單（停在 2025-08）與 GISTDA station_tmd → 4326；PMTiles noaa_isd、gistda_station_tmd z4–14；TMD API 完全未使用", note: "NOAA 公開／GISTDA 授權未明示；TMD 官方站未涵蓋" },
+  thMarineHabitats: { theme: "海洋", group: "棲地", zh: "海洋棲地（珊瑚、海草、紅樹林）", alt: "Marine Habitats (Coral, Seagrass, Mangrove)", icon: Waves, dataset: "th_marine_habitats", topics: ["泰國", "海洋", "珊瑚", "海草", "紅樹林", "GISTDA"],
+    description: "泰國珊瑚礁 392（13 府）、海草床 130（12 府）、紅樹林 1,969（23 府）面；年份不詳，不能稱全國完整", processing: "GISTDA Hosted 海洋棲地面 → 4326；PMTiles coral、seagrass、mangrove z5–13", note: "授權未明示；年份不詳；DMCR CSV、PCD 海水水質未涵蓋；不畫海域主張線" },
+  thMarineProtectedAreas: { theme: "海洋", group: "保護區", zh: "海洋保護區（2010 年資料，較舊）", alt: "Marine Protected Areas (2010 data, outdated)", icon: Landmark, dataset: "th_marine_protected_areas", topics: ["泰國", "海洋", "保護區", "2010", "GISTDA"],
+    description: "泰國海洋保護區 154 塊（2010 版，資料較舊；只涵蓋 9 個沿海府）", processing: "GISTDA Hosted 海洋保護區 → 4326；PMTiles protected_marine z5–12", note: "授權未明示；STALE（2010）；不畫海域主張線" },
+  thSeaLevelStations: { theme: "海洋", group: "潮位", zh: "潮位站位置（無觀測值）", alt: "Tide-gauge Station Locations (No Readings)", icon: Anchor, dataset: "th_sea_level_stations", topics: ["泰國", "海洋", "潮位", "海平面", "DMR"],
+    description: "泰國 DMR 潮位站位置 7 處；只有位置、沒有潮位值；東岸 2 站座標品質低（位置僅示意）", processing: "DMR 潮位站清單（排除測試站）→ 4326；PMTiles stations z4–14；潮位時序本輪不取", note: "CC BY（版本未標）；兩站座標互不一致 36／16 km" },
+  thCoastalChange: { theme: "海洋", group: "海岸", zh: "海岸線變遷（侵淤）", alt: "Coastline Change (Erosion & Accretion)", icon: Waves, dataset: "th_coastal_change", topics: ["泰國", "海洋", "海岸", "侵蝕", "淤積", "DMR"],
+    description: "泰國海岸線變遷 460 段（淤積 212、穩定 156、中度侵蝕 63、嚴重侵蝕 29；7 個沿海府；彙編年 2013–2023 各段不同）", processing: "DMR 海岸線段 → 4326；PMTiles coastal_change z5–14", note: "CC BY（版本未標）；各段彙編年不同；不畫海域主張線" },
+  thSportsVenues: { theme: "運動休閒", group: "點位", zh: "運動場地（Overture 補缺）", alt: "Sports Venues (Overture Gap-fill)", icon: Flag, dataset: "th_sports_venues", topics: ["泰國", "運動", "體育場", "游泳池", "高爾夫", "Overture"],
+    description: "泰國運動場地 11,377 處（Overture 補缺，空心；體育場、游泳池、足球場、球場、高爾夫；一般運動休閒預設關；低縮放熱區）", processing: "Overture places 運動類 → venue_group；PMTiles venues z7、general z9（-r1）", note: "CDLA-Permissive-2.0；DPE 官方名冊非商用未取" },
+  thParks: { theme: "運動休閒", group: "公園", zh: "公園（Overture 補缺）", alt: "Parks (Overture Gap-fill)", icon: Trees, dataset: "th_parks", topics: ["泰國", "公園", "遊戲場", "植物園", "Overture"],
+    description: "泰國公園 7,495 處（Overture 補缺，空心；只有點、無面積）", processing: "Overture places 公園類 → 4326；PMTiles parks z7、other z8（-r1）", note: "CDLA-Permissive-2.0；BMA 綠地名冊未取" },
+  thFactories: { theme: "工商登記", group: "工廠", zh: "工廠（DIW，僅含有座標者）", alt: "Factories (DIW, Records with Coordinates Only)", icon: Factory, dataset: "th_factories", topics: ["泰國", "工業", "工廠", "DIW"],
+    description: "泰國工廠 21,320 筆有座標（營運中 7,769＋已註銷等 13,551；全名冊 116,050 筆）；預設只顯示營運中；負責人與地址不輸出", processing: "DIW 工廠名冊（2,321 頁分頁掃描）→ 有座標者 4326；status_class 分類；個人稱謂名稱遮蔽；PMTiles operating z6、inactive z9（-r1）", note: "Open Data Common；營運中 3,695 筆無座標未 geocode" },
+  thFarmMarkets: { theme: "農業", group: "市集", zh: "農會與農夫市集（Overture 補缺）", alt: "Farm Co-ops & Farmers' Markets (Overture Gap-fill)", icon: Store, dataset: "th_farm_markets", topics: ["泰國", "農業", "農會", "農夫市集", "Overture"],
+    description: "泰國農會與農夫市集 2,137 處（Overture 補缺，空心）", processing: "Overture places 農業合作社、農夫市集 → 4326；PMTiles farm_markets z6（-r1）", note: "CDLA-Permissive-2.0；DOAE 社區企業名冊含個人欄未取" },
+  thCrops: { theme: "農業", group: "作物", zh: "主要作物範圍（一般化，稻、木薯、玉米、甘蔗、橡膠、油棕）", alt: "Major Crop Extents (Generalized)", icon: Sprout, dataset: "th_crops", topics: ["泰國", "農業", "作物", "稻米", "橡膠", "油棕", "GISTDA"],
+    description: "泰國六種作物範圍（稻 43.5 萬塊、木薯 17.9 萬、玉米、甘蔗、橡膠、油棕）；一般化低解析版，不可用於面積計算", processing: "GISTDA Hosted 作物面 → 稻等簡化 0.003°（約 330 m）丟棄 <1.2 km² 碎片；橡膠、油棕 0.001°；PMTiles rice、cassava、maize、sugarcane z6、rubber、palm z9", note: "授權未明示；單檔 145.9 MB；單位未標；疑為行政區聚合多邊形" },
+  thVeterinary: { theme: "農業", group: "獸醫", zh: "獸醫與動物診所（Overture＋GISTDA）", alt: "Veterinary Clinics (Overture + GISTDA)", icon: Stethoscope, dataset: "th_veterinary", topics: ["泰國", "農業", "獸醫", "動物診所", "Overture", "GISTDA"],
+    description: "泰國獸醫 3,642 處（Overture 補缺 3,350＋GISTDA 292；商用 POI，不分公私立）", processing: "Overture veterinarian＋GISTDA 獸醫圖層 → 4326；PMTiles overture、gistda z6–14（-r1）", note: "CDLA／GISTDA 授權未明示；官方獸醫名冊無" },
+};
+const TH_DATA_MANIFEST_ENTRIES = Object.fromEntries(TH_DATA_SPECS.map((spec) => {
+  const m = TH_DATA_ENTRY_META[spec.key];
+  const hasPoint = spec.parts.some((x) => x.geom === "point");
+  const layers = [...new Set(spec.parts.map((x) => x.sourceLayer))].join("／");
+  const kinds = ["multiSelect", ...(spec.statusDefault ? ["multiSelect"] : []), ...(spec.heat ? ["palette"] : []), "slider", ...(hasPoint ? ["slider"] : [])] as ("multiSelect" | "palette" | "slider")[];
+  return [spec.key, {
+    key: spec.key,
+    country: "TH", section: { theme: m.theme, group: m.group },
+    ...layerName({ zh: m.zh, alt: m.alt }),
+    expandable: true,
+    color: spec.color,
+    icon: m.icon,
+    upstream: { status: "verified", datasets: [{ datasetId: m.dataset, confidence: "HIGH" }], processing: m.processing, note: m.note },
+    dataClass: "D",
+    source: { kind: "custom", note: `usePhDataLayer（泰國規格）自建 mapbox-pmtiles source；source-layer=${layers}`, staticAssets: [`./world/${spec.file}`] },
+    legend: spec.key,
+    popup: spec.key,
+    params: { count: kinds.length, kinds },
+    description: m.description,
+    topics: m.topics,
+  }];
+})) as Record<ThDataKey, LayerManifestEntry>;
+
+/** 泰國 raster 2 層（2026-11-22 第 2 波）：PNG PMTiles，無 feature 屬性與 popup（同 phTerrain）。 */
+const TH_RASTER_META: Record<string, { theme: string; group: string; zh: string; alt: string; icon: LucideIcon; dataset: string; description: string; topics: string[]; processing: string; note: string }> = {
+  thTerrainHillshade: { theme: "底圖", group: "地形", zh: "山體陰影", alt: "Hillshade", icon: Mountain, dataset: "th_terrain", topics: ["泰國", "底圖", "地形", "陰影", "Copernicus DEM"],
+    description: "泰國山體陰影（Copernicus DEM GLO-90，約 90 m；只保留陸域，DSM）", processing: "Copernicus DEM GLO-90 → gdaldem hillshade → 泰國陸域遮罩 → PNG raster PMTiles z5–10", note: "Copernicus DEM（免費、要署名）；28.1 MB 走 deploy-assets；DSM 含樹冠與建物；GLO-30 待主機搬遷；沒有 feature 屬性與 popup" },
+  thTerrainRelief: { theme: "底圖", group: "地形", zh: "色別標高", alt: "Elevation Tint", icon: Mountain, dataset: "th_terrain", topics: ["泰國", "底圖", "地形", "標高", "Copernicus DEM"],
+    description: "泰國色別標高（0–2,565 m 色帶，≤0 m 與海面、鄰國透明）", processing: "Copernicus DEM GLO-90 → gdaldem color-relief（≤0 m 透明）→ 泰國陸域遮罩 → PNG raster PMTiles z5–10", note: "Copernicus DEM（免費、要署名）；DSM；沒有 feature 屬性與 popup" },
+  thSoilPh: { theme: "農業", group: "土壤", zh: "土壤酸鹼值 pH（約 1 km）", alt: "Soil pH (about 1 km)", icon: Sprout, dataset: "th_soils", topics: ["泰國", "農業", "土壤", "pH", "SoilGrids"],
+    description: "泰國表土 pH（SoilGrids 2.0 模型預測，約 1 km；4.0–8.5 色階，0 值透明；最大 z7）", processing: "SoilGrids WCS phh2o_0-5cm → 泰國陸域遮罩 → gdaldem color-relief → PNG raster PMTiles z4–7", note: "CC BY 4.0（推定）；模型預測，非實測，非 LDD 土壤分類" },
+  thSoilOrganicCarbon: { theme: "農業", group: "土壤", zh: "土壤有機碳（約 1 km）", alt: "Soil Organic Carbon (about 1 km)", icon: Sprout, dataset: "th_soils", topics: ["泰國", "農業", "土壤", "有機碳", "SoilGrids"],
+    description: "泰國表土有機碳（SoilGrids 2.0 模型預測，約 1 km；0–80 g/kg 色階；最大 z7）", processing: "SoilGrids WCS soc_0-5cm → 泰國陸域遮罩 → gdaldem color-relief → PNG raster PMTiles z4–7", note: "CC BY 4.0（推定）；模型預測，非實測" },
+};
+const TH_RASTER_MANIFEST_ENTRIES = Object.fromEntries(TH_RASTER_SPECS.map((spec) => {
+  const m = TH_RASTER_META[spec.key]!;
+  return [spec.key, {
+    key: spec.key,
+    country: "TH", section: { theme: m.theme, group: m.group },
+    ...layerName({ zh: m.zh, alt: m.alt }),
+    expandable: true,
+    color: spec.steps?.[spec.steps.length - 1]?.color ?? "#9ca3af",
+    icon: m.icon,
+    upstream: { status: "verified", datasets: [{ datasetId: m.dataset, confidence: "HIGH" }], processing: m.processing, note: m.note },
+    dataClass: "D",
+    source: { kind: "custom", note: `useThRasterLayer 自建 mapbox-pmtiles raster source（pmtilesRasterCustomSource）；minzoom=${spec.minzoom} maxzoom=${spec.maxzoom}，插在底圖第一個 symbol 下`, staticAssets: [`./world/${spec.file}`] },
+    legend: spec.key,
+    popup: null,
+    params: { count: 1, kinds: ["slider"] },
+    description: m.description,
+    topics: m.topics,
+  }];
+})) as Record<ThRasterKey, LayerManifestEntry>;
+
+/** 印尼第 1–4 波（2026-11-23）規格驅動 19 層的中介資料；規格 SSOT 在 idWavesLayers.ts，畫法重用 usePhDataLayer。 */
+const ID_DATA_ENTRY_META: Record<IdDataKey, { theme: string; group: string; zh: string; alt: string; icon: LucideIcon; dataset: string; description: string; topics: string[]; processing: string; note: string }> = {
+  idStations: { theme: "交通", group: "場站", zh: "鐵道站", alt: "Railway Stations", icon: TrainFront, dataset: "id_stations", topics: ["印尼", "交通", "鐵道", "車站", "OSM"],
+    description: "印尼鐵道站 681 處（OSM 補缺，非官方；KAI 無開放站表）", processing: "HOT／HDX OSM 鐵道站 → 4326；省縣判定（Kemendagri 碼）；PMTiles stations z4–14", note: "ODbL 1.0；非官方站數；涵蓋 17/38 省" },
+  idRailLines: { theme: "交通", group: "路網", zh: "鐵道線", alt: "Railway Lines", icon: Route, dataset: "id_rail_lines", topics: ["印尼", "交通", "鐵道", "OSM"],
+    description: "印尼鐵道線 14,144 段（OSM，非官方；爪哇、蘇門答臘、南蘇拉威西）", processing: "HOT／HDX OSM railway=rail → 4326；線中點判縣市；PMTiles rail z4–12", note: "ODbL 1.0；主要道路（130,328 段）本輪未做；涵蓋 14/38 省" },
+  idTransportHubs: { theme: "交通", group: "樞紐節點", zh: "機場與港口", alt: "Airports & Ports", icon: Plane, dataset: "id_transport_hubs", topics: ["印尼", "交通", "機場", "港口", "渡輪", "OSM", "OurAirports"],
+    description: "印尼機場 678、港口 396、渡輪碼頭 775（OSM；無名機場 32 處不顯示，不猜名；機場補名取 OurAirports）", processing: "HOT／HDX OSM 樞紐 → 代表點；OurAirports 補機場名（公有領域）；PMTiles hubs z4–14", note: "ODbL 1.0／OurAirports 公有領域；Kemenhub 機場表、ASDP 航線無開放檔" },
+  idPowerPlants: { theme: "能源", group: "電力 · 廠", zh: "電廠", alt: "Power Plants", icon: Factory, dataset: "id_power_plants", topics: ["印尼", "能源", "電廠", "發電", "燃煤", "水力", "地熱", "GPPD", "OSM"],
+    description: "印尼電廠 559 處（WRI GPPD 2021 版 178＋OSM 補缺 381；依燃料分色、點大小依裝置容量）", processing: "WRI GPPD v1.3.0 濾印尼＋Overture 電廠補缺；省縣判定；PMTiles plants z3–14（點與面）", note: "逐列 CC BY 4.0／ODbL 1.0；GPPD 為 2021 版（STALE）；GEM 追蹤器需填表單，未用" },
+  idPowerGrid: { theme: "能源", group: "電力 · 電網", zh: "輸電線與變電所", alt: "Power Lines & Substations", icon: Zap, dataset: "id_power_grid", topics: ["印尼", "能源", "電網", "輸電線", "變電所", "OSM", "Overture"],
+    description: "印尼輸電線 4,627 段（依電壓分級）＋變電所 2,820 處（OpenStreetMap via Overture，非官方）", processing: "Overture base/infrastructure power_line／substation → 4326；依 voltage 最大值分級；PMTiles lines z4–13、substations z5–14", note: "ODbL 1.0；OSM 完整度不均，不可當官方電網長度" },
+  idRenewables: { theme: "能源", group: "再生能源", zh: "太陽能潛力與風光發電場", alt: "Solar Potential & Wind/Solar Farms", icon: Sun, dataset: "id_renewables", topics: ["印尼", "能源", "再生能源", "太陽能", "風電", "BMKG", "OSM"],
+    description: "BMKG 太陽能潛力分區（2 級，DISPLAY_ONLY）＋OSM 太陽能／風力發電場 204 處", processing: "BMKG ArcGIS 太陽能潛力圖簡化 0.001°；Overture generator 太陽能與風力；PMTiles solar_potential z3–10、generators z4–14", note: "BMKG 授權未明示（須署名）；OSM ODbL 1.0；潛力分區是 DISPLAY_ONLY，不是已建設施；不含屋頂型" },
+  idFuelStations: { theme: "能源", group: "石化 · 加油站", zh: "加油站", alt: "Fuel Stations", icon: Fuel, dataset: "id_fuel_stations", topics: ["印尼", "能源", "加油站", "Overture", "Pertamina", "Shell", "BP"],
+    description: "印尼加油站 5,975 處（Overture 補缺，非官方 SPBU 名冊；Pertamina、Shell、BP 分色）", processing: "Overture places gas_station／fueling_station → 品牌正規化；個人名義記錄級遮蔽；PMTiles fuel z5–14", note: "CDLA-Permissive-2.0；筆數為登記數、可能含歇業" },
+  idPlaceNames: { theme: "底圖", group: "地名", zh: "BIG 地名", alt: "BIG Place Names", icon: MapPin, dataset: "id_place_names", topics: ["印尼", "底圖", "地名", "BIG", "Gasetir"],
+    description: "印尼地名 12,554 筆（BIG Gasetir 2023 已公布批次；含學校、村辦公室等設施型地名）", processing: "BIG ArcGIS Gasetir 線面轉代表點；省縣判定；PMTiles places z6–14", note: "授權未明示；非全國全部地名；離岸地名保留、省縣欄空白；放大至 z6 才顯示" },
+  idOuterIslands: { theme: "底圖", group: "外圍小島", zh: "外圍小島", alt: "Outer Small Islands", icon: Anchor, dataset: "id_outer_islands", topics: ["印尼", "底圖", "外圍小島", "BIG", "PPKT"],
+    description: "印尼外圍小島 111 處（BIG PPKT，Keppres 6/2017）；只畫島點，不畫任何海上主張線", processing: "BIG GRI_2024_PPKT → 4326；PMTiles islands z3–14", note: "授權未明示；高程與精度來源皆為 0 未輸出；離陸地面 >5 km 者省碼取 BIG 屬性" },
+  idFaults: { theme: "災害", group: "斷層", zh: "活動斷層", alt: "Active Faults", icon: Activity, dataset: "id_faults", topics: ["印尼", "災害", "斷層", "地震", "PVMBG", "PuSGeN"],
+    description: "印尼斷層 1,415 條（PVMBG 大尺度活動斷層 1,014＋PuSGeN 2024 淺層地殼斷層 401）", processing: "BNPB ArcGIS 轉存 PVMBG、PuSGeN → 4326；線中點判縣市；PMTiles pvmbg、pusgen z3–12", note: "授權未明示；兩來源比例尺不同、疊合會重複；離岸斷層保留" },
+  idMountainRescue: { theme: "災害", group: "山域搜救", zh: "山域搜救事件", alt: "Mountain Search & Rescue", icon: ShieldAlert, dataset: "id_mountain_rescue", topics: ["印尼", "災害", "搜救", "山難", "Basarnas"],
+    description: "印尼山域搜救事件 55 筆（Basarnas 2022 單年；山林迷路與墜落）；不含案件敘述與姓名", processing: "Basarnas 手動下載 JSON → 4326；火山噴發事件排除；PMTiles events z5–14", note: "授權未明示；單年資料，不足以做趨勢" },
+  idDibiHydromet: { theme: "災害", group: "水文氣象災害", zh: "水文氣象災害次數（縣市）", alt: "Hydrometeorological Disaster Counts", icon: CloudRain, dataset: "id_dibi_hydromet", topics: ["印尼", "災害", "水文氣象", "DIBI", "BNPB"],
+    description: "印尼水文氣象災害次數（DIBI 2015–2024，514 縣市；DISPLAY_ONLY）", processing: "BNPB ArcGIS DIBI 縣市彙總接第 0 波縣市面（Kemendagri 碼）；PMTiles kabkota z4–12", note: "授權未明示；0 值佔 80%、欄位語意未說明，DISPLAY_ONLY，不做排名或風險比較" },
+  idBridges: { theme: "交通", group: "橋梁", zh: "橋梁", alt: "Bridges", icon: Construction, dataset: "id_bridges", topics: ["印尼", "交通", "橋梁", "BNPB"],
+    description: "印尼橋梁 16,208 點（BNPB 轉存基本地形圖，三比例尺合併去重；只有位置與道路等級）", processing: "BNPB Basemap／Jembatan 三比例尺跨層 30 m 去重；PMTiles bridges z7–14", note: "授權未明示；結構屬性未填；放大至 z7 才顯示" },
+  idWaterFacilities: { theme: "水資源", group: "水利設施", zh: "水壩、堰與閘", alt: "Dams, Weirs & Gates", icon: Waves, dataset: "id_water_facilities", topics: ["印尼", "水資源", "水壩", "堰", "水閘", "OSM"],
+    description: "印尼水壩 893、堰 1,793、水閘 213、泄水閘 138、船閘 147（OSM，非官方）", processing: "HOT／HDX OSM waterways 篩 dam／weir／sluice_gate／lock_gate／floodgate；PMTiles facilities z5–14", note: "ODbL 1.0；筆數是 OSM 物件數，非壩座數；C110（壩）與 C114（堰閘）合一層" },
+  idWatersheds: { theme: "水資源", group: "流域", zh: "流域分級", alt: "Watershed Classification", icon: Droplets, dataset: "id_watersheds", topics: ["印尼", "水資源", "流域", "DAS", "KLHK"],
+    description: "印尼流域分級 42,210 個細流域（KLHK DAS；維持／待復育；z8 起填色）", processing: "BNPB ArcGIS 轉存 KLHK 分級，伺服端簡化約 30 m；PMTiles watersheds z5–12", note: "授權未明示；das_code 不唯一；面積以 area_ha 為準" },
+  idSubsidence: { theme: "災害", group: "地層下陷", zh: "雅加達地層下陷觀測點", alt: "Jakarta Land Subsidence Points", icon: Activity, dataset: "id_subsidence", topics: ["印尼", "災害", "地層下陷", "雅加達", "Satu Data"],
+    description: "雅加達地層下陷觀測 502 筆（230 站，2023–2025；依年份篩選，各年速率不可互比）", processing: "Satu Data Jakarta CSV（UTM48S／度分座標轉 4326）；PMTiles stations z8–14", note: "授權未明示；速率單位未標、2023–24 與 2025 量級不同（0.01–0.09 對 1–8）；僅雅加達" },
+  idNatureSpots: { theme: "觀光", group: "玩・自然", zh: "景點與觀景點", alt: "Attractions & Viewpoints", icon: Mountain, dataset: "id_nature_spots", topics: ["印尼", "觀光", "景點", "觀景點", "OSM"],
+    description: "印尼景點與觀景點 4,337 處（OSM，非官方；attraction 為泛稱）", processing: "HOT／HDX OSM tourism 篩 attraction／viewpoint／picnic_site／theme_park／zoo／aquarium；PMTiles spots z6–14", note: "ODbL 1.0；放大至 z6 才顯示；Overture 對照未併入" },
+  idConservationForest: { theme: "自然保育", group: "保護與保育林", zh: "保護與保育林分區（舊版）", alt: "Protection & Conservation Forest (Legacy)", icon: TreePine, dataset: "id_conservation_forest", topics: ["印尼", "自然保育", "保護林", "保育林", "國家公園", "GFW"],
+    description: "印尼保護與保育林分區 15,792 面（WRI／GFW 舊版轉存，STALE；z7 起填色）", processing: "BNPB ArcGIS 轉存 GFW 舊版 → 4326；PMTiles zones z4–12", note: "授權未明示；舊版、年份未標；服務描述稱限 Kalimantan、實測涵蓋 38 省" },
+  idCamps: { theme: "觀光", group: "營地與山屋", zh: "營地與山屋", alt: "Campsites & Mountain Huts", icon: Tent, dataset: "id_camps", topics: ["印尼", "觀光", "營地", "山屋", "OSM"],
+    description: "印尼營地 586、山屋 118（OSM，非官方）", processing: "HOT／HDX OSM camp_site／alpine_hut／wilderness_hut；PMTiles camps z6–14", note: "ODbL 1.0；放大至 z6 才顯示" },
+  idSchools: { theme: "教育", group: "學校", zh: "學校與幼兒園", alt: "Schools & Kindergartens", icon: GraduationCap, dataset: "id_schools", topics: ["印尼", "教育", "學校與幼兒園"],
+    description: "印尼學校與幼兒園 63,083 處（OSM，非官方；學校 52,856、幼兒園 6,979、大學 1,980、學院 1,268；z7 起顯示）", processing: "HOT／HDX OSM amenity=school／kindergarten／university／college → 代表點；省縣判定；PMTiles points z7–14", note: "ODbL 1.0；非官方，官方 Dapodik（313,664）與 PAUD 未納入；無名 8,880；筆數不可當官方統計" },
+  idHealthFacilities: { theme: "醫療", group: "點位", zh: "醫療設施", alt: "Health Facilities", icon: Hospital, dataset: "id_health_facilities", topics: ["印尼", "醫療", "醫療設施"],
+    description: "印尼醫療設施 17,998 處（OSM，非官方；醫院、診所、藥局、醫師診間、牙醫）", processing: "HOT／HDX OSM amenity／healthcare → 代表點；PMTiles points z6–14", note: "ODbL 1.0；非官方名冊，筆數不可當官方統計" },
+  idFireStations: { theme: "執法治安", group: "消防", zh: "消防站", alt: "Fire Stations", icon: Siren, dataset: "id_fire_stations", topics: ["印尼", "執法治安", "消防站"],
+    description: "印尼消防站 425 處（OSM，非官方）", processing: "HOT／HDX OSM amenity=fire_station；PMTiles points z5–14", note: "ODbL 1.0；非官方，涵蓋 32/38 省、縣市 161/514" },
+  idPoliceStations: { theme: "執法治安", group: "警政", zh: "警察機關", alt: "Police Stations", icon: Shield, dataset: "id_police_stations", topics: ["印尼", "執法治安", "警察機關"],
+    description: "印尼警察機關 3,236 處（OSM，非官方）", processing: "HOT／HDX OSM amenity=police；PMTiles points z5–14", note: "ODbL 1.0；非官方，涵蓋縣市 427/514" },
+  idPrisonsCourts: { theme: "執法治安", group: "監所與法院", zh: "監所與法院", alt: "Prisons & Courthouses", icon: Gavel, dataset: "id_prisons_courts", topics: ["印尼", "執法治安", "監所與法院"],
+    description: "印尼監所與法院 594 處（OSM，非官方）", processing: "HOT／HDX OSM amenity=prison／courthouse；PMTiles points z5–14", note: "ODbL 1.0；非官方，涵蓋縣市 226/514" },
+  idImmigrationOffices: { theme: "執法治安", group: "移民署", zh: "移民署辦公處", alt: "Immigration Offices", icon: Landmark, dataset: "id_immigration_offices", topics: ["印尼", "執法治安", "移民署辦公處"],
+    description: "印尼移民署辦公處 218 處（境內有座標；依名稱前綴歸類）", processing: "Direktorat Jenderal Imigrasi 網頁名冊（404 筆，163 無座標、13 海外）→ 4326；類別依名稱前綴；PMTiles offices z4–14", note: "授權未明示；類別為本站歸類、非官方分類；名稱可能因 2026-10 更名過時；不顯示聯絡欄" },
+  idTransjakarta: { theme: "交通", group: "公車", zh: "TransJakarta 路線與站位", alt: "TransJakarta Routes & Stops", icon: Bus, dataset: "id_transjakarta", topics: ["印尼", "交通", "TransJakarta 路線與站位"],
+    description: "雅加達 TransJakarta 路線 694 條形狀與站位 8,149 處（靜態 GTFS，2026-11-20）", processing: "PT Transportasi Jakarta GTFS 靜態：shapes→trips 對 route，stops 接縣市；PMTiles routes z8–15、stops z9–15", note: "授權未明示；靜態 GTFS，無即時；僅雅加達都會區（3 省、13 縣市）" },
+  idSpecialEconomicZones: { theme: "工商登記", group: "經濟特區", zh: "經濟特區 KEK", alt: "Special Economic Zones (KEK)", icon: Factory, dataset: "id_special_economic_zones", topics: ["印尼", "工商登記", "經濟特區 KEK"],
+    description: "印尼經濟特區 KEK 12 處（非完整名冊）", processing: "BNPB ArcGIS 轉存 Dewan Nasional KEK → 4326；PMTiles kek z4–13", note: "授權未明示；面積單位未標不顯示；只有 12 個" },
+  idIkn: { theme: "底圖", group: "新首都 IKN", zh: "新首都 IKN 範圍與規劃", alt: "New Capital (IKN) Boundaries & Planning", icon: Landmark, dataset: "id_ikn", topics: ["印尼", "底圖", "新首都 IKN 範圍與規劃"],
+    description: "印尼新首都 IKN 四個互相重疊的範圍（IKN 範圍、RDTR 4、BWP 北部 1、BWP 六分區）", processing: "BNPB ArcGIS IKN 批次 → 4326；PMTiles delineasi、rdtr、bwp_utara、bwp z5–14", note: "授權未明示；四範圍互相重疊，面積不可相加" },
+  idPostOffices: { theme: "基礎建設", group: "郵局", zh: "郵局", alt: "Post Offices", icon: Mail, dataset: "id_post_offices", topics: ["印尼", "基礎建設", "郵局"],
+    description: "印尼郵局 1,797 處（OSM，非官方）", processing: "HOT／HDX OSM amenity=post_office；PMTiles points z5–14", note: "ODbL 1.0；非官方，涵蓋縣市 342/514" },
+  idMarkets: { theme: "工商登記", group: "市場", zh: "市場", alt: "Marketplaces", icon: Store, dataset: "id_markets", topics: ["印尼", "工商登記", "市場"],
+    description: "印尼市場 5,754 處（OSM，非官方）", processing: "HOT／HDX OSM amenity=marketplace；PMTiles points z6–14", note: "ODbL 1.0；非官方，涵蓋縣市 415/514" },
+  idBanks: { theme: "基礎建設", group: "金融據點", zh: "銀行與 ATM", alt: "Banks & ATMs", icon: Building2, dataset: "id_banks", topics: ["印尼", "基礎建設", "銀行與 ATM"],
+    description: "印尼銀行 8,984 與 ATM 5,606（OSM，非官方；ATM z8 起）", processing: "HOT／HDX OSM amenity=bank／atm；PMTiles points z6–14", note: "ODbL 1.0；非官方，涵蓋縣市 421/514" },
+  idCulturalFacilities: { theme: "文化", group: "文化設施", zh: "文化設施", alt: "Cultural Facilities", icon: Theater, dataset: "id_cultural_facilities", topics: ["印尼", "文化", "文化設施"],
+    description: "印尼文化設施 3,755 處（OSM；圖書館、博物館、社區中心、劇場、電影院…）", processing: "HOT／HDX OSM 文化類標籤；PMTiles points z6–14", note: "ODbL 1.0；非官方，涵蓋縣市 347/514" },
+  idHeritageSites: { theme: "文化", group: "古蹟與紀念地", zh: "歷史與紀念地點", alt: "Heritage & Memorial Sites", icon: Castle, dataset: "id_heritage_sites", topics: ["印尼", "文化", "歷史與紀念地點"],
+    description: "印尼歷史與紀念地點 4,286 處（OSM historic 標籤；紀念碑、遺址、要塞、古墓…）", processing: "HOT／HDX OSM historic=*；PMTiles points z6–14", note: "ODbL 1.0；非官方，不是官方文化資產名冊" },
+  idCommTowers: { theme: "基礎建設", group: "通訊塔", zh: "通訊塔", alt: "Communications Towers", icon: RadioTower, dataset: "id_comm_towers", topics: ["印尼", "基礎建設", "通訊塔"],
+    description: "印尼通訊塔 1,026 處（OSM，非官方）", processing: "HOT／HDX OSM man_made=communications_tower；PMTiles points z6–14", note: "ODbL 1.0；非官方，不是電信業者基地台名冊" },
+  idPlacesOfWorship: { theme: "宗教", group: "點位", zh: "宗教場所", alt: "Places of Worship", icon: Church, dataset: "id_places_of_worship", topics: ["印尼", "宗教", "宗教場所"],
+    description: "印尼宗教場所 82,202 處（Overture，非官方；伊斯蘭、基督教、天主教、印度教、佛教；z7 起顯示）", processing: "Overture places 宗教場所（confidence≥0.5、已歇業排除、境外 22,781 丟棄）；PMTiles points z7–14", note: "CDLA-Permissive-2.0；非官方 SIMAS 名冊；宗教別是場所分類，不是信徒統計" },
+  idExperiences: { theme: "觀光", group: "體驗", zh: "遊樂與露營", alt: "Amusement & Camping", icon: FerrisWheel, dataset: "id_experiences", topics: ["印尼", "觀光", "遊樂與露營"],
+    description: "印尼遊樂園、水上樂園、露營地、水族館、動物園共 3,040 處（Overture，非官方）", processing: "Overture places 遊樂與露營類；PMTiles points z6–14", note: "CDLA-Permissive-2.0；非官方；露營地與 OSM「營地與山屋」部分重疊" },
+  idAccommodation: { theme: "觀光", group: "住宿", zh: "住宿", alt: "Accommodation", icon: BedDouble, dataset: "id_accommodation", topics: ["印尼", "觀光", "住宿"],
+    description: "印尼住宿 67,917 處（Overture，非官方；飯店、旅社、度假村、青旅；z7 起顯示）", processing: "Overture places 住宿類；PMTiles points z7–14", note: "CDLA-Permissive-2.0；非官方；盤點稱 80,282，實際以資料端為準" },
+  idWeatherStations: { theme: "環境氣候", group: "氣象站", zh: "氣象站位（BMKG）", alt: "Weather Stations (BMKG)", icon: Thermometer, dataset: "id_weather_stations", topics: ["印尼", "環境氣候", "氣象站位（BMKG）"],
+    description: "印尼 BMKG 自動氣象站位 1,315 站（ARG、AWS、AAWS 等；只有站位，沒有觀測值）", processing: "BMKG 自動氣象站 metadata → 4326；PMTiles stations z4–14", note: "授權未明示（BMKG 須署名）；只有 metadata，無觀測值" },
+  idFactories: { theme: "工商登記", group: "工廠", zh: "工廠與工場", alt: "Factories & Works", icon: Factory, dataset: "id_factories", topics: ["印尼", "工商登記", "工廠與工場"],
+    description: "印尼工廠與工場 3,048 處（OSM，非官方）", processing: "HOT／HDX OSM man_made=works；PMTiles points z6–14", note: "ODbL 1.0；非官方，不等於工業登記名冊" },
+  idSportsVenues: { theme: "運動休閒", group: "點位", zh: "運動場地", alt: "Sports Venues", icon: Activity, dataset: "id_sports_venues", topics: ["印尼", "運動休閒", "運動場地"],
+    description: "印尼運動場地 18,785 處（OSM 面；球場、體育場、遊憩地、跑道；z8 起顯示）", processing: "Overture base/land_use（OSM 來源）→ 簡化約 10 m；PMTiles areas z8–14", note: "ODbL 1.0；非官方" },
+  idParks: { theme: "運動休閒", group: "公園", zh: "公園", alt: "Parks", icon: Trees, dataset: "id_parks", topics: ["印尼", "運動休閒", "公園"],
+    description: "印尼公園 9,241 處（OSM 面；z7 起顯示）", processing: "Overture base/land_use park（OSM 來源）；PMTiles areas z7–14", note: "ODbL 1.0；非官方" },
+  idCemeteries: { theme: "基礎建設", group: "墓區", zh: "墓地範圍", alt: "Cemeteries", icon: Flower2, dataset: "id_cemeteries", topics: ["印尼", "基礎建設", "墓地範圍"],
+    description: "印尼墓地範圍 8,052 處（OSM 面；只有墓區範圍，無個別墓位）", processing: "Overture base/land_use cemetery（OSM 來源）；PMTiles areas z8–14", note: "ODbL 1.0；非官方；無個別墓位" },
+  idAquaculture: { theme: "農業", group: "養殖", zh: "養殖池", alt: "Aquaculture Ponds", icon: Fish, dataset: "id_aquaculture", topics: ["印尼", "農業", "養殖池"],
+    description: "印尼養殖池 4,642 處（OSM 面）", processing: "Overture base/land_use aquaculture（OSM 來源）；PMTiles areas z6–14", note: "ODbL 1.0；非官方" },
+  idFarmland: { theme: "農業", group: "農地", zh: "農地面（OSM 派生）", alt: "Farmland (OSM-derived)", icon: Sprout, dataset: "id_farmland", topics: ["印尼", "農業", "農地面（OSM 派生）"],
+    description: "印尼農地面 95,084 處（OSM 派生：農地、果園、農場院落；z8 起顯示）", processing: "Overture base/land_use agriculture／horticulture（OSM 來源）；PMTiles areas z8–14", note: "ODbL 1.0；OSM 登記的農地，涵蓋不均，非農地普查；官方 ATR/BPN 需印尼 IP" },
+  idVeterinary: { theme: "農業", group: "獸醫", zh: "獸醫院", alt: "Veterinary Clinics", icon: PawPrint, dataset: "id_veterinary", topics: ["印尼", "農業", "獸醫院"],
+    description: "印尼獸醫院 763 處（Overture，非官方）", processing: "Overture places veterinarian；PMTiles points z5–14", note: "CDLA-Permissive-2.0；非官方" },
+};
+const ID_DATA_MANIFEST_ENTRIES = Object.fromEntries(ID_DATA_SPECS.map((spec) => {
+  const m = ID_DATA_ENTRY_META[spec.key];
+  const hasPoint = spec.parts.some((x) => x.geom === "point");
+  const layers = [...new Set(spec.parts.map((x) => x.sourceLayer))].join("／");
+  const kinds = ["multiSelect", ...(spec.heat ? ["palette"] : []), "slider", ...(hasPoint ? ["slider"] : [])] as ("multiSelect" | "palette" | "slider")[];
+  return [spec.key, {
+    key: spec.key,
+    country: "ID", section: { theme: m.theme, group: m.group },
+    ...layerName({ zh: m.zh, alt: m.alt }),
+    expandable: true,
+    color: spec.color,
+    icon: m.icon,
+    upstream: { status: "verified", datasets: [{ datasetId: m.dataset, confidence: "HIGH" }], processing: m.processing, note: m.note },
+    dataClass: "D",
+    source: { kind: "custom", note: `usePhDataLayer（印尼規格）自建 mapbox-pmtiles source；source-layer=${layers}`, staticAssets: [`./world/${spec.file}`] },
+    legend: spec.key,
+    popup: spec.key,
+    params: { count: kinds.length, kinds },
+    description: m.description,
+    topics: m.topics,
+  }];
+})) as Record<IdDataKey, LayerManifestEntry>;
+
+/** 印尼 raster 5 層（2026-11-23 第 2–3 波）：PNG PMTiles，無 feature 屬性與 popup；全部 DISPLAY_ONLY（影像底色）。 */
+const ID_RASTER_META: Record<IdRasterKey, { theme: string; group: string; zh: string; alt: string; icon: LucideIcon; dataset: string; description: string; topics: string[]; processing: string; note: string }> = {
+  idTerrainHillshade: { theme: "底圖", group: "地形", zh: "山體陰影", alt: "Hillshade", icon: Mountain, dataset: "id_terrain", topics: ["印尼", "底圖", "地形", "陰影", "Copernicus DEM"],
+    description: "印尼山體陰影（Copernicus DEM GLO-90，約 90 m，重取樣約 306 m；DSM；DISPLAY_ONLY）", processing: "Copernicus DEM GLO-90 → gdaldem hillshade → PNG raster PMTiles z4–9", note: "Copernicus DEM（免費、要署名）；25.1 MB 走 R2；DSM 含樹冠與建物；GLO-30、官方等高線未做；沒有 feature 屬性與 popup" },
+  idTerrainRelief: { theme: "底圖", group: "地形", zh: "色別標高", alt: "Elevation Tint", icon: Mountain, dataset: "id_terrain", topics: ["印尼", "底圖", "地形", "標高", "Copernicus DEM"],
+    description: "印尼色別標高（0–4,500 m 色帶，≤0 m 與海面透明；DISPLAY_ONLY）", processing: "Copernicus DEM GLO-90 → gdaldem color-relief（≤0 m 透明）→ PNG raster PMTiles z4–9", note: "Copernicus DEM（免費、要署名）；23.1 MB 走 R2；DSM；沒有 feature 屬性與 popup" },
+  idInariskLandslide: { theme: "災害", group: "InaRISK 危害指數", zh: "崩塌危害指數（InaRISK）", alt: "Landslide Hazard Index (InaRISK)", icon: Mountain, dataset: "id_inarisk_landslide", topics: ["印尼", "災害", "崩塌", "InaRISK", "BNPB"],
+    description: "印尼崩塌危害指數（InaRISK，500 m 重取樣，三等分展示色；DISPLAY_ONLY）", processing: "BNPB InaRISK ImageServer 取樣 500 m → 三級色 PNG raster PMTiles z3–9", note: "授權未明示；展示底色，不做 100 m 級分析；非 BNPB 官方 Kelas；沒有 feature 屬性與 popup" },
+  idInariskFlood: { theme: "災害", group: "InaRISK 危害指數", zh: "淹水危害指數（InaRISK）", alt: "Flood Hazard Index (InaRISK)", icon: Waves, dataset: "id_inarisk_flood", topics: ["印尼", "災害", "淹水", "InaRISK", "BNPB"],
+    description: "印尼淹水危害指數（InaRISK，500 m 重取樣，三等分展示色，值域從 0.33 起；DISPLAY_ONLY）", processing: "BNPB InaRISK ImageServer 取樣 500 m → 三級色 PNG raster PMTiles z3–9", note: "授權未明示；展示底色；官方 Kelas_Banjir 未取；沒有 feature 屬性與 popup" },
+  idInariskMulti: { theme: "災害", group: "InaRISK 危害指數", zh: "多災種危害指數（InaRISK）", alt: "Multi-hazard Index (InaRISK)", icon: Activity, dataset: "id_inarisk_multi", topics: ["印尼", "災害", "多災種", "InaRISK", "BNPB"],
+    description: "印尼多災種危害指數（InaRISK，5 級分位數相對排名；全國大片紅色是資料本身分布；DISPLAY_ONLY）", processing: "BNPB InaRISK ImageServer 取樣 500 m → 5 級分位數色 PNG raster PMTiles z3–9", note: "授權未明示；相對排名，非絕對風險；建議透明度 60–70%；沒有 feature 屬性與 popup" },
+};
+const ID_RASTER_MANIFEST_ENTRIES = Object.fromEntries(ID_RASTER_SPECS.map((spec) => {
+  const m = ID_RASTER_META[spec.key];
+  return [spec.key, {
+    key: spec.key,
+    country: "ID", section: { theme: m.theme, group: m.group },
+    ...layerName({ zh: m.zh, alt: m.alt }),
+    expandable: true,
+    color: spec.steps?.[spec.steps.length - 1]?.color ?? "#9ca3af",
+    icon: m.icon,
+    upstream: { status: "verified", datasets: [{ datasetId: m.dataset, confidence: "HIGH" }], processing: m.processing, note: m.note },
+    dataClass: "D",
+    source: { kind: "custom", note: `useIdRasterLayer 自建 mapbox-pmtiles raster source（pmtilesRasterCustomSource）；minzoom=${spec.minzoom} maxzoom=${spec.maxzoom}，插在底圖第一個 symbol 下`, staticAssets: [`./world/${spec.file}`] },
+    legend: spec.key,
+    popup: null,
+    params: { count: 1, kinds: ["slider"] },
+    description: m.description,
+    topics: m.topics,
+  }];
+})) as Record<IdRasterKey, LayerManifestEntry>;
+
 /** 越南 raster 4 層（2026-11-17 第 2、3、6 波）：PNG PMTiles，無 feature 屬性與 popup（同 caHillshade）。WDPCA 站主限定（OWNER_ONLY，圖磚走私有 owner-data）。 */
 const VN_RASTER_MANIFEST_ENTRIES = Object.fromEntries(VN_RASTER_SPECS.map((spec) => {
   const m = VN_RASTER_META[spec.key];
@@ -1318,6 +1643,10 @@ export const LAYER_MANIFEST = {
   ...PH_DATA_MANIFEST_ENTRIES,
   ...PH_RASTER_MANIFEST_ENTRIES,
   ...VN_DATA_MANIFEST_ENTRIES,
+  ...TH_DATA_MANIFEST_ENTRIES,
+  ...ID_DATA_MANIFEST_ENTRIES,
+  ...ID_RASTER_MANIFEST_ENTRIES,
+  ...TH_RASTER_MANIFEST_ENTRIES,
   ...VN_RASTER_MANIFEST_ENTRIES,
   ...CA_WAVE_MANIFEST_ENTRIES,
   ...CN_DATA_MANIFEST_ENTRIES,
@@ -2445,7 +2774,7 @@ export const LAYER_MANIFEST = {
     key: "npSpeciesSites", country: "TW", section: { theme: "自然保育 Conservation", group: "物種調查 Species Surveys" }, ...layerName({ zh: "國家公園物種調查點位", alt: "National Park Species Survey Sites" }), expandable: true,
     color: ATLAS_LAYER_COLORS.npSpeciesSites, icon: PawPrint,
     upstream: { status: "verified", datasets: [{ datasetId: "np_species_survey_points", confidence: "MED" }], processing: "analytics environment/np_species_survey_points 73252：國家公園署 24 個 CSV（111、112 年）1,451,504 筆紀錄合併為 144,228 個調查點位；台灣框外 4,776 列不上圖；人名欄與備註不收", note: "單位是調查點位不是逐筆紀錄；2,304 點座標經模糊處理；PMTiles 逐點完整，拉遠為熱區。" },
-    dataClass: "B", source: { kind: "pmtiles", sourceId: "np-species-sites", url: "./environment/np_species_survey_points_sites_73252.pmtiles", sourceLayer: "np_species_survey_points", minzoom: 4, maxzoom: 14 },
+    dataClass: "B", source: { kind: "pmtiles", sourceId: "np-species-sites", url: "./environment/np_species_survey_points_sites_73252_lt2.pmtiles", sourceLayer: "np_species_survey_points", minzoom: 4, maxzoom: 14 },
     legend: "npSpeciesSites", popup: "npSpeciesSites", params: { count: 4, kinds: ["multiSelect", "palette", "slider", "slider"] },
     description: "國家公園與都會公園物種調查點位 144,228 個（涵蓋 145 萬筆紀錄；拉遠為熱區，部分座標經模糊處理）。",
     topics: ["自然保育", "物種調查", "國家公園", "生物多樣性", "國家公園署"],
@@ -2879,7 +3208,7 @@ export const LAYER_MANIFEST = {
     },
     legend: "globalEvents",
     popup: "globalEvent",
-    params: { count: 8, kinds: ["slider", "select", "select", "select", "select", "toggle", "toggle", "toggle"] },
+    params: { count: 9, kinds: ["slider", "select", "select", "select", "select", "toggle", "toggle", "toggle", "toggle"] },
     description: "全球情勢最近七天總覽與時間軸回放；同位置事件可展開，跨國弧線只表示事件關聯，不是移動軌跡",
     topics: ["世界", "重要事件", "情報"],
   },
@@ -2936,6 +3265,7 @@ export const LAYER_MANIFEST = {
 
   gfwHourlyGrid: {
     key: "gfwHourlyGrid",
+    dataTimeZone: "UTC", // release_id 是 UTC 日，小時從 T00:00Z 起算
     country: "WORLD", section: { theme: "全球海事 Global Maritime", group: "船舶" },
     ...layerName({ zh: "GFW 小時船舶網格", alt: "Hourly Grid" }),
     expandable: true,
@@ -2962,6 +3292,7 @@ export const LAYER_MANIFEST = {
 
   gfwHourlyTracks: {
     key: "gfwHourlyTracks",
+    dataTimeZone: "UTC", // 每日檔 days/{UTC 日}.geojson
     country: "WORLD", section: { theme: "全球海事 Global Maritime", group: "船舶" },
     ...layerName({ zh: "GFW 小時近似航跡", alt: "Hourly Tracks" }),
     expandable: true,
@@ -2988,6 +3319,7 @@ export const LAYER_MANIFEST = {
 
   gfwFishingEffort: {
     key: "gfwFishingEffort",
+    dataTimeZone: "UTC", // GFW 每日 fishing effort 以 UTC 日彙整
     country: "WORLD", section: { theme: "全球海事 Global Maritime", group: "船舶" },
     ...layerName({ zh: "GFW 每日捕撈活動", alt: "Fishing Effort" }),
     expandable: true,
@@ -4125,7 +4457,7 @@ export const LAYER_MANIFEST = {
     source: {
       kind: "custom",
       note: "useJpSchoolsLayer 自建 mapbox-pmtiles source；source-layer=jp_schools，minzoom=4 maxzoom=11",
-      staticAssets: ["./world/jp_schools.pmtiles"],
+      staticAssets: ["./world/jp_schools_lt2.pmtiles"],
     },
     legend: "jpSchools",
     popup: "jpSchools",
@@ -4227,6 +4559,7 @@ export const LAYER_MANIFEST = {
   // RPC 契約 gis-platform docs/jma-time-rpcs.md（migration 463/464）。
   jmaLightning: {
     key: "jmaLightning",
+    dataTimeZone: "Asia/Taipei", // get_lightning_day 的日界是台北日（gis-platform migration 338），不是 JST
     country: "JP", section: { theme: "災害", group: "雷暴" },
     ...layerName({ zh: "落雷", alt: "雷監視 LIDEN", qualifier: "日本" }),
     expandable: true,
@@ -4269,6 +4602,7 @@ export const LAYER_MANIFEST = {
   },
   jmaSnowcap: {
     key: "jmaSnowcap",
+    dataTimeZone: "Asia/Tokyo", // get_jma_snowcap_asof 的 p_date 是 JST 日
     country: "JP", section: { theme: "環境氣候", group: "季節觀測" },
     ...layerName({ zh: "山頂初冠雪", alt: "初冠雪" }),
     expandable: true,
@@ -4290,6 +4624,7 @@ export const LAYER_MANIFEST = {
   },
   jmaAutumnLeaves: {
     key: "jmaAutumnLeaves",
+    dataTimeZone: "Asia/Tokyo", // get_jma_phenology_asof 的 p_date 是 JST 日
     country: "JP", section: { theme: "環境氣候", group: "季節觀測" },
     ...layerName({ zh: "紅葉・黃葉前線", alt: "紅葉前線" }),
     expandable: true,
@@ -4311,6 +4646,7 @@ export const LAYER_MANIFEST = {
   },
   jmaSakura: {
     key: "jmaSakura",
+    dataTimeZone: "Asia/Tokyo", // get_jma_phenology_asof 的 p_date 是 JST 日
     country: "JP", section: { theme: "環境氣候", group: "季節觀測" },
     ...layerName({ zh: "櫻花前線", alt: "桜前線" }),
     expandable: true,
@@ -4332,6 +4668,7 @@ export const LAYER_MANIFEST = {
   },
   jmaRainySeason: {
     key: "jmaRainySeason",
+    dataTimeZone: "Asia/Tokyo", // get_jma_rainy_season_asof 的 p_date 是 JST 日
     country: "JP", section: { theme: "環境氣候", group: "季節觀測" },
     ...layerName({ zh: "梅雨入梅・出梅", alt: "梅雨入り・明け" }),
     expandable: true,
@@ -4695,6 +5032,7 @@ export const LAYER_MANIFEST = {
   },
   gibsSnowCover: {
     key: "gibsSnowCover",
+    dataTimeZone: "UTC", // GIBS 日產品以 UTC 日為界
     country: "JP", section: { theme: "環境氣候", group: "積雪" },
     ...layerName({ zh: "衛星雪覆蓋", alt: "積雪域（衛星 NDSI）", qualifier: "NASA GIBS" }),
     expandable: true,
@@ -5631,6 +5969,137 @@ export const LAYER_MANIFEST = {
     topics: ["越南", "人口", "人口密度", "NSO", "34 省"],
   },
   // ══════════════════════════════════════════════════════════════
+  // 🇹🇭 泰國 Thailand（2026-11-22 第 0–1 波：C001 行政邊界、C023 人口；其餘 8 層由 TH_DATA_MANIFEST_ENTRIES 派生）
+  // ══════════════════════════════════════════════════════════════
+  thAdminBoundaries: {
+    key: "thAdminBoundaries",
+    country: "TH", section: { theme: "底圖", group: "行政邊界" },
+    ...layerName({ zh: "行政區界", alt: "Administrative Boundaries" }),
+    expandable: true,
+    color: "#9ca3af",
+    icon: Map,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "th_admin_boundaries", confidence: "HIGH" }],
+      processing: "OCHA COD-AB Thailand v01（HDX；來源 Royal Thai Survey Department）國界 1、府 77、amphoe／khet 928、tambon／khwaeng 7,425 → 4326；PMTiles country z2–8／province z3–10／amphoe z6–11／tambon z9–13；曼谷 khwaeng 169（官方 180，版本落後）",
+      note: "CC BY-IGO 3.0；不畫海域主張線；邊界依 OCHA 資料（含泰柬邊界段），不代表任何立場",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useThAdminLayers 自建 mapbox-pmtiles source；source-layer=country／province／amphoe／tambon（select 擇一）",
+      staticAssets: ["./world/th_admin_boundaries.pmtiles"],
+    },
+    legend: "thAdminBoundaries",
+    popup: "thAdminBoundaries",
+    params: { count: 2, kinds: ["slider", "select"] },
+    description: "泰國行政區界（國界、府 77、縣 928、區 7,425；OCHA COD-AB，泰文＋英文名）",
+    topics: ["泰國", "行政區", "邊界", "府", "amphoe", "tambon", "COD-AB"],
+  },
+  thPopulation: {
+    key: "thPopulation",
+    country: "TH", section: { theme: "人口社經", group: "人口分布" },
+    ...layerName({ zh: "人口密度", alt: "Population Density", qualifier: "2025 登記" }),
+    expandable: true,
+    color: "#f59e0b",
+    icon: Users,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "th_population", confidence: "HIGH" }],
+      processing: "NSO catalogapi OS_0405_01_0005_01（DOPA 戶籍登記，2021–2025）依 COD-AB pcode 接府（77）與 amphoe（928）面 → 人口密度（人／km²）；PMTiles province z3–10／amphoe z6–13",
+      note: "Creative Commons Attributions（版本號未見）；戶籍人口不是普查實住人口；tambon 沒有人口；未涵蓋畫灰，不是 0",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useThPopulationLayers 自建 mapbox-pmtiles source；source-layer=province／amphoe（select 擇一）",
+      staticAssets: ["./world/th_population.pmtiles"],
+    },
+    legend: "thPopulation",
+    popup: "thPopulation",
+    params: { count: 2, kinds: ["select", "slider"] },
+    description: "泰國 2025 年戶籍人口與人口密度（府、amphoe 兩層級；2021–2025 五年人口見 popup）",
+    topics: ["泰國", "人口", "人口密度", "戶籍", "DOPA", "NSO"],
+  },
+  // ══════════════════════════════════════════════════════════════
+  // 🇮🇩 印尼 Indonesia（2026-11-23 第 0–3 波：C001 行政邊界、C023 人口、C022 農村發展指數；其餘 19＋5 層由 ID_DATA_MANIFEST_ENTRIES／ID_RASTER_MANIFEST_ENTRIES 派生）
+  // ══════════════════════════════════════════════════════════════
+  idAdminBoundaries: {
+    key: "idAdminBoundaries",
+    country: "ID", section: { theme: "底圖", group: "行政邊界" },
+    ...layerName({ zh: "行政區界", alt: "Administrative Boundaries" }),
+    expandable: true,
+    color: "#9ca3af",
+    icon: Map,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "id_admin_boundaries", confidence: "HIGH" }],
+      processing: "OCHA COD-AB Indonesia v01（HDX；來源 BIG、BPS）國界 1、縣市 514（416 kabupaten＋98 kota）→ 4326，縣市依 Kemendagri 省碼重組為 38 省；PMTiles country z2–8／province z3–10／kabkota z5–12",
+      note: "CC BY-IGO 3.0；幾何為 2020 版 COD-AB（舊 34 省）重組；陸界照 COD-AB 原樣，不代表任何立場；不畫海域主張線；省縣碼是 Kemendagri 碼，不是 COD-AB pcode",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useIdAdminLayers 自建 mapbox-pmtiles source；source-layer=country／province／kabkota（select 擇一）",
+      staticAssets: ["./world/id_admin_boundaries.pmtiles"],
+    },
+    legend: "idAdminBoundaries",
+    popup: "idAdminBoundaries",
+    params: { count: 2, kinds: ["slider", "select"] },
+    description: "印尼行政區界（國界、38 省、514 縣市；OCHA COD-AB，邊界不代表任何立場）",
+    topics: ["印尼", "行政區", "邊界", "省", "縣市", "COD-AB"],
+  },
+  idPopulation: {
+    key: "idPopulation",
+    country: "ID", section: { theme: "人口社經", group: "人口分布" },
+    ...layerName({ zh: "人口密度", alt: "Population Density", qualifier: "2020 推估" }),
+    expandable: true,
+    color: "#f59e0b",
+    icon: Users,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "id_population", confidence: "HIGH" }],
+      processing: "UNFPA／BPS COD-PS Indonesia 2020（v3，HDX）縣市人口依 Kemendagri 碼接縣市面；省值由縣市加總（全國 269,603,430 對帳一致）→ 人口密度；PMTiles province z3–10／kabkota z5–12",
+      note: "HDX「Other」授權條款未明述（授權未明示，依 2026-11-23 決定照常上線）；2020 推估，不是 SP2020 普查或最新年度",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useIdPopulationLayers 自建 mapbox-pmtiles source；source-layer=province／kabkota（select 擇一）",
+      staticAssets: ["./world/id_population.pmtiles"],
+    },
+    legend: "idPopulation",
+    popup: "idPopulation",
+    params: { count: 2, kinds: ["select", "slider"] },
+    description: "印尼 2020 年推估人口與人口密度（省、縣市兩層級）",
+    topics: ["印尼", "人口", "人口密度", "UNFPA", "BPS", "COD-PS"],
+  },
+  idRuralDevelopment: {
+    key: "idRuralDevelopment",
+    country: "ID", section: { theme: "人口社經", group: "農村發展" },
+    ...layerName({ zh: "農村發展指數 IDM", alt: "Village Development Index (IDM)", qualifier: "2024" }),
+    expandable: true,
+    color: "#2dd4bf",
+    icon: Sprout,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "id_rural_development", confidence: "HIGH" }],
+      processing: "Kemendes IDM 2024 hasil pemutakhiran（村級表）依縣市／省加總村均值與五級狀態村數，接 COD-AB 縣市、省面；PMTiles province z3–10／kabkota z5–12",
+      note: "Open Data Commons Attribution License（資料集頁標示，條款未重讀）；村簡單平均不加權；縣市 432/514 有資料，82 個無村縣市畫灰「未涵蓋」；96.09、96.10 兩縣碼不在縣市面，其村只計入省層",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useIdRuralDevelopmentLayers 自建 mapbox-pmtiles source；source-layer=province／kabkota（select 擇一）",
+      staticAssets: ["./world/id_rural_development.pmtiles"],
+    },
+    legend: "idRuralDevelopment",
+    popup: "idRuralDevelopment",
+    params: { count: 2, kinds: ["select", "slider"] },
+    description: "印尼農村發展指數 IDM 2024（省、縣市村均值與五級狀態；無村縣市未涵蓋）",
+    topics: ["印尼", "農村", "發展指數", "IDM", "Kemendes"],
+  },
+  // ══════════════════════════════════════════════════════════════
   // 🇨🇳 中國 China（2026-11-13 第 0–1 波，站主限定：C001 行政邊界、C023 人口＋人口網格；其餘 6 層由 CN_DATA_MANIFEST_ENTRIES 派生）
   // ══════════════════════════════════════════════════════════════
   cnAdminBoundaries: {
@@ -6477,7 +6946,7 @@ export const LAYER_MANIFEST = {
     source: {
       kind: "custom",
       note: "useGbOpenSpaceLayers 自建 mapbox-pmtiles source；source-layer=gb_greenspace filter category=park，minzoom=8 maxzoom=14（面 layer minzoom 9）；67.8MB 走 S3 deploy-assets；點／面切換（預設面），代表點 gb-greenspace-points z5–10、z<9 熱區",
-      staticAssets: ["./world/gb_greenspace.pmtiles", "./world/gb_greenspace_points.pmtiles"],
+      staticAssets: ["./world/gb_greenspace.pmtiles", "./world/gb_greenspace_points_lt2.pmtiles"],
     },
     legend: "gbGreenspace",
     popup: "gbGreenspace",
@@ -6503,7 +6972,7 @@ export const LAYER_MANIFEST = {
     source: {
       kind: "custom",
       note: "useGbOpenSpaceLayers 共用 gb-greenspace source；filter category=sports 且 function≠Golf Course，面 layer minzoom 10；點／面切換（預設面），代表點 gb-greenspace-points z5–10、z<10 熱區",
-      staticAssets: ["./world/gb_greenspace.pmtiles", "./world/gb_greenspace_points.pmtiles"],
+      staticAssets: ["./world/gb_greenspace.pmtiles", "./world/gb_greenspace_points_lt2.pmtiles"],
     },
     legend: "gbSportsFacilities",
     popup: "gbSportsFacilities",
@@ -6529,7 +6998,7 @@ export const LAYER_MANIFEST = {
     source: {
       kind: "custom",
       note: "useGbOpenSpaceLayers 共用 gb-greenspace source；filter function=Golf Course，面 layer minzoom 10；點／面切換（預設面，z<10 畫代表點 gb-greenspace-golf-circle）",
-      staticAssets: ["./world/gb_greenspace.pmtiles", "./world/gb_greenspace_points.pmtiles"],
+      staticAssets: ["./world/gb_greenspace.pmtiles", "./world/gb_greenspace_points_lt2.pmtiles"],
     },
     legend: "gbGolfCourses",
     popup: "gbGolfCourses",
@@ -6555,7 +7024,7 @@ export const LAYER_MANIFEST = {
     source: {
       kind: "custom",
       note: "useGbOpenSpaceLayers 共用 gb-greenspace source；filter category=burial，面 layer minzoom 10；點／面切換（預設點），代表點 gb-greenspace-points z5–10、z<10 熱區",
-      staticAssets: ["./world/gb_greenspace.pmtiles", "./world/gb_greenspace_points.pmtiles"],
+      staticAssets: ["./world/gb_greenspace.pmtiles", "./world/gb_greenspace_points_lt2.pmtiles"],
     },
     legend: "gbCemeteries",
     popup: "gbCemeteries",
@@ -6802,6 +7271,35 @@ export const LAYER_MANIFEST = {
     params: { count: 2, kinds: ["slider", "slider"] },
     description: "倫敦地鐵、Overground、DLR、Elizabeth line 與電車車站（TfL），標示轉乘站",
     topics: ["英國", "倫敦", "地鐵站", "車站", "交通"],
+  },
+
+  // 🇬🇧 英國列車重播（2026-11-23 站主限定測試圖層；資料只有 2026-11-21 一天，走 owner-data 私人檔、不進 git／公開 CDN）：
+  // Darwin 前一日（2026-11-21，週六）實際／預估時刻，沿 OSM 鐵軌內插；倫敦與東南部。非即時，自成「列車重播」群組。
+  gbRailReplay: {
+    key: "gbRailReplay",
+    dataTimeZone: "Europe/London", // 服務日按英國當地時間；時間軸以倫敦牆上時刻對齊（londonClock）
+    country: "GB", section: { theme: "交通", group: "列車重播" },
+    ...layerName({ zh: "列車重播", alt: "Rail Replay", qualifier: "2026-11-21" }),
+    expandable: true,
+    color: "#64aaff",
+    icon: TrainFront,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      processing: "taipei-gis-analytics pipelines/analysis/uk_rail_darwin/10_build_replay.py：Darwin Push Port 27 份每小時快照合併，每點取實際→預估→工作時刻；範圍內 10,885 班（排除巴士、渡輪、空車與非客運）；鐵軌對位 OSM 2026-05-31，2,287 條路段（直線 fallback 3 條）",
+      note: "站主限定測試圖層（OWNER_ONLY），只有 2026-11-21 一天。列車時刻 National Rail Enquiries／Darwin（Rail Data Marketplace 授權條款，正式上線前須再確認再散布）；鐵軌 © OpenStreetMap contributors ODbL；車站座標 NaPTAN OGL v3；部分計時點座標 YA_Tiploc_List CC BY-SA 4.0。僅倫敦與東南部（bbox 50.80–51.70N、1.00W–1.35E），其他地區未涵蓋",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useGbRailReplayLayer 自建 GeoJSON source（鐵軌線、選取路徑、列車點與尾巴）；資料 Owner-only same-origin Range API /api/private-research/owner-data/{gb-rail-replay-geometry,gb-rail-replay-trips-20261121}（coral-private sidecar 驗站主 JWT；gzip JSON 前端解壓）；不公開轉供；timeStore 每幀 tick 內插",
+      staticAssets: ["PRIVATE_OWNER_ONLY: gb_rail_replay_geometry_20261121.json.gz", "PRIVATE_OWNER_ONLY: gb_rail_replay_trips_20261121.json.gz"],
+    },
+    legend: "gbRailReplay",
+    popup: "gbRailReplay",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "倫敦與東南部火車前一日重播：依 Darwin 實際或預估時刻沿鐵軌移動，依誤點分級上色（非即時）",
+    topics: ["英國", "倫敦", "鐵路", "火車", "列車", "誤點", "重播", "交通", "OWNER_ONLY"],
   },
 
   gbLondonBikePoints: {
@@ -7400,8 +7898,8 @@ export const LAYER_MANIFEST = {
     dataClass: "D",
     source: {
       kind: "custom",
-      note: "useGbCivicLayers 自建 mapbox-pmtiles source；gb_schools.pmtiles；source-layer=gb_schools，minzoom=5 maxzoom=12（layer minzoom 9）；15.1MB git-track",
-      staticAssets: ["./world/gb_schools.pmtiles"],
+      note: "useGbCivicLayers 自建 mapbox-pmtiles source；gb_schools_lt2.pmtiles；source-layer=gb_schools，minzoom=5 maxzoom=12（layer minzoom 9）；15.1MB git-track",
+      staticAssets: ["./world/gb_schools_lt2.pmtiles"],
     },
     legend: "gbSchools",
     popup: "gbSchools",
@@ -7452,8 +7950,8 @@ export const LAYER_MANIFEST = {
     dataClass: "D",
     source: {
       kind: "custom",
-      note: "useGbCivicLayers 自建 mapbox-pmtiles source；gb_care_services.pmtiles；source-layer=gb_care_services，filter care_home=true，minzoom=5 maxzoom=12（layer minzoom 9）；16.3MB git-track",
-      staticAssets: ["./world/gb_care_services.pmtiles"],
+      note: "useGbCivicLayers 自建 mapbox-pmtiles source；gb_care_services_lt2.pmtiles；source-layer=gb_care_services，filter care_home=true，minzoom=5 maxzoom=12（layer minzoom 9）；16.3MB git-track",
+      staticAssets: ["./world/gb_care_services_lt2.pmtiles"],
     },
     legend: "gbCareHomes",
     popup: "gbCareHomes",
@@ -7478,8 +7976,8 @@ export const LAYER_MANIFEST = {
     dataClass: "D",
     source: {
       kind: "custom",
-      note: "useGbCivicLayers 自建 mapbox-pmtiles source；gb_care_services.pmtiles；source-layer=gb_care_services，filter care_home=false，minzoom=5 maxzoom=12（layer minzoom 9）；16.3MB（與 gbCareHomes 共用） git-track",
-      staticAssets: ["./world/gb_care_services.pmtiles"],
+      note: "useGbCivicLayers 自建 mapbox-pmtiles source；gb_care_services_lt2.pmtiles；source-layer=gb_care_services，filter care_home=false，minzoom=5 maxzoom=12（layer minzoom 9）；16.3MB（與 gbCareHomes 共用） git-track",
+      staticAssets: ["./world/gb_care_services_lt2.pmtiles"],
     },
     legend: "gbCareServices",
     popup: "gbCareServices",
@@ -7870,7 +8368,7 @@ export const LAYER_MANIFEST = {
     source: {
       kind: "custom",
       note: "useGbEnvPlanningLayers 自建 mapbox-pmtiles source；source-layer=gb_brownfield，filter 依許可狀態選單，minzoom=5 maxzoom=13（layer minzoom 9）；18.9MB git-track",
-      staticAssets: ["./world/gb_brownfield.pmtiles"],
+      staticAssets: ["./world/gb_brownfield_lt2.pmtiles"],
     },
     legend: "gbBrownfield",
     popup: "gbBrownfield",
@@ -8189,7 +8687,7 @@ export const LAYER_MANIFEST = {
       note: "Ookla Speedtest 使用者樣本聚合格網；非 coverage map；CC BY-NC-SA 4.0。2026-Q1 官方 z16 Parquet 聚合，產物為 --slim（整層常數在 FeatureCollection metadata／前端 OOKLA_GRID_META，不逐格重複）。",
     },
     dataClass: "B",
-    source: { kind: "pmtiles", sourceId: "ookla-mobile-global", url: "./geo/ookla_mobile_global_20260930.pmtiles", sourceLayer: "ookla", minzoom: 0, maxzoom: 6 },
+    source: { kind: "pmtiles", sourceId: "ookla-mobile-global", url: "./geo/ookla_mobile_global_20260930_t3.pmtiles", sourceLayer: "ookla", minzoom: 0, maxzoom: 6 },
     legend: "ooklaPerformanceGrid",
     popup: "ooklaMobileGrid",
     params: { count: 3, kinds: ["select", "select", "slider"] },
@@ -8210,7 +8708,7 @@ export const LAYER_MANIFEST = {
       note: "Ookla Speedtest 使用者樣本聚合格網；非 coverage map；CC BY-NC-SA 4.0。2026-Q1 官方 z16 Parquet 聚合，產物為 --slim（整層常數在 FeatureCollection metadata／前端 OOKLA_GRID_META，不逐格重複）。",
     },
     dataClass: "B",
-    source: { kind: "pmtiles", sourceId: "ookla-fixed-global", url: "./geo/ookla_fixed_global_20260930.pmtiles", sourceLayer: "ookla", minzoom: 0, maxzoom: 6 },
+    source: { kind: "pmtiles", sourceId: "ookla-fixed-global", url: "./geo/ookla_fixed_global_20260930_t3.pmtiles", sourceLayer: "ookla", minzoom: 0, maxzoom: 6 },
     legend: "ooklaPerformanceGrid",
     popup: "ooklaFixedGrid",
     params: { count: 3, kinds: ["select", "select", "slider"] },
@@ -12841,7 +13339,7 @@ export const LAYER_MANIFEST = {
     key: "swcbDisasterPhotoPoints", country: "TW", section: { theme: "災害 Hazard", group: "崩塌 Landslide" }, ...layerName({ zh: "土砂災害照片點位", alt: "Sediment Disaster Photo Points" }), expandable: true,
     color: ATLAS_LAYER_COLORS.swcbDisasterPhotoPoints, icon: Camera,
     upstream: { status: "verified", datasets: [{ datasetId: "swcb_disaster_photo_points", confidence: "HIGH" }], note: "農業部農村發展及水土保持署 土砂災害照片（data.gov.tw 138000、174226）；34,419 點，只放照片連結不嵌影像。PMTiles z5–12 逐 zoom 完整。" },
-    dataClass: "B", source: { kind: "pmtiles", sourceId: "swcb-disaster-photo-points", url: "./hazards/swcb_disaster_photo_points_v2.pmtiles", sourceLayer: "swcb_disaster_photo_points", minzoom: 5, maxzoom: 12 },
+    dataClass: "B", source: { kind: "pmtiles", sourceId: "swcb-disaster-photo-points", url: "./hazards/swcb_disaster_photo_points_v2_lt2.pmtiles", sourceLayer: "swcb_disaster_photo_points", minzoom: 5, maxzoom: 12 },
     legend: "swcbDisasterPhotoPoints", popup: "swcbDisasterPhotoPoints", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
     description: "水保署土砂災害事件照片與媒體報導的拍攝點，點開看事件、日期與照片連結。",
     topics: ["災害", "崩塌", "土石流", "照片"],
@@ -13123,7 +13621,7 @@ export const LAYER_MANIFEST = {
     key: "atmSitesFisc", country: "TW", section: { theme: "基礎建設 Infrastructure", group: "金融據點" }, ...layerName({ zh: "ATM 裝設點（財金公司名冊）", alt: "ATM Sites (FISC Roster)" }), expandable: true,
     color: ATLAS_LAYER_COLORS.atmSitesFisc, icon: CreditCard,
     upstream: { status: "verified", datasets: [{ datasetId: "atm_sites_fisc", confidence: "HIGH" }], note: "財金資訊公司 金融機構 ATM 位置查詢一覽表（data.gov.tw 24333）名冊快照 2026-10-24：27,412 裝設點、27,390 有座標；座標依序取數位發展部 175482、中華郵政 6121、地址定位與 Google，逐點標定位精度。裝設點不等於機台數。PMTiles z5–12 逐 zoom 完整。" },
-    dataClass: "B", source: { kind: "pmtiles", sourceId: "atm-sites-fisc", url: "./finance/atm_sites_fisc.pmtiles", sourceLayer: "atm_sites_fisc", minzoom: 5, maxzoom: 12 },
+    dataClass: "B", source: { kind: "pmtiles", sourceId: "atm-sites-fisc", url: "./finance/atm_sites_fisc_lt2.pmtiles", sourceLayer: "atm_sites_fisc", minzoom: 5, maxzoom: 12 },
     legend: "atmSitesFisc", popup: "atmSitesFisc", params: { count: 5, kinds: ["multiSelect", "toggle", "toggle", "slider", "slider"] },
     description: "財金公司名冊的 ATM 裝設地點，含機構類別、輪椅可用、視障語音、國際卡提款與定位精度（一點一個裝設地點，不是一台機器）。",
     topics: ["ATM", "金融", "提款機", "無障礙", "金融可及性"],
@@ -18064,15 +18562,15 @@ export const LAYER_MANIFEST = {
       datasets: [],
       derivedFromDatasets: ["tax_registry"],
       derivationType: "custom",
-      processing: "30 天地圖挑戰 Day 23 味覺：taipei-gis-analytics pipelines/analysis/mapchallenge_2026_day23_taste（01–03）。財政部稅籍登記 2026-08-16 快照，篩營業中且主要行業（行業代號第一碼）以 56 開頭（餐飲業）共 181,255 家，其中 179,672 家有座標；用店名關鍵字分類後彙總到 H3 六角格（res 6 約 36 km²、res 7 約 5.2 km²），點放在格心。12 個詞：牛肉湯、爌肉、火雞肉飯、飯湯、意麵（排除店名含「鍋燒」者）、鱔魚、肉燥飯、粄條／板條（兩種寫法合計）、肉圓、碗粿、甕（甕缸雞類）、活魚。不設最低家數。輸出只有詞、家數、格網級別與格 id。",
+      processing: "30 天地圖挑戰 Day 23 味覺：taipei-gis-analytics pipelines/analysis/mapchallenge_2026_day23_taste（01–03、04、10）。財政部稅籍登記 2026-08-16 快照，篩營業中且主要行業（行業代號第一碼）以 56 開頭（餐飲業）共 181,255 家，其中 179,672 家有座標；用店名關鍵字分類後彙總到 H3 六角格（res 6 約 36 km²、res 7 約 5.2 km²），點放在格心。24 個詞。第一批 12 個：牛肉湯、爌肉、火雞肉飯、飯湯、意麵（排除店名含「鍋燒」者）、鱔魚、肉燥飯、粄條／板條（兩種寫法合計）、肉圓、碗粿、甕（甕缸雞類）、活魚。第二批 12 個（由店名片段的縣市集中倍數自動找出、再人工挑選，無排除規則）：米干、綠豆湯、外省麵、現炒、大麵、蝦仁、虱目魚粥、切仔麵、春捲、塩水雞／鹽水雞（兩種寫法合計）、燉品、扁食。不設最低家數。輸出只有詞、家數、格網級別與格 id。",
       note: "DISPLAY_ONLY（不入分析倉庫；pulse-data registry 登記為 mapchallenge_day23_taste）。只計店名含該詞的登記餐飲店；攤販與店名未寫品項者不在內；不代表口味偏好。圓點是六角格中心，不是店家位置；稅籍表含獨資行號地址，公開檔不含店名、地址、統編與單店座標。約 0.9% 的店沒有座標，不在圖上。",
     },
     dataClass: "A",
-    source: { kind: "geojson", sourceId: "mapchallenge-day23-taste-terms", url: "./mapchallenge/day23_taste_terms.geojson" },
+    source: { kind: "geojson", sourceId: "mapchallenge-day23-taste-terms", url: "./mapchallenge/day23_taste_terms_v2.geojson" },
     legend: "mapchallengeDay23TasteTerms",
     popup: "mapchallengeDay23TasteTerms",
     params: { count: 3, kinds: ["slider", "slider", "select"] },
-    description: "30 天地圖挑戰 Day 23 味覺：登記餐飲店的店名裡含某個小吃詞的家數。資料是財政部稅籍登記（2026-08-16）營業中、主要行業為餐飲業的 181,255 家，彙總到 H3 六角格、畫在格心。選單可選 12 個詞：牛肉湯、爌肉、火雞肉飯、飯湯、意麵、鱔魚、肉燥飯、粄條／板條、肉圓、碗粿、甕（甕缸雞類）、活魚；每個詞一個顏色。圓面積正比於該格家數，只有 1–2 家也照畫；縮小時每格約 36 平方公里，放大到 9 級以上換成約 5.2 平方公里的小格。點圓點看該詞、該格家數與資料日期。只計店名含該詞的登記餐飲店；攤販與店名未寫品項者不在內；不代表口味偏好。圓點是格子中心，不是店家位置，不顯示店名與地址。來源：財政部財政資訊中心全國營業（稅籍）登記資料（政府資料開放授權條款第 1 版）。",
+    description: "30 天地圖挑戰 Day 23 味覺：登記餐飲店的店名裡含某個小吃詞的家數。資料是財政部稅籍登記（2026-08-16）營業中、主要行業為餐飲業的 181,255 家，彙總到 H3 六角格、畫在格心。選單可選 24 個詞：牛肉湯、爌肉、火雞肉飯、飯湯、意麵、鱔魚、肉燥飯、粄條／板條、肉圓、碗粿、甕（甕缸雞類）、活魚、米干、綠豆湯、外省麵、現炒、大麵、蝦仁、虱目魚粥、切仔麵、春捲、塩水雞／鹽水雞、燉品、扁食；每個詞一個顏色。圓面積正比於該格家數，只有 1–2 家也照畫；縮小時每格約 36 平方公里，放大到 9 級以上換成約 5.2 平方公里的小格。點圓點看該詞、該格家數與資料日期。只計店名含該詞的登記餐飲店；攤販與店名未寫品項者不在內；不代表口味偏好。圓點是格子中心，不是店家位置，不顯示店名與地址。來源：財政部財政資訊中心全國營業（稅籍）登記資料（政府資料開放授權條款第 1 版）。",
     topics: ["味覺", "小吃", "店名", "餐飲", "稅籍登記", "30 天地圖挑戰"],
   },
   mapchallengeDay23TasteVariants: {
@@ -18098,6 +18596,126 @@ export const LAYER_MANIFEST = {
     params: { count: 3, kinds: ["slider", "slider", "select"] },
     description: "30 天地圖挑戰 Day 23 味覺：同一種食物在登記餐飲店店名裡的不同寫法。資料是財政部稅籍登記（2026-08-16）營業中、主要行業為餐飲業的 181,255 家，彙總到 H3 六角格、畫在格心。選單可選三組：魯肉飯／滷肉飯／肉燥飯、粄條／板條、爌肉／焢肉／控肉；同組內每種寫法一個顏色、同時顯示，圓面積正比於該格用這種寫法的家數，只有 1–2 家也照畫。縮小時每格約 36 平方公里，放大到 9 級以上換成約 5.2 平方公里的小格。點圓點看該格各寫法的家數與資料日期。只計店名含該詞的登記餐飲店；攤販與店名未寫品項者不在內；不代表口味偏好。店名同時含兩種寫法會各算一次；圓點是格子中心，不是店家位置，不顯示店名與地址。來源：財政部財政資訊中心全國營業（稅籍）登記資料（政府資料開放授權條款第 1 版）。",
     topics: ["味覺", "小吃", "店名", "用字", "寫法", "餐飲", "稅籍登記", "30 天地圖挑戰"],
+  },
+  mapchallengeDay23TastePlaces: {
+    key: "mapchallengeDay23TastePlaces",
+    // 30 天地圖挑戰（模擬面板，公開，2026-11-23）：靜態 GeoJSON（六角格彙總家數＋原產地代表點＋弧線，無店名／地址／單店座標），不在 GATED_LAYERS。
+    country: "SIM", section: { theme: "30 天地圖挑戰", group: "Day 23 味覺 Taste" },
+    ...layerName({ zh: "店名裡的地名", alt: "Place Names in Shop Names" }),
+    expandable: true,
+    color: MAPCHALLENGE_DAY23_PLACES_COLOR,
+    icon: Signpost,
+    upstream: {
+      status: "pulse_only",
+      datasets: [],
+      derivedFromDatasets: ["tax_registry"],
+      derivationType: "custom",
+      processing: "30 天地圖挑戰 Day 23 味覺第二批：taipei-gis-analytics pipelines/analysis/mapchallenge_2026_day23_taste（04、10）。財政部稅籍登記 2026-08-16 快照，篩營業中且主要行業（行業代號第一碼）以 56 開頭（餐飲業）共 181,255 家；店名同時含地名與品項的店算一個招牌，共 8 個：池上＋飯包／便當、嘉義＋雞肉飯、臺南（含「台南」）＋虱目魚、岡山＋羊肉、彰化＋肉圓、東石／布袋＋蚵、北港＋任何品項、美濃＋粄條（含「板條」）。只留登記縣市在原產縣市以外的店（原產縣市依序為臺東縣、嘉義市與嘉義縣、臺南市、高雄市、彰化縣、嘉義市與嘉義縣、雲林縣、高雄市），彙總到 H3 六角格（res 6 約 36 km²、res 7 約 5.2 km²），點放在格心；另輸出每個招牌的原產地代表點，以及原產地到每個格心的二次貝茲弧線（帶該格家數）。不設最低家數。輸出只有招牌 id、家數、格網級別與格 id。",
+      note: "DISPLAY_ONLY（不入分析倉庫；pulse-data registry 登記為 mapchallenge_day23_taste）。只計店名同時含地名與品項、且登記在原產縣市以外的登記餐飲店；攤販不在內。弧線只是把店名裡的地名和店的所在格連起來，不代表人或貨的移動；店名寫地名不代表店主或食材來自該地。圓點是六角格中心，不是店家位置；公開檔不含店名、地址、統編與單店座標。",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "mapchallenge-day23-taste-places", url: "./mapchallenge/day23_taste_places.geojson" },
+    legend: "mapchallengeDay23TastePlaces",
+    popup: "mapchallengeDay23TastePlaces",
+    params: { count: 3, kinds: ["slider", "slider", "select"] },
+    description: "30 天地圖挑戰 Day 23 味覺：店名裡掛著地名的登記餐飲店開在哪裡。資料是財政部稅籍登記（2026-08-16）營業中、主要行業為餐飲業的 181,255 家。選單可選 8 個招牌：池上＋飯包／便當、嘉義＋雞肉飯、臺南＋虱目魚、岡山＋羊肉、彰化＋肉圓、東石／布袋＋蚵、北港＋任何品項、美濃＋粄條；店名要同時含地名與品項才算（北港不限品項）。圖上只畫登記在原產縣市以外的店，彙總到 H3 六角格、畫在格心：一個空心圈標出店名裡那個地名的位置，發光圓點是外縣市有這個招牌的格子（圓面積正比於該格家數，只有 1–2 家也照畫），弧線把地名和每個格子連起來、線越粗該格家數越多。縮小時每格約 36 平方公里，放大到 9 級以上換成約 5.2 平方公里的小格。點圓點看招牌、該格家數與資料日期。弧線只是把店名裡的地名和店的所在格連起來，不代表人或貨的移動。圓點是格子中心，不是店家位置，不顯示店名與地址。來源：財政部財政資訊中心全國營業（稅籍）登記資料（政府資料開放授權條款第 1 版）。",
+    topics: ["味覺", "小吃", "店名", "地名", "招牌", "餐飲", "稅籍登記", "30 天地圖挑戰"],
+  },
+  mapchallengeDay23TasteForeign: {
+    key: "mapchallengeDay23TasteForeign",
+    // 30 天地圖挑戰（模擬面板，公開，2026-11-23）：靜態 GeoJSON（六角格彙總家數，無店名／地址／單店座標），不在 GATED_LAYERS。
+    country: "SIM", section: { theme: "30 天地圖挑戰", group: "Day 23 味覺 Taste" },
+    ...layerName({ zh: "外來料理店名", alt: "Foreign Cuisine Words in Shop Names" }),
+    expandable: true,
+    color: MAPCHALLENGE_DAY23_FOREIGN_COLOR,
+    icon: Milestone,
+    upstream: {
+      status: "pulse_only",
+      datasets: [],
+      derivedFromDatasets: ["tax_registry"],
+      derivationType: "custom",
+      processing: "30 天地圖挑戰 Day 23 味覺第二批：taipei-gis-analytics pipelines/analysis/mapchallenge_2026_day23_taste（04、10）。財政部稅籍登記 2026-08-16 快照，篩營業中且主要行業（行業代號第一碼）以 56 開頭（餐飲業）共 181,255 家；店名含某組任一用詞就算該組（同一家在同一組只算一次，可同時屬於多組），九組用詞：越南（越南、越式、河粉、越娘、西貢、河內）、泰（泰式、泰國、打拋、泰味、曼谷、清邁、月亮蝦）、印尼（印尼、爪哇、峇里、巴東）、雲南／滇緬（雲南、滇、米干、緬甸、擺夷、傣）、日（拉麵、壽司、丼、居酒屋、日式、日本料理、燒鳥、串燒、壽喜、天婦羅、烏龍麵、蕎麥）、韓（韓式、韓國、石鍋拌飯、泡菜鍋、韓食、首爾、釜山）、港（港式、茶餐廳、燒臘、香港、廣東粥、飲茶）、義（義式、義大利、披薩、比薩、義麵）、美（美式、漢堡、熱狗）。彙總到 H3 六角格（res 6 約 36 km²、res 7 約 5.2 km²），點放在格心。不設最低家數。輸出只有組 id、家數、格網級別與格 id。",
+      note: "DISPLAY_ONLY（不入分析倉庫；pulse-data registry 登記為 mapchallenge_day23_taste）。只計店名含這些用詞的登記餐飲店；攤販與店名沒寫的不在內。用詞是人工挑的，會漏收也會誤收；「美」1,485 家中 1,226 家（83%）店名含「漢堡」，「港」1,342 家中 702 家（52%）含「燒臘」。不代表店主國籍，也不代表口味偏好。各組圓的半徑係數不同，不同組之間不能用圓的大小互比。圓點是六角格中心，不是店家位置；公開檔不含店名、地址、統編與單店座標。",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "mapchallenge-day23-taste-foreign", url: "./mapchallenge/day23_taste_foreign.geojson" },
+    legend: "mapchallengeDay23TasteForeign",
+    popup: "mapchallengeDay23TasteForeign",
+    params: { count: 3, kinds: ["slider", "slider", "select"] },
+    description: "30 天地圖挑戰 Day 23 味覺：登記餐飲店的店名裡含外來料理用詞的家數。資料是財政部稅籍登記（2026-08-16）營業中、主要行業為餐飲業的 181,255 家，彙總到 H3 六角格、畫在格心。選單可選九組：越南、泰、印尼、雲南／滇緬、日、韓、港、義、美；每組有一串比對用詞（例：越南＝越南、越式、河粉、越娘、西貢、河內），店名含任一個就算，圖例與說明框會列出該組全部用詞。「美」這組約八成是店名含「漢堡」的店，「港」這組約一半是含「燒臘」的店。圓面積正比於該格家數，只有 1–2 家也照畫；家數多的組整體畫得比較小，不同組之間不能用圓的大小互比。縮小時每格約 36 平方公里，放大到 9 級以上換成約 5.2 平方公里的小格。點圓點看該組、該格家數與資料日期。只計店名含這些用詞的登記餐飲店；攤販與店名沒寫的不在內；不代表店主國籍，也不代表口味偏好。圓點是格子中心，不是店家位置，不顯示店名與地址。來源：財政部財政資訊中心全國營業（稅籍）登記資料（政府資料開放授權條款第 1 版）。",
+    topics: ["味覺", "外來料理", "異國料理", "店名", "餐飲", "稅籍登記", "30 天地圖挑戰"],
+  },
+
+  mapchallengeDay23TasteKr: {
+    key: "mapchallengeDay23TasteKr",
+    // 30 天地圖挑戰 Day 23 第三批（模擬面板，公開，2026-11-23）：靜態 GeoJSON（六角格彙總家數，無店名／地址／單店座標），不在 GATED_LAYERS。資料只涵蓋南韓，開圖層不自動移動鏡頭；範圍登記在 layerCoverage.ts，視野提示卡給「前往」按鈕。
+    country: "SIM", section: { theme: "30 天地圖挑戰", group: "Day 23 味覺 Taste" },
+    ...layerName({ zh: "南韓店名裡的味道", alt: "Tastes in Korean restaurant names" }),
+    expandable: true,
+    color: MAPCHALLENGE_DAY23_INTL_COLOR,
+    icon: UtensilsCrossed,
+    upstream: {
+      status: "pulse_only",
+      datasets: [],
+      derivationType: "custom",
+      processing: "30 天地圖挑戰 Day 23 味覺第三批：taipei-gis-analytics pipelines/analysis/mapchallenge_2026_day23_taste/intl/kr（規格 docs/topic-research/mapchallenge_2026_day23_taste/intl/layer-spec.md）。來源：小商工人市場振興公團（소상공인시장진흥공단）「상가(상권)정보」，公共資料入口 data.go.kr（https://www.data.go.kr/data/15083033/fileData.do），基準日 2026-09-30（每季更新）；授權原文「이용허락범위 제한 없음」（利用許可範圍：無限制，2026-11-22 讀自該資料頁）。母體是業種大分類「음식」（餐飲，含咖啡店、酒館、員工餐廳）815,570 家，店名與座標皆 100%。店名含某個詞就算（），彙總到 H3 六角格（res 6 約 36 km²、res 7 約 5.2 km²），點放在格心。不設最低家數。輸出只有詞代碼、家數、格網級別與格 id。限制：只計店名含該詞的店，不代表口味偏好；分母含咖啡店與酒館；2026 年起光州與全南合併，行政區是 16 個市道。出處標示：資料：小商工人市場振興公團「商街（商圈）資訊」（2026-09-30），公共資料入口 data.go.kr；授權「이용허락범위 제한 없음」（利用許可範圍：無限制）。",
+      note: "DISPLAY_ONLY（不入分析倉庫；pulse-data registry 登記為 mapchallenge_day23_taste_kr）。只計店名含該詞的店；不代表口味偏好。分母含咖啡店與酒館；2026 年起光州與全南合併，行政區是 16 個市道。三國來源性質不同，家數不可跨國比較；各詞、大格與小格的圓半徑係數都不同，不同詞、不同國家、不同縮放之間不能用圓的大小互比。圓點是六角格中心，不是店家位置；公開檔不含店名、地址與單店座標。",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "mapchallenge-day23-taste-kr", url: "./mapchallenge/day23_taste_terms_kr.geojson" },
+    legend: "mapchallengeDay23TasteKr",
+    popup: "mapchallengeDay23TasteKr",
+    params: { count: 3, kinds: ["slider", "slider", "select"] },
+    description: "30 天地圖挑戰 Day 23 味覺：南韓的店名裡含某個料理詞的店家數。資料只涵蓋南韓，要把地圖移到南韓才看得到圓點。資料是小商工人市場振興公團「商街（商圈）資訊」（基準日 2026-09-30）業種大分類「음식」（餐飲，含咖啡店、酒館、員工餐廳）的 815,570 家，彙總到 H3 六角格、畫在格心。選單可選：。圓面積正比於該格家數，只有 1–2 家也照畫；家數多的詞整體畫得比較小，大格與小格的比例也不同，不同詞、不同國家、不同縮放之間不能用圓的大小互比。縮小時每格約 36 平方公里，放大到 9 級以上換成約 5.2 平方公里的小格。點圓點看該詞、該格家數與資料日期。只計店名含該詞的店；不代表口味偏好。分母含咖啡店與酒館；2026 年起光州與全南合併，行政區是 16 個市道。圓點是格子中心，不是店家位置，不顯示店名與地址。來源：資料：小商工人市場振興公團「商街（商圈）資訊」（2026-09-30），公共資料入口 data.go.kr；授權「이용허락범위 제한 없음」（利用許可範圍：無限制）。",
+    topics: ["味覺", "店名", "餐飲", "南韓", "韓國", "30 天地圖挑戰"],
+  },
+
+  mapchallengeDay23TasteGb: {
+    key: "mapchallengeDay23TasteGb",
+    // 30 天地圖挑戰 Day 23 第三批（模擬面板，公開，2026-11-23）：靜態 GeoJSON（六角格彙總家數，無店名／地址／單店座標），不在 GATED_LAYERS。資料只涵蓋英國，開圖層不自動移動鏡頭；範圍登記在 layerCoverage.ts，視野提示卡給「前往」按鈕。
+    country: "SIM", section: { theme: "30 天地圖挑戰", group: "Day 23 味覺 Taste" },
+    ...layerName({ zh: "英國店名裡的味道", alt: "Tastes in UK food business names" }),
+    expandable: true,
+    color: MAPCHALLENGE_DAY23_INTL_COLOR,
+    icon: UtensilsCrossed,
+    upstream: {
+      status: "pulse_only",
+      datasets: [],
+      derivationType: "custom",
+      processing: "30 天地圖挑戰 Day 23 味覺第三批：taipei-gis-analytics pipelines/analysis/mapchallenge_2026_day23_taste/intl/gb（規格 docs/topic-research/mapchallenge_2026_day23_taste/intl/layer-spec.md）。來源：Food Standards Agency（英國食品標準局）Food Hygiene Rating Scheme（FHRS；蘇格蘭為 FHIS）開放資料 API（https://ratings.food.gov.uk/open-data；API https://api.ratings.food.gov.uk/），API 擷取日 2026-11-22（最新評級日 2026-11-20；來源每日更新）；授權原文「Use of proprietary food hygiene ratings information and services is subject to the terms of the Open Government Licence (OGL).」（2026-11-23 讀自 https://ratings.food.gov.uk/terms-and-conditions）。母體是業態 Restaurant/Cafe/Canteen、Takeaway/sandwich shop、Pub/bar/nightclub 共 254,817 家，店名 100%，226,649 家有座標（88.9%）。資產檔另含 oatcake（17 家），不放進選單、不畫。店名含某個詞就算（fisheries（炸魚薯條店（約克夏叫法））、chippy（炸魚薯條店（口語））、fish bar（炸魚薯條店）、balti（巴蒂咖哩）、pasty（康瓦爾餡餅）、cob（麵包捲（東密德蘭叫法））、butty（三明治（西北英格蘭叫法））、pie & mash（派與薯泥）、jerk（牙買加烤肉）），彙總到 H3 六角格（res 5 約 253 km²、res 7 約 5.2 km²），點放在格心。不設最低家數。輸出只有詞代碼、家數、格網級別與格 id。限制：只計店名含該詞的店，不代表口味偏好；約 11% 的店 API 沒給座標，不在地圖上；分母含酒館。出處標示：Contains Food Standards Agency data (Food Hygiene Rating Scheme), licensed under the Open Government Licence v3.0. © Crown copyright",
+      note: "DISPLAY_ONLY（不入分析倉庫；pulse-data registry 登記為 mapchallenge_day23_taste_gb）。只計店名含該詞的店；不代表口味偏好。約 11% 的店 API 沒給座標，不在地圖上；分母含酒館。三國來源性質不同，家數不可跨國比較；各詞、大格與小格的圓半徑係數都不同，不同詞、不同國家、不同縮放之間不能用圓的大小互比。圓點是六角格中心，不是店家位置；公開檔不含店名、地址與單店座標。",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "mapchallenge-day23-taste-gb", url: "./mapchallenge/day23_taste_terms_gb.geojson" },
+    legend: "mapchallengeDay23TasteGb",
+    popup: "mapchallengeDay23TasteGb",
+    params: { count: 3, kinds: ["slider", "slider", "select"] },
+    description: "30 天地圖挑戰 Day 23 味覺：英國的店名裡含某個料理詞的店家數。資料只涵蓋英國，要把地圖移到英國才看得到圓點。資料是英國食品標準局 Food Hygiene Rating Scheme 開放資料（API 擷取日 2026-11-22）業態為 Restaurant/Cafe/Canteen、Takeaway/sandwich shop、Pub/bar/nightclub 的 254,817 家，其中 226,649 家有座標，彙總到 H3 六角格、畫在格心。選單可選：fisheries（炸魚薯條店（約克夏叫法））、chippy（炸魚薯條店（口語））、fish bar（炸魚薯條店）、balti（巴蒂咖哩）、pasty（康瓦爾餡餅）、cob（麵包捲（東密德蘭叫法））、butty（三明治（西北英格蘭叫法））、pie & mash（派與薯泥）、jerk（牙買加烤肉）。圓面積正比於該格家數，只有 1–2 家也照畫；家數多的詞整體畫得比較小，大格與小格的比例也不同，不同詞、不同國家、不同縮放之間不能用圓的大小互比。縮小時每格約 253 平方公里，放大到 8 級以上換成約 5.2 平方公里的小格。點圓點看該詞、該格家數與資料日期。只計店名含該詞的店；不代表口味偏好。約 11% 的店 API 沒給座標，不在地圖上；分母含酒館。圓點是格子中心，不是店家位置，不顯示店名與地址。來源：Contains Food Standards Agency data (Food Hygiene Rating Scheme), licensed under the Open Government Licence v3.0. © Crown copyright",
+    topics: ["味覺", "店名", "餐飲", "英國", "30 天地圖挑戰"],
+  },
+
+  mapchallengeDay23TasteJp: {
+    key: "mapchallengeDay23TasteJp",
+    // 30 天地圖挑戰 Day 23 第三批（模擬面板，公開，2026-11-23）：靜態 GeoJSON（六角格彙總家數，無店名／地址／單店座標），不在 GATED_LAYERS。資料只涵蓋日本，開圖層不自動移動鏡頭；範圍登記在 layerCoverage.ts，視野提示卡給「前往」按鈕。
+    country: "SIM", section: { theme: "30 天地圖挑戰", group: "Day 23 味覺 Taste" },
+    ...layerName({ zh: "日本店名裡的味道（OSM）", alt: "Tastes in Japanese restaurant names (OSM)" }),
+    expandable: true,
+    color: MAPCHALLENGE_DAY23_INTL_COLOR,
+    icon: UtensilsCrossed,
+    upstream: {
+      status: "pulse_only",
+      datasets: [],
+      derivationType: "custom",
+      processing: "30 天地圖挑戰 Day 23 味覺第三批：taipei-gis-analytics pipelines/analysis/mapchallenge_2026_day23_taste/intl/jp（規格 docs/topic-research/mapchallenge_2026_day23_taste/intl/layer-spec.md）。來源：OpenStreetMap（經 Overpass API，https://overpass-api.de/api/interpreter；https://www.openstreetmap.org/copyright），Overpass 擷取日 2026-11-22；授權原文「The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.」；© OpenStreetMap contributors（ODbL）。母體是 amenity＝restaurant／fast_food／cafe／food_court／pub／bar、落在 47 都道府縣內的 204,709 處，95% 有店名。店名含某個詞就算（うどん（烏龍麵）、お好み焼（御好燒（大阪燒／廣島燒））、たこ焼（章魚燒）、そば（蕎麥麵）、牛たん（牛舌）、ジンギスカン（成吉思汗烤羊肉）、もつ鍋（牛腸鍋）、もんじゃ（文字燒）），彙總到 H3 六角格（res 5 約 253 km²、res 7 約 5.2 km²），點放在格心。不設最低家數。輸出只有詞代碼、家數、格網級別與格 id。限制：只計店名含該詞的店，不代表口味偏好；OSM 為志願者繪製，非全國名冊，都會區與觀光地收錄較完整，數字不宜與其他國家並列。出處標示：© OpenStreetMap contributors（ODbL）。",
+      note: "DISPLAY_ONLY（不入分析倉庫；pulse-data registry 登記為 mapchallenge_day23_taste_jp）。只計店名含該詞的店；不代表口味偏好。OSM 為志願者繪製，非全國名冊，都會區與觀光地收錄較完整，數字不宜與其他國家並列。三國來源性質不同，家數不可跨國比較；各詞、大格與小格的圓半徑係數都不同，不同詞、不同國家、不同縮放之間不能用圓的大小互比。圓點是六角格中心，不是店家位置；公開檔不含店名、地址與單店座標。",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "mapchallenge-day23-taste-jp", url: "./mapchallenge/day23_taste_terms_jp.geojson" },
+    legend: "mapchallengeDay23TasteJp",
+    popup: "mapchallengeDay23TasteJp",
+    params: { count: 3, kinds: ["slider", "slider", "select"] },
+    description: "30 天地圖挑戰 Day 23 味覺：日本的店名裡含某個料理詞的店家數。資料只涵蓋日本，要把地圖移到日本才看得到圓點。資料是 OpenStreetMap（Overpass 擷取日 2026-11-22）amenity＝restaurant／fast_food／cafe／food_court／pub／bar、落在 47 都道府縣內的 204,709 處，彙總到 H3 六角格、畫在格心。選單可選：うどん（烏龍麵）、お好み焼（御好燒（大阪燒／廣島燒））、たこ焼（章魚燒）、そば（蕎麥麵）、牛たん（牛舌）、ジンギスカン（成吉思汗烤羊肉）、もつ鍋（牛腸鍋）、もんじゃ（文字燒）。圓面積正比於該格家數，只有 1–2 家也照畫；家數多的詞整體畫得比較小，大格與小格的比例也不同，不同詞、不同國家、不同縮放之間不能用圓的大小互比。縮小時每格約 253 平方公里，放大到 8 級以上換成約 5.2 平方公里的小格。點圓點看該詞、該格家數與資料日期。只計店名含該詞的店；不代表口味偏好。OSM 為志願者繪製，非全國名冊，都會區與觀光地收錄較完整，數字不宜與其他國家並列。圓點是格子中心，不是店家位置，不顯示店名與地址。來源：© OpenStreetMap contributors（ODbL）。",
+    topics: ["味覺", "店名", "餐飲", "日本", "OpenStreetMap", "OSM", "30 天地圖挑戰"],
   },
 
   roadCongestion: {
@@ -19662,7 +20280,7 @@ export const LAYER_MANIFEST = {
   harmReductionAntiDrugPharmacies: { key: "harmReductionAntiDrugPharmacies", country: "TW", section: { theme: "醫療 Medical", group: "減害服務 Harm Reduction" }, ...layerName({ zh: "社區藥局反毒站", alt: "Community Anti-drug Pharmacies" }), expandable: true, color: HARM_REDUCTION_COLORS.harmReductionAntiDrugPharmacies, icon: ShieldCheck, upstream: { status: "verified", datasets: [{ datasetId: "anti_drug_pharmacies", confidence: "HIGH" }], note: "新北 data.gov.tw 125302（2026-08-07）＋高雄 107877 的 113 年清冊；436 點，僅 2 縣市。" }, dataClass: "A", source: { kind: "geojson", sourceId: "harm-reduction-anti-drug-pharmacies", url: "./harm_reduction/anti_drug_pharmacies.geojson" }, legend: "harmReductionAntiDrugPharmacies", popup: "harmReductionAntiDrugPharmacies", params: { count: 2, kinds: ["slider", "slider"] }, description: "提供藥物濫用與戒癮資源諮詢的社區藥局；僅新北、高雄有開放名冊。", topics: ["醫療", "減害", "毒品防制"] },
   harmReductionTherapeuticCommunities: { key: "harmReductionTherapeuticCommunities", country: "TW", section: { theme: "醫療 Medical", group: "減害服務 Harm Reduction" }, ...layerName({ zh: "治療性社區與中途之家", alt: "Therapeutic Communities & Halfway Houses" }), expandable: true, color: HARM_REDUCTION_COLORS.harmReductionTherapeuticCommunities, icon: House, upstream: { status: "verified", datasets: [{ datasetId: "therapeutic_communities", confidence: "HIGH" }], note: "衛福部藥癮治療性社區／社區復健方案承辦機構（2025-07-29）；17 點可定位（2 點查無位置未畫），座標為機構辦公處。" }, dataClass: "A", source: { kind: "geojson", sourceId: "harm-reduction-therapeutic-communities", url: "./harm_reduction/therapeutic_communities.geojson" }, legend: "harmReductionTherapeuticCommunities", popup: "harmReductionTherapeuticCommunities", params: { count: 2, kinds: ["slider", "slider"] }, description: "衛福部藥癮治療性社區與社區復健方案（中途之家、自立方案）承辦機構；座標為辦公處而非安置地點。", topics: ["醫療", "減害", "藥癮治療"] },
   harmReductionAftercare: { key: "harmReductionAftercare", country: "TW", section: { theme: "醫療 Medical", group: "減害服務 Harm Reduction" }, ...layerName({ zh: "更生保護會", alt: "Offender Aftercare Offices" }), expandable: true, color: HARM_REDUCTION_COLORS.harmReductionAftercare, icon: Handshake, upstream: { status: "verified", datasets: [{ datasetId: "offender_aftercare_offices", confidence: "HIGH" }], note: "法務部 data.gov.tw 10060（2023-06-05，3 年未更新）；22 處。" }, dataClass: "A", source: { kind: "geojson", sourceId: "harm-reduction-aftercare", url: "./harm_reduction/offender_aftercare_offices.geojson" }, legend: "harmReductionAftercare", popup: "harmReductionAftercare", params: { count: 2, kinds: ["slider", "slider"] }, description: "臺灣更生保護會總會、各地分會與福建更生保護會（資料為 2023-06 版）。", topics: ["醫療", "減害", "社會復歸"] },
-  harmReductionDuiCrashes: { key: "harmReductionDuiCrashes", country: "TW", section: { theme: "執法治安 Law & Order", group: "交通事故" }, ...layerName({ zh: "酒駕肇事事故", alt: "Drunk-driving Crashes" }), expandable: true, color: HARM_REDUCTION_COLORS.harmReductionDuiCrashes, icon: CarFront, upstream: { status: "verified", datasets: [{ datasetId: "dui_crash_points", confidence: "HIGH" }], note: "警政署 A1／A2 道路交通事故 107–114 年，任一當事者肇因為酒醉駕駛即收；36,814 點（3 點無座標未畫）；PMTiles z5–12。" }, dataClass: "B", source: { kind: "pmtiles", sourceId: "harm-reduction-dui-crashes", url: "./harm_reduction/dui_crash_points.pmtiles", sourceLayer: "dui_crash_points", minzoom: 5, maxzoom: 12 }, legend: "harmReductionDuiCrashes", popup: "harmReductionDuiCrashes", params: { count: 5, kinds: ["multiSelect", "multiSelect", "multiSelect", "slider", "slider"] }, description: "107–114 年 A1／A2 酒駕肇事事故點位，可依類別、年份與酒駕判定口徑篩選；可與減害服務的酒癮治療／酒駕酒癮評估機構對照。", topics: ["交通事故", "酒駕", "減害"] },
+  harmReductionDuiCrashes: { key: "harmReductionDuiCrashes", country: "TW", section: { theme: "執法治安 Law & Order", group: "交通事故" }, ...layerName({ zh: "酒駕肇事事故", alt: "Drunk-driving Crashes" }), expandable: true, color: HARM_REDUCTION_COLORS.harmReductionDuiCrashes, icon: CarFront, upstream: { status: "verified", datasets: [{ datasetId: "dui_crash_points", confidence: "HIGH" }], note: "警政署 A1／A2 道路交通事故 107–114 年，任一當事者肇因為酒醉駕駛即收；36,814 點（3 點無座標未畫）；PMTiles z5–12。" }, dataClass: "B", source: { kind: "pmtiles", sourceId: "harm-reduction-dui-crashes", url: "./harm_reduction/dui_crash_points_lt2.pmtiles", sourceLayer: "dui_crash_points", minzoom: 5, maxzoom: 12 }, legend: "harmReductionDuiCrashes", popup: "harmReductionDuiCrashes", params: { count: 5, kinds: ["multiSelect", "multiSelect", "multiSelect", "slider", "slider"] }, description: "107–114 年 A1／A2 酒駕肇事事故點位，可依類別、年份與酒駕判定口徑篩選；可與減害服務的酒癮治療／酒駕酒癮評估機構對照。", topics: ["交通事故", "酒駕", "減害"] },
 
   medICUBeds: {
     key: "medICUBeds",

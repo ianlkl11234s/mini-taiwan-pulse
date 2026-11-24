@@ -1,5 +1,4 @@
 {
-  "popup.hazard.caseId": "案件編號",
   "popup.hazard.year": "年份",
   "popup.hazard.mountainArea": "山域",
   "popup.hazard.entryPoint": "入山口",
@@ -67,7 +66,6 @@
   "popup.hazard.gbLastYear": "最後已知年份",
   "popup.hazard.gbRecordNote": "一點＝一次調查紀錄，不是山崩範圍",
   "popup.hazard.gbRadonTitle": "氡氣指示圖",
-  "popup.hazard.gbGridTile": "格網代碼",
   "popup.hazard.gbRadonBand": "超過行動水平的住宅比例",
   "popup.hazard.gbRadonClassValue": "第 {c} 級（{band}）",
   "popup.hazard.gbRadonNote": "每格以格內最高潛勢分級，屬指示性；逐址判定需 UKHSA 報告",
@@ -89,6 +87,5 @@
   "popup.hazard.gbQuakeSetting": "位置",
   "popup.hazard.gbOffshore": "海上",
   "popup.hazard.gbOnshore": "陸上",
-  "popup.hazard.gbQuakeDataEnd": "BGS 地震目錄資料截至 {date}",
   "popup.hazard.gbMagTypeBgs": "BGS 綜合規模"
 }

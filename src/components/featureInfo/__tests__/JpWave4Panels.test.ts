@@ -1,6 +1,7 @@
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
+import { layerNotesZh } from "./layerNotesText";
 import { JpExpresswaysPanel, JpMajorRoadsPanel, JpMunicipalRoadsPanel, JpWelfareChildPanel, JpWelfareDisabilityPanel } from "../japanPanels";
 
 describe("日本第四波 popup 資料語意", () => {
@@ -22,7 +23,7 @@ describe("日本第四波 popup 資料語意", () => {
     expect(html).toContain("13m–19.5m未満");
     expect(html).toContain("有料");
     expect(html).toContain("トンネル");
-    expect(html).toContain("不含市町村道");
+    expect(layerNotesZh("jpMajorRoads")).toContain("不含市町村道"); // 固定說明已搬到圖層「說明・來源」
   });
 
   it("市町村道：缺 road_state＝通常部、缺 toll＝無料；有值照查表", () => {
@@ -31,7 +32,7 @@ describe("日本第四波 popup 資料語意", () => {
     expect(plain).toContain("3m–5.5m未満");
     expect(plain).toContain("通常部");
     expect(plain).toContain("無料");
-    expect(plain).toContain("沒有路名");
+    expect(layerNotesZh("jpMunicipalRoads")).toContain("沒有路名"); // 固定說明已搬到圖層「說明・來源」
     const bridge = renderToStaticMarkup(createElement(JpMunicipalRoadsPanel, { props: { width_class: "lt_3m", road_state: "bridge_viaduct", toll: true } }));
     expect(bridge).toContain("橋・高架");
     expect(bridge).toContain("有料");

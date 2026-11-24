@@ -18,7 +18,6 @@
   "popup.marine.observed": "觀測 {time}",
   "popup.marine.trendSelected": "已選取趨勢",
   "popup.marine.trendView": "查看 24h 趨勢",
-  "popup.marine.stationCode": "測站代碼",
   "popup.marine.sourceNetwork": "來源網路",
   "popup.marine.originOrg": "感測／管理",
   "popup.marine.distributionOrg": "資料分發",

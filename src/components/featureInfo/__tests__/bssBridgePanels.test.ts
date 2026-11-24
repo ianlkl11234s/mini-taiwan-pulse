@@ -105,7 +105,6 @@ describe("全臺橋梁研究（進行中）popup 語意", () => {
     expect(html).toContain("站主限定");
     expect(html).toContain("offset 低把握度候選");
     expect(html).toContain("8.5 m");
-    expect(html).toContain("way/123");
     expect(html).toContain("同一 OSM way 候選紀錄數");
     expect(html).toContain("不能據此當成不同橋座");
     expect(html).toContain("not_evaluated");
@@ -151,7 +150,6 @@ describe("全臺橋梁研究（進行中）popup 語意", () => {
     } }));
     expect(crossing).toContain("未確認是橋");
     expect(crossing).toContain("36.4 m");
-    expect(crossing).toContain("w456");
     const multiCrossing = renderToStaticMarkup(createElement(BssNationalBridgePreviewPanel, { props: {
       bss_name: "多候選橋線示例", geometry_role: "multi_near_carrier_waterway_direction_context",
       offset_distance_m: 21.81, secondary_osm_waterway_way_id: "w789",
@@ -160,7 +158,6 @@ describe("全臺橋梁研究（進行中）popup 語意", () => {
     } }));
     expect(multiCrossing).toContain("未確認同橋");
     expect(multiCrossing).toContain("21.81 m");
-    expect(multiCrossing).toContain("w789");
     expect(multiCrossing).toContain("仍待複核");
   });
 
@@ -177,9 +174,7 @@ describe("全臺橋梁研究（進行中）popup 語意", () => {
     const visible = html.slice(0, html.indexOf("<details"));
     expect(visible).toContain("長度");
     expect(visible).toContain("登錄 3,120 m・繪製 3,028 m");
-    expect(visible).not.toContain("BSS source key");
     expect(visible).not.toContain("舊綜合 QA 查核紀錄");
-    expect(html).toContain("BSS source key");
     expect(html).toContain("舊綜合 QA 查核紀錄");
     expect(html).toContain(`${"a".repeat(12)}…`);
     expect(html).toContain(`title="${"a".repeat(40)}"`);
@@ -198,8 +193,7 @@ describe("全臺橋梁研究（進行中）popup 語意", () => {
     expect(visible).toContain("v5 分類");
     expect(visible).toContain("同實體多標段");
     expect(line).toContain("#60a5fa");
-    for (const label of ["橋實體 ID", "配對分數", "名稱相似度", "長度比（登錄÷實體）", "同實體紀錄數", "官方軸方向差"]) expect(line).toContain(label);
-    expect(line).toContain("osmbe-62c2de105a5e");
+    for (const label of ["配對分數", "名稱相似度", "長度比（登錄÷實體）", "同實體紀錄數", "官方軸方向差"]) expect(line).toContain(label);
     expect(line).toContain("0.576");
     expect(line).toContain("0.913");
     expect(line).toContain("OSM 橋實體（整段）");
@@ -217,7 +211,6 @@ describe("全臺橋梁研究（進行中）popup 語意", () => {
     } }));
     expect(official).toContain("新北官方頭尾近似軸");
     expect(official).toContain("僅官方軸");
-    expect(official).toMatch(/橋實體 ID<\/span><span[^>]*>未提供/);
 
     const contested = renderToStaticMarkup(createElement(BssNationalBridgePreviewPanel, { props: {
       bss_name: "待複核示例", geometry_role: "point", v5_class: "osm_entity_contested", line_tier: "contested_point_only",

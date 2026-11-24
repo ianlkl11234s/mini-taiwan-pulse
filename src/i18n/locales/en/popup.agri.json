@@ -17,8 +17,6 @@
   "popup.agri.hectares": "{value} ha",
   "popup.agri.organicMatter": "Organic matter (OM)",
   "popup.agri.zeroNote": "* A value of 0 means the item was not measured (most grids measure only pH / OM)",
-  "popup.agri.countyCode": "County/city code",
-  "popup.agri.townshipCode": "Township/district code",
   "popup.agri.suitability": "Suitability",
   "popup.agri.cropEn": "Crop (English)",
   "popup.agri.plan": "Plan",

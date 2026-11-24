@@ -42,7 +42,6 @@ export function PhAdminBoundariesPanel({ props }: P) {
   return <>
     <Title color={PH_ADMIN_COLOR}>{caText(props.name) || pick({ zh: "行政區", en: "Administrative area", ja: "行政区域" })}</Title>
     <AdminRows props={props} pick={pick} />
-    <Row label={pick({ zh: "PSGC 代碼", en: "PSGC code", ja: "PSGC コード" })} value={caText(props.psgc)} mono />
     <SourceFooter props={{ source_org: phText(PH_ADMIN_SOURCE.org, locale), source_url: PH_ADMIN_SOURCE.url, license: phText(PH_ADMIN_SOURCE.license, locale), fetched_at: PH_FETCHED_AT }} />
   </>;
 }
@@ -63,7 +62,6 @@ export function PhPopulationPanel({ props }: P) {
     <Row label={pick({ zh: "人口密度", en: "Density", ja: "人口密度" })} value={density ? `${density} ${pick({ zh: "人／km²", en: "people/km²", ja: "人／km²" })}` : noData} />
     {PH_POP_STATUS[status] ? <Row label={pick({ zh: "人口來源", en: "Population basis", ja: "人口の根拠" })} value={pick(PH_POP_STATUS[status]!)} /> : null}
     {PH_URBAN_CLASS[caText(props.urban_class)] ? <Row label={pick({ zh: "都市／鄉村", en: "Urban / rural", ja: "都市・農村" })} value={pick(PH_URBAN_CLASS[caText(props.urban_class)]!)} /> : null}
-    <Row label={pick({ zh: "PSGC 代碼", en: "PSGC code", ja: "PSGC コード" })} value={caText(props.psgc)} mono />
     <SourceFooter props={{ source_org: phText(PH_POPULATION_SOURCE.org, locale), source_url: PH_POPULATION_SOURCE.url, license: phText(PH_POPULATION_SOURCE.license, locale), fetched_at: PH_FETCHED_AT }} />
   </>;
 }
@@ -71,7 +69,15 @@ export function PhPopulationPanel({ props }: P) {
 /** 上游的空值字樣（GFI 的 'nan'、'None'、NAMRIA 的 '..'）一律當空值，不顯示。 */
 const EMPTY_TOKENS = new Set(["nan", "NaN", "None", "null", "..", "…"]);
 
+/** 資料端把含個人稱謂／聯絡方式的欄位清空並標 `<欄>_redacted`（owner_th 標 owner_redacted）：顯示遮蔽字樣，不留空白。 */
+const REDACTED_TEXT = { zh: "（個人名義，已遮蔽）", en: "(personal name, redacted)", ja: "（個人名義、秘匿）" } as const;
+function isRedactedField(f: PhField, props: Record<string, unknown>): boolean {
+  const flag = f.prop === "owner_th" ? props.owner_redacted : props[`${f.prop}_redacted`];
+  return (flag === true || flag === "true") && !caText(props[f.prop]);
+}
+
 function formatField(f: PhField, props: Record<string, unknown>, locale: string): string {
+  if (isRedactedField(f, props)) return locale === "en" ? REDACTED_TEXT.en : locale === "ja" ? REDACTED_TEXT.ja : REDACTED_TEXT.zh;
   const raw = EMPTY_TOKENS.has(caText(props[f.prop])) ? "" : props[f.prop];
   if (f.unlessSameAs && caText(raw) === caText(props[f.unlessSameAs])) return "";
   if (f.kind === "year") {
@@ -101,7 +107,8 @@ export function makePhPanel(spec: PhLayerSpec<string>): FC<P> {
     return <>
       <Title color={cat?.color ?? spec.otherColor ?? spec.color}>{title || pickL3(spec.title.fallback, locale)}</Title>
       {spec.fields.map((f) => <Row key={f.prop} label={pickL3(f.label, locale)} value={formatField(f, props, locale)} mono={f.kind === "code"} />)}
-      {spec.popupNotes.filter((n) => !n.when || n.when(props)).map((n, i) => <Row key={i} label={locale === "en" ? "Note" : locale === "ja" ? "備考" : "備註"} value={pickL3(n.text, locale)} />)}
+      {/* 每筆都一樣的備註在圖層「說明・來源」（layerSourceInfo）；popup 只留對這筆成立的條件備註 */}
+      {spec.popupNotes.filter((n) => n.when?.(props)).map((n, i) => <Row key={i} label={locale === "en" ? "Note" : locale === "ja" ? "備考" : "備註"} value={pickL3(n.text, locale)} />)}
       <SourceFooter props={{ source_org: phText(spec.sourceOrg, locale), source_url: spec.sourceUrl, license: phText(spec.license, locale), fetched_at: spec.fetchedAt }} />
     </>;
   };

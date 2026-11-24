@@ -4,11 +4,11 @@ import { Row, SourceFooter, Title } from "./shared";
 import { useLocale } from "../../state/localeStore";
 import { enumLabel } from "../../i18n/dataText";
 import {
-  GB_ADMIN_FETCHED_AT, GB_ADMIN_LAD_COLOR, GB_LAD_ATTRIBUTION, GB_LAD_SOURCE_URL, GB_LAD_VERSION, GB_LICENSE,
+  GB_ADMIN_FETCHED_AT, GB_ADMIN_LAD_COLOR, GB_LAD_ATTRIBUTION, GB_LAD_SOURCE_URL, GB_LICENSE,
   GB_SMALL_AREA_COLOR, gbSmallAreaType,
 } from "../../data/gbAdminTypes";
 import {
-  GB_MARITIME_ATTRIBUTION, GB_MARITIME_FETCHED_AT, GB_MARITIME_LAYER_COLOR, GB_MARITIME_LICENSE, GB_MARITIME_SOURCE_DATE, GB_MARITIME_SOURCE_URL,
+  GB_MARITIME_ATTRIBUTION, GB_MARITIME_FETCHED_AT, GB_MARITIME_LAYER_COLOR, GB_MARITIME_LICENSE, GB_MARITIME_SOURCE_URL,
   gbMaritimeLimitColor, gbMaritimeLimitType, type GbMaritimeLimitKind,
 } from "../../data/gbMaritimeLimitTypes";
 import {
@@ -67,13 +67,12 @@ import { GB_ARTS_KIND_KEYS, GB_CULTURAL_KIND_KEYS, GB_VISITOR_KIND_KEYS } from "
 import { LIGHT_FEATURE, useFeatureTheme } from "./featureTheme";
 import { LinkRow } from "./atlasPanels";
 import {
-  GB_SURPLUS_ATTRIBUTION, GB_SURPLUS_COLOR, GB_SURPLUS_FETCHED_AT, GB_SURPLUS_LICENSE, GB_SURPLUS_POSTCODE_PRECISION, GB_SURPLUS_SECTORS,
-  GB_SURPLUS_SOURCE_DATE, GB_SURPLUS_SOURCE_URL, gbSurplusStatus, type GbSurplusSector, type GbSurplusStatus,
+  GB_SURPLUS_ATTRIBUTION, GB_SURPLUS_COLOR, GB_SURPLUS_FETCHED_AT, GB_SURPLUS_LICENSE, GB_SURPLUS_POSTCODE_PRECISION, GB_SURPLUS_SECTORS, GB_SURPLUS_SOURCE_URL, gbSurplusStatus, type GbSurplusSector, type GbSurplusStatus,
 } from "../../data/gbLandTypes";
 import {
   GB_BGS_OGL, GB_DESNZ_OGL_V3, GB_GAMMA_ATTRIBUTION, GB_GAMMA_COLOR, GB_GAMMA_UNIT, GB_GAMMA_URL, GB_GEOSURE_ATTRIBUTION, GB_GEOSURE_COLOR,
   GB_GEOSURE_URL, GB_HAZARD_FETCHED_AT, GB_LANDSLIDE_ATTRIBUTION, GB_LANDSLIDE_COLOR, GB_LANDSLIDE_URL, GB_QUAKE_ATTRIBUTION, GB_QUAKE_COLOR,
-  GB_QUAKE_DATA_END, GB_QUAKE_URL, GB_RADON_ATTRIBUTION, GB_RADON_COLOR, GB_RADON_URL, gbGammaColor, gbGeoHazard, gbRadonClass, gbSusceptibility,
+  GB_QUAKE_URL, GB_RADON_ATTRIBUTION, GB_RADON_COLOR, GB_RADON_URL, gbGammaColor, gbGeoHazard, gbRadonClass, gbSusceptibility,
 } from "../../data/gbHazardTypes";
 import { GB_GEO_HAZARD_KEYS, GB_SUSCEPTIBILITY_KEYS } from "../legend/gbHazardLegends";
 import {
@@ -132,9 +131,7 @@ export function GbAdminBoundariesPanel({ props }: { props: Record<string, unknow
   return <>
     <Title color={GB_ADMIN_LAD_COLOR}>{name || t("popup.baseMap.gbLad")}</Title>
     {nameCy && nameCy !== name ? <Row label={t("popup.baseMap.gbNameWelsh")} value={nameCy} /> : null}
-    <Row label={t("popup.baseMap.gbGssCode")} value={text(props.lad_code)} />
     <Row label={t("popup.baseMap.gbNation")} value={nation(props.nation)} />
-    <Row label={t("popup.baseMap.gbDataVersion")} value={GB_LAD_VERSION} />
     <SourceFooter props={{ source_org: GB_LAD_ATTRIBUTION, source_url: GB_LAD_SOURCE_URL, license: GB_LICENSE, fetched_at: GB_ADMIN_FETCHED_AT }} />
   </>;
 }
@@ -150,11 +147,9 @@ export function GbSmallAreaBoundariesPanel({ props }: { props: Record<string, un
   return <>
     <Title color={GB_SMALL_AREA_COLOR}>{name || text(props.code) || t("popup.baseMap.gbSmallArea")}</Title>
     {nameCy && nameCy !== name ? <Row label={t("popup.baseMap.gbNameWelsh")} value={nameCy} /> : null}
-    <Row label={t("popup.baseMap.gbGssCode")} value={text(props.code)} />
     <Row label={t("popup.baseMap.gbAreaType")} value={type ? t(AREA_TYPE_KEYS[type.value]) : text(props.area_type)} />
     <Row label={t("popup.baseMap.gbLad")} value={lad.join(" · ")} />
     <Row label={t("popup.baseMap.gbNation")} value={nation(props.nation)} />
-    <Row label={t("popup.baseMap.gbNotes")} value={t("popup.baseMap.gbSmallAreaNote")} />
     {type ? <SourceFooter props={{ source_org: type.attribution, source_url: type.sourceUrl, license: GB_LICENSE, fetched_at: GB_ADMIN_FETCHED_AT }} /> : null}
   </>;
 }
@@ -195,8 +190,6 @@ export function GbMaritimeLimitsPanel({ props }: { props: Record<string, unknown
     <Title color={type ? gbMaritimeLimitColor(type, true) : GB_MARITIME_LAYER_COLOR}>{type ? t(GB_MARITIME_POPUP_KEYS[type.value]) : text(props.feature) || t("popup.baseMap.gbMaritimeLimit")}</Title>
     <Row label={t("popup.baseMap.gbMaritimeState")} value={state === "United Kingdom" ? t("popup.baseMap.gbUnitedKingdom") : nation(state)} />
     {neighbour ? <Row label={t("popup.baseMap.gbMaritimeNeighbour")} value={GB_NEIGHBOUR_KEYS[neighbour] ? t(GB_NEIGHBOUR_KEYS[neighbour]!) : neighbour} /> : null}
-    <Row label={t("popup.baseMap.gbDataVersion")} value={`UKHO ${GB_MARITIME_SOURCE_DATE}`} />
-    <Row label={t("popup.baseMap.gbNotes")} value={t("popup.baseMap.gbMaritimeIllustrative")} />
     <SourceFooter props={{ source_org: GB_MARITIME_ATTRIBUTION, source_url: GB_MARITIME_SOURCE_URL, license: GB_MARITIME_LICENSE, fetched_at: GB_MARITIME_FETCHED_AT }} />
   </>;
 }
@@ -215,7 +208,6 @@ export function GbBuiltUpAreasPanel({ props }: { props: Record<string, unknown> 
     {props.area_ha != null && Number.isFinite(area) ? <Row label={t("popup.baseMap.gbBuiltUpArea")} value={t("popup.baseMap.gbHectares", { value: area.toLocaleString(undefined, { maximumFractionDigits: 1 }) })} /> : null}
     <Row label={t("popup.baseMap.gbLad")} value={lad.join(" · ")} />
     <Row label={t("popup.baseMap.gbNation")} value={nation(props.nation)} />
-    <Row label={t("popup.baseMap.gbGssCode")} value={text(props.gss_code)} />
     <SourceFooter props={{ source_org: GB_OS_ATTRIBUTION, source_url: GB_BUILT_UP_SOURCE_URL, license: GB_OS_LICENSE, fetched_at: GB_OS_FETCHED_AT }} />
   </>;
 }
@@ -233,7 +225,6 @@ function GbGreenspacePanelBase({ props, layerKey }: { props: Record<string, unkn
     {nameAlt && nameAlt !== name ? <Row label={t("popup.baseMap.gbNameAlt")} value={nameAlt} /> : null}
     <Row label={t("popup.baseMap.gbGreenspaceType")} value={typeLabel} />
     <Row label={t("popup.baseMap.gbNation")} value={nation(props.nation)} />
-    <Row label={t("popup.baseMap.gbLadCode")} value={text(props.lad_code)} />
     <SourceFooter props={{ source_org: GB_OS_ATTRIBUTION, source_url: GB_GREENSPACE_SOURCE_URL, license: GB_OS_LICENSE, fetched_at: GB_OS_FETCHED_AT }} />
   </>;
 }
@@ -258,14 +249,12 @@ export function GbRiversPanel({ props }: { props: Record<string, unknown> }) {
   const name = text(props.name);
   const nameAlt = text(props.name_alt);
   const form = text(props.form) as GbRiverForm;
-  const lad = text(props.lad_code);
   return <>
     <Title color={GB_RIVERS_COLOR}>{ni ? t("popup.water.gbRiverNoName") : name || t("popup.water.gbRiverUnnamed")}</Title>
     {!ni && nameAlt && nameAlt !== name ? <Row label={t("popup.baseMap.gbNameAlt")} value={nameAlt} /> : null}
     {!ni && form in GB_RIVER_FORM_KEYS ? <Row label={t("popup.water.gbRiverForm")} value={t(GB_RIVER_FORM_KEYS[form])} /> : null}
     {ni && props.strahler != null ? <Row label={t("popup.water.gbRiverStrahler")} value={text(props.strahler)} /> : null}
     <Row label={t("popup.baseMap.gbNation")} value={nation(props.nation)} />
-    {lad ? <Row label={t("popup.baseMap.gbLadCode")} value={lad} /> : null}
     <SourceFooter props={ni
       ? { source_org: GB_RIVERS_NI_ATTRIBUTION, source_url: GB_RIVERS_NI_URL, license: GB_OGL_V3, fetched_at: GB_WATER_FETCHED_AT }
       : { source_org: GB_RIVERS_OS_ATTRIBUTION, source_url: GB_RIVERS_OS_URL, license: GB_OGL_V3, fetched_at: GB_WATER_FETCHED_AT }} />
@@ -290,10 +279,8 @@ export function GbHydroStationsPanel({ props }: { props: Record<string, unknown>
     <Row label={t("popup.water.gbHydroParameters")} value={text(props.parameters)} />
     <Row label={t("popup.water.gbAgency")} value={text(props.agency)} />
     <Row label={t("popup.water.gbHydroStatus")} value={text(props.status)} />
-    <Row label={t("popup.water.gbHydroStationId")} value={text(props.station_id)} mono />
     <Row label={t("popup.baseMap.gbNation")} value={nation(props.nation)} />
     {props.precision === GB_HYDRO_GRID_PRECISION ? <Row label={t("popup.water.gbPrecision")} value={t("popup.water.gbHydroGridPrecision")} /> : null}
-    <Row label={t("popup.baseMap.gbNotes")} value={t("popup.water.gbHydroNoReadings")} />
     <SourceFooter props={sepa
       ? { source_org: GB_HYDRO_SEPA_ATTRIBUTION, source_url: GB_HYDRO_SEPA_URL, license: "Open Government Licence", fetched_at: GB_WATER_FETCHED_AT }
       : { source_org: GB_HYDRO_EA_ATTRIBUTION, source_url: GB_HYDRO_EA_URL, license: GB_OGL_V3, fetched_at: GB_WATER_FETCHED_AT }} />
@@ -464,7 +451,6 @@ export function GbTransportHubsPanel({ props }: { props: Record<string, unknown>
     <Row label={t("popup.transport.gbNation")} value={nation(props.nation)} />
     <Row label={t("popup.transport.gbLad")} value={text(props.lad_name)} />
     {isRail ? <>
-      <Row label={t("popup.transport.gbCrs")} value={text(props.crs)} mono />
       <Row label={t("popup.transport.gbEntriesExits")} value={usage} />
       {entries != null && rank != null ? <Row label={t("popup.transport.gbUsageRank")} value={t("popup.transport.gbUsageRankValue", { n: i18n.formatNumber(rank) })} /> : null}
       {entries != null && interchanges != null ? <Row label={t("popup.transport.gbInterchanges")} value={i18n.formatNumber(interchanges)} /> : null}
@@ -495,7 +481,6 @@ export function GbLondonRailLinesPanel({ props }: { props: Record<string, unknow
   return <>
     <Title color={mode?.color ?? GB_LONDON_RAIL_FALLBACK_COLOR}>{text(props.line_name) || t("popup.transport.gbRailMode")}</Title>
     <Row label={t("popup.transport.gbRailMode")} value={mode ? t(GB_RAIL_MODE_KEYS[mode.value]) : text(props.mode)} />
-    <Row label={t("popup.baseMap.gbNotes")} value={t("popup.transport.gbRailColorNote")} />
     <TflFooter url={GB_TFL_LINES_URL} />
   </>;
 }
@@ -617,7 +602,6 @@ export function GbMajorRoadsPanel({ props }: { props: Record<string, unknown> })
     <Row label={t("popup.transport.gbNation")} value={place} />
     <Row label={t("popup.transport.gbRoadSource")} value={t(isOsm ? "popup.transport.gbRoadSourceOsm" : "popup.transport.gbRoadSourceMrdb")} />
     {!isOsm ? <Row label="" value={t("popup.transport.gbRoadMrdbNote")} /> : null}
-    <Row label={t("popup.transport.gbCoverage")} value={t("popup.transport.gbRoadCoverageAll")} />
     {isOsm
       ? <SourceFooter props={{ source_org: GB_ROADS_OSM_ATTRIBUTION, source_url: GB_ROADS_OSM_URL, license: GB_ROADS_ODBL, fetched_at: GB_OSM13_SNAPSHOT }} />
       : <SourceFooter props={{ source_org: GB_DFT_ROAD_TRAFFIC_ATTRIBUTION, source_url: GB_DFT_ROAD_TRAFFIC_URL, license: GB_TRANSPORT_OGL_V3, fetched_at: GB_TRANSPORT_FETCHED_AT }} />}
@@ -654,9 +638,7 @@ export function GbTrafficCountsAadfPanel({ props }: { props: Record<string, unkn
     <Row label={t("popup.transport.gbAadfMethod")} value={counted ? t("popup.transport.gbAadfMethodCounted") : estimated ? t("popup.transport.gbAadfMethodEstimated") : text(props.estimation_method)} />
     <Row label={t("popup.transport.gbAadfMethodDetail")} value={text(props.estimation_method_detailed)} />
     <Row label={t("popup.transport.gbAadfYear")} value={text(props.year) || String(GB_AADF_YEAR)} mono />
-    <Row label={t("popup.transport.gbCountPointId")} value={text(props.count_point_id)} mono />
     <Row label={t("popup.transport.gbNation")} value={place} />
-    <Row label={t("popup.transport.gbCoverage")} value={t("legend.transport.gbAadfNi")} />
     <SourceFooter props={{ source_org: GB_DFT_ROAD_TRAFFIC_ATTRIBUTION, source_url: GB_DFT_ROAD_TRAFFIC_URL, license: GB_TRANSPORT_OGL_V3, fetched_at: GB_TRANSPORT_FETCHED_AT }} />
   </>;
 }
@@ -705,7 +687,6 @@ export function GbProtectedAreasPanel({ props }: { props: Record<string, unknown
     {local ? <Row label={t("popup.environmentLayer.gbPaLocalName")} value={local.replace(/_/g, " ")} /> : null}
     <Row label={t("popup.baseMap.gbNation")} value={nation(props.nation)} />
     <Row label={t("popup.environmentLayer.gbPaArea")} value={ha(props.area_ha)} />
-    <Row label={t("popup.environmentLayer.gbPaSiteCode")} value={text(props.site_code)} mono />
     <Row label={t("popup.environmentLayer.gbPaSourceOrg")} value={source} />
     {attribution ? <SourceFooter props={{ source_org: attribution, source_url: url, license: GB_NATURE_OGL_V3, fetched_at: GB_NATURE_FETCHED_AT }} /> : null}
   </>;
@@ -726,7 +707,6 @@ export function GbMarineProtectedAreasPanel({ props }: { props: Record<string, u
     <Row label={t("popup.marine.gbMpaArea")} value={ha(props.area_ha)} />
     <Row label={t("popup.marine.gbMpaStatus")} value={text(props.status)} />
     <Row label={t("popup.baseMap.gbNation")} value={nation(props.nation)} />
-    <Row label={t("popup.baseMap.gbNotes")} value={t("popup.marine.gbMpaNav")} />
     {natureFooter(footer)}
   </>;
 }
@@ -810,7 +790,6 @@ export function GbOpenAccessLandPanel({ props }: { props: Record<string, unknown
     {flags.length ? <Row label={t("popup.forestry.gbOaFlags")} value={flags.join("、")} /> : null}
     <Row label={t("popup.forestry.gbOaArea")} value={ha(props.area_ha)} />
     <Row label={t("popup.baseMap.gbNation")} value={nation(props.nation)} />
-    <Row label={t("popup.baseMap.gbNotes")} value={t("legend.environment.gbOaNote")} />
     {natureFooter(src && nrwCommon ? { ...src, url: GB_OPEN_ACCESS_NRW_COMMON_URL } : src)}
   </>;
 }
@@ -836,7 +815,6 @@ export function GbTreeProtectionPanel({ props }: { props: Record<string, unknown
     <Title color={cat?.color ?? GB_TREE_PROTECTION_COLOR}>{tpo ? t(GB_TREE_CATEGORY_KEYS[cat!.value]) : text(props.name) || (cat ? t(GB_TREE_CATEGORY_KEYS[cat.value]) : t("popup.environmentLayer.gbTreeTitle"))}</Title>
     <Row label={t("popup.environmentLayer.gbTreeCategory")} value={cat ? t(GB_TREE_CATEGORY_KEYS[cat.value]) : text(props.category)} />
     {tpo ? <>
-      <Row label={t("popup.environmentLayer.gbTpoRef")} value={text(props.tpo_ref)} mono />
       <Row label={t("popup.environmentLayer.gbTpoOrg")} value={text(props.organisation)} />
       <Row label={t("popup.baseMap.gbNotes")} value={t("popup.environmentLayer.gbTpoNote")} />
     </> : <>
@@ -951,7 +929,6 @@ export function GbPowerLinesPanel({ props }: { props: Record<string, unknown> })
     <Title color={v?.color ?? GB_POWER_LINES_COLOR}>{gbEnergyText(props.name) || gbEnergyText(props.ref) || t("popup.energy.gbLineUnnamed")}</Title>
     <Row label={t("popup.energy.gbVoltage")} value={kv(props)} />
     <Row label={t("popup.energy.gbLineKind")} value={cable ? t(loc === "underwater" ? "popup.energy.gbCableSubsea" : "popup.energy.gbCableUnderground") : LOCATION_CABLE.has(loc) ? t("popup.energy.gbCableUnderground") : t("popup.energy.gbOverhead")} />
-    {gbEnergyText(props.ref) && gbEnergyText(props.name) ? <Row label={t("popup.energy.gbRef")} value={gbEnergyText(props.ref)} mono /> : null}
     <Row label={t("popup.energy.gbOperator")} value={gbEnergyText(props.operator)} />
     <Row label={t("popup.energy.gbLength")} value={km != null ? (km < 0.1 ? t("popup.energy.gbKmUnder") : t("popup.energy.gbKm", { value: km.toLocaleString(undefined, { maximumFractionDigits: 1 }) })) : ""} />
     <Row label={t("popup.baseMap.gbNation")} value={place(props)} />
@@ -1020,7 +997,6 @@ export function GbOilGasFieldsPanel({ props }: { props: Record<string, unknown> 
     <Row label={t("popup.energy.gbDepth")} value={depth != null ? t("popup.energy.gbMeters", { value: depth.toLocaleString(undefined, { maximumFractionDigits: 0 }) }) : ""} />
     <Row label={t("popup.energy.gbOperator")} value={gbEnergyText(props.operator)} />
     <Row label={t("popup.baseMap.gbNation")} value={t("popup.energy.gbUkcs")} />
-    <Row label={t("popup.baseMap.gbNotes")} value={t("legend.energy.gbNstaLicense")} />
     {energyFooter(GB_NSTA_ATTRIBUTION, GB_NSTA_URL, `${GB_NSTA_LICENSE} · ${t("popup.energy.gbNonCommercial")}`)}
   </>;
 }
@@ -1328,11 +1304,9 @@ export function GbSurplusLandPanel({ props }: { props: Record<string, unknown> }
     <Row label={t("popup.baseMap.gbSurplusLandArea")} value={land == null ? "" : `${formatNumber(land, { maximumFractionDigits: 2 })} ${t("popup.baseMap.gbSurplusHa")}`} />
     <Row label={t("popup.baseMap.gbSurplusFloorArea")} value={floor == null ? "" : `${formatNumber(floor, { maximumFractionDigits: 0 })} m²`} />
     {land != null || floor != null ? <Row label="" value={t("popup.baseMap.gbSurplusUnitNote")} /> : null}
-    <Row label={t("popup.baseMap.gbSurplusTitleNo")} value={text(props.lr_title_no)} />
     <Row label={t("popup.baseMap.gbNation")} value={place} />
     {props.precision === GB_SURPLUS_POSTCODE_PRECISION ? <Row label="" value={t("popup.baseMap.gbSurplusPostcodeNote")} /> : null}
     {sector === "mod" ? <Row label="" value={t("popup.baseMap.gbSurplusModNote")} /> : null}
-    <Row label={t("popup.baseMap.gbSurplusSourceDate")} value={GB_SURPLUS_SOURCE_DATE} />
     <SourceFooter props={{ source_org: `${GB_SURPLUS_ATTRIBUTION} · ${ONSPD_ORG}`, source_url: GB_SURPLUS_SOURCE_URL, license: GB_SURPLUS_LICENSE, fetched_at: GB_SURPLUS_FETCHED_AT }} />
   </>;
 }
@@ -1360,7 +1334,6 @@ export function GbGroundStabilityPanel({ props }: { props: Record<string, unknow
     {/* advisory：整格分級較低但格內局部有顯著；整格已是顯著時不重複 */}
     {text(props.advisory) && susc?.value !== "Significant" ? <Row label="" value={t("popup.hazard.gbAdvisory")} /> : null}
     <Row label={t("popup.baseMap.gbNation")} value={place} />
-    <Row label={t("popup.baseMap.gbNotes")} value={t("popup.hazard.gbGeoSureNotice")} />
     <SourceFooter props={{ source_org: GB_GEOSURE_ATTRIBUTION, source_url: GB_GEOSURE_URL, license: GB_BGS_OGL, fetched_at: GB_HAZARD_FETCHED_AT }} />
   </>;
 }
@@ -1385,7 +1358,6 @@ export function GbLandslidePanel({ props }: { props: Record<string, unknown> }) 
     <Row label={t("popup.hazard.gbFirstYear")} value={year(props.first_known_year)} />
     <Row label={t("popup.hazard.gbLastYear")} value={year(props.last_known_year)} />
     <Row label={t("popup.baseMap.gbNation")} value={place} />
-    <Row label={t("popup.baseMap.gbNotes")} value={t("popup.hazard.gbRecordNote")} />
     <SourceFooter props={{ source_org: GB_LANDSLIDE_ATTRIBUTION, source_url: GB_LANDSLIDE_URL, license: GB_BGS_OGL, fetched_at: GB_HAZARD_FETCHED_AT }} />
   </>;
 }
@@ -1397,10 +1369,8 @@ export function GbRadonPanel({ props }: { props: Record<string, unknown> }) {
   const cls = gbRadonClass(props.radon_class);
   return <>
     <Title color={GB_RADON_COLOR}>{t("popup.hazard.gbRadonTitle")}</Title>
-    <Row label={t("popup.hazard.gbGridTile")} value={text(props.tile)} />
     <Row label={t("popup.hazard.gbRadonBand")} value={cls ? t("popup.hazard.gbRadonClassValue", { c: cls.value, band: cls.band }) : t("popup.hazard.gbNoData")} />
     <Row label={t("popup.baseMap.gbNation")} value={nation(props.nation)} />
-    <Row label={t("popup.baseMap.gbNotes")} value={t("popup.hazard.gbRadonNote")} />
     <SourceFooter props={{ source_org: GB_RADON_ATTRIBUTION, source_url: GB_RADON_URL, license: GB_BGS_OGL, fetched_at: GB_HAZARD_FETCHED_AT }} />
   </>;
 }
@@ -1424,7 +1394,6 @@ export function GbRadiationPanel({ props }: { props: Record<string, unknown> }) 
     <Row label={t("popup.hazard.gbGammaPeriod")} value={range || text(props.period)} />
     <Row label={t("popup.hazard.gbGammaNetwork")} value={text(props.network)} />
     <Row label={t("popup.baseMap.gbNation")} value={place} />
-    <Row label={t("popup.baseMap.gbNotes")} value={t("popup.hazard.gbGammaNote")} />
     <SourceFooter props={{ source_org: GB_GAMMA_ATTRIBUTION, source_url: GB_GAMMA_URL, license: GB_DESNZ_OGL_V3, fetched_at: GB_HAZARD_FETCHED_AT }} />
   </>;
 }
@@ -1449,7 +1418,6 @@ export function GbEarthquakesPanel({ props }: { props: Record<string, unknown> }
     {historical ? <Row label={t("popup.hazard.gbQuakeIntensity")} value={text(props.intensity)} /> : null}
     {historical ? <Row label={t("popup.hazard.gbLocality")} value={text(props.locality)} /> : null}
     <Row label={t("popup.hazard.gbQuakeSetting")} value={place} />
-    <Row label={t("popup.baseMap.gbNotes")} value={t("popup.hazard.gbQuakeDataEnd", { date: GB_QUAKE_DATA_END })} />
     <SourceFooter props={{ source_org: GB_QUAKE_ATTRIBUTION, source_url: GB_QUAKE_URL, license: GB_BGS_OGL, fetched_at: GB_HAZARD_FETCHED_AT }} />
   </>;
 }
@@ -1476,7 +1444,6 @@ export function GbPlanningConstraintsPanel({ props }: { props: Record<string, un
     <Row label={t("popup.environmentLayer.gbPlanOrg")} value={text(props.organisation) || t("popup.environmentLayer.gbNotStated")} />
     <Row label={t("popup.environmentLayer.gbPlanStart")} value={envDate(props.start_date) || t("popup.environmentLayer.gbNotStated")} />
     {c?.value === "green_belt" ? <Row label={t("popup.environmentLayer.gbPlanGreenBeltCore")} value={text(props.green_belt_core) || t("popup.environmentLayer.gbNotStated")} /> : null}
-    <Row label={t("popup.environmentLayer.gbReference")} value={text(props.reference)} />
     <Row label={t("popup.baseMap.gbNation")} value={place} />
     <SourceFooter props={{ source_org: src?.org ?? "", source_url: url, license: GB_ENV_OGL_V3, fetched_at: GB_ENV_FETCHED_AT }} />
   </>;
@@ -1506,7 +1473,6 @@ export function GbBrownfieldPanel({ props }: { props: Record<string, unknown> })
   const permission = [t(GB_BROWNFIELD_STATUS_KEYS[status.value]), text(props.permission_type)].filter(Boolean).join(" · ");
   return <>
     <Title color={GB_BROWNFIELD_COLOR}>{text(props.site_address) || text(props.name) || t("popup.environmentLayer.gbUnnamed")}</Title>
-    <Row label={t("popup.environmentLayer.gbReference")} value={text(props.reference) || text(props.name)} />
     <Row label={t("popup.environmentLayer.gbBfArea")} value={ha == null ? t("popup.environmentLayer.gbNotStated") : t("popup.environmentLayer.gbBfHa", { v: formatNumber(ha, { maximumFractionDigits: 2 }) })} />
     <Row label={t("popup.environmentLayer.gbBfDwellings")} value={dwellings} />
     <Row label={t("popup.environmentLayer.gbBfOwnership")} value={ownLabel} />
@@ -1514,7 +1480,6 @@ export function GbBrownfieldPanel({ props }: { props: Record<string, unknown> })
     <Row label={t("popup.environmentLayer.gbBfDate")} value={envDate(props.permission_date) || t("popup.environmentLayer.gbNotStated")} />
     <Row label={t("popup.environmentLayer.gbBfLpa")} value={text(props.organisation)} />
     <Row label={t("popup.baseMap.gbNation")} value={[nation(props.nation), text(props.lad_name)].filter(Boolean).join(" · ")} />
-    <Row label={t("popup.baseMap.gbNotes")} value={t("popup.environmentLayer.gbBfHectaresNote")} />
     <SourceFooter props={{ source_org: GB_BROWNFIELD_ATTRIBUTION, source_url: GB_BROWNFIELD_URL, license: GB_ENV_OGL_V3, fetched_at: GB_ENV_FETCHED_AT }} />
   </>;
 }
@@ -1536,7 +1501,6 @@ export function GbRecyclingCentresPanel({ props }: { props: Record<string, unkno
     <Row label={t("popup.environmentLayer.gbRecFee")} value={yn(props.fee)} />
     <Row label={t("popup.environmentLayer.gbRecWheelchair")} value={yn(props.wheelchair)} />
     <Row label={t("popup.baseMap.gbNation")} value={[nation(props.nation), text(props.lad_name)].filter(Boolean).join(" · ")} />
-    <Row label={t("popup.baseMap.gbNotes")} value={t("popup.environmentLayer.gbRecOsmNote")} />
     <SourceFooter props={{ source_org: GB_RECYCLING_ATTRIBUTION, source_url: GB_RECYCLING_URL, license: GB_ENV_ODBL, fetched_at: GB_ENV_FETCHED_AT }} />
   </>;
 }
@@ -1576,7 +1540,6 @@ export function GbPollutionInventoryPanel({ props }: { props: Record<string, unk
     <Row label={t("popup.environmentLayer.gbPolWater")} value={release(props.release_water)} />
     <LinkRow label={t("popup.environmentLayer.gbPolReturn")} url={text(props.return_url)} />
     <Row label={t("popup.baseMap.gbNation")} value={[nation(props.nation), text(props.lad_name)].filter(Boolean).join(" · ")} />
-    <Row label={t("popup.baseMap.gbNotes")} value={t("popup.environmentLayer.gbPolNote")} />
     <SourceFooter props={{ source_org: GB_POLLUTION_ATTRIBUTION, source_url: GB_POLLUTION_URL, license: GB_POLLUTION_LICENSE, fetched_at: GB_ENV_FETCHED_AT }} />
   </>;
 }
@@ -1604,7 +1567,6 @@ export function GbPollutionInventoryEnglandPanel({ props }: { props: Record<stri
     })}
     <Row label={t("popup.environmentLayer.gbEaPostcode")} value={text(props.postcode) || t("popup.environmentLayer.gbNotStated")} />
     <Row label={t("popup.baseMap.gbNation")} value={[nation(props.nation), text(props.lad_name)].filter(Boolean).join(" · ")} />
-    <Row label={t("popup.baseMap.gbNotes")} value={t("popup.environmentLayer.gbEaNote")} />
     <SourceFooter props={{ source_org: GB_EA_POLLUTION_ATTRIBUTION, source_url: GB_EA_POLLUTION_URL, license: GB_EA_POLLUTION_LICENSE, fetched_at: GB_ENV_FETCHED_AT }} />
   </>;
 }
@@ -1621,7 +1583,6 @@ export function GbNoisePanel({ props }: { props: Record<string, unknown> }) {
     <Row label={t("popup.environmentLayer.gbNoiseBand")} value={band ? `${band.label} dB(A)` : text(props.band) || t("popup.environmentLayer.gbNotStated")} />
     <Row label={t("popup.environmentLayer.gbNoiseRound")} value={round === "Round 4" ? t("popup.environmentLayer.gbNoiseRound4") : round ? t("popup.environmentLayer.gbNoiseRound3") : t("popup.environmentLayer.gbNotStated")} />
     <Row label={t("popup.baseMap.gbNation")} value={nation(props.nation)} />
-    <Row label={t("popup.baseMap.gbNotes")} value={t("popup.environmentLayer.gbNoiseNote")} />
     {src ? <SourceFooter props={{ source_org: src.org, source_url: src.url, license: "Open Government Licence", fetched_at: GB_ENV_FETCHED_AT }} /> : null}
   </>;
 }
@@ -1685,7 +1646,6 @@ export function GbFuneralPanel({ props }: { props: Record<string, unknown> }) {
     <Row label={t("popup.funeral.gbWheelchair")} value={GB_W12_YES_NO_KEYS[wc] ? t(GB_W12_YES_NO_KEYS[wc]!) : wc || notStated} />
     <Row label={t("popup.funeral.gbPostcode")} value={text(props.postcode) || notStated} />
     <Row label={t("popup.baseMap.gbNation")} value={[nation(props.nation), text(props.lad_name)].filter(Boolean).join(" · ")} />
-    <Row label={t("popup.baseMap.gbNotes")} value={t("popup.funeral.gbOsmNote")} />
     <SourceFooter props={{ source_org: GB_FUNERAL_ATTRIBUTION, source_url: GB_FUNERAL_URL, license: GB_W12_ODBL, fetched_at: GB_W12_FETCHED_AT }} />
   </>;
 }
@@ -1742,7 +1702,6 @@ export function GbSoilParentMaterialPanel({ props }: { props: Record<string, unk
     <Row label={t("popup.agri.gbSoilGrain")} value={raw(props.grain_size)} />
     {km2 == null ? null : <Row label={t("popup.agri.gbSoilArea")} value={t("popup.agri.gbSoilKm2", { v: formatNumber(km2, { maximumFractionDigits: 1 }) })} />}
     <Row label={t("popup.baseMap.gbNation")} value={[nation(props.nation), text(props.lad_name)].filter(Boolean).join(" · ")} />
-    <Row label={t("popup.baseMap.gbNotes")} value={t("popup.agri.gbSoilModelNote")} />
     <SourceFooter props={{ source_org: GB_SOIL_ATTRIBUTION, source_url: GB_SOIL_URL, license: GB_W12_OGL_V3, fetched_at: GB_W12_FETCHED_AT }} />
   </>;
 }
@@ -1837,7 +1796,6 @@ export function GbPublicFacilitiesPanel({ props }: { props: Record<string, unkno
     <Row label={t("popup.publicLife.gbPostcode")} value={text(props.postcode)} />
     <Row label={t("popup.publicLife.gbAccess")} value={text(props.access)} />
     <Row label={t("popup.baseMap.gbNation")} value={[nation(props.nation), text(props.lad_name)].filter(Boolean).join(" · ")} />
-    <Row label={t("popup.baseMap.gbNotes")} value={t("popup.publicLife.gbOsmNote")} />
     <SourceFooter props={osmFooter} />
   </>;
 }
@@ -1860,9 +1818,7 @@ export function GbPlacesOfWorshipPanel({ props }: { props: Record<string, unknow
     <Row label={t("popup.publicLife.gbHours")} value={text(props.opening_hours)} />
     <Row label={t("popup.publicLife.gbWheelchair")} value={GB_W12_YES_NO_KEYS[wc] ? t(GB_W12_YES_NO_KEYS[wc]!) : wc} />
     <Row label={t("popup.publicLife.gbPostcode")} value={text(props.postcode)} />
-    <Row label="Wikidata" value={text(props.wikidata)} mono />
     <Row label={t("popup.baseMap.gbNation")} value={[nation(props.nation), text(props.lad_name)].filter(Boolean).join(" · ")} />
-    <Row label={t("popup.baseMap.gbNotes")} value={t("popup.publicLife.gbOsmNote")} />
     <SourceFooter props={osmFooter} />
   </>;
 }

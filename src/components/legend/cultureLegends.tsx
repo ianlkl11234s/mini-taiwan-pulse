@@ -9,7 +9,7 @@ import { JP_ACCOMMODATION_CATEGORIES, JP_ACCOMMODATION_DENSITY_SCALES, JP_ACCOMM
 import { SPORTS_CATEGORIES } from "../../data/sportsTypes";
 import { CULTURAL_FACILITY_TYPES, CULTURAL_MUSEUM_TYPES, ARTS_EVENT_ONGOING_COLOR, ARTS_EVENT_UPCOMING_COLOR, PERFORMING_VENUE_COLOR, LIBRARY_SEATS_COLORS } from "../../data/cultureTypes";
 import { DEITY_FAMILIES, ANCESTRAL_HALL_TYPES, RELIGION_LAYER_COLORS } from "../../data/religionTypes";
-import { FUNERAL_FACILITY_TYPES, FUNERAL_OPERATOR_ENTITY_TYPES, FUNERAL_DENSITY_BUCKETS, CEMETERY_ZONING_CLASSES, CEMETERY_OSM_ODBL_NOTE, FUNERAL_LAYER_COLORS } from "../../data/funeralTypes";
+import { FUNERAL_FACILITY_TYPES, FUNERAL_OPERATOR_ENTITY_TYPES, FUNERAL_DENSITY_BUCKETS, CEMETERY_ZONING_CLASSES, FUNERAL_LAYER_COLORS } from "../../data/funeralTypes";
 import { TOUR_ATTRACTION_CATS, TOUR_HOTEL_CATS, TOUR_HERITAGE_CATS } from "../../data/tourTypes";
 import { DenseHeatmapLegendRow, FireCatRows, Swatch, UrbanDotRow } from "./legendShared";
 import { useLocale } from "../../state/localeStore";
@@ -270,8 +270,6 @@ export function ReligionLegend({ visibility }: { visibility: LayerVisibility }) 
   const t = useLegendTheme();
   const i18n = useLocale();
   const singles = RELIGION_SINGLE_ROWS.filter((r) => visibility[r.key]);
-  // OSM 來源的三層任一開啟就要標 ODbL
-  const needsOdbl = visibility.religionTemples || visibility.religionChurches || visibility.religionOtherWorship;
   return (
     <div>
       <LegendTitle zh={i18n.t("legend.culture.religionTitle")} en="Religion" />
@@ -313,11 +311,6 @@ export function ReligionLegend({ visibility }: { visibility: LayerVisibility }) 
             ))}
           </div>
         </div>
-      )}
-      {needsOdbl && (
-        <LegendNote style={{ marginTop: 3, lineHeight: 1.4 }}>
-          {i18n.t("legend.culture.religionOdbl")}
-        </LegendNote>
       )}
       {visibility.religionTemples && <DenseHeatmapLegendRow layers={["religionTemples"]} />}
     </div>
@@ -416,11 +409,6 @@ export function FuneralLegend({ visibility }: { visibility: LayerVisibility }) {
         </div>
       )}
 
-      {visibility.cemeteryOsm && (
-        <LegendNote style={{ marginTop: 3, lineHeight: 1.4 }}>
-          {i18n.t("legend.culture.funeralOsmNote", { note: CEMETERY_OSM_ODBL_NOTE })}
-        </LegendNote>
-      )}
     </div>
   );
 }
@@ -428,11 +416,6 @@ export function FuneralLegend({ visibility }: { visibility: LayerVisibility }) {
 export function JpReligionLegend({ visibility }: { visibility: LayerVisibility }) {
   const t = useLegendTheme();
   const i18n = useLocale();
-  const attributions = [
-    visibility.jpReligionGsi ? i18n.t("legend.culture.jpReligionGsi") : null,
-    visibility.jpReligionOsm ? "© OpenStreetMap contributors, ODbL" : null,
-    visibility.jpReligionWikidata ? "Wikidata, CC0" : null,
-  ].filter((value): value is string => Boolean(value));
   return (
     <div>
       <LegendTitle zh={i18n.t("legend.culture.jpReligionTitle")} />
@@ -448,11 +431,6 @@ export function JpReligionLegend({ visibility }: { visibility: LayerVisibility }
       <LegendNote style={{ marginTop: 5, lineHeight: 1.35 }}>
         {i18n.t("legend.culture.jpReligionNote")}
       </LegendNote>
-      {attributions.map((attribution) => (
-        <LegendNote key={attribution} style={{ marginTop: 3, lineHeight: 1.35 }}>
-          {attribution}
-        </LegendNote>
-      ))}
     </div>
   );
 }

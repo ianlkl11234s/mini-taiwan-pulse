@@ -62,6 +62,10 @@ export const THEME_HEATMAP_PALETTE: Readonly<Record<string, PaletteId>> = {
  * 運動場地 PuBuGn、墓園與宗教場地 batlow、照護之家／長照服務 PuBuGn、棕地登記冊 bilbao）。
  */
 export const HEATMAP_PALETTE_OVERRIDES: Readonly<Record<string, PaletteId>> = {
+  // 泰國第 5 波：學校與幼兒班同為「教育」主題，錯開（2026-11-22）
+  thKindergartens: "PuBuGn",
+  // 印尼：橋梁與地名同為大點層，錯開（2026-11-23）
+  idPlaceNames: "PuBuGn",
   // 英國（使用者點名）
   gbGreenspace: "viridis",
   gbSportsFacilities: "PuBuGn",

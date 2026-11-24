@@ -1,6 +1,5 @@
 {
   "popup.infra.owner": "Owner",
-  "popup.infra.osmIdent": "OSM identifier",
   "popup.infra.lineQuality": "Line geometry quality",
   "popup.infra.cableRole": "OSM crowd-sourced submarine cable overview",
   "popup.infra.cableCoverage": "Crowd-mapped and incomplete; not an engineering-grade route",
@@ -45,7 +44,6 @@
   "popup.infra.ooklaDevicesLine": "{tests} · {devices} ({method})",
   "popup.infra.ooklaLowSample": "⚠️ Very few samples",
   "popup.infra.ooklaGridLevel": "Grid level",
-  "popup.infra.ooklaPeriod": "Period",
   "popup.infra.ooklaSampleBias": "Sample bias",
   "popup.infra.ooklaScaleZ6": "Global z6 cell (about 500 km)",
   "popup.infra.ooklaScaleZ10": "Global z10 cell (about 78 km)",

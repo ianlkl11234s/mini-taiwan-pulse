@@ -30,7 +30,6 @@
   "dataSources.fact.frequency": "Frequency",
   "dataSources.fact.license": "License",
   "dataSources.fact.unit": "Unit",
-  "dataSources.fact.dataset": "Dataset",
   "dataSources.fact.api": "API",
   "dataSources.fact.source": "Source",
   "dataSources.fact.period": "Period",
@@ -52,7 +51,6 @@
   "dataSources.ratioText": "Numerator: {numerator} · Denominator: {denominator}",
   "dataSources.unspecified": "Not specified",
   "dataSources.unspecifiedPublisher": "Provider not specified",
-  "dataSources.unspecifiedDataset": "Dataset not specified",
   "dataSources.upstreamPeriod": "Period: {period} · License: {license}",
   "dataSources.periodCount": "{count} existing published periods",
   "dataSources.periodNone": "Period not specified",
@@ -93,5 +91,11 @@
   "dataSources.contract.atlas": "Accepts only the {count} delivered exact release selectors{dimension}; values keep the source value and are not recalculated. {status}",
   "dataSources.contract.atlasDimension": "; dimensions: {list}",
   "dataSources.contract.demographics": "Accepts only the {count} delivered exact release selectors; missing values are shown as a slash and not filled with 0; PARTIAL periods keep their coverage status.",
-  "dataSources.contract.registered": "Existing loading contract of regionalStatisticsRecipes; release selectors only resolve existing published periods."
+  "dataSources.contract.registered": "Existing loading contract of regionalStatisticsRecipes; release selectors only resolve existing published periods.",
+  "dataSources.licenseUnstated": "License not stated",
+  "dataSources.block.layerSource": "Layer source",
+  "dataSources.noteWithLabel": "{label}: {text}",
+  "dataSources.fact.attribution": "Attribution",
+  "dataSources.fact.asOf": "Data as of",
+  "dataSources.fact.restriction": "Usage restriction"
 }

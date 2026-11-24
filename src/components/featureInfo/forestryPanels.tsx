@@ -123,16 +123,15 @@ export function ForestryGenericPanel({ props }: { props: Record<string, unknown>
   const theme = useFeatureTheme();
   const i18n = useLocale();
   const { t } = i18n;
-  const entries = Object.entries(props).slice(0, 8);
+  const entries = Object.entries(props).filter(([k, v]) => k in FORESTRY_PROP_LABELS && v != null && String(v) !== "");
   return (
     <>
       {entries.length === 0 && (
         <div style={{ fontSize: FONT_SIZE.sm, color: theme.textDim }}>{t("popup.forestry.noProps")}</div>
       )}
       {entries.map(([k, v]) => {
-        const label = FORESTRY_PROP_LABELS[k] ? enumLabel("forestryProp", k, FORESTRY_PROP_LABELS[k], i18n) : k;
-        const val = v == null ? "" : typeof v === "number" ? String(v) : String(v);
-        if (!val) return null;
+        const label = enumLabel("forestryProp", k, FORESTRY_PROP_LABELS[k]!, i18n);
+        const val = String(v);
         return <Row key={k} label={label} value={val.length > 40 ? `${val.slice(0, 40)}…` : val} />;
       })}
     </>

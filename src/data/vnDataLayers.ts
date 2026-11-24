@@ -204,7 +204,6 @@ const OIL_GAS_CATS: readonly PhCat[] = [
 ];
 
 // ───────────── envisoft 環境監測站（C098／C100／C101／C104／C033） ─────────────
-export const VN_ENVISOFT_NOTE = l3("來源 envisoft.gov.vn，授權未明示", "Source envisoft.gov.vn, licence not stated", "出典 envisoft.gov.vn、ライセンス未明示");
 const ENVISOFT_CATS: readonly PhCat[] = [
   { id: "air", values: ["air"], color: "#a78bfa", radius: 4.5, label: l3("空氣品質（KK，C098）", "Air quality (KK, C098)", "大気質（KK、C098）") },
   { id: "surface_water", values: ["surface_water"], color: "#38bdf8", radius: 4.5, label: l3("地面水質（NM，C100）", "Surface water quality (NM, C100)", "地表水質（NM、C100）") },
@@ -272,8 +271,7 @@ export const VN_DATA_SPECS: readonly VnLayerSpec[] = [
     ],
     legendNotes: [
       l3("Open Development Vietnam 彙編，原始機關未載明，2019（機場 25）／2021（港口 54）", "Compiled by Open Development Vietnam, original agency not stated; 2019 (25 airports) / 2021 (54 ports)", "Open Development Vietnam 編集、原機関未記載。2019（空港 25）／2021（港 54）"),
-      l3("ODM 授權 CC BY-SA 4.0，但 copyright 標「To be determined」，以授權未明示處理", "ODM licence CC BY-SA 4.0, but copyright is 'To be determined', treated as licence not stated", "ODM のライセンスは CC BY-SA 4.0 だが copyright が「To be determined」のため、ライセンス未明示として扱う"),
-      l3("OSM 補缺 19 處（2019 後新機場、軍用、停用機場等），淡色小點，ODbL", "19 OSM gap-fill aerodromes (post-2019, military, disused…), pale small points, ODbL", "OSM 補完 19 か所（2019 年以降の新空港・軍用・廃止空港など）、淡色の小点、ODbL"),
+      l3("OSM 補缺 19 處（2019 後新機場、軍用、停用機場等），淡色小點", "19 OSM gap-fill aerodromes (post-2019, military, disused…), pale small points", "OSM 補完 19 か所（2019 年以降の新空港・軍用・廃止空港など）、淡色の小点"),
       COVERAGE_NOTE(27),
     ],
     popupNotes: [
@@ -352,8 +350,7 @@ export const VN_DATA_SPECS: readonly VnLayerSpec[] = [
       { prop: "opening_hours", label: l3("營業時間（OSM 原文）", "Opening hours (OSM tag)", "営業時間（OSM 原文）"), kind: "code" }],
     legendNotes: [
       l3("GEM 風電與太陽能 842 處（預設只顯示運轉中與興建中；規劃中 492 處在「狀態」篩選）", "842 GEM wind and solar projects (operating and under construction by default; 492 planned in the status filter)", "GEM 風力・太陽光 842 か所（既定は運転中と建設中。計画中 492 は「状態」で表示）"),
-      l3("TransitionZero 光電 1,017 處為 CC BY-NC 4.0（非商用授權），彈窗逐筆標示", "1,017 TransitionZero solar records are CC BY-NC 4.0 (non-commercial); licence shown per record in the popup", "TransitionZero の太陽光 1,017 件は CC BY-NC 4.0（非商用）。ポップアップでレコードごとに表示"),
-      l3("GEM 風光位置約 85% 為近似；電動車充電站 376 處為 OSM 補缺（ODbL）", "About 85% of GEM wind/solar locations are approximate; 376 EV charging stations from OSM (ODbL)", "GEM 風力・太陽光の位置は約 85% が概略。EV 充電スタンド 376 か所は OSM 補完（ODbL）"),
+      l3("GEM 風光位置約 85% 為近似；電動車充電站 376 處為 OSM 補缺", "About 85% of GEM wind/solar locations are approximate; 376 EV charging stations from OSM", "GEM 風力・太陽光の位置は約 85% が概略。EV 充電スタンド 376 か所は OSM 補完"),
       COVERAGE_NOTE(33),
     ],
     popupNotes: [
@@ -448,7 +445,7 @@ export const VN_DATA_SPECS: readonly VnLayerSpec[] = [
     ],
     legendNotes: [
       l3("GEM：LNG 接收站 33（提案 20、取消 8；1 筆取消案上游座標錯誤，不畫）、煤炭碼頭 5、管線 12；預設顯示運轉中、興建中、提案，擱置與取消在「狀態」篩選", "GEM: 33 LNG terminals (20 proposed, 8 cancelled; 1 cancelled with a wrong upstream coordinate is not drawn), 5 coal terminals, 12 pipelines; operating, under construction and proposed shown by default, shelved and cancelled in the status filter", "GEM：LNG 基地 33（提案 20・中止 8。中止 1 件は上流座標の誤りで描画しない）、石炭ターミナル 5、パイプライン 12。既定は運転中・建設中・提案、保留と中止は「状態」で表示"),
-      l3("OSM：煉油廠 2、油氣儲槽 75、天然氣管線 65（ODbL）", "OSM: 2 refineries, 75 oil/gas storage tanks, 65 gas pipelines (ODbL)", "OSM：製油所 2・石油ガス貯蔵タンク 75・ガスパイプライン 65（ODbL）"),
+      l3("OSM：煉油廠 2、油氣儲槽 75、天然氣管線 65", "OSM: 2 refineries, 75 oil/gas storage tanks, 65 gas pipelines", "OSM：製油所 2・石油ガス貯蔵タンク 75・ガスパイプライン 65"),
       COVERAGE_NOTE(18),
     ],
     popupNotes: [OFFSHORE_NOTE, NEAREST_NOTE],
@@ -466,13 +463,11 @@ export const VN_DATA_SPECS: readonly VnLayerSpec[] = [
     fields: [
       { prop: "station_type", label: l3("類型", "Type", "種別"), map: ENVISOFT_TYPE_MAP },
       { prop: "address", label: l3("地址", "Address", "住所") },
-      { prop: "station_type_code", label: l3("類型代碼（站名後綴）", "Type code (name suffix)", "種別コード（局名の接尾辞）"), kind: "code" },
       PROVINCE_FIELD,
     ],
     legendNotes: [
       l3("只有站點位置，沒有任何監測數值", "Station locations only, no measurements", "局の位置のみで、測定値は含まない"),
       l3("2,176 站：廢水排放口 1,042、煙道 822、空品 147、地面水 144、海水 17；類型由站名後綴判定；另 2 站上游座標錯誤（落在別省），不畫", "2,176 stations: 1,042 wastewater discharge, 822 stack, 147 air, 144 surface water, 17 sea water; type from the station-name suffix; 2 more stations with wrong upstream coordinates are not drawn", "2,176 局：排水口 1,042・煙突 822・大気 147・地表水 144・海水 17。種別は局名の接尾辞で判定。上流座標の誤り 2 局は描画しない"),
-      VN_ENVISOFT_NOTE,
       COVERAGE_NOTE(33),
     ],
     popupNotes: [NEAREST_NOTE],
@@ -496,14 +491,10 @@ export const VN_DATA_SPECS: readonly VnLayerSpec[] = [
       { prop: "investor", label: l3("投資者", "Investor", "投資者") },
       { prop: "plan_period", label: l3("規劃期程", "Plan period", "計画期間") },
       { prop: "address", label: l3("地址（舊行政區）", "Address (former units)", "住所（旧行政区）") },
-      { prop: "site_id", label: l3("居民點代碼", "Site ID", "居住地コード"), kind: "code" },
-      { prop: "old_district_code", label: l3("舊縣代碼", "Former district code", "旧県コード"), kind: "code" },
-      { prop: "old_commune_code", label: l3("舊社代碼（不換算新社）", "Former commune code (not converted)", "旧社コード（新社に換算しない）"), kind: "code" },
     ],
     legendNotes: [
       VN_ANGIANG_NOTE,
       l3("工業群 13 處（面）、避洪居民點 59 處（點）；行政代碼為舊制，不換算新社", "13 industrial clusters (areas) and 59 flood resettlement sites (points); administrative codes are pre-reform and not converted", "工業団地 13（面）・洪水避難居住地 59（点）。行政コードは旧制で新社に換算しない"),
-      l3("來源 安江省開放資料入口，授權未明示", "Source An Giang open data portal, licence not stated", "出典 An Giang 省オープンデータポータル、ライセンス未明示"),
     ],
     popupNotes: [{ text: VN_ANGIANG_NOTE }],
     sourceOrg: "Cổng dữ liệu mở tỉnh An Giang（opendata.angiang.gov.vn）Dữ liệu GIS", sourceUrl: "https://opendata.angiang.gov.vn/", license: l3("授權未明示", "License not stated", "ライセンスは明示されていない"), fetchedAt: VN_FETCHED_AT,

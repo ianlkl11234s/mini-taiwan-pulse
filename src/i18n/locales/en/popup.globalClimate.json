@@ -24,6 +24,8 @@
   "popup.globalClimate.categorySeverity": "Category / severity",
   "popup.globalClimate.taiwanImpact": "Impact on Taiwan",
   "popup.globalClimate.reason": "Rationale",
+  "popup.globalClimate.storyLinks": "Possibly related reports",
+  "popup.globalClimate.storyLinksValue": "{n} other reports that may cover the same event (highlighted on the map; dashed lines between different places, not cause)",
   "popup.globalClimate.locationSemantics": "Location meaning",
   "popup.globalClimate.collectedAt": "Source collected at",
   "popup.globalClimate.locationSource": "Location source",
@@ -93,9 +95,6 @@
   "popup.globalClimate.selectedUtcDay": "Selected UTC day",
   "popup.globalClimate.fishingActivity": "Fishing activity",
   "popup.globalClimate.components": "Aggregated components",
-  "popup.globalClimate.facetsValue_one": "{count} set",
-  "popup.globalClimate.facetsValue_other": "{count} sets",
-  "popup.globalClimate.viewFacets": "View full aggregation facets",
   "popup.globalClimate.metric": "Metric",
   "popup.globalClimate.latestDate": "Latest available date",
   "popup.globalClimate.obsTimeUtc": "Observed at (UTC)",
@@ -130,5 +129,8 @@
   "popup.globalClimate.typLeadValue": "+{h} h",
   "popup.globalClimate.typValidAt": "Valid time",
   "popup.globalClimate.typUnmatched": "Not matched to a storm (no name shown)",
-  "popup.globalClimate.typAgencyNote": "Compiled by NCDR: one point per 24 hours for each agency, coarser than each agency's own forecast. Use it only to compare tracks."
+  "popup.globalClimate.typAgencyNote": "Compiled by NCDR: one point per 24 hours for each agency, coarser than each agency's own forecast. Use it only to compare tracks.",
+  "popup.globalClimate.storyLinksMore": "{n} more (highlighted on the map)",
+  "popup.globalClimate.entityLinks": "Shared people / organizations",
+  "popup.globalClimate.entityLinksValue": "{n} reports mention the same people or organizations: {names}"
 }

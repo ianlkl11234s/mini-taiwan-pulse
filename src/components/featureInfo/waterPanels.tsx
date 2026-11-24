@@ -275,7 +275,6 @@ export function RiverLevelPanel({ props }: { props: Record<string, unknown> }) {
       </div>
       <Row field="county" value={placeName(String(props.county ?? ""), i18n)} />
       {obs && <Row field="observedAt" value={formatTaiwanMinute(obs)} />}
-      <Row field="stationNo" value={String(props.station_id ?? "")} color={t.textDim} />
 
       <div style={{ marginTop: 8, fontSize: FONT_SIZE.xs, color: t.textMuted, letterSpacing: 0.5 }}>
         {i18n.t("popup.water.trend24h")}
@@ -347,7 +346,6 @@ export function GroundwaterPanel({ props }: { props: Record<string, unknown> }) 
         <span style={{ fontSize: FONT_SIZE.sm, color: t.textDefault }}>{i18n.t("popup.water.groundwaterUnit")}</span>
       </div>
       {obs && <Row field="observedAt" value={formatTaiwanMinute(obs)} />}
-      <Row label={i18n.t("popup.water.wellNo")} value={String(props.station_id ?? "")} color={t.textDim} />
 
       <div style={{ marginTop: 8, fontSize: FONT_SIZE.xs, color: t.textMuted, letterSpacing: 0.5 }}>
         {i18n.t("popup.water.trend24h")}
@@ -470,7 +468,6 @@ export function BridgeRainPanel({ props }: { props: Record<string, unknown> }) {
     <Row field="roadSection" value={String(props.route ?? "")} />
     <Row label={i18n.t("popup.water.rainJudgement")} value={String(props.status_label ?? i18n.t("popup.common.unknown"))} color={color} />
     <Row field="limits" value={String(props.status_reason ?? "")} />
-    <Row label={i18n.t("popup.water.refStations")} value={String(props.station_ids ?? "")} />
     {readings.map((r) => <div key={r.id} style={{ marginTop: 8, padding: 8, border: `1px solid ${t.textMuted}`, borderRadius: 6, color: t.textStrong, fontSize: FONT_SIZE.sm }}>
       <div>{r.name ?? r.id}（{r.id}）</div>
       <div>1h {mm(r.p1)}｜3h {mm(r.p3)}｜6h {mm(r.p6)}｜24h {mm(r.p24)}</div>
@@ -569,7 +566,6 @@ export function RainGaugePanel({ props }: { props: Record<string, unknown> }) {
       <Row label={i18n.t("popup.water.accum24h")} value={`${p24.toFixed(1)} mm`} />
       <Row field="county" value={[placeName(String(props.county ?? ""), i18n), placeTown(String(props.county ?? ""), String(props.town ?? ""), i18n)].filter(Boolean).join(" ")} />
       {obs && <Row field="observedAt" value={formatTaiwanMinute(obs)} />}
-      <Row field="stationNo" value={String(props.station_id ?? "")} color={t.textDim} />
 
       <div style={{ marginTop: 8, fontSize: FONT_SIZE.xs, color: t.textMuted, letterSpacing: 0.5 }}>
         {i18n.t("popup.water.rainTrend")}
@@ -912,7 +908,6 @@ export function IotWraRiverPanel({ props }: { props: Record<string, unknown> }) 
       <IotReadingBlock value={value} unit={unit} deltaLabel={i18n.t("popup.water.vsBaseline")} delta={delta} color="#22d3ee" />
       <Row field="measurement" value={String(props.measurement_name ?? "")} />
       {obs && <Row field="observedAt" value={formatTaiwanMinute(obs)} />}
-      <Row field="stationNo" value={String(props.iow_station_id ?? "")} color={t.textDim} />
 
       <div style={{ marginTop: 8, fontSize: FONT_SIZE.xs, color: t.textMuted, letterSpacing: 0.5 }}>
         {i18n.t("popup.water.trend24h")}
@@ -965,7 +960,6 @@ export function IotWraStructurePanel({ props }: { props: Record<string, unknown>
       <Row field="measurement" value={String(props.measurement_name ?? "")} />
       <Row field="county" value={placeName(String(props.county_name ?? ""), i18n)} />
       {obs && <Row field="observedAt" value={formatTaiwanMinute(obs)} />}
-      <Row field="stationNo" value={String(props.iow_station_id ?? "")} color={t.textDim} />
     </>
   );
 }
@@ -993,7 +987,6 @@ export function WaterBasinsPanel({ props }: { props: Record<string, unknown> }) 
       {Number.isFinite(areaM2) && areaM2 > 0 && (
         <Row label={i18n.t("popup.water.catchmentArea")} value={`${formatNumber(areaM2 / 1e6, { maximumFractionDigits: 1 })} km²`} />
       )}
-      <Row label={i18n.t("popup.water.basinCode")} value={String(props.basin_no ?? "")} color={t.textDim} />
     </>
   );
 }
@@ -1009,7 +1002,6 @@ export function WaterBasinsPanel({ props }: { props: Record<string, unknown> }) 
 export function WaterRiversPanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
   const i18n = useLocale();
-  const type = String(props.river_type ?? "");
   return (
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
@@ -1018,8 +1010,6 @@ export function WaterRiversPanel({ props }: { props: Record<string, unknown> }) 
           {String(props.river_name ?? i18n.t("popup.water.unnamedRiver"))}
         </div>
       </div>
-      <Row label={i18n.t("popup.water.classCode")} value={type} color={t.textDim} />
-      <Row label={i18n.t("popup.water.riverCode")} value={String(props.river_code ?? "")} color={t.textDim} />
     </>
   );
 }
@@ -1136,7 +1126,6 @@ export function WaterProtectionZonesPanel({ props }: { props: Record<string, unk
       <Row field="category" value={enumLabel("waterProtectionZone", kind, info?.label ?? kind, i18n)} color={color} />
       <Row label={i18n.t("popup.water.zoneDivision")} value={String(props.zone ?? "")} />
       <Row label={i18n.t("popup.water.lawRef")} value={String(props.law_ref ?? "")} />
-      <Row field="number" value={String(props.zone_no ?? "")} color={t.textDim} />
     </>
   );
 }

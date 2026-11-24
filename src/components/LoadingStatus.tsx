@@ -25,7 +25,8 @@ export function LoadingStatus({
   hidden = false,
 }: {
   rightOffset?: string;
-  top?: number;
+  /** px 或 CSS 長度（桌機加 --top-bar-shift，品牌列換行時往下讓） */
+  top?: number | string;
   isDarkTheme?: boolean;
   playing?: boolean;
   /** 拍攝模式：保持掛載（才不會丟掉進行中任務的 start 事件），只是不顯示 */

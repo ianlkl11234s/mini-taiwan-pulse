@@ -594,7 +594,7 @@ for f in \
   public/world/kr_fishing_grounds.pmtiles \
   public/world/kr_bicycle_parking.pmtiles \
   public/world/kr_civil_defense_water.pmtiles \
-  public/world/kr_emergency_bells.pmtiles \
+  public/world/kr_emergency_bells_lt2.pmtiles \
   public/world/kr_rural_experience_villages.pmtiles \
   public/world/kr_slaughterhouses.pmtiles \
   public/world/kr_eco_nature_11.pmtiles \
@@ -713,6 +713,117 @@ for f in \
   public/world/vn_admin_boundaries.pmtiles \
   public/world/vn_population.pmtiles \
   public/world/vn_stations_v2.pmtiles \
+  public/world/th_admin_boundaries.pmtiles \
+  public/world/th_population.pmtiles \
+  public/world/th_transport_hubs.pmtiles \
+  public/world/th_stations.pmtiles \
+  public/world/th_major_roads.pmtiles \
+  public/world/th_power_plants.pmtiles \
+  public/world/th_power_grid.pmtiles \
+  public/world/th_renewables.pmtiles \
+  public/world/th_fuel_stations.pmtiles \
+  public/world/th_pipelines.pmtiles \
+  public/world/th_terrain_hillshade.pmtiles \
+  public/world/th_terrain_relief.pmtiles \
+  public/world/th_place_names.pmtiles \
+  public/world/th_election_constituencies.pmtiles \
+  public/world/th_highland_villages.pmtiles \
+  public/world/th_province_socioeconomic.pmtiles \
+  public/world/th_footbridges.pmtiles \
+  public/world/th_rail_crossings.pmtiles \
+  public/world/th_road_accidents.pmtiles \
+  public/world/th_eec.pmtiles \
+  public/world/th_flood_history.pmtiles \
+  public/world/th_basins.pmtiles \
+  public/world/th_irrigation_projects.pmtiles \
+  public/world/th_landslide_safe_points.pmtiles \
+  public/world/th_landfills.pmtiles \
+  public/world/th_schools.pmtiles \
+  public/world/th_kindergartens.pmtiles \
+  public/world/th_elderly_housing.pmtiles \
+  public/world/th_health_facilities.pmtiles \
+  public/world/th_police_stations.pmtiles \
+  public/world/th_jails_courts.pmtiles \
+  public/world/th_nature_spots.pmtiles \
+  public/world/th_national_reserved_forests.pmtiles \
+  public/world/th_national_parks.pmtiles \
+  public/world/th_ramsar_sites.pmtiles \
+  public/world/th_forest_parks.pmtiles \
+  public/world/th_museums_libraries.pmtiles \
+  public/world/th_arts_events.pmtiles \
+  public/world/th_historic_sites.pmtiles \
+  public/world/th_experiences.pmtiles \
+  public/world/th_accommodation.pmtiles \
+  public/world/th_banks.pmtiles \
+  public/world/th_places_of_worship.pmtiles \
+  public/world/th_post_offices.pmtiles \
+  public/world/th_air_quality_stations.pmtiles \
+  public/world/th_weather_stations.pmtiles \
+  public/world/th_marine_habitats.pmtiles \
+  public/world/th_marine_protected_areas.pmtiles \
+  public/world/th_sea_level_stations.pmtiles \
+  public/world/th_coastal_change.pmtiles \
+  public/world/th_sports_venues.pmtiles \
+  public/world/th_parks.pmtiles \
+  public/world/th_factories.pmtiles \
+  public/world/th_farm_markets.pmtiles \
+  public/world/th_soils_ph.pmtiles \
+  public/world/th_soils_soc.pmtiles \
+  public/world/th_crops.pmtiles \
+  public/world/th_veterinary.pmtiles \
+  public/world/id_admin_boundaries.pmtiles \
+  public/world/id_bridges.pmtiles \
+  public/world/id_camps.pmtiles \
+  public/world/id_conservation_forest.pmtiles \
+  public/world/id_dibi_hydromet.pmtiles \
+  public/world/id_faults.pmtiles \
+  public/world/id_fuel_stations.pmtiles \
+  public/world/id_inarisk_flood.pmtiles \
+  public/world/id_inarisk_landslide.pmtiles \
+  public/world/id_inarisk_multi.pmtiles \
+  public/world/id_mountain_rescue.pmtiles \
+  public/world/id_nature_spots.pmtiles \
+  public/world/id_outer_islands.pmtiles \
+  public/world/id_place_names.pmtiles \
+  public/world/id_population.pmtiles \
+  public/world/id_power_grid.pmtiles \
+  public/world/id_power_plants.pmtiles \
+  public/world/id_rail_lines.pmtiles \
+  public/world/id_renewables.pmtiles \
+  public/world/id_rural_development.pmtiles \
+  public/world/id_stations.pmtiles \
+  public/world/id_subsidence.pmtiles \
+  public/world/id_terrain_hillshade.pmtiles \
+  public/world/id_terrain_relief.pmtiles \
+  public/world/id_transport_hubs.pmtiles \
+  public/world/id_water_facilities.pmtiles \
+  public/world/id_accommodation.pmtiles \
+  public/world/id_aquaculture.pmtiles \
+  public/world/id_banks.pmtiles \
+  public/world/id_cemeteries.pmtiles \
+  public/world/id_comm_towers.pmtiles \
+  public/world/id_cultural_facilities.pmtiles \
+  public/world/id_experiences.pmtiles \
+  public/world/id_factories.pmtiles \
+  public/world/id_farmland.pmtiles \
+  public/world/id_fire_stations.pmtiles \
+  public/world/id_health_facilities.pmtiles \
+  public/world/id_heritage_sites.pmtiles \
+  public/world/id_ikn.pmtiles \
+  public/world/id_immigration_offices.pmtiles \
+  public/world/id_markets.pmtiles \
+  public/world/id_parks.pmtiles \
+  public/world/id_places_of_worship.pmtiles \
+  public/world/id_police_stations.pmtiles \
+  public/world/id_post_offices.pmtiles \
+  public/world/id_prisons_courts.pmtiles \
+  public/world/id_schools.pmtiles \
+  public/world/id_special_economic_zones.pmtiles \
+  public/world/id_sports_venues.pmtiles \
+  public/world/id_transjakarta.pmtiles \
+  public/world/id_veterinary.pmtiles \
+  public/world/id_weather_stations.pmtiles \
+  public/world/id_watersheds.pmtiles \
   public/world/vn_transport_hubs_odm.pmtiles \
   public/world/vn_transport_hubs_osm.pmtiles \
   public/world/vn_major_roads_v2.pmtiles \

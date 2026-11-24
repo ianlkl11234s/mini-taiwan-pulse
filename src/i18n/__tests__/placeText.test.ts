@@ -119,7 +119,8 @@ describe('授權', () => {
     expect(catalogLicense('CC BY-SA 4.0', en)).toBe('CC BY-SA (Attribution-ShareAlike) 4.0');
     expect(catalogLicense('ODbL（Open Database License）', en)).toBe('Open Database License (ODbL) 1.0');
     expect(catalogLicense('ODbL 1.0', ja)).toBe('オープンデータベースライセンス（ODbL）1.0');
-    expect(catalogLicense('unknown', en)).toBe('Not specified');
+    expect(catalogLicense('unknown', en)).toBe('License not stated');
+    expect(catalogLicense('⚠️ 未確認', { active: 'zh-TW', lookup: () => null })).toBe('授權未明示');
   });
   it('帶註記的長句：統計整句查表，其他退回原文，不把註記吃掉', () => {
     expect(statisticsLicense('政府網站資料開放宣告（未逐字確認；上線前補查）', en)).toContain('not verified');

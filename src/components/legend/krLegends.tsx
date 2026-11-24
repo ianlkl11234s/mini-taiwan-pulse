@@ -1,12 +1,11 @@
 // 南韓第 1 波（國土基礎）圖例：交通 6 層＋能源 7 層。色票與署名 SSOT 在 data/krInfraTypes.ts。
 // OSM 補缺的層一律分開標「OSM 補缺」並署名 © OpenStreetMap contributors；沒涵蓋的地區寫「未涵蓋」。
-import { LegendNote, LegendRow, LegendSizeRow, LegendTitle, SwatchDot, SwatchLine, SwatchSquare, useLegendTheme } from "./legendKit";
+import { LegendNote, LegendRow, LegendSizeRow, LegendTitle, SwatchDot, SwatchLine, SwatchSquare, useLegendTheme, LegendRestrictions } from "./legendKit";
 import { DenseHeatmapLegendRow } from "./legendShared";
 import { LAYER_MANIFEST, type LayerName } from "../../data/layerManifest";
 import {
-  KR_AIRPORT_COLOR, KR_AIRPORTS_ATTRIBUTION, KR_BUS_STOPS_ATTRIBUTION, KR_BUS_STOPS_COLOR, KR_CAPACITY_BANDS, KR_FALLBACK_COLOR, KR_FUEL_GROUPS,
-  KR_FUEL_STATIONS_ATTRIBUTION, KR_FUEL_TYPES, KR_NATIONAL_ROAD_COLOR, KR_NATIONAL_ROADS_ATTRIBUTION, KR_OIL_GAS_TYPES, KR_OSM_ATTRIBUTION,
-  KR_PIPELINE_COLORS, KR_PLANT_FUELS, KR_PORT_COLOR, KR_PORTS_ATTRIBUTION, KR_RAIL_LINE_CLASSES, KR_RAIL_NETWORKS, KR_RAIL_STATIONS_ATTRIBUTION,
+  KR_AIRPORT_COLOR, KR_BUS_STOPS_ATTRIBUTION, KR_BUS_STOPS_COLOR, KR_CAPACITY_BANDS, KR_FALLBACK_COLOR, KR_FUEL_GROUPS,
+  KR_FUEL_STATIONS_ATTRIBUTION, KR_FUEL_TYPES, KR_NATIONAL_ROAD_COLOR, KR_NATIONAL_ROADS_ATTRIBUTION, KR_OIL_GAS_TYPES, KR_PIPELINE_COLORS, KR_PLANT_FUELS, KR_PORT_COLOR, KR_PORTS_ATTRIBUTION, KR_RAIL_LINE_CLASSES, KR_RAIL_NETWORKS, KR_RAIL_STATIONS_ATTRIBUTION,
   KR_RENEWABLE_FUELS, KR_TOWERS_COLOR, KR_VOLTAGE_CLASSES,
   type KrFuelGroup, type KrFuelType, type KrOilGasType, type KrRailLineClass, type KrRailNetwork, type KrVoltageClass,
 } from "../../data/krInfraTypes";
@@ -80,7 +79,6 @@ export function KrAirportsLegend() {
     <LegendRow swatch={<SwatchDot color={KR_AIRPORT_COLOR} />}>{i18n.t("legend.transport.krAirportKac")}</LegendRow>
     <LegendRow swatch={<SwatchDot color={KR_AIRPORT_COLOR} stroke={KR_AIRPORT_COLOR} opacity={0.45} />}>{i18n.t("legend.transport.krAirportOsm")}</LegendRow>
     <LegendNote>{i18n.t("legend.transport.krAirportScope")}</LegendNote>
-    <LegendNote>{KR_AIRPORTS_ATTRIBUTION}</LegendNote>
   </div>;
 }
 
@@ -111,7 +109,6 @@ export function KrRailLinesLegend() {
     {KR_RAIL_LINE_CLASSES.map((c) => <LegendRow key={c.value} swatch={<SwatchLine color={c.color} width={c.width === "emphasis" ? 2.5 : c.width === "standard" ? 1.5 : 1} opacity={c.opacity} />}>{i18n.t(KR_RAIL_CLASS_KEYS[c.value])}</LegendRow>)}
     <LegendNote>{i18n.t("legend.transport.krOsmSupplement")}</LegendNote>
     <LegendNote>{i18n.t("legend.transport.krRailLinesNote")}</LegendNote>
-    <LegendNote>{KR_OSM_ATTRIBUTION}</LegendNote>
   </div>;
 }
 
@@ -132,7 +129,6 @@ export function KrPowerPlantsLegend() {
     <LegendNote>{i18n.t("legend.energy.krCapacityNote")}</LegendNote>
     <LegendNote>{i18n.t("legend.energy.krPlantsCoverage")}</LegendNote>
     <LegendNote>{i18n.t("legend.energy.krPlantsOverlap")}</LegendNote>
-    <LegendNote>{KR_OSM_ATTRIBUTION}</LegendNote>
   </div>;
 }
 
@@ -146,7 +142,6 @@ export function KrRenewablesLegend() {
     <LegendNote>{i18n.t("legend.energy.krCapacityNote")}</LegendNote>
     <LegendNote>{i18n.t("legend.energy.krRenewCoverage")}</LegendNote>
     <LegendNote>{i18n.t("legend.energy.krStatsNotOnMap")}</LegendNote>
-    <LegendNote>{KR_OSM_ATTRIBUTION}</LegendNote>
   </div>;
 }
 
@@ -159,7 +154,6 @@ export function KrPowerLinesLegend() {
     {KR_VOLTAGE_CLASSES.map((v) => <LegendRow key={v.value} swatch={<SwatchLine color={v.color} width={Math.max(1, v.width)} opacity={v.opacity} />}>{i18n.t(KR_VOLTAGE_KEYS[v.value])}</LegendRow>)}
     <LegendRow swatch={<SwatchLine color={hv.color} width={1.5} dash={[...LINE_DASH.general]} />}>{i18n.t("legend.energy.krCable")}</LegendRow>
     <LegendNote>{i18n.t("legend.energy.krGridNote")}</LegendNote>
-    <LegendNote>{KR_OSM_ATTRIBUTION}</LegendNote>
   </div>;
 }
 
@@ -170,7 +164,6 @@ export function KrSubstationsLegend() {
     <LegendNote>{i18n.t("legend.energy.krOsmSupplement")}</LegendNote>
     {KR_VOLTAGE_CLASSES.map((v) => <LegendRow key={v.value} swatch={<SwatchDot color={v.color} opacity={v.opacity} />}>{i18n.t(KR_VOLTAGE_KEYS[v.value])}</LegendRow>)}
     <LegendNote>{i18n.t("legend.energy.krGridNote")}</LegendNote>
-    <LegendNote>{KR_OSM_ATTRIBUTION}</LegendNote>
   </div>;
 }
 
@@ -181,7 +174,6 @@ export function KrPowerTowersLegend() {
     <LegendNote>{i18n.t("legend.energy.krOsmSupplement")}</LegendNote>
     <LegendRow swatch={<SwatchDot color={KR_TOWERS_COLOR} />}>{i18n.t("legend.energy.krTowerRow")}</LegendRow>
     <LegendNote>{i18n.t("legend.energy.krTowersZoom")}</LegendNote>
-    <LegendNote>{KR_OSM_ATTRIBUTION}</LegendNote>
   </div>;
 }
 
@@ -208,7 +200,6 @@ export function KrOilGasLegend() {
     <LegendRow swatch={<SwatchLine color={KR_PIPELINE_COLORS.hydrocarbons} width={1.5} />}>{i18n.t("legend.energy.krOgPipeHc")}</LegendRow>
     <LegendNote>{i18n.t("legend.energy.krOgScope")}</LegendNote>
     <LegendNote>{i18n.t("legend.energy.krOgNoSubstance")}</LegendNote>
-    <LegendNote>{KR_OSM_ATTRIBUTION}</LegendNote>
   </div>;
 }
 
@@ -233,7 +224,7 @@ export function KrDataLegend({ layerKey }: { layerKey: KrDataKey }) {
     </> : spec.cats ? spec.cats.map((c) => <LegendRow key={c.id} swatch={swatch(spec, c.color)}>{pickL3(c.label, locale)}</LegendRow>) : <LegendRow swatch={swatch(spec, spec.color)}>{title}</LegendRow>}
     {spec.cats && spec.otherLabel ? <LegendRow swatch={swatch(spec, spec.otherColor ?? spec.color)}>{pickL3(spec.otherLabel, locale)}</LegendRow> : null}
     {spec.legendNotes.map((n, i) => <LegendNote key={i}>{pickL3(n, locale)}</LegendNote>)}
-    <LegendNote>{spec.sourceOrg}（{spec.license}）</LegendNote>
+    <LegendRestrictions layers={[spec.key]} />
     {spec.heat ? <DenseHeatmapLegendRow layers={[layerKey]} /> : null}
   </div>;
 }

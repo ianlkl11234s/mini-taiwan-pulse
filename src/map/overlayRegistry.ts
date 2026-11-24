@@ -61,11 +61,13 @@ import {
 import { MAPCHALLENGE_DAY21_ATTRIBUTION, MAPCHALLENGE_DAY21_ROADS_SOURCE_LAYER, MAPCHALLENGE_DAY21_ROADS_URL, mapchallengeDay21YearAt } from "../data/mapchallengeDay21Types";
 import {
   MAPCHALLENGE_DAY23_ATTRIBUTION, MAPCHALLENGE_DAY23_GLOW, MAPCHALLENGE_DAY23_RES, MAPCHALLENGE_DAY23_SWITCH_ZOOM, MAPCHALLENGE_DAY23_TERMS_URL, MAPCHALLENGE_DAY23_VARIANTS_URL,
-  mapchallengeDay23GroupAt, mapchallengeDay23TermAt,
+  MAPCHALLENGE_DAY23_FOREIGN_URL, MAPCHALLENGE_DAY23_INTL, MAPCHALLENGE_DAY23_ORIGIN, MAPCHALLENGE_DAY23_PLACES_URL, mapchallengeDay23IntlTermAt,
+  mapchallengeDay23ForeignAt, mapchallengeDay23GroupAt, mapchallengeDay23PlaceAt, mapchallengeDay23TermAt, mapchallengeDay23TermColor,
 } from "../data/mapchallengeDay23Types";
 import {
   mapchallengeDay23GlowOpacity, mapchallengeDay23RadiusExpr, mapchallengeDay23SortKeyExpr, mapchallengeDay23TermColorExpr, mapchallengeDay23TermFilter,
   mapchallengeDay23VariantColorExpr, mapchallengeDay23VariantFilter,
+  mapchallengeDay23ArcOpacity, mapchallengeDay23ArcWidthExpr, mapchallengeDay23ForeignFilter, mapchallengeDay23OriginFilter, mapchallengeDay23PlaceFilter,
 } from "../data/mapchallengeDay23Style";
 import { mapchallengeDay21ColorExpr, mapchallengeDay21SortKeyExpr, mapchallengeDay21WidthExpr, mapchallengeDay21YearFilter } from "../data/mapchallengeDay21Style";
 import { MAPCHALLENGE_DAY04_HOTSPOT_CLASSES, MAPCHALLENGE_DAY04_R7_URL, MAPCHALLENGE_DAY04_R8_URL, mapchallengeFacilityAt, mapchallengeFacilityColorExpr, mapchallengeHotspotColorExpr, mapchallengePopulationColorExpr } from "../data/mapchallengeDay04Types";
@@ -218,7 +220,7 @@ import { carrierColorExpression, comparisonColorExpression, comparisonGeometryFi
 import { ECO_NETWORK_ZONE_MATCH } from "../data/ecoNetworkZoneTypes";
 import {
   OSM_COMMUNICATION_COLOR_EXPR, RIPE_ATLAS_NODE_COLOR_EXPR,
-  OOKLA_GRID_META, OOKLA_TESTS_ALPHA_EXPR, ooklaSpeedColorExpr,
+  OOKLA_GRID_META, OOKLA_TESTS_ALPHA_EXPR, ooklaSpeedColorExpr, OOKLA_FINE_MIN_MAP_ZOOM, ooklaGridFilter,
 } from "../data/telecomTypes";
 import { RAIL_ROUTES_URL, RAIL_ROUTES_SOURCE_ID, RAIL_ROUTES_FALLBACK_COLOR, railRoutesSystemFilter } from "../data/railRoutesTypes";
 import { FOREST_RESERVE_PMTILES_URL, FOREST_RESERVE_TYPE_MATCH } from "../data/forestReserveTypes";
@@ -764,7 +766,7 @@ const HARM_REDUCTION_OVERLAYS: OverlayConfig[] = [
   publicLifePointOverlay("harmReductionAntiDrugPharmacies", "./harm_reduction/anti_drug_pharmacies.geojson", "harm-reduction-anti-drug-pharmacies", HARM_REDUCTION_COLORS.harmReductionAntiDrugPharmacies, undefined, "新北市政府、高雄市政府 社區藥局反毒站（data.gov.tw 125302／107877）· 政府資料開放授權條款第1版", undefined, { labelMinzoom: 14 }),
   publicLifePointOverlay("harmReductionTherapeuticCommunities", "./harm_reduction/therapeutic_communities.geojson", "harm-reduction-therapeutic-communities", HARM_REDUCTION_COLORS.harmReductionTherapeuticCommunities, undefined, "衛生福利部心理健康司 藥癮治療性社區／社區復健方案承辦機構（2025-07-29）", [4, 8], { labelMinzoom: 11 }),
   publicLifePointOverlay("harmReductionAftercare", "./harm_reduction/offender_aftercare_offices.geojson", "harm-reduction-aftercare", HARM_REDUCTION_COLORS.harmReductionAftercare, undefined, "法務部 更生保護會（data.gov.tw 10060，2023-06）· 政府資料開放授權條款第1版", [4, 8], { labelMinzoom: 10 }),
-  publicLifePointOverlay("harmReductionDuiCrashes", "./harm_reduction/dui_crash_points.pmtiles", "harm-reduction-dui-crashes", categoryColorExpression("accident_class", DUI_CLASS_OPTIONS), { sourceLayer: "dui_crash_points", minzoom: 5, maxzoom: 12 }, "內政部警政署 A1／A2 道路交通事故資料（107–114 年）· 政府資料開放授權條款第1版", undefined, { filter: (p) => duiCrashFilter(p?.harmReductionDuiCrashesClassMask, p?.harmReductionDuiCrashesYearMask, p?.harmReductionDuiCrashesBasisMask), dense: { pointsFromZoom: DENSE_FROM.harmReductionDuiCrashes, intensity: 1 } }),
+  publicLifePointOverlay("harmReductionDuiCrashes", "./harm_reduction/dui_crash_points_lt2.pmtiles", "harm-reduction-dui-crashes", categoryColorExpression("accident_class", DUI_CLASS_OPTIONS), { sourceLayer: "dui_crash_points", minzoom: 5, maxzoom: 12 }, "內政部警政署 A1／A2 道路交通事故資料（107–114 年）· 政府資料開放授權條款第1版", undefined, { filter: (p) => duiCrashFilter(p?.harmReductionDuiCrashesClassMask, p?.harmReductionDuiCrashesYearMask, p?.harmReductionDuiCrashesBasisMask), dense: { pointsFromZoom: DENSE_FROM.harmReductionDuiCrashes, intensity: 1 } }),
 ];
 
 /**
@@ -2887,23 +2889,46 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // 2026-09-30 PF-4：整包 GeoJSON（19–23 MB）改 PMTiles（scripts/preprocess/build-static-pmtiles-pf4.py，
   // 每個 zoom 全量、不抽稀；格網對齊 mercator tile，z6 切片 overzoom 無損）。
   // 透明度另乘 OOKLA_TESTS_ALPHA_EXPR：整季只有 1 次測試的格不該和數萬次的等權。
+  // 2026-11-23 瘦身：細格（z=10）只從圖磚縮放 3 起放進檔案（_t3），所以選「細」時地圖縮放 < 3 退回中格（z=8）。
   ...(([
-    { svc: "mobile", key: "ooklaMobilePerformance", sourceUrl: "./geo/ookla_mobile_global_20260930.pmtiles", pmtiles: { sourceLayer: "ookla", minzoom: 0, maxzoom: 6 } },
-    { svc: "fixed", key: "ooklaFixedPerformance", sourceUrl: "./geo/ookla_fixed_global_20260930.pmtiles", pmtiles: { sourceLayer: "ookla", minzoom: 0, maxzoom: 6 } },
+    { svc: "mobile", key: "ooklaMobilePerformance", sourceUrl: "./geo/ookla_mobile_global_20260930_t3.pmtiles", pmtiles: { sourceLayer: "ookla", minzoom: 0, maxzoom: 6 } },
+    { svc: "fixed", key: "ooklaFixedPerformance", sourceUrl: "./geo/ookla_fixed_global_20260930_t3.pmtiles", pmtiles: { sourceLayer: "ookla", minzoom: 0, maxzoom: 6 } },
   ] as const).map(({ svc, key, sourceUrl, pmtiles }) => ({
     id: key,
     sourceUrl,
     sourceId: `ookla-${svc}-global`,
     pmtiles,
     attribution: OOKLA_GRID_META.attribution,
-    rebuildOnParamChange: ["fill", "line"],
+    rebuildOnParamChange: ["fill", "line", "fill-lo", "line-lo"],
     layers: [
+      // 縮放 < OOKLA_FINE_MIN_MAP_ZOOM 的 -lo 層畫「退回後」的格網；其餘縮放畫使用者選的格網。
+      // 兩組 layer 的縮放區間互補不重疊（見 ooklaGridFilter 註解，不用 filter 內的 zoom）。
+      {
+        suffix: "fill-lo",
+        type: "fill",
+        maxzoom: OOKLA_FINE_MIN_MAP_ZOOM,
+        filter: (p?: Record<string, number>) => ooklaGridFilter(svc, p, true),
+        paint: (_isDark: boolean, params?: Record<string, number>) => ({
+          "fill-color": ooklaSpeedColorExpr(params?.[`${key}Palette`]),
+          "fill-opacity": ["*", (params?.[`${key}Opacity`] ?? 0.65) * 0.88, OOKLA_TESTS_ALPHA_EXPR],
+        }),
+      },
+      {
+        suffix: "line-lo",
+        type: "line",
+        maxzoom: OOKLA_FINE_MIN_MAP_ZOOM,
+        filter: (p?: Record<string, number>) => ooklaGridFilter(svc, p, true),
+        paint: (isDark: boolean, params?: Record<string, number>) => ({
+          "line-color": THEMED_PAINT_COLORS.ooklaGlobalOutline[isDark ? "dark" : "light"],
+          "line-width": ["interpolate", ["linear"], ["zoom"], 0, 0.25, 7, 0.7, 11, 1.2],
+          "line-opacity": params?.[`${key}Opacity`] ?? 0.65,
+        }),
+      },
       {
         suffix: "fill",
         type: "fill",
-        filter: (p?: Record<string, number>) => [
-          "==", ["get", "z"], p?.[`ookla${svc === "mobile" ? "Mobile" : "Fixed"}GridZoom`] ?? 6,
-        ],
+        minzoom: OOKLA_FINE_MIN_MAP_ZOOM,
+        filter: (p?: Record<string, number>) => ooklaGridFilter(svc, p, false),
         paint: (_isDark: boolean, params?: Record<string, number>) => ({
           "fill-color": ooklaSpeedColorExpr(params?.[`${key}Palette`]),
           "fill-opacity": ["*", (params?.[`${key}Opacity`] ?? 0.65) * 0.88, OOKLA_TESTS_ALPHA_EXPR],
@@ -2912,9 +2937,8 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       {
         suffix: "line",
         type: "line",
-        filter: (p?: Record<string, number>) => [
-          "==", ["get", "z"], p?.[`ookla${svc === "mobile" ? "Mobile" : "Fixed"}GridZoom`] ?? 6,
-        ],
+        minzoom: OOKLA_FINE_MIN_MAP_ZOOM,
+        filter: (p?: Record<string, number>) => ooklaGridFilter(svc, p, false),
         paint: (isDark: boolean, params?: Record<string, number>) => ({
           "line-color": THEMED_PAINT_COLORS.ooklaGlobalOutline[isDark ? "dark" : "light"],
           "line-width": ["interpolate", ["linear"], ["zoom"], 0, 0.25, 7, 0.7, 11, 1.2],
@@ -12666,7 +12690,7 @@ const ATLAS_OVERLAYS: OverlayConfig[] = [
       { suffix: "highlight-line", type: "line", filter: ["==", ["get", "office_title_7620"], "__none__"], paint: (dark: boolean) => ({ "line-color": dark ? "#fde047" : "#a16207", "line-width": 2.5, "line-opacity": 1 }) },
     ] as OverlayConfig["layers"]),
   },
-  publicLifePointOverlay("npSpeciesSites", "./environment/np_species_survey_points_sites_73252.pmtiles", "np-species-sites", matchColorExpr("park", NP_PARK_OPTIONS), { sourceLayer: "np_species_survey_points", minzoom: 4, maxzoom: 14 }, `內政部國家公園署 國家公園物種調查（data.gov.tw 73252；部分座標經模糊處理）· ${OGDL_ATTR}`, [2, 5], { dense: { pointsFromZoom: DENSE_FROM.npSpeciesSites, intensity: 0.2 } }),
+  publicLifePointOverlay("npSpeciesSites", "./environment/np_species_survey_points_sites_73252_lt2.pmtiles", "np-species-sites", matchColorExpr("park", NP_PARK_OPTIONS), { sourceLayer: "np_species_survey_points", minzoom: 4, maxzoom: 14 }, `內政部國家公園署 國家公園物種調查（data.gov.tw 73252；部分座標經模糊處理）· ${OGDL_ATTR}`, [2, 5], { dense: { pointsFromZoom: DENSE_FROM.npSpeciesSites, intensity: 0.2 } }),
   // 台灣圖層延伸 B7（2026-11-21）
   publicLifePointOverlay("hakkaLivingSchools", "./indigenous_rural/hakka_living_schools_v1.pmtiles", "hakka-living-schools", matchColorExpr("school_kind", HAKKA_SCHOOL_KIND_OPTIONS), { sourceLayer: "hakka_living_schools", minzoom: 4, maxzoom: 14 }, `客家委員會 客語生活學校（data.gov.tw 162475，地址定位）· ${OGDL_ATTR}`, [4, 8]),
   publicLifePointOverlay("sandGravelPlants", "./industrial_zone/sand_gravel_plants_v1.pmtiles", "sand-gravel-plants", matchColorExpr("registration", SAND_GRAVEL_REG_OPTIONS), { sourceLayer: "sand_gravel_plants", minzoom: 4, maxzoom: 14 }, `經濟部地質調查及礦業管理中心 砂石碎解洗選場（data.gov.tw 32708，地址定位）· ${OGDL_ATTR}`, [4, 8]),
@@ -12776,7 +12800,7 @@ const ATLAS_OVERLAYS: OverlayConfig[] = [
     attribution: `臺北市政府工務局水利工程處 歷年積水範圍（data.gov.tw 143898）· ${OGDL_ATTR}`, rebuildOnParamChange: ["fill", "outline"],
     layers: polygonLayers("taipeiWaterloggingHistory", ATLAS_LAYER_COLORS.taipeiWaterloggingHistory, 0.5),
   },
-  publicLifePointOverlay("swcbDisasterPhotoPoints", "./hazards/swcb_disaster_photo_points_v2.pmtiles", "swcb-disaster-photo-points", matchColorExpr("photo_category", SWCB_PHOTO_CATEGORY_OPTIONS), { sourceLayer: "swcb_disaster_photo_points", minzoom: 5, maxzoom: 12 }, `農業部農村發展及水土保持署 土砂災害照片（data.gov.tw 138000、174226）· ${OGDL_ATTR}`, undefined, { filter: (p) => atlasMultiSelectFilter("photo_category", SWCB_PHOTO_CATEGORY_OPTIONS, p?.swcbDisasterPhotoPointsCategoryMask), dense: { pointsFromZoom: DENSE_FROM.swcbDisasterPhotoPoints, intensity: 1 } }),
+  publicLifePointOverlay("swcbDisasterPhotoPoints", "./hazards/swcb_disaster_photo_points_v2_lt2.pmtiles", "swcb-disaster-photo-points", matchColorExpr("photo_category", SWCB_PHOTO_CATEGORY_OPTIONS), { sourceLayer: "swcb_disaster_photo_points", minzoom: 5, maxzoom: 12 }, `農業部農村發展及水土保持署 土砂災害照片（data.gov.tw 138000、174226）· ${OGDL_ATTR}`, undefined, { filter: (p) => atlasMultiSelectFilter("photo_category", SWCB_PHOTO_CATEGORY_OPTIONS, p?.swcbDisasterPhotoPointsCategoryMask), dense: { pointsFromZoom: DENSE_FROM.swcbDisasterPhotoPoints, intensity: 1 } }),
   // ── 海洋 ──
   publicLifePointOverlay("cetaceanStrandings", "./marine/cetacean_strandings.geojson", "cetacean-strandings", flaggedColorExpr(matchColorExpr("animal_status", ANIMAL_STATUS_OPTIONS)), undefined, `海洋委員會海洋保育署 MARN 鯨豚擱淺（data.gov.tw 157624）· ${OGDL_ATTR}`, undefined, { filter: (p) => atlasYearFilter("event_year", STRANDING_YEARS, p?.cetaceanStrandingsYearMask) }),
   publicLifePointOverlay("seaTurtleStrandings", "./marine/sea_turtle_strandings.geojson", "sea-turtle-strandings", flaggedColorExpr(matchColorExpr("species_zh", TURTLE_SPECIES_OPTIONS)), undefined, `海洋委員會海洋保育署 MARN 海龜擱淺（data.gov.tw）· ${OGDL_ATTR}`, undefined, { filter: (p) => atlasYearFilter("event_year", STRANDING_YEARS, p?.seaTurtleStrandingsYearMask) }),
@@ -12880,7 +12904,7 @@ const ATLAS_OVERLAYS: OverlayConfig[] = [
   publicLifePointOverlay("taisugarSugarMills", "./state_assets/taisugar_sugar_mills.geojson", "taisugar-sugar-mills", ATLAS_LAYER_COLORS.taisugarSugarMills, undefined, `台灣糖業公司 各糖廠據點（data.gov.tw 41592）· ${OGDL_ATTR}`, [4, 8], { labelMinzoom: 9 }),
   publicLifePointOverlay("statePropertyTenderListings", "./state_assets/state_property_tender_listings.geojson", "state-property-tender-listings", matchColorExpr("property_kind", STATE_TENDER_KIND_OPTIONS), undefined, `財政部國有財產署 國有非公用土地／房地未標脫資訊（data.gov.tw 9659、13152）· ${OGDL_ATTR}`, [2.5, 6], { filter: (p) => atlasMultiSelectFilter("property_kind", STATE_TENDER_KIND_OPTIONS, p?.statePropertyTenderListingsKindMask) }),
   // ── 金融服務據點 G10（2026-10-24）：ATM 裝設點 2.7 萬走 PMTiles＋低縮放熱區；總分支機構依機構類別著色 ──
-  publicLifePointOverlay("atmSitesFisc", "./finance/atm_sites_fisc.pmtiles", "atm-sites-fisc", matchColorExpr("institution_category", ATM_INSTITUTION_OPTIONS), { sourceLayer: "atm_sites_fisc", minzoom: 5, maxzoom: 12 }, `財金資訊公司 金融機構 ATM 位置查詢一覽表（data.gov.tw 24333）· ${OGDL_ATTR}`, undefined, { filter: (p) => atmSiteFilter(p?.atmSitesFiscInstitutionMask, p?.atmSitesFiscOnlyWheelchair, p?.atmSitesFiscOnlyVoice), dense: { pointsFromZoom: DENSE_FROM.atmSitesFisc, intensity: 1 } }),
+  publicLifePointOverlay("atmSitesFisc", "./finance/atm_sites_fisc_lt2.pmtiles", "atm-sites-fisc", matchColorExpr("institution_category", ATM_INSTITUTION_OPTIONS), { sourceLayer: "atm_sites_fisc", minzoom: 5, maxzoom: 12 }, `財金資訊公司 金融機構 ATM 位置查詢一覽表（data.gov.tw 24333）· ${OGDL_ATTR}`, undefined, { filter: (p) => atmSiteFilter(p?.atmSitesFiscInstitutionMask, p?.atmSitesFiscOnlyWheelchair, p?.atmSitesFiscOnlyVoice), dense: { pointsFromZoom: DENSE_FROM.atmSitesFisc, intensity: 1 } }),
   publicLifePointOverlay("financialBranchesFisc", "./finance/financial_branches_fisc.geojson", "financial-branches-fisc", matchColorExpr("institution_category", BRANCH_CATEGORY_OPTIONS), undefined, `財金資訊公司「總分支機構位置」查詢一覽表（data.gov.tw 24323）· ${OGDL_ATTR}`, [3, 6], { labelMinzoom: 14, filter: (p) => atlasMultiSelectFilter("institution_category", BRANCH_CATEGORY_OPTIONS, p?.financialBranchesFiscCategoryMask) }),
   // ── 金融服務據點延伸 G10 延伸（2026-10-24）：證券期貨投信投顧、保險公司與保險代理人，依類型著色（同址兼營會重疊）──
   publicLifePointOverlay("securitiesFuturesInstitutions", "./finance/securities_futures_institutions.geojson", "securities-futures-institutions", matchColorExpr("institution_type", SECURITIES_TYPE_OPTIONS), undefined, `臺灣證券交易所、臺灣期貨交易所、投信投顧公會（data.gov.tw 44723、17480、17481、44656、44657）· ${OGDL_ATTR}`, [3, 6], { labelMinzoom: 14, filter: (p) => securitiesFuturesFilter(p?.securitiesFuturesInstitutionsTypeMask, p?.securitiesFuturesInstitutionsHideProprietary) }),
@@ -13467,6 +13491,120 @@ OVERLAY_REGISTRY.push({
     }),
   }]),
 });
+// 第二批（2026-11-23）「店名裡的地名」：同一檔三種 feature（kind）。弧線（原產地 → 格心，線寬依該格家數）在最下、家數圓與光暈在中、原產地空心圈在最上。
+// circle 子圖層的 filter 一律帶 kind（否則會在弧線每個頂點畫圓）。弧線與空心圈不可點。空心圈是站主指定的呈現（POINT_SPEC_EXEMPT origin）。
+OVERLAY_REGISTRY.push({
+  id: "mapchallengeDay23TastePlaces", sourceUrl: MAPCHALLENGE_DAY23_PLACES_URL, sourceId: "mapchallenge-day23-taste-places",
+  attribution: MAPCHALLENGE_DAY23_ATTRIBUTION,
+  rebuildOnParamChange: [...MAPCHALLENGE_DAY23_RES.flatMap((res) => [`arc-r${res}`, `glow-r${res}`, `circle-r${res}`]), "origin"], rebuildOnParamKeys: ["mapchallengeDay23TastePlacesSignIdx"],
+  layers: [
+    ...MAPCHALLENGE_DAY23_RES.map((res): OverlayLayerSpec => ({
+      suffix: `arc-r${res}`, type: "line", ...mapchallengeDay23Zoom(res),
+      layout: { "line-cap": "round", "line-join": "round" },
+      filter: (p) => mapchallengeDay23PlaceFilter(mapchallengeDay23PlaceAt(p?.mapchallengeDay23TastePlacesSignIdx), "arc", res),
+      paint: (isDark, p) => ({
+        "line-color": mapchallengeDay23TermColor(mapchallengeDay23PlaceAt(p?.mapchallengeDay23TastePlacesSignIdx), isDark),
+        "line-width": mapchallengeDay23ArcWidthExpr(p?.mapchallengeDay23TastePlacesScale ?? 1),
+        "line-opacity": mapchallengeDay23ArcOpacity(isDark, p?.mapchallengeDay23TastePlacesOpacity ?? 0.85),
+      }),
+    })),
+    ...MAPCHALLENGE_DAY23_RES.flatMap((res): OverlayLayerSpec[] => [{
+      suffix: `glow-r${res}`, type: "circle", ...mapchallengeDay23Zoom(res),
+      filter: (p) => mapchallengeDay23PlaceFilter(mapchallengeDay23PlaceAt(p?.mapchallengeDay23TastePlacesSignIdx), "cell", res),
+      paint: (isDark, p) => ({
+        "circle-color": mapchallengeDay23TermColor(mapchallengeDay23PlaceAt(p?.mapchallengeDay23TastePlacesSignIdx), isDark),
+        "circle-radius": mapchallengeDay23RadiusExpr(p?.mapchallengeDay23TastePlacesScale ?? 1, MAPCHALLENGE_DAY23_GLOW.radiusFactor),
+        "circle-blur": MAPCHALLENGE_DAY23_GLOW.blur,
+        "circle-opacity": mapchallengeDay23GlowOpacity(isDark, p?.mapchallengeDay23TastePlacesOpacity ?? 0.85),
+      }),
+    }, {
+      suffix: `circle-r${res}`, type: "circle", ...mapchallengeDay23Zoom(res),
+      layout: { "circle-sort-key": mapchallengeDay23SortKeyExpr() },
+      filter: (p) => mapchallengeDay23PlaceFilter(mapchallengeDay23PlaceAt(p?.mapchallengeDay23TastePlacesSignIdx), "cell", res),
+      paint: (isDark, p) => ({
+        "circle-color": mapchallengeDay23TermColor(mapchallengeDay23PlaceAt(p?.mapchallengeDay23TastePlacesSignIdx), isDark),
+        "circle-radius": mapchallengeDay23RadiusExpr(p?.mapchallengeDay23TastePlacesScale ?? 1),
+        "circle-opacity": p?.mapchallengeDay23TastePlacesOpacity ?? 0.85,
+      }),
+    }]),
+    {
+      suffix: "origin", type: "circle",
+      filter: (p) => mapchallengeDay23OriginFilter(mapchallengeDay23PlaceAt(p?.mapchallengeDay23TastePlacesSignIdx)),
+      paint: (isDark, p) => ({
+        "circle-color": "rgba(0,0,0,0)", "circle-opacity": 0,
+        "circle-radius": MAPCHALLENGE_DAY23_ORIGIN.radius * (p?.mapchallengeDay23TastePlacesScale ?? 1),
+        "circle-stroke-color": isDark ? MAPCHALLENGE_DAY23_ORIGIN.dark : MAPCHALLENGE_DAY23_ORIGIN.light,
+        "circle-stroke-width": MAPCHALLENGE_DAY23_ORIGIN.strokeWidth,
+        "circle-stroke-opacity": p?.mapchallengeDay23TastePlacesOpacity ?? 0.85,
+      }),
+    },
+  ],
+});
+// 第二批「外來料理店名」：九組擇一（filter），色＝該組的色，半徑係數 k 依組（家數多的組縮小）。
+OVERLAY_REGISTRY.push({
+  id: "mapchallengeDay23TasteForeign", sourceUrl: MAPCHALLENGE_DAY23_FOREIGN_URL, sourceId: "mapchallenge-day23-taste-foreign",
+  attribution: MAPCHALLENGE_DAY23_ATTRIBUTION,
+  rebuildOnParamChange: MAPCHALLENGE_DAY23_RES.flatMap((res) => [`glow-r${res}`, `circle-r${res}`]), rebuildOnParamKeys: ["mapchallengeDay23TasteForeignGroupIdx"],
+  layers: MAPCHALLENGE_DAY23_RES.flatMap((res): OverlayLayerSpec[] => [{
+    suffix: `glow-r${res}`, type: "circle", ...mapchallengeDay23Zoom(res),
+    filter: (p) => mapchallengeDay23ForeignFilter(mapchallengeDay23ForeignAt(p?.mapchallengeDay23TasteForeignGroupIdx), res),
+    paint: (isDark, p) => {
+      const g = mapchallengeDay23ForeignAt(p?.mapchallengeDay23TasteForeignGroupIdx);
+      return {
+        "circle-color": mapchallengeDay23TermColor(g, isDark),
+        "circle-radius": mapchallengeDay23RadiusExpr(p?.mapchallengeDay23TasteForeignScale ?? 1, MAPCHALLENGE_DAY23_GLOW.radiusFactor, g.k),
+        "circle-blur": MAPCHALLENGE_DAY23_GLOW.blur,
+        "circle-opacity": mapchallengeDay23GlowOpacity(isDark, p?.mapchallengeDay23TasteForeignOpacity ?? 0.85),
+      };
+    },
+  }, {
+    suffix: `circle-r${res}`, type: "circle", ...mapchallengeDay23Zoom(res),
+    layout: { "circle-sort-key": mapchallengeDay23SortKeyExpr() },
+    filter: (p) => mapchallengeDay23ForeignFilter(mapchallengeDay23ForeignAt(p?.mapchallengeDay23TasteForeignGroupIdx), res),
+    paint: (isDark, p) => {
+      const g = mapchallengeDay23ForeignAt(p?.mapchallengeDay23TasteForeignGroupIdx);
+      return {
+        "circle-color": mapchallengeDay23TermColor(g, isDark),
+        "circle-radius": mapchallengeDay23RadiusExpr(p?.mapchallengeDay23TasteForeignScale ?? 1, 1, g.k),
+        "circle-opacity": p?.mapchallengeDay23TasteForeignOpacity ?? 0.85,
+      };
+    },
+  }]),
+});
+// 第三批（2026-11-23）南韓／英國／日本「店名料理詞」：同圖層 1 的做法，一張國別設定表（MAPCHALLENGE_DAY23_INTL）產三個 config。
+// 各國的格網級別與切換縮放不同（南韓 6／7 z9；英日 5／7 z8）；半徑係數依詞與格網級別（k＝大格、kHigh＝小格；家數多的詞縮小）。
+for (const country of MAPCHALLENGE_DAY23_INTL) {
+  const [low] = country.res;
+  const zoomOf = (res: number) => (res === low ? { maxzoom: country.switchZoom } : { minzoom: country.switchZoom });
+  const termOf = (p?: Record<string, number>) => mapchallengeDay23IntlTermAt(country, p?.[`${country.key}TermIdx`]);
+  const kOf = (p: Record<string, number> | undefined, res: number) => (res === low ? termOf(p).k : termOf(p).kHigh);
+  const scaleOf = (p?: Record<string, number>) => p?.[`${country.key}Scale`] ?? 1;
+  const opacityOf = (p?: Record<string, number>) => p?.[`${country.key}Opacity`] ?? 0.85;
+  OVERLAY_REGISTRY.push({
+    id: country.key, sourceUrl: country.url, sourceId: country.sourceId,
+    attribution: country.attribution,
+    rebuildOnParamChange: country.res.flatMap((res) => [`glow-r${res}`, `circle-r${res}`]), rebuildOnParamKeys: [`${country.key}TermIdx`],
+    layers: country.res.flatMap((res): OverlayLayerSpec[] => [{
+      suffix: `glow-r${res}`, type: "circle", ...zoomOf(res),
+      filter: (p) => mapchallengeDay23TermFilter(termOf(p), res),
+      paint: (isDark, p) => ({
+        "circle-color": mapchallengeDay23TermColor(termOf(p), isDark),
+        "circle-radius": mapchallengeDay23RadiusExpr(scaleOf(p), MAPCHALLENGE_DAY23_GLOW.radiusFactor, kOf(p, res)),
+        "circle-blur": MAPCHALLENGE_DAY23_GLOW.blur,
+        "circle-opacity": mapchallengeDay23GlowOpacity(isDark, opacityOf(p)),
+      }),
+    }, {
+      suffix: `circle-r${res}`, type: "circle", ...zoomOf(res),
+      layout: { "circle-sort-key": mapchallengeDay23SortKeyExpr() },
+      filter: (p) => mapchallengeDay23TermFilter(termOf(p), res),
+      paint: (isDark, p) => ({
+        "circle-color": mapchallengeDay23TermColor(termOf(p), isDark),
+        "circle-radius": mapchallengeDay23RadiusExpr(scaleOf(p), 1, kOf(p, res)),
+        "circle-opacity": opacityOf(p),
+      }),
+    }]),
+  });
+}
 
 // R2（P-1 B／P-2 A）：點圖層的半徑與描邊統一由 pointTiers.ts＋pointSpec.ts 套用，
 // 上面各 config 的 circle-radius／circle-stroke-* 字面值對這些圖層已不生效。

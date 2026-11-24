@@ -95,7 +95,6 @@ export function MountainRescuePanel({ props }: { props: Record<string, unknown> 
           {mountainRescueCauseLabel(cause)}
         </div>
       </div>
-      <Row label={tr("popup.hazard.caseId")} value={String(props.case_id ?? "—")} />
       <Row label={tr("popup.hazard.year")} value={props.year == null ? "—" : String(props.year)} />
       <Row field="county" value={placeName(String(props.city ?? "—"), i18n)} />
       {area ? <Row label={tr("popup.hazard.mountainArea")} value={area} /> : null}
@@ -147,7 +146,6 @@ export function NuclearStationPanel({ props }: { props: Record<string, unknown> 
   return (
     <div>
       <Row field="stationName" value={String(props.station_name ?? "—")} />
-      <Row field="stationNo" value={String(props.station_id ?? "—")} />
       <Row
         label={tr("popup.hazard.liveDose")}
         value={dose != null ? `${dose.toFixed(3)} µSv/h` : "—"}
@@ -251,7 +249,6 @@ export function EarthquakeReplayTownPanel({ props }: { props: Record<string, unk
         value={iv != null ? intensityLabel(iv) : "—"}
         color={iv != null ? intensityColor(iv) : undefined}
       />
-      <Row field="source" value={tr("popup.hazard.townSource")} />
     </div>
   );
 }

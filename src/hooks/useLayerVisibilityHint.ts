@@ -3,7 +3,7 @@
  * 本 hook 只負責節奏：和「視野在他國」同一套停穩 600ms（`createViewportSettleWatcher`），
  * 開關圖層、圖層載入完成（styledata／sourcedata 停穩 600ms）後也重判一次。
  *
- * 範圍：目前開著、屬於目前國家主體（或全球 WORLD）、沒上鎖的圖層。
+ * 範圍：目前開著、屬於目前國家主體（或全球 WORLD、模擬面板 SIM）、沒上鎖的圖層。
  * 停用（enabled=false：手機、拍攝模式、AI 對話框或 Agent 活動卡開著）時不判斷、不顯示。
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -68,7 +68,8 @@ export function useLayerVisibilityHint({
   const openKeys = useMemo(() => (Object.keys(layerVisibility) as (keyof LayerVisibility)[]).filter((key) => {
     if (!layerVisibility[key] || lockedKeys.has(key)) return false;
     const owner = (LAYER_MANIFEST as Record<string, { country?: string } | undefined>)[key]?.country;
-    return owner === country || owner === "WORLD";
+    // SIM＝模擬面板（掛在各國主體下都開得到；30 天地圖挑戰的局部／外國資料層靠這裡才有「前往」按鈕，2026-11-23）
+    return owner === country || owner === "WORLD" || owner === "SIM";
   }), [layerVisibility, lockedKeys, country]);
   const signature = openKeys.join(",");
 

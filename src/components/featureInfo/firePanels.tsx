@@ -80,7 +80,6 @@ export function FireHydrantPanel({ props }: { props: Record<string, unknown> }) 
       <Row label={tr("popup.fire.hydrantType")} value={`${enumLabel("fireHydrantType", String(props.type ?? cat), String(props.type ?? cat), i18n)}${props.type_code != null ? `（${String(props.type_code)}）` : ""}`} color={accentColor} />
       <Row field="county" value={placeName(String(props.county ?? ""), i18n)} />
       <Row field="district" value={placeTown(String(props.county ?? ""), String(props.district ?? ""), i18n)} />
-      <Row field="number" value={String(props.twc_id ?? (props.src === "twc" ? "" : props.id ?? ""))} />
       {/* G36：tile 不帶來源欄，依 src 補三家來源（FOOTER_SELF_MANAGED_LAYER_TYPES 已登記 fireHydrant） */}
       <HydrantSource src={props.src} />
     </>

@@ -2,10 +2,10 @@
 import { LegendNote, LegendRow, LegendSizeRow, LegendTitle, SwatchDot, SwatchHatch, SwatchSquare, useLegendTheme } from "./legendKit";
 import { LAYER_MANIFEST, type LayerName } from "../../data/layerManifest";
 import {
-  GB_AQUACULTURE_ATTRIBUTION, GB_AQUACULTURE_KINDS, GB_AQUACULTURE_STATUSES, GB_COMPANIES_ATTRIBUTION, GB_COMPANIES_BUCKETS, GB_COMPANIES_COLOR,
-  GB_COMPANIES_DISTRICTS, GB_COMPANIES_SNAPSHOT, GB_COMPANIES_TOTAL, GB_FUNERAL_ATTRIBUTION, GB_FUNERAL_BY_NATION, GB_FUNERAL_KINDS,
+  GB_AQUACULTURE_KINDS, GB_AQUACULTURE_STATUSES, GB_COMPANIES_BUCKETS, GB_COMPANIES_COLOR,
+  GB_COMPANIES_DISTRICTS, GB_COMPANIES_TOTAL, GB_FUNERAL_BY_NATION, GB_FUNERAL_KINDS,
   GB_FUNERAL_OSM_TIME, GB_MANUFACTURING_BUCKETS, GB_MANUFACTURING_COLOR, GB_MANUFACTURING_DISTRICTS, GB_MANUFACTURING_TOTAL,
-  GB_SOIL_ATTRIBUTION, GB_SOIL_DEPTHS, GB_SOIL_NA_COUNT, GB_W12_FALLBACK_COLOR, GB_W12_HOLLOW_STROKE, gbSoilDepthColors,
+  GB_SOIL_DEPTHS, GB_SOIL_NA_COUNT, GB_W12_FALLBACK_COLOR, GB_W12_HOLLOW_STROKE, gbSoilDepthColors,
   type GbAquacultureKind, type GbAquacultureStatus, type GbCountBucket, type GbFuneralKind, type GbSicSection, type GbSoilDepth,
 } from "../../data/gbBusinessAgriTypes";
 import { useLocale } from "../../state/localeStore";
@@ -79,8 +79,6 @@ function CompanyNotes({ i18n }: { i18n: I18n }) {
   return <>
     <LegendNote>{i18n.t("legend.registry.gbCoAgentNote")}</LegendNote>
     <LegendNote>{i18n.t("legend.registry.gbCoNiNote")}</LegendNote>
-    <LegendNote>{i18n.t("legend.registry.gbCoLicenceNote", { date: GB_COMPANIES_SNAPSHOT })}</LegendNote>
-    <LegendNote>{GB_COMPANIES_ATTRIBUTION}</LegendNote>
   </>;
 }
 
@@ -123,7 +121,6 @@ export function GbFuneralLegend() {
     <LegendNote>{i18n.t("legend.culture.gbFunOsmNote", { time: GB_FUNERAL_OSM_TIME })}</LegendNote>
     <LegendNote>{i18n.t("legend.culture.gbFunNations", { e: n(GB_FUNERAL_BY_NATION.England), s: n(GB_FUNERAL_BY_NATION.Scotland), w: n(GB_FUNERAL_BY_NATION.Wales), ni: n(GB_FUNERAL_BY_NATION["Northern Ireland"]) })}</LegendNote>
     <LegendNote>{i18n.t("legend.culture.gbFunCemNote")}</LegendNote>
-    <LegendNote>{GB_FUNERAL_ATTRIBUTION}</LegendNote>
   </div>;
 }
 
@@ -156,7 +153,6 @@ export function GbAquacultureLegend() {
     <LegendNote>{i18n.t("legend.agri.gbAqStatusNote")}</LegendNote>
     <LegendNote>{i18n.t("legend.agri.gbAqCoverage")}</LegendNote>
     <LegendNote>{i18n.t("legend.agri.gbAqNiNote")}</LegendNote>
-    <LegendNote>{GB_AQUACULTURE_ATTRIBUTION}</LegendNote>
   </div>;
 }
 
@@ -177,6 +173,5 @@ export function GbSoilParentMaterialLegend() {
     <LegendRow swatch={<SwatchHatch />}>{i18n.t("legend.agri.gbSoilRow", { label: i18n.t("legend.agri.gbSoilNa"), n: n(GB_SOIL_NA_COUNT) })}</LegendRow>
     <LegendNote>{i18n.t("legend.agri.gbSoilModelNote")}</LegendNote>
     <LegendNote>{i18n.t("legend.agri.gbSoilCoverage")}</LegendNote>
-    <LegendNote>{GB_SOIL_ATTRIBUTION}</LegendNote>
   </div>;
 }

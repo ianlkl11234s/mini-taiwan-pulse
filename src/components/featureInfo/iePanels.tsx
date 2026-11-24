@@ -34,7 +34,6 @@ export function IeAdminBoundariesPanel({ props }: P) {
     {level === "sa" && caText(props.urban_area) ? <Row label={pick({ zh: "都市區", en: "Urban area", ja: "都市域" })} value={caText(props.urban_area)} /> : null}
     <Row label={pick({ zh: "2022 人口", en: "Population 2022", ja: "2022 年人口" })} value={pop || pick(IE_NO_DATA)} />
     {area ? <Row label={pick({ zh: "面積", en: "Area", ja: "面積" })} value={`${area} km²`} /> : null}
-    {caText(props.code) ? <Row label={pick({ zh: "代碼", en: "Code", ja: "コード" })} value={caText(props.code)} mono /> : null}
     <SourceFooter props={{ source_org: IE_ADMIN_SOURCE.org, source_url: IE_ADMIN_SOURCE.url, license: IE_ADMIN_SOURCE.license, fetched_at: IE_FETCHED_AT }} />
   </>;
 }
@@ -71,7 +70,6 @@ export function makeIePanel(spec: IePanelSpec): FC<P> {
     return <>
       <Title color={catColor(spec, props)}>{title}</Title>
       {spec.fields.map((f) => <Row key={f.prop} label={pickL3(f.label, locale)} value={formatField(f, props, locale, fmt)} mono={f.kind === "code"} />)}
-      {spec.popupNotes.map((n, i) => <Row key={i} label={locale === "en" ? "Note" : locale === "ja" ? "備考" : "備註"} value={pickL3(n, locale)} />)}
       <SourceFooter props={{ source_org: spec.sourceOrg, source_url: spec.sourceUrl, license: spec.license, fetched_at: spec.fetchedAt }} />
     </>;
   };

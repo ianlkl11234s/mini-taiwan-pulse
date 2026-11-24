@@ -87,7 +87,6 @@ const TOURISM_FIELDS = (cats: readonly PhCat[]): PhField[] => [
   { prop: "whc_name_vi", label: l3("世界遺產（越南文）", "World Heritage site (Vietnamese)", "世界遺産（ベトナム語）") },
   { prop: "whc_inscribed", label: l3("登錄年", "Inscribed", "登録年"), kind: "year" },
   { prop: "sources", label: l3("資料來源", "Sources", "出典"), kind: "code" },
-  { prop: "wd_qid", label: l3("Wikidata", "Wikidata", "Wikidata"), kind: "code" },
   PROV,
 ];
 const TOURISM_SRC = "© OpenStreetMap contributors（ODbL，Geofabrik 2026-11-12）；UNESCO World Heritage Centre whc001（CC BY-SA 4.0）；Wikidata（CC0）";
@@ -173,8 +172,6 @@ const TOURISM_SPECS: Spec[] = [
       { prop: "province_listed", label: l3("清單所列省", "Province in the list", "一覧の省") },
       { prop: "macro_region", label: l3("區域", "Region", "地域") },
       { prop: "coord_source", label: l3("座標來源", "Coordinate source", "座標の出典"), map: { "vi.wikipedia": l3("越南文維基百科", "Vietnamese Wikipedia", "ベトナム語版ウィキペディア"), wikidata_p625: l3("Wikidata P625", "Wikidata P625", "Wikidata P625"), nominatim: l3("Nominatim（OSM）", "Nominatim (OSM)", "Nominatim（OSM）") } },
-      { prop: "kdlqg_id", label: l3("清單編號", "List ID", "一覧番号"), kind: "code" },
-      { prop: "wd_qid", label: l3("Wikidata", "Wikidata", "Wikidata"), kind: "code" },
       PROV,
     ],
     legendNotes: [
@@ -291,7 +288,6 @@ const W3_SPECS: Spec[] = [
     cats: GLIDE_CATS, otherColor: "#cbd5e1", otherLabel: l3("其他（OT）", "Other (OT)", "その他（OT）"),
     title: { props: ["location", "glidenumber"], fallback: l3("災害事件", "Disaster event", "災害イベント") },
     fields: [
-      { prop: "glidenumber", label: l3("GLIDE 編號", "GLIDE number", "GLIDE 番号"), kind: "code" },
       CATEGORY(GLIDE_CATS),
       { prop: "year", label: l3("年份", "Year", "年"), kind: "year" },
       { prop: "location", label: l3("地點（原文）", "Location (as published)", "場所（原文）") },
@@ -344,12 +340,11 @@ const W3_SPECS: Spec[] = [
       lineWidth: { 1: [0.8, 1.5], 2: [1, 2], 3: [1.3, 2.5], 4: [1.6, 3], 5: [2, 3.5], 6: [2.5, 4] } }],
     cats: RIVER_CATS, title: { props: ["name", "code"], fallback: l3("河川", "River", "河川") },
     fields: [
-      { prop: "code", label: l3("代碼", "Code", "コード"), kind: "code" },
       { prop: "order", label: l3("河川級序", "Stream order", "河川次数"), kind: "num" },
       { prop: "length_km", label: l3("長度", "Length", "長さ"), kind: "num", unit: "km", digits: 1 },
     ],
     legendNotes: [l3("線寬依河川級序；名稱多為空", "Line width by stream order; most names are blank", "線幅は河川次数による。名称はほぼ空欄"),
-      l3("ODM 彙編，資料年不明；授權未明示（ODM 標 CC BY-SA 4.0）", "Compiled by ODM, data year unknown; licence not stated (ODM lists CC BY-SA 4.0)", "ODM 編集、データ年不明。ライセンス未明示（ODM 表記は CC BY-SA 4.0）")],
+      l3("ODM 彙編，資料年不明", "Compiled by ODM, data year unknown", "ODM 編集、データ年不明")],
     popupNotes: [],
     sourceOrg: ODM_SRC("River network of Viet Nam"), sourceUrl: ODM_URL, license: l3("CC BY-SA 4.0（ODM license_id；原始機關未載明）", "CC BY-SA 4.0 (ODM license_id; original agency not stated)", "CC BY-SA 4.0（ODM の license_id。元の機関は未記載）"), fetchedAt: VN_WAVES_FETCHED_AT,
     loading: loading("河川", "rivers"),
@@ -376,7 +371,7 @@ const W3_SPECS: Spec[] = [
       PROV,
     ],
     legendNotes: [l3("約 2016–2020 舊資料、說明為機器英譯；等級名稱依英譯意譯", "Old data (about 2016–2020), descriptions machine-translated; level names interpreted from the translation", "2016〜2020 年頃の旧データで説明は機械英訳。等級名は英訳から意訳"),
-      l3("授權未明示（ODM 標 CC BY-SA 4.0）", "Licence not stated (ODM lists CC BY-SA 4.0)", "ライセンス未明示（ODM 表記は CC BY-SA 4.0）"), COVER(32)],
+      COVER(32)],
     popupNotes: [NEAREST],
     sourceOrg: ODM_SRC("Landslide points over whole country"), sourceUrl: ODM_URL, license: l3("CC BY-SA 4.0（ODM license_id；原始機關未載明）", "CC BY-SA 4.0 (ODM license_id; original agency not stated)", "CC BY-SA 4.0（ODM の license_id。元の機関は未記載）"), fetchedAt: VN_WAVES_FETCHED_AT,
     loading: loading("河岸與海岸侵蝕點", "riverbank and coastal erosion points"),
@@ -503,7 +498,6 @@ const W6_SPECS: Spec[] = [
       { prop: "area_km2", label: l3("面積", "Area", "面積"), kind: "num", unit: "km²", digits: 1 },
     ],
     legendNotes: [
-      l3("非商用（ODM 頁面使用限制）；上游 WDPA 2016（經 ADB）", "Non-commercial (ODM usage restriction); upstream WDPA 2016 (via ADB)", "非商用（ODM の利用制限）。上流は WDPA 2016（ADB 経由）"),
       l3("171 區（同名同型別合併）；國家公園 32 個名稱（官方 34）；沿岸與海上者對應海洋保護區", "171 areas (same name and type merged); 32 national-park names (34 official); coastal and marine ones are the marine protected areas", "171 区域（同名同種別を統合）。国立公園は 32 名称（公式 34）。沿岸・海上は海洋保護区に相当"),
     ],
     popupNotes: [],
@@ -562,7 +556,6 @@ const W7_SPECS: Spec[] = [
     legendNotes: [
       l3("只涵蓋安江省（原堅江範圍），其他 33 省未涵蓋", "Covers An Giang only (former Kiên Giang area); the other 33 provinces are not covered", "An Giang 省（旧 Kiên Giang の範囲）のみ。他の 33 省は未収録"),
       l3("只標位置與分區類別；面積、產量等數值不顯示", "Location and zone type only; area, output and other figures are not shown", "位置と区分のみ。面積・生産量などの数値は表示しない"),
-      l3("來源 安江省開放資料入口，授權未明示", "Source An Giang open data portal, licence not stated", "出典 An Giang 省オープンデータポータル、ライセンス未明示"),
     ],
     popupNotes: [],
     sourceOrg: "Sở Nông nghiệp và Môi trường tỉnh An Giang（opendata.angiang.gov.vn）", sourceUrl: "https://opendata.angiang.gov.vn/", license: l3("授權未明示", "License not stated", "ライセンスは明示されていない"), fetchedAt: VN_WAVES_FETCHED_AT,
@@ -595,12 +588,10 @@ const W7_SPECS: Spec[] = [
     cats: SOIL_CATS, title: { props: ["soil_type_vi"], fallback: l3("土壤", "Soil", "土壌") },
     fields: [
       { prop: "fao_group", label: l3("FAO 大類", "FAO major group", "FAO 大分類"), map: catMap(SOIL_CATS) },
-      { prop: "dom_soil", label: l3("主要土壤（FAO 代碼）", "Dominant soil (FAO code)", "主な土壌（FAO コード）"), kind: "code" },
       { prop: "fao_soil", label: l3("土壤單元（FAO 原文）", "Soil unit (FAO)", "土壌単位（FAO 原文）"), kind: "code" },
     ],
     legendNotes: [
       l3("小比例尺參考圖（230 面），不適合地塊判讀", "Small-scale reference map (230 polygons), not for parcel-level use", "小縮尺の参考図（230 面）で、区画単位の判読には不向き"),
-      l3("授權未明示（ODM 標 CC BY-SA 4.0）", "Licence not stated (ODM lists CC BY-SA 4.0)", "ライセンス未明示（ODM 表記は CC BY-SA 4.0）"),
     ],
     popupNotes: [],
     sourceOrg: ODM_SRC("Soil types of Vietnam"), sourceUrl: ODM_URL, license: l3("CC BY-SA 4.0（ODM 頁面；原始機關未載明）", "CC BY-SA 4.0 (ODM page; original agency not stated)", "CC BY-SA 4.0（ODM のページ。元の機関は未記載）"), fetchedAt: VN_WAVES_FETCHED_AT,
@@ -704,8 +695,6 @@ export const VN_RASTER_SPECS: readonly VnRasterSpec[] = [
     notes: [
       l3("區域模型圖，只有圖、不能分析；資料年不明", "Regional model map, image only and not analysable; data year unknown", "地域モデル図で画像のみ、分析不可。データ年不明"),
       l3("原生格網約 1 km；「極低」（多為平地）不畫；只畫越南 34 省（鄰國不畫）", "Native grid about 1 km; \"very low\" (mostly flat land) not drawn; Vietnam's 34 provinces only (neighbours not drawn)", "元の格子は約 1 km。「非常に低い」（主に平地）は描画しない。ベトナム 34 省のみ（隣国は描画しない）"),
-      l3("ODM GeoServer WMS 於 2026-11-17 擷取並轉成圖磚", "Rendered from the ODM GeoServer WMS on 2026-11-17", "ODM GeoServer WMS から 2026-11-17 に取得・タイル化"),
-      l3("授權未明示（ODM 標 CC BY-SA 4.0）", "Licence not stated (ODM lists CC BY-SA 4.0)", "ライセンス未明示（ODM 表記は CC BY-SA 4.0）"),
     ],
     sourceShort: l3("Open Development Vietnam 彙編（NGO），原始機關未載明；Land slide hazard map in Vietnam（ODM GeoServer WMS，2026-11-17 渲染）", "Compiled by Open Development Vietnam (NGO), original agency not stated; Land slide hazard map in Vietnam (ODM GeoServer WMS, rendered 2026-11-17)", "Open Development Vietnam（NGO）の編纂。元の機関は未記載。Land slide hazard map in Vietnam（ODM GeoServer WMS、2026-11-17 描画）"), loading: "越南崩塌潛勢載入中",
   },
@@ -713,8 +702,7 @@ export const VN_RASTER_SPECS: readonly VnRasterSpec[] = [
     key: "vnWdpca", kind: "owner", file: "vn_wdpca_raster.pmtiles", sourceId: "vn-wdpca-raster", layerId: "vn-wdpca-raster", minzoom: 5, maxzoom: 12, opacity: 0.6,
     swatches: VN_WDPCA_RASTER_SWATCHES,
     notes: [
-      l3("站主限定；WDPCA 條款禁止再散布與可下載的地圖，只以圖片顯示（無屬性、無彈窗）", "Owner only; WDPCA terms forbid redistribution and downloadable maps, so it is shown as an image only (no attributes or popup)", "サイト管理者限定。WDPCA 規約で再配布とダウンロード可能な地図が禁止のため画像のみ表示（属性・ポップアップなし）"),
-      l3("非商用；188 面＋Ramsar 點 3（畫半徑 1.5 km 圓）", "Non-commercial; 188 polygons + 3 Ramsar points (drawn as 1.5 km circles)", "非商用。188 面＋ラムサール点 3（半径 1.5 km の円）"),
+      l3("188 面＋Ramsar 點 3（畫半徑 1.5 km 圓）", "188 polygons + 3 Ramsar points (drawn as 1.5 km circles)", "188 面＋ラムサール点 3（半径 1.5 km の円）"),
     ],
     sourceShort: "UNEP-WCMC and IUCN (2026), Protected Planet: The World Database on Protected and Conserved Areas (WDPCA), www.protectedplanet.net", loading: "越南保護區（WDPCA）載入中",
   },

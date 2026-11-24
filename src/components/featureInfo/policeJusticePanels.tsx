@@ -417,7 +417,6 @@ export function AviationAirspacePanel({ props }: PanelProps) {
     <>
       <Header color={color} name={name} />
       <Row field="category" value={layer ? t("popup.policeJustice.layerWithName", { layer, name: layerZh }) : ""} />
-      <Row field="code" value={String(props.code ?? "")} />
       <Row label={t("popup.policeJustice.floor")} value={fmtAlt(props.floor_m, props.floor_raw, i18n)} />
       <Row label={t("popup.policeJustice.ceiling")} value={fmtAlt(props.ceiling_m, props.ceiling_raw, i18n)} />
       <Row label={t("popup.policeJustice.airspaceClass")} value={String(props.airspace_class ?? "")} />

@@ -59,6 +59,14 @@ jobs:
       - name: Entry docs consistency (PROJECTS ↔ BACKLOG)
         run: npm run check:entry-docs
 
+      # DEV-7：origin/master 已發布的 CHANGELOG 版本段落不可被改（新條目只能進 Unreleased）。
+      # checkout 是淺層、沒有 origin/master，要先 fetch；fetch 失敗或讀不到 master 都會紅，不靜默略過（docs/ci.md §1.3）。
+      # 零相依，放這個永遠跑的 job：PR 到 develop 與 master（發版、hotfix）都適用，master 還沒有的新版本段落不受限。
+      - name: Released CHANGELOG sections unchanged
+        run: |
+          git fetch --no-tags --depth=1 origin +refs/heads/master:refs/remotes/origin/master
+          npm run check:changelog
+
   # 不需要 public/ 大檔的檢查集中在這裡，用 sparse-checkout 跳過 public/（約 1.75GB）
   quick:
     needs: changes
@@ -151,6 +159,10 @@ jobs:
       - run: npm ci
       - name: TypeScript build (tsc -b + vite build)
         run: npm run check:build
+      # B1 P0：開站 JS／CSS 下載量，只寫進 job summary，不設門檻、不會讓 CI 失敗（docs/ci.md §10）
+      - name: First-load size report (report only)
+        continue-on-error: true
+        run: npm run size:entry
 
   # 主套件不讀 public/ 資料檔（CI-4）：只檢查存在／大小／sha256 的測試改查 deploy/public-assets.lock.json，
   # 讀內容的資產測試另由 assets job 跑（vitest.shared.ts）。所以 checkout 跳過 public/ 資料，只留網站素材
@@ -209,7 +221,30 @@ jobs:
           key: asset-cache-${{ hashFiles('deploy/asset-test-files.txt', 'deploy/public-assets.lock.json') }}
           restore-keys: asset-cache-
       - run: npm ci
+      # CI-10：R2 回 404 的檔若不在「基準 lock」裡（還沒發版的新檔），改從 S3 deploy-assets/ 取並比對 sha256。
+      # 基準：PR 與 develop push 用 origin/master；master push 用推送前的 master（github.event.before），
+      # 這樣發版那一刻 sync-assets 還沒補完 R2 也不會紅，但更早發版的檔 R2 缺了仍然紅。
+      # 取不到基準（fetch 失敗、before 全 0）一律紅，不靜默略過（docs/ci.md §1.3、§6a）。
+      - name: Fetch base lock ref
+        env:
+          IS_MASTER_PUSH: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
+          BEFORE: ${{ github.event.before }}
+        run: |
+          if [ "$IS_MASTER_PUSH" = "true" ]; then
+            case "$BEFORE" in ''|0000000000000000000000000000000000000000) echo "::error::master push 沒有前一個 commit，無法判斷新檔"; exit 1 ;; esac
+            git fetch --no-tags --depth=1 origin "$BEFORE"
+            echo "ASSET_BASE_REF=$BEFORE" >> "$GITHUB_ENV"
+          else
+            git fetch --no-tags --depth=1 origin +refs/heads/master:refs/remotes/origin/master
+            echo "ASSET_BASE_REF=origin/master" >> "$GITHUB_ENV"
+          fi
+      # S3 唯讀金鑰只給這一步；fork PR 拿不到 secret（空字串），R2 缺的新檔會紅並印出原因
       - name: Asset tests (R2 sha256 + content contracts)
+        env:
+          S3_ACCESS_KEY: ${{ secrets.PULSE_SYNC_S3_ACCESS_KEY }}
+          S3_SECRET_KEY: ${{ secrets.PULSE_SYNC_S3_SECRET_KEY }}
+          S3_REGION: ${{ secrets.S3_REGION }}
+          S3_BUCKET: ${{ secrets.S3_BUCKET }}
         run: npm run check:assets
 
   ci-ok:

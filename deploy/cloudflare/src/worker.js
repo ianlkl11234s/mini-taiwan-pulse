@@ -40,7 +40,9 @@ const LOCKED_DATA_FILES = ['/base_map/hillshade.png', '/station_pillars.json', '
 // 同上，但以目錄計：整個目錄都是 lock 資料檔、檔數多（台灣圖層延伸 B6 月幀年拼圖 .png 共 69 張），不逐檔列
 const LOCKED_DATA_DIRS = ['/marine/odb_mhw/', '/marine/crw_heat_stress/'];
 // 純 /data（非 ^~），值為固定 Cache-Control，null = map
-const DATA_ONLY = { water_resources: null, agriculture: null, business_registry: CC_1Y, industrial_zone: CC_1Y, sports: null, education: null, 'static-rpc': null, medical: null, base_map: null, fire: null, police_justice: null, road: null, rail: null, 'embed-snapshots': CC_1Y, 'embed-rail': CC_1Y };
+const DATA_ONLY = { water_resources: null, agriculture: null, business_registry: CC_1Y, industrial_zone: CC_1Y, sports: null, education: null, 'static-rpc': null, medical: null, base_map: null, fire: null, police_justice: null, road: null, rail: null, 'embed-snapshots': CC_1Y, 'embed-rail': CC_1Y,
+  // 門牌搜尋公開分片（地址搜尋第二階段，lock 資產、只在 R2）
+  'address-index': null };
 // ^~ 前綴：不受 L893 副檔名正則影響
 const CARET = ['/climate/', '/network_structures/', '/global-maritime/', '/jp-heights/', '/jp-medical/', '/flight-trails/', '/blog/', '/card/', '/lab/', '/assets/', '/api/research/v1/', '/.private-allen'];
 // 短效指標檔：先 R2、再 dist（例如 /public_life/manifest.json 在 dist），都沒有回 404

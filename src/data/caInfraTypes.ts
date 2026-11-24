@@ -89,14 +89,12 @@ export const CA_TRANSIT_SOURCE: CaSource = {
 };
 export const CA_TRANSIT_NOTES: readonly L3[] = [
   l3("135 個 GTFS feed 的站點；不同機構共站會重複", "Stops from 135 GTFS feeds; stops shared by several agencies are repeated", "135 の GTFS フィードの停留所。複数事業者の共用停留所は重複する"),
-  l3("授權依各機構（多數未明示）", "Licence varies by agency (mostly unstated)", "ライセンスは事業者ごと（多くは明示なし）"),
   l3("Nunavut 未涵蓋", "Nunavut not covered", "ヌナブト準州は対象外"),
   l3("z12 起顯示單站，之下為密度熱區（格網計數；類別篩選只作用於單站）", "Individual stops from zoom 12; density heatmap (grid counts) below; the type filter applies to individual stops only", "ズーム 12 から個別表示、それ以下は密度ヒートマップ（格子集計。種別フィルタは個別表示のみ）"),
 ];
 export const CA_TRANSIT_POPUP: CaPopupSpec = {
   title: { props: ["stop_name"], fallback: l3("公共運輸站點", "Transit stop", "公共交通の停留所") },
   fields: [
-    { prop: "stop_code", label: l3("站碼", "Stop code", "停留所コード"), kind: "code" },
     { prop: "provider", label: l3("營運機構", "Agency", "事業者") },
     { prop: "location_type", label: l3("站型", "Type", "種別"), map: { "0": CA_TRANSIT_TYPES[0]!.label, "1": CA_TRANSIT_TYPES[1]!.label } },
     { prop: "wheelchair_boarding", label: l3("無障礙上下車", "Wheelchair boarding", "車いす乗降"), map: { "1": l3("可", "Accessible", "可"), "2": l3("不可", "Not accessible", "不可") } },
@@ -132,14 +130,13 @@ export const CA_AIRPORTS_SOURCE: CaSource = {
 export const CA_AIRPORTS_NOTES: readonly L3[] = [
   l3("拉遠只顯示大中型機場與港口，z7 起補上小型機場、直升機場、水上飛機基地、綜合港與遊艇港", "Zoomed out, only large/medium airports and ports are shown; smaller types appear from zoom 7", "広域表示では大・中規模空港と港湾のみ。ズーム 7 から小規模空港などを追加"),
   l3("機場 13/13 省／地區；港口 12/13（Yukon 未涵蓋）", "Airports 13/13; ports 12/13 (Yukon not covered)", "空港 13/13、港湾 12/13（ユーコン準州は対象外）"),
-  l3("港口 197 筆來自美國 NGA World Port Index（授權頁未讀到）", "197 ports come from the US NGA World Port Index (licence page not available)", "港湾 197 件は米 NGA World Port Index 由来（ライセンス頁未確認）"),
+  l3("港口 197 筆來自美國 NGA World Port Index", "197 ports come from the US NGA World Port Index", "港湾 197 件は米 NGA World Port Index 由来"),
 ];
 export const CA_AIRPORT_POPUP: CaPopupSpec = {
   title: { props: ["name"], fallback: l3("機場", "Airport", "空港") },
   fields: [
     { prop: "source_class", label: l3("類型", "Type", "種別"), map: Object.fromEntries(CA_AIRPORT_CLASSES.flatMap((c) => c.values.map((v) => [v, c.label]))) },
     { prop: "icao_code", label: l3("ICAO 代碼", "ICAO code", "ICAO コード"), kind: "code" },
-    { prop: "local_code", label: l3("當地代碼", "Local code", "ローカルコード"), kind: "code" },
     { prop: "elevation_ft", label: l3("標高", "Elevation", "標高"), kind: "num", unit: "ft" },
     { prop: "municipality", label: l3("所在市鎮", "Municipality", "所在自治体") },
     PROVINCE,
@@ -274,7 +271,6 @@ export const CA_WIND_NOTES: readonly L3[] = [
 export const CA_WIND_POPUP: CaPopupSpec = {
   title: { props: ["project_name"], fallback: l3("風機", "Wind turbine", "風車") },
   fields: [
-    { prop: "turbine_id", label: l3("機組編號", "Turbine ID", "機番"), kind: "code" },
     { prop: "rated_capacity_kw", label: l3("額定容量", "Rated capacity", "定格出力"), kind: "num", unit: "kW" },
     { prop: "hub_height_m", label: l3("輪轂高", "Hub height", "ハブ高"), kind: "num", unit: "m", digits: 1 },
     { prop: "rotor_diameter_m", label: l3("葉輪直徑", "Rotor diameter", "ローター径"), kind: "num", unit: "m", digits: 1 },
@@ -464,7 +460,6 @@ export const CA_FED_SOURCE: CaSource = {
   short: CA_STATCAN_SOURCE_NOTE,
 };
 export const CA_FED_NOTES: readonly L3[] = [
-  l3("2025 大選起改用 2023 代表令 343 區（本層未更新）", "From the 2025 election the 2023 Representation Order (343 districts) applies; this layer is not updated", "2025 年総選挙からは 2023 年代表令（343 区）。本レイヤーは未更新"),
   l3("涵蓋 13/13 省／地區；z6 以下另畫代表點；選區名見點選資訊", "Coverage 13/13; representative points below zoom 6; click for district names", "13/13 州・準州を収録。ズーム 6 未満は代表点。選挙区名はクリックで表示"),
 ];
 export const CA_FED_POPUP: CaPopupSpec = {
@@ -472,7 +467,6 @@ export const CA_FED_POPUP: CaPopupSpec = {
   fields: [
     { prop: "name_en", label: l3("英文名", "English name", "英語名") },
     { prop: "name_fr", label: l3("法文名", "French name", "仏語名") },
-    { prop: "fed_uid", label: l3("選區代碼", "District code", "選挙区コード"), kind: "code" },
     PROVINCE,
     { prop: "land_area_km2", label: l3("陸地面積", "Land area", "陸地面積"), kind: "num", unit: "km²", digits: 1 },
   ],
@@ -647,7 +641,6 @@ export const CA_PLACE_NAMES_POPUP: CaPopupSpec = {
     PROVINCE,
     { prop: "decision_date", label: l3("核定日", "Decision date", "決定日"), kind: "code" },
     { prop: "source_agency", label: l3("命名機關", "Naming authority", "命名機関") },
-    { prop: "cgndb_id", label: l3("CGNDB 代碼", "CGNDB ID", "CGNDB ID"), kind: "code" },
   ],
 };
 

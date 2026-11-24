@@ -105,7 +105,7 @@ import { FIRE_ISOCHRONE_COUNTY_OPTIONS } from "./fireIsochroneCounties";
 import { RASTER, EXTRUSION, densePointOpacity } from "../map/mapStyleScale";
 import { MAPCHALLENGE_DAY17_LED_DEFAULT_YEAR, MAPCHALLENGE_DAY17_LED_YEARS, MAPCHALLENGE_DAY17_PRODUCTS, MAPCHALLENGE_DAY17_ROAD_SCOPES } from "./mapchallengeDay17Types";
 import { MAPCHALLENGE_DAY21_YEAR_MAX, MAPCHALLENGE_DAY21_YEAR_MIN } from "./mapchallengeDay21Types";
-import { MAPCHALLENGE_DAY23_TERMS, MAPCHALLENGE_DAY23_VARIANT_GROUPS } from "./mapchallengeDay23Types";
+import { MAPCHALLENGE_DAY23_INTL, mapchallengeDay23IntlOptionLabel, MAPCHALLENGE_DAY23_FOREIGN, MAPCHALLENGE_DAY23_PLACES, MAPCHALLENGE_DAY23_TERMS, MAPCHALLENGE_DAY23_VARIANT_GROUPS } from "./mapchallengeDay23Types";
 import { MAPCHALLENGE_DAY19_CATEGORY_OPTIONS, MAPCHALLENGE_DAY19_PENALTY_SCOPES, MAPCHALLENGE_DAY19_PERIODS, MAPCHALLENGE_DAY19_WINDS } from "./mapchallengeDay19Types";
 import { CATEGORY_FILTERS, categoryDefs, categoryMaskKey, categoryParamName, categoryParamOptions } from "./categoryFilters";
 import { KR_DATA_SPECS, krCatOptionIds, type KrLayerSpec } from "./krDataLayers";
@@ -113,6 +113,10 @@ import { IE_COILLTE_FOREST_ROADS, IE_COILLTE_RECREATION } from "./ieCoillteTypes
 import { PH_ADMIN_LEVELS, PH_DATA_SPECS, PH_PLANT_STATUSES, PH_PLANT_STATUS_DEFAULT, phCatOptions } from "./phDataLayers";
 import { PH_RASTER_SPECS } from "./phWavesLayers";
 import { VN_DATA_SPECS, VN_STATUSES } from "./vnDataLayers";
+import { TH_ADMIN_LEVELS, TH_DATA_SPECS, TH_POP_LEVELS, TH_STATUSES } from "./thDataLayers";
+import { TH_RASTER_SPECS } from "./thWavesLayers";
+import { ID_ADMIN_LEVELS, ID_DATA_SPECS, ID_LEVELS_2 } from "./idDataLayers";
+import { ID_RASTER_SPECS } from "./idWavesLayers";
 import { CA_WAVE_SPECS } from "./caWavesLayers";
 import { VN_RASTER_SPECS } from "./vnWavesLayers";
 import { CN_ADMIN_LEVELS, CN_DATA_SPECS, CN_PLANT_SCOPES, CN_PLANT_STATUSES, CN_PLANT_STATUS_DEFAULT, CN_RASTER_SPECS, cnCatOptions } from "./cnDataLayers";
@@ -712,7 +716,7 @@ const CATEGORY_BY_LABEL: Readonly<Record<string, ParamControlCategory>> = {
     "指標", "品項 全部", "類別", "年份", "定位精度", "位置精度", "狀態", "類型", "型別", "介質", "縣市", "最低嚴重度",
     "登記", "方向 全部", "航線範圍 全部", "品質", "營業狀態", "服務型態", "共同登記 ≥", "行業中類", "資本額分位",
     "設立年下限", "設立年上限", "製造業", "上市櫃", "有商標", "地址不一致", "聚焦行業中類", "回溯", "主題", "研究區域",
-    "分類", "過去", "時間範圍", "拖尾", "其他", "跨國關聯線（非移動軌跡）", "包含 AI 初判／待判斷", "僅顯示臺灣相關（直接／間接）",
+    "分類", "過去", "時間範圍", "拖尾", "其他", "關聯線（非移動或因果）", "包含 AI 初判／待判斷", "僅顯示臺灣相關（直接／間接）", "包含 AI 判為雜訊的報導",
     "漁船", "貨輪", "客輪", "運搬船", "未知", "承載類型", "比對狀態", "交通類別", "交通模式", "權重",
     "顯示受影響村里（先點選一座橋；再點村里看目的地視角）", "顯示替代路線（代表性起訖對）", "關渡＋淡江同時中斷", "設施類型",
     "資料源", "即時水位", "預測水位 (12-19h)", "累計流量", "閘門", "堤防安全", "河床沖刷", "揚塵", "信心", "確認", "漁電共生",
@@ -1832,6 +1836,34 @@ export const LAYER_PARAMS_SPEC = {
       out: "mapchallengeDay23TasteVariantsGroupIdx", encode: MAPCHALLENGE_DAY23_VARIANT_GROUPS.map((o) => o.value),
     },
   ],
+  mapchallengeDay23TastePlaces: [
+    opacitySlider("mapchallengeDay23TastePlacesOpacity", 0.85),
+    scaleSlider("mapchallengeDay23TastePlacesScale", 1),
+    {
+      kind: "select", category: "data", name: "mapchallengeDay23TastePlacesSign", label: "店名招牌", default: MAPCHALLENGE_DAY23_PLACES[0].value,
+      options: MAPCHALLENGE_DAY23_PLACES.map((o) => ({ label: o.label, value: o.value })),
+      out: "mapchallengeDay23TastePlacesSignIdx", encode: MAPCHALLENGE_DAY23_PLACES.map((o) => o.value),
+    },
+  ],
+  mapchallengeDay23TasteForeign: [
+    opacitySlider("mapchallengeDay23TasteForeignOpacity", 0.85),
+    scaleSlider("mapchallengeDay23TasteForeignScale", 1),
+    {
+      kind: "select", category: "data", name: "mapchallengeDay23TasteForeignGroup", label: "料理組", default: MAPCHALLENGE_DAY23_FOREIGN[0].value,
+      options: MAPCHALLENGE_DAY23_FOREIGN.map((o) => ({ label: o.label, value: o.value })),
+      out: "mapchallengeDay23TasteForeignGroupIdx", encode: MAPCHALLENGE_DAY23_FOREIGN.map((o) => o.value),
+    },
+  ],
+  // 第三批：南韓／英國／日本，同一套規格（選單標籤＝原文（中文說明））
+  ...Object.fromEntries(MAPCHALLENGE_DAY23_INTL.map((c) => [c.key, [
+    opacitySlider(`${c.key}Opacity`, 0.85),
+    scaleSlider(`${c.key}Scale`, 1),
+    {
+      kind: "select" as const, category: "data" as const, name: `${c.key}Term`, label: "店名用詞", default: c.terms[0].value,
+      options: c.terms.map((o) => ({ label: mapchallengeDay23IntlOptionLabel(o), value: o.value })),
+      out: `${c.key}TermIdx`, encode: c.terms.map((o) => o.value),
+    },
+  ]])),
   freewayTdcsSim: [
     opacitySlider("freewayTdcsSimOpacity", 0.9),
     {
@@ -2161,9 +2193,11 @@ export const LAYER_PARAMS_SPEC = {
     { kind: "select", name: "globalEventsView", label: "時間範圍", default: "recent7d", options: [
       { label: "最近範圍", value: "recent7d" }, { label: "跟隨時間軸", value: "timeline" },
     ], out: "globalEventsViewIdx", encode: ["recent7d", "timeline"] },
-    { kind: "toggle", name: "globalEventsRelations", label: "跨國關聯線（非移動軌跡）", default: false },
+    { kind: "toggle", name: "globalEventsRelations", label: "關聯線（非移動或因果）", default: true },
     { kind: "toggle", name: "globalEventsIncludeAI", label: "包含 AI 初判／待判斷", default: true },
     { kind: "toggle", name: "globalEventsTaiwanOnly", label: "僅顯示臺灣相關（直接／間接）", default: false },
+    // 站主 11-23（D4）：地圖預設不畫 AI 判為雜訊的報導，打開這個開關才畫；INTEL 列表不受影響。
+    { kind: "toggle", name: "globalEventsShowNoise", label: "包含 AI 判為雜訊的報導", default: false },
   ],
   aisstreamVessels: [
     { kind: "slider", name: "aisstreamVesselsOpacity", labelPrefix: "透明度", digits: 2, default: 0.9, min: 0, max: 1, step: 0.05 },
@@ -2381,6 +2415,82 @@ export const LAYER_PARAMS_SPEC = {
   ...Object.fromEntries(PH_RASTER_SPECS.map((spec) => [spec.key, [
     { kind: "slider" as const, name: `${spec.key}Opacity`, labelPrefix: "透明度", digits: 2, default: spec.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05 },
   ]])),
+  // 泰國第 0–1 波（2026-11-22）：選項順序＝`data/thDataLayers.ts` TH_ADMIN_LEVELS／TH_POP_LEVELS；行政邊界、人口預設 province（國家全覽 z5 有圖磚）
+  thAdminBoundaries: [
+    opacitySlider("thAdminBoundariesOpacity", 0.85),
+    {
+      kind: "select", category: "data", name: "thAdminBoundariesLevel", label: "行政層級", default: "province",
+      options: TH_ADMIN_LEVELS.map((x) => ({ label: x.label, value: x.value })),
+      out: "thAdminBoundariesLevelIdx", encode: TH_ADMIN_LEVELS.map((x) => x.value),
+    },
+  ],
+  thPopulation: [
+    {
+      kind: "select", category: "data", name: "thPopulationLevel", label: "行政層級", default: "province",
+      options: TH_POP_LEVELS.map((x) => ({ label: x.label, value: x.value })),
+      out: "thPopulationLevelIdx", encode: TH_POP_LEVELS.map((x) => x.value),
+    },
+    opacitySlider("thPopulationOpacity", 0.7),
+  ],
+  // 泰國規格驅動 8 層：類別多選（順序＝規格 cats＋「其他」＝bitmask）；GEM 電廠另有狀態多選（預設運轉中＋興建中）；儲槽與管線預設只開油氣與 LNG；加油站（≥1 萬點）加熱區顏色
+  ...Object.fromEntries(TH_DATA_SPECS.map((spec) => {
+    const hasPoint = spec.parts.some((p) => p.geom === "point");
+    const pointOnly = spec.parts.every((p) => p.geom === "point");
+    return [spec.key, [
+      categoryMultiSelect(spec.key, phCatOptions(spec), spec.defaultCats ? serializeMultiSelectValues([...spec.defaultCats]) : undefined),
+      ...(spec.statusDefault ? [{
+        kind: "multiSelect" as const, name: `${spec.key}Status`, label: "狀態", default: serializeMultiSelectValues([...spec.statusDefault]),
+        options: TH_STATUSES.map((x) => ({ label: x.label.zh, value: x.id })), out: `${spec.key}StatusMask`,
+      }] : []),
+      ...(spec.heat ? [heatmapPalette(spec.key)] : []),
+      opacitySlider(`${spec.key}Opacity`, spec.opacity ?? (pointOnly ? densePointOpacity(spec.count) : 0.85)),
+      ...(hasPoint ? [scaleSlider(`${spec.key}Scale`, 1)] : []),
+    ]];
+  })),
+  // 泰國 raster 2 層（2026-11-22）：只有透明度（同 phTerrain）
+  ...Object.fromEntries(TH_RASTER_SPECS.map((spec) => [spec.key, [
+    { kind: "slider" as const, name: `${spec.key}Opacity`, labelPrefix: "透明度", digits: 2, default: spec.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05 },
+  ]])),
+  // 印尼第 0–3 波（2026-11-23）：選項順序＝ ID_ADMIN_LEVELS／ID_LEVELS_2；行政邊界、人口、IDM 預設 province（國家全覽 z4 有圖磚）
+  idAdminBoundaries: [
+    opacitySlider("idAdminBoundariesOpacity", 0.85),
+    {
+      kind: "select", category: "data", name: "idAdminBoundariesLevel", label: "行政層級", default: "province",
+      options: ID_ADMIN_LEVELS.map((x) => ({ label: x.label, value: x.value })),
+      out: "idAdminBoundariesLevelIdx", encode: ID_ADMIN_LEVELS.map((x) => x.value),
+    },
+  ],
+  idPopulation: [
+    {
+      kind: "select", category: "data", name: "idPopulationLevel", label: "行政層級", default: "province",
+      options: ID_LEVELS_2.map((x) => ({ label: x.label, value: x.value })),
+      out: "idPopulationLevelIdx", encode: ID_LEVELS_2.map((x) => x.value),
+    },
+    opacitySlider("idPopulationOpacity", 0.7),
+  ],
+  idRuralDevelopment: [
+    {
+      kind: "select", category: "data", name: "idRuralDevelopmentLevel", label: "行政層級", default: "province",
+      options: ID_LEVELS_2.map((x) => ({ label: x.label, value: x.value })),
+      out: "idRuralDevelopmentLevelIdx", encode: ID_LEVELS_2.map((x) => x.value),
+    },
+    opacitySlider("idRuralDevelopmentOpacity", 0.7),
+  ],
+  // 印尼規格驅動 19 層：類別多選（順序＝規格 cats＋「其他」＝bitmask；沉降預設只開 2025）；≥1 萬點加熱區顏色
+  ...Object.fromEntries(ID_DATA_SPECS.map((spec) => {
+    const hasPoint = spec.parts.some((p) => p.geom === "point");
+    const pointOnly = spec.parts.every((p) => p.geom === "point");
+    return [spec.key, [
+      categoryMultiSelect(spec.key, phCatOptions(spec), spec.defaultCats ? serializeMultiSelectValues([...spec.defaultCats]) : undefined),
+      ...(spec.heat ? [heatmapPalette(spec.key)] : []),
+      opacitySlider(`${spec.key}Opacity`, spec.opacity ?? (pointOnly ? densePointOpacity(spec.count) : 0.85)),
+      ...(hasPoint ? [scaleSlider(`${spec.key}Scale`, 1)] : []),
+    ]];
+  })),
+  // 印尼 raster 5 層（2026-11-23）：只有透明度（同 thTerrain）
+  ...Object.fromEntries(ID_RASTER_SPECS.map((spec) => [spec.key, [
+    { kind: "slider" as const, name: `${spec.key}Opacity`, labelPrefix: "透明度", digits: 2, default: spec.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05 },
+  ]])),
   // 越南第 0–1 波（2026-11-13）：行政邊界、人口只有 34 省一級（不需層級 select）
   vnAdminBoundaries: [opacitySlider("vnAdminBoundariesOpacity", 0.85)],
   vnPopulation: [opacitySlider("vnPopulationOpacity", 0.7)],
@@ -2574,6 +2684,8 @@ export const LAYER_PARAMS_SPEC = {
   gbStationUsage: [opacitySlider("gbStationUsageOpacity", densePointOpacity(2_638)), scaleSlider("gbStationUsageScale", 1)],
   gbLondonRailLines: [opacitySlider("gbLondonRailLinesOpacity", 0.85), categoryMultiSelect("gbLondonRailLines", [{ label: "地鐵", value: "tube" }, { label: "Overground 地上鐵", value: "overground" }, { label: "Elizabeth line", value: "elizabeth-line" }, { label: "DLR 輕軌", value: "dlr" }, { label: "電車", value: "tram" }])],
   gbLondonStations: [opacitySlider("gbLondonStationsOpacity", 0.85), scaleSlider("gbLondonStationsScale", 1)],
+  // 英國列車重播（本機預覽）：透明度作用於列車點、箭頭、路網與選取路徑；大小只影響列車
+  gbRailReplay: [opacitySlider("gbRailReplayOpacity", 0.9), scaleSlider("gbRailReplayScale", 1)],
   gbLondonBikePoints: [opacitySlider("gbLondonBikePointsOpacity", 0.85), scaleSlider("gbLondonBikePointsScale", 1)],
   gbLondonJamCams: [opacitySlider("gbLondonJamCamsOpacity", 0.85), scaleSlider("gbLondonJamCamsScale", 1)],
   gbLondonChargingZones: [opacitySlider("gbLondonChargingZonesOpacity", 0.7)],

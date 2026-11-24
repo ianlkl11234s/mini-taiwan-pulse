@@ -53,7 +53,6 @@ export function DengueClusterPanel({ props }: { props: Record<string, unknown> }
       <Row field="countyDistrict" value={[placeName(`${str(props.county)}${str(props.town)}`, i18n), str(props.village)].filter(Boolean).join(" ")} />
       <Row label={t("popup.twLive.dengue.cases")} value={cases == null ? "" : t("popup.twLive.dengue.casesValue", { count: cases })} mono />
       <Row label={t("popup.twLive.dengue.released")} value={ymd(props.snapshot_date)} mono />
-      <Row label={t("popup.twLive.dengue.code")} value={str(props.code1)} mono />
       <div style={{ marginTop: 4, fontSize: FONT_SIZE.xs, color: theme.textMuted }}>{t("popup.twLive.dengue.note")}</div>
       <SourceFooter props={{ source_org: t("popup.twLive.dengue.source"), source_url: "https://data.gov.tw/dataset/179291", fetched_at: str(props.retrieved_at) }} />
     </>

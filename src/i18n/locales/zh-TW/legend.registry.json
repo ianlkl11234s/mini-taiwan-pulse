@@ -57,6 +57,5 @@
   "legend.registry.gbCoDistrictNote": "一點＝一個郵遞區號 district（{n} 區、共 {total} 家），依登記地址郵遞區號 district 聚合，不是營業地點",
   "legend.registry.gbMfgNote": "製造業＝第一個登記的 SIC 代碼屬 section C（共 {total} 家）；0 家的 district 不畫",
   "legend.registry.gbCoAgentNote": "代辦登記地址集中的 district 會偏高",
-  "legend.registry.gbCoNiNote": "北愛爾蘭：未涵蓋（郵遞區號授權限制）",
-  "legend.registry.gbCoLicenceNote": "Companies House 公司登記快照 {date}；公開登記無再利用限制、須註明來源（不是 OGL）"
+  "legend.registry.gbCoNiNote": "北愛爾蘭：未涵蓋（郵遞區號授權限制）"
 }
