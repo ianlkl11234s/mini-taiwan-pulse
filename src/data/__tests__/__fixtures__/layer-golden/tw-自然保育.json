@@ -1,0 +1,3496 @@
+{
+  "count": 14,
+  "gisLayers": {
+    "ecoNetworkZones": {
+      "layers": [
+        "eco-network-zones-fill",
+        "eco-network-zones-points-circle-point",
+        "eco-network-zones-points-circle-polygon"
+      ],
+      "type": "ecoNetworkZones"
+    },
+    "freewayEcoSensitive": {
+      "layers": [
+        "freeway-eco-sensitive-fill",
+        "freeway-eco-sensitive-outline",
+        "freeway-eco-sensitive-points-circle-point",
+        "freeway-eco-sensitive-points-circle-polygon"
+      ],
+      "type": "freewayEcoSensitive"
+    },
+    "importantWetlandZones": {
+      "layers": [
+        "important-wetland-zones-fill",
+        "important-wetland-zones-outline",
+        "important-wetland-zones-points-circle-point",
+        "important-wetland-zones-points-circle-polygon"
+      ],
+      "type": "importantWetlandZones"
+    },
+    "importantWetlands": {
+      "layers": [
+        "important-wetlands-fill",
+        "important-wetlands-outline",
+        "important-wetlands-points-circle-point",
+        "important-wetlands-points-circle-polygon"
+      ],
+      "type": "importantWetlands"
+    },
+    "marineWildlifeAreas": {
+      "layers": [
+        "marine-wildlife-areas-fill",
+        "marine-wildlife-areas-outline",
+        "marine-wildlife-areas-points-circle-point",
+        "marine-wildlife-areas-points-circle-polygon"
+      ],
+      "type": "marineWildlifeAreas"
+    },
+    "nationalParks": {
+      "layers": [
+        "national-parks-fill",
+        "national-parks-outline",
+        "national-parks-points-circle-point",
+        "national-parks-points-circle-polygon"
+      ],
+      "type": "nationalParks"
+    },
+    "natureReserves": {
+      "layers": [
+        "nature-reserves-fill",
+        "nature-reserves-outline",
+        "nature-reserves-points-circle-point",
+        "nature-reserves-points-circle-polygon"
+      ],
+      "type": "natureReserves"
+    },
+    "npSpeciesSites": {
+      "layers": [
+        "np-species-sites-circle",
+        "np-species-sites-glow"
+      ],
+      "type": "npSpeciesSites"
+    },
+    "swcEcoCheckZones": {
+      "layers": [
+        "swc-eco-check-zones-fill",
+        "swc-eco-check-zones-points-circle-point",
+        "swc-eco-check-zones-points-circle-polygon"
+      ],
+      "type": "swcEcoCheckZones"
+    },
+    "swcOutdoorClassrooms": {
+      "layers": [
+        "swc-outdoor-classrooms-circle",
+        "swc-outdoor-classrooms-glow"
+      ],
+      "type": "swcOutdoorClassrooms"
+    },
+    "wildlifeProtectedAreas": {
+      "layers": [
+        "wildlife-protected-areas-fill",
+        "wildlife-protected-areas-outline",
+        "wildlife-protected-areas-points-circle-point",
+        "wildlife-protected-areas-points-circle-polygon"
+      ],
+      "type": "wildlifeProtectedAreas"
+    }
+  },
+  "overlays": {
+    "ecoNetworkZones": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "ecoNetworkZones",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "Zone"
+                ],
+                "北部",
+                "#1e88e5",
+                "西北部",
+                "#42a5f5",
+                "東北部",
+                "#26c6da",
+                "西部",
+                "#66bb6a",
+                "西南部",
+                "#9ccc65",
+                "南部及恆春半島",
+                "#ffa726",
+                "東部",
+                "#ab47bc",
+                "澎湖",
+                "#ec407a",
+                "金門",
+                "#ffca28",
+                "馬祖",
+                "#8d6e63",
+                "綠島",
+                "#26a69a",
+                "蘭嶼",
+                "#ef5350",
+                "#9e9e9e"
+              ],
+              "fill-opacity": 0.5
+            },
+            "light": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "Zone"
+                ],
+                "北部",
+                "#1e88e5",
+                "西北部",
+                "#42a5f5",
+                "東北部",
+                "#26c6da",
+                "西部",
+                "#66bb6a",
+                "西南部",
+                "#9ccc65",
+                "南部及恆春半島",
+                "#ffa726",
+                "東部",
+                "#ab47bc",
+                "澎湖",
+                "#ec407a",
+                "金門",
+                "#ffca28",
+                "馬祖",
+                "#8d6e63",
+                "綠島",
+                "#26a69a",
+                "蘭嶼",
+                "#ef5350",
+                "#9e9e9e"
+              ],
+              "fill-opacity": 0.35
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "rgba(255,255,255,0.28)",
+              "line-opacity": 0.8,
+              "line-width": 1
+            },
+            "light": {
+              "line-color": "rgba(0,0,0,0.2)",
+              "line-opacity": 0.8,
+              "line-width": 1
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 13,
+        "minzoom": 0,
+        "sourceLayer": "eco_network_zones"
+      },
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "eco-network-zones",
+      "sourceUrl": "./agriculture/eco_network_zones.pmtiles"
+    },
+    "ecoNetworkZones#2": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "ecoNetworkZones",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "Zone"
+                ],
+                "北部",
+                "#1e88e5",
+                "西北部",
+                "#42a5f5",
+                "東北部",
+                "#26c6da",
+                "西部",
+                "#66bb6a",
+                "西南部",
+                "#9ccc65",
+                "南部及恆春半島",
+                "#ffa726",
+                "東部",
+                "#bd59ce",
+                "澎湖",
+                "#ec407a",
+                "金門",
+                "#ffca28",
+                "馬祖",
+                "#9a7b6f",
+                "綠島",
+                "#26a69a",
+                "蘭嶼",
+                "#ef5350",
+                "#9e9e9e"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "Zone"
+                ],
+                "北部",
+                "#1e88e5",
+                "西北部",
+                "#42a5f5",
+                "東北部",
+                "#26c6da",
+                "西部",
+                "#66bb6a",
+                "西南部",
+                "#9ccc65",
+                "南部及恆春半島",
+                "#ffa726",
+                "東部",
+                "#ab47bc",
+                "澎湖",
+                "#ec407a",
+                "金門",
+                "#ffca28",
+                "馬祖",
+                "#8d6e63",
+                "綠島",
+                "#26a69a",
+                "蘭嶼",
+                "#ef5350",
+                "#9e9e9e"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle-point",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 10,
+        "minzoom": 4,
+        "sourceLayer": "eco_network_zones_points"
+      },
+      "rebuildOnParamChange": [
+        "circle-point"
+      ],
+      "sourceId": "eco-network-zones-points",
+      "sourceUrl": "./agriculture/eco_network_zones_points.pmtiles"
+    },
+    "forestRecreation": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "forestRecreation",
+      "layers": [
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": "#65A30D",
+              "fill-opacity": 0.5
+            },
+            "light": {
+              "fill-color": "#65A30D",
+              "fill-opacity": 0.35
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#a3e635",
+              "line-opacity": 0.8,
+              "line-width": 1
+            },
+            "light": {
+              "line-color": "#4d7c0f",
+              "line-opacity": 0.8,
+              "line-width": 1
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "forest-recreation",
+      "sourceUrl": "./forestry/forest_recreation_areas.geojson"
+    },
+    "forestRecreation#2": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "forestRecreation",
+      "layers": [
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#65A30D",
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#65A30D",
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle-point",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": null,
+      "sourceId": "forest-recreation-points",
+      "sourceUrl": "./forestry/forest_recreation_areas.geojson"
+    },
+    "forestReserve": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "forestReserve",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "種類"
+                ],
+                "土砂捍止保安林",
+                "#92400E",
+                "水源涵養保安林",
+                "#0EA5E9",
+                "防風保安林",
+                "#A3E635",
+                "飛砂防止保安林",
+                "#EAB308",
+                "潮害防備保安林",
+                "#06B6D4",
+                "漁業保安林",
+                "#0891B2",
+                "自然保育保安林",
+                "#16A34A",
+                "風景保安林",
+                "#A855F7",
+                "墜石防止保安林",
+                "#DC2626",
+                "衛生保建保安林",
+                "#EC4899",
+                "土砂捍止保安林,水源涵養保安林",
+                "#7C3AED",
+                "土砂捍止保安林,漁業保安林",
+                "#0F766E",
+                "土砂捍止保安林,風景保安林",
+                "#B45309",
+                "#0F766E"
+              ],
+              "fill-opacity": 0.5
+            },
+            "light": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "種類"
+                ],
+                "土砂捍止保安林",
+                "#92400E",
+                "水源涵養保安林",
+                "#0EA5E9",
+                "防風保安林",
+                "#A3E635",
+                "飛砂防止保安林",
+                "#EAB308",
+                "潮害防備保安林",
+                "#06B6D4",
+                "漁業保安林",
+                "#0891B2",
+                "自然保育保安林",
+                "#16A34A",
+                "風景保安林",
+                "#A855F7",
+                "墜石防止保安林",
+                "#DC2626",
+                "衛生保建保安林",
+                "#EC4899",
+                "土砂捍止保安林,水源涵養保安林",
+                "#7C3AED",
+                "土砂捍止保安林,漁業保安林",
+                "#0F766E",
+                "土砂捍止保安林,風景保安林",
+                "#B45309",
+                "#0F766E"
+              ],
+              "fill-opacity": 0.35
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "rgba(255,255,255,0.3)",
+              "line-opacity": 0.8,
+              "line-width": 1
+            },
+            "light": {
+              "line-color": "rgba(0,0,0,0.25)",
+              "line-opacity": 0.8,
+              "line-width": 1
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 13,
+        "minzoom": 0,
+        "sourceLayer": "forest_reserve"
+      },
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "forest-reserve",
+      "sourceUrl": "https://data.itsmigu.com/forestry/releases/1f22e80b5e5e4dea9eef36f3e251d287f49d28966424d817729fbc2f251c77dc/forest_reserve.pmtiles"
+    },
+    "forestReserve#2": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "forestReserve",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "種類"
+                ],
+                "土砂捍止保安林",
+                "#c26b3f",
+                "水源涵養保安林",
+                "#0EA5E9",
+                "防風保安林",
+                "#A3E635",
+                "飛砂防止保安林",
+                "#EAB308",
+                "潮害防備保安林",
+                "#06B6D4",
+                "漁業保安林",
+                "#0891B2",
+                "自然保育保安林",
+                "#16A34A",
+                "風景保安林",
+                "#A855F7",
+                "墜石防止保安林",
+                "#f2403a",
+                "衛生保建保安林",
+                "#EC4899",
+                "土砂捍止保安林,水源涵養保安林",
+                "#9f7cff",
+                "土砂捍止保安林,漁業保安林",
+                "#4ca59c",
+                "土砂捍止保安林,風景保安林",
+                "#e58044",
+                "#4ca59c"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "種類"
+                ],
+                "土砂捍止保安林",
+                "#92400E",
+                "水源涵養保安林",
+                "#0EA5E9",
+                "防風保安林",
+                "#A3E635",
+                "飛砂防止保安林",
+                "#EAB308",
+                "潮害防備保安林",
+                "#06B6D4",
+                "漁業保安林",
+                "#0891B2",
+                "自然保育保安林",
+                "#16A34A",
+                "風景保安林",
+                "#A855F7",
+                "墜石防止保安林",
+                "#DC2626",
+                "衛生保建保安林",
+                "#EC4899",
+                "土砂捍止保安林,水源涵養保安林",
+                "#7C3AED",
+                "土砂捍止保安林,漁業保安林",
+                "#0F766E",
+                "土砂捍止保安林,風景保安林",
+                "#B45309",
+                "#0F766E"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle-point",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 10,
+        "minzoom": 4,
+        "sourceLayer": "forest_reserve_points"
+      },
+      "rebuildOnParamChange": [
+        "circle-point"
+      ],
+      "sourceId": "forest-reserve-points",
+      "sourceUrl": "./forestry/forest_reserve_points.pmtiles"
+    },
+    "forestWildlife": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "forestWildlife",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#b05fff",
+              "circle-opacity": 0.8,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#A855F7",
+              "circle-opacity": 0.8,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "circle"
+      ],
+      "sourceId": "forest-wildlife",
+      "sourceUrl": "./forestry/wildlife_distribution_3rd.geojson"
+    },
+    "freewayEcoSensitive": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "freewayEcoSensitive",
+      "layers": [
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "match",
+                [
+                  "to-string",
+                  [
+                    "get",
+                    "sensi_level"
+                  ]
+                ],
+                "1",
+                "#99f6e4",
+                "2",
+                "#2dd4bf",
+                "3",
+                "#0f766e",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.5
+            },
+            "light": {
+              "fill-color": [
+                "match",
+                [
+                  "to-string",
+                  [
+                    "get",
+                    "sensi_level"
+                  ]
+                ],
+                "1",
+                "#99f6e4",
+                "2",
+                "#2dd4bf",
+                "3",
+                "#0f766e",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.5
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#e2e8f0",
+              "line-opacity": 0.8,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "to-string",
+                  [
+                    "get",
+                    "sensi_level"
+                  ]
+                ],
+                "1",
+                "#99f6e4",
+                "2",
+                "#2dd4bf",
+                "3",
+                "#0f766e",
+                "#94a3b8"
+              ],
+              "line-opacity": 0.8,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "freeway-eco-sensitive",
+      "sourceUrl": "./geo/freeway_eco_sensitive_sections.geojson"
+    },
+    "freewayEcoSensitive#2": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "freewayEcoSensitive",
+      "layers": [
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "to-string",
+                  [
+                    "get",
+                    "sensi_level"
+                  ]
+                ],
+                "1",
+                "#99f6e4",
+                "2",
+                "#2dd4bf",
+                "3",
+                "#358f87",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "to-string",
+                  [
+                    "get",
+                    "sensi_level"
+                  ]
+                ],
+                "1",
+                "#99f6e4",
+                "2",
+                "#2dd4bf",
+                "3",
+                "#0f766e",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle-point",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": null,
+      "sourceId": "freeway-eco-sensitive-points",
+      "sourceUrl": "./geo/freeway_eco_sensitive_sections.geojson"
+    },
+    "importantWetlandZones": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "importantWetlandZones",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "zone"
+                ],
+                "核心保育區",
+                "#15803d",
+                "生態復育區",
+                "#65a30d",
+                "環境教育區",
+                "#0891b2",
+                "管理服務區",
+                "#ca8a04",
+                "其他分區",
+                "#94a3b8",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.45
+            },
+            "light": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "zone"
+                ],
+                "核心保育區",
+                "#15803d",
+                "生態復育區",
+                "#65a30d",
+                "環境教育區",
+                "#0891b2",
+                "管理服務區",
+                "#ca8a04",
+                "其他分區",
+                "#94a3b8",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.45
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#e2e8f0",
+              "line-opacity": 0.75,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "zone"
+                ],
+                "核心保育區",
+                "#15803d",
+                "生態復育區",
+                "#65a30d",
+                "環境教育區",
+                "#0891b2",
+                "管理服務區",
+                "#ca8a04",
+                "其他分區",
+                "#94a3b8",
+                "#94a3b8"
+              ],
+              "line-opacity": 0.75,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "important-wetland-zones",
+      "sourceUrl": "./environment/important_wetland_zones.geojson"
+    },
+    "importantWetlandZones#2": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "importantWetlandZones",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "zone"
+                ],
+                "核心保育區",
+                "#319450",
+                "生態復育區",
+                "#65a30d",
+                "環境教育區",
+                "#0891b2",
+                "管理服務區",
+                "#ca8a04",
+                "其他分區",
+                "#94a3b8",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "zone"
+                ],
+                "核心保育區",
+                "#15803d",
+                "生態復育區",
+                "#65a30d",
+                "環境教育區",
+                "#0891b2",
+                "管理服務區",
+                "#ca8a04",
+                "其他分區",
+                "#94a3b8",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle-point",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "circle-point"
+      ],
+      "sourceId": "important-wetland-zones-points",
+      "sourceUrl": "./environment/important_wetland_zones.geojson"
+    },
+    "importantWetlands": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "importantWetlands",
+      "layers": [
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "level"
+                ],
+                "國際級",
+                "#34d399",
+                "國家級",
+                "#059669",
+                "地方級",
+                "#65a30d",
+                "暫定地方級",
+                "#a3a3a3",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.35
+            },
+            "light": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "level"
+                ],
+                "國際級",
+                "#34d399",
+                "國家級",
+                "#059669",
+                "地方級",
+                "#65a30d",
+                "暫定地方級",
+                "#a3a3a3",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.35
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#e2e8f0",
+              "line-opacity": 0.6499999999999999,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "level"
+                ],
+                "國際級",
+                "#34d399",
+                "國家級",
+                "#059669",
+                "地方級",
+                "#65a30d",
+                "暫定地方級",
+                "#a3a3a3",
+                "#94a3b8"
+              ],
+              "line-opacity": 0.6499999999999999,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "important-wetlands",
+      "sourceUrl": "./environment/important_wetlands.geojson"
+    },
+    "importantWetlands#2": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "importantWetlands",
+      "layers": [
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "level"
+                ],
+                "國際級",
+                "#34d399",
+                "國家級",
+                "#059669",
+                "地方級",
+                "#65a30d",
+                "暫定地方級",
+                "#a3a3a3",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "level"
+                ],
+                "國際級",
+                "#34d399",
+                "國家級",
+                "#059669",
+                "地方級",
+                "#65a30d",
+                "暫定地方級",
+                "#a3a3a3",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle-point",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": null,
+      "sourceId": "important-wetlands-points",
+      "sourceUrl": "./environment/important_wetlands.geojson"
+    },
+    "marineWildlifeAreas": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "marineWildlifeAreas",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "category"
+                ],
+                "habitat",
+                "#2563eb",
+                "protected",
+                "#0d9488",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.3
+            },
+            "light": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "category"
+                ],
+                "habitat",
+                "#2563eb",
+                "protected",
+                "#0d9488",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.3
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#e2e8f0",
+              "line-opacity": 0.6,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "category"
+                ],
+                "habitat",
+                "#2563eb",
+                "protected",
+                "#0d9488",
+                "#94a3b8"
+              ],
+              "line-opacity": 0.6,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "marine-wildlife-areas",
+      "sourceUrl": "./marine/marine_wildlife_areas.geojson"
+    },
+    "marineWildlifeAreas#2": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "marineWildlifeAreas",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "category"
+                ],
+                "habitat",
+                "#3d7bff",
+                "protected",
+                "#0d9488",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "category"
+                ],
+                "habitat",
+                "#2563eb",
+                "protected",
+                "#0d9488",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle-point",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "circle-point"
+      ],
+      "sourceId": "marine-wildlife-areas-points",
+      "sourceUrl": "./marine/marine_wildlife_areas.geojson"
+    },
+    "nationalParks": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "nationalParks",
+      "layers": [
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": "#15803d",
+              "fill-opacity": 0.5
+            },
+            "light": {
+              "fill-color": "#15803d",
+              "fill-opacity": 0.35
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#22c55e",
+              "line-opacity": 0.8,
+              "line-width": 1
+            },
+            "light": {
+              "line-color": "#22c55e",
+              "line-opacity": 0.8,
+              "line-width": 1
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 12,
+        "minzoom": 4,
+        "sourceLayer": "national_parks"
+      },
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "national-parks",
+      "sourceUrl": "./public_life/national_parks.pmtiles"
+    },
+    "nationalParks#2": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "nationalParks",
+      "layers": [
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#319450",
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#15803d",
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle-point",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 10,
+        "minzoom": 4,
+        "sourceLayer": "national_parks_points"
+      },
+      "rebuildOnParamChange": null,
+      "sourceId": "national-parks-points",
+      "sourceUrl": "./public_life/national_parks_points.pmtiles"
+    },
+    "natureReserves": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "natureReserves",
+      "layers": [
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": "#166534",
+              "fill-opacity": 0.3
+            },
+            "light": {
+              "fill-color": "#166534",
+              "fill-opacity": 0.3
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#e2e8f0",
+              "line-opacity": 0.6,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            },
+            "light": {
+              "line-color": "#166534",
+              "line-opacity": 0.6,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "nature-reserves",
+      "sourceUrl": "./marine/nature_reserves.geojson"
+    },
+    "natureReserves#2": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "natureReserves",
+      "layers": [
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#47915d",
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#166534",
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle-point",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": null,
+      "sourceId": "nature-reserves-points",
+      "sourceUrl": "./marine/nature_reserves.geojson"
+    },
+    "npSpeciesSites": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "npSpeciesSites",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "maxzoom": 12.01,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(44,102,93,0.00)",
+                0.05,
+                "rgba(44,102,93,0.11)",
+                0.15,
+                "rgba(96,121,66,0.33)",
+                0.3,
+                "rgba(145,134,45,0.66)",
+                0.45,
+                "rgba(193,144,54,0.99)",
+                0.6,
+                "rgba(236,154,96,1.00)",
+                0.8,
+                "rgba(253,176,167,1.00)",
+                1,
+                "rgba(250,204,250,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00078125,
+                12,
+                0.2
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(216,148,72,0.00)",
+                0.05,
+                "rgba(216,148,72,0.11)",
+                0.15,
+                "rgba(170,140,45,0.33)",
+                0.3,
+                "rgba(123,128,52,0.66)",
+                0.45,
+                "rgba(73,113,79,0.99)",
+                0.6,
+                "rgba(30,93,98,1.00)",
+                0.8,
+                "rgba(17,69,97,1.00)",
+                1,
+                "rgba(11,44,92,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00078125,
+                12,
+                0.2
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "heatmap",
+          "type": "heatmap"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": 12,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "park"
+                ],
+                "陽明山國家公園",
+                "#f97316",
+                "臺中都會公園",
+                "#22c55e",
+                "臺江國家公園",
+                "#0ea5e9",
+                "壽山國家自然公園",
+                "#eab308",
+                "澎湖南方四島國家公園",
+                "#06b6d4",
+                "玉山國家公園",
+                "#a855f7",
+                "墾丁國家公園",
+                "#ef4444",
+                "金門國家公園",
+                "#84cc16",
+                "東沙環礁國家公園",
+                "#3b82f6",
+                "雪霸國家公園",
+                "#ec4899",
+                "太魯閣國家公園",
+                "#14b8a6",
+                "高雄都會公園",
+                "#d946ef",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1,
+                5,
+                3.6,
+                12,
+                9
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "park"
+                ],
+                "陽明山國家公園",
+                "#f97316",
+                "臺中都會公園",
+                "#22c55e",
+                "臺江國家公園",
+                "#0ea5e9",
+                "壽山國家自然公園",
+                "#eab308",
+                "澎湖南方四島國家公園",
+                "#06b6d4",
+                "玉山國家公園",
+                "#a855f7",
+                "墾丁國家公園",
+                "#ef4444",
+                "金門國家公園",
+                "#84cc16",
+                "東沙環礁國家公園",
+                "#3b82f6",
+                "雪霸國家公園",
+                "#ec4899",
+                "太魯閣國家公園",
+                "#14b8a6",
+                "高雄都會公園",
+                "#d946ef",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1,
+                5,
+                3.6,
+                12,
+                9
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": 12,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "park"
+                ],
+                "陽明山國家公園",
+                "#ffa87b",
+                "臺中都會公園",
+                "#22c55e",
+                "臺江國家公園",
+                "#6ec8ff",
+                "壽山國家自然公園",
+                "#eab308",
+                "澎湖南方四島國家公園",
+                "#06b6d4",
+                "玉山國家公園",
+                "#c390ff",
+                "墾丁國家公園",
+                "#ff847c",
+                "金門國家公園",
+                "#84cc16",
+                "東沙環礁國家公園",
+                "#73a8ff",
+                "雪霸國家公園",
+                "#ff7db6",
+                "太魯閣國家公園",
+                "#14b8a6",
+                "高雄都會公園",
+                "#f29aff",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.6,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.7,
+                5,
+                2,
+                12,
+                5
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.6,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "park"
+                ],
+                "陽明山國家公園",
+                "#f97316",
+                "臺中都會公園",
+                "#22c55e",
+                "臺江國家公園",
+                "#0ea5e9",
+                "壽山國家自然公園",
+                "#eab308",
+                "澎湖南方四島國家公園",
+                "#06b6d4",
+                "玉山國家公園",
+                "#a855f7",
+                "墾丁國家公園",
+                "#ef4444",
+                "金門國家公園",
+                "#84cc16",
+                "東沙環礁國家公園",
+                "#3b82f6",
+                "雪霸國家公園",
+                "#ec4899",
+                "太魯閣國家公園",
+                "#14b8a6",
+                "高雄都會公園",
+                "#d946ef",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.6,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.7,
+                5,
+                2,
+                12,
+                5
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.6,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 4,
+        "sourceLayer": "np_species_survey_points"
+      },
+      "rebuildOnParamChange": [
+        "glow",
+        "circle",
+        "heatmap"
+      ],
+      "sourceId": "np-species-sites",
+      "sourceUrl": "./environment/np_species_survey_points_sites_73252_lt2.pmtiles"
+    },
+    "swcEcoCheckZones": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "swcEcoCheckZones",
+      "layers": [
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": 8,
+          "paint": {
+            "dark": {
+              "fill-color": "#4d7c0f",
+              "fill-opacity": 0.3
+            },
+            "light": {
+              "fill-color": "#4d7c0f",
+              "fill-opacity": 0.3
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": 8,
+          "paint": {
+            "dark": {
+              "line-color": "#e2e8f0",
+              "line-opacity": 0.6,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            },
+            "light": {
+              "line-color": "#4d7c0f",
+              "line-opacity": 0.6,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 5,
+        "sourceLayer": "swc_eco_check_zones"
+      },
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "swc-eco-check-zones",
+      "sourceUrl": "./hazards/swc_eco_check_zones_159097.pmtiles"
+    },
+    "swcEcoCheckZones#2": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "swcEcoCheckZones",
+      "layers": [
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#649531",
+              "circle-opacity": 0.8,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#4d7c0f",
+              "circle-opacity": 0.8,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle-point",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "maxzoom": 8,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#649531",
+              "circle-opacity": 0.8,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#4d7c0f",
+              "circle-opacity": 0.8,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle-polygon",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 10,
+        "minzoom": 4,
+        "sourceLayer": "swc_eco_check_zones_points"
+      },
+      "rebuildOnParamChange": null,
+      "sourceId": "swc-eco-check-zones-points",
+      "sourceUrl": "./hazards/swc_eco_check_zones_159097_points.pmtiles"
+    },
+    "swcOutdoorClassrooms": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "swcOutdoorClassrooms",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": "#65a30d",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                2.5,
+                5,
+                9,
+                12,
+                16.2
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": "#65a30d",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                2.5,
+                5,
+                9,
+                12,
+                16.2
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#65a30d",
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.75,
+                5,
+                5,
+                12,
+                9
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": "#65a30d",
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.75,
+                5,
+                5,
+                12,
+                9
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 4,
+        "sourceLayer": "swc_outdoor_classrooms"
+      },
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
+      "sourceId": "swc-outdoor-classrooms",
+      "sourceUrl": "./education/swc_outdoor_classrooms_108030.pmtiles"
+    },
+    "wildlifeProtectedAreas": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "wildlifeProtectedAreas",
+      "layers": [
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": "#65a30d",
+              "fill-opacity": 0.3
+            },
+            "light": {
+              "fill-color": "#65a30d",
+              "fill-opacity": 0.3
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#e2e8f0",
+              "line-opacity": 0.6,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            },
+            "light": {
+              "line-color": "#65a30d",
+              "line-opacity": 0.6,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "wildlife-protected-areas",
+      "sourceUrl": "./marine/wildlife_protected_areas.geojson"
+    },
+    "wildlifeProtectedAreas#2": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "wildlifeProtectedAreas",
+      "layers": [
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#65a30d",
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#65a30d",
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle-point",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": null,
+      "sourceId": "wildlife-protected-areas-points",
+      "sourceUrl": "./marine/wildlife_protected_areas.geojson"
+    }
+  },
+  "params": {
+    "ecoNetworkZones": [
+      {
+        "label": "分區",
+        "options": [
+          {
+            "label": "北部",
+            "value": "北部"
+          },
+          {
+            "label": "西北部",
+            "value": "西北部"
+          },
+          {
+            "label": "東北部",
+            "value": "東北部"
+          },
+          {
+            "label": "西部",
+            "value": "西部"
+          },
+          {
+            "label": "西南部",
+            "value": "西南部"
+          },
+          {
+            "label": "南部及恆春半島",
+            "value": "南部及恆春半島"
+          },
+          {
+            "label": "東部",
+            "value": "東部"
+          },
+          {
+            "label": "澎湖",
+            "value": "澎湖"
+          },
+          {
+            "label": "金門",
+            "value": "金門"
+          },
+          {
+            "label": "馬祖",
+            "value": "馬祖"
+          },
+          {
+            "label": "綠島",
+            "value": "綠島"
+          },
+          {
+            "label": "蘭嶼",
+            "value": "蘭嶼"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "北部",
+          "西北部",
+          "東北部",
+          "西部",
+          "西南部",
+          "南部及恆春半島",
+          "東部",
+          "澎湖",
+          "金門",
+          "馬祖",
+          "綠島",
+          "蘭嶼"
+        ]
+      },
+      {
+        "label": "透明度 0.50",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.5,
+        "valueText": "0.50"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "polygon"
+      }
+    ],
+    "forestRecreation": [
+      {
+        "label": "透明度 0.60",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.6,
+        "valueText": "0.60"
+      },
+      {
+        "label": "邊框寬 0.5",
+        "max": 3,
+        "min": 0,
+        "name": "邊框寬",
+        "step": 0.1,
+        "value": 0.5,
+        "valueText": "0.5"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "point"
+      },
+      {
+        "label": "邊框",
+        "type": "toggle",
+        "value": true
+      }
+    ],
+    "forestReserve": [
+      {
+        "label": "保安林種類",
+        "options": [
+          {
+            "label": "土砂捍止",
+            "value": "土砂捍止保安林"
+          },
+          {
+            "label": "水源涵養",
+            "value": "水源涵養保安林"
+          },
+          {
+            "label": "防風",
+            "value": "防風保安林"
+          },
+          {
+            "label": "飛砂防止",
+            "value": "飛砂防止保安林"
+          },
+          {
+            "label": "潮害防備",
+            "value": "潮害防備保安林"
+          },
+          {
+            "label": "漁業",
+            "value": "漁業保安林"
+          },
+          {
+            "label": "自然保育",
+            "value": "自然保育保安林"
+          },
+          {
+            "label": "風景",
+            "value": "風景保安林"
+          },
+          {
+            "label": "墜石防止",
+            "value": "墜石防止保安林"
+          },
+          {
+            "label": "衛生保建",
+            "value": "衛生保建保安林"
+          },
+          {
+            "label": "土砂+水源",
+            "value": "土砂捍止保安林,水源涵養保安林"
+          },
+          {
+            "label": "土砂+漁業",
+            "value": "土砂捍止保安林,漁業保安林"
+          },
+          {
+            "label": "土砂+風景",
+            "value": "土砂捍止保安林,風景保安林"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "土砂捍止保安林",
+          "水源涵養保安林",
+          "防風保安林",
+          "飛砂防止保安林",
+          "潮害防備保安林",
+          "漁業保安林",
+          "自然保育保安林",
+          "風景保安林",
+          "墜石防止保安林",
+          "衛生保建保安林",
+          "土砂捍止保安林,水源涵養保安林",
+          "土砂捍止保安林,漁業保安林",
+          "土砂捍止保安林,風景保安林"
+        ]
+      },
+      {
+        "label": "透明度 0.50",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.5,
+        "valueText": "0.50"
+      },
+      {
+        "label": "邊框寬 0.5",
+        "max": 3,
+        "min": 0,
+        "name": "邊框寬",
+        "step": 0.1,
+        "value": 0.5,
+        "valueText": "0.5"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "point"
+      },
+      {
+        "label": "邊框",
+        "type": "toggle",
+        "value": true
+      }
+    ],
+    "forestWildlife": [
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.00",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.00"
+      }
+    ],
+    "freewayEcoSensitive": [
+      {
+        "label": "透明度 0.50",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.5,
+        "valueText": "0.50"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "point"
+      }
+    ],
+    "importantWetlandZones": [
+      {
+        "label": "功能分區",
+        "options": [
+          {
+            "label": "核心保育區",
+            "value": "核心保育區"
+          },
+          {
+            "label": "生態復育區",
+            "value": "生態復育區"
+          },
+          {
+            "label": "環境教育區",
+            "value": "環境教育區"
+          },
+          {
+            "label": "管理服務區",
+            "value": "管理服務區"
+          },
+          {
+            "label": "其他分區",
+            "value": "其他分區"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "核心保育區",
+          "生態復育區",
+          "環境教育區",
+          "管理服務區",
+          "其他分區"
+        ]
+      },
+      {
+        "label": "透明度 0.45",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.45,
+        "valueText": "0.45"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "polygon"
+      }
+    ],
+    "importantWetlands": [
+      {
+        "label": "透明度 0.35",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.35,
+        "valueText": "0.35"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "point"
+      }
+    ],
+    "marineWildlifeAreas": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "野生動物重要棲息環境",
+            "value": "habitat"
+          },
+          {
+            "label": "野生動物保護區",
+            "value": "protected"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "habitat",
+          "protected"
+        ]
+      },
+      {
+        "label": "透明度 0.30",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.3,
+        "valueText": "0.30"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "point"
+      }
+    ],
+    "nationalParks": [
+      {
+        "label": "透明度 0.50",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.5,
+        "valueText": "0.50"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "polygon"
+      }
+    ],
+    "natureReserves": [
+      {
+        "label": "透明度 0.30",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.3,
+        "valueText": "0.30"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "point"
+      }
+    ],
+    "npSpeciesSites": [
+      {
+        "label": "園區",
+        "options": [
+          {
+            "label": "陽明山國家公園",
+            "value": "陽明山國家公園"
+          },
+          {
+            "label": "臺中都會公園",
+            "value": "臺中都會公園"
+          },
+          {
+            "label": "臺江國家公園",
+            "value": "臺江國家公園"
+          },
+          {
+            "label": "壽山國家自然公園",
+            "value": "壽山國家自然公園"
+          },
+          {
+            "label": "澎湖南方四島國家公園",
+            "value": "澎湖南方四島國家公園"
+          },
+          {
+            "label": "玉山國家公園",
+            "value": "玉山國家公園"
+          },
+          {
+            "label": "墾丁國家公園",
+            "value": "墾丁國家公園"
+          },
+          {
+            "label": "金門國家公園",
+            "value": "金門國家公園"
+          },
+          {
+            "label": "東沙環礁國家公園",
+            "value": "東沙環礁國家公園"
+          },
+          {
+            "label": "雪霸國家公園",
+            "value": "雪霸國家公園"
+          },
+          {
+            "label": "太魯閣國家公園",
+            "value": "太魯閣國家公園"
+          },
+          {
+            "label": "高雄都會公園",
+            "value": "高雄都會公園"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "陽明山國家公園",
+          "臺中都會公園",
+          "臺江國家公園",
+          "壽山國家自然公園",
+          "澎湖南方四島國家公園",
+          "玉山國家公園",
+          "墾丁國家公園",
+          "金門國家公園",
+          "東沙環礁國家公園",
+          "雪霸國家公園",
+          "太魯閣國家公園",
+          "高雄都會公園"
+        ]
+      },
+      {
+        "defaultValue": "batlow",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "batlow"
+      },
+      {
+        "label": "透明度 0.60",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.6,
+        "valueText": "0.60"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "swcEcoCheckZones": [
+      {
+        "label": "透明度 0.30",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.3,
+        "valueText": "0.30"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "polygon"
+      }
+    ],
+    "swcOutdoorClassrooms": [
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "wildlifeProtectedAreas": [
+      {
+        "label": "透明度 0.30",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.3,
+        "valueText": "0.30"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "point"
+      }
+    ]
+  }
+}

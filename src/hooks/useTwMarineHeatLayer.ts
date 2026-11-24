@@ -16,7 +16,7 @@ import {
   yearAtlasCellIndex, yearAtlasUrl, type YearAtlasGrid, type YearAtlasManifest,
 } from "../data/marineYearAtlas";
 import {
-  TW_CRW_BAA_LEVELS, TW_MARINE_HEAT_PRODUCTS, TW_MHW_LEVELS, twMarineHeatRasterPaint,
+  TW_CRW_BAA_LEVELS, TW_MARINE_HEAT_PRODUCTS, TW_MHW_LEVELS, enabled, twCrwDhwClassIndex, twMarineHeatRasterPaint,
   type TwMarineHeatLayerKey,
 } from "../data/twMarineHeatTypes";
 import { useMapReadyTick } from "./useMapReadyTick";
@@ -42,6 +42,8 @@ interface PickState {
 const IDLE: TwMarineHeatStatus = { state: "idle", period: null };
 const statuses: Record<TwMarineHeatLayerKey, TwMarineHeatStatus> = { twMarineHeatwaves: IDLE, twCoralBleachingHeatStress: IDLE };
 const pickStates: Record<TwMarineHeatLayerKey, PickState | null> = { twMarineHeatwaves: null, twCoralBleachingHeatStress: null };
+/** 目前的類別篩選（和 raster-color 同一份遮罩）；點選查值要套同一條件，被取消勾選的格子不可點出 popup */
+const pickFilters: Record<TwMarineHeatLayerKey, { classMask?: number; dhwView?: boolean }> = { twMarineHeatwaves: {}, twCoralBleachingHeatStress: {} };
 const listeners = new Set<() => void>();
 
 function setStatus(key: TwMarineHeatLayerKey, next: TwMarineHeatStatus) {
@@ -76,6 +78,7 @@ function pickCell(key: TwMarineHeatLayerKey, lng: number, lat: number): Record<s
     const sst = m.sst[idx] ?? null;
     if (sst === null) return null;
     const level = m.level[idx] ?? null;
+    if (level !== null && !enabled(pickFilters[key].classMask, level)) return null;
     return {
       kind: "mhw", period: s.period, level, levelZh: level === null ? null : MHW_LEVEL_ZH.get(level) ?? null,
       sst, sstAnomaly: m.sst_anomaly[idx] ?? null,
@@ -88,6 +91,10 @@ function pickCell(key: TwMarineHeatLayerKey, lng: number, lat: number): Record<s
   const dhw = m.dhw_max[pos] ?? null;
   const baa = m.baa5_max[pos] ?? null;
   if (dhw === null && baa === null) return null;
+  // 只看目前檢視（BAA 等級／DHW 分級）對應的遮罩，和 raster-color 一致
+  const { classMask, dhwView } = pickFilters[key];
+  const shown = dhwView ? (dhw === null ? null : twCrwDhwClassIndex(dhw)) : baa;
+  if (shown !== null && !enabled(classMask, shown)) return null;
   return { kind: "crw", period: s.period, dhw, baa, baaZh: baa === null ? null : BAA_LEVEL_ZH.get(baa) ?? null };
 }
 
@@ -110,9 +117,13 @@ interface Options {
   channel: "r" | "g";
   /** raster-color 運算式（含類別篩選） */
   color: unknown[];
+  /** 類別多選 bitmask（和 color 同一份；undefined＝全選）：點選查值也要套 */
+  classMask?: number;
+  /** 珊瑚層目前是 DHW 檢視（classMask 以 DHW 分級解讀；否則以 BAA 等級／海洋熱浪等級解讀） */
+  dhwView?: boolean;
 }
 
-export function useTwMarineHeatLayer({ mapRef, visible, layerKey, opacity, period, channel, color }: Options) {
+export function useTwMarineHeatLayer({ mapRef, visible, layerKey, opacity, period, channel, color, classMask, dhwView }: Options) {
   const mapTick = useMapReadyTick(mapRef, visible);
   const sourceId = `tw-marine-heat-${layerKey}-src`;
   const layerId = `tw-marine-heat-${layerKey}-layer`;
@@ -121,6 +132,7 @@ export function useTwMarineHeatLayer({ mapRef, visible, layerKey, opacity, perio
   const seqRef = useRef(0);
   const paintRef = useRef({ opacity, channel, color });
   paintRef.current = { opacity, channel, color };
+  pickFilters[layerKey] = { classMask, dhwView };
 
   // 換期別／開關／style 重載：取幀 → 裁切 → updateImage
   useEffect(() => {
@@ -200,7 +212,7 @@ export function useTwMarineHeatLayer({ mapRef, visible, layerKey, opacity, perio
     try {
       if (!map.getLayer(layerId)) return;
       const paint = twMarineHeatRasterPaint(channel, color, opacity);
-      map.setPaintProperty(layerId, "raster-opacity", opacity);
+      handleRef.current.setOpacity(opacity); // 同步 handle 內部值：換底圖 ensure() 重建才不會跳回舊透明度
       map.setPaintProperty(layerId, "raster-color-mix", paint["raster-color-mix"] as never);
       map.setPaintProperty(layerId, "raster-color", color as never);
     } catch { /* style 轉換中 */ }
@@ -214,6 +226,7 @@ export function useTwMarineHeatLayer({ mapRef, visible, layerKey, opacity, perio
     urlsRef.current.forEach((u) => URL.revokeObjectURL(u));
     urlsRef.current = [];
     pickStates[layerKey] = null;
+    pickFilters[layerKey] = {};
     setStatus(layerKey, IDLE);
   }, [layerKey]);
 }

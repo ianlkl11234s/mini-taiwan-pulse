@@ -1,0 +1,1291 @@
+{
+  "count": 4,
+  "gisLayers": {
+    "firingNoticeAreas": {
+      "layers": [
+        "firing-notice-areas-fill",
+        "firing-notice-areas-points-circle-point",
+        "firing-notice-areas-points-circle-polygon"
+      ],
+      "type": "firingNoticeAreas"
+    },
+    "newsEvent": {
+      "layers": [
+        "news-events-circle",
+        "news-events-glow",
+        "news-events-critical-halo",
+        "news-events-count"
+      ],
+      "type": "newsEvent"
+    },
+    "plaActivity": {
+      "layers": [
+        "pla-activity-fill",
+        "pla-activity-line"
+      ],
+      "type": "plaActivity"
+    },
+    "vesselWatch": {
+      "layers": [
+        "vessel-watch-circle",
+        "vessel-watch-trail-line"
+      ],
+      "type": "vesselWatch"
+    }
+  },
+  "overlays": {
+    "firingNoticeAreas": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "firingNoticeAreas",
+      "layers": [
+        {
+          "filter": [
+            "has",
+            "agency"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "agency"
+                ],
+                "navy",
+                "#dc2626",
+                "coast_guard",
+                "#f59e0b",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.108
+            },
+            "light": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "agency"
+                ],
+                "navy",
+                "#dc2626",
+                "coast_guard",
+                "#f59e0b",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.108
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": [
+            "has",
+            "agency"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "agency"
+                ],
+                "navy",
+                "#dc2626",
+                "coast_guard",
+                "#f59e0b",
+                "#94a3b8"
+              ],
+              "line-dasharray": [
+                4,
+                3
+              ],
+              "line-opacity": 0.6,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                0.8,
+                10,
+                1.8
+              ]
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "agency"
+                ],
+                "navy",
+                "#dc2626",
+                "coast_guard",
+                "#f59e0b",
+                "#94a3b8"
+              ],
+              "line-dasharray": [
+                4,
+                3
+              ],
+              "line-opacity": 0.6,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                0.8,
+                10,
+                1.8
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "firing-notice-areas",
+      "sourceUrl": "./marine/firing_notice_areas.geojson"
+    },
+    "firingNoticeAreas#2": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "firingNoticeAreas",
+      "layers": [
+        {
+          "filter": [
+            "has",
+            "agency"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "agency"
+                ],
+                "navy",
+                "#f2403a",
+                "coast_guard",
+                "#f59e0b",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "agency"
+                ],
+                "navy",
+                "#f2403a",
+                "coast_guard",
+                "#f59e0b",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle-point",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "circle-point"
+      ],
+      "sourceId": "firing-notice-areas-points",
+      "sourceUrl": "./marine/firing_notice_areas.geojson"
+    },
+    "newsEvents": {
+      "dynamicData": true,
+      "filter": null,
+      "id": "newsEvents",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 1.2,
+              "circle-color": "#ffffff",
+              "circle-opacity": [
+                "min",
+                [
+                  "case",
+                  [
+                    "all",
+                    [
+                      ">=",
+                      [
+                        "coalesce",
+                        [
+                          "get",
+                          "max_gis_relevance"
+                        ],
+                        0
+                      ],
+                      3
+                    ],
+                    [
+                      ">=",
+                      [
+                        "coalesce",
+                        [
+                          "get",
+                          "max_severity"
+                        ],
+                        0
+                      ],
+                      2
+                    ]
+                  ],
+                  0.3,
+                  0
+                ],
+                0.35
+              ],
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                14,
+                10,
+                24,
+                14,
+                36
+              ]
+            },
+            "light": {
+              "circle-blur": 1.2,
+              "circle-color": "#fffbeb",
+              "circle-opacity": [
+                "min",
+                [
+                  "case",
+                  [
+                    "all",
+                    [
+                      ">=",
+                      [
+                        "coalesce",
+                        [
+                          "get",
+                          "max_gis_relevance"
+                        ],
+                        0
+                      ],
+                      3
+                    ],
+                    [
+                      ">=",
+                      [
+                        "coalesce",
+                        [
+                          "get",
+                          "max_severity"
+                        ],
+                        0
+                      ],
+                      2
+                    ]
+                  ],
+                  0.35,
+                  0
+                ],
+                0.35
+              ],
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                14,
+                10,
+                24,
+                14,
+                36
+              ]
+            }
+          },
+          "suffix": "critical-halo",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 1,
+              "circle-color": "#ff9800",
+              "circle-opacity": 0.15,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                6,
+                10,
+                12,
+                14,
+                18
+              ]
+            },
+            "light": {
+              "circle-blur": 1,
+              "circle-color": "#e65100",
+              "circle-opacity": 0.18,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                6,
+                10,
+                12,
+                14,
+                18
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "category"
+                ],
+                "accident",
+                "#ef4444",
+                "crime",
+                "#a855f7",
+                "disaster",
+                "#f97316",
+                "traffic",
+                "#eab308",
+                "health",
+                "#22c55e",
+                "policy",
+                "#3b82f6",
+                "other",
+                "#9ca3af",
+                "#9ca3af"
+              ],
+              "circle-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "category"
+                  ],
+                  "other"
+                ],
+                0.4,
+                0.9
+              ],
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                [
+                  "*",
+                  3,
+                  [
+                    "interpolate",
+                    [
+                      "linear"
+                    ],
+                    [
+                      "coalesce",
+                      [
+                        "get",
+                        "event_count"
+                      ],
+                      1
+                    ],
+                    1,
+                    1,
+                    5,
+                    1.6,
+                    15,
+                    2.4,
+                    50,
+                    3.2
+                  ],
+                  [
+                    "case",
+                    [
+                      ">=",
+                      [
+                        "coalesce",
+                        [
+                          "get",
+                          "max_severity"
+                        ],
+                        0
+                      ],
+                      3
+                    ],
+                    1.6,
+                    [
+                      ">=",
+                      [
+                        "coalesce",
+                        [
+                          "get",
+                          "max_severity"
+                        ],
+                        0
+                      ],
+                      2
+                    ],
+                    1.3,
+                    1
+                  ]
+                ],
+                10,
+                [
+                  "*",
+                  5,
+                  [
+                    "interpolate",
+                    [
+                      "linear"
+                    ],
+                    [
+                      "coalesce",
+                      [
+                        "get",
+                        "event_count"
+                      ],
+                      1
+                    ],
+                    1,
+                    1,
+                    5,
+                    1.6,
+                    15,
+                    2.4,
+                    50,
+                    3.2
+                  ],
+                  [
+                    "case",
+                    [
+                      ">=",
+                      [
+                        "coalesce",
+                        [
+                          "get",
+                          "max_severity"
+                        ],
+                        0
+                      ],
+                      3
+                    ],
+                    1.6,
+                    [
+                      ">=",
+                      [
+                        "coalesce",
+                        [
+                          "get",
+                          "max_severity"
+                        ],
+                        0
+                      ],
+                      2
+                    ],
+                    1.3,
+                    1
+                  ]
+                ],
+                14,
+                [
+                  "*",
+                  8,
+                  [
+                    "interpolate",
+                    [
+                      "linear"
+                    ],
+                    [
+                      "coalesce",
+                      [
+                        "get",
+                        "event_count"
+                      ],
+                      1
+                    ],
+                    1,
+                    1,
+                    5,
+                    1.6,
+                    15,
+                    2.4,
+                    50,
+                    3.2
+                  ],
+                  [
+                    "case",
+                    [
+                      ">=",
+                      [
+                        "coalesce",
+                        [
+                          "get",
+                          "max_severity"
+                        ],
+                        0
+                      ],
+                      3
+                    ],
+                    1.6,
+                    [
+                      ">=",
+                      [
+                        "coalesce",
+                        [
+                          "get",
+                          "max_severity"
+                        ],
+                        0
+                      ],
+                      2
+                    ],
+                    1.3,
+                    1
+                  ]
+                ]
+              ],
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "category"
+                ],
+                "accident",
+                "#ef4444",
+                "crime",
+                "#a855f7",
+                "disaster",
+                "#f97316",
+                "traffic",
+                "#eab308",
+                "health",
+                "#22c55e",
+                "policy",
+                "#3b82f6",
+                "other",
+                "#9ca3af",
+                "#9ca3af"
+              ],
+              "circle-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "category"
+                  ],
+                  "other"
+                ],
+                0.35,
+                0.8
+              ],
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                [
+                  "*",
+                  3,
+                  [
+                    "interpolate",
+                    [
+                      "linear"
+                    ],
+                    [
+                      "coalesce",
+                      [
+                        "get",
+                        "event_count"
+                      ],
+                      1
+                    ],
+                    1,
+                    1,
+                    5,
+                    1.6,
+                    15,
+                    2.4,
+                    50,
+                    3.2
+                  ],
+                  [
+                    "case",
+                    [
+                      ">=",
+                      [
+                        "coalesce",
+                        [
+                          "get",
+                          "max_severity"
+                        ],
+                        0
+                      ],
+                      3
+                    ],
+                    1.6,
+                    [
+                      ">=",
+                      [
+                        "coalesce",
+                        [
+                          "get",
+                          "max_severity"
+                        ],
+                        0
+                      ],
+                      2
+                    ],
+                    1.3,
+                    1
+                  ]
+                ],
+                10,
+                [
+                  "*",
+                  5,
+                  [
+                    "interpolate",
+                    [
+                      "linear"
+                    ],
+                    [
+                      "coalesce",
+                      [
+                        "get",
+                        "event_count"
+                      ],
+                      1
+                    ],
+                    1,
+                    1,
+                    5,
+                    1.6,
+                    15,
+                    2.4,
+                    50,
+                    3.2
+                  ],
+                  [
+                    "case",
+                    [
+                      ">=",
+                      [
+                        "coalesce",
+                        [
+                          "get",
+                          "max_severity"
+                        ],
+                        0
+                      ],
+                      3
+                    ],
+                    1.6,
+                    [
+                      ">=",
+                      [
+                        "coalesce",
+                        [
+                          "get",
+                          "max_severity"
+                        ],
+                        0
+                      ],
+                      2
+                    ],
+                    1.3,
+                    1
+                  ]
+                ],
+                14,
+                [
+                  "*",
+                  8,
+                  [
+                    "interpolate",
+                    [
+                      "linear"
+                    ],
+                    [
+                      "coalesce",
+                      [
+                        "get",
+                        "event_count"
+                      ],
+                      1
+                    ],
+                    1,
+                    1,
+                    5,
+                    1.6,
+                    15,
+                    2.4,
+                    50,
+                    3.2
+                  ],
+                  [
+                    "case",
+                    [
+                      ">=",
+                      [
+                        "coalesce",
+                        [
+                          "get",
+                          "max_severity"
+                        ],
+                        0
+                      ],
+                      3
+                    ],
+                    1.6,
+                    [
+                      ">=",
+                      [
+                        "coalesce",
+                        [
+                          "get",
+                          "max_severity"
+                        ],
+                        0
+                      ],
+                      2
+                    ],
+                    1.3,
+                    1
+                  ]
+                ]
+              ],
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "text-allow-overlap": true,
+            "text-field": [
+              "case",
+              [
+                ">=",
+                [
+                  "coalesce",
+                  [
+                    "get",
+                    "event_count"
+                  ],
+                  0
+                ],
+                2
+              ],
+              [
+                "to-string",
+                [
+                  "get",
+                  "event_count"
+                ]
+              ],
+              ""
+            ],
+            "text-font": [
+              "DIN Pro Bold",
+              "Arial Unicode MS Bold"
+            ],
+            "text-ignore-placement": true,
+            "text-size": [
+              "interpolate",
+              [
+                "linear"
+              ],
+              [
+                "zoom"
+              ],
+              5,
+              9,
+              10,
+              11,
+              14,
+              13
+            ]
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "text-color": "#fff",
+              "text-halo-color": "rgba(0,0,0,0.7)",
+              "text-halo-width": 1.2,
+              "text-opacity": 1
+            },
+            "light": {
+              "text-color": "#1a1a1a",
+              "text-halo-color": "rgba(255,255,255,0.9)",
+              "text-halo-width": 1.2,
+              "text-opacity": 1
+            }
+          },
+          "suffix": "count",
+          "type": "symbol"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle",
+        "critical-halo",
+        "count"
+      ],
+      "sourceId": "news-events",
+      "sourceUrl": "./geo/news_events.geojson"
+    }
+  },
+  "params": {
+    "firingNoticeAreas": [
+      {
+        "label": "發布機關",
+        "options": [
+          {
+            "label": "海軍實彈射擊公告",
+            "value": "navy"
+          },
+          {
+            "label": "海巡署射擊通報",
+            "value": "coast_guard"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "navy",
+          "coast_guard"
+        ]
+      },
+      {
+        "label": "透明度 0.60",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.6,
+        "valueText": "0.60"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "polygon"
+      }
+    ],
+    "newsEvents": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "事故",
+            "value": "accident"
+          },
+          {
+            "label": "治安",
+            "value": "crime"
+          },
+          {
+            "label": "災害",
+            "value": "disaster"
+          },
+          {
+            "label": "交通",
+            "value": "traffic"
+          },
+          {
+            "label": "健康",
+            "value": "health"
+          },
+          {
+            "label": "政策",
+            "value": "policy"
+          },
+          {
+            "label": "其他",
+            "value": "__other__"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "accident",
+          "crime",
+          "disaster",
+          "traffic",
+          "health",
+          "policy",
+          "__other__"
+        ]
+      },
+      {
+        "label": "相關度",
+        "options": [
+          {
+            "label": "全部",
+            "value": "0"
+          },
+          {
+            "label": "地方+",
+            "value": "2"
+          },
+          {
+            "label": "重大",
+            "value": "3"
+          }
+        ],
+        "type": "select",
+        "value": "2"
+      },
+      {
+        "label": "嚴重",
+        "options": [
+          {
+            "label": "全部",
+            "value": "0"
+          },
+          {
+            "label": "個案+",
+            "value": "1"
+          },
+          {
+            "label": "區域+",
+            "value": "2"
+          }
+        ],
+        "type": "select",
+        "value": "1"
+      },
+      {
+        "label": "只看事件",
+        "type": "toggle",
+        "value": true
+      },
+      {
+        "label": "依時間",
+        "type": "toggle",
+        "value": true
+      },
+      {
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 1,
+        "valueText": "1.00"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "漣漪",
+        "type": "toggle",
+        "value": true
+      }
+    ],
+    "plaActivity": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "活動走廊",
+            "value": "rect"
+          },
+          {
+            "label": "活動區",
+            "value": "poly"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "rect",
+          "poly"
+        ]
+      },
+      {
+        "label": "疊加",
+        "options": [
+          {
+            "label": "單日",
+            "value": "1"
+          },
+          {
+            "label": "30 天",
+            "value": "30"
+          },
+          {
+            "label": "60 天",
+            "value": "60"
+          },
+          {
+            "label": "90 天",
+            "value": "90"
+          },
+          {
+            "label": "120 天",
+            "value": "120"
+          }
+        ],
+        "type": "select",
+        "value": "1"
+      },
+      {
+        "label": "回放",
+        "type": "toggle",
+        "value": false
+      },
+      {
+        "label": "待核實",
+        "type": "toggle",
+        "value": false
+      },
+      {
+        "label": "透明度 0.60",
+        "max": 1,
+        "min": 0,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.6,
+        "valueText": "0.60"
+      }
+    ],
+    "vesselWatch": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "中國海警",
+            "value": "中國海警"
+          },
+          {
+            "label": "中國海事局（HAIXUN 海巡）",
+            "value": "中國海事局"
+          },
+          {
+            "label": "中國漁政",
+            "value": "中國漁政"
+          },
+          {
+            "label": "中國海監",
+            "value": "中國海監"
+          },
+          {
+            "label": "中國其他公務船",
+            "value": "中國其他公務船"
+          },
+          {
+            "label": "中國科研船",
+            "value": "中國科研船"
+          },
+          {
+            "label": "中國油氣作業船",
+            "value": "中國油氣作業船"
+          },
+          {
+            "label": "台灣海巡署（CG/PP/CL）",
+            "value": "台灣海巡署"
+          },
+          {
+            "label": "台灣科研船",
+            "value": "台灣科研船"
+          },
+          {
+            "label": "他國執法船",
+            "value": "他國執法船"
+          },
+          {
+            "label": "他國科研船",
+            "value": "他國科研船"
+          },
+          {
+            "label": "軍艦（多為他國過境）",
+            "value": "軍艦"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "中國海警",
+          "中國海事局",
+          "中國漁政",
+          "中國海監",
+          "中國其他公務船",
+          "中國科研船",
+          "中國油氣作業船",
+          "台灣海巡署",
+          "台灣科研船",
+          "他國執法船",
+          "他國科研船",
+          "軍艦"
+        ]
+      },
+      {
+        "label": "軌跡 3 天",
+        "max": 14,
+        "min": 1,
+        "name": "軌跡",
+        "step": 1,
+        "value": 3,
+        "valueText": "3 天"
+      },
+      {
+        "label": "含疑似（未查證）",
+        "type": "toggle",
+        "value": true
+      },
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      }
+    ]
+  }
+}

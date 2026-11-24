@@ -1,0 +1,7340 @@
+{
+  "count": 27,
+  "gisLayers": {
+    "agriCropSuitability": {
+      "layers": [
+        "agri-crop-suitability-fill",
+        "agri-crop-suitability-points-circle"
+      ],
+      "type": "agriCropSuitability"
+    },
+    "agriLeisureFarmZones": {
+      "layers": [
+        "agri-leisure-farm-zones-fill",
+        "agri-leisure-farm-zones-points-circle"
+      ],
+      "type": "agriLeisureFarmZones"
+    },
+    "agriPOI": {
+      "layers": [
+        "agri-pois-circle"
+      ],
+      "type": "agriPOI"
+    },
+    "agriProduceWholesale": {
+      "layers": [
+        "agri-produce-wholesale-circle"
+      ],
+      "type": "agriProduceWholesale"
+    },
+    "agriRetail": {
+      "layers": [
+        "agri-retail-circle"
+      ],
+      "type": "agriRetail"
+    },
+    "agriSoil": {
+      "layers": [
+        "agri-soil-fill",
+        "agri-soil-points-circle"
+      ],
+      "type": "agriSoil"
+    },
+    "agriSoilFertility": {
+      "layers": [
+        "agri-soil-fertility-fill",
+        "agri-soil-fertility-z7-fill"
+      ],
+      "type": "agriSoilFertility"
+    },
+    "agriWholesaleMarket": {
+      "layers": [
+        "agri-wholesale-market-circle"
+      ],
+      "type": "agriWholesaleMarket"
+    },
+    "agricultureField": {
+      "layers": [
+        "agri-ftw-fields-fill",
+        "agri-ftw-fields-points-circle"
+      ],
+      "type": "agricultureField"
+    },
+    "aquacultureCageNet": {
+      "layers": [
+        "aquaculture-cage-net-fill",
+        "aquaculture-cage-net-line",
+        "aquaculture-cage-net-points-circle-point",
+        "aquaculture-cage-net-points-circle-polygon"
+      ],
+      "type": "aquacultureCageNet"
+    },
+    "aquacultureIntegrated": {
+      "layers": [
+        "aquaculture-integrated-fill",
+        "aquaculture-integrated-line",
+        "aquaculture-integrated-points-circle-point",
+        "aquaculture-integrated-points-circle-polygon"
+      ],
+      "type": "aquacultureIntegrated"
+    },
+    "aquaculturePonds": {
+      "layers": [
+        "aquaculture-ponds-fill",
+        "aquaculture-ponds-line",
+        "aquaculture-ponds-points-circle-point",
+        "aquaculture-ponds-points-circle-polygon"
+      ],
+      "type": "aquaculturePonds"
+    },
+    "aquacultureWaterSatellite": {
+      "layers": [
+        "aquaculture-water-satellite-fill",
+        "aquaculture-water-satellite-line",
+        "aquaculture-water-satellite-points-circle-point",
+        "aquaculture-water-satellite-points-circle-polygon"
+      ],
+      "type": "aquacultureWaterSatellite"
+    },
+    "aquacultureWaterSatelliteMoa": {
+      "layers": [
+        "aquaculture-water-satellite-moa-fill",
+        "aquaculture-water-satellite-moa-line",
+        "aquaculture-water-satellite-moa-points-circle-point",
+        "aquaculture-water-satellite-moa-points-circle-polygon"
+      ],
+      "type": "aquacultureWaterSatelliteMoa"
+    },
+    "aquacultureWaterUnion": {
+      "layers": [
+        "aquaculture-water-satellite-union-fill",
+        "aquaculture-water-satellite-union-line",
+        "aquaculture-water-satellite-union-points-circle-point",
+        "aquaculture-water-satellite-union-points-circle-polygon"
+      ],
+      "type": "aquacultureWaterUnion"
+    },
+    "aquacultureZone": {
+      "layers": [
+        "aquaculture-zone-fill",
+        "aquaculture-zone-line",
+        "aquaculture-zone-points-circle-point",
+        "aquaculture-zone-points-circle-polygon"
+      ],
+      "type": "aquacultureZone"
+    },
+    "farmRoads": {
+      "layers": [
+        "farm-roads-line",
+        "farm-roads-glow"
+      ],
+      "type": "farmRoads"
+    },
+    "livestockFarm": {
+      "layers": [
+        "livestock-farms-pig",
+        "livestock-farms-chicken",
+        "livestock-farms-cattle",
+        "livestock-farms-duck",
+        "livestock-farms-goose",
+        "livestock-farms-sheep",
+        "livestock-farms-other"
+      ],
+      "type": "livestockFarm"
+    },
+    "livestockFeed": {
+      "layers": [
+        "livestock-feed-circle"
+      ],
+      "type": "livestockFeed"
+    },
+    "livestockMarket": {
+      "layers": [
+        "livestock-market-circle"
+      ],
+      "type": "livestockMarket"
+    },
+    "livestockSlaughter": {
+      "layers": [
+        "livestock-slaughter-circle"
+      ],
+      "type": "livestockSlaughter"
+    }
+  },
+  "overlays": {
+    "agriProduceWholesale": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "agriProduceWholesale",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "maxzoom": 10.01,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(17,109,42,0.00)",
+                0.05,
+                "rgba(17,109,42,0.11)",
+                0.15,
+                "rgba(62,133,26,0.33)",
+                0.3,
+                "rgba(115,152,6,0.66)",
+                0.45,
+                "rgba(165,170,27,0.99)",
+                0.6,
+                "rgba(205,189,75,1.00)",
+                0.8,
+                "rgba(231,213,131,1.00)",
+                1,
+                "rgba(248,241,184,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.0078125,
+                12,
+                2
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(170,172,33,0.00)",
+                0.05,
+                "rgba(170,172,33,0.11)",
+                0.15,
+                "rgba(128,157,6,0.33)",
+                0.3,
+                "rgba(82,141,18,0.66)",
+                0.45,
+                "rgba(37,122,36,0.99)",
+                0.6,
+                "rgba(11,99,44,1.00)",
+                0.8,
+                "rgba(20,76,42,1.00)",
+                1,
+                "rgba(25,53,32,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.0078125,
+                12,
+                2
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "heatmap",
+          "type": "heatmap"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": 10,
+          "paint": {
+            "dark": {
+              "circle-color": "#6e87f0",
+              "circle-opacity": 0.75,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#3f51b5",
+              "circle-opacity": 0.75,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 12,
+        "minzoom": 0,
+        "sourceLayer": "produce_wholesale"
+      },
+      "rebuildOnParamChange": null,
+      "sourceId": "agri-produce-wholesale",
+      "sourceUrl": "./agriculture/produce_wholesale_companies.pmtiles"
+    },
+    "agriRetail": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "agriRetail",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "maxzoom": 10.01,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(111,83,81,0.00)",
+                0.05,
+                "rgba(111,83,81,0.11)",
+                0.15,
+                "rgba(116,116,84,0.33)",
+                0.3,
+                "rgba(122,147,88,0.66)",
+                0.45,
+                "rgba(132,177,99,0.99)",
+                0.6,
+                "rgba(150,205,121,1.00)",
+                0.8,
+                "rgba(179,229,156,1.00)",
+                1,
+                "rgba(222,249,203,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.01171875,
+                12,
+                3
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(134,181,101,0.00)",
+                0.05,
+                "rgba(134,181,101,0.11)",
+                0.15,
+                "rgba(124,155,90,0.33)",
+                0.3,
+                "rgba(119,128,85,0.66)",
+                0.45,
+                "rgba(114,99,82,0.99)",
+                0.6,
+                "rgba(107,70,79,1.00)",
+                0.8,
+                "rgba(91,46,74,1.00)",
+                1,
+                "rgba(67,28,65,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.01171875,
+                12,
+                3
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "heatmap",
+          "type": "heatmap"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": 10,
+          "paint": {
+            "dark": {
+              "circle-color": "#ff4c7b",
+              "circle-opacity": 0.75,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#e91e63",
+              "circle-opacity": 0.75,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 12,
+        "minzoom": 0,
+        "sourceLayer": "agri_retail"
+      },
+      "rebuildOnParamChange": null,
+      "sourceId": "agri-retail",
+      "sourceUrl": "./agriculture/agri_retail_companies.pmtiles"
+    },
+    "agriWholesaleMarket": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "agriWholesaleMarket",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": 6,
+          "paint": {
+            "dark": {
+              "circle-color": "#ffd600",
+              "circle-opacity": 0.9,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#ffd600",
+              "circle-opacity": 0.9,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": null,
+      "sourceId": "agri-wholesale-market",
+      "sourceUrl": "./agriculture/agri_wholesale_market_companies.geojson"
+    },
+    "aquacultureCageNet": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "aquacultureCageNet",
+      "layers": [
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": 6,
+          "paint": {
+            "dark": {
+              "fill-color": "#5c6bc0",
+              "fill-opacity": 0.5
+            },
+            "light": {
+              "fill-color": "#5c6bc0",
+              "fill-opacity": 0.35
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": 6,
+          "paint": {
+            "dark": {
+              "line-color": "#7182d9",
+              "line-opacity": 0.8,
+              "line-width": 1
+            },
+            "light": {
+              "line-color": "#5c6bc0",
+              "line-opacity": 0.8,
+              "line-width": 1
+            }
+          },
+          "suffix": "line",
+          "type": "line"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "aquacultureCageNetOpacity"
+      ],
+      "sourceId": "aquaculture-cage-net",
+      "sourceUrl": "./fishery/aquaculture_cage_net.geojson"
+    },
+    "aquacultureCageNet#2": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "aquacultureCageNet",
+      "layers": [
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#6b7cd2",
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#5c6bc0",
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle-point",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "maxzoom": 6,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#6b7cd2",
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#5c6bc0",
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle-polygon",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": null,
+      "sourceId": "aquaculture-cage-net-points",
+      "sourceUrl": "./fishery/aquaculture_cage_net.geojson"
+    },
+    "aquacultureIntegrated": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "aquacultureIntegrated",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "source"
+                ],
+                "ponds",
+                "#26c6da",
+                "satellite",
+                "#66bb6a",
+                "production",
+                "#ffa726",
+                "#9e9e9e"
+              ],
+              "fill-opacity": 0.5
+            },
+            "light": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "source"
+                ],
+                "ponds",
+                "#26c6da",
+                "satellite",
+                "#66bb6a",
+                "production",
+                "#ffa726",
+                "#9e9e9e"
+              ],
+              "fill-opacity": 0.35
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "source"
+                ],
+                "ponds",
+                "#26c6da",
+                "satellite",
+                "#66bb6a",
+                "production",
+                "#ffa726",
+                "#9e9e9e"
+              ],
+              "line-opacity": 0.8,
+              "line-width": 1
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "source"
+                ],
+                "ponds",
+                "#26c6da",
+                "satellite",
+                "#66bb6a",
+                "production",
+                "#ffa726",
+                "#9e9e9e"
+              ],
+              "line-opacity": 0.8,
+              "line-width": 1
+            }
+          },
+          "suffix": "line",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 5,
+        "sourceLayer": "aquaculture_integrated"
+      },
+      "rebuildOnParamChange": [
+        "aquacultureIntegratedOpacity",
+        "fill",
+        "line"
+      ],
+      "sourceId": "aquaculture-integrated",
+      "sourceUrl": "./fishery/aquaculture_integrated.pmtiles"
+    },
+    "aquacultureIntegrated#2": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "aquacultureIntegrated",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "maxzoom": 10.01,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(43,92,149,0.00)",
+                0.05,
+                "rgba(43,92,149,0.11)",
+                0.15,
+                "rgba(68,114,179,0.33)",
+                0.3,
+                "rgba(101,138,198,0.66)",
+                0.45,
+                "rgba(140,162,201,0.99)",
+                0.6,
+                "rgba(178,187,204,1.00)",
+                0.8,
+                "rgba(209,212,217,1.00)",
+                1,
+                "rgba(238,238,239,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.001171875,
+                12,
+                0.3
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(145,165,201,0.00)",
+                0.05,
+                "rgba(145,165,201,0.11)",
+                0.15,
+                "rgba(110,144,201,0.33)",
+                0.3,
+                "rgba(79,123,188,0.66)",
+                0.45,
+                "rgba(54,103,165,0.99)",
+                0.6,
+                "rgba(36,84,136,1.00)",
+                0.8,
+                "rgba(25,66,105,1.00)",
+                1,
+                "rgba(18,47,76,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.001171875,
+                12,
+                0.3
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "heat-point",
+          "type": "heatmap"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "maxzoom": 5.01,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(43,92,149,0.00)",
+                0.05,
+                "rgba(43,92,149,0.11)",
+                0.15,
+                "rgba(68,114,179,0.33)",
+                0.3,
+                "rgba(101,138,198,0.66)",
+                0.45,
+                "rgba(140,162,201,0.99)",
+                0.6,
+                "rgba(178,187,204,1.00)",
+                0.8,
+                "rgba(209,212,217,1.00)",
+                1,
+                "rgba(238,238,239,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.001171875,
+                12,
+                0.3
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(145,165,201,0.00)",
+                0.05,
+                "rgba(145,165,201,0.11)",
+                0.15,
+                "rgba(110,144,201,0.33)",
+                0.3,
+                "rgba(79,123,188,0.66)",
+                0.45,
+                "rgba(54,103,165,0.99)",
+                0.6,
+                "rgba(36,84,136,1.00)",
+                0.8,
+                "rgba(25,66,105,1.00)",
+                1,
+                "rgba(18,47,76,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.001171875,
+                12,
+                0.3
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "heat-polygon",
+          "type": "heatmap"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": 10,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "source"
+                ],
+                "ponds",
+                "#26c6da",
+                "satellite",
+                "#66bb6a",
+                "production",
+                "#ffa726",
+                "#9e9e9e"
+              ],
+              "circle-opacity": 0.75,
+              "circle-radius": 3,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "source"
+                ],
+                "ponds",
+                "#26c6da",
+                "satellite",
+                "#66bb6a",
+                "production",
+                "#ffa726",
+                "#9e9e9e"
+              ],
+              "circle-opacity": 0.75,
+              "circle-radius": 3,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle-point",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 10,
+        "minzoom": 4,
+        "sourceLayer": "aquaculture_integrated_points"
+      },
+      "rebuildOnParamChange": [
+        "heat-point",
+        "heat-polygon",
+        "circle-point"
+      ],
+      "sourceId": "aquaculture-integrated-points",
+      "sourceUrl": "./fishery/aquaculture_integrated_points.pmtiles"
+    },
+    "aquaculturePonds": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "aquaculturePonds",
+      "layers": [
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": 6,
+          "paint": {
+            "dark": {
+              "fill-color": "#26c6da",
+              "fill-opacity": 0.5
+            },
+            "light": {
+              "fill-color": "#26c6da",
+              "fill-opacity": 0.35
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": 6,
+          "paint": {
+            "dark": {
+              "line-color": "#26c6da",
+              "line-opacity": 0.8,
+              "line-width": 1
+            },
+            "light": {
+              "line-color": "#26c6da",
+              "line-opacity": 0.8,
+              "line-width": 1
+            }
+          },
+          "suffix": "line",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 5,
+        "sourceLayer": "aquaculture_ponds_osm"
+      },
+      "rebuildOnParamChange": [
+        "aquaculturePondsOpacity"
+      ],
+      "sourceId": "aquaculture-ponds",
+      "sourceUrl": "./fishery/aquaculture_ponds_osm.pmtiles"
+    },
+    "aquaculturePonds#2": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "aquaculturePonds",
+      "layers": [
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "maxzoom": 10.01,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(89,84,129,0.00)",
+                0.05,
+                "rgba(89,84,129,0.11)",
+                0.15,
+                "rgba(132,99,142,0.33)",
+                0.3,
+                "rgba(189,105,146,0.66)",
+                0.45,
+                "rgba(212,132,169,0.99)",
+                0.6,
+                "rgba(222,166,198,1.00)",
+                0.8,
+                "rgba(231,200,224,1.00)",
+                1,
+                "rgba(240,234,250,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.001171875,
+                12,
+                0.3
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(214,137,173,0.00)",
+                0.05,
+                "rgba(214,137,173,0.11)",
+                0.15,
+                "rgba(199,110,150,0.33)",
+                0.3,
+                "rgba(156,101,143,0.66)",
+                0.45,
+                "rgba(103,95,138,0.99)",
+                0.6,
+                "rgba(82,75,120,1.00)",
+                0.8,
+                "rgba(67,54,101,1.00)",
+                1,
+                "rgba(53,33,82,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.001171875,
+                12,
+                0.3
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "heat-point",
+          "type": "heatmap"
+        },
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "maxzoom": 6.01,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(89,84,129,0.00)",
+                0.05,
+                "rgba(89,84,129,0.11)",
+                0.15,
+                "rgba(132,99,142,0.33)",
+                0.3,
+                "rgba(189,105,146,0.66)",
+                0.45,
+                "rgba(212,132,169,0.99)",
+                0.6,
+                "rgba(222,166,198,1.00)",
+                0.8,
+                "rgba(231,200,224,1.00)",
+                1,
+                "rgba(240,234,250,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.001171875,
+                12,
+                0.3
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(214,137,173,0.00)",
+                0.05,
+                "rgba(214,137,173,0.11)",
+                0.15,
+                "rgba(199,110,150,0.33)",
+                0.3,
+                "rgba(156,101,143,0.66)",
+                0.45,
+                "rgba(103,95,138,0.99)",
+                0.6,
+                "rgba(82,75,120,1.00)",
+                0.8,
+                "rgba(67,54,101,1.00)",
+                1,
+                "rgba(53,33,82,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.001171875,
+                12,
+                0.3
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "heat-polygon",
+          "type": "heatmap"
+        },
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": 10,
+          "paint": {
+            "dark": {
+              "circle-color": "#26c6da",
+              "circle-opacity": 0.75,
+              "circle-radius": 3,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#26c6da",
+              "circle-opacity": 0.75,
+              "circle-radius": 3,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle-point",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 10,
+        "minzoom": 4,
+        "sourceLayer": "aquaculture_ponds_osm_points"
+      },
+      "rebuildOnParamChange": null,
+      "sourceId": "aquaculture-ponds-points",
+      "sourceUrl": "./fishery/aquaculture_ponds_osm_points.pmtiles"
+    },
+    "aquacultureWaterSatellite": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "aquacultureWaterSatellite",
+      "layers": [
+        {
+          "filter": [
+            "literal",
+            true
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "case",
+                [
+                  "any",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "in_osm"
+                    ],
+                    true
+                  ],
+                  [
+                    "==",
+                    [
+                      "get",
+                      "nlsc_code"
+                    ],
+                    "0102"
+                  ],
+                  [
+                    "==",
+                    [
+                      "get",
+                      "solar_symbiotic"
+                    ],
+                    true
+                  ]
+                ],
+                "#26c6da",
+                [
+                  "in",
+                  [
+                    "get",
+                    "nlsc_code"
+                  ],
+                  [
+                    "literal",
+                    [
+                      "0402",
+                      "0104"
+                    ]
+                  ]
+                ],
+                "#90a4ae",
+                "#cfd8dc"
+              ],
+              "fill-opacity": 0.5
+            },
+            "light": {
+              "fill-color": [
+                "case",
+                [
+                  "any",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "in_osm"
+                    ],
+                    true
+                  ],
+                  [
+                    "==",
+                    [
+                      "get",
+                      "nlsc_code"
+                    ],
+                    "0102"
+                  ],
+                  [
+                    "==",
+                    [
+                      "get",
+                      "solar_symbiotic"
+                    ],
+                    true
+                  ]
+                ],
+                "#26c6da",
+                [
+                  "in",
+                  [
+                    "get",
+                    "nlsc_code"
+                  ],
+                  [
+                    "literal",
+                    [
+                      "0402",
+                      "0104"
+                    ]
+                  ]
+                ],
+                "#90a4ae",
+                "#cfd8dc"
+              ],
+              "fill-opacity": 0.35
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": [
+            "literal",
+            true
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": [
+                "case",
+                [
+                  "any",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "in_osm"
+                    ],
+                    true
+                  ],
+                  [
+                    "==",
+                    [
+                      "get",
+                      "nlsc_code"
+                    ],
+                    "0102"
+                  ],
+                  [
+                    "==",
+                    [
+                      "get",
+                      "solar_symbiotic"
+                    ],
+                    true
+                  ]
+                ],
+                "#26c6da",
+                [
+                  "in",
+                  [
+                    "get",
+                    "nlsc_code"
+                  ],
+                  [
+                    "literal",
+                    [
+                      "0402",
+                      "0104"
+                    ]
+                  ]
+                ],
+                "#90a4ae",
+                "#cfd8dc"
+              ],
+              "line-opacity": 0.8,
+              "line-width": 1
+            },
+            "light": {
+              "line-color": [
+                "case",
+                [
+                  "any",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "in_osm"
+                    ],
+                    true
+                  ],
+                  [
+                    "==",
+                    [
+                      "get",
+                      "nlsc_code"
+                    ],
+                    "0102"
+                  ],
+                  [
+                    "==",
+                    [
+                      "get",
+                      "solar_symbiotic"
+                    ],
+                    true
+                  ]
+                ],
+                "#26c6da",
+                [
+                  "in",
+                  [
+                    "get",
+                    "nlsc_code"
+                  ],
+                  [
+                    "literal",
+                    [
+                      "0402",
+                      "0104"
+                    ]
+                  ]
+                ],
+                "#90a4ae",
+                "#cfd8dc"
+              ],
+              "line-opacity": 0.8,
+              "line-width": 1
+            }
+          },
+          "suffix": "line",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 5,
+        "sourceLayer": "aquaculture_water_satellite"
+      },
+      "rebuildOnParamChange": [
+        "fill",
+        "line"
+      ],
+      "sourceId": "aquaculture-water-satellite",
+      "sourceUrl": "./fishery/aquaculture_water_satellite.pmtiles"
+    },
+    "aquacultureWaterSatellite#2": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "aquacultureWaterSatellite",
+      "layers": [
+        {
+          "filter": [
+            "literal",
+            true
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "maxzoom": 10.01,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(34,89,165,0.00)",
+                0.05,
+                "rgba(34,89,165,0.11)",
+                0.15,
+                "rgba(32,119,180,0.33)",
+                0.3,
+                "rgba(33,150,192,0.66)",
+                0.45,
+                "rgba(62,179,196,0.99)",
+                0.6,
+                "rgba(125,204,187,1.00)",
+                0.8,
+                "rgba(181,226,182,1.00)",
+                1,
+                "rgba(234,247,177,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.001171875,
+                12,
+                0.3
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(68,183,196,0.00)",
+                0.05,
+                "rgba(68,183,196,0.11)",
+                0.15,
+                "rgba(41,157,193,0.33)",
+                0.3,
+                "rgba(30,131,185,0.66)",
+                0.45,
+                "rgba(33,104,173,0.99)",
+                0.6,
+                "rgba(35,77,160,1.00)",
+                0.8,
+                "rgba(35,50,143,1.00)",
+                1,
+                "rgba(17,36,107,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.001171875,
+                12,
+                0.3
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "heat-point",
+          "type": "heatmap"
+        },
+        {
+          "filter": [
+            "literal",
+            true
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "maxzoom": 5.01,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(34,89,165,0.00)",
+                0.05,
+                "rgba(34,89,165,0.11)",
+                0.15,
+                "rgba(32,119,180,0.33)",
+                0.3,
+                "rgba(33,150,192,0.66)",
+                0.45,
+                "rgba(62,179,196,0.99)",
+                0.6,
+                "rgba(125,204,187,1.00)",
+                0.8,
+                "rgba(181,226,182,1.00)",
+                1,
+                "rgba(234,247,177,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.001171875,
+                12,
+                0.3
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(68,183,196,0.00)",
+                0.05,
+                "rgba(68,183,196,0.11)",
+                0.15,
+                "rgba(41,157,193,0.33)",
+                0.3,
+                "rgba(30,131,185,0.66)",
+                0.45,
+                "rgba(33,104,173,0.99)",
+                0.6,
+                "rgba(35,77,160,1.00)",
+                0.8,
+                "rgba(35,50,143,1.00)",
+                1,
+                "rgba(17,36,107,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.001171875,
+                12,
+                0.3
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "heat-polygon",
+          "type": "heatmap"
+        },
+        {
+          "filter": [
+            "literal",
+            true
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": 10,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "case",
+                [
+                  "any",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "in_osm"
+                    ],
+                    true
+                  ],
+                  [
+                    "==",
+                    [
+                      "get",
+                      "nlsc_code"
+                    ],
+                    "0102"
+                  ],
+                  [
+                    "==",
+                    [
+                      "get",
+                      "solar_symbiotic"
+                    ],
+                    true
+                  ]
+                ],
+                "#26c6da",
+                [
+                  "in",
+                  [
+                    "get",
+                    "nlsc_code"
+                  ],
+                  [
+                    "literal",
+                    [
+                      "0402",
+                      "0104"
+                    ]
+                  ]
+                ],
+                "#90a4ae",
+                "#cfd8dc"
+              ],
+              "circle-opacity": 0.75,
+              "circle-radius": 3,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "case",
+                [
+                  "any",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "in_osm"
+                    ],
+                    true
+                  ],
+                  [
+                    "==",
+                    [
+                      "get",
+                      "nlsc_code"
+                    ],
+                    "0102"
+                  ],
+                  [
+                    "==",
+                    [
+                      "get",
+                      "solar_symbiotic"
+                    ],
+                    true
+                  ]
+                ],
+                "#26c6da",
+                [
+                  "in",
+                  [
+                    "get",
+                    "nlsc_code"
+                  ],
+                  [
+                    "literal",
+                    [
+                      "0402",
+                      "0104"
+                    ]
+                  ]
+                ],
+                "#90a4ae",
+                "#cfd8dc"
+              ],
+              "circle-opacity": 0.75,
+              "circle-radius": 3,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle-point",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 10,
+        "minzoom": 4,
+        "sourceLayer": "aquaculture_water_satellite_points"
+      },
+      "rebuildOnParamChange": [
+        "heat-point",
+        "heat-polygon",
+        "circle-point"
+      ],
+      "sourceId": "aquaculture-water-satellite-points",
+      "sourceUrl": "./fishery/aquaculture_water_satellite_points.pmtiles"
+    },
+    "aquacultureWaterSatelliteMoa": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "aquacultureWaterSatelliteMoa",
+      "layers": [
+        {
+          "filter": [
+            "in",
+            [
+              "get",
+              "display_class"
+            ],
+            [
+              "literal",
+              [
+                "confirmed",
+                "solar_symbiotic",
+                "unverified",
+                "ambiguous",
+                "mountain_suspect"
+              ]
+            ]
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "display_class"
+                ],
+                "confirmed",
+                "#26c6da",
+                "solar_symbiotic",
+                "#1e88e5",
+                "#9e9e9e"
+              ],
+              "fill-opacity": 0.5
+            },
+            "light": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "display_class"
+                ],
+                "confirmed",
+                "#26c6da",
+                "solar_symbiotic",
+                "#1e88e5",
+                "#9e9e9e"
+              ],
+              "fill-opacity": 0.35
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": [
+            "in",
+            [
+              "get",
+              "display_class"
+            ],
+            [
+              "literal",
+              [
+                "confirmed",
+                "solar_symbiotic",
+                "unverified",
+                "ambiguous",
+                "mountain_suspect"
+              ]
+            ]
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "display_class"
+                ],
+                "confirmed",
+                "#26c6da",
+                "solar_symbiotic",
+                "#1e88e5",
+                "#9e9e9e"
+              ],
+              "line-opacity": 0.8,
+              "line-width": 1
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "display_class"
+                ],
+                "confirmed",
+                "#26c6da",
+                "solar_symbiotic",
+                "#1e88e5",
+                "#9e9e9e"
+              ],
+              "line-opacity": 0.8,
+              "line-width": 1
+            }
+          },
+          "suffix": "line",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 5,
+        "sourceLayer": "aquaculture_water_satellite_moa"
+      },
+      "rebuildOnParamChange": [
+        "fill",
+        "line"
+      ],
+      "sourceId": "aquaculture-water-satellite-moa",
+      "sourceUrl": "./fishery/aquaculture_water_satellite_moa.pmtiles"
+    },
+    "aquacultureWaterSatelliteMoa#2": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "aquacultureWaterSatelliteMoa",
+      "layers": [
+        {
+          "filter": [
+            "in",
+            [
+              "get",
+              "display_class"
+            ],
+            [
+              "literal",
+              [
+                "confirmed",
+                "solar_symbiotic",
+                "unverified",
+                "ambiguous",
+                "mountain_suspect"
+              ]
+            ]
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "maxzoom": 10.01,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(4,96,150,0.00)",
+                0.05,
+                "rgba(4,96,150,0.11)",
+                0.15,
+                "rgba(18,120,180,0.33)",
+                0.3,
+                "rgba(60,147,194,0.66)",
+                0.45,
+                "rgba(115,168,207,0.99)",
+                0.6,
+                "rgba(165,189,219,1.00)",
+                0.8,
+                "rgba(209,210,231,1.00)",
+                1,
+                "rgba(242,236,245,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.001171875,
+                12,
+                0.3
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(121,171,208,0.00)",
+                0.05,
+                "rgba(121,171,208,0.11)",
+                0.15,
+                "rgba(78,154,198,0.33)",
+                0.3,
+                "rgba(38,133,187,0.66)",
+                0.45,
+                "rgba(5,111,175,0.99)",
+                0.6,
+                "rgba(4,92,144,1.00)",
+                0.8,
+                "rgba(3,74,116,1.00)",
+                1,
+                "rgba(2,56,88,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.001171875,
+                12,
+                0.3
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "heat-point",
+          "type": "heatmap"
+        },
+        {
+          "filter": [
+            "in",
+            [
+              "get",
+              "display_class"
+            ],
+            [
+              "literal",
+              [
+                "confirmed",
+                "solar_symbiotic",
+                "unverified",
+                "ambiguous",
+                "mountain_suspect"
+              ]
+            ]
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "maxzoom": 5.01,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(4,96,150,0.00)",
+                0.05,
+                "rgba(4,96,150,0.11)",
+                0.15,
+                "rgba(18,120,180,0.33)",
+                0.3,
+                "rgba(60,147,194,0.66)",
+                0.45,
+                "rgba(115,168,207,0.99)",
+                0.6,
+                "rgba(165,189,219,1.00)",
+                0.8,
+                "rgba(209,210,231,1.00)",
+                1,
+                "rgba(242,236,245,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.001171875,
+                12,
+                0.3
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(121,171,208,0.00)",
+                0.05,
+                "rgba(121,171,208,0.11)",
+                0.15,
+                "rgba(78,154,198,0.33)",
+                0.3,
+                "rgba(38,133,187,0.66)",
+                0.45,
+                "rgba(5,111,175,0.99)",
+                0.6,
+                "rgba(4,92,144,1.00)",
+                0.8,
+                "rgba(3,74,116,1.00)",
+                1,
+                "rgba(2,56,88,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.001171875,
+                12,
+                0.3
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "heat-polygon",
+          "type": "heatmap"
+        },
+        {
+          "filter": [
+            "in",
+            [
+              "get",
+              "display_class"
+            ],
+            [
+              "literal",
+              [
+                "confirmed",
+                "solar_symbiotic",
+                "unverified",
+                "ambiguous",
+                "mountain_suspect"
+              ]
+            ]
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": 10,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "display_class"
+                ],
+                "confirmed",
+                "#26c6da",
+                "solar_symbiotic",
+                "#2c92f0",
+                "#9e9e9e"
+              ],
+              "circle-opacity": 0.75,
+              "circle-radius": 3,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "display_class"
+                ],
+                "confirmed",
+                "#26c6da",
+                "solar_symbiotic",
+                "#1e88e5",
+                "#9e9e9e"
+              ],
+              "circle-opacity": 0.75,
+              "circle-radius": 3,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle-point",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 10,
+        "minzoom": 4,
+        "sourceLayer": "aquaculture_water_satellite_moa_points"
+      },
+      "rebuildOnParamChange": [
+        "heat-point",
+        "heat-polygon",
+        "circle-point"
+      ],
+      "sourceId": "aquaculture-water-satellite-moa-points",
+      "sourceUrl": "./fishery/aquaculture_water_satellite_moa_points.pmtiles"
+    },
+    "aquacultureWaterUnion": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "aquacultureWaterUnion",
+      "layers": [
+        {
+          "filter": [
+            "in",
+            [
+              "get",
+              "union_class"
+            ],
+            [
+              "literal",
+              [
+                "both",
+                "moa_only",
+                "osm_only"
+              ]
+            ]
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "union_class"
+                ],
+                "both",
+                "#26c6da",
+                "moa_only",
+                "#43a047",
+                "osm_only",
+                "#fb8c00",
+                "#9e9e9e"
+              ],
+              "fill-opacity": 0.5
+            },
+            "light": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "union_class"
+                ],
+                "both",
+                "#26c6da",
+                "moa_only",
+                "#43a047",
+                "osm_only",
+                "#fb8c00",
+                "#9e9e9e"
+              ],
+              "fill-opacity": 0.35
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": [
+            "in",
+            [
+              "get",
+              "union_class"
+            ],
+            [
+              "literal",
+              [
+                "both",
+                "moa_only",
+                "osm_only"
+              ]
+            ]
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "union_class"
+                ],
+                "both",
+                "#26c6da",
+                "moa_only",
+                "#43a047",
+                "osm_only",
+                "#fb8c00",
+                "#9e9e9e"
+              ],
+              "line-opacity": 0.8,
+              "line-width": 1
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "union_class"
+                ],
+                "both",
+                "#26c6da",
+                "moa_only",
+                "#43a047",
+                "osm_only",
+                "#fb8c00",
+                "#9e9e9e"
+              ],
+              "line-opacity": 0.8,
+              "line-width": 1
+            }
+          },
+          "suffix": "line",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 5,
+        "sourceLayer": "aquaculture_water_satellite_union"
+      },
+      "rebuildOnParamChange": [
+        "fill",
+        "line"
+      ],
+      "sourceId": "aquaculture-water-satellite-union",
+      "sourceUrl": "./fishery/aquaculture_water_sat_union.pmtiles"
+    },
+    "aquacultureWaterUnion#2": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "aquacultureWaterUnion",
+      "layers": [
+        {
+          "filter": [
+            "in",
+            [
+              "get",
+              "union_class"
+            ],
+            [
+              "literal",
+              [
+                "both",
+                "moa_only",
+                "osm_only"
+              ]
+            ]
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "union_class"
+                ],
+                "both",
+                "#26c6da",
+                "moa_only",
+                "#43a047",
+                "osm_only",
+                "#fb8c00",
+                "#9e9e9e"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "union_class"
+                ],
+                "both",
+                "#26c6da",
+                "moa_only",
+                "#43a047",
+                "osm_only",
+                "#fb8c00",
+                "#9e9e9e"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle-point",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "in",
+            [
+              "get",
+              "union_class"
+            ],
+            [
+              "literal",
+              [
+                "both",
+                "moa_only",
+                "osm_only"
+              ]
+            ]
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "maxzoom": 5,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "union_class"
+                ],
+                "both",
+                "#26c6da",
+                "moa_only",
+                "#43a047",
+                "osm_only",
+                "#fb8c00",
+                "#9e9e9e"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "union_class"
+                ],
+                "both",
+                "#26c6da",
+                "moa_only",
+                "#43a047",
+                "osm_only",
+                "#fb8c00",
+                "#9e9e9e"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle-polygon",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 10,
+        "minzoom": 4,
+        "sourceLayer": "aquaculture_water_satellite_union_points"
+      },
+      "rebuildOnParamChange": [
+        "circle-point",
+        "circle-polygon"
+      ],
+      "sourceId": "aquaculture-water-satellite-union-points",
+      "sourceUrl": "./fishery/aquaculture_water_sat_union_points.pmtiles"
+    },
+    "aquacultureZone": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "aquacultureZone",
+      "layers": [
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": 6,
+          "paint": {
+            "dark": {
+              "fill-color": "#66bb6a",
+              "fill-opacity": 0.5
+            },
+            "light": {
+              "fill-color": "#66bb6a",
+              "fill-opacity": 0.35
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": 6,
+          "paint": {
+            "dark": {
+              "line-color": "#66bb6a",
+              "line-opacity": 0.8,
+              "line-width": 1
+            },
+            "light": {
+              "line-color": "#66bb6a",
+              "line-opacity": 0.8,
+              "line-width": 1
+            }
+          },
+          "suffix": "line",
+          "type": "line"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "aquacultureZoneOpacity"
+      ],
+      "sourceId": "aquaculture-zone",
+      "sourceUrl": "./fishery/aquaculture_production_zone.geojson"
+    },
+    "aquacultureZone#2": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "aquacultureZone",
+      "layers": [
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#66bb6a",
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#66bb6a",
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle-point",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "maxzoom": 6,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#66bb6a",
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#66bb6a",
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle-polygon",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": null,
+      "sourceId": "aquaculture-zone-points",
+      "sourceUrl": "./fishery/aquaculture_production_zone.geojson"
+    },
+    "farmRoads": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "farmRoads",
+      "layers": [
+        {
+          "filter": null,
+          "layout": {
+            "line-cap": "round",
+            "line-join": "round"
+          },
+          "minzoom": 7,
+          "paint": {
+            "dark": {
+              "line-blur": 3,
+              "line-color": "#a4b494",
+              "line-opacity": 0,
+              "line-width": 4
+            },
+            "light": {
+              "line-blur": 3,
+              "line-color": "#7a8670",
+              "line-opacity": 0,
+              "line-width": 4
+            }
+          },
+          "suffix": "glow",
+          "type": "line"
+        },
+        {
+          "filter": null,
+          "layout": {
+            "line-cap": "round",
+            "line-join": "round"
+          },
+          "minzoom": 7,
+          "paint": {
+            "dark": {
+              "line-color": "#a4b494",
+              "line-opacity": 0.85,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                10,
+                1,
+                14,
+                2
+              ]
+            },
+            "light": {
+              "line-color": "#7a8670",
+              "line-opacity": 0.85,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                10,
+                1,
+                14,
+                2
+              ]
+            }
+          },
+          "suffix": "line",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 13,
+        "minzoom": 0,
+        "sourceLayer": "farm_roads"
+      },
+      "rebuildOnParamChange": [
+        "glow",
+        "line"
+      ],
+      "sourceId": "farm-roads",
+      "sourceUrl": "./agriculture/farm_roads.pmtiles"
+    },
+    "livestockFarmCattle": {
+      "dynamicData": true,
+      "filter": [
+        "==",
+        [
+          "get",
+          "主畜種"
+        ],
+        "牛"
+      ],
+      "id": "livestockFarmCattle",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": 6,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "ln",
+                  [
+                    "max",
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "總隻數"
+                      ]
+                    ],
+                    1
+                  ]
+                ],
+                2.995732273553991,
+                "#c9b7af",
+                6.551080335043404,
+                "#977b76"
+              ],
+              "circle-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "精度"
+                  ],
+                  "低"
+                ],
+                0.2975,
+                0.85
+              ],
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "ln",
+                  [
+                    "max",
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "總隻數"
+                      ]
+                    ],
+                    1
+                  ]
+                ],
+                2.995732273553991,
+                0.8999999999999999,
+                6.551080335043404,
+                6
+              ],
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "ln",
+                  [
+                    "max",
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "總隻數"
+                      ]
+                    ],
+                    1
+                  ]
+                ],
+                2.995732273553991,
+                "#c9b7af",
+                6.551080335043404,
+                "#3e2723"
+              ],
+              "circle-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "精度"
+                  ],
+                  "低"
+                ],
+                0.2975,
+                0.85
+              ],
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "ln",
+                  [
+                    "max",
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "總隻數"
+                      ]
+                    ],
+                    1
+                  ]
+                ],
+                2.995732273553991,
+                0.8999999999999999,
+                6.551080335043404,
+                6
+              ],
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "cattle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": null,
+      "sourceId": "livestock-farms",
+      "sourceUrl": "./geo/_empty.geojson"
+    },
+    "livestockFarmChicken": {
+      "dynamicData": true,
+      "filter": [
+        "==",
+        [
+          "get",
+          "主畜種"
+        ],
+        "雞"
+      ],
+      "id": "livestockFarmChicken",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": 6,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "ln",
+                  [
+                    "max",
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "總隻數"
+                      ]
+                    ],
+                    1
+                  ]
+                ],
+                6.907755278982137,
+                "#ffe3a3",
+                11.225243392518447,
+                "#c77800"
+              ],
+              "circle-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "精度"
+                  ],
+                  "低"
+                ],
+                0.27999999999999997,
+                0.8
+              ],
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "ln",
+                  [
+                    "max",
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "總隻數"
+                      ]
+                    ],
+                    1
+                  ]
+                ],
+                6.907755278982137,
+                0.8999999999999999,
+                11.225243392518447,
+                6
+              ],
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "ln",
+                  [
+                    "max",
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "總隻數"
+                      ]
+                    ],
+                    1
+                  ]
+                ],
+                6.907755278982137,
+                "#ffe3a3",
+                11.225243392518447,
+                "#c77800"
+              ],
+              "circle-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "精度"
+                  ],
+                  "低"
+                ],
+                0.27999999999999997,
+                0.8
+              ],
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "ln",
+                  [
+                    "max",
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "總隻數"
+                      ]
+                    ],
+                    1
+                  ]
+                ],
+                6.907755278982137,
+                0.8999999999999999,
+                11.225243392518447,
+                6
+              ],
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "chicken",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": null,
+      "sourceId": "livestock-farms",
+      "sourceUrl": "./geo/_empty.geojson"
+    },
+    "livestockFarmDuck": {
+      "dynamicData": true,
+      "filter": [
+        "==",
+        [
+          "get",
+          "主畜種"
+        ],
+        "鴨"
+      ],
+      "id": "livestockFarmDuck",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": 6,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "ln",
+                  [
+                    "max",
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "總隻數"
+                      ]
+                    ],
+                    1
+                  ]
+                ],
+                4.605170185988092,
+                "#80cbc4",
+                9.680344001221918,
+                "#549384"
+              ],
+              "circle-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "精度"
+                  ],
+                  "低"
+                ],
+                0.27999999999999997,
+                0.8
+              ],
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "ln",
+                  [
+                    "max",
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "總隻數"
+                      ]
+                    ],
+                    1
+                  ]
+                ],
+                4.605170185988092,
+                0.8999999999999999,
+                9.680344001221918,
+                6
+              ],
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "ln",
+                  [
+                    "max",
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "總隻數"
+                      ]
+                    ],
+                    1
+                  ]
+                ],
+                4.605170185988092,
+                "#80cbc4",
+                9.680344001221918,
+                "#004d40"
+              ],
+              "circle-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "精度"
+                  ],
+                  "低"
+                ],
+                0.27999999999999997,
+                0.8
+              ],
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "ln",
+                  [
+                    "max",
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "總隻數"
+                      ]
+                    ],
+                    1
+                  ]
+                ],
+                4.605170185988092,
+                0.8999999999999999,
+                9.680344001221918,
+                6
+              ],
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "duck",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": null,
+      "sourceId": "livestock-farms",
+      "sourceUrl": "./geo/_empty.geojson"
+    },
+    "livestockFarmGoose": {
+      "dynamicData": true,
+      "filter": [
+        "==",
+        [
+          "get",
+          "主畜種"
+        ],
+        "鵝"
+      ],
+      "id": "livestockFarmGoose",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": 6,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "ln",
+                  [
+                    "max",
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "總隻數"
+                      ]
+                    ],
+                    1
+                  ]
+                ],
+                4.605170185988092,
+                "#a5e5ef",
+                8.987196820661973,
+                "#1e8f9b"
+              ],
+              "circle-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "精度"
+                  ],
+                  "低"
+                ],
+                0.2975,
+                0.85
+              ],
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "ln",
+                  [
+                    "max",
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "總隻數"
+                      ]
+                    ],
+                    1
+                  ]
+                ],
+                4.605170185988092,
+                0.8999999999999999,
+                8.987196820661973,
+                6
+              ],
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "ln",
+                  [
+                    "max",
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "總隻數"
+                      ]
+                    ],
+                    1
+                  ]
+                ],
+                4.605170185988092,
+                "#a5e5ef",
+                8.987196820661973,
+                "#00838f"
+              ],
+              "circle-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "精度"
+                  ],
+                  "低"
+                ],
+                0.2975,
+                0.85
+              ],
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "ln",
+                  [
+                    "max",
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "總隻數"
+                      ]
+                    ],
+                    1
+                  ]
+                ],
+                4.605170185988092,
+                0.8999999999999999,
+                8.987196820661973,
+                6
+              ],
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "goose",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": null,
+      "sourceId": "livestock-farms",
+      "sourceUrl": "./geo/_empty.geojson"
+    },
+    "livestockFarmOther": {
+      "dynamicData": true,
+      "filter": [
+        "!",
+        [
+          "in",
+          [
+            "get",
+            "主畜種"
+          ],
+          [
+            "literal",
+            [
+              "豬",
+              "雞",
+              "牛",
+              "鴨",
+              "鵝",
+              "羊"
+            ]
+          ]
+        ]
+      ],
+      "id": "livestockFarmOther",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": 6,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "主畜種"
+                ],
+                "鹿",
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "ln",
+                    [
+                      "max",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "總隻數"
+                        ]
+                      ],
+                      1
+                    ]
+                  ],
+                  3.4011973816621555,
+                  "#a5d6a7",
+                  5.703782474656201,
+                  "#4f9050"
+                ],
+                "鵪鶉",
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "ln",
+                    [
+                      "max",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "總隻數"
+                        ]
+                      ],
+                      1
+                    ]
+                  ],
+                  8.517193191416238,
+                  "#ffcc80",
+                  11.695247021764184,
+                  "#e65100"
+                ],
+                "馬",
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "ln",
+                    [
+                      "max",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "總隻數"
+                        ]
+                      ],
+                      1
+                    ]
+                  ],
+                  1.6094379124341003,
+                  "#9fa8da",
+                  4.382026634673881,
+                  "#637be0"
+                ],
+                "兔",
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "ln",
+                    [
+                      "max",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "總隻數"
+                        ]
+                      ],
+                      1
+                    ]
+                  ],
+                  5.298317366548036,
+                  "#f8bbd0",
+                  7.313220387090301,
+                  "#e04c80"
+                ],
+                "鴕鳥",
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "ln",
+                    [
+                      "max",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "總隻數"
+                        ]
+                      ],
+                      1
+                    ]
+                  ],
+                  3.912023005428146,
+                  "#e6ee9c",
+                  5.298317366548036,
+                  "#8e8328"
+                ],
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "ln",
+                    [
+                      "max",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "總隻數"
+                        ]
+                      ],
+                      1
+                    ]
+                  ],
+                  3.912023005428146,
+                  "#dcdcdc",
+                  8.006367567650246,
+                  "#818181"
+                ]
+              ],
+              "circle-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "精度"
+                  ],
+                  "低"
+                ],
+                0.2975,
+                0.85
+              ],
+              "circle-radius": [
+                "match",
+                [
+                  "get",
+                  "主畜種"
+                ],
+                "鹿",
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "ln",
+                    [
+                      "max",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "總隻數"
+                        ]
+                      ],
+                      1
+                    ]
+                  ],
+                  3.4011973816621555,
+                  0.8999999999999999,
+                  5.703782474656201,
+                  6
+                ],
+                "鵪鶉",
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "ln",
+                    [
+                      "max",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "總隻數"
+                        ]
+                      ],
+                      1
+                    ]
+                  ],
+                  8.517193191416238,
+                  0.8999999999999999,
+                  11.695247021764184,
+                  6
+                ],
+                "馬",
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "ln",
+                    [
+                      "max",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "總隻數"
+                        ]
+                      ],
+                      1
+                    ]
+                  ],
+                  1.6094379124341003,
+                  0.8999999999999999,
+                  4.382026634673881,
+                  6
+                ],
+                "兔",
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "ln",
+                    [
+                      "max",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "總隻數"
+                        ]
+                      ],
+                      1
+                    ]
+                  ],
+                  5.298317366548036,
+                  0.8999999999999999,
+                  7.313220387090301,
+                  6
+                ],
+                "鴕鳥",
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "ln",
+                    [
+                      "max",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "總隻數"
+                        ]
+                      ],
+                      1
+                    ]
+                  ],
+                  3.912023005428146,
+                  0.8999999999999999,
+                  5.298317366548036,
+                  6
+                ],
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "ln",
+                    [
+                      "max",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "總隻數"
+                        ]
+                      ],
+                      1
+                    ]
+                  ],
+                  3.912023005428146,
+                  0.8999999999999999,
+                  8.006367567650246,
+                  6
+                ]
+              ],
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "主畜種"
+                ],
+                "鹿",
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "ln",
+                    [
+                      "max",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "總隻數"
+                        ]
+                      ],
+                      1
+                    ]
+                  ],
+                  3.4011973816621555,
+                  "#a5d6a7",
+                  5.703782474656201,
+                  "#1b5e20"
+                ],
+                "鵪鶉",
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "ln",
+                    [
+                      "max",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "總隻數"
+                        ]
+                      ],
+                      1
+                    ]
+                  ],
+                  8.517193191416238,
+                  "#ffcc80",
+                  11.695247021764184,
+                  "#e65100"
+                ],
+                "馬",
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "ln",
+                    [
+                      "max",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "總隻數"
+                        ]
+                      ],
+                      1
+                    ]
+                  ],
+                  1.6094379124341003,
+                  "#9fa8da",
+                  4.382026634673881,
+                  "#283593"
+                ],
+                "兔",
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "ln",
+                    [
+                      "max",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "總隻數"
+                        ]
+                      ],
+                      1
+                    ]
+                  ],
+                  5.298317366548036,
+                  "#f8bbd0",
+                  7.313220387090301,
+                  "#ad1457"
+                ],
+                "鴕鳥",
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "ln",
+                    [
+                      "max",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "總隻數"
+                        ]
+                      ],
+                      1
+                    ]
+                  ],
+                  3.912023005428146,
+                  "#e6ee9c",
+                  5.298317366548036,
+                  "#827717"
+                ],
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "ln",
+                    [
+                      "max",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "總隻數"
+                        ]
+                      ],
+                      1
+                    ]
+                  ],
+                  3.912023005428146,
+                  "#dcdcdc",
+                  8.006367567650246,
+                  "#4a4a4a"
+                ]
+              ],
+              "circle-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "精度"
+                  ],
+                  "低"
+                ],
+                0.2975,
+                0.85
+              ],
+              "circle-radius": [
+                "match",
+                [
+                  "get",
+                  "主畜種"
+                ],
+                "鹿",
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "ln",
+                    [
+                      "max",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "總隻數"
+                        ]
+                      ],
+                      1
+                    ]
+                  ],
+                  3.4011973816621555,
+                  0.8999999999999999,
+                  5.703782474656201,
+                  6
+                ],
+                "鵪鶉",
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "ln",
+                    [
+                      "max",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "總隻數"
+                        ]
+                      ],
+                      1
+                    ]
+                  ],
+                  8.517193191416238,
+                  0.8999999999999999,
+                  11.695247021764184,
+                  6
+                ],
+                "馬",
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "ln",
+                    [
+                      "max",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "總隻數"
+                        ]
+                      ],
+                      1
+                    ]
+                  ],
+                  1.6094379124341003,
+                  0.8999999999999999,
+                  4.382026634673881,
+                  6
+                ],
+                "兔",
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "ln",
+                    [
+                      "max",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "總隻數"
+                        ]
+                      ],
+                      1
+                    ]
+                  ],
+                  5.298317366548036,
+                  0.8999999999999999,
+                  7.313220387090301,
+                  6
+                ],
+                "鴕鳥",
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "ln",
+                    [
+                      "max",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "總隻數"
+                        ]
+                      ],
+                      1
+                    ]
+                  ],
+                  3.912023005428146,
+                  0.8999999999999999,
+                  5.298317366548036,
+                  6
+                ],
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "ln",
+                    [
+                      "max",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "總隻數"
+                        ]
+                      ],
+                      1
+                    ]
+                  ],
+                  3.912023005428146,
+                  0.8999999999999999,
+                  8.006367567650246,
+                  6
+                ]
+              ],
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "other",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": null,
+      "sourceId": "livestock-farms",
+      "sourceUrl": "./geo/_empty.geojson"
+    },
+    "livestockFarmPig": {
+      "dynamicData": true,
+      "filter": [
+        "==",
+        [
+          "get",
+          "主畜種"
+        ],
+        "豬"
+      ],
+      "id": "livestockFarmPig",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": 6,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "ln",
+                  [
+                    "max",
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "總隻數"
+                      ]
+                    ],
+                    1
+                  ]
+                ],
+                4.605170185988092,
+                "#f6b9b0",
+                8.294049640102028,
+                "#e45d49"
+              ],
+              "circle-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "精度"
+                  ],
+                  "低"
+                ],
+                0.27999999999999997,
+                0.8
+              ],
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "ln",
+                  [
+                    "max",
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "總隻數"
+                      ]
+                    ],
+                    1
+                  ]
+                ],
+                4.605170185988092,
+                0.8999999999999999,
+                8.294049640102028,
+                6
+              ],
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "ln",
+                  [
+                    "max",
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "總隻數"
+                      ]
+                    ],
+                    1
+                  ]
+                ],
+                4.605170185988092,
+                "#f6b9b0",
+                8.294049640102028,
+                "#b02b1a"
+              ],
+              "circle-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "精度"
+                  ],
+                  "低"
+                ],
+                0.27999999999999997,
+                0.8
+              ],
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "ln",
+                  [
+                    "max",
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "總隻數"
+                      ]
+                    ],
+                    1
+                  ]
+                ],
+                4.605170185988092,
+                0.8999999999999999,
+                8.294049640102028,
+                6
+              ],
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "pig",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": null,
+      "sourceId": "livestock-farms",
+      "sourceUrl": "./geo/_empty.geojson"
+    },
+    "livestockFarmSheep": {
+      "dynamicData": true,
+      "filter": [
+        "==",
+        [
+          "get",
+          "主畜種"
+        ],
+        "羊"
+      ],
+      "id": "livestockFarmSheep",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": 6,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "ln",
+                  [
+                    "max",
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "總隻數"
+                      ]
+                    ],
+                    1
+                  ]
+                ],
+                2.995732273553991,
+                "#e1bee7",
+                6.396929655216146,
+                "#a961df"
+              ],
+              "circle-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "精度"
+                  ],
+                  "低"
+                ],
+                0.2975,
+                0.85
+              ],
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "ln",
+                  [
+                    "max",
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "總隻數"
+                      ]
+                    ],
+                    1
+                  ]
+                ],
+                2.995732273553991,
+                0.8999999999999999,
+                6.396929655216146,
+                6
+              ],
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "ln",
+                  [
+                    "max",
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "總隻數"
+                      ]
+                    ],
+                    1
+                  ]
+                ],
+                2.995732273553991,
+                "#e1bee7",
+                6.396929655216146,
+                "#6a1b9a"
+              ],
+              "circle-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "精度"
+                  ],
+                  "低"
+                ],
+                0.2975,
+                0.85
+              ],
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "ln",
+                  [
+                    "max",
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "總隻數"
+                      ]
+                    ],
+                    1
+                  ]
+                ],
+                2.995732273553991,
+                0.8999999999999999,
+                6.396929655216146,
+                6
+              ],
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "sheep",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": null,
+      "sourceId": "livestock-farms",
+      "sourceUrl": "./geo/_empty.geojson"
+    },
+    "livestockFeed": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "livestockFeed",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": 6,
+          "paint": {
+            "dark": {
+              "circle-color": "#6a808b",
+              "circle-opacity": 0.9,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#6a808b",
+              "circle-opacity": 0.9,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": null,
+      "sourceId": "livestock-feed",
+      "sourceUrl": "./agriculture/feed_factories.geojson"
+    },
+    "livestockMarket": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "livestockMarket",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": 5,
+          "paint": {
+            "dark": {
+              "circle-color": "#d500f9",
+              "circle-opacity": 0.95,
+              "circle-radius": 6.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#d500f9",
+              "circle-opacity": 0.95,
+              "circle-radius": 6.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": null,
+      "sourceId": "livestock-market",
+      "sourceUrl": "./agriculture/livestock_markets.geojson"
+    },
+    "livestockSlaughter": {
+      "dynamicData": true,
+      "filter": null,
+      "id": "livestockSlaughter",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": 6,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "slice",
+                  [
+                    "get",
+                    "種類"
+                  ],
+                  0,
+                  1
+                ],
+                [
+                  "雞",
+                  "鴨",
+                  "鵝"
+                ],
+                "#ef6c00",
+                "#e1453f"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": 6.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "slice",
+                  [
+                    "get",
+                    "種類"
+                  ],
+                  0,
+                  1
+                ],
+                [
+                  "雞",
+                  "鴨",
+                  "鵝"
+                ],
+                "#ef6c00",
+                "#e1453f"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": 6.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "circle"
+      ],
+      "sourceId": "livestock-slaughter",
+      "sourceUrl": "./geo/_empty.geojson"
+    }
+  },
+  "params": {
+    "agriCropSuitability": [
+      {
+        "label": "作物 芋",
+        "options": [
+          {
+            "label": "芋 (taro)",
+            "value": "0"
+          },
+          {
+            "label": "蘋果 (apple)",
+            "value": "1"
+          },
+          {
+            "label": "慈菇 (arrow)",
+            "value": "2"
+          },
+          {
+            "label": "aspara (aspara)",
+            "value": "3"
+          },
+          {
+            "label": "豇豆 (aspbean)",
+            "value": "4"
+          },
+          {
+            "label": "嫩莖萵苣 (asplet)",
+            "value": "5"
+          },
+          {
+            "label": "酪梨 (avocado)",
+            "value": "6"
+          },
+          {
+            "label": "楊梅 (babysbe)",
+            "value": "7"
+          },
+          {
+            "label": "苦瓜 (balsanp)",
+            "value": "8"
+          },
+          {
+            "label": "叢生竹 (bamboo1)",
+            "value": "9"
+          },
+          {
+            "label": "散生竹 (bamboo2)",
+            "value": "10"
+          },
+          {
+            "label": "香蕉 (banana)",
+            "value": "11"
+          },
+          {
+            "label": "大麥 (barley)",
+            "value": "12"
+          },
+          {
+            "label": "檳榔 (betelnut)",
+            "value": "13"
+          },
+          {
+            "label": "bigatem (bigatem)",
+            "value": "14"
+          },
+          {
+            "label": "黑皮波羅門參 (blacksal)",
+            "value": "15"
+          },
+          {
+            "label": "蠶豆 (broadbea)",
+            "value": "16"
+          },
+          {
+            "label": "抱子甘藍 (brussels)",
+            "value": "17"
+          },
+          {
+            "label": "甘藍 (cabbage)",
+            "value": "18"
+          },
+          {
+            "label": "扁蒲 (calabash)",
+            "value": "19"
+          },
+          {
+            "label": "楊桃 (carambol)",
+            "value": "20"
+          },
+          {
+            "label": "胡蘿蔔 (carrot)",
+            "value": "21"
+          },
+          {
+            "label": "介壽果(腰果) (cashewnu)",
+            "value": "22"
+          },
+          {
+            "label": "木薯 (cassava)",
+            "value": "23"
+          },
+          {
+            "label": "花椰菜 (cauliflo)",
+            "value": "24"
+          },
+          {
+            "label": "芹菜 (celery)",
+            "value": "25"
+          },
+          {
+            "label": "梨瓜 (chayote)",
+            "value": "26"
+          },
+          {
+            "label": "栗 (chestnut)",
+            "value": "27"
+          },
+          {
+            "label": "韭菜 (chinesel)",
+            "value": "28"
+          },
+          {
+            "label": "橄欖 (chineseo)",
+            "value": "29"
+          },
+          {
+            "label": "山葯 (chinesey)",
+            "value": "30"
+          },
+          {
+            "label": "柑桔 (citrus)",
+            "value": "31"
+          },
+          {
+            "label": "黃秋葵 (ckra)",
+            "value": "32"
+          },
+          {
+            "label": "可可 (cocoa)",
+            "value": "33"
+          },
+          {
+            "label": "可可椰子 (coconut)",
+            "value": "34"
+          },
+          {
+            "label": "咖啡 (coffee)",
+            "value": "35"
+          },
+          {
+            "label": "芫荽 (coriande)",
+            "value": "36"
+          },
+          {
+            "label": "黃瓜 (cucumber)",
+            "value": "37"
+          },
+          {
+            "label": "金針菜 (daylily)",
+            "value": "38"
+          },
+          {
+            "label": "蓮藕 (eastindi)",
+            "value": "39"
+          },
+          {
+            "label": "莧菜 (edibleam)",
+            "value": "40"
+          },
+          {
+            "label": "茄子 (eggplant)",
+            "value": "41"
+          },
+          {
+            "label": "亞麻(甘蔗) (flax)",
+            "value": "42"
+          },
+          {
+            "label": "辣椒 (gardenpe)",
+            "value": "43"
+          },
+          {
+            "label": "茼蒿 (garlandc)",
+            "value": "44"
+          },
+          {
+            "label": "大蒜 (garlic)",
+            "value": "45"
+          },
+          {
+            "label": "薑 (ginger)",
+            "value": "46"
+          },
+          {
+            "label": "葡萄 (grape)",
+            "value": "47"
+          },
+          {
+            "label": "牛蒡 (greatbur)",
+            "value": "48"
+          },
+          {
+            "label": "綠豆 (greenbea)",
+            "value": "49"
+          },
+          {
+            "label": "番石榴 (guava)",
+            "value": "50"
+          },
+          {
+            "label": "結球白菜 (headingc)",
+            "value": "51"
+          },
+          {
+            "label": "鵲豆 (hyacinth)",
+            "value": "52"
+          },
+          {
+            "label": "印度棗 (indianju)",
+            "value": "53"
+          },
+          {
+            "label": "節瓜 (jointedw)",
+            "value": "54"
+          },
+          {
+            "label": "黃麻 (jute)",
+            "value": "55"
+          },
+          {
+            "label": "芥藍 (kale)",
+            "value": "56"
+          },
+          {
+            "label": "鐘麻 (kenafamb)",
+            "value": "57"
+          },
+          {
+            "label": "球莖甘藍 (kohlrabi)",
+            "value": "58"
+          },
+          {
+            "label": "菾菜 (leafbeat)",
+            "value": "59"
+          },
+          {
+            "label": "萵苣 (lettuce)",
+            "value": "60"
+          },
+          {
+            "label": "萊豆 (limabean)",
+            "value": "61"
+          },
+          {
+            "label": "荔枝 (litchi)",
+            "value": "62"
+          },
+          {
+            "label": "枇杷 (loguat)",
+            "value": "63"
+          },
+          {
+            "label": "龍眼 (longan)",
+            "value": "64"
+          },
+          {
+            "label": "macada (macada)",
+            "value": "65"
+          },
+          {
+            "label": "玉米 (maize)",
+            "value": "66"
+          },
+          {
+            "label": "malabar (malabar)",
+            "value": "67"
+          },
+          {
+            "label": "芒果 (mango)",
+            "value": "68"
+          },
+          {
+            "label": "marush (marush)",
+            "value": "69"
+          },
+          {
+            "label": "梅 (mei)",
+            "value": "70"
+          },
+          {
+            "label": "甜瓜 (melon)",
+            "value": "71"
+          },
+          {
+            "label": "粟 (millet)",
+            "value": "72"
+          },
+          {
+            "label": "蠶桑 (mulberry)",
+            "value": "73"
+          },
+          {
+            "label": "芥菜 (mustard)",
+            "value": "74"
+          },
+          {
+            "label": "洋蔥 (onion)",
+            "value": "75"
+          },
+          {
+            "label": "蔥 (onion2)",
+            "value": "76"
+          },
+          {
+            "label": "不結球白菜 (pakchoi)",
+            "value": "77"
+          },
+          {
+            "label": "苧麻 (pamie)",
+            "value": "78"
+          },
+          {
+            "label": "木瓜 (papaya)",
+            "value": "79"
+          },
+          {
+            "label": "香芹菜 (parsley)",
+            "value": "80"
+          },
+          {
+            "label": "passion (passion)",
+            "value": "81"
+          },
+          {
+            "label": "豌豆 (pea)",
+            "value": "82"
+          },
+          {
+            "label": "桃 (peach)",
+            "value": "83"
+          },
+          {
+            "label": "花生 (peanut)",
+            "value": "84"
+          },
+          {
+            "label": "梨 (pear)",
+            "value": "85"
+          },
+          {
+            "label": "越瓜 (pickingm)",
+            "value": "86"
+          },
+          {
+            "label": "鳳梨 (pineappl)",
+            "value": "87"
+          },
+          {
+            "label": "李 (plum)",
+            "value": "88"
+          },
+          {
+            "label": "馬鈴薯 (potato)",
+            "value": "89"
+          },
+          {
+            "label": "南瓜 (pumpkin)",
+            "value": "90"
+          },
+          {
+            "label": "柿 (pusimmon)",
+            "value": "91"
+          },
+          {
+            "label": "蘿蔔 (radish)",
+            "value": "92"
+          },
+          {
+            "label": "油菜 (rapeseed)",
+            "value": "93"
+          },
+          {
+            "label": "紅豆 (redbean)",
+            "value": "94"
+          },
+          {
+            "label": "水稻 (rice)",
+            "value": "95"
+          },
+          {
+            "label": "人心果 (sapobill)",
+            "value": "96"
+          },
+          {
+            "label": "薤 (scallion)",
+            "value": "97"
+          },
+          {
+            "label": "胡麻 (sesame)",
+            "value": "98"
+          },
+          {
+            "label": "分蔥 (shallot)",
+            "value": "99"
+          },
+          {
+            "label": "瓊麻 (sisal)",
+            "value": "100"
+          },
+          {
+            "label": "蛇瓜 (snakegou)",
+            "value": "101"
+          },
+          {
+            "label": "snapbea (snapbea)",
+            "value": "102"
+          },
+          {
+            "label": "高粱 (sorghum)",
+            "value": "103"
+          },
+          {
+            "label": "大豆 (soybean)",
+            "value": "104"
+          },
+          {
+            "label": "菠菜 (spinach)",
+            "value": "105"
+          },
+          {
+            "label": "青花菜 (sproutin)",
+            "value": "106"
+          },
+          {
+            "label": "草莓 (strawber)",
+            "value": "107"
+          },
+          {
+            "label": "番荔枝 (sugarapp)",
+            "value": "108"
+          },
+          {
+            "label": "甘蔗 (sugarcan)",
+            "value": "109"
+          },
+          {
+            "label": "向日葵 (sunflowe)",
+            "value": "110"
+          },
+          {
+            "label": "甘薯 (sweetpot)",
+            "value": "111"
+          },
+          {
+            "label": "刀豆 (swordbea)",
+            "value": "112"
+          },
+          {
+            "label": "四川榨菜 (szechuan)",
+            "value": "113"
+          },
+          {
+            "label": "茶葉 (tea)",
+            "value": "114"
+          },
+          {
+            "label": "菸草 (tobacco)",
+            "value": "115"
+          },
+          {
+            "label": "蕃茄 (tomato)",
+            "value": "116"
+          },
+          {
+            "label": "雲南大頭菜 (twrip)",
+            "value": "117"
+          },
+          {
+            "label": "vegetsoy (vegetsoy)",
+            "value": "118"
+          },
+          {
+            "label": "絲瓜 (vegetspo)",
+            "value": "119"
+          },
+          {
+            "label": "茭白筍 (waterbam)",
+            "value": "120"
+          },
+          {
+            "label": "菱角 (watercal)",
+            "value": "121"
+          },
+          {
+            "label": "荸薺 (waterche)",
+            "value": "122"
+          },
+          {
+            "label": "水田芥 (watergre)",
+            "value": "123"
+          },
+          {
+            "label": "西瓜 (watermel)",
+            "value": "124"
+          },
+          {
+            "label": "雍菜(空心菜) (waterspi)",
+            "value": "125"
+          },
+          {
+            "label": "蓮霧 (waxapple)",
+            "value": "126"
+          },
+          {
+            "label": "冬瓜 (waxgourd)",
+            "value": "127"
+          },
+          {
+            "label": "大蔥 (welshoni)",
+            "value": "128"
+          },
+          {
+            "label": "西印度櫻桃 (westil)",
+            "value": "129"
+          },
+          {
+            "label": "小麥 (wheat)",
+            "value": "130"
+          },
+          {
+            "label": "豆薯 (yambean)",
+            "value": "131"
+          }
+        ],
+        "type": "select",
+        "value": "0"
+      },
+      {
+        "defaultValue": "Burg",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "Burg"
+      },
+      {
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 1,
+        "valueText": "1.00"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "polygon"
+      }
+    ],
+    "agriLeisureFarmZones": [
+      {
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 1,
+        "valueText": "1.00"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "point"
+      }
+    ],
+    "agriPOI": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "休閒農場",
+            "value": "leisure_farm"
+          },
+          {
+            "label": "田媽媽",
+            "value": "tian_mama"
+          },
+          {
+            "label": "特色農業旅遊場域",
+            "value": "agritourism_certified"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "leisure_farm",
+          "tian_mama",
+          "agritourism_certified"
+        ]
+      },
+      {
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 1,
+        "valueText": "1.00"
+      },
+      {
+        "label": "大小 1.00",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.00"
+      }
+    ],
+    "agriProduceWholesale": [
+      {
+        "defaultValue": "speed",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "speed"
+      },
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.75,
+        "valueText": "0.75"
+      },
+      {
+        "label": "大小 1.00",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.00"
+      }
+    ],
+    "agriRetail": [
+      {
+        "defaultValue": "tokyo",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "tokyo"
+      },
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.75,
+        "valueText": "0.75"
+      },
+      {
+        "label": "大小 1.00",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.00"
+      }
+    ],
+    "agriSoil": [
+      {
+        "defaultValue": "YlOrBr",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "YlOrBr"
+      },
+      {
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 1,
+        "valueText": "1.00"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "polygon"
+      }
+    ],
+    "agriSoilFertility": [
+      {
+        "label": "著色",
+        "options": [
+          {
+            "label": "健康度（綜合）",
+            "value": "health"
+          },
+          {
+            "label": "pH (H2O)",
+            "value": "pH"
+          },
+          {
+            "label": "有機質 OM",
+            "value": "OM"
+          },
+          {
+            "label": "陽離子交換量 CEC",
+            "value": "CEC"
+          },
+          {
+            "label": "Mehlich-3 磷",
+            "value": "M3_P"
+          },
+          {
+            "label": "Mehlich-3 鉀",
+            "value": "M3_K"
+          }
+        ],
+        "type": "select",
+        "value": "health"
+      },
+      {
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 1,
+        "valueText": "1.00"
+      }
+    ],
+    "agriWholesaleMarket": [
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.00",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.00"
+      }
+    ],
+    "agriculture": [
+      {
+        "defaultValue": "viridis",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "viridis"
+      },
+      {
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 1,
+        "valueText": "1.00"
+      },
+      {
+        "label": "邊框寬 1.0",
+        "max": 5,
+        "min": 0,
+        "name": "邊框寬",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "polygon"
+      },
+      {
+        "label": "邊框",
+        "type": "toggle",
+        "value": true
+      },
+      {
+        "label": "漂浮高度 0px",
+        "max": 100,
+        "min": 0,
+        "name": "漂浮高度",
+        "step": 2,
+        "value": 0,
+        "valueText": "0 px"
+      }
+    ],
+    "aquacultureCageNet": [
+      {
+        "label": "填色透明度 0.40",
+        "max": 0.7,
+        "min": 0,
+        "name": "填色透明度",
+        "step": 0.05,
+        "value": 0.4,
+        "valueText": "0.40"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "point"
+      }
+    ],
+    "aquacultureIntegrated": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "逐口魚塭（OSM）",
+            "value": "ponds"
+          },
+          {
+            "label": "衛星偵測補充",
+            "value": "satellite"
+          },
+          {
+            "label": "生產區",
+            "value": "production"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "ponds",
+          "satellite",
+          "production"
+        ]
+      },
+      {
+        "defaultValue": "oslo",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "oslo"
+      },
+      {
+        "label": "填色透明度 0.60",
+        "max": 0.85,
+        "min": 0,
+        "name": "填色透明度",
+        "step": 0.05,
+        "value": 0.6,
+        "valueText": "0.60"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "point"
+      }
+    ],
+    "aquaculturePonds": [
+      {
+        "defaultValue": "acton",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "acton"
+      },
+      {
+        "label": "填色透明度 0.50",
+        "max": 0.85,
+        "min": 0,
+        "name": "填色透明度",
+        "step": 0.05,
+        "value": 0.5,
+        "valueText": "0.50"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "point"
+      }
+    ],
+    "aquacultureWaterSatellite": [
+      {
+        "label": "信心",
+        "options": [
+          {
+            "label": "全部",
+            "value": "all"
+          },
+          {
+            "label": "含蓄水池",
+            "value": "reservoir"
+          },
+          {
+            "label": "只確定",
+            "value": "certain"
+          }
+        ],
+        "type": "select",
+        "value": "all"
+      },
+      {
+        "defaultValue": "YlGnBu",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "YlGnBu"
+      },
+      {
+        "label": "填色透明度 0.50",
+        "max": 0.85,
+        "min": 0,
+        "name": "填色透明度",
+        "step": 0.05,
+        "value": 0.5,
+        "valueText": "0.50"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "point"
+      }
+    ],
+    "aquacultureWaterSatelliteMoa": [
+      {
+        "label": "確認",
+        "type": "toggle",
+        "value": true
+      },
+      {
+        "label": "漁電共生",
+        "type": "toggle",
+        "value": true
+      },
+      {
+        "label": "其他",
+        "type": "toggle",
+        "value": true
+      },
+      {
+        "defaultValue": "PuBu",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "PuBu"
+      },
+      {
+        "label": "填色透明度 0.55",
+        "max": 0.85,
+        "min": 0,
+        "name": "填色透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "point"
+      }
+    ],
+    "aquacultureWaterUnion": [
+      {
+        "label": "兩版都有",
+        "type": "toggle",
+        "value": true
+      },
+      {
+        "label": "只看官方",
+        "type": "toggle",
+        "value": true
+      },
+      {
+        "label": "只看舊版 OSM",
+        "type": "toggle",
+        "value": true
+      },
+      {
+        "label": "填色透明度 0.55",
+        "max": 0.85,
+        "min": 0,
+        "name": "填色透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "point"
+      }
+    ],
+    "aquacultureZone": [
+      {
+        "label": "填色透明度 0.35",
+        "max": 0.7,
+        "min": 0,
+        "name": "填色透明度",
+        "step": 0.05,
+        "value": 0.35,
+        "valueText": "0.35"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "polygon"
+      }
+    ],
+    "farmRoads": [
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "寬度 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "寬度",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "livestockFarmCattle": [
+      {
+        "label": "品項 全部",
+        "options": [
+          {
+            "label": "全部",
+            "value": "0"
+          },
+          {
+            "label": "乳牛",
+            "value": "1"
+          },
+          {
+            "label": "肉牛",
+            "value": "2"
+          },
+          {
+            "label": "種牛",
+            "value": "3"
+          }
+        ],
+        "type": "select",
+        "value": "0"
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 0.30",
+        "max": 0.5,
+        "min": 0.01,
+        "name": "大小",
+        "step": 0.01,
+        "value": 0.3,
+        "valueText": "0.30"
+      }
+    ],
+    "livestockFarmChicken": [
+      {
+        "label": "品項 全部",
+        "options": [
+          {
+            "label": "全部",
+            "value": "0"
+          },
+          {
+            "label": "有色肉雞",
+            "value": "1"
+          },
+          {
+            "label": "蛋雞",
+            "value": "2"
+          },
+          {
+            "label": "白肉雞",
+            "value": "3"
+          },
+          {
+            "label": "放山雞",
+            "value": "4"
+          },
+          {
+            "label": "種雞",
+            "value": "5"
+          },
+          {
+            "label": "火雞",
+            "value": "6"
+          }
+        ],
+        "type": "select",
+        "value": "0"
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 0.30",
+        "max": 0.5,
+        "min": 0.01,
+        "name": "大小",
+        "step": 0.01,
+        "value": 0.3,
+        "valueText": "0.30"
+      }
+    ],
+    "livestockFarmDuck": [
+      {
+        "label": "品項 全部",
+        "options": [
+          {
+            "label": "全部",
+            "value": "0"
+          },
+          {
+            "label": "肉鴨",
+            "value": "1"
+          },
+          {
+            "label": "蛋鴨",
+            "value": "2"
+          },
+          {
+            "label": "種鴨",
+            "value": "3"
+          }
+        ],
+        "type": "select",
+        "value": "0"
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 0.30",
+        "max": 0.5,
+        "min": 0.01,
+        "name": "大小",
+        "step": 0.01,
+        "value": 0.3,
+        "valueText": "0.30"
+      }
+    ],
+    "livestockFarmGoose": [
+      {
+        "label": "品項 全部",
+        "options": [
+          {
+            "label": "全部",
+            "value": "0"
+          },
+          {
+            "label": "肉鵝",
+            "value": "1"
+          },
+          {
+            "label": "種鵝",
+            "value": "2"
+          }
+        ],
+        "type": "select",
+        "value": "0"
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 0.30",
+        "max": 0.5,
+        "min": 0.01,
+        "name": "大小",
+        "step": 0.01,
+        "value": 0.3,
+        "valueText": "0.30"
+      }
+    ],
+    "livestockFarmOther": [
+      {
+        "label": "品項 全部",
+        "options": [
+          {
+            "label": "全部",
+            "value": "0"
+          },
+          {
+            "label": "鹿",
+            "value": "1"
+          },
+          {
+            "label": "肉兔",
+            "value": "2"
+          },
+          {
+            "label": "鵪鶉",
+            "value": "3"
+          },
+          {
+            "label": "馬",
+            "value": "4"
+          },
+          {
+            "label": "鴕鳥",
+            "value": "5"
+          }
+        ],
+        "type": "select",
+        "value": "0"
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 0.30",
+        "max": 0.5,
+        "min": 0.01,
+        "name": "大小",
+        "step": 0.01,
+        "value": 0.3,
+        "valueText": "0.30"
+      }
+    ],
+    "livestockFarmPig": [
+      {
+        "label": "品項 全部",
+        "options": [
+          {
+            "label": "全部",
+            "value": "0"
+          },
+          {
+            "label": "肉豬",
+            "value": "1"
+          },
+          {
+            "label": "種母豬",
+            "value": "2"
+          },
+          {
+            "label": "種公豬",
+            "value": "3"
+          }
+        ],
+        "type": "select",
+        "value": "0"
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 0.30",
+        "max": 0.5,
+        "min": 0.01,
+        "name": "大小",
+        "step": 0.01,
+        "value": 0.3,
+        "valueText": "0.30"
+      }
+    ],
+    "livestockFarmSheep": [
+      {
+        "label": "品項 全部",
+        "options": [
+          {
+            "label": "全部",
+            "value": "0"
+          },
+          {
+            "label": "肉羊",
+            "value": "1"
+          },
+          {
+            "label": "乳羊",
+            "value": "2"
+          }
+        ],
+        "type": "select",
+        "value": "0"
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 0.30",
+        "max": 0.5,
+        "min": 0.01,
+        "name": "大小",
+        "step": 0.01,
+        "value": 0.3,
+        "valueText": "0.30"
+      }
+    ],
+    "livestockFeed": [
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.00",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.00"
+      }
+    ],
+    "livestockMarket": [
+      {
+        "label": "透明度 0.95",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.95,
+        "valueText": "0.95"
+      },
+      {
+        "label": "大小 1.00",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.00"
+      }
+    ],
+    "livestockSlaughter": [
+      {
+        "label": "種類",
+        "options": [
+          {
+            "label": "家畜",
+            "value": "家畜"
+          },
+          {
+            "label": "家禽",
+            "value": "家禽"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "家畜",
+          "家禽"
+        ]
+      },
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.00",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.00"
+      }
+    ]
+  }
+}

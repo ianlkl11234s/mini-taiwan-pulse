@@ -1,0 +1,1875 @@
+{
+  "count": 43,
+  "gisLayers": {},
+  "overlays": {},
+  "params": {
+    "statsA1AccidentCount": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "原始數",
+            "value": "statsA1AccidentCount"
+          },
+          {
+            "label": "A1交通事故件數－每萬名居民",
+            "value": "statsComparisonA1AccidentCountPer10000Residents"
+          },
+          {
+            "label": "A1交通事故件數－每平方公里",
+            "value": "statsComparisonA1AccidentCountPerKm2"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsA1AccidentCount"
+      },
+      {
+        "label": "年度",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsA1DeathCount": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "原始數",
+            "value": "statsA1DeathCount"
+          },
+          {
+            "label": "A1交通事故死亡人數－每萬名居民",
+            "value": "statsComparisonA1DeathCountPer10000Residents"
+          },
+          {
+            "label": "A1交通事故死亡人數－每平方公里",
+            "value": "statsComparisonA1DeathCountPerKm2"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsA1DeathCount"
+      },
+      {
+        "label": "年度",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsA1InjuryCount": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "原始數",
+            "value": "statsA1InjuryCount"
+          },
+          {
+            "label": "A1交通事故受傷人數－每萬名居民",
+            "value": "statsComparisonA1InjuryCountPer10000Residents"
+          },
+          {
+            "label": "A1交通事故受傷人數－每平方公里",
+            "value": "statsComparisonA1InjuryCountPerKm2"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsA1InjuryCount"
+      },
+      {
+        "label": "年度",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsAutomobileLicenseHoldersCount": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "原始數",
+            "value": "statsAutomobileLicenseHoldersCount"
+          },
+          {
+            "label": "領有汽車駕照人數－每萬名居民",
+            "value": "statsComparisonAutomobileLicenseHoldersCountPer10000Residents"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsAutomobileLicenseHoldersCount"
+      },
+      {
+        "label": "年度",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsAutomobileRegisteredCount": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "原始數",
+            "value": "statsAutomobileRegisteredCount"
+          },
+          {
+            "label": "汽車登記數－每萬名居民",
+            "value": "statsComparisonAutomobileRegisteredCountPer10000Residents"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsAutomobileRegisteredCount"
+      },
+      {
+        "label": "年度",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsBusAccessibleVehicleCount": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "原始數",
+            "value": "statsBusAccessibleVehicleCount"
+          },
+          {
+            "label": "期末無障礙車輛－每萬名居民",
+            "value": "statsComparisonBusAccessibleVehicleCountPer10000Residents"
+          },
+          {
+            "label": "期末無障礙車輛－每平方公里",
+            "value": "statsComparisonBusAccessibleVehicleCountPerKm2"
+          },
+          {
+            "label": "無障礙公車占營業車比",
+            "value": "statsComparisonBusAccessibleSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsBusAccessibleVehicleCount"
+      },
+      {
+        "label": "年度",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsBusElectricVehicleCount": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "原始數",
+            "value": "statsBusElectricVehicleCount"
+          },
+          {
+            "label": "期末電動車輛－每萬名居民",
+            "value": "statsComparisonBusElectricVehicleCountPer10000Residents"
+          },
+          {
+            "label": "期末電動車輛－每平方公里",
+            "value": "statsComparisonBusElectricVehicleCountPerKm2"
+          },
+          {
+            "label": "電動公車占營業車比",
+            "value": "statsComparisonBusElectricSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsBusElectricVehicleCount"
+      },
+      {
+        "label": "年度",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsBusOperatingVehicleCount": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "原始數",
+            "value": "statsBusOperatingVehicleCount"
+          },
+          {
+            "label": "期末營業車輛－每萬名居民",
+            "value": "statsComparisonBusOperatingVehicleCountPer10000Residents"
+          },
+          {
+            "label": "期末營業車輛－每平方公里",
+            "value": "statsComparisonBusOperatingVehicleCountPerKm2"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsBusOperatingVehicleCount"
+      },
+      {
+        "label": "年度",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonA1A2AccidentCount": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "原始數",
+            "value": "statsComparisonA1A2AccidentCount"
+          },
+          {
+            "label": "A1＋A2 事故件數－每萬名居民",
+            "value": "statsComparisonA1A2AccidentCountPer10000Residents"
+          },
+          {
+            "label": "A1＋A2 事故件數－每平方公里",
+            "value": "statsComparisonA1A2AccidentCountPerKm2"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonA1A2AccidentCount"
+      },
+      {
+        "label": "地理涵蓋",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonA1A2AccidentCountPer10000Residents": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "原始數",
+            "value": "statsComparisonA1A2AccidentCount"
+          },
+          {
+            "label": "A1＋A2 事故件數－每萬名居民",
+            "value": "statsComparisonA1A2AccidentCountPer10000Residents"
+          },
+          {
+            "label": "A1＋A2 事故件數－每平方公里",
+            "value": "statsComparisonA1A2AccidentCountPerKm2"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonA1A2AccidentCountPer10000Residents"
+      },
+      {
+        "label": "地理涵蓋",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonA1A2AccidentCountPerKm2": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "原始數",
+            "value": "statsComparisonA1A2AccidentCount"
+          },
+          {
+            "label": "A1＋A2 事故件數－每萬名居民",
+            "value": "statsComparisonA1A2AccidentCountPer10000Residents"
+          },
+          {
+            "label": "A1＋A2 事故件數－每平方公里",
+            "value": "statsComparisonA1A2AccidentCountPerKm2"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonA1A2AccidentCountPerKm2"
+      },
+      {
+        "label": "地理涵蓋",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonA1AccidentCountPer10000Residents": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "原始數",
+            "value": "statsA1AccidentCount"
+          },
+          {
+            "label": "A1交通事故件數－每萬名居民",
+            "value": "statsComparisonA1AccidentCountPer10000Residents"
+          },
+          {
+            "label": "A1交通事故件數－每平方公里",
+            "value": "statsComparisonA1AccidentCountPerKm2"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonA1AccidentCountPer10000Residents"
+      },
+      {
+        "label": "事故類別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonA1AccidentCountPerKm2": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "原始數",
+            "value": "statsA1AccidentCount"
+          },
+          {
+            "label": "A1交通事故件數－每萬名居民",
+            "value": "statsComparisonA1AccidentCountPer10000Residents"
+          },
+          {
+            "label": "A1交通事故件數－每平方公里",
+            "value": "statsComparisonA1AccidentCountPerKm2"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonA1AccidentCountPerKm2"
+      },
+      {
+        "label": "事故類別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonA1DeathCountPer10000Residents": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "原始數",
+            "value": "statsA1DeathCount"
+          },
+          {
+            "label": "A1交通事故死亡人數－每萬名居民",
+            "value": "statsComparisonA1DeathCountPer10000Residents"
+          },
+          {
+            "label": "A1交通事故死亡人數－每平方公里",
+            "value": "statsComparisonA1DeathCountPerKm2"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonA1DeathCountPer10000Residents"
+      },
+      {
+        "label": "事故類別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonA1DeathCountPerKm2": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "原始數",
+            "value": "statsA1DeathCount"
+          },
+          {
+            "label": "A1交通事故死亡人數－每萬名居民",
+            "value": "statsComparisonA1DeathCountPer10000Residents"
+          },
+          {
+            "label": "A1交通事故死亡人數－每平方公里",
+            "value": "statsComparisonA1DeathCountPerKm2"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonA1DeathCountPerKm2"
+      },
+      {
+        "label": "事故類別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonA1InjuryCountPer10000Residents": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "原始數",
+            "value": "statsA1InjuryCount"
+          },
+          {
+            "label": "A1交通事故受傷人數－每萬名居民",
+            "value": "statsComparisonA1InjuryCountPer10000Residents"
+          },
+          {
+            "label": "A1交通事故受傷人數－每平方公里",
+            "value": "statsComparisonA1InjuryCountPerKm2"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonA1InjuryCountPer10000Residents"
+      },
+      {
+        "label": "事故類別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonA1InjuryCountPerKm2": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "原始數",
+            "value": "statsA1InjuryCount"
+          },
+          {
+            "label": "A1交通事故受傷人數－每萬名居民",
+            "value": "statsComparisonA1InjuryCountPer10000Residents"
+          },
+          {
+            "label": "A1交通事故受傷人數－每平方公里",
+            "value": "statsComparisonA1InjuryCountPerKm2"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonA1InjuryCountPerKm2"
+      },
+      {
+        "label": "事故類別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonA2AccidentCount": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "原始數",
+            "value": "statsComparisonA2AccidentCount"
+          },
+          {
+            "label": "A2 事故件數－每萬名居民",
+            "value": "statsComparisonA2AccidentCountPer10000Residents"
+          },
+          {
+            "label": "A2 事故件數－每平方公里",
+            "value": "statsComparisonA2AccidentCountPerKm2"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonA2AccidentCount"
+      },
+      {
+        "label": "地理涵蓋",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonA2AccidentCountPer10000Residents": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "原始數",
+            "value": "statsComparisonA2AccidentCount"
+          },
+          {
+            "label": "A2 事故件數－每萬名居民",
+            "value": "statsComparisonA2AccidentCountPer10000Residents"
+          },
+          {
+            "label": "A2 事故件數－每平方公里",
+            "value": "statsComparisonA2AccidentCountPerKm2"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonA2AccidentCountPer10000Residents"
+      },
+      {
+        "label": "地理涵蓋",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonA2AccidentCountPerKm2": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "原始數",
+            "value": "statsComparisonA2AccidentCount"
+          },
+          {
+            "label": "A2 事故件數－每萬名居民",
+            "value": "statsComparisonA2AccidentCountPer10000Residents"
+          },
+          {
+            "label": "A2 事故件數－每平方公里",
+            "value": "statsComparisonA2AccidentCountPerKm2"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonA2AccidentCountPerKm2"
+      },
+      {
+        "label": "地理涵蓋",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonA2InjuryCount": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "原始數",
+            "value": "statsComparisonA2InjuryCount"
+          },
+          {
+            "label": "A2 事故受傷人數－每萬名居民",
+            "value": "statsComparisonA2InjuryCountPer10000Residents"
+          },
+          {
+            "label": "A2 事故受傷人數－每平方公里",
+            "value": "statsComparisonA2InjuryCountPerKm2"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonA2InjuryCount"
+      },
+      {
+        "label": "地理涵蓋",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonA2InjuryCountPer10000Residents": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "原始數",
+            "value": "statsComparisonA2InjuryCount"
+          },
+          {
+            "label": "A2 事故受傷人數－每萬名居民",
+            "value": "statsComparisonA2InjuryCountPer10000Residents"
+          },
+          {
+            "label": "A2 事故受傷人數－每平方公里",
+            "value": "statsComparisonA2InjuryCountPerKm2"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonA2InjuryCountPer10000Residents"
+      },
+      {
+        "label": "地理涵蓋",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonA2InjuryCountPerKm2": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "原始數",
+            "value": "statsComparisonA2InjuryCount"
+          },
+          {
+            "label": "A2 事故受傷人數－每萬名居民",
+            "value": "statsComparisonA2InjuryCountPer10000Residents"
+          },
+          {
+            "label": "A2 事故受傷人數－每平方公里",
+            "value": "statsComparisonA2InjuryCountPerKm2"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonA2InjuryCountPerKm2"
+      },
+      {
+        "label": "地理涵蓋",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonAutomobileLicenseHoldersCountPer10000Residents": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "原始數",
+            "value": "statsAutomobileLicenseHoldersCount"
+          },
+          {
+            "label": "領有汽車駕照人數－每萬名居民",
+            "value": "statsComparisonAutomobileLicenseHoldersCountPer10000Residents"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonAutomobileLicenseHoldersCountPer10000Residents"
+      },
+      {
+        "label": "年度",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonAutomobileRegisteredCountPer10000Residents": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "原始數",
+            "value": "statsAutomobileRegisteredCount"
+          },
+          {
+            "label": "汽車登記數－每萬名居民",
+            "value": "statsComparisonAutomobileRegisteredCountPer10000Residents"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonAutomobileRegisteredCountPer10000Residents"
+      },
+      {
+        "label": "年度",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonBusAccessibleVehicleCountPer10000Residents": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "原始數",
+            "value": "statsBusAccessibleVehicleCount"
+          },
+          {
+            "label": "期末無障礙車輛－每萬名居民",
+            "value": "statsComparisonBusAccessibleVehicleCountPer10000Residents"
+          },
+          {
+            "label": "期末無障礙車輛－每平方公里",
+            "value": "statsComparisonBusAccessibleVehicleCountPerKm2"
+          },
+          {
+            "label": "無障礙公車占營業車比",
+            "value": "statsComparisonBusAccessibleSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonBusAccessibleVehicleCountPer10000Residents"
+      },
+      {
+        "label": "地理涵蓋",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonBusAccessibleVehicleCountPerKm2": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "原始數",
+            "value": "statsBusAccessibleVehicleCount"
+          },
+          {
+            "label": "期末無障礙車輛－每萬名居民",
+            "value": "statsComparisonBusAccessibleVehicleCountPer10000Residents"
+          },
+          {
+            "label": "期末無障礙車輛－每平方公里",
+            "value": "statsComparisonBusAccessibleVehicleCountPerKm2"
+          },
+          {
+            "label": "無障礙公車占營業車比",
+            "value": "statsComparisonBusAccessibleSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonBusAccessibleVehicleCountPerKm2"
+      },
+      {
+        "label": "地理涵蓋",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonBusElectricVehicleCountPer10000Residents": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "原始數",
+            "value": "statsBusElectricVehicleCount"
+          },
+          {
+            "label": "期末電動車輛－每萬名居民",
+            "value": "statsComparisonBusElectricVehicleCountPer10000Residents"
+          },
+          {
+            "label": "期末電動車輛－每平方公里",
+            "value": "statsComparisonBusElectricVehicleCountPerKm2"
+          },
+          {
+            "label": "電動公車占營業車比",
+            "value": "statsComparisonBusElectricSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonBusElectricVehicleCountPer10000Residents"
+      },
+      {
+        "label": "地理涵蓋",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonBusElectricVehicleCountPerKm2": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "原始數",
+            "value": "statsBusElectricVehicleCount"
+          },
+          {
+            "label": "期末電動車輛－每萬名居民",
+            "value": "statsComparisonBusElectricVehicleCountPer10000Residents"
+          },
+          {
+            "label": "期末電動車輛－每平方公里",
+            "value": "statsComparisonBusElectricVehicleCountPerKm2"
+          },
+          {
+            "label": "電動公車占營業車比",
+            "value": "statsComparisonBusElectricSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonBusElectricVehicleCountPerKm2"
+      },
+      {
+        "label": "地理涵蓋",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonBusOperatingVehicleCountPer10000Residents": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "原始數",
+            "value": "statsBusOperatingVehicleCount"
+          },
+          {
+            "label": "期末營業車輛－每萬名居民",
+            "value": "statsComparisonBusOperatingVehicleCountPer10000Residents"
+          },
+          {
+            "label": "期末營業車輛－每平方公里",
+            "value": "statsComparisonBusOperatingVehicleCountPerKm2"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonBusOperatingVehicleCountPer10000Residents"
+      },
+      {
+        "label": "地理涵蓋",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonBusOperatingVehicleCountPerKm2": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "原始數",
+            "value": "statsBusOperatingVehicleCount"
+          },
+          {
+            "label": "期末營業車輛－每萬名居民",
+            "value": "statsComparisonBusOperatingVehicleCountPer10000Residents"
+          },
+          {
+            "label": "期末營業車輛－每平方公里",
+            "value": "statsComparisonBusOperatingVehicleCountPerKm2"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonBusOperatingVehicleCountPerKm2"
+      },
+      {
+        "label": "地理涵蓋",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonBusOperatingVehicleKmPer10000Residents": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "原始數",
+            "value": "statsBusOperatingVehicleKm"
+          },
+          {
+            "label": "營業行車里程－每萬名居民",
+            "value": "statsComparisonBusOperatingVehicleKmPer10000Residents"
+          },
+          {
+            "label": "營業行車里程－每平方公里",
+            "value": "statsComparisonBusOperatingVehicleKmPerKm2"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonBusOperatingVehicleKmPer10000Residents"
+      },
+      {
+        "label": "地理涵蓋",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonBusOperatingVehicleKmPerKm2": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "原始數",
+            "value": "statsBusOperatingVehicleKm"
+          },
+          {
+            "label": "營業行車里程－每萬名居民",
+            "value": "statsComparisonBusOperatingVehicleKmPer10000Residents"
+          },
+          {
+            "label": "營業行車里程－每平方公里",
+            "value": "statsComparisonBusOperatingVehicleKmPerKm2"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonBusOperatingVehicleKmPerKm2"
+      },
+      {
+        "label": "地理涵蓋",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonMotorcycleLicenseHoldersCountPer10000Residents": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "原始數",
+            "value": "statsMotorcycleLicenseHoldersCount"
+          },
+          {
+            "label": "領有機車駕照人數－每萬名居民",
+            "value": "statsComparisonMotorcycleLicenseHoldersCountPer10000Residents"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonMotorcycleLicenseHoldersCountPer10000Residents"
+      },
+      {
+        "label": "年度",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonMotorcycleRegisteredCountPer10000Residents": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "原始數",
+            "value": "statsMotorcycleRegisteredCount"
+          },
+          {
+            "label": "機車登記數－每萬名居民",
+            "value": "statsComparisonMotorcycleRegisteredCountPer10000Residents"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonMotorcycleRegisteredCountPer10000Residents"
+      },
+      {
+        "label": "年度",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonOffstreetSmallCarParkingSpacesCountPer10000Residents": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "原始數",
+            "value": "statsOffstreetSmallCarParkingSpacesCount"
+          },
+          {
+            "label": "小型汽車路外停車位－每萬名居民",
+            "value": "statsComparisonOffstreetSmallCarParkingSpacesCountPer10000Residents"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonOffstreetSmallCarParkingSpacesCountPer10000Residents"
+      },
+      {
+        "label": "年度",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonOnstreetSmallCarParkingSpacesCountPer10000Residents": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "原始數",
+            "value": "statsOnstreetSmallCarParkingSpacesCount"
+          },
+          {
+            "label": "小型汽車路邊停車位－每萬名居民",
+            "value": "statsComparisonOnstreetSmallCarParkingSpacesCountPer10000Residents"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonOnstreetSmallCarParkingSpacesCountPer10000Residents"
+      },
+      {
+        "label": "年度",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsMotorcycleLicenseHoldersCount": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "原始數",
+            "value": "statsMotorcycleLicenseHoldersCount"
+          },
+          {
+            "label": "領有機車駕照人數－每萬名居民",
+            "value": "statsComparisonMotorcycleLicenseHoldersCountPer10000Residents"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsMotorcycleLicenseHoldersCount"
+      },
+      {
+        "label": "年度",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsMotorcycleRegisteredCount": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "原始數",
+            "value": "statsMotorcycleRegisteredCount"
+          },
+          {
+            "label": "機車登記數－每萬名居民",
+            "value": "statsComparisonMotorcycleRegisteredCountPer10000Residents"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsMotorcycleRegisteredCount"
+      },
+      {
+        "label": "年度",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsOffstreetSmallCarParkingSpacesCount": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "原始數",
+            "value": "statsOffstreetSmallCarParkingSpacesCount"
+          },
+          {
+            "label": "小型汽車路外停車位－每萬名居民",
+            "value": "statsComparisonOffstreetSmallCarParkingSpacesCountPer10000Residents"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsOffstreetSmallCarParkingSpacesCount"
+      },
+      {
+        "label": "年度",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsOnstreetSmallCarParkingSpacesCount": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "原始數",
+            "value": "statsOnstreetSmallCarParkingSpacesCount"
+          },
+          {
+            "label": "小型汽車路邊停車位－每萬名居民",
+            "value": "statsComparisonOnstreetSmallCarParkingSpacesCountPer10000Residents"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsOnstreetSmallCarParkingSpacesCount"
+      },
+      {
+        "label": "年度",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsTaichungRoadNoiseMonitoringStations": [
+      {
+        "label": "年度",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsTaipeiTrafficViolationCitations": [
+      {
+        "label": "年度",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ]
+  }
+}
