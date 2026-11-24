@@ -1,4 +1,4 @@
-最後更新：2026-11-23（§5.44 量測條改浮在品牌列下方；右上浮動元件依品牌列換行高度 `--top-bar-shift` 往下讓）；2026-11-03（新增 §5.43 地圖導航控制 N-1；§5.17 T2 例外）；2026-10-31（§5.42.1 視野提示卡新增「圖層看不到」段）；2026-10-28（新增 §5.41 國家選單、§5.42 視野提示卡；rail 改為四個入口，日本併入圖層入口）
+最後更新：2026-11-24（§5.41 國家選單新增釘選 chip 列與各國記住鏡頭）；2026-11-23（§5.44 量測條改浮在品牌列下方；右上浮動元件依品牌列換行高度 `--top-bar-shift` 往下讓）；2026-11-03（新增 §5.43 地圖導航控制 N-1；§5.17 T2 例外）；2026-10-31（§5.42.1 視野提示卡新增「圖層看不到」段）；2026-10-28（新增 §5.41 國家選單、§5.42 視野提示卡；rail 改為四個入口，日本併入圖層入口）
 
 # Mini Taiwan Pulse — Design System
 
@@ -1010,11 +1010,14 @@
 - **觸發列**：外觀同「全部關閉」按鈕（`ALLOFF_BG` 底、`1px ALLOFF_BORDER`、`RADIUS.lg`、padding `5px 8px`）；內容＝國碼 chip → 國名（12px 600 `TEXT_STRONG`、單行省略）→ `ChevronDown` 12px `DIM`。`aria-haspopup="menu"`，`aria-label`／`title`「切換國家（目前：{國名}）」。
 - **國碼 chip**：兩字國碼（不用國旗 emoji），沿用 §5.21 `chipOutline(color)`（10px `FONT_DATA` 600、padding `2px 5px`、圓角 3），不新增徽章公式；未選中用 `INACTIVE_TEXT`，選單中選中項用 `TEXT_STRONG`。
 - **彈出層**：沿用 §5.19 popover（top `100% + 6px`、左右對齊整列（含「全部關閉」）、底**不透明**（暗 `SURFACE.app`／淡 `LIGHT.surfaceSolid`；彈出層疊在半透明面板上，半透明底會讓下方按鈕與搜尋框的字透出）、`1px PANEL_BORDER`、`RADIUS.xl`、`ELEVATION.lg`、padding 4、`Z_INDEX.popover`）；選項 `role="menuitemradio"`，chip＋國名，選中 `ROW_ACTIVE` 底＋600 字、hover `ROW_HOVER`；點外部或 Esc 關閉。
-- **鏡頭**：只有在選單選國家（或統計未涵蓋時按「切回台灣」）才 flyTo 該國預設鏡頭（台灣＝全台總覽，同 `cameraPresets` 的 overview；開站預設鏡頭仍是台北）；網址 `c=`、Agent 開他國圖層、搜尋提示切國家都**不飛**。
+- **鏡頭**：只有在選單選國家（或統計未涵蓋時按「切回台灣」）才 flyTo 該國預設鏡頭（點釘選 chip 例外，飛記住的鏡頭）（台灣＝全台總覽，同 `cameraPresets` 的 overview；開站預設鏡頭仍是台北）；網址 `c=`、Agent 開他國圖層、搜尋提示切國家都**不飛**。
 - **網址**：非台灣時帶 `c=<小寫國碼>`；開站初始國家＝`c=` → 網址相機中心所屬國 →（網址沒有相機時）第一個國家圖層所屬國 → 台灣，不存 localStorage。
+- **釘選 chip 列（G1-a，2026-11-24）**：觸發列**上方**一排釘選 chip（沒有釘選時整列不出現）；最多 3 國，依釘選順序，三顆等寬（`flex: 1 1 0`、gap 4），單顆＝`CountryChip`＋國名（11px、單行省略），padding `4px 6px`、`1px ALLOFF_BORDER`、`RADIUS.lg`；目前國家 `ROW_ACTIVE` 底＋`TEXT_STRONG` 邊與 600 字，`aria-pressed`。列 `role="group"`。手機分頁下同一個元件、同位置。點 chip＝`countryStore.set` ＋ 飛到**該國上次的鏡頭**（沒記錄才用國家預設鏡頭）。站主限定國家對非站主不列（釘過也不列）。
+- **釘選切換**：彈出層每國右側一顆圖釘按鈕（28×28、`Pin` 已釘填滿／`PinOff` 未釘，14px，`role="menuitemcheckbox"`、`aria-checked`）；已釘 `TEXT_STRONG`、未釘 `DIM`；已滿 3 國時未釘的灰掉（opacity 0.4、`aria-disabled`、tooltip「最多釘選 3 國，先取消一國」），不彈錯誤。取消釘選只在選單內，chip 上不放關閉鈕。
+- **各國記住鏡頭**：網站記住每一國最後的鏡頭（中心、縮放、旋轉、傾斜）：地圖 `moveend` 時，若鏡頭中心落在**目前面板國家**的範圍內才記（拖到別國不污染原國）。點 chip 飛記住的鏡頭；選單選國家仍飛國家預設鏡頭（明確「回到該國」）。釘選清單（`pulse.pinnedCountries.v1`）與鏡頭（`pulse.countryCameras.v1`）存 localStorage，讀取時驗證，壞資料丟棄；「目前國家」本身仍不存。釘選清單 `pinnedCountries` 是並排地圖（G2-1）的候選清單。
 - **未涵蓋**：統計只有台灣。他國時統計入口不畫主題樹，改顯示「{國名}目前沒有統計資料」（12px `DIM`）＋「切回台灣」按鈕（外觀同「全部關閉」）；國家選單、全部關閉、單一／可重疊仍保留。
 - **禁止**：自動依視野切國家（只提示，見 §5.42）；在 rail 為單一國家另開入口。
-- **實作**：`src/components/sidebar/CountryMenu.tsx`、`sidebar/layerPanels.ts` `resolveLayerPanel`。
+- **實作**：`src/components/sidebar/CountryMenu.tsx`、`sidebar/layerPanels.ts` `resolveLayerPanel`、`state/countryStore.ts`（`pinnedCountries`、`countryCameraMemory`）。
 
 ### 5.42 視野提示卡（2026-10-28 國家主體化）
 
