@@ -1,5 +1,28 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { COUNTRIES, countryForPoint, countryForViewer, isCountryCode, visibleCountries } from "../countries";
+import { ALL_PRESETS } from "../../map/cameraPresets";
+import { COUNTRIES, countryDef, countryForPoint, countryForViewer, isCountryCode, visibleCountries } from "../countries";
+import { GENERATED_PATH, readGenerated } from "./countriesCodegen";
+
+const ROOT = join(__dirname, "..", "..", "..");
+
+describe("countries.generated.ts（正本：pulse-data countries/countries.json）", () => {
+  const text = readFileSync(join(ROOT, GENERATED_PATH), "utf8");
+
+  it("產生檔沒被手改：標記間 JSON 的雜湊等於檔頭 payload-sha256", () => {
+    const { payload, payloadSha, computedSha } = readGenerated(text);
+    expect(payloadSha, "檔頭缺 payload-sha256").toBeDefined();
+    expect(computedSha, "countries.generated.ts 被手改了：改 pulse-data 正本後重跑 scripts/countries/gen-countries.ts").toBe(payloadSha);
+    expect(Array.isArray(JSON.parse(payload))).toBe(true);
+  });
+
+
+  it("TW 鏡頭等於 cameraPresets 的「全台總覽」", () => {
+    const overview = ALL_PRESETS.find((preset) => preset.id === "overview")!;
+    expect(countryDef("TW").camera).toEqual({ center: overview.center, zoom: overview.zoom, pitch: overview.pitch, bearing: overview.bearing });
+  });
+});
 
 describe("countries", () => {
   it("國碼與 chip 一致、bbox 都是合法矩形", () => {
@@ -295,9 +318,6 @@ describe("countries", () => {
     ["Mataking 島（馬來西亞）", 118.95, 4.58],
     ["Lahad Datu（馬來西亞）", 118.33, 5.03],
     ["Selingan 島（馬來西亞）", 118.06, 6.18],
-    ["Manado（印尼）", 124.8421, 1.4748],
-    ["Miangas（印尼）", 126.59, 5.56],
-    ["Marore（印尼）", 125.47, 4.73],
     ["黃岩島", 117.76, 15.15],
     // 越南外框內的鄰國城市（FRONTEND_SPEC §1；國界面判定為非越南）與南海島礁
     ["東興 Dongxing（距國界約 0.7 km）", 107.972, 21.547],
@@ -390,5 +410,36 @@ describe("countries", () => {
         }
       }
     }
+  });
+  // 印尼（2026-11-23 第 0–4 波）：bbox 內含新加坡、馬來西亞、汶萊、東帝汶，靠多矩形排除（FRONTEND_SPEC §1 城市樣本）
+  it.each([
+    ["雅加達", 106.8456, -6.2088], ["泗水", 112.7521, -7.2575], ["棉蘭", 98.6722, 3.5952], ["望加錫", 119.4327, -5.1477], ["登巴薩", 115.2167, -8.65],
+    ["萬鴉老", 124.8413, 1.4748], ["Miangas", 126.59, 5.56], ["Marore", 125.47, 4.73], ["亞齊", 95.3222, 5.5483], ["馬老奇", 140.4, -8.4932], ["查亞普拉", 140.7, -2.5337], ["古邦", 123.6, -10.1772],
+    ["坤甸", 109.3333, -0.0263], ["打拉根", 117.5778, 3.3], ["沙璜", 95.3222, 5.8872], ["IKN", 116.7, -0.9], ["索龍", 131.2555, -0.8762],
+    ["巴淡（近新加坡）", 104.03, 1.13], ["安汶", 128.1814, -3.6954], ["德那第", 127.3667, 0.7833],
+  ] as const)("%s 判印尼", (_name, lng, lat) => {
+    expect(countryForPoint(lng, lat)).toBe("ID");
+  });
+
+  it.each([
+    ["新加坡", 103.8198, 1.3521], ["新山（馬）", 103.7414, 1.4927], ["吉隆坡（馬）", 101.6869, 3.139], ["古晉（馬）", 110.3593, 1.5535], ["亞庇（馬）", 116.0735, 5.9804],
+    ["斗湖（馬）", 117.8978, 4.2447], ["汶萊", 114.9398, 4.9031], ["帝力（東帝汶）", 125.5736, -8.5586], ["Vanimo（巴新）", 141.3, -2.68], ["達沃（菲）", 125.6, 7.07], ["巴拉望（菲）", 118.7384, 9.7392],
+  ] as const)("%s 不判為印尼", (_name, lng, lat) => {
+    expect(countryForPoint(lng, lat)).not.toBe("ID");
+  });
+
+  it("印尼矩形不與其他國家矩形重疊（只可共用邊）", () => {
+    const id = COUNTRIES.find((c) => c.code === "ID")!.bboxes;
+    for (const other of COUNTRIES.filter((c) => c.code !== "ID")) {
+      for (const [w1, s1, e1, n1] of id) {
+        for (const [w2, s2, e2, n2] of other.bboxes) {
+          expect(w1 < e2 && w2 < e1 && s1 < n2 && s2 < n1, `ID ${[w1, s1, e1, n1]} × ${other.code} ${[w2, s2, e2, n2]}`).toBe(false);
+        }
+      }
+    }
+  });
+
+  it("印尼有三個時區", () => {
+    expect(COUNTRIES.find((c) => c.code === "ID")!.timeZones).toEqual(["Asia/Jakarta", "Asia/Makassar", "Asia/Jayapura"]);
   });
 });

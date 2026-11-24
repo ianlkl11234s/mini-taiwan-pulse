@@ -83,7 +83,8 @@ import { useYoubikeH3 } from "./hooks/useYoubikeH3";
 import { getH3Resolution } from "./map/h3LayerFactory";
 import { DEFAULT_CAMERA, getPresetById } from "./map/cameraPresets";
 import { DEFAULT_COUNTRY, countryDef, type CountryCode } from "./constants/countries";
-import { countryStore, resolveInitialCountry, useCountry, useOwnerOnlyCountryGuard } from "./state/countryStore";
+import { countryForMapCenter } from "./lib/localClock";
+import { countryCameraMemory, countryStore, resolveInitialCountry, useCountry, useOwnerOnlyCountryGuard, type CountryFlyMode } from "./state/countryStore";
 import { countryForLayerKeys } from "./research/explorationNavigation";
 // filterByTimeWindow removed — airspace shows all flights, isFlightActive handles visibility
 import { LocationJump } from "./components/AirportSelector";
@@ -135,6 +136,7 @@ import { BookOpen, Bot, Box, Camera, CircleHelp, Columns2, MessageSquare, Share2
 import { CompareMapView } from "./map/CompareMapView";
 import { CompareDivider } from "./components/compare/CompareDivider";
 import { compareStore, isCompareSupported, useCompareSelector } from "./state/compareStore";
+import { restoreMobileCompare } from "./utils/mobileCompareRestore";
 import { compareSelectionsForUrl, restoreSelectionsAfterLoad, singleSelectionsForUrl } from "./state/compareStatistics";
 import { layerParamsForUrl, resolveUrlLayerParams } from "./lib/urlLayerParams";
 import { statisticsDefaultOpacity } from "./data/statisticsVisuals";
@@ -256,8 +258,9 @@ export default function App() {
   const country = useCountry();
   // 國家選單選國家（含再選同一國）時飛到該國；場景快照、Agent 切國家不飛。
   // 網址只帶 c= 不帶相機時，初始視角改用該國相機（見下方 preset，VPB-5）
-  const handleCountryFly = useCallback((code: CountryCode) => {
-    const { center, zoom, pitch, bearing } = countryDef(code).camera;
+  // 點釘選 chip（mode="remembered"）飛該國上次的鏡頭，沒記錄才用預設；選單選國家一律飛預設（G1-a）
+  const handleCountryFly = useCallback((code: CountryCode, mode: CountryFlyMode = "default") => {
+    const { center, zoom, pitch, bearing } = mode === "remembered" ? countryCameraMemory.resolve(code) : countryDef(code).camera;
     mapRef.current?.flyTo({ center, zoom, pitch, bearing, speed: 1.0 });
   }, []);
 
@@ -556,9 +559,11 @@ export default function App() {
       compareStore.setEnabled(false);
       return;
     }
-    const stashed = mobileCompareRef.current;
-    if (isMobile || !stashed) return;
+    const stashedRaw = mobileCompareRef.current;
+    if (isMobile || !stashedRaw) return;
     mobileCompareRef.current = undefined;
+    // 左側期別以手機單地圖目前的選擇為準（不蓋掉使用者在手機上的改動）；此時單地圖選擇還沒被比較模式接管
+    const stashed = restoreMobileCompare(stashedRaw, singleSelectionsForUrl((key) => !lockedKeysRef.current.has(key as keyof LayerVisibility)));
     compareStore.hydrate({
       enabled: true,
       ...(stashed.split !== undefined ? { split: stashed.split } : {}),
@@ -1408,6 +1413,20 @@ export default function App() {
 
   // 地圖首次渲染完成（idle 或 4s 保底）— 需在下方 waste lazy setup effect 之前宣告
   const [mapPrepared, setMapPrepared] = useState(false);
+  // 時間軸「當地時間」小字用：地圖中心所在國家，只在 moveend 重算（同值 setState 不重渲）。
+  // 跨時區國家（CA）先用國家預設時區，依位置選時區是多時區時間軸第 4 步。
+  const [centerCountry, setCenterCountry] = useState<CountryCode | undefined>(undefined);
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !mapPrepared) return;
+    const update = () => {
+      const c = map.getCenter();
+      setCenterCountry(countryForMapCenter(c.lng, c.lat));
+    };
+    update();
+    map.on("moveend", update);
+    return () => { map.off("moveend", update); };
+  }, [mapPrepared]);
 
   // 選取圈（useSelectionRing）的主題色走地圖容器上的 CSS 變數，Marker DOM 直接繼承。
   useEffect(() => {
@@ -2027,7 +2046,16 @@ export default function App() {
     if (urlCompare) {
       if (isMobile) {
         mobileCompareRef.current = urlCompare;
-        showTransientNotice(t("compare.mobileFallback"));
+        // 語系包是 lazy 載入：開頁當下 t 還停在預設語系，等目標語系載完（active＝locale）再翻，否則英日文介面會看到中文
+        const notify = () => showTransientNotice(localeStore.getSnapshot().t("compare.mobileFallback"));
+        const snap = localeStore.getSnapshot();
+        if (snap.active === snap.locale) notify();
+        else {
+          const off = localeStore.subscribe(() => {
+            const next = localeStore.getSnapshot();
+            if (next.active === next.locale) { off(); notify(); }
+          });
+        }
       } else compareStore.hydrate({
         enabled: true,
         ...(urlCompare.split !== undefined ? { split: urlCompare.split } : {}),
@@ -2184,7 +2212,14 @@ export default function App() {
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !mapPrepared) return;
-    const onMoveEnd = () => syncUrlRef.current();
+    const onMoveEnd = () => {
+      syncUrlRef.current();
+      // 各國記住自己上次的鏡頭（G1-a）：鏡頭中心在目前國家內才記，拖到別國不污染
+      const c = map.getCenter();
+      countryCameraMemory.record(countryStore.getSnapshot(), {
+        center: [c.lng, c.lat], zoom: map.getZoom(), pitch: map.getPitch(), bearing: map.getBearing(),
+      });
+    };
     map.on("moveend", onMoveEnd);
     syncUrlRef.current();   // 圖層/底圖變動時也立即反映（本 effect 的 deps）
     // 停 250ms 才寫網址：拖把手、拖滑桿每幀都變，逐幀 replaceState 會撞到 Safari 的次數上限
@@ -2919,6 +2954,7 @@ export default function App() {
           {appMode === "realtime" ? (
             <LongTermTimelineGate isDark={isDarkTheme} leftOffset={sidebarWidth + 16} rightReserve={splitActive ? `calc(${navColumnRight} + 296px)` : undefined}>
             <LiveTimelineControls
+              localClockCountry={centerCountry}
               playing={timeline.playing}
               speed={timeline.speed}
               timeMode={timeline.timeMode}
@@ -3080,6 +3116,7 @@ export default function App() {
           >
             {appMode === "realtime" ? (
               <LiveTimelineControls
+                localClockCountry={centerCountry}
                 playing={timeline.playing}
                 speed={timeline.speed}
                 timeMode={timeline.timeMode}

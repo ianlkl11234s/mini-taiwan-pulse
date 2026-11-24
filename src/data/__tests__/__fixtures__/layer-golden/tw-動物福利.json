@@ -1,0 +1,141 @@
+{
+  "count": 3,
+  "gisLayers": {
+    "animalAdoption": {
+      "layers": [
+        "animal-adoption-circle",
+        "animal-adoption-glow"
+      ],
+      "type": "animalAdoption"
+    },
+    "animalShelterPressure": {
+      "layers": [
+        "animal-shelter-pressure-fill",
+        "animal-shelter-pressure-line"
+      ],
+      "type": "animalShelterPressure"
+    },
+    "animalWelfarePoints": {
+      "layers": [
+        "animal-welfare-points-circle",
+        "animal-welfare-points-glow"
+      ],
+      "type": "animalWelfarePoints"
+    }
+  },
+  "overlays": {},
+  "params": {
+    "animalAdoption": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "犬為主",
+            "value": "#f59e0b"
+          },
+          {
+            "label": "貓為主",
+            "value": "#a855f7"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "#f59e0b",
+          "#a855f7"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "animalShelterPressure": [
+      {
+        "label": "透明度 0.78",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.78,
+        "valueText": "0.78"
+      }
+    ],
+    "animalWelfarePoints": [
+      {
+        "label": "服務類型",
+        "options": [
+          {
+            "label": "動物醫院",
+            "value": "veterinary_clinic"
+          },
+          {
+            "label": "特定寵物業",
+            "value": "licensed_pet_business"
+          },
+          {
+            "label": "動保機關",
+            "value": "animal_protection_office"
+          },
+          {
+            "label": "寵物登記站",
+            "value": "pet_registration_station"
+          },
+          {
+            "label": "狂犬病疫苗站",
+            "value": "rabies_vaccination_site"
+          },
+          {
+            "label": "動物急診",
+            "value": "veterinary_emergency"
+          },
+          {
+            "label": "寵物友善場所",
+            "value": "pet_friendly_place"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "veterinary_clinic",
+          "licensed_pet_business",
+          "animal_protection_office",
+          "pet_registration_station",
+          "rabies_vaccination_site",
+          "veterinary_emergency",
+          "pet_friendly_place"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ]
+  }
+}

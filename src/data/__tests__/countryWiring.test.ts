@@ -8,7 +8,8 @@
  *   證明檢查本身不是空殼。
  *
  * 只讀不改：沒匯出的接點（統計層級清單、`LEVEL_KEYS`、`atlasLevelQualifier`、統計國名 if 串、
- * build-layer-status 的國別表）用原始碼字串比對，見各 `read*` 函式。
+ * build-layer-status 的面板標籤）用原始碼字串比對，見各 `read*` 函式。build-layer-status 的國別順序
+ * 2026-11-23 起取自 `COUNTRIES`（國家清單正本的產生檔），不再手寫，所以第 8 點只查面板標籤。
  */
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
@@ -88,7 +89,6 @@ interface WiringContext {
   /** layerManifest.ts atlas 統計 topics 的國名分支裡出現的國碼 */
   manifestStatisticsCountryTags: ReadonlySet<string>;
   layerStatusPanelLabels: ReadonlySet<string>;
-  layerStatusCountryOrder: ReadonlySet<string>;
 }
 
 // ── 豁免表（每筆都要原因；不在表內＝必須接齊）──
@@ -100,6 +100,7 @@ const NO_STATISTICS: Readonly<Partial<Record<string, string>>> = {
   PH: "菲律賓第 0–1 波明定統計不涵蓋（layerPanels.ts PHILIPPINES_THEMES 註解）",
   VN: "越南第 0–1 波明定統計不涵蓋（layerPanels.ts VIETNAM_THEMES 註解）",
   TH: "泰國第 0 波明定統計不涵蓋（layerPanels.ts THAILAND_THEMES 註解）",
+  ID: "印尼第 0–4 波明定統計不涵蓋（layerPanels.ts INDONESIA_THEMES 註解）",
   CN: "中國第 0–1 波站主限定，統計不涵蓋（layerPanels.ts CHINA_THEMES 註解）",
 };
 
@@ -156,14 +157,13 @@ function readManifestStatisticsCountryTags(source: string): Set<string> {
   return new Set([...source.matchAll(/atlasRecipeCountry\(recipe\) === "([A-Z]{2})" \? \["[^"]+"\]/g)].map((m) => m[1]!));
 }
 
-/** build-layer-status.mjs 的 `COUNTRY_PANEL_LABEL` 鍵與 `COUNTRY_ORDER` 陣列。 */
-function readLayerStatusTables(source: string): { panelLabels: Set<string>; order: Set<string> } {
+/** build-layer-status.mjs 的 `COUNTRY_PANEL_LABEL` 鍵；`COUNTRY_ORDER` 必須取自 `COUNTRIES`（不可退回手寫陣列）。 */
+function readLayerStatusTables(source: string): { panelLabels: Set<string>; orderFromCountries: boolean } {
   const labels = /const COUNTRY_PANEL_LABEL\s*=\s*\{([^}]*)\}/.exec(source);
-  const order = /const COUNTRY_ORDER\s*=\s*\[([^\]]*)\]/.exec(source);
-  if (!labels || !order) throw new Error("build-layer-status.mjs 找不到 COUNTRY_PANEL_LABEL／COUNTRY_ORDER");
+  if (!labels) throw new Error("build-layer-status.mjs 找不到 COUNTRY_PANEL_LABEL");
   return {
     panelLabels: new Set([...labels[1]!.matchAll(/\b([A-Z]{2})\s*:/g)].map((m) => m[1]!)),
-    order: new Set([...order[1]!.matchAll(/"([A-Z]+)"/g)].map((m) => m[1]!)),
+    orderFromCountries: /const COUNTRY_ORDER\s*=\s*\[\.\.\.COUNTRIES\.map\(/.test(source),
   };
 }
 
@@ -229,7 +229,6 @@ function realContext(): WiringContext {
     ],
     manifestStatisticsCountryTags: readManifestStatisticsCountryTags(manifestSource),
     layerStatusPanelLabels: layerStatus.panelLabels,
-    layerStatusCountryOrder: layerStatus.order,
   };
 }
 
@@ -332,7 +331,6 @@ function checkCountryWiring(code: string, ctx: WiringContext): WiringGap[] {
 
   // 8. 圖層盤點腳本
   if (!ctx.layerStatusPanelLabels.has(code)) gap(8, "缺少面板標籤（scripts/research/build-layer-status.mjs:COUNTRY_PANEL_LABEL）");
-  if (!ctx.layerStatusCountryOrder.has(code)) gap(8, "缺少國別順序（scripts/research/build-layer-status.mjs:COUNTRY_ORDER）");
 
   return gaps;
 }
@@ -347,7 +345,8 @@ describe("countryWiring：加一國的接點", () => {
     expect(ctx.levelRegistries.every((registry) => ctx.statisticsLevels.some((level) => registry.has(level)))).toBe(true);
     expect(ctx.manifestStatisticsCountryTags.size).toBeGreaterThan(0);
     expect(ctx.layerStatusPanelLabels.has("TW")).toBe(true);
-    expect(ctx.layerStatusCountryOrder.has("TW")).toBe(true);
+    // 國別順序取自 COUNTRIES：手寫陣列會再次漏國，所以釘住寫法
+    expect(readLayerStatusTables(read("scripts/research/build-layer-status.mjs")).orderFromCountries).toBe(true);
   });
 
   it("豁免表只列真的國碼", () => {
@@ -383,9 +382,9 @@ describe("countryWiring：加一國的接點", () => {
     };
     const gaps = COUNTRIES.flatMap((country) => {
       const out: string[] = [];
-      if (!country.timeZone || !valid(country.timeZone)) out.push(`國碼 ${country.code} 缺少合法的 timeZone（src/constants/countries.ts:COUNTRIES）`);
-      for (const tz of country.timeZones ?? []) if (!valid(tz)) out.push(`國碼 ${country.code} 的 timeZones 含不合法的 ${tz}（src/constants/countries.ts:COUNTRIES）`);
-      if (country.timeZones && !country.timeZones.includes(country.timeZone)) out.push(`國碼 ${country.code} 的 timeZones 沒有包含 timeZone（src/constants/countries.ts:COUNTRIES）`);
+      if (!country.timeZone || !valid(country.timeZone)) out.push(`國碼 ${country.code} 缺少合法的 timeZone（pulse-data countries/countries.json → countries.generated.ts）`);
+      for (const tz of country.timeZones ?? []) if (!valid(tz)) out.push(`國碼 ${country.code} 的 timeZones 含不合法的 ${tz}（pulse-data countries/countries.json → countries.generated.ts）`);
+      if (country.timeZones && !country.timeZones.includes(country.timeZone)) out.push(`國碼 ${country.code} 的 timeZones 沒有包含 timeZone（pulse-data countries/countries.json → countries.generated.ts）`);
       return out;
     });
     expect(gaps).toEqual([]);

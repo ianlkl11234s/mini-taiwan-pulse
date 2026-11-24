@@ -1,0 +1,910 @@
+{
+  "count": 18,
+  "gisLayers": {
+    "wasteCleaningSquad": {
+      "layers": [
+        "waste-cleaning-squads-core",
+        "waste-cleaning-squads-glow"
+      ],
+      "type": "wasteCleaningSquad"
+    },
+    "wasteStopsStatic": {
+      "layers": [
+        "waste-stops-static-waste-stops-fill"
+      ],
+      "type": "wasteStopsStatic"
+    }
+  },
+  "overlays": {
+    "wasteStopsStatic": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "wasteStopsStatic",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "maxzoom": 10.01,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(93,93,67,0.00)",
+                0.05,
+                "rgba(93,93,67,0.11)",
+                0.15,
+                "rgba(117,116,78,0.33)",
+                0.3,
+                "rgba(145,138,90,0.66)",
+                0.45,
+                "rgba(180,158,107,0.99)",
+                0.6,
+                "rgba(228,170,144,1.00)",
+                0.8,
+                "rgba(251,195,190,1.00)",
+                1,
+                "rgba(255,230,230,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.001171875,
+                12,
+                0.3
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(187,161,111,0.00)",
+                0.05,
+                "rgba(187,161,111,0.11)",
+                0.15,
+                "rgba(154,144,94,0.33)",
+                0.3,
+                "rgba(127,125,82,0.66)",
+                0.45,
+                "rgba(105,104,73,0.99)",
+                0.6,
+                "rgba(84,84,63,1.00)",
+                0.8,
+                "rgba(65,65,53,1.00)",
+                1,
+                "rgba(46,46,40,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.001171875,
+                12,
+                0.3
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "waste-stops-heatmap",
+          "type": "heatmap"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": 10,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.6,
+              "circle-color": "#fbbf24",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                0.3,
+                9,
+                0.6,
+                11,
+                1,
+                14,
+                2,
+                17,
+                3.5
+              ],
+              "circle-translate": [
+                0,
+                0
+              ],
+              "circle-translate-anchor": "viewport"
+            },
+            "light": {
+              "circle-blur": 0.6,
+              "circle-color": "#d97706",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                0.3,
+                9,
+                0.6,
+                11,
+                1,
+                14,
+                2,
+                17,
+                3.5
+              ],
+              "circle-translate": [
+                0,
+                0
+              ],
+              "circle-translate-anchor": "viewport"
+            }
+          },
+          "suffix": "waste-stops-glow",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": 10,
+          "paint": {
+            "dark": {
+              "circle-color": "#fbbf24",
+              "circle-opacity": 0.75,
+              "circle-radius": 3,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1,
+              "circle-translate": [
+                0,
+                0
+              ],
+              "circle-translate-anchor": "viewport"
+            },
+            "light": {
+              "circle-color": "#d97706",
+              "circle-opacity": 0.75,
+              "circle-radius": 3,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1,
+              "circle-translate": [
+                0,
+                0
+              ],
+              "circle-translate-anchor": "viewport"
+            }
+          },
+          "suffix": "waste-stops-fill",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 6,
+        "sourceLayer": "waste_stops"
+      },
+      "rebuildOnParamChange": null,
+      "sourceId": "waste-stops-static",
+      "sourceUrl": "./geo/waste_stops_static_20260930.pmtiles"
+    }
+  },
+  "params": {
+    "wasteCleaningSquads": [],
+    "wasteSchedule": [
+      {
+        "label": "雙北",
+        "type": "toggle",
+        "value": true
+      },
+      {
+        "label": "基宜",
+        "type": "toggle",
+        "value": true
+      },
+      {
+        "label": "桃竹苗",
+        "type": "toggle",
+        "value": true
+      },
+      {
+        "label": "中彰投",
+        "type": "toggle",
+        "value": true
+      },
+      {
+        "label": "雲嘉南",
+        "type": "toggle",
+        "value": true
+      },
+      {
+        "label": "高屏",
+        "type": "toggle",
+        "value": true
+      },
+      {
+        "label": "花東",
+        "type": "toggle",
+        "value": true
+      },
+      {
+        "label": "離島",
+        "type": "toggle",
+        "value": true
+      },
+      {
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 1,
+        "valueText": "1.00"
+      },
+      {
+        "label": "光點大小 0.15",
+        "max": 0.8,
+        "min": 0.01,
+        "name": "光點大小",
+        "step": 0.01,
+        "value": 0.15,
+        "valueText": "0.15"
+      },
+      {
+        "label": "音符大小 0.70",
+        "max": 2,
+        "min": 0.1,
+        "name": "音符大小",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      },
+      {
+        "label": "音符高度 70m",
+        "max": 250,
+        "min": 0,
+        "name": "音符高度",
+        "step": 5,
+        "value": 70,
+        "valueText": "70 m"
+      }
+    ],
+    "wasteScheduleNote": [],
+    "wasteStopsStatic": [
+      {
+        "defaultValue": "turku",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "turku"
+      },
+      {
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 1,
+        "valueText": "1.00"
+      },
+      {
+        "label": "大小 1.00",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.00"
+      },
+      {
+        "label": "光暈 0.10",
+        "max": 0.5,
+        "min": 0,
+        "name": "光暈",
+        "step": 0.02,
+        "value": 0.1,
+        "valueText": "0.10"
+      },
+      {
+        "label": "漂浮高度 0px",
+        "max": 100,
+        "min": 0,
+        "name": "漂浮高度",
+        "step": 2,
+        "value": 0,
+        "valueText": "0 px"
+      }
+    ],
+    "wasteTruck": [
+      {
+        "label": "立體效果",
+        "type": "toggle",
+        "value": true
+      },
+      {
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 1,
+        "valueText": "1.00"
+      },
+      {
+        "label": "光點大小 0.15",
+        "max": 0.8,
+        "min": 0.01,
+        "name": "光點大小",
+        "step": 0.01,
+        "value": 0.15,
+        "valueText": "0.15"
+      },
+      {
+        "label": "音符大小 0.70",
+        "max": 2,
+        "min": 0.1,
+        "name": "音符大小",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      },
+      {
+        "label": "音符高度 70m",
+        "max": 250,
+        "min": 0,
+        "name": "音符高度",
+        "step": 5,
+        "value": 70,
+        "valueText": "70 m"
+      }
+    ],
+    "wdBattery": [
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.50",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.05,
+        "value": 1.5,
+        "valueText": "1.50"
+      },
+      {
+        "label": "高度 0m",
+        "max": 500,
+        "min": 0,
+        "name": "高度",
+        "step": 10,
+        "value": 0,
+        "valueText": "0 m"
+      }
+    ],
+    "wdClothes": [
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.00",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.05,
+        "value": 1,
+        "valueText": "1.00"
+      },
+      {
+        "label": "高度 0m",
+        "max": 500,
+        "min": 0,
+        "name": "高度",
+        "step": 10,
+        "value": 0,
+        "valueText": "0 m"
+      }
+    ],
+    "wdMixed": [
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.00",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.05,
+        "value": 1,
+        "valueText": "1.00"
+      },
+      {
+        "label": "高度 0m",
+        "max": 500,
+        "min": 0,
+        "name": "高度",
+        "step": 10,
+        "value": 0,
+        "valueText": "0 m"
+      }
+    ],
+    "wdRecyclingContainer": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.00",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.05,
+        "value": 1,
+        "valueText": "1.00"
+      },
+      {
+        "label": "高度 0m",
+        "max": 500,
+        "min": 0,
+        "name": "高度",
+        "step": 10,
+        "value": 0,
+        "valueText": "0 m"
+      }
+    ],
+    "wfIncinerator": [
+      {
+        "label": "立體效果",
+        "type": "toggle",
+        "value": false
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.00",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.05,
+        "value": 1,
+        "valueText": "1.00"
+      },
+      {
+        "label": "高度 0m",
+        "max": 500,
+        "min": 0,
+        "name": "高度",
+        "step": 10,
+        "value": 0,
+        "valueText": "0 m"
+      }
+    ],
+    "wfLandfill": [
+      {
+        "label": "立體效果",
+        "type": "toggle",
+        "value": false
+      },
+      {
+        "label": "透明度 0.45",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.45,
+        "valueText": "0.45"
+      },
+      {
+        "label": "大小 1.00",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.05,
+        "value": 1,
+        "valueText": "1.00"
+      },
+      {
+        "label": "高度 0m",
+        "max": 500,
+        "min": 0,
+        "name": "高度",
+        "step": 10,
+        "value": 0,
+        "valueText": "0 m"
+      }
+    ],
+    "wfLandfillCoastal": [
+      {
+        "label": "立體效果",
+        "type": "toggle",
+        "value": false
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      },
+      {
+        "label": "大小 1.00",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.05,
+        "value": 1,
+        "valueText": "1.00"
+      },
+      {
+        "label": "高度 0m",
+        "max": 500,
+        "min": 0,
+        "name": "高度",
+        "step": 10,
+        "value": 0,
+        "valueText": "0 m"
+      }
+    ],
+    "wfMedical": [
+      {
+        "label": "立體效果",
+        "type": "toggle",
+        "value": false
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.00",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.05,
+        "value": 1,
+        "valueText": "1.00"
+      },
+      {
+        "label": "高度 0m",
+        "max": 500,
+        "min": 0,
+        "name": "高度",
+        "step": 10,
+        "value": 0,
+        "valueText": "0 m"
+      }
+    ],
+    "wfMonitoring": [
+      {
+        "label": "立體效果",
+        "type": "toggle",
+        "value": false
+      },
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      },
+      {
+        "label": "大小 1.00",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.05,
+        "value": 1,
+        "valueText": "1.00"
+      },
+      {
+        "label": "高度 0m",
+        "max": 500,
+        "min": 0,
+        "name": "高度",
+        "step": 10,
+        "value": 0,
+        "valueText": "0 m"
+      }
+    ],
+    "wfOther": [
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.00",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.05,
+        "value": 1,
+        "valueText": "1.00"
+      },
+      {
+        "label": "高度 0m",
+        "max": 500,
+        "min": 0,
+        "name": "高度",
+        "step": 10,
+        "value": 0,
+        "valueText": "0 m"
+      }
+    ],
+    "wfRecycling": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.00",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.05,
+        "value": 1,
+        "valueText": "1.00"
+      },
+      {
+        "label": "高度 0m",
+        "max": 500,
+        "min": 0,
+        "name": "高度",
+        "step": 10,
+        "value": 0,
+        "valueText": "0 m"
+      }
+    ],
+    "wfScrapYard": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.00",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.05,
+        "value": 1,
+        "valueText": "1.00"
+      },
+      {
+        "label": "高度 0m",
+        "max": 500,
+        "min": 0,
+        "name": "高度",
+        "step": 10,
+        "value": 0,
+        "valueText": "0 m"
+      }
+    ],
+    "wfTransfer": [
+      {
+        "label": "立體效果",
+        "type": "toggle",
+        "value": false
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.00",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.05,
+        "value": 1,
+        "valueText": "1.00"
+      },
+      {
+        "label": "高度 0m",
+        "max": 500,
+        "min": 0,
+        "name": "高度",
+        "step": 10,
+        "value": 0,
+        "valueText": "0 m"
+      }
+    ]
+  }
+}

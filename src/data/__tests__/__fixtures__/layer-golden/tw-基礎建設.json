@@ -1,0 +1,6139 @@
+{
+  "count": 21,
+  "gisLayers": {
+    "accessibleParkFacilities": {
+      "layers": [
+        "accessible-park-facilities-circle",
+        "accessible-park-facilities-glow"
+      ],
+      "type": "accessibleParkFacilities"
+    },
+    "atmSitesFisc": {
+      "layers": [
+        "atm-sites-fisc-circle",
+        "atm-sites-fisc-glow"
+      ],
+      "type": "atmSitesFisc"
+    },
+    "communityCenter": {
+      "layers": [
+        "community-centers-circle",
+        "community-centers-glow"
+      ],
+      "type": "communityCenter"
+    },
+    "convenienceStore": {
+      "layers": [
+        "convenience-stores-circle",
+        "convenience-stores-glow"
+      ],
+      "type": "convenienceStore"
+    },
+    "countyStreetlights": {
+      "layers": [
+        "county-streetlights-circle",
+        "county-streetlights-glow"
+      ],
+      "type": "countyStreetlights"
+    },
+    "drinkingWaterPoints": {
+      "layers": [
+        "drinking-water-points-circle",
+        "drinking-water-points-glow"
+      ],
+      "type": "drinkingWaterPoints"
+    },
+    "financialBranchesFisc": {
+      "layers": [
+        "financial-branches-fisc-circle",
+        "financial-branches-fisc-glow"
+      ],
+      "type": "financialBranchesFisc"
+    },
+    "govServiceOffice": {
+      "layers": [
+        "gov-service-offices-circle",
+        "gov-service-offices-glow"
+      ],
+      "type": "govServiceOffice"
+    },
+    "householdRegistrationBranch": {
+      "layers": [
+        "gov-service-offices-hro-branch-circle",
+        "gov-service-offices-hro-branch-glow"
+      ],
+      "type": "householdRegistrationBranch"
+    },
+    "iPostBox": {
+      "layers": [
+        "ipost-boxes-circle",
+        "ipost-boxes-glow"
+      ],
+      "type": "iPostBox"
+    },
+    "insuranceInstitutions": {
+      "layers": [
+        "insurance-institutions-circle",
+        "insurance-institutions-glow"
+      ],
+      "type": "insuranceInstitutions"
+    },
+    "landOfficeJurisdiction": {
+      "layers": [
+        "land-office-jurisdiction-fill"
+      ],
+      "type": "landOfficeJurisdiction"
+    },
+    "materialRecyclingPoints": {
+      "layers": [
+        "material-recycling-points-circle",
+        "material-recycling-points-glow"
+      ],
+      "type": "materialRecyclingPoints"
+    },
+    "postMailboxes": {
+      "layers": [
+        "post-mailboxes-circle",
+        "post-mailboxes-glow"
+      ],
+      "type": "postMailboxes"
+    },
+    "postOffice": {
+      "layers": [
+        "post-offices-circle",
+        "post-offices-glow"
+      ],
+      "type": "postOffice"
+    },
+    "postOfficeFxCounters": {
+      "layers": [
+        "post-office-fx-counters-circle",
+        "post-office-fx-counters-glow"
+      ],
+      "type": "postOfficeFxCounters"
+    },
+    "publicLifeOsmCoverage": {
+      "layers": [
+        "public-life-osm-coverage-fill",
+        "public-life-osm-coverage-outline"
+      ],
+      "type": "publicLifeOsmCoverage"
+    },
+    "publicToilet": {
+      "layers": [
+        "public-toilets-circle",
+        "public-toilets-glow"
+      ],
+      "type": "publicToilet"
+    },
+    "publicWasteBaskets": {
+      "layers": [
+        "public-waste-baskets-circle",
+        "public-waste-baskets-glow"
+      ],
+      "type": "publicWasteBaskets"
+    },
+    "retailMarket": {
+      "layers": [
+        "retail-markets-circle",
+        "retail-markets-glow"
+      ],
+      "type": "retailMarket"
+    },
+    "securitiesFuturesInstitutions": {
+      "layers": [
+        "securities-futures-institutions-circle",
+        "securities-futures-institutions-glow"
+      ],
+      "type": "securitiesFuturesInstitutions"
+    },
+    "vehicleInspectionOffices": {
+      "layers": [
+        "vehicle-inspection-offices-circle",
+        "vehicle-inspection-offices-glow",
+        "vehicle-inspection-jurisdictions-fill"
+      ],
+      "type": "vehicleInspectionOffices"
+    }
+  },
+  "overlays": {
+    "accessibleParkFacilities": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "accessibleParkFacilities",
+      "layers": [
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "feature_type"
+            ],
+            [
+              "has",
+              "accessibility_status"
+            ]
+          ],
+          "layout": null,
+          "maxzoom": 10.01,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(34,89,165,0.00)",
+                0.05,
+                "rgba(34,89,165,0.11)",
+                0.15,
+                "rgba(32,119,180,0.33)",
+                0.3,
+                "rgba(33,150,192,0.66)",
+                0.45,
+                "rgba(62,179,196,0.99)",
+                0.6,
+                "rgba(125,204,187,1.00)",
+                0.8,
+                "rgba(181,226,182,1.00)",
+                1,
+                "rgba(234,247,177,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.001171875,
+                12,
+                0.3
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(68,183,196,0.00)",
+                0.05,
+                "rgba(68,183,196,0.11)",
+                0.15,
+                "rgba(41,157,193,0.33)",
+                0.3,
+                "rgba(30,131,185,0.66)",
+                0.45,
+                "rgba(33,104,173,0.99)",
+                0.6,
+                "rgba(35,77,160,1.00)",
+                0.8,
+                "rgba(35,50,143,1.00)",
+                1,
+                "rgba(17,36,107,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.001171875,
+                12,
+                0.3
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "heatmap",
+          "type": "heatmap"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "feature_type"
+            ],
+            [
+              "has",
+              "accessibility_status"
+            ]
+          ],
+          "layout": null,
+          "minzoom": 10,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "accessibility_status"
+                ],
+                "yes",
+                "#22c55e",
+                "limited",
+                "#f59e0b",
+                "no",
+                "#ef4444",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1,
+                5,
+                3.6,
+                12,
+                9
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "accessibility_status"
+                ],
+                "yes",
+                "#22c55e",
+                "limited",
+                "#f59e0b",
+                "no",
+                "#ef4444",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1,
+                5,
+                3.6,
+                12,
+                9
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "feature_type"
+            ],
+            [
+              "has",
+              "accessibility_status"
+            ]
+          ],
+          "layout": null,
+          "minzoom": 10,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "accessibility_status"
+                ],
+                "yes",
+                "#22c55e",
+                "limited",
+                "#f59e0b",
+                "no",
+                "#fe5350",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.75,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "accessibility_status"
+                ],
+                "yes",
+                "#22c55e",
+                "limited",
+                "#f59e0b",
+                "no",
+                "#ef4444",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.75,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 0,
+        "sourceLayer": "accessible_park_facilities"
+      },
+      "rebuildOnParamChange": [
+        "heatmap",
+        "glow",
+        "circle"
+      ],
+      "sourceId": "accessible-park-facilities",
+      "sourceUrl": "./public_life/accessible_park_facilities.pmtiles"
+    },
+    "atmSitesFisc": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "atmSitesFisc",
+      "layers": [
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "institution_category"
+            ]
+          ],
+          "layout": null,
+          "maxzoom": 10.01,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(142,42,129,0.00)",
+                0.05,
+                "rgba(142,42,129,0.11)",
+                0.15,
+                "rgba(186,56,120,0.33)",
+                0.3,
+                "rgba(226,77,102,0.66)",
+                0.45,
+                "rgba(248,116,92,0.99)",
+                0.6,
+                "rgba(254,160,109,1.00)",
+                0.8,
+                "rgba(254,201,141,1.00)",
+                1,
+                "rgba(252,240,178,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(249,121,93,0.00)",
+                0.05,
+                "rgba(249,121,93,0.11)",
+                0.15,
+                "rgba(233,85,97,0.33)",
+                0.3,
+                "rgba(202,62,114,0.66)",
+                0.45,
+                "rgba(164,49,126,0.99)",
+                0.6,
+                "rgba(126,36,130,1.00)",
+                0.8,
+                "rgba(90,22,126,1.00)",
+                1,
+                "rgba(55,16,108,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "heatmap",
+          "type": "heatmap"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "institution_category"
+            ]
+          ],
+          "layout": null,
+          "minzoom": 10,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "institution_category"
+                ],
+                "domestic_bank",
+                "#2563eb",
+                "post_office",
+                "#16a34a",
+                "farmers_credit",
+                "#ca8a04",
+                "fishermen_credit",
+                "#0891b2",
+                "credit_cooperative",
+                "#9333ea",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "institution_category"
+                ],
+                "domestic_bank",
+                "#2563eb",
+                "post_office",
+                "#16a34a",
+                "farmers_credit",
+                "#ca8a04",
+                "fishermen_credit",
+                "#0891b2",
+                "credit_cooperative",
+                "#9333ea",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "institution_category"
+            ]
+          ],
+          "layout": null,
+          "minzoom": 10,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "institution_category"
+                ],
+                "domestic_bank",
+                "#518aff",
+                "post_office",
+                "#16a34a",
+                "farmers_credit",
+                "#ca8a04",
+                "fishermen_credit",
+                "#209bbc",
+                "credit_cooperative",
+                "#b06cff",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.75,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.75,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "institution_category"
+                ],
+                "domestic_bank",
+                "#2563eb",
+                "post_office",
+                "#16a34a",
+                "farmers_credit",
+                "#ca8a04",
+                "fishermen_credit",
+                "#0891b2",
+                "credit_cooperative",
+                "#9333ea",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.75,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.75,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 12,
+        "minzoom": 5,
+        "sourceLayer": "atm_sites_fisc"
+      },
+      "rebuildOnParamChange": [
+        "heatmap",
+        "glow",
+        "circle"
+      ],
+      "sourceId": "atm-sites-fisc",
+      "sourceUrl": "./finance/atm_sites_fisc_lt2.pmtiles"
+    },
+    "communityCenters": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "communityCenters",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 1,
+              "circle-color": "#26a69a",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                6,
+                12,
+                12
+              ]
+            },
+            "light": {
+              "circle-blur": 1,
+              "circle-color": "#26a69a",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                6,
+                12,
+                12
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#26a69a",
+              "circle-opacity": 0.8,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#26a69a",
+              "circle-opacity": 0.8,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
+      "sourceId": "community-centers",
+      "sourceUrl": "./civic_facilities/community_centers_national.geojson"
+    },
+    "convenienceStores": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "convenienceStores",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "maxzoom": 10.01,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(84,90,109,0.00)",
+                0.05,
+                "rgba(84,90,109,0.11)",
+                0.15,
+                "rgba(111,112,115,0.33)",
+                0.3,
+                "rgba(138,134,120,0.66)",
+                0.45,
+                "rgba(168,157,115,0.99)",
+                0.6,
+                "rgba(197,181,104,1.00)",
+                0.8,
+                "rgba(227,206,83,1.00)",
+                1,
+                "rgba(254,232,56,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(177,165,112,0.00)",
+                0.05,
+                "rgba(177,165,112,0.11)",
+                0.15,
+                "rgba(150,143,119,0.33)",
+                0.3,
+                "rgba(123,122,120,0.66)",
+                0.45,
+                "rgba(98,102,111,0.99)",
+                0.6,
+                "rgba(72,82,108,1.00)",
+                0.8,
+                "rgba(39,62,110,1.00)",
+                1,
+                "rgba(0,43,98,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "heatmap",
+          "type": "heatmap"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": 10,
+          "paint": {
+            "dark": {
+              "circle-blur": 1,
+              "circle-color": "#26c6da",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                1.5,
+                10,
+                4,
+                14,
+                8,
+                17,
+                14
+              ]
+            },
+            "light": {
+              "circle-blur": 1,
+              "circle-color": "#00838f",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                1.5,
+                10,
+                4,
+                14,
+                8,
+                17,
+                14
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": 10,
+          "paint": {
+            "dark": {
+              "circle-color": "#26c6da",
+              "circle-opacity": 0.75,
+              "circle-radius": 3,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#00838f",
+              "circle-opacity": 0.75,
+              "circle-radius": 3,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
+      "sourceId": "convenience-stores",
+      "sourceUrl": "./geo/convenience_stores.geojson"
+    },
+    "countyStreetlights": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "countyStreetlights",
+      "layers": [
+        {
+          "filter": [
+            "in",
+            [
+              "get",
+              "名稱"
+            ],
+            [
+              "literal",
+              [
+                "臺南市",
+                "基隆市",
+                "新竹縣",
+                "苗栗縣",
+                "南投縣",
+                "雲林縣",
+                "嘉義縣",
+                "屏東縣",
+                "宜蘭縣",
+                "花蓮縣",
+                "臺東縣",
+                "澎湖縣",
+                "金門縣",
+                "連江縣"
+              ]
+            ]
+          ],
+          "layout": null,
+          "minzoom": 4,
+          "paint": {
+            "dark": {
+              "fill-opacity": 0.8,
+              "fill-pattern": "map-hatch-missing-dark"
+            },
+            "light": {
+              "fill-opacity": 0.8,
+              "fill-pattern": "map-hatch-missing-light"
+            }
+          },
+          "suffix": "hatch",
+          "type": "fill"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 0,
+        "sourceLayer": "county_boundary"
+      },
+      "rebuildOnParamChange": [],
+      "sourceId": "county-streetlights-uncovered",
+      "sourceUrl": "./base_map/county_boundary.pmtiles"
+    },
+    "countyStreetlights#2": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "countyStreetlights",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "maxzoom": 12,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "typeof",
+                    [
+                      "get",
+                      "n_lights"
+                    ]
+                  ],
+                  "number"
+                ],
+                [
+                  "step",
+                  [
+                    "get",
+                    "n_lights"
+                  ],
+                  "#545a6d",
+                  10,
+                  "#6f7073",
+                  30,
+                  "#8a8678",
+                  100,
+                  "#a89d73",
+                  300,
+                  "#c5b568",
+                  600,
+                  "#e3ce53",
+                  1000,
+                  "#fee838"
+                ],
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.8
+            },
+            "light": {
+              "fill-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "typeof",
+                    [
+                      "get",
+                      "n_lights"
+                    ]
+                  ],
+                  "number"
+                ],
+                [
+                  "step",
+                  [
+                    "get",
+                    "n_lights"
+                  ],
+                  "#b1a570",
+                  10,
+                  "#968f77",
+                  30,
+                  "#7b7a78",
+                  100,
+                  "#62666f",
+                  300,
+                  "#48526c",
+                  600,
+                  "#273e6e",
+                  1000,
+                  "#002b62"
+                ],
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.8
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 11,
+        "minzoom": 4,
+        "sourceLayer": "county_streetlights_grid"
+      },
+      "rebuildOnParamChange": [],
+      "sourceId": "county-streetlights-grid",
+      "sourceUrl": "./civic_facilities/county_streetlights_grid_v1.pmtiles"
+    },
+    "countyStreetlights#3": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "countyStreetlights",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": 12,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "downcase",
+                  [
+                    "to-string",
+                    [
+                      "get",
+                      "led"
+                    ]
+                  ]
+                ],
+                "true",
+                "#38bdf8",
+                "false",
+                "#f59e0b",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.9,
+                5,
+                2.16,
+                12,
+                4.680000000000001
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "downcase",
+                  [
+                    "to-string",
+                    [
+                      "get",
+                      "led"
+                    ]
+                  ]
+                ],
+                "true",
+                "#38bdf8",
+                "false",
+                "#f59e0b",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.9,
+                5,
+                2.16,
+                12,
+                4.680000000000001
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": 12,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "downcase",
+                  [
+                    "to-string",
+                    [
+                      "get",
+                      "led"
+                    ]
+                  ]
+                ],
+                "true",
+                "#38bdf8",
+                "false",
+                "#f59e0b",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.7,
+                5,
+                1.2,
+                12,
+                2.6
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "downcase",
+                  [
+                    "to-string",
+                    [
+                      "get",
+                      "led"
+                    ]
+                  ]
+                ],
+                "true",
+                "#38bdf8",
+                "false",
+                "#f59e0b",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.7,
+                5,
+                1.2,
+                12,
+                2.6
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 12,
+        "sourceLayer": "county_streetlights"
+      },
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
+      "sourceId": "county-streetlights",
+      "sourceUrl": "./civic_facilities/county_streetlights_v1.pmtiles"
+    },
+    "drinkingWaterPoints": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "drinkingWaterPoints",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": "#06b6d4",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": "#06b6d4",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#06b6d4",
+              "circle-opacity": 0.8,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#06b6d4",
+              "circle-opacity": 0.8,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 0,
+        "sourceLayer": "drinking_water_points"
+      },
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
+      "sourceId": "drinking-water-points",
+      "sourceUrl": "./public_life/drinking_water_points.pmtiles"
+    },
+    "financialBranchesFisc": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "financialBranchesFisc",
+      "layers": [
+        {
+          "filter": [
+            "has",
+            "institution_category"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "institution_category"
+                ],
+                "domestic_bank",
+                "#2563eb",
+                "foreign_bank",
+                "#db2777",
+                "mainland_bank",
+                "#dc2626",
+                "credit_cooperative",
+                "#9333ea",
+                "farmers_credit",
+                "#ca8a04",
+                "fishermen_credit",
+                "#0891b2",
+                "post_savings",
+                "#16a34a",
+                "bills_finance",
+                "#ea580c",
+                "central_bank",
+                "#84cc16",
+                "other",
+                "#78716c",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "institution_category"
+                ],
+                "domestic_bank",
+                "#2563eb",
+                "foreign_bank",
+                "#db2777",
+                "mainland_bank",
+                "#dc2626",
+                "credit_cooperative",
+                "#9333ea",
+                "farmers_credit",
+                "#ca8a04",
+                "fishermen_credit",
+                "#0891b2",
+                "post_savings",
+                "#16a34a",
+                "bills_finance",
+                "#ea580c",
+                "central_bank",
+                "#84cc16",
+                "other",
+                "#78716c",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "has",
+            "institution_category"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "institution_category"
+                ],
+                "domestic_bank",
+                "#4782ff",
+                "foreign_bank",
+                "#f4438b",
+                "mainland_bank",
+                "#ff7064",
+                "credit_cooperative",
+                "#ac61ff",
+                "farmers_credit",
+                "#ca8a04",
+                "fishermen_credit",
+                "#0891b2",
+                "post_savings",
+                "#16a34a",
+                "bills_finance",
+                "#ea580c",
+                "central_bank",
+                "#84cc16",
+                "other",
+                "#8d8681",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "institution_category"
+                ],
+                "domestic_bank",
+                "#2563eb",
+                "foreign_bank",
+                "#db2777",
+                "mainland_bank",
+                "#dc2626",
+                "credit_cooperative",
+                "#9333ea",
+                "farmers_credit",
+                "#ca8a04",
+                "fishermen_credit",
+                "#0891b2",
+                "post_savings",
+                "#16a34a",
+                "bills_finance",
+                "#ea580c",
+                "central_bank",
+                "#84cc16",
+                "other",
+                "#78716c",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "institution_category"
+            ],
+            [
+              "has",
+              "name"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "name"
+              ],
+              ""
+            ]
+          ],
+          "layout": {
+            "text-allow-overlap": false,
+            "text-field": [
+              "get",
+              "name"
+            ],
+            "text-font": [
+              "DIN Pro Medium",
+              "Arial Unicode MS Regular"
+            ],
+            "text-max-width": 14,
+            "text-optional": true,
+            "text-radial-offset": 0.8,
+            "text-size": [
+              "interpolate",
+              [
+                "linear"
+              ],
+              [
+                "zoom"
+              ],
+              10,
+              10,
+              14,
+              12
+            ],
+            "text-variable-anchor": [
+              "top",
+              "bottom",
+              "left",
+              "right"
+            ]
+          },
+          "minzoom": 14,
+          "paint": {
+            "dark": {
+              "text-color": "#f8fafc",
+              "text-halo-color": "rgba(15,23,42,0.92)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.8
+            },
+            "light": {
+              "text-color": "#0f172a",
+              "text-halo-color": "rgba(255,255,255,0.94)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.8
+            }
+          },
+          "suffix": "label",
+          "type": "symbol"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle",
+        "label"
+      ],
+      "sourceId": "financial-branches-fisc",
+      "sourceUrl": "./finance/financial_branches_fisc.geojson"
+    },
+    "govServiceOffices": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "govServiceOffices",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 1,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "type"
+                ],
+                "district_office",
+                "#8d6e63",
+                "household_registration",
+                "#7986cb",
+                "land_office",
+                "#9ccc65",
+                "#8d6e63"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                8,
+                12,
+                16
+              ]
+            },
+            "light": {
+              "circle-blur": 1,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "type"
+                ],
+                "district_office",
+                "#8d6e63",
+                "household_registration",
+                "#7986cb",
+                "land_office",
+                "#9ccc65",
+                "#8d6e63"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                8,
+                12,
+                16
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "type"
+                ],
+                "district_office",
+                "#95766b",
+                "household_registration",
+                "#7986cb",
+                "land_office",
+                "#9ccc65",
+                "#95766b"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "type"
+                ],
+                "district_office",
+                "#95766b",
+                "household_registration",
+                "#7986cb",
+                "land_office",
+                "#9ccc65",
+                "#95766b"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
+      "sourceId": "gov-service-offices",
+      "sourceUrl": "./civic_facilities/gov_service_offices_national.geojson"
+    },
+    "govServiceOffices#2": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "govServiceOffices",
+      "layers": [
+        {
+          "filter": [
+            "==",
+            [
+              "get",
+              "office_kind"
+            ],
+            "branch"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 1,
+              "circle-color": "#7e57c2",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                8,
+                12,
+                16
+              ]
+            },
+            "light": {
+              "circle-blur": 1,
+              "circle-color": "#7e57c2",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                8,
+                12,
+                16
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "==",
+            [
+              "get",
+              "office_kind"
+            ],
+            "branch"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "office_kind"
+                ],
+                "branch",
+                "#8e68d4",
+                "#8e68d4"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "office_kind"
+                ],
+                "branch",
+                "#8e68d4",
+                "#8e68d4"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 4,
+        "sourceLayer": "household_registration_offices"
+      },
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
+      "sourceId": "gov-service-offices-hro-branch",
+      "sourceUrl": "./civic_facilities/household_registration_offices_7437_v2.pmtiles"
+    },
+    "iPostBoxes": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "iPostBoxes",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 1,
+              "circle-color": "#ef6c00",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                6,
+                12,
+                12
+              ]
+            },
+            "light": {
+              "circle-blur": 1,
+              "circle-color": "#ef6c00",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                6,
+                12,
+                12
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#ef6c00",
+              "circle-opacity": 0.8,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#ef6c00",
+              "circle-opacity": 0.8,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
+      "sourceId": "ipost-boxes",
+      "sourceUrl": "./civic_facilities/ibox_national.geojson"
+    },
+    "insuranceInstitutions": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "insuranceInstitutions",
+      "layers": [
+        {
+          "filter": [
+            "has",
+            "institution_type"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "institution_type"
+                ],
+                "life_insurer",
+                "#16a34a",
+                "non_life_insurer",
+                "#2563eb",
+                "reinsurer",
+                "#7c3aed",
+                "insurance_agency",
+                "#ea580c",
+                "bank_insurance_agency",
+                "#db2777",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "institution_type"
+                ],
+                "life_insurer",
+                "#16a34a",
+                "non_life_insurer",
+                "#2563eb",
+                "reinsurer",
+                "#7c3aed",
+                "insurance_agency",
+                "#ea580c",
+                "bank_insurance_agency",
+                "#db2777",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "has",
+            "institution_type"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "institution_type"
+                ],
+                "life_insurer",
+                "#16a34a",
+                "non_life_insurer",
+                "#3d7bff",
+                "reinsurer",
+                "#9363ff",
+                "insurance_agency",
+                "#ea580c",
+                "bank_insurance_agency",
+                "#ec3c85",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "institution_type"
+                ],
+                "life_insurer",
+                "#16a34a",
+                "non_life_insurer",
+                "#2563eb",
+                "reinsurer",
+                "#7c3aed",
+                "insurance_agency",
+                "#ea580c",
+                "bank_insurance_agency",
+                "#db2777",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "institution_type"
+            ],
+            [
+              "has",
+              "name"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "name"
+              ],
+              ""
+            ]
+          ],
+          "layout": {
+            "text-allow-overlap": false,
+            "text-field": [
+              "get",
+              "name"
+            ],
+            "text-font": [
+              "DIN Pro Medium",
+              "Arial Unicode MS Regular"
+            ],
+            "text-max-width": 14,
+            "text-optional": true,
+            "text-radial-offset": 0.8,
+            "text-size": [
+              "interpolate",
+              [
+                "linear"
+              ],
+              [
+                "zoom"
+              ],
+              10,
+              10,
+              14,
+              12
+            ],
+            "text-variable-anchor": [
+              "top",
+              "bottom",
+              "left",
+              "right"
+            ]
+          },
+          "minzoom": 14,
+          "paint": {
+            "dark": {
+              "text-color": "#f8fafc",
+              "text-halo-color": "rgba(15,23,42,0.92)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            },
+            "light": {
+              "text-color": "#0f172a",
+              "text-halo-color": "rgba(255,255,255,0.94)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            }
+          },
+          "suffix": "label",
+          "type": "symbol"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle",
+        "label"
+      ],
+      "sourceId": "insurance-institutions",
+      "sourceUrl": "./finance/insurance_institutions.geojson"
+    },
+    "landOfficeJurisdiction": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "landOfficeJurisdiction",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": "#e2e8f0",
+              "fill-opacity": 0.4
+            },
+            "light": {
+              "fill-color": "#e2e8f0",
+              "fill-opacity": 0.25
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#e2e8f0",
+              "line-opacity": 0.55,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            },
+            "light": {
+              "line-color": "#a16207",
+              "line-opacity": 0.55,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        },
+        {
+          "filter": [
+            "==",
+            [
+              "get",
+              "office_title_7620"
+            ],
+            "__none__"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": "#fde047",
+              "fill-opacity": 0.35
+            },
+            "light": {
+              "fill-color": "#fde047",
+              "fill-opacity": 0.3
+            }
+          },
+          "suffix": "highlight-fill",
+          "type": "fill"
+        },
+        {
+          "filter": [
+            "==",
+            [
+              "get",
+              "office_title_7620"
+            ],
+            "__none__"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#fde047",
+              "line-opacity": 0,
+              "line-width": 2.5
+            },
+            "light": {
+              "line-color": "#a16207",
+              "line-opacity": 0,
+              "line-width": 2.5
+            }
+          },
+          "suffix": "highlight-line",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 4,
+        "sourceLayer": "land_office_jurisdiction"
+      },
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "land-office-jurisdiction",
+      "sourceUrl": "./civic_facilities/land_office_jurisdiction_13045.pmtiles"
+    },
+    "materialRecyclingPoints": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "materialRecyclingPoints",
+      "layers": [
+        {
+          "filter": [
+            "has",
+            "feature_type"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": "#22c55e",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": "#22c55e",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "has",
+            "feature_type"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#22c55e",
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#22c55e",
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "feature_type"
+            ],
+            [
+              "has",
+              "name"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "name"
+              ],
+              ""
+            ]
+          ],
+          "layout": {
+            "text-allow-overlap": false,
+            "text-field": [
+              "get",
+              "name"
+            ],
+            "text-font": [
+              "DIN Pro Medium",
+              "Arial Unicode MS Regular"
+            ],
+            "text-max-width": 14,
+            "text-optional": true,
+            "text-radial-offset": 0.8,
+            "text-size": [
+              "interpolate",
+              [
+                "linear"
+              ],
+              [
+                "zoom"
+              ],
+              10,
+              10,
+              14,
+              12
+            ],
+            "text-variable-anchor": [
+              "top",
+              "bottom",
+              "left",
+              "right"
+            ]
+          },
+          "minzoom": 14,
+          "paint": {
+            "dark": {
+              "text-color": "#f8fafc",
+              "text-halo-color": "rgba(15,23,42,0.92)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            },
+            "light": {
+              "text-color": "#0f172a",
+              "text-halo-color": "rgba(255,255,255,0.94)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            }
+          },
+          "suffix": "label",
+          "type": "symbol"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle",
+        "label"
+      ],
+      "sourceId": "material-recycling-points",
+      "sourceUrl": "./public_life/material_recycling_points.geojson"
+    },
+    "postMailboxes": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "postMailboxes",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "service"
+                ],
+                "regular",
+                "#16a34a",
+                "express",
+                "#dc2626",
+                "dual",
+                "#7c3aed",
+                "pair",
+                "#ca8a04",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.25,
+                5,
+                4.5,
+                12,
+                10.8
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "service"
+                ],
+                "regular",
+                "#16a34a",
+                "express",
+                "#dc2626",
+                "dual",
+                "#7c3aed",
+                "pair",
+                "#ca8a04",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.25,
+                5,
+                4.5,
+                12,
+                10.8
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "service"
+                ],
+                "regular",
+                "#16a34a",
+                "express",
+                "#f94840",
+                "dual",
+                "#976cff",
+                "pair",
+                "#ca8a04",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.875,
+                5,
+                2.5,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "service"
+                ],
+                "regular",
+                "#16a34a",
+                "express",
+                "#dc2626",
+                "dual",
+                "#7c3aed",
+                "pair",
+                "#ca8a04",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.875,
+                5,
+                2.5,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 4,
+        "sourceLayer": "post_mailboxes"
+      },
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
+      "sourceId": "post-mailboxes",
+      "sourceUrl": "./civic_facilities/post_mailboxes_1150428.pmtiles"
+    },
+    "postOfficeFxCounters": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "postOfficeFxCounters",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": "#c2410c",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": "#c2410c",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#dc592c",
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": "#c2410c",
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "name"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "name"
+              ],
+              ""
+            ]
+          ],
+          "layout": {
+            "text-allow-overlap": false,
+            "text-field": [
+              "get",
+              "name"
+            ],
+            "text-font": [
+              "DIN Pro Medium",
+              "Arial Unicode MS Regular"
+            ],
+            "text-max-width": 14,
+            "text-optional": true,
+            "text-radial-offset": 0.8,
+            "text-size": [
+              "interpolate",
+              [
+                "linear"
+              ],
+              [
+                "zoom"
+              ],
+              10,
+              10,
+              14,
+              12
+            ],
+            "text-variable-anchor": [
+              "top",
+              "bottom",
+              "left",
+              "right"
+            ]
+          },
+          "minzoom": 13,
+          "paint": {
+            "dark": {
+              "text-color": "#f8fafc",
+              "text-halo-color": "rgba(15,23,42,0.92)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            },
+            "light": {
+              "text-color": "#0f172a",
+              "text-halo-color": "rgba(255,255,255,0.94)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            }
+          },
+          "suffix": "label",
+          "type": "symbol"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle",
+        "label"
+      ],
+      "sourceId": "post-office-fx-counters",
+      "sourceUrl": "./finance/post_office_fx_cash_counters.geojson"
+    },
+    "postOffices": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "postOffices",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 1,
+              "circle-color": "#d32f2f",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                6,
+                12,
+                12
+              ]
+            },
+            "light": {
+              "circle-blur": 1,
+              "circle-color": "#d32f2f",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                6,
+                12,
+                12
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#f24f49",
+              "circle-opacity": 0.8,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#d32f2f",
+              "circle-opacity": 0.8,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
+      "sourceId": "post-offices",
+      "sourceUrl": "./civic_facilities/post_offices_national.geojson"
+    },
+    "publicLifeOsmCoverage": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "publicLifeOsmCoverage",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "step",
+                [
+                  "coalesce",
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "observed_count"
+                    ]
+                  ],
+                  0
+                ],
+                "#e2e8f0",
+                1,
+                "#bfdbfe",
+                5,
+                "#60a5fa",
+                15,
+                "#1d4ed8"
+              ],
+              "fill-opacity": 0.7
+            },
+            "light": {
+              "fill-color": [
+                "step",
+                [
+                  "coalesce",
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "observed_count"
+                    ]
+                  ],
+                  0
+                ],
+                "#e2e8f0",
+                1,
+                "#bfdbfe",
+                5,
+                "#60a5fa",
+                15,
+                "#1d4ed8"
+              ],
+              "fill-opacity": 0.55
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#0a0a14",
+              "line-opacity": 0.6,
+              "line-width": 1
+            },
+            "light": {
+              "line-color": "#ffffff",
+              "line-opacity": 0.8,
+              "line-width": 1
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 11,
+        "minzoom": 5,
+        "sourceLayer": "public_life_osm_coverage"
+      },
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "public-life-osm-coverage",
+      "sourceUrl": "./public_life/public_life_osm_coverage.pmtiles"
+    },
+    "publicToilets": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "publicToilets",
+      "layers": [
+        {
+          "filter": [
+            "has",
+            "type2"
+          ],
+          "layout": null,
+          "maxzoom": 11.01,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(4,96,150,0.00)",
+                0.05,
+                "rgba(4,96,150,0.11)",
+                0.15,
+                "rgba(18,120,180,0.33)",
+                0.3,
+                "rgba(60,147,194,0.66)",
+                0.45,
+                "rgba(115,168,207,0.99)",
+                0.6,
+                "rgba(165,189,219,1.00)",
+                0.8,
+                "rgba(209,210,231,1.00)",
+                1,
+                "rgba(242,236,245,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.01171875,
+                12,
+                3
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(121,171,208,0.00)",
+                0.05,
+                "rgba(121,171,208,0.11)",
+                0.15,
+                "rgba(78,154,198,0.33)",
+                0.3,
+                "rgba(38,133,187,0.66)",
+                0.45,
+                "rgba(5,111,175,0.99)",
+                0.6,
+                "rgba(4,92,144,1.00)",
+                0.8,
+                "rgba(3,74,116,1.00)",
+                1,
+                "rgba(2,56,88,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.01171875,
+                12,
+                3
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "heatmap",
+          "type": "heatmap"
+        },
+        {
+          "filter": [
+            "has",
+            "type2"
+          ],
+          "layout": null,
+          "minzoom": 11,
+          "paint": {
+            "dark": {
+              "circle-blur": 1,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "grade"
+                ],
+                "特優級",
+                "#7e57c2",
+                "優等級",
+                "#ab47bc",
+                "普通級",
+                "#ffb300",
+                "不合格",
+                "#e53935",
+                "#9e9e9e"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                11,
+                5,
+                16,
+                12
+              ]
+            },
+            "light": {
+              "circle-blur": 1,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "grade"
+                ],
+                "特優級",
+                "#7e57c2",
+                "優等級",
+                "#ab47bc",
+                "普通級",
+                "#ffb300",
+                "不合格",
+                "#e53935",
+                "#9e9e9e"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                11,
+                5,
+                16,
+                12
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "has",
+            "type2"
+          ],
+          "layout": null,
+          "minzoom": 11,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "grade"
+                ],
+                "特優級",
+                "#9f79e8",
+                "優等級",
+                "#cb66dc",
+                "普通級",
+                "#ffb300",
+                "不合格",
+                "#fe534b",
+                "#9e9e9e"
+              ],
+              "circle-opacity": 0.75,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "grade"
+                ],
+                "特優級",
+                "#7e57c2",
+                "優等級",
+                "#ab47bc",
+                "普通級",
+                "#ffb300",
+                "不合格",
+                "#e53935",
+                "#9e9e9e"
+              ],
+              "circle-opacity": 0.75,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "type2"
+            ],
+            [
+              "has",
+              "name"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "name"
+              ],
+              ""
+            ]
+          ],
+          "layout": {
+            "text-allow-overlap": false,
+            "text-field": [
+              "get",
+              "name"
+            ],
+            "text-font": [
+              "DIN Pro Medium",
+              "Arial Unicode MS Regular"
+            ],
+            "text-max-width": 14,
+            "text-optional": true,
+            "text-radial-offset": 0.8,
+            "text-size": [
+              "interpolate",
+              [
+                "linear"
+              ],
+              [
+                "zoom"
+              ],
+              10,
+              10,
+              14,
+              12
+            ],
+            "text-variable-anchor": [
+              "top",
+              "bottom",
+              "left",
+              "right"
+            ]
+          },
+          "minzoom": 16,
+          "paint": {
+            "dark": {
+              "text-color": "#f8fafc",
+              "text-halo-color": "rgba(15,23,42,0.92)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.75
+            },
+            "light": {
+              "text-color": "#0f172a",
+              "text-halo-color": "rgba(255,255,255,0.94)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.75
+            }
+          },
+          "suffix": "label",
+          "type": "symbol"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "heatmap",
+        "glow",
+        "circle",
+        "label"
+      ],
+      "sourceId": "public-toilets",
+      "sourceUrl": "./environment/public_toilets_national.geojson"
+    },
+    "publicWasteBaskets": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "publicWasteBaskets",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": "#d97706",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": "#d97706",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#d97706",
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#d97706",
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "name"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "name"
+              ],
+              ""
+            ]
+          ],
+          "layout": {
+            "text-allow-overlap": false,
+            "text-field": [
+              "get",
+              "name"
+            ],
+            "text-font": [
+              "DIN Pro Medium",
+              "Arial Unicode MS Regular"
+            ],
+            "text-max-width": 14,
+            "text-optional": true,
+            "text-radial-offset": 0.8,
+            "text-size": [
+              "interpolate",
+              [
+                "linear"
+              ],
+              [
+                "zoom"
+              ],
+              10,
+              10,
+              14,
+              12
+            ],
+            "text-variable-anchor": [
+              "top",
+              "bottom",
+              "left",
+              "right"
+            ]
+          },
+          "minzoom": 15,
+          "paint": {
+            "dark": {
+              "text-color": "#f8fafc",
+              "text-halo-color": "rgba(15,23,42,0.92)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            },
+            "light": {
+              "text-color": "#0f172a",
+              "text-halo-color": "rgba(255,255,255,0.94)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            }
+          },
+          "suffix": "label",
+          "type": "symbol"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle",
+        "label"
+      ],
+      "sourceId": "public-waste-baskets",
+      "sourceUrl": "./public_life/public_waste_baskets.geojson"
+    },
+    "retailMarkets": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "retailMarkets",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 1,
+              "circle-color": "#66bb6a",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                8,
+                12,
+                16
+              ]
+            },
+            "light": {
+              "circle-blur": 1,
+              "circle-color": "#66bb6a",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                8,
+                12,
+                16
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#66bb6a",
+              "circle-opacity": 0.9,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#66bb6a",
+              "circle-opacity": 0.9,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
+      "sourceId": "retail-markets",
+      "sourceUrl": "./poi/public_retail_markets_national.geojson"
+    },
+    "securitiesFuturesInstitutions": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "securitiesFuturesInstitutions",
+      "layers": [
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "institution_type"
+            ]
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "institution_type"
+                ],
+                "securities_branch",
+                "#4f46e5",
+                "futures_head_office",
+                "#dc2626",
+                "futures_branch",
+                "#f97316",
+                "investment_trust",
+                "#9333ea",
+                "investment_advisory",
+                "#0891b2",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "institution_type"
+                ],
+                "securities_branch",
+                "#4f46e5",
+                "futures_head_office",
+                "#dc2626",
+                "futures_branch",
+                "#f97316",
+                "investment_trust",
+                "#9333ea",
+                "investment_advisory",
+                "#0891b2",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "institution_type"
+            ]
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "institution_type"
+                ],
+                "securities_branch",
+                "#7279ff",
+                "futures_head_office",
+                "#f94840",
+                "futures_branch",
+                "#f97316",
+                "investment_trust",
+                "#ac61ff",
+                "investment_advisory",
+                "#0891b2",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "institution_type"
+                ],
+                "securities_branch",
+                "#4f46e5",
+                "futures_head_office",
+                "#dc2626",
+                "futures_branch",
+                "#f97316",
+                "investment_trust",
+                "#9333ea",
+                "investment_advisory",
+                "#0891b2",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "all",
+              [
+                "has",
+                "institution_type"
+              ]
+            ],
+            [
+              "has",
+              "name"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "name"
+              ],
+              ""
+            ]
+          ],
+          "layout": {
+            "text-allow-overlap": false,
+            "text-field": [
+              "get",
+              "name"
+            ],
+            "text-font": [
+              "DIN Pro Medium",
+              "Arial Unicode MS Regular"
+            ],
+            "text-max-width": 14,
+            "text-optional": true,
+            "text-radial-offset": 0.8,
+            "text-size": [
+              "interpolate",
+              [
+                "linear"
+              ],
+              [
+                "zoom"
+              ],
+              10,
+              10,
+              14,
+              12
+            ],
+            "text-variable-anchor": [
+              "top",
+              "bottom",
+              "left",
+              "right"
+            ]
+          },
+          "minzoom": 14,
+          "paint": {
+            "dark": {
+              "text-color": "#f8fafc",
+              "text-halo-color": "rgba(15,23,42,0.92)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.8
+            },
+            "light": {
+              "text-color": "#0f172a",
+              "text-halo-color": "rgba(255,255,255,0.94)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.8
+            }
+          },
+          "suffix": "label",
+          "type": "symbol"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle",
+        "label"
+      ],
+      "sourceId": "securities-futures-institutions",
+      "sourceUrl": "./finance/securities_futures_institutions.geojson"
+    },
+    "vehicleInspectionOffices": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "vehicleInspectionOffices",
+      "layers": [
+        {
+          "filter": [
+            "==",
+            [
+              "get",
+              "service"
+            ],
+            "car"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "office_id"
+                ],
+                "vio_01",
+                "#a3e635",
+                "vio_02",
+                "#38bdf8",
+                "vio_03",
+                "#f472b6",
+                "vio_04",
+                "#fbbf24",
+                "vio_05",
+                "#fb923c",
+                "vio_06",
+                "#f87171",
+                "vio_07",
+                "#38bdf8",
+                "vio_08",
+                "#fbbf24",
+                "vio_09",
+                "#a3e635",
+                "vio_10",
+                "#fbbf24",
+                "vio_11",
+                "#a3e635",
+                "vio_12",
+                "#f472b6",
+                "vio_13",
+                "#fbbf24",
+                "vio_14",
+                "#fb923c",
+                "vio_15",
+                "#f87171",
+                "vio_16",
+                "#fbbf24",
+                "vio_17",
+                "#fb923c",
+                "vio_18",
+                "#a78bfa",
+                "vio_19",
+                "#34d399",
+                "vio_20",
+                "#a78bfa",
+                "vio_21",
+                "#f472b6",
+                "vio_22",
+                "#f87171",
+                "vio_23",
+                "#a78bfa",
+                "vio_24",
+                "#38bdf8",
+                "vio_25",
+                "#a3e635",
+                "vio_26",
+                "#f472b6",
+                "vio_27",
+                "#a78bfa",
+                "vio_28",
+                "#fb923c",
+                "vio_29",
+                "#34d399",
+                "vio_30",
+                "#34d399",
+                "vio_31",
+                "#38bdf8",
+                "vio_32",
+                "#38bdf8",
+                "vio_33",
+                "#f87171",
+                "vio_34",
+                "#34d399",
+                "vio_35",
+                "#a3e635",
+                "vio_36",
+                "#f472b6",
+                "vio_37",
+                "#a78bfa",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.225
+            },
+            "light": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "office_id"
+                ],
+                "vio_01",
+                "#a3e635",
+                "vio_02",
+                "#38bdf8",
+                "vio_03",
+                "#f472b6",
+                "vio_04",
+                "#fbbf24",
+                "vio_05",
+                "#fb923c",
+                "vio_06",
+                "#f87171",
+                "vio_07",
+                "#38bdf8",
+                "vio_08",
+                "#fbbf24",
+                "vio_09",
+                "#a3e635",
+                "vio_10",
+                "#fbbf24",
+                "vio_11",
+                "#a3e635",
+                "vio_12",
+                "#f472b6",
+                "vio_13",
+                "#fbbf24",
+                "vio_14",
+                "#fb923c",
+                "vio_15",
+                "#f87171",
+                "vio_16",
+                "#fbbf24",
+                "vio_17",
+                "#fb923c",
+                "vio_18",
+                "#a78bfa",
+                "vio_19",
+                "#34d399",
+                "vio_20",
+                "#a78bfa",
+                "vio_21",
+                "#f472b6",
+                "vio_22",
+                "#f87171",
+                "vio_23",
+                "#a78bfa",
+                "vio_24",
+                "#38bdf8",
+                "vio_25",
+                "#a3e635",
+                "vio_26",
+                "#f472b6",
+                "vio_27",
+                "#a78bfa",
+                "vio_28",
+                "#fb923c",
+                "vio_29",
+                "#34d399",
+                "vio_30",
+                "#34d399",
+                "vio_31",
+                "#38bdf8",
+                "vio_32",
+                "#38bdf8",
+                "vio_33",
+                "#f87171",
+                "vio_34",
+                "#34d399",
+                "vio_35",
+                "#a3e635",
+                "vio_36",
+                "#f472b6",
+                "vio_37",
+                "#a78bfa",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.225
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": [
+            "==",
+            [
+              "get",
+              "service"
+            ],
+            "car"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "office_id"
+                ],
+                "vio_01",
+                "#a3e635",
+                "vio_02",
+                "#38bdf8",
+                "vio_03",
+                "#f472b6",
+                "vio_04",
+                "#fbbf24",
+                "vio_05",
+                "#fb923c",
+                "vio_06",
+                "#f87171",
+                "vio_07",
+                "#38bdf8",
+                "vio_08",
+                "#fbbf24",
+                "vio_09",
+                "#a3e635",
+                "vio_10",
+                "#fbbf24",
+                "vio_11",
+                "#a3e635",
+                "vio_12",
+                "#f472b6",
+                "vio_13",
+                "#fbbf24",
+                "vio_14",
+                "#fb923c",
+                "vio_15",
+                "#f87171",
+                "vio_16",
+                "#fbbf24",
+                "vio_17",
+                "#fb923c",
+                "vio_18",
+                "#a78bfa",
+                "vio_19",
+                "#34d399",
+                "vio_20",
+                "#a78bfa",
+                "vio_21",
+                "#f472b6",
+                "vio_22",
+                "#f87171",
+                "vio_23",
+                "#a78bfa",
+                "vio_24",
+                "#38bdf8",
+                "vio_25",
+                "#a3e635",
+                "vio_26",
+                "#f472b6",
+                "vio_27",
+                "#a78bfa",
+                "vio_28",
+                "#fb923c",
+                "vio_29",
+                "#34d399",
+                "vio_30",
+                "#34d399",
+                "vio_31",
+                "#38bdf8",
+                "vio_32",
+                "#38bdf8",
+                "vio_33",
+                "#f87171",
+                "vio_34",
+                "#34d399",
+                "vio_35",
+                "#a3e635",
+                "vio_36",
+                "#f472b6",
+                "vio_37",
+                "#a78bfa",
+                "#94a3b8"
+              ],
+              "line-opacity": 1,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                0.6,
+                10,
+                1.6
+              ]
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "office_id"
+                ],
+                "vio_01",
+                "#a3e635",
+                "vio_02",
+                "#38bdf8",
+                "vio_03",
+                "#f472b6",
+                "vio_04",
+                "#fbbf24",
+                "vio_05",
+                "#fb923c",
+                "vio_06",
+                "#f87171",
+                "vio_07",
+                "#38bdf8",
+                "vio_08",
+                "#fbbf24",
+                "vio_09",
+                "#a3e635",
+                "vio_10",
+                "#fbbf24",
+                "vio_11",
+                "#a3e635",
+                "vio_12",
+                "#f472b6",
+                "vio_13",
+                "#fbbf24",
+                "vio_14",
+                "#fb923c",
+                "vio_15",
+                "#f87171",
+                "vio_16",
+                "#fbbf24",
+                "vio_17",
+                "#fb923c",
+                "vio_18",
+                "#a78bfa",
+                "vio_19",
+                "#34d399",
+                "vio_20",
+                "#a78bfa",
+                "vio_21",
+                "#f472b6",
+                "vio_22",
+                "#f87171",
+                "vio_23",
+                "#a78bfa",
+                "vio_24",
+                "#38bdf8",
+                "vio_25",
+                "#a3e635",
+                "vio_26",
+                "#f472b6",
+                "vio_27",
+                "#a78bfa",
+                "vio_28",
+                "#fb923c",
+                "vio_29",
+                "#34d399",
+                "vio_30",
+                "#34d399",
+                "vio_31",
+                "#38bdf8",
+                "vio_32",
+                "#38bdf8",
+                "vio_33",
+                "#f87171",
+                "vio_34",
+                "#34d399",
+                "vio_35",
+                "#a3e635",
+                "vio_36",
+                "#f472b6",
+                "vio_37",
+                "#a78bfa",
+                "#94a3b8"
+              ],
+              "line-opacity": 1,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                0.6,
+                10,
+                1.6
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 12,
+        "minzoom": 4,
+        "sourceLayer": "vehicle_inspection_jurisdictions"
+      },
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "vehicle-inspection-jurisdictions",
+      "sourceUrl": "./geo/vehicle_inspection_jurisdictions_1150421.pmtiles"
+    },
+    "vehicleInspectionOffices#2": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "vehicleInspectionOffices",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "office_kind"
+                ],
+                "office",
+                "#facc15",
+                "station",
+                "#22d3ee",
+                "substation",
+                "#e879f9",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                2,
+                5,
+                7.2,
+                12,
+                14.4
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "office_kind"
+                ],
+                "office",
+                "#facc15",
+                "station",
+                "#22d3ee",
+                "substation",
+                "#e879f9",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                2,
+                5,
+                7.2,
+                12,
+                14.4
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "office_kind"
+                ],
+                "office",
+                "#facc15",
+                "station",
+                "#22d3ee",
+                "substation",
+                "#e879f9",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.4,
+                5,
+                4,
+                12,
+                8
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "office_kind"
+                ],
+                "office",
+                "#facc15",
+                "station",
+                "#22d3ee",
+                "substation",
+                "#e879f9",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.4,
+                5,
+                4,
+                12,
+                8
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 4,
+        "sourceLayer": "vehicle_inspection_offices"
+      },
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
+      "sourceId": "vehicle-inspection-offices",
+      "sourceUrl": "./geo/vehicle_inspection_offices_1150421.pmtiles"
+    }
+  },
+  "params": {
+    "accessibleParkFacilities": [
+      {
+        "label": "設施類型",
+        "options": [
+          {
+            "label": "其他無障礙 POI",
+            "value": "accessible_poi"
+          },
+          {
+            "label": "路徑",
+            "value": "path"
+          },
+          {
+            "label": "公廁",
+            "value": "toilet"
+          },
+          {
+            "label": "公園",
+            "value": "park"
+          },
+          {
+            "label": "出入口",
+            "value": "entrance"
+          },
+          {
+            "label": "遊戲場",
+            "value": "playground"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "accessible_poi",
+          "path",
+          "toilet",
+          "park",
+          "entrance",
+          "playground"
+        ]
+      },
+      {
+        "label": "無障礙狀態",
+        "options": [
+          {
+            "label": "可無障礙使用",
+            "value": "yes"
+          },
+          {
+            "label": "部分可使用",
+            "value": "limited"
+          },
+          {
+            "label": "不可無障礙使用",
+            "value": "no"
+          },
+          {
+            "label": "未標註／未知",
+            "value": "unknown"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "yes",
+          "limited",
+          "no",
+          "unknown"
+        ]
+      },
+      {
+        "defaultValue": "YlGnBu",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "YlGnBu"
+      },
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.75,
+        "valueText": "0.75"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "atmSitesFisc": [
+      {
+        "label": "機構類別",
+        "options": [
+          {
+            "label": "本國銀行",
+            "value": "domestic_bank"
+          },
+          {
+            "label": "中華郵政（郵局）",
+            "value": "post_office"
+          },
+          {
+            "label": "農會信用部",
+            "value": "farmers_credit"
+          },
+          {
+            "label": "漁會信用部",
+            "value": "fishermen_credit"
+          },
+          {
+            "label": "信用合作社",
+            "value": "credit_cooperative"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "domestic_bank",
+          "post_office",
+          "farmers_credit",
+          "fishermen_credit",
+          "credit_cooperative"
+        ]
+      },
+      {
+        "label": "只看輪椅可用",
+        "type": "toggle",
+        "value": false
+      },
+      {
+        "label": "只看視障語音服務",
+        "type": "toggle",
+        "value": false
+      },
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.75,
+        "valueText": "0.75"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "communityCenters": [
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "convenienceStores": [
+      {
+        "defaultValue": "cividis",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "cividis"
+      },
+      {
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 1,
+        "valueText": "1.00"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "countyStreetlights": [
+      {
+        "label": "燈具類型",
+        "options": [
+          {
+            "label": "LED 燈具",
+            "value": "True"
+          },
+          {
+            "label": "非 LED 燈具",
+            "value": "False"
+          },
+          {
+            "label": "不明",
+            "value": "__other__"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "True",
+          "False",
+          "__other__"
+        ]
+      },
+      {
+        "defaultValue": "cividis",
+        "label": "網格顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "grid",
+        "type": "palette",
+        "value": "cividis"
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "drinkingWaterPoints": [
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "financialBranchesFisc": [
+      {
+        "label": "機構類別",
+        "options": [
+          {
+            "label": "本國銀行",
+            "value": "domestic_bank"
+          },
+          {
+            "label": "外國銀行",
+            "value": "foreign_bank"
+          },
+          {
+            "label": "陸商銀行",
+            "value": "mainland_bank"
+          },
+          {
+            "label": "信用合作社",
+            "value": "credit_cooperative"
+          },
+          {
+            "label": "農會信用部",
+            "value": "farmers_credit"
+          },
+          {
+            "label": "漁會信用部",
+            "value": "fishermen_credit"
+          },
+          {
+            "label": "中華郵政儲匯單位",
+            "value": "post_savings"
+          },
+          {
+            "label": "票券金融公司",
+            "value": "bills_finance"
+          },
+          {
+            "label": "中央銀行",
+            "value": "central_bank"
+          },
+          {
+            "label": "其他（財政部國庫署、關貿網路）",
+            "value": "other"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "domestic_bank",
+          "foreign_bank",
+          "mainland_bank",
+          "credit_cooperative",
+          "farmers_credit",
+          "fishermen_credit",
+          "post_savings",
+          "bills_finance",
+          "central_bank",
+          "other"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "govServiceOffices": [
+      {
+        "label": "機關類型",
+        "options": [
+          {
+            "label": "公所",
+            "value": "district_office"
+          },
+          {
+            "label": "戶政事務所",
+            "value": "household_registration"
+          },
+          {
+            "label": "地政事務所",
+            "value": "land_office"
+          },
+          {
+            "label": "戶政辦公據點",
+            "value": "household_registration_branch"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "district_office",
+          "household_registration",
+          "land_office",
+          "household_registration_branch"
+        ]
+      },
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "iPostBoxes": [
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "insuranceInstitutions": [
+      {
+        "label": "機構類型",
+        "options": [
+          {
+            "label": "人壽保險公司",
+            "value": "life_insurer"
+          },
+          {
+            "label": "產物保險公司",
+            "value": "non_life_insurer"
+          },
+          {
+            "label": "再保險公司",
+            "value": "reinsurer"
+          },
+          {
+            "label": "保險代理人公司",
+            "value": "insurance_agency"
+          },
+          {
+            "label": "銀行兼營保險代理人",
+            "value": "bank_insurance_agency"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "life_insurer",
+          "non_life_insurer",
+          "reinsurer",
+          "insurance_agency",
+          "bank_insurance_agency"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "landOfficeJurisdiction": [
+      {
+        "label": "透明度 0.25",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.25,
+        "valueText": "0.25"
+      }
+    ],
+    "materialRecyclingPoints": [
+      {
+        "label": "回收材質",
+        "options": [
+          {
+            "label": "紙類／紙容器",
+            "value": "paper"
+          },
+          {
+            "label": "塑膠／寶特瓶",
+            "value": "plastic"
+          },
+          {
+            "label": "玻璃",
+            "value": "glass"
+          },
+          {
+            "label": "金屬／鐵鋁罐",
+            "value": "metal"
+          },
+          {
+            "label": "衣物／鞋類",
+            "value": "clothing"
+          },
+          {
+            "label": "電池／電子電器",
+            "value": "electronics"
+          },
+          {
+            "label": "廢油／綠色廢棄物",
+            "value": "organic"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "paper",
+          "plastic",
+          "glass",
+          "metal",
+          "clothing",
+          "electronics",
+          "organic"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "postMailboxes": [
+      {
+        "label": "郵筒類別",
+        "options": [
+          {
+            "label": "普通郵筒",
+            "value": "regular"
+          },
+          {
+            "label": "限時郵筒",
+            "value": "express"
+          },
+          {
+            "label": "限時普通雙用",
+            "value": "dual"
+          },
+          {
+            "label": "同址兩筒（普通＋限時）",
+            "value": "pair"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "regular",
+          "express",
+          "dual",
+          "pair"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "postOfficeFxCounters": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "postOffices": [
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "publicLifeOsmCoverage": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "publicToilets": [
+      {
+        "label": "場所類別",
+        "options": [
+          {
+            "label": "商業營業場所",
+            "value": "商業營業場所"
+          },
+          {
+            "label": "民眾洽公場所",
+            "value": "民眾洽公場所"
+          },
+          {
+            "label": "社福／集會場所",
+            "value": "社福機構、集會場所"
+          },
+          {
+            "label": "公園",
+            "value": "公園"
+          },
+          {
+            "label": "交通場站",
+            "value": "交通"
+          },
+          {
+            "label": "文化育樂場所",
+            "value": "文化育樂活動場所"
+          },
+          {
+            "label": "宗教禮儀場所",
+            "value": "宗教禮儀場所"
+          },
+          {
+            "label": "觀光／風景區",
+            "value": "觀光地區及風景區"
+          },
+          {
+            "label": "休閒娛樂場所",
+            "value": "休閒娛樂場所"
+          },
+          {
+            "label": "其他",
+            "value": "其他"
+          },
+          {
+            "label": "未分類",
+            "value": ""
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "商業營業場所",
+          "民眾洽公場所",
+          "社福機構、集會場所",
+          "公園",
+          "交通",
+          "文化育樂活動場所",
+          "宗教禮儀場所",
+          "觀光地區及風景區",
+          "休閒娛樂場所",
+          "其他",
+          ""
+        ]
+      },
+      {
+        "defaultValue": "PuBu",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "PuBu"
+      },
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.75,
+        "valueText": "0.75"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "publicWasteBaskets": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "retailMarkets": [
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "securitiesFuturesInstitutions": [
+      {
+        "label": "據點類型",
+        "options": [
+          {
+            "label": "證券商分公司",
+            "value": "securities_branch"
+          },
+          {
+            "label": "期貨商總公司",
+            "value": "futures_head_office"
+          },
+          {
+            "label": "期貨商分公司",
+            "value": "futures_branch"
+          },
+          {
+            "label": "證券投資信託公司（投信）",
+            "value": "investment_trust"
+          },
+          {
+            "label": "證券投資顧問公司（投顧）",
+            "value": "investment_advisory"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "securities_branch",
+          "futures_head_office",
+          "futures_branch",
+          "investment_trust",
+          "investment_advisory"
+        ]
+      },
+      {
+        "label": "隱藏證券自營部門",
+        "type": "toggle",
+        "value": false
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "vehicleInspectionOffices": [
+      {
+        "label": "所站種類",
+        "options": [
+          {
+            "label": "監理所",
+            "value": "office"
+          },
+          {
+            "label": "監理站",
+            "value": "station"
+          },
+          {
+            "label": "監理分站",
+            "value": "substation"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "office",
+          "station",
+          "substation"
+        ]
+      },
+      {
+        "label": "轄區業務",
+        "options": [
+          {
+            "label": "汽車監理",
+            "value": "car"
+          },
+          {
+            "label": "機車監理",
+            "value": "motorcycle"
+          }
+        ],
+        "type": "select",
+        "value": "car"
+      },
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ]
+  }
+}

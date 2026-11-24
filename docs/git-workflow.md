@@ -53,6 +53,23 @@ gh pr merge <PR> --merge
 7. CI（`.github/workflows/ci.yml`，PR 到 `develop`／`master` 都會跑）綠了 → `gh pr merge <PR> --merge`
 8. 更新 `docs/features/<slug>/changelog.md` 記錄 PR # + merge commit hash
 
+## 合併 develop 進工作分支（`npm run merge:develop`）
+
+PR 等合併期間 develop 前進了（疊層 PR、其他 session 先合），在工作分支跑：
+
+```bash
+npm run merge:develop -- --dry-run   # 只列會衝突的檔與各自怎麼處理（會 fetch，不動工作區）
+npm run merge:develop                # fetch → git merge --no-commit origin/develop → 自動處理共用檔
+```
+
+- 工作區有未提交的改動會拒絕執行。沒有衝突就照一般 `git merge` 直接 commit。
+- 自動處理的只有這幾種（`scripts/dev/merge-develop.mjs`）：
+  - `layer-golden/` 目錄下的檔（每個主題一檔，加 `_order.json`）、`layer-style-inventory.json`：取 develop 版（develop 已刪的檔移除）後用 `npx vite-node scripts/preprocess/dump-layer-golden.ts`、`npm run design:audit-layers` 重產（dump 只重寫有變的檔）。
+  - `CHANGELOG.md`：只處理 Unreleased，兩邊條目都保留（develop 在前、依 `###` 小節合併）；本分支動到已發布段落就停。
+  - `src/**/locales/**/*.json`：兩邊的鍵都留（develop 在前）；同鍵不同值或有重複鍵就停。
+- 其他檔案有衝突：工具不碰，列出清單後以非 0 結束。手動解完、`git add` 後**再跑一次**，會接著做剩下的（重產要等原始碼沒有衝突標記）。
+- 有衝突時不會自動 commit：看完它列出的檔與 `git diff --cached`，跑 `npm run verify` 後自己 `git commit`。工具不使用 `reset --hard`、`checkout -- .`、`clean`。
+
 ## 何時開 hotfix
 
 - **hotfix**：線上炸了、使用者有感（例如 Supabase 打掛、layer 全消失）→ 從 `master` 開 `hotfix/<slug>` → PR 到 `master` → 發 PATCH 版（見 RELEASING.md §Hotfix）→ 把 `master` 合回 `develop`

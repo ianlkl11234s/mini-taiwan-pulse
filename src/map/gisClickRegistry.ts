@@ -15,7 +15,7 @@ import { repPointClickLayerIds } from './repPointOverlays';
  *   下方迴圈由上往下 `queryRenderedFeatures`，第一個命中就 break。
  *   細節豐富的小目標排前、大面積面層刻意排末（校地面 / 等時圈 / 溫度網格…）。
  *   **重排 = 靜默改掉「點下去命中哪一層」**，沒有型別能擋 → 由黃金快照的
- *   `gisLayers` section 逐位元凍結（`src/data/__tests__/__fixtures__/layer-golden.json`）。
+ *   `gisLayers` section 逐位元凍結（`src/data/__tests__/__fixtures__/layer-golden/`）。
  *
  * ── 為什麼**不**從 manifest 派生（2026-08-12 拍板改案）─────────────
  *   Phase 3 原規劃「由 manifest 的 `popup` ＋ 新增的 `clickPriority` 欄位派生本表」。
@@ -120,9 +120,11 @@ export const GIS_LAYERS: GisLayerEntry[] = [
   { layers: ["ripe-atlas-probes-circle", "ripe-atlas-probes-glow"], type: "ripeAtlasProbe" },
   // 全球格網（z6／z8／z10 同 source）＋ 台灣兩級 PMTiles，各自 fill/line 兩個 layer
   { layers: ["ookla-mobile-global-fill", "ookla-mobile-global-line",
+             "ookla-mobile-global-fill-lo", "ookla-mobile-global-line-lo",
              "ookla-tw-z16-mobile-fill", "ookla-tw-z16-mobile-line",
              "ookla-tw-z14-mobile-fill", "ookla-tw-z14-mobile-line"], type: "ooklaMobileGrid" },
   { layers: ["ookla-fixed-global-fill", "ookla-fixed-global-line",
+             "ookla-fixed-global-fill-lo", "ookla-fixed-global-line-lo",
              "ookla-tw-z16-fixed-fill", "ookla-tw-z16-fixed-line",
              "ookla-tw-z14-fixed-fill", "ookla-tw-z14-fixed-line"], type: "ooklaFixedGrid" },
   // 🎓 教育：6 個學校點層共用 sourceId `edu-schools`（總覽 + 5 分級 + 偏遠），
@@ -825,6 +827,56 @@ export const GIS_LAYERS: GisLayerEntry[] = [
   { layers: ["th-crops-rubber-fill", "th-crops-palm-fill", "th-crops-sugarcane-fill", "th-crops-maize-fill", "th-crops-cassava-fill", "th-crops-rice-fill"], type: "thCrops" },
   { layers: ["th-population-amphoe-fill", "th-population-province-fill"], type: "thPopulation" },
   { layers: ["th-admin-tambon-fill", "th-admin-amphoe-fill", "th-admin-province-fill", "th-admin-country-fill"], type: "thAdminBoundaries" },
+  // 印尼第 5–9 波（2026-11-24）
+  { layers: ["id-schools-circle"], type: "idSchools" },
+  { layers: ["id-health-circle"], type: "idHealthFacilities" },
+  { layers: ["id-fire-circle"], type: "idFireStations" },
+  { layers: ["id-police-circle"], type: "idPoliceStations" },
+  { layers: ["id-prisons-circle"], type: "idPrisonsCourts" },
+  { layers: ["id-immigration-circle"], type: "idImmigrationOffices" },
+  { layers: ["id-tj-stops-circle", "id-tj-routes-line"], type: "idTransjakarta" },
+  { layers: ["id-post-circle"], type: "idPostOffices" },
+  { layers: ["id-markets-circle"], type: "idMarkets" },
+  { layers: ["id-banks-bank-circle", "id-banks-atm-circle"], type: "idBanks" },
+  { layers: ["id-cultural-circle"], type: "idCulturalFacilities" },
+  { layers: ["id-heritage-circle"], type: "idHeritageSites" },
+  { layers: ["id-comm-towers-circle"], type: "idCommTowers" },
+  { layers: ["id-worship-circle"], type: "idPlacesOfWorship" },
+  { layers: ["id-experiences-circle"], type: "idExperiences" },
+  { layers: ["id-accommodation-circle"], type: "idAccommodation" },
+  { layers: ["id-weather-circle"], type: "idWeatherStations" },
+  { layers: ["id-factories-circle"], type: "idFactories" },
+  { layers: ["id-veterinary-circle"], type: "idVeterinary" },
+  // 印尼（2026-11-23 第 0–4 波）：點、線在前，面（人口、IDM、行政界）最後
+  { layers: ["id-stations-circle"], type: "idStations" },
+  { layers: ["id-rail-lines-line"], type: "idRailLines" },
+  { layers: ["id-hubs-circle"], type: "idTransportHubs" },
+  { layers: ["id-power-plants-circle", "id-power-plants-fill"], type: "idPowerPlants" },
+  { layers: ["id-power-substations-circle", "id-power-lines-line", "id-power-substations-fill"], type: "idPowerGrid" },
+  { layers: ["id-renewables-circle", "id-renewables-fill", "id-solar-potential-fill"], type: "idRenewables" },
+  { layers: ["id-fuel-stations-circle"], type: "idFuelStations" },
+  { layers: ["id-place-names-circle"], type: "idPlaceNames" },
+  { layers: ["id-outer-islands-circle"], type: "idOuterIslands" },
+  { layers: ["id-faults-pvmbg-line", "id-faults-pusgen-line"], type: "idFaults" },
+  { layers: ["id-mountain-rescue-circle"], type: "idMountainRescue" },
+  { layers: ["id-dibi-fill"], type: "idDibiHydromet" },
+  { layers: ["id-bridges-circle"], type: "idBridges" },
+  { layers: ["id-water-facilities-circle"], type: "idWaterFacilities" },
+  { layers: ["id-watersheds-fill"], type: "idWatersheds" },
+  { layers: ["id-subsidence-circle"], type: "idSubsidence" },
+  { layers: ["id-nature-spots-circle"], type: "idNatureSpots" },
+  { layers: ["id-forest-fill"], type: "idConservationForest" },
+  { layers: ["id-camps-circle"], type: "idCamps" },
+  { layers: ["id-farmland-fill"], type: "idFarmland" },
+  { layers: ["id-aquaculture-fill"], type: "idAquaculture" },
+  { layers: ["id-cemeteries-fill"], type: "idCemeteries" },
+  { layers: ["id-parks-fill"], type: "idParks" },
+  { layers: ["id-sports-fill"], type: "idSportsVenues" },
+  { layers: ["id-ikn-bwp-fill", "id-ikn-utara-fill", "id-ikn-rdtr-fill", "id-ikn-delineasi-fill"], type: "idIkn" },
+  { layers: ["id-kek-fill"], type: "idSpecialEconomicZones" },
+  { layers: ["id-rural-kabkota-fill", "id-rural-province-fill"], type: "idRuralDevelopment" },
+  { layers: ["id-population-kabkota-fill", "id-population-province-fill"], type: "idPopulation" },
+  { layers: ["id-admin-kabkota-fill", "id-admin-province-fill", "id-admin-country-fill"], type: "idAdminBoundaries" },
   { layers: ["vn-population-province-fill"], type: "vnPopulation" },
   { layers: ["vn-admin-province-fill"], type: "vnAdminBoundaries" },
   // 中國（2026-11-13 第 0–1 波，站主限定）：點、線在前，人口面、行政界最後；人口網格是 raster，不可點

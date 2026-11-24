@@ -1,0 +1,242 @@
+{
+ "measuredAt": "2026-11-23T16:12:21.547Z",
+ "dist": "dist",
+ "total": {
+  "files": 30,
+  "raw": 15025141,
+  "gzip": 3467250,
+  "brotli": 2626161
+ },
+ "byRole": {
+  "entry": {
+   "files": 1,
+   "raw": 3729554,
+   "gzip": 1042447,
+   "brotli": 794699
+  },
+  "modulepreload": {
+   "files": 23,
+   "raw": 11155589,
+   "gzip": 2400625,
+   "brotli": 1810480
+  },
+  "stylesheet": {
+   "files": 6,
+   "raw": 139998,
+   "gzip": 24178,
+   "brotli": 20982
+  }
+ },
+ "files": [
+  {
+   "file": "assets/main-rAwbWjEq.js",
+   "role": "entry",
+   "raw": 3729554,
+   "gzip": 1042447,
+   "brotli": 794699
+  },
+  {
+   "file": "assets/locales-c2OAhG48.js",
+   "role": "modulepreload",
+   "raw": 195110,
+   "gzip": 60920,
+   "brotli": 52492
+  },
+  {
+   "file": "assets/mapbox-gl-zJn3Jg9d.js",
+   "role": "modulepreload",
+   "raw": 1680568,
+   "gzip": 460086,
+   "brotli": 374921
+  },
+  {
+   "file": "assets/coordinates-Bm4F9z4o.js",
+   "role": "modulepreload",
+   "raw": 605,
+   "gzip": 395,
+   "brotli": 344
+  },
+  {
+   "file": "assets/localeStore-scddLMxa.js",
+   "role": "modulepreload",
+   "raw": 626576,
+   "gzip": 199336,
+   "brotli": 152619
+  },
+  {
+   "file": "assets/crosshair-CeB2RZWp.js",
+   "role": "modulepreload",
+   "raw": 3057,
+   "gzip": 946,
+   "brotli": 830
+  },
+  {
+   "file": "assets/Slider-BOc-Ba5N.js",
+   "role": "modulepreload",
+   "raw": 605,
+   "gzip": 391,
+   "brotli": 331
+  },
+  {
+   "file": "assets/loadingRegistry-BBocUso0.js",
+   "role": "modulepreload",
+   "raw": 1094,
+   "gzip": 585,
+   "brotli": 534
+  },
+  {
+   "file": "assets/statisticsText-Jnr-wlAY.js",
+   "role": "modulepreload",
+   "raw": 6387646,
+   "gzip": 1051019,
+   "brotli": 726567
+  },
+  {
+   "file": "assets/index-BiHzSKx7.js",
+   "role": "modulepreload",
+   "raw": 193823,
+   "gzip": 50732,
+   "brotli": 43132
+  },
+  {
+   "file": "assets/designTokens-BQJm-27P.js",
+   "role": "modulepreload",
+   "raw": 8677,
+   "gzip": 3891,
+   "brotli": 3286
+  },
+  {
+   "file": "assets/simPlaybackClock-B5fdrSe8.js",
+   "role": "modulepreload",
+   "raw": 782970,
+   "gzip": 193223,
+   "brotli": 146200
+  },
+  {
+   "file": "assets/rotate-ccw-vbTbJ2J6.js",
+   "role": "modulepreload",
+   "raw": 620,
+   "gzip": 329,
+   "brotli": 288
+  },
+  {
+   "file": "assets/layerSearch-BcTWm7Oz.js",
+   "role": "modulepreload",
+   "raw": 13602,
+   "gzip": 5475,
+   "brotli": 4649
+  },
+  {
+   "file": "assets/LoadingScreen-D00xs7GX.js",
+   "role": "modulepreload",
+   "raw": 128013,
+   "gzip": 42745,
+   "brotli": 36716
+  },
+  {
+   "file": "assets/vizSpec-V7jCrKcB.js",
+   "role": "modulepreload",
+   "raw": 2946,
+   "gzip": 1520,
+   "brotli": 1302
+  },
+  {
+   "file": "assets/basemapLanguage-CEs1hQah.js",
+   "role": "modulepreload",
+   "raw": 18711,
+   "gzip": 7340,
+   "brotli": 6625
+  },
+  {
+   "file": "assets/krEcoWasteTypes-CtX3-Pv-.js",
+   "role": "modulepreload",
+   "raw": 1038536,
+   "gzip": 297595,
+   "brotli": 237988
+  },
+  {
+   "file": "assets/sceneReadiness-BaNe-gv0.js",
+   "role": "modulepreload",
+   "raw": 45064,
+   "gzip": 13378,
+   "brotli": 12060
+  },
+  {
+   "file": "assets/vizNullPattern-lPinkePx.js",
+   "role": "modulepreload",
+   "raw": 777,
+   "gzip": 513,
+   "brotli": 456
+  },
+  {
+   "file": "assets/cardPayload-D1xQFjGa.js",
+   "role": "modulepreload",
+   "raw": 15666,
+   "gzip": 5988,
+   "brotli": 5387
+  },
+  {
+   "file": "assets/mapbox-gl-CUmU8MeJ.js",
+   "role": "modulepreload",
+   "raw": 967,
+   "gzip": 485,
+   "brotli": 439
+  },
+  {
+   "file": "assets/privacyLocale-CHE0foEn.js",
+   "role": "modulepreload",
+   "raw": 389,
+   "gzip": 276,
+   "brotli": 242
+  },
+  {
+   "file": "assets/solarElevation-B3NyPpeQ.js",
+   "role": "modulepreload",
+   "raw": 9567,
+   "gzip": 3457,
+   "brotli": 3072
+  },
+  {
+   "file": "assets/Slider-Bz7X-eOl.css",
+   "role": "stylesheet",
+   "raw": 1599,
+   "gzip": 507,
+   "brotli": 396
+  },
+  {
+   "file": "assets/LoadingScreen-Df71muzS.css",
+   "role": "stylesheet",
+   "raw": 36019,
+   "gzip": 6587,
+   "brotli": 5817
+  },
+  {
+   "file": "assets/cardPayload-BSL8k_E1.css",
+   "role": "stylesheet",
+   "raw": 4131,
+   "gzip": 1066,
+   "brotli": 871
+  },
+  {
+   "file": "assets/mapbox-gl-V3smlL-h.css",
+   "role": "stylesheet",
+   "raw": 38671,
+   "gzip": 5391,
+   "brotli": 4558
+  },
+  {
+   "file": "assets/main-Cf4tCAoq.css",
+   "role": "stylesheet",
+   "raw": 56011,
+   "gzip": 9445,
+   "brotli": 8299
+  },
+  {
+   "file": "assets/tokens-DIeTihjC.css",
+   "role": "stylesheet",
+   "raw": 3567,
+   "gzip": 1182,
+   "brotli": 1041
+  }
+ ]
+}

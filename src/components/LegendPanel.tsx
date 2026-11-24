@@ -43,6 +43,7 @@ import { AisstreamVesselsLegend, AllenCoralAtlasLegend, AquacultureIntegratedLeg
 import { TransitReachGridLegend, TransitReachPlaybackLegend } from "./legend/transitReachLegends";
 import { FreewayTdcsSimLegend } from "./legend/freewayTdcsSimLegends";
 import { MapchallengeFacilityLegend, MapchallengeDay19ComplaintsLegend, MapchallengeDay19PotentialLegend, MapchallengeDay19PenaltiesLegend, MapchallengeDay21OsmRoadsLegend, MapchallengeDay23TasteTermsLegend, MapchallengeDay23TastePlacesLegend, MapchallengeDay23TasteForeignLegend, MapchallengeDay23TasteIntlLegend, MapchallengeDay23TasteVariantsLegend, MapchallengeOverlapLegend, MapchallengePopulationLegend, MapchallengeScaleTcChLegend, MapchallengeSeaViewLegend, MapchallengeSeaViewRunsLegend, MapchallengeDay06CoastLegend, MapchallengeDay06LighthousesLegend, MapchallengeDay06Taipei1932Legend, MapchallengeDay06Temples1921Legend, MapchallengeDay08AccessLegend, MapchallengeDay08ParksLegend, MapchallengeDay08Plan1955Legend, MapchallengeDay08SitesLegend, MapchallengeDay09UrbanRuralLegend, MapchallengeDay17DarkRoadsLegend, MapchallengeDay17DarkSkyLegend, MapchallengeDay17NightFallLegend, MapchallengeDay17LedShareLegend } from "./legend/mapchallengeLegends";
+import { mapchallengeDay21YearAt } from "../data/mapchallengeDay21Types";
 import { TransitAccessGridLegend, TransitAccessPlaybackLegend } from "./legend/transitAccessLegends";
 import { AviationAirspaceLegend, CctvLegend, DroneZonesLegend, FlightsLegend, FreewayCongestionLegend, HistoricalFlightTrailsLegend, JpRailwaysLegend, JpMajorRoadsLegend, JpMunicipalRoadsLegend, JpExpresswaysLegend, JpStationsLegend, OsmRoadDriveLegend, ParkingLegend, PortsLegend, RailLegend, RoadCongestionLegend, RoadEventsLegend, SatelliteLegend, TouristShuttleLegend, BusCrowdingSimLegend } from "./legend/transportLegends";
 import { AspectVectorLegend, BridgeResilienceLegend, BssBridgeLineLegend, BssBridgePointLegend, DisasterAlertLegend, EarthquakeGlobalLegend, EarthquakeLegend, EarthquakeReplayLegend, ErCongestionLegend, FireEventLegend, FireHydrantLegend, FireIsochroneLegend, FireStationLegend, FloodSensorLegend, GlobalEventsLegend, LiquefactionMonitoringLegend, MountainRescueLegend, NewsEventsLegend, NuclearLegend, SlopeVectorLegend, SoilLiquefactionPotentialLegend, TyphoonAgencyForecastLegend, TyphoonTrackLegend, WeakSoilLegend } from "./legend/hazardLegends";
@@ -74,6 +75,8 @@ import { PhAdminBoundariesLegend, PhDataLegend, PhOpenaqAirLegend, PhPopulationL
 import { VN_DATA_KEYS, VN_RASTER_KEYS } from "../data/vnDataKeys";
 import { TH_DATA_KEYS, TH_RASTER_KEYS } from "../data/thDataKeys";
 import { ThAdminBoundariesLegend, ThDataLegend, ThPopulationLegend, ThRasterLegend } from "./legend/thLegends";
+import { ID_DATA_KEYS, ID_RASTER_KEYS } from "../data/idDataKeys";
+import { IdAdminBoundariesLegend, IdDataLegend, IdPopulationLegend, IdRasterLegend, IdRuralDevelopmentLegend } from "./legend/idLegends";
 import { CA_WAVE_KEYS } from "../data/caWavesKeys";
 import { CA_WAVE_SPEC_BY_KEY } from "../data/caWavesLayers";
 import { VnAdminBoundariesLegend, VnDataLegend, VnPopulationLegend, VnRasterLegend } from "./legend/vnLegends";
@@ -322,12 +325,12 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "mapchallengeDay17LedShare", render: ({ isDark }) => <MapchallengeDay17LedShareLegend isDark={isDark} /> },
   { id: "mapchallengeDay19Complaints", render: ({ isDark }) => <MapchallengeDay19ComplaintsLegend isDark={isDark} /> },
   { id: "mapchallengeDay19Potential", render: ({ isDark, overlayParams, embedded }) => <MapchallengeDay19PotentialLegend isDark={isDark} windIdx={embedded ? (overlayParams.mapchallengeDay19PotentialWindIdx ?? 0) : undefined} /> },
-  { id: "mapchallengeDay19Penalties", render: ({ isDark }) => <MapchallengeDay19PenaltiesLegend isDark={isDark} /> },
-  { id: "mapchallengeDay21OsmRoads", render: ({ isDark }) => <MapchallengeDay21OsmRoadsLegend isDark={isDark} /> },
-  { id: "mapchallengeDay23TasteTerms", render: ({ isDark }) => <MapchallengeDay23TasteTermsLegend isDark={isDark} /> },
-  { id: "mapchallengeDay23TasteVariants", render: ({ isDark }) => <MapchallengeDay23TasteVariantsLegend isDark={isDark} /> },
-  { id: "mapchallengeDay23TastePlaces", render: ({ isDark }) => <MapchallengeDay23TastePlacesLegend isDark={isDark} /> },
-  { id: "mapchallengeDay23TasteForeign", render: ({ isDark }) => <MapchallengeDay23TasteForeignLegend isDark={isDark} /> },
+  { id: "mapchallengeDay19Penalties", render: ({ isDark, overlayParams, embedded }) => <MapchallengeDay19PenaltiesLegend isDark={isDark} scale={embedded ? (overlayParams.mapchallengeDay19PenaltiesScale ?? 1) : undefined} /> },
+  { id: "mapchallengeDay21OsmRoads", render: ({ isDark, overlayParams, embedded }) => <MapchallengeDay21OsmRoadsLegend isDark={isDark} year={embedded ? mapchallengeDay21YearAt(overlayParams.mapchallengeDay21OsmRoadsYear) : undefined} newOnly={embedded ? (overlayParams.mapchallengeDay21OsmRoadsNewOnly ?? 0) !== 0 : undefined} /> },
+  { id: "mapchallengeDay23TasteTerms", render: ({ isDark, overlayParams, embedded }) => <MapchallengeDay23TasteTermsLegend isDark={isDark} termIdx={embedded ? (overlayParams.mapchallengeDay23TasteTermsTermIdx ?? 0) : undefined} scale={embedded ? (overlayParams.mapchallengeDay23TasteTermsScale ?? 1) : undefined} /> },
+  { id: "mapchallengeDay23TasteVariants", render: ({ isDark, overlayParams, embedded }) => <MapchallengeDay23TasteVariantsLegend isDark={isDark} groupIdx={embedded ? (overlayParams.mapchallengeDay23TasteVariantsGroupIdx ?? 0) : undefined} scale={embedded ? (overlayParams.mapchallengeDay23TasteVariantsScale ?? 1) : undefined} /> },
+  { id: "mapchallengeDay23TastePlaces", render: ({ isDark, overlayParams, embedded }) => <MapchallengeDay23TastePlacesLegend isDark={isDark} scale={embedded ? (overlayParams.mapchallengeDay23TastePlacesScale ?? 1) : undefined} /> },
+  { id: "mapchallengeDay23TasteForeign", render: ({ isDark, overlayParams, embedded }) => <MapchallengeDay23TasteForeignLegend isDark={isDark} scale={embedded ? (overlayParams.mapchallengeDay23TasteForeignScale ?? 1) : undefined} /> },
   { id: "mapchallengeDay23TasteKr", render: ({ isDark }) => <MapchallengeDay23TasteIntlLegend layerKey="mapchallengeDay23TasteKr" isDark={isDark} /> },
   { id: "mapchallengeDay23TasteGb", render: ({ isDark }) => <MapchallengeDay23TasteIntlLegend layerKey="mapchallengeDay23TasteGb" isDark={isDark} /> },
   { id: "mapchallengeDay23TasteJp", render: ({ isDark }) => <MapchallengeDay23TasteIntlLegend layerKey="mapchallengeDay23TasteJp" isDark={isDark} /> },
@@ -387,6 +390,11 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "thPopulation", render: () => <ThPopulationLegend /> },
   ...TH_DATA_KEYS.map((key) => ({ id: key, render: () => <ThDataLegend layerKey={key} /> })),
   ...TH_RASTER_KEYS.map((key) => ({ id: key, render: () => <ThRasterLegend layerKey={key} /> })),
+  { id: "idAdminBoundaries", render: () => <IdAdminBoundariesLegend /> },
+  { id: "idPopulation", render: () => <IdPopulationLegend /> },
+  { id: "idRuralDevelopment", render: () => <IdRuralDevelopmentLegend /> },
+  ...ID_DATA_KEYS.map((key) => ({ id: key, render: () => <IdDataLegend layerKey={key} /> })),
+  ...ID_RASTER_KEYS.map((key) => ({ id: key, render: () => <IdRasterLegend layerKey={key} /> })),
   ...VN_RASTER_KEYS.map((key) => ({ id: key, render: () => <VnRasterLegend layerKey={key} /> })),
   // 加拿大第 3–8 波（2026-11-17）：規格驅動 36 層，重用菲律賓 PhSpecLegend
   ...CA_WAVE_KEYS.map((key) => ({ id: key, render: () => <PhSpecLegend spec={CA_WAVE_SPEC_BY_KEY[key]} /> })),

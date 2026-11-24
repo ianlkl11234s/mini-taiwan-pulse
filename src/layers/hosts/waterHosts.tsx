@@ -256,6 +256,7 @@ export const TwMarineHeatwavesHost: LayerHostComponent = ({ deps }) => {
     period: twMarineHeatPeriod("twMarineHeatwaves", p.twMarineHeatwavesYearIdx, p.twMarineHeatwavesMonthIdx),
     channel: "r",
     color,
+    classMask: mask,
   });
   return null;
 };
@@ -276,6 +277,8 @@ export const TwCoralBleachingHeatStressHost: LayerHostComponent = ({ deps }) => 
     period: twMarineHeatPeriod("twCoralBleachingHeatStress", p.twCoralBleachingHeatStressYearIdx, p.twCoralBleachingHeatStressMonthIdx),
     channel: dhw ? "r" : "g",
     color,
+    classMask: dhw ? dhwMask : baaMask,
+    dhwView: dhw,
   });
   return null;
 };
