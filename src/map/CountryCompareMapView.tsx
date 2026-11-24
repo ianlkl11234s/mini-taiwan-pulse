@@ -7,7 +7,10 @@
  *   舊國圖層不會殘留（外國 hook 的 cleanup 大多不移除圖層）。
  * - **鏡頭**：位置、旋轉、傾斜各自操作；比例尺依緯度換算同步（`compareSync.syncScale`，可關）。地形各自依傾斜判斷。
  * - **圖層**：右國圖層由右圖自己的 `<LayerHosts role="right">` 掛（主地圖那份同一批 Host 讀成 false）；
- *   右國統計以唯讀身分掛（資料仍由主地圖那份擁有）。WORLD／SIM 與 overlay 型圖層只在主地圖。
+ *   右國統計以唯讀身分掛（資料仍由主地圖那份擁有）。WORLD／SIM 只在主地圖。
+ * - **overlay 型右國圖層**（G2-1b）：右圖自己跑一份 overlay 管理（只含右國的 `OVERLAY_REGISTRY` 項目）：
+ *   style.load 時建 source／layer 並 hydrate，圖層開關、主題、參數變動時更新；hydrate 紀錄以地圖實例分開。
+ *   dynamicData 的 source 由右圖那份 Host 的 hook 餵資料；主地圖用 `leftMapVisibility` 把它們讀成關閉。
  * - **點擊**：右圖自己綁 click，與主地圖共用 `gisClickQuery` 的命中與欄位整理；結果進同一個停靠 popup，
  *   properties 帶 `compare_side: "right"`，選取圈畫在右圖。
  * - **卸載順序**：React 刪除子樹時由上而下跑 cleanup，本元件的 cleanup 早於子層 Host；`map.remove()` 延到
@@ -33,6 +36,12 @@ import { compareRightMap } from "./compareRightMap";
 import { sessionTracker } from "../lib/sessionTracker";
 import { loadingRegistry } from "../lib/loadingRegistry";
 import { LayerHosts } from "../layers/LayerHost";
+import { useOverlayParams } from "../layers/layerParamsAccess";
+import { OVERLAY_REGISTRY } from "./overlayRegistry";
+import { isRightSideKey } from "./compareCountrySides";
+import { addAllOverlays, hydrateOverlayIfNeeded, isOverlayVisible, refreshFallbackHydratedOverlay, resetOverlayHydration, setOverlayTaskSuffix, setOverlayVisible, updateAllOverlayThemes } from "./overlayManager";
+import { createJpHeightLifecycle } from "./jpHeightLifecycle";
+import { onLayerAssetIndexReady } from "../data/layerAssetIndex";
 import type { AppLayerHostDeps } from "../layers/layerHostDeps";
 import type { CountryCamera, CountryCode } from "../constants/countries";
 
@@ -80,6 +89,12 @@ export function CountryCompareMapView({ mainMap, rightCountry, styleUrl, pureBla
   const hiddenLabelsRef = useRef(new Set<string>());
   const onFeatureInfoRef = useRef(onFeatureInfo);
   const loadingLabelRef = useRef(t("compare.rightMapLoading"));
+  // overlay 型右國圖層（右圖只管右國那幾筆；換右國由 key 重建，掛載時算一次即可）
+  const overlayParams = useOverlayParams();
+  const overlayParamsRef = useRef(overlayParams);
+  overlayParamsRef.current = overlayParams;
+  const [rightOverlays] = useState(() => OVERLAY_REGISTRY.filter((config) => isRightSideKey(String(config.id), rightCountry)));
+  const jpHeightRef = useRef<ReturnType<typeof createJpHeightLifecycle> | null>(null);
   isDarkRef.current = isDarkTheme;
   pureBlackRef.current = pureBlack;
   labelsRef.current = showBasemapLabels;
@@ -108,12 +123,32 @@ export function CountryCompareMapView({ mainMap, rightCountry, styleUrl, pureBla
       language: basemapLabelLanguage(localeStore.getSnapshot().locale),
     });
     const unbindLanguage = bindBasemapLanguage(map, localeStore);
+    setOverlayTaskSuffix(map, "-right");
+    const jpHeight = createJpHeightLifecycle(map);
+    jpHeightRef.current = jpHeight;
     map.on("style.load", () => {
       map.style?.setTransition({ duration: 0, delay: 0 });
+      jpHeight.resume();
       if (pureBlackRef.current) applyPureBlackTheme(map);
       hiddenLabelsRef.current.clear();
       setBasemapLabelsVisible(map, labelsRef.current, hiddenLabelsRef.current);
       ensureTerrainIfTilted(map);
+      // 右國 overlay：每次 style.load（含換底圖）重建 source／layer，這張圖的 hydrate 紀錄清掉重抓
+      if (rightOverlays.length === 0) return;
+      resetOverlayHydration(map);
+      const vis = layerVisibilityStore.getAll();
+      addAllOverlays(map, rightOverlays, isDarkRef.current, vis, overlayParamsRef.current, { deferJpHeightSources: true });
+      jpHeight.refresh(rightOverlays, vis, isDarkRef.current, overlayParamsRef.current);
+      for (const config of rightOverlays) {
+        if (isOverlayVisible(config, vis, overlayParamsRef.current)) void hydrateOverlayIfNeeded(map, config);
+      }
+    });
+    // 資產索引就緒：先前以部署時版本 hydrate 的改抓 CDN（同主地圖）
+    const offAssetIndex = onLayerAssetIndexReady(() => {
+      const vis = layerVisibilityStore.getAll();
+      for (const config of rightOverlays) {
+        if (!config.pmtiles && !config.dynamicData) refreshFallbackHydratedOverlay(map, config, isOverlayVisible(config, vis, overlayParamsRef.current));
+      }
     });
     // 地形各自判斷（兩國各自傾斜，不鏡射主圖）
     map.on("pitch", () => ensureTerrainIfTilted(map));
@@ -183,6 +218,9 @@ export function CountryCompareMapView({ mainMap, rightCountry, styleUrl, pureBla
     map.on("error", endLoading);
     return () => {
       endLoading();
+      offAssetIndex();
+      jpHeight.dispose();
+      jpHeightRef.current = null;
       cancelAnimationFrame(hoverFrame);
       offLock();
       offScale();
@@ -209,8 +247,41 @@ export function CountryCompareMapView({ mainMap, rightCountry, styleUrl, pureBla
     if (applied.styleUrl === styleUrl && applied.pureBlack === pureBlack) return;
     appliedRef.current = { styleUrl, pureBlack };
     if (applied.styleUrl === styleUrl && pureBlack) applyPureBlackTheme(map);
-    else map.setStyle(styleUrl, { diff: false } as never);
+    else {
+      jpHeightRef.current?.suspend();
+      map.setStyle(styleUrl, { diff: false } as never);
+    }
   }, [styleUrl, pureBlack, ready]);
+
+  // 右國 overlay 開關：跟著圖層開關 store（同主地圖 applyOverlayVisibility，只管右國那幾筆）
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !ready || rightOverlays.length === 0) return;
+    const apply = () => {
+      const vis = layerVisibilityStore.getAll();
+      for (const config of rightOverlays) {
+        const visible = isOverlayVisible(config, vis, overlayParamsRef.current);
+        if (visible) void hydrateOverlayIfNeeded(map, config);
+        setOverlayVisible(map, config, visible, isDarkRef.current, overlayParamsRef.current);
+      }
+      jpHeightRef.current?.refresh(rightOverlays, vis, isDarkRef.current, overlayParamsRef.current);
+    };
+    apply();
+    return layerVisibilityStore.subscribe(apply);
+  }, [ready, rightOverlays]);
+
+  // 右國 overlay 主題與參數（透明度、樣式、尺度）
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !ready || rightOverlays.length === 0) return;
+    const vis = layerVisibilityStore.getAll();
+    for (const config of rightOverlays) {
+      // 尺度類參數會改變哪一筆 config 可見（例：住宿密度 450m／1500m）
+      setOverlayVisible(map, config, isOverlayVisible(config, vis, overlayParams), isDarkTheme, overlayParams);
+    }
+    updateAllOverlayThemes(map, rightOverlays, isDarkTheme, overlayParams, vis);
+    jpHeightRef.current?.refresh(rightOverlays, vis, isDarkTheme, overlayParams);
+  }, [isDarkTheme, overlayParams, ready, rightOverlays]);
 
   // 地名開關
   useEffect(() => {

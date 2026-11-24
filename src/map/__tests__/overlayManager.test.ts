@@ -665,3 +665,53 @@ describe("manifest overlay source specs", () => {
     });
   }
 });
+
+describe("hydrate 紀錄以地圖實例分開（兩國並排 G2-1b）", () => {
+  const config = { id: "g2TestOverlay", sourceId: "g2-test-overlay", sourceUrl: "./g2_test/never_migrated.geojson", layers: [] } as unknown as OverlayConfig;
+  const fakeMap = () => {
+    const setData = vi.fn();
+    return { map: { getSource: () => ({ setData }) } as unknown as MapboxMap, setData };
+  };
+  const stubFetch = () => {
+    const spy = vi.fn(async () => new Response(JSON.stringify({ type: "FeatureCollection", features: [] }), { status: 200 }));
+    vi.stubGlobal("fetch", spy);
+    return spy;
+  };
+
+  it("同一個 source 在兩張地圖各自 hydrate；同一張圖不重抓", async () => {
+    resetOverlayHydration();
+    const fetchSpy = stubFetch();
+    const left = fakeMap();
+    const right = fakeMap();
+    try {
+      await hydrateOverlayIfNeeded(left.map, config);
+      await hydrateOverlayIfNeeded(right.map, config);
+      await hydrateOverlayIfNeeded(left.map, config);
+      expect(left.setData).toHaveBeenCalledTimes(1);
+      expect(right.setData).toHaveBeenCalledTimes(1);
+      expect(fetchSpy).toHaveBeenCalledTimes(2);
+    } finally {
+      vi.unstubAllGlobals();
+      resetOverlayHydration();
+    }
+  });
+
+  it("一張圖清掉（換底圖或 remove 後重建）不影響另一張的紀錄", async () => {
+    resetOverlayHydration();
+    stubFetch();
+    const left = fakeMap();
+    const right = fakeMap();
+    try {
+      await hydrateOverlayIfNeeded(left.map, config);
+      await hydrateOverlayIfNeeded(right.map, config);
+      resetOverlayHydration(right.map);
+      await hydrateOverlayIfNeeded(right.map, config);
+      await hydrateOverlayIfNeeded(left.map, config);
+      expect(right.setData).toHaveBeenCalledTimes(2);
+      expect(left.setData).toHaveBeenCalledTimes(1);
+    } finally {
+      vi.unstubAllGlobals();
+      resetOverlayHydration();
+    }
+  });
+});
