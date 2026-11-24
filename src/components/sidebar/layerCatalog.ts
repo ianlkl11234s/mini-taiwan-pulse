@@ -4115,7 +4115,7 @@ const THEME_CATALOG: ThemeDef[] = [
       { title: "電廠", layers: [fromManifest("usPowerPlants")] },
       { title: "電網", layers: [fromManifest("usPowerGrid")] },
       { title: "再生能源", layers: [fromManifest("usRenewables")] },
-      { title: "石化 · 油氣", layers: [fromManifest("usOilGas")] },
+      { title: "石化 · 油氣", layers: [fromManifest("usOilGas"), fromManifest("usStateWells")] },
       { title: "加油站", layers: [fromManifest("usFuelStations")] },
     ],
   },

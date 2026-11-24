@@ -44,4 +44,5 @@ export const UsPowerPlantsHost = makeUsDataHost("usPowerPlants");
 export const UsPowerGridHost = makeUsDataHost("usPowerGrid");
 export const UsRenewablesHost = makeUsDataHost("usRenewables");
 export const UsOilGasHost = makeUsDataHost("usOilGas");
+export const UsStateWellsHost = makeUsDataHost("usStateWells");
 export const UsFuelStationsHost = makeUsDataHost("usFuelStations");

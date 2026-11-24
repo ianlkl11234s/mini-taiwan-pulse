@@ -1,5 +1,5 @@
 {
-  "count": 11,
+  "count": 12,
   "gisLayers": {
     "usAdminBoundaries": {
       "layers": [
@@ -62,6 +62,12 @@
         "us-solar-fill"
       ],
       "type": "usRenewables"
+    },
+    "usStateWells": {
+      "layers": [
+        "us-state-wells-circle"
+      ],
+      "type": "usStateWells"
     },
     "usStations": {
       "layers": [
@@ -612,6 +618,61 @@
         "step": 0.05,
         "value": 0.85,
         "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "usStateWells": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "使用中（生產、注入、完井）",
+            "value": "active"
+          },
+          {
+            "label": "停用（關井、暫時棄置）",
+            "value": "inactive"
+          },
+          {
+            "label": "已核准、鑽井中",
+            "value": "permitted"
+          },
+          {
+            "label": "封井、棄置、乾井",
+            "value": "plugged"
+          },
+          {
+            "label": "未鑽（許可過期、撤回）",
+            "value": "not_drilled"
+          },
+          {
+            "label": "其他、狀態不明",
+            "value": "other_brand"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "active",
+          "inactive",
+          "permitted"
+        ]
+      },
+      {
+        "label": "透明度 0.60",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.6,
+        "valueText": "0.60"
       },
       {
         "label": "大小 1.0",

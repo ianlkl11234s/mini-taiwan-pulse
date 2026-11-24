@@ -706,6 +706,7 @@
     "usTransportHubs",
     "usPowerPlants",
     "usOilGas",
+    "usStateWells",
     "usRenewables",
     "usFuelStations",
     "usRailLines",

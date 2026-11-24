@@ -10000,6 +10000,13 @@
    "s3_key": "deploy-assets/world/us_renewables.pmtiles"
   },
   {
+   "path": "public/world/us_state_wells.pmtiles",
+   "bytes": 43325951,
+   "sha256": "25d1ecfb933a795448b5286340f06ce1808f2917a31cf82fd3b1aa8a2db251d6",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/us_state_wells.pmtiles"
+  },
+  {
    "path": "public/world/us_stations.pmtiles",
    "bytes": 37772067,
    "sha256": "1a9409c42bfb20b7da288b553a0927842823f7becdbc6361d9f7da3f9e793ceb",

@@ -207,6 +207,14 @@ const SIGN_TYPE_MAP: Record<string, L3> = {
   county: l3("郡道", "County road", "郡道"), township: l3("鎮道", "Township road", "タウンシップ道"), municipal: l3("市道", "Municipal road", "市道"),
 };
 
+const WELL_STATUS_CATS: readonly PhCat[] = [
+  cat("active", ["active"], "#22c55e", "使用中（生產、注入、完井）", "Active (producing, injection, completed)", "稼働（生産・圧入・完成）"),
+  cat("inactive", ["inactive"], "#facc15", "停用（關井、暫時棄置）", "Inactive (shut-in, temporarily abandoned)", "休止（閉井・一時放棄）"),
+  cat("permitted", ["permitted"], "#38bdf8", "已核准、鑽井中", "Permitted / drilling", "許可済み・掘削中"),
+  cat("plugged", ["plugged"], "#64748b", "封井、棄置、乾井", "Plugged / abandoned / dry hole", "閉塞・放棄・空井戸"),
+  cat("not_drilled", ["not_drilled"], "#475569", "未鑽（許可過期、撤回）", "Not drilled (permit expired / withdrawn)", "未掘削（許可失効・取消）"),
+];
+
 const BRAND_CATS: readonly PhCat[] = [
   cat("shell", ["shell"], "#facc15", "Shell", "Shell", "Shell"),
   cat("exxon", ["exxon"], "#ef4444", "ExxonMobil（Exxon、Mobil）", "ExxonMobil (Exxon, Mobil)", "ExxonMobil（Exxon・Mobil）"),
@@ -337,7 +345,7 @@ export const US_DATA_SPECS: readonly UsLayerSpec[] = [
     ],
     legendNotes: [
       l3("陸上設施與管線為 HIFLD 存檔（原始 EIA，停在 2025-08）；外海平台、井、管線為 BOEM／BSEE 現行資料", "Onshore facilities and pipelines are the HIFLD archive (original EIA, frozen 2025-08); offshore platforms, wells and pipelines are current BOEM / BSEE data", "陸上施設・パイプラインは HIFLD アーカイブ（元 EIA、2025-08 停止）。海洋プラットフォーム・井戸・パイプラインは BOEM／BSEE の現行データ"),
-      l3("陸域油氣井屬各州職權，本輪未做；原油管線不在 HIFLD 存檔內", "Onshore wells are under state jurisdiction and not in this round; crude oil pipelines are not in the HIFLD archive", "陸上の油ガス井は州の所管で今回対象外。原油パイプラインは HIFLD アーカイブにない"),
+      l3("陸域油氣井屬各州職權，另見「州油氣井」圖層；原油管線不在 HIFLD 存檔內", "Onshore wells are under state jurisdiction — see the \"State oil & gas wells\" layer; crude oil pipelines are not in the HIFLD archive", "陸上の油ガス井は州の所管（「州別油ガス井」レイヤー参照）。原油パイプラインは HIFLD アーカイブにない"),
     ],
     popupNotes: [NEAREST, OFFSHORE],
     sourceOrg: "HIFLD archive by SeerAI (CC BY 4.0; original EIA); BOEM／BSEE via MarineCadastre.gov", sourceUrl: "https://source.coop/seerai/hifld",
@@ -433,6 +441,29 @@ export const US_DATA_SPECS: readonly UsLayerSpec[] = [
     legendNotes: [l3("FHWA 國家公路系統（NHS，2025-08 版）；z3–5 只畫州際公路；交通量為各州回報年份，非同一年", "FHWA National Highway System (2025-08); z3–5 shows Interstates only; traffic counts are from each state's reporting year", "FHWA 国家道路網（NHS、2025-08 版）。z3–5 は州間高速のみ。交通量は州ごとの報告年")],
     popupNotes: [], sourceOrg: "FHWA National Highway System (via BTS NTAD)", sourceUrl: "https://geodata.bts.gov/datasets/usdot::national-highway-system",
     license: US_LICENSE_PD, fetchedAt: US_FETCHED_AT, loading: loading("美國國家公路系統載入中", "Loading U.S. National Highway System", "米国の国家道路網を読み込み中"),
+  },
+  {
+    key: "usStateWells", file: "us_state_wells.pmtiles", sourceId: "us-state-wells", srcMinzoom: 6, srcMaxzoom: 12, color: "#d97706", count: 337_938,
+    parts: [point("us-state-wells-circle", "wells", 6, propGetter("status_class"), { small: true })],
+    cats: WELL_STATUS_CATS, otherColor: "#94a3b8", otherLabel: l3("其他、狀態不明", "Other / unknown status", "その他・状態不明"),
+    defaultCats: ["active", "inactive", "permitted"],
+    title: { props: ["operator"], fallback: l3("油氣井", "Oil / gas well", "石油・ガス井") },
+    fields: [
+      { prop: "src_state", label: l3("資料來源州", "Source state", "出典州"), kind: "code" },
+      { prop: "status_text", label: l3("狀態（州原文）", "Status (state wording)", "状態（州の原文）") },
+      { prop: "well_type", label: l3("井別（州原文）", "Well type (state wording)", "井戸種別（州の原文）") },
+      { prop: "api", label: l3("API 井號／許可號", "API / permit number", "API 番号・許可番号"), kind: "code" },
+      { prop: "date", label: l3("日期（開鑽或完井，依州）", "Date (spud or completion, by state)", "日付（掘削開始または完成、州による）"), kind: "code" },
+      ...COUNTY_FIELDS,
+    ],
+    legendNotes: [
+      l3("州子層：AK、AR、FL、ID、KY、MO、MT、NV、UT、VA、WA、WY 共 12 州；其他州未涵蓋（不是沒有井）", "State sub-layers: AK, AR, FL, ID, KY, MO, MT, NV, UT, VA, WA, WY (12 states); other states not covered (not \"no wells\")", "州サブレイヤー：AK, AR, FL, ID, KY, MO, MT, NV, UT, VA, WA, WY (12 states)。その他の州は未収録（井戸がないわけではない）"),
+      l3("每州各自來源與日期；狀態依各州原文以關鍵字歸類，原文在彈窗；預設只開使用中、停用、已核准", "Each state has its own source and date; status is grouped from each state's wording (original in popup); by default only active, inactive and permitted are shown", "州ごとに出典・日付が異なる。状態は州の原文からキーワードで分類（原文はポップアップ）。既定は稼働・休止・許可のみ表示"),
+      l3("授權未明示（各州服務未載明）；不收井名與地主名", "License not stated by the state services; well and landowner names are omitted", "ライセンス未明示（州のサービスに記載なし）。井戸名・地主名は収録しない"),
+    ],
+    popupNotes: [NEAREST], sourceOrg: "State oil and gas regulators (AOGCC, AOGC, FDEP, IDL, KY EEC, MGS, MBOGC, NDOM, UT DOGM, VA DGO, WA DNR, WOGCC…)", sourceUrl: "https://github.com/ianlkl11234s/taipei-gis-analytics/blob/master/docs/topic-research/united_states_opendata/states/state_matrix.csv",
+    license: l3("授權未明示（各州）", "License not stated (per state)", "ライセンス未明示（州ごと）"), fetchedAt: US_FETCHED_AT,
+    loading: loading("美國州油氣井載入中", "Loading U.S. state oil & gas wells", "米国の州別油ガス井を読み込み中"),
   },
   {
     key: "usFuelStations", file: "us_fuel_stations.pmtiles", sourceId: "us-fuel-stations", srcMinzoom: 6, srcMaxzoom: 12, color: "#F2622E", count: 170_712,

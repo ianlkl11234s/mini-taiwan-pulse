@@ -882,6 +882,7 @@ export const GIS_LAYERS: GisLayerEntry[] = [
   { layers: ["us-hubs-circle"], type: "usTransportHubs" },
   { layers: ["us-power-plants-circle"], type: "usPowerPlants" },
   { layers: ["us-oil-gas-facilities-circle", "us-oil-gas-wells-circle", "us-oil-gas-pipelines-line"], type: "usOilGas" },
+  { layers: ["us-state-wells-circle"], type: "usStateWells" },
   { layers: ["us-wind-turbines-circle", "us-solar-circle", "us-solar-fill"], type: "usRenewables" },
   { layers: ["us-fuel-stations-circle"], type: "usFuelStations" },
   { layers: ["us-rail-lines-line"], type: "usRailLines" },

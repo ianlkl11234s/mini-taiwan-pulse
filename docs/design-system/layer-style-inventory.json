@@ -18,13 +18,13 @@
   ]
  },
  "summary": {
-  "layerKeys": 2210,
+  "layerKeys": 2211,
   "overlayConfigs": 579,
   "runtimeSublayers": 1122,
   "byResolution": {
    "runtime": 473,
    "static-scan": 343,
-   "unresolved": 438,
+   "unresolved": 439,
    "shared-renderer": 956
   },
   "byGeometry": {
@@ -40,14 +40,14 @@
   },
   "unresolvedReasons": {
    "有渲染檔但無 paint 字面值": 22,
-   "無 hook／factory（App 掛載或尚無實作）": 405,
+   "無 hook／factory（App 掛載或尚無實作）": 406,
    "Three.js／WebGL CustomLayer": 11
   },
-  "legendEntries": 1959,
+  "legendEntries": 1960,
   "legendTypes": {
    "square-swatch": 207,
    "svg-icon": 87,
-   "dot-swatch": 411,
+   "dot-swatch": 412,
    "gradient+dot-swatch": 88,
    "dot-swatch+hatch(missing)": 3,
    "dot-swatch+square-swatch+hatch(missing)": 2,
@@ -77,7 +77,7 @@
    "gradient+size+dot-swatch+square-swatch+line-swatch": 1
   },
   "legendResolution": {
-   "ssr": 962,
+   "ssr": 963,
    "static": 997
   },
   "legendsWithIssues": 162,
@@ -2544,6 +2544,7 @@
   {"id":"usPowerPlants","members":["usPowerPlants"],"components":["UsDataLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"size+dot-swatch","features":{"dot":15,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":true},"fontSizes":[9,10],"swatchSizes":["10x10●","11x11●","17x17●","3x3●","6x6●"],"swatchColorCount":12,"paintComparable":false},
   {"id":"usRailLines","members":["usRailLines"],"components":["UsDataLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"svg-icon","features":{"dot":0,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":5,"sizeSeries":false},"fontSizes":[9,10],"swatchColorCount":5,"paintComparable":false},
   {"id":"usRenewables","members":["usRenewables"],"components":["UsDataLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"dot-swatch+square-swatch","features":{"dot":1,"square":1,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●","12x10"],"swatchColorCount":2,"paintComparable":false},
+  {"id":"usStateWells","members":["usStateWells"],"components":["UsDataLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"dot-swatch","features":{"dot":6,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●"],"swatchColorCount":6,"paintComparable":false},
   {"id":"usStations","members":["usStations"],"components":["UsDataLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"dot-swatch","features":{"dot":7,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●"],"swatchColorCount":7,"paintComparable":false},
   {"id":"usTransportHubs","members":["usTransportHubs"],"components":["UsDataLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"dot-swatch","features":{"dot":6,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●"],"swatchColorCount":6,"paintComparable":false},
   {"id":"vegetationForestTypes","members":["vegetationForestTypes"],"components":["VegetationForestTypesLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"square-swatch","features":{"dot":0,"square":6,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["12x10"],"swatchColorCount":6,"paintComparable":true},
@@ -4718,6 +4719,7 @@
   "usPowerPlants": {"label":"電廠 Power Plants","theme":"能源","dataClass":"D","color":"#F2622E","legend":"usPowerPlants","legendType":"size+dot-swatch","popup":"usPowerPlants","params":{"opacity":{"name":"usPowerPlantsOpacity","default":0.75,"min":0.1,"max":1},"size":{"name":"usPowerPlantsScale","default":1,"min":0.3,"max":3},"controls":3},"hooks":["useUsPowerPlantsLayer"],"siblings":[],"resolution":"unresolved","unresolvedReason":"hook 名無對應 export（Host 直接呼叫 factory），且 src/map 無引用本 key 的檔","evidence":[],"geometry":[],"render":["unknown"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "usRailLines": {"label":"鐵路網 Rail Network","theme":"交通","dataClass":"D","color":"#a78bfa","legend":"usRailLines","legendType":"svg-icon","popup":"usRailLines","params":{"opacity":{"name":"usRailLinesOpacity","default":0.85,"min":0.1,"max":1},"controls":2},"hooks":["useUsRailLinesLayer"],"siblings":[],"resolution":"unresolved","unresolvedReason":"hook 名無對應 export（Host 直接呼叫 factory），且 src/map 無引用本 key 的檔","evidence":[],"geometry":[],"render":["unknown"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "usRenewables": {"label":"風機與大型太陽能 Wind Turbines & Utility Solar","theme":"能源","dataClass":"D","color":"#F2E085","legend":"usRenewables","legendType":"dot-swatch+square-swatch","popup":"usRenewables","params":{"opacity":{"name":"usRenewablesOpacity","default":0.85,"min":0.1,"max":1},"size":{"name":"usRenewablesScale","default":1,"min":0.3,"max":3},"controls":4},"hooks":["useUsRenewablesLayer"],"siblings":[],"resolution":"unresolved","unresolvedReason":"hook 名無對應 export（Host 直接呼叫 factory），且 src/map 無引用本 key 的檔","evidence":[],"geometry":[],"render":["unknown"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
+  "usStateWells": {"label":"州油氣井 State Oil & Gas Wells","theme":"能源","dataClass":"D","color":"#d97706","legend":"usStateWells","legendType":"dot-swatch","popup":"usStateWells","params":{"opacity":{"name":"usStateWellsOpacity","default":0.6,"min":0.1,"max":1},"size":{"name":"usStateWellsScale","default":1,"min":0.3,"max":3},"controls":3},"hooks":["useUsStateWellsLayer"],"siblings":[],"resolution":"unresolved","unresolvedReason":"hook 名無對應 export（Host 直接呼叫 factory），且 src/map 無引用本 key 的檔","evidence":[],"geometry":[],"render":["unknown"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "usStations": {"label":"大眾運輸站 Transit Stops","theme":"交通","dataClass":"D","color":"#f59e0b","legend":"usStations","legendType":"dot-swatch","popup":"usStations","params":{"opacity":{"name":"usStationsOpacity","default":0.6,"min":0.1,"max":1},"size":{"name":"usStationsScale","default":1,"min":0.3,"max":3},"controls":3},"hooks":["useUsStationsLayer"],"siblings":[],"resolution":"unresolved","unresolvedReason":"hook 名無對應 export（Host 直接呼叫 factory），且 src/map 無引用本 key 的檔","evidence":[],"geometry":[],"render":["unknown"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "usTransportHubs": {"label":"機場與港口 Airports & Ports","theme":"交通","dataClass":"D","color":"#38bdf8","legend":"usTransportHubs","legendType":"dot-swatch","popup":"usTransportHubs","params":{"opacity":{"name":"usTransportHubsOpacity","default":0.75,"min":0.1,"max":1},"size":{"name":"usTransportHubsScale","default":1,"min":0.3,"max":3},"controls":3},"hooks":["useUsTransportHubsLayer"],"siblings":[],"resolution":"unresolved","unresolvedReason":"hook 名無對應 export（Host 直接呼叫 factory），且 src/map 無引用本 key 的檔","evidence":[],"geometry":[],"render":["unknown"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "vegetationForestTypes": {"label":"植群與森林林型 Vegetation & Forest Types","theme":"林業 Forestry","dataClass":"B","color":"#166534","legend":"vegetationForestTypes","legendType":"square-swatch","popup":"vegetationForestTypes","params":{"opacity":{"name":"vegetationForestTypesOpacity","default":0.35,"min":0.1,"max":1},"controls":4},"resolution":"runtime","evidence":[],"sublayers":[{"suffix":"fill","type":"fill","role":"main","geometry":"polygon","render":"fill","maxzoom":11,"values":{"fill-opacity":0.35},"colors":{"fill-color":{"kind":"categorical","count":6}}},{"suffix":"fill","type":"fill","role":"main","geometry":"polygon","render":"fill","minzoom":11,"values":{"fill-opacity":0.35},"colors":{"fill-color":{"kind":"categorical","count":6}}},{"suffix":"outline","type":"line","role":"main","geometry":"line","render":"line","minzoom":11,"values":{"line-width":{"z10":0.2,"z14":0.8},"line-opacity":0.55},"colors":{"line-color":{"kind":"constant","count":1,"dark":["#e2e8f0"],"lightDiffers":true}},"themeDiff":["line-color"]},{"suffix":"fill","type":"fill","role":"main","geometry":"polygon","render":"fill","maxzoom":11,"values":{"fill-opacity":0.35},"colors":{"fill-color":{"kind":"categorical","count":10}}},{"suffix":"fill","type":"fill","role":"main","geometry":"polygon","render":"fill","minzoom":11,"values":{"fill-opacity":0.35},"colors":{"fill-color":{"kind":"categorical","count":10}}},{"suffix":"outline","type":"line","role":"main","geometry":"line","render":"line","minzoom":11,"values":{"line-width":{"z10":0.2,"z14":0.8},"line-opacity":0.55},"colors":{"line-color":{"kind":"constant","count":1,"dark":["#e2e8f0"],"lightDiffers":true}},"themeDiff":["line-color"]}],"geometry":["line","polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
