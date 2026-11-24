@@ -13,6 +13,8 @@ export interface LocalClock {
   offset: string;
   /** 當地日期相對台北日期：-1 前一天、0 同一天、1 隔天 */
   dayShift: -1 | 0 | 1;
+  /** true＝國家跨多個時區，改顯示 UTC（站主 2026-11-24 決定），不是當地時間 */
+  utc?: boolean;
 }
 
 const pad2 = (n: number) => String(n).padStart(2, "0");
@@ -46,14 +48,22 @@ export function localClockFor(unixSec: number, timeZone: string): LocalClock | n
 
 /**
  * 地圖中心所在國家（不在任何國家框內回 undefined）。
- * 跨時區國家（CA）這一步一律用 `timeZone` 預設值；依位置選時區是第 4 步。
  */
 export function countryForMapCenter(lng: number, lat: number): CountryCode | undefined {
   return countryForPoint(lng, lat);
 }
 
-/** 國家 → 當地時間（國家為 undefined 回 null）。 */
+/**
+ * 國家 → 當地時間（國家為 undefined 回 null）。
+ * 國家設定登記了多個時區（`timeZones`，例 CA）時改顯示 UTC：用預設時區會在溫哥華顯示多倫多時間，
+ * 差 3 小時（站主 2026-11-24 決定「跨時區國家統一以 UTC 顯示」）。
+ */
 export function localClockForCountry(unixSec: number, country: CountryCode | undefined): LocalClock | null {
   if (!country) return null;
-  return localClockFor(unixSec, countryDef(country).timeZone);
+  const def = countryDef(country);
+  if ((def.timeZones?.length ?? 0) > 1) {
+    const clock = localClockFor(unixSec, "UTC");
+    return clock && { ...clock, utc: true };
+  }
+  return localClockFor(unixSec, def.timeZone);
 }

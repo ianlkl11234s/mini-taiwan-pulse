@@ -10,6 +10,8 @@
   "timeline.localPrevDay": "前一天",
   "timeline.localNextDay": "隔天",
   "timeline.localClockTitle": "當地時間（時間軸以台北時間顯示）",
+  "timeline.localClockUtc": "{country} UTC {time}",
+  "timeline.localClockUtcTitle": "此國橫跨多個時區，改以 UTC 顯示（時間軸以台北時間顯示）",
   "timeline.gapHint": "斜線＝該時段無資料",
   "timeline.axis": "時間軸",
   "timeline.axisCollapsed": "時間軸（按 Enter 展開）",

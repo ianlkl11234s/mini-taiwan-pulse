@@ -8907,6 +8907,8 @@ export type GeneratedStaticKey =
   | "timeline.live"
   | "timeline.localClock"
   | "timeline.localClockTitle"
+  | "timeline.localClockUtc"
+  | "timeline.localClockUtcTitle"
   | "timeline.localNextDay"
   | "timeline.localPrevDay"
   | "timeline.nextDay"

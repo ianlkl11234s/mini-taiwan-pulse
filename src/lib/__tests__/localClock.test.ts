@@ -51,10 +51,14 @@ describe("localClockForCountry / countryForMapCenter", () => {
   it("日本 UTC+9", () => {
     expect(localClockForCountry(t, "JP")).toEqual({ time: "14:30", offset: "+9", dayShift: 0 });
   });
-  it("加拿大用預設 timeZone（跨時區依位置選是第 4 步）", () => {
-    const clock = localClockForCountry(t, "CA");
-    expect(clock).not.toBeNull();
-    expect(clock!.offset.startsWith("-")).toBe(true);
+  it("加拿大跨多個時區 → 改顯示 UTC", () => {
+    expect(localClockForCountry(t, "CA")).toEqual({ time: "05:30", offset: "+0", dayShift: 0, utc: true });
+  });
+  it("UTC 也標前一天（台北已跨日、UTC 還沒）", () => {
+    expect(localClockForCountry(utc("2026-01-15T20:00:00Z"), "CA")).toEqual({ time: "20:00", offset: "+0", dayShift: -1, utc: true });
+  });
+  it("單一時區國家不帶 utc 旗標", () => {
+    expect(localClockForCountry(t, "GB")?.utc).toBeUndefined();
   });
   it("不在任何國家框內回 null", () => {
     expect(countryForMapCenter(-30, 30)).toBeUndefined();

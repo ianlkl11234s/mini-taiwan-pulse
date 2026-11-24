@@ -232,8 +232,10 @@ export function TimelineControls({
               {timeLabel.slice(timeLabel.lastIndexOf(":") + 1)}
             </span>
             {expanded && localClock && (
-              <span className="tl3-local" title={t("timeline.localClockTitle")}>
-                {t("timeline.localClock", { country: t(countryDef(localClockCountry!).labelKey), time: localClock.time, offset: localClock.offset })}
+              <span className="tl3-local" title={t(localClock.utc ? "timeline.localClockUtcTitle" : "timeline.localClockTitle")}>
+                {localClock.utc
+                  ? t("timeline.localClockUtc", { country: t(countryDef(localClockCountry!).labelKey), time: localClock.time })
+                  : t("timeline.localClock", { country: t(countryDef(localClockCountry!).labelKey), time: localClock.time, offset: localClock.offset })}
                 {localClock.dayShift !== 0 && ` ${t(localClock.dayShift < 0 ? "timeline.localPrevDay" : "timeline.localNextDay")}`}
               </span>
             )}

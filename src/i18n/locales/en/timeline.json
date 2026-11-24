@@ -10,6 +10,8 @@
   "timeline.localPrevDay": "prev. day",
   "timeline.localNextDay": "next day",
   "timeline.localClockTitle": "Local time (the timeline shows Taipei time)",
+  "timeline.localClockUtc": "{country} UTC {time}",
+  "timeline.localClockUtcTitle": "This country spans several time zones, so UTC is shown (the timeline shows Taipei time)",
   "timeline.gapHint": "Hatched = no data in this period",
   "timeline.axis": "Timeline",
   "timeline.axisCollapsed": "Timeline (press Enter to expand)",
