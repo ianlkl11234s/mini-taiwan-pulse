@@ -1,3 +1,4 @@
+import type { GbLayerKey } from "../countries/gb/keys";
 import type { ComparisonStatisticsLayerKey } from '../data/comparisonStatisticsKeys';
 import type { KrDataKey } from '../data/krDataKeys';
 import type { IeDataKey } from '../data/ieDataKeys';
@@ -1165,7 +1166,7 @@ export interface FeatureInfo {
 
 // ── 圖層控制 ──
 
-export interface LayerVisibility extends Record<KrDataKey | IeDataKey | PhDataKey | PhRasterKey | VnDataKey | VnRasterKey | ThDataKey | ThRasterKey | IdDataKey | IdRasterKey | CnDataKey | CnRasterKey | CaWaveKey | ComparisonStatisticsLayerKey | LaborStatisticsLayerKey | EnvironmentStatisticsLayerKey | DemographicsStatisticsLayerKey | AddictionStatisticsLayerKey | LandslideStatisticsLayerKey | AtlasStatisticsLayerKey, boolean> {
+export interface LayerVisibility extends Record<KrDataKey | IeDataKey | PhDataKey | PhRasterKey | VnDataKey | VnRasterKey | ThDataKey | ThRasterKey | IdDataKey | IdRasterKey | CnDataKey | CnRasterKey | CaWaveKey | ComparisonStatisticsLayerKey | LaborStatisticsLayerKey | EnvironmentStatisticsLayerKey | DemographicsStatisticsLayerKey | AddictionStatisticsLayerKey | LandslideStatisticsLayerKey | AtlasStatisticsLayerKey | GbLayerKey, boolean> {
   statsWasteRecyclingRate: boolean;
   statsEducationCountyInstitutionCount: boolean;
   statsEducationCountyTeacherCount: boolean;
@@ -2126,7 +2127,6 @@ export interface LayerVisibility extends Record<KrDataKey | IeDataKey | PhDataKe
   historicalLandUse: boolean;   // 同上：歷史土地利用
   historicalThematic: boolean;  // 同上：歷史主題圖（水利、地質、林務、測量）
   water1944Taipei: boolean; // 1944 水域（臺北盆地）：1944 美軍地形圖顏色抽取的水域面，依今日是否仍為河道分兩類（站主限定）
-  gbAdminBoundaries: boolean;   // 英國地方政府區 LAD（PMTiles polygon，361 筆；ONS May 2026）
   krEcologyNaturalness: boolean; // 南韓生態自然圖（KRH-1 C117，17 個 시·도 PMTiles 依視窗載入，z10 起）
   krWasteDisposalRules: boolean; // 南韓生活垃圾排出規則（KRH-1 C086，JSON join kr_admin_boundaries sgg 層）
   krAdminBoundaries: boolean;   // 南韓行政邊界（PMTiles polygon，시·도 16／시군구 256／행정동 3,559；admdongkor ver20261001）
@@ -2185,74 +2185,6 @@ export interface LayerVisibility extends Record<KrDataKey | IeDataKey | PhDataKe
   krSubstations: boolean;     // 南韓變電所（OSM，1,199；與電網線同檔）
   krPowerTowers: boolean;     // 南韓高壓鐵塔（OSM，42,252；z11 起）
   krOilGas: boolean;          // 南韓油氣設施與管線（OSM，146 面＋33 線；覆蓋稀疏）
-  gbSmallAreaBoundaries: boolean; // 英國統計小區（PMTiles polygon，LSOA21／DZ22／DZ21 46,844＋北愛 SDZ21 850）
-  gbMaritimeLimits: boolean;    // 英國海域界線（UKHO，PMTiles line 355 條）
-  gbBuiltUpAreas: boolean;      // 英國建成區（OS Open Built Up Areas，PMTiles polygon 8,716）
-  gbGreenspace: boolean;        // 英國公園綠地（OS Open Greenspace category=park，80,918）
-  gbSportsFacilities: boolean;  // 英國運動場地（同檔 category=sports，不含高爾夫球場 51,872）
-  gbGolfCourses: boolean;       // 英國高爾夫球場（同檔 function=Golf Course，2,980；2026-10-31 從運動場地拆出）
-  gbCemeteries: boolean;        // 英國墓園與宗教場地（同檔 category=burial，30,208）
-  gbRivers: boolean;            // 英國河川（OS Open Rivers＋DAERA Strahler，PMTiles line 211,092 段）
-  gbHydroStations: boolean;     // 英國水文測站（EA＋SEPA，PMTiles point 6,261）
-  gbFloodDefenceAssets: boolean; // 英國防洪設施（EA＋NRW＋Dynamic Coast，PMTiles line 145,958 段）
-  gbCoastalErosionRisk: boolean; // 英國海岸侵蝕（NCERM／Dynamic Coast 面＋北愛風險線，88,793）
-  gbBathingWaters: boolean;     // 英國浴場（EA／NRW／SEPA／DAERA，PMTiles point 724）
-  gbTransportHubs: boolean;     // 英國交通樞紐（NaPTAN＋Translink，PMTiles point 3,281）
-  gbStationUsage: boolean;      // 英國車站年進出人次（ORR 2024-25，同檔 rail 2,638）
-  gbLondonRailLines: boolean;   // 倫敦軌道路線（TfL，20 線）
-  gbLondonStations: boolean;    // 倫敦軌道車站（TfL，457 站）
-  gbLondonBikePoints: boolean;  // 倫敦 Santander Cycles 站（TfL，798）
-  gbLondonJamCams: boolean;     // 倫敦道路攝影機（TfL JamCams，890）
-  gbLondonChargingZones: boolean; // 倫敦塞車費區＋ULEZ／LEZ（TfL，2 面）
-  gbMajorRoads: boolean;        // 英國主要路網（DfT MRDB 高速＋A 級＋OSM 北愛全部與大不列顛 B 級，134,824 段；_v2 檔）
-  gbBridgesTunnels: boolean;    // 英國主要道路橋梁與隧道路段（OSM 2026-11-13，29,493 段）
-  gbRoadFacilities: boolean;    // 英國道路設施：服務區、休息區、收費站（OSM）＋緊急停車區（National Highways，僅英格蘭），1,757 點
-  gbPublicFacilities: boolean;  // 英國公共設施：郵局、公廁、市場、社區活動中心（OSM 2026-11-13，41,333 點）
-  gbRailReplay: boolean;        // 英國列車重播（倫敦與東南部，Darwin 前一日 2026-11-21，本機預覽）
-  gbPlacesOfWorship: boolean;   // 英國宗教場所（OSM place_of_worship 依 religion 分 8 類，42,113 點）
-  gbTrafficCountsAadf: boolean; // 英國 AADF 交通計數點（DfT 2025，22,334 點）
-  gbPlanningConstraints: boolean; // 英國規劃限制區（保育區／Article 4／綠帶，18,727 面）
-  gbBrownfield: boolean;        // 英格蘭棕地登記冊（Planning Data，30,303 點）
-  gbRecyclingCentres: boolean;  // 英國回收點（OSM，12,959 點）
-  gbWastePermits: boolean;      // 英國廢棄物處理許可（EA／SEPA／NIEA，8,711 點）
-  gbPollutionInventory: boolean; // 蘇格蘭污染排放申報（SEPA SPRI 2017，1,450 點；英格蘭另見 gbPollutionInventoryEngland）
-  gbPollutionInventoryEngland: boolean; // 英格蘭污染排放申報（EA Pollution Inventory 2024，2,536 點；站主限定 owner-only RPC get_gb_ea_pollution_inventory）
-  gbNoise: boolean;             // 英國策略噪音地圖（Lden，141,566 面）
-  gbCompanies: boolean;         // 英國公司登記（Companies House，郵遞區號 district 聚合 2,835 點）
-  gbManufacturing: boolean;     // 英國製造業公司（同檔 c_C，2,698 點）
-  gbFuneral: boolean;           // 英國火葬場與葬儀社（OSM，3,347 點）
-  gbAquaculture: boolean;       // 英國養殖場（蘇格蘭＋北愛，3,129 點）
-  gbSoilParentMaterial: boolean; // 英國土壤母質（BGS 1 km，35,466 面）
-  gbProtectedAreas: boolean;    // 英國保護區（NE／NatureScot／SG／NRW／DAERA，PMTiles polygon 8,642）
-  gbMarineProtectedAreas: boolean; // 英國海洋保護區（MCZ／NC MPA，149 面；英格蘭 HPMA 上游已移除）
-  gbWoodland: boolean;          // 英國林地（NFI 2025＋北愛優先棲地林地，620,027 面）
-  gbForestRecreation: boolean;  // 英國森林遊憩設施（FE＋NRW，24,487 點）
-  gbTrails: boolean;            // 英國步道（國家步道 42＋公有林步道 4,400）
-  gbOpenAccessLand: boolean;    // 英國開放進入地（CRoW，英格蘭＋威爾斯 48,034 面）
-  gbTreeProtection: boolean;    // 英國樹木保護（TPO 試辦機關＋古老林地，502,408）
-  gbPowerPlants: boolean;       // 英國電廠（DESNZ DUKES 5.11，1,364）
-  gbRenewables: boolean;        // 英國再生能源與儲能專案（DESNZ REPD，14,613；預設運轉中＋施工中）
-  gbPowerLines: boolean;        // 英國輸配電線（OSM，19,907；gb_power_grid.pmtiles）
-  gbSubstations: boolean;       // 英國變電所（OSM，59,195；與電網線同檔）
-  gbFuelStations: boolean;      // 英國加油站（OSM，8,535）
-  gbOilGasFields: boolean;      // 英國離岸油氣田（NSTA，478 面；非商用授權）
-  gbSchools: boolean;           // 英國學校（GIAS／gov.scot／gov.wales／DE NI 2016，30,658）
-  gbHealthFacilities: boolean;  // 英國醫院、GP 診所、藥局（NHS ODS＋PHS，21,297；北愛未涵蓋）
-  gbCareHomes: boolean;         // 英國照護之家（CQC＋Care Inspectorate，15,758；gb_care_services.pmtiles care_home=true）
-  gbCareServices: boolean;      // 英國長照服務（同檔 care_home=false，17,237）
-  gbFireStations: boolean;      // 英國消防站（MHCLG 官方 1,398＋OSM 補缺 589）
-  gbCourts: boolean;            // 英國法院與審裁處（HMCTS FaCT，450；英格蘭＋威爾斯）
-  gbCulturalFacilities: boolean; // 英國博物館、美術館／畫廊、圖書館（Libraries NI 官方 98＋OSM 8,214）
-  gbArtsVenues: boolean;        // 英國劇院、電影院、藝術中心、音樂廳（OSM，3,210）
-  gbVisitorExperience: boolean; // 英國景點、遊客中心、動物園、主題樂園、水族館（OSM，7,050）
-  gbTerrainHillshade: boolean;  // 英國山體陰影（OS Terrain 50，raster PNG PMTiles）
-  gbTerrainRelief: boolean;     // 英國色別標高（OS Terrain 50，raster PNG PMTiles）
-  gbSurplusLand: boolean;       // 英國公有地標售（Cabinet Office Disposal，420）
-  gbGroundStability: boolean;   // 英國 GeoSure 地質災害易發性（5 km 六角格，6 種災害）
-  gbLandslide: boolean;         // 英國山崩紀錄（BGS NLD index，18,699）
-  gbRadon: boolean;             // 英國氡氣指示圖（1 km 方格，257,046）
-  gbRadiation: boolean;         // 英國環境加馬劑量率固定站（RREMS，83）
-  gbEarthquakes: boolean;       // 英國地震目錄（BGS，7,116）
   jpInlandFloodAreas: boolean;  // 日本內水浸水想定區域（PMTiles polygon，202,357 面；28 市町村、想定最大規模）
   jmaAmedas: boolean;     // 日本 AMeDAS 即時觀測（public.jma_amedas_current）
   jmaWarnings: boolean;   // 日本警報・注意報（市町村界 choropleth）

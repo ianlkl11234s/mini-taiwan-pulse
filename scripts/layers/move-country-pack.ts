@@ -640,7 +640,11 @@ const popupTypeImport = `import type { ${Cc}PopupType } from "./popupTypes";`;
 const inKeys = (n: string) => KEYS.has(n);
 const inPopups = (n: string) => POPUPS.has(n);
 
-const sManifest = section("manifest.ts", `${CC}_PACK_MANIFEST`, "record", `satisfies ${allMoved ? "" : "Partial<"}Record<${KEY_T}, LayerManifestEntry>${allMoved ? "" : ">"}`,
+// manifest 要完整：這國沒搬的 key（例：英國統計層仍在中央登記）明列排除，其餘一個都不能少
+const UNMOVED_KEYS = ALL_KEYS.filter((k) => !KEYS.has(k));
+const MANIFEST_KEY_T = allMoved ? KEY_T : `Exclude<${KEY_T}, ${UNMOVED_KEYS.map((k) => `"${k}"`).join(" | ")}>`;
+const MANIFEST_TYPE_TEXT = `satisfies Record<${MANIFEST_KEY_T}, LayerManifestEntry>`;
+const sManifest = section("manifest.ts", `${CC}_PACK_MANIFEST`, "record", MANIFEST_TYPE_TEXT,
   [keyTypeImport, 'import type { LayerManifestEntry } from "../../data/layerManifest";']);
 moveRecordEntries("src/data/layerManifest.ts", "STATIC_LAYER_MANIFEST", inKeys, sManifest);
 const sParams = section("params.ts", `${CC}_PACK_PARAMS`, "record", `satisfies Partial<Record<${KEY_T}, LayerParamSpec[]>>`,
@@ -743,6 +747,15 @@ ${lists.map(([r, , n]) => `    ${r}: ${n},`).join("\n")}
 
 export default pack;
 `);
+// manifest.ts 已存在（重跑）：型別尾巴跟著目前的「沒搬的 key」更新
+{
+  const mf = join(PACK_ABS, "manifest.ts");
+  if (existsSync(mf)) {
+    const text = readFileSync(mf, "utf8");
+    const next = text.replace(/\} satisfies [^\n]*Record<[^\n]*LayerManifestEntry>+;\s*$/, `} ${MANIFEST_TYPE_TEXT};\n`);
+    if (next !== text) { writeFileSync(mf, next); log.push(`${PACK_DIR}/manifest.ts 型別尾巴更新`); }
+  }
+}
 // packKeys.ts
 const pk = join(ROOT, "src/countries/packKeys.ts");
 let pkText = readFileSync(pk, "utf8");
@@ -753,6 +766,32 @@ if (!pkText.includes(`from "./${cfg.dir}/popupTypes"`)) {
   pkText = pkText.replace(/(\nexport type PackPopupType =)/, `\nimport type { ${Cc}PopupType } from "./${cfg.dir}/popupTypes";$1`).replace(/(export type PackPopupType =[^;]*);/, `$1\n  | ${Cc}PopupType;`);
 }
 writeFileSync(pk, pkText);
+// types/index.ts：LayerVisibility 改由這國的 key 型別展開（extends Record<…>），刪掉介面內這國 key 的逐行宣告
+{
+  const typesAbs = join(ROOT, "src/types/index.ts");
+  let t = readFileSync(typesAbs, "utf8");
+  const head = "export interface LayerVisibility extends Record<";
+  const start = t.indexOf(head);
+  if (start < 0) throw new Error("types/index.ts 找不到 LayerVisibility 介面");
+  const end = t.indexOf("\n}\n", start);
+  const extendsEnd = t.indexOf(", boolean>", start);
+  let body = t.slice(start, end);
+  if (!t.slice(start, extendsEnd).includes(`| ${KEY_T}`) && !t.slice(start, extendsEnd).includes(`<${KEY_T}`)) {
+    body = body.replace(", boolean>", ` | ${KEY_T}, boolean>`);
+  }
+  const keySet = new Set<string>(ALL_KEYS);
+  let removed = 0;
+  body = body.split("\n").filter((line) => {
+    const m = line.match(/^\s+([A-Za-z0-9_]+)\??: boolean;/);
+    if (m && keySet.has(m[1])) { removed++; return false; }
+    return true;
+  }).join("\n");
+  t = t.slice(0, start) + body + t.slice(end);
+  const imp = `import type { ${KEY_T} } from "../countries/${cfg.dir}/keys";\n`;
+  if (!t.includes(imp)) t = imp + t;
+  writeFileSync(typesAbs, t);
+  if (removed) log.push(`types/index.ts LayerVisibility：改由 ${KEY_T} 展開，刪 ${removed} 行逐行宣告`);
+}
 // packs.ts：登記動態 import
 const packsAbs = join(ROOT, "src/countries/packs.ts");
 const packsText = readFileSync(packsAbs, "utf8");

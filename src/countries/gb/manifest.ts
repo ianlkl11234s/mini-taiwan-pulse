@@ -1775,4 +1775,4 @@ export const GB_PACK_MANIFEST = {
     topics: ["英國", "土壤", "母質", "地質", "農業", "BGS"],
   },
   // <codemod:append GB_PACK_MANIFEST>
-} satisfies Partial<Record<GbLayerKey, LayerManifestEntry>>;
+} satisfies Record<Exclude<GbLayerKey, "statsGbCropArableShare" | "statsGbCropCerealsShare" | "statsGbCropFruitVegArea" | "statsGbCropGrasslandShare" | "statsGbFarFromTownShareEw" | "statsGbHousePrice" | "statsGbHousePriceChange" | "statsGbImdScoreEng" | "statsGbImdShare10Eng" | "statsGbMedianAge" | "statsGbNimdmShare10" | "statsGbNimdmShare20" | "statsGbPopulation" | "statsGbPopulationDensity" | "statsGbPrivateRent" | "statsGbPrivateRentChange" | "statsGbRuralShareEw" | "statsGbRuralShareSco" | "statsGbSimdShare10" | "statsGbSimdShare20" | "statsGbWimdShare10" | "statsGbWimdShare20">, LayerManifestEntry>;
