@@ -180,7 +180,8 @@ export function HistoricalTimeline({
     const onPick = granularity === "year" ? onYearChange : granularity === "month" ? onMonthChange : onDayChange;
     const unit = granularity === "year" ? undefined : t(granularity === "month" ? "timeline.historical.unitMonth" : "timeline.historical.unitDay");
     // 月粒度：展開卡的軸約 330px，12 個「N月」標籤會黏在一起（11月12月），隔月標示；刻度仍每月一格
-    const discrete = buildDiscreteAxis(values, current, granularity === "year" ? (v) => displayRocYear(v, i18n) : String, granularity === "month" ? 7 : undefined);
+    // 年粒度：英日文介面年份是 4 位數西元（中文是 3 位數民國），13 個標籤也會黏在一起（20152016），上限降為 8
+    const discrete = buildDiscreteAxis(values, current, granularity === "year" ? (v) => displayRocYear(v, i18n) : String, granularity === "month" ? 7 : granularity === "year" && i18n.active !== "zh-TW" ? 8 : undefined);
     const pick = (index: number) => {
       const v = values[index];
       if (v !== undefined && v !== current) onPick(v);
