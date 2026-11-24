@@ -7,7 +7,7 @@ import { isStatisticsRenderLayer } from "../data/regionalStatisticsRecipes";
 // 與桌機 IconRailSidebar 共用同一套面板元件與四個入口定義（layer-panel-unify P7）
 import { LayersPanel } from "./sidebar/LayersPanel";
 import { LAYER_PANELS, resolveLayerPanel, STATISTICS_ALL_OFF_KEYS, type LayerPanelId } from "./sidebar/layerPanels";
-import { countryStore, useCountry } from "../state/countryStore";
+import { countryStore, useCountry, type CountryFlyMode } from "../state/countryStore";
 import type { CountryCode } from "../constants/countries";
 import { railPalette, RailThemeContext } from "./sidebar/railTheme";
 import { useLocale } from "../state/localeStore";
@@ -46,7 +46,7 @@ interface LayerSidebarProps {
   /** 「全部關閉」（世界、模擬入口；圖層入口只關目前國家、統計入口只關統計） */
   onAllOff?: () => void;
   /** 使用者在國家選單選了國家（App 飛到該國，同桌機） */
-  onCountryFly?: (code: CountryCode) => void;
+  onCountryFly?: (code: CountryCode, mode?: CountryFlyMode) => void;
   /** 可選的「我的」入口，由 App 持有 panel mutex 與會員狀態。 */
   onMemberToggle?: () => void;
   memberActive?: boolean;
@@ -221,7 +221,7 @@ function SidebarContent({
   onDisplayModeChange: (mode: DisplayMode) => void;
   onBulkSetVisibility?: (keys: (keyof LayerVisibility)[], value: boolean) => void;
   onAllOff?: () => void;
-  onCountryFly?: (code: CountryCode) => void;
+  onCountryFly?: (code: CountryCode, mode?: CountryFlyMode) => void;
   onMemberToggle?: () => void;
   memberActive?: boolean;
   favoriteKeys?: ReadonlySet<string>;
@@ -237,9 +237,9 @@ function SidebarContent({
   // 國家主體：與桌機、統計共用（countryStore）
   const country = useCountry();
   const panel = resolveLayerPanel(panelIds.includes(tab) ? tab : "layers", country);
-  const selectCountry = (code: CountryCode) => {
+  const selectCountry = (code: CountryCode, mode?: CountryFlyMode) => {
     countryStore.set(code);
-    onCountryFly?.(code);
+    onCountryFly?.(code, mode);
   };
 
   return (
