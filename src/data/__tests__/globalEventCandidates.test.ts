@@ -2,14 +2,15 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const api = vi.hoisted(() => ({ rpc: vi.fn() }));
 vi.mock("../../lib/supabase", () => ({ supabase: api, supabaseConfigured: true }));
 vi.mock("../../lib/loadingRegistry", () => ({ withLoading: (_key: string, _label: string, promise: Promise<unknown>) => promise }));
-import { fetchGlobalEventCandidatesWindow, fetchGlobalEventsCurrent, fetchGlobalEventsWindow, parseGlobalEventCandidate, parseGlobalEventPoint, selectGlobalSituationEntries, selectGlobalEventPlacesAt } from "../globalEventsLoader";
+import { fetchGlobalEventCandidatesWindow, fetchGlobalEventsCurrent, resetGlobalEventMapRpcProbe, fetchGlobalEventsWindow, parseGlobalEventCandidate, parseGlobalEventPoint, selectGlobalSituationEntries, selectGlobalEventPlacesAt } from "../globalEventsLoader";
 
 const observation = (overrides: Record<string, unknown> = {}) => ({ candidate_id: "c1", observation_sha256: "v1", available_at: "2026-09-01T10:00:00Z", display_from: "2026-09-01T10:00:00Z", display_to: null,
   observed_at: "2026-09-01T09:00:00Z", title_zh_tw: "一般國際事件", assessment_status: "assessed", research_status: "ai_assessed", decision: "drop_noise", taiwan_relationship: "unrelated",
   place_key: "country:TW", name: "臺灣", country_code: "TW", geometry: { type: "Point", coordinates: [121, 25] }, ...overrides });
 
 describe("Global situation candidates are retained independently of Qwen importance", () => {
-  beforeEach(() => api.rpc.mockReset());
+  // 這組驗的是舊 RPC（567 未套用時的退回路徑）；新 RPC 見 globalEventsMapWindow.test.ts。
+  beforeEach(() => { api.rpc.mockReset(); resetGlobalEventMapRpcProbe(true); });
   it("retains drop_noise, Taiwan-unrelated, and pending unknown-location observations", () => {
     const row = parseGlobalEventCandidate(observation());
     const unknown = parseGlobalEventCandidate(observation({ candidate_id: "unknown", geometry: null, assessment_status: "pending", decision: null }));
