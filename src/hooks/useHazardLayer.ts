@@ -12,6 +12,7 @@ import {
 } from "../data/nuclearLoader";
 import { timeStore } from "../state/timeStore";
 import { subscribePrefetchWindow } from "../lib/dayPrefetch";
+import { shiftDateKey } from "../lib/zonedTime";
 import { useMapReadyTick } from "./useMapReadyTick";
 
 /**
@@ -106,12 +107,9 @@ export function useLightningLayer(
 
     const loadDay = (dateKey: string, alsoYesterday: boolean = true) => {
       const todayP = fetchLightningDay(dateKey, source);
-      const yKey = alsoYesterday
-        ? new Date(`${dateKey}T00:00:00+08:00`)
-        : null;
-      if (yKey) yKey.setDate(yKey.getDate() - 1);
-      const yPromise = yKey
-        ? fetchLightningDay(yKey.toISOString().slice(0, 10), source)
+      // 前一天＝純日曆減一天（舊寫法 setDate＋toISOString 在任何瀏覽器時區都會抓到前兩天）
+      const yPromise = alsoYesterday
+        ? fetchLightningDay(shiftDateKey(dateKey, -1), source)
         : Promise.resolve<LightningStrike[]>([]);
       Promise.all([todayP, yPromise])
         .then(([today, yesterday]) => {

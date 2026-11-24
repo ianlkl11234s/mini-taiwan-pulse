@@ -165,6 +165,17 @@ export function zonedMidnightMs(dateKey: string, tz: string = DEFAULT_TIME_ZONE)
   return hi;
 }
 
+/**
+ * 曆日 dateKey 加減 days 天（純日曆運算，與時區無關）。無效 dateKey 回 "Invalid Date"。
+ * 不要用 `new Date(...).setDate()`＋`toISOString()`：前者依瀏覽器時區、後者取 UTC 日，兩者混用會差一天。
+ */
+export function shiftDateKey(dateKey: string, days: number): string {
+  const m = DATE_KEY_RE.exec(dateKey);
+  if (!m) return "Invalid Date";
+  const d = new Date(Date.UTC(Number(m[1]), Number(m[2]) - 1, Number(m[3]) + days));
+  return `${pad(d.getUTCFullYear(), 4)}-${pad(d.getUTCMonth() + 1, 2)}-${pad(d.getUTCDate(), 2)}`;
+}
+
 /** tz 的曆日 dateKey 的 [startMs, endMs)（長度 23／24／25 小時）。 */
 export function zonedDayRangeMs(dateKey: string, tz: string = DEFAULT_TIME_ZONE): [number, number] {
   const m = DATE_KEY_RE.exec(dateKey);

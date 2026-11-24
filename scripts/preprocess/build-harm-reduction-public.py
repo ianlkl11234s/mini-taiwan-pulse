@@ -32,6 +32,8 @@ import subprocess
 import tempfile
 from pathlib import Path
 
+import tiered_cut
+
 ROOT = Path(__file__).resolve().parents[2]
 OUT_DIR = ROOT / "public" / "harm_reduction"
 
@@ -345,31 +347,41 @@ def build_dui(src_root: Path, date: str) -> None:
         features.append({"type": "Feature",
                          "geometry": {"type": "Point", "coordinates": round_coords(geom["coordinates"])},
                          "properties": props})
-    out = OUT_DIR / f"{DUI_LAYER}.pmtiles"
+    out = OUT_DIR / f"{DUI_LAYER}_lt2.pmtiles"
     with tempfile.TemporaryDirectory() as tmp:
         mid = Path(tmp) / f"{DUI_LAYER}.geojson"
         write_collection(mid, features)
         zmin, zmax = DUI_ZOOM
-        subprocess.run([
-            "tippecanoe", "-o", str(out), "--force", "-l", DUI_LAYER, "-Z", str(zmin), "-z", str(zmax),
-            "-r1", "-pf", "-pk", "--quiet", str(mid),
-        ], check=True)
-        audit_zoom_counts(out, len(features), zmin, zmax)
+        # 分段切圖（點數與座標不變）：<z10 熱區只用 accident_class／year_roc／dui_cause_basis（篩選與上色）
+        # ＋county／town（畫面摘要）；z10 起全欄位。低段沒有 id，稽核低段改查解碼總數 ≥ 輸入點數。
+        tiered_cut.cut(mid, out, DUI_LAYER, zmin, zmax,
+                       {"switch_zoom": 10, "low_fields": ["accident_class", "year_roc", "dui_cause_basis", "county", "town"]},
+                       ["-r1", "-pf", "-pk"])
+        audit_zoom_counts(out, len(features), zmin, zmax, ids_from=10)
     print(f"{DUI_LAYER}: {len(features)} features (dropped null geometry {dropped}) → {out.relative_to(ROOT)} {out.stat().st_size:,} B")
 
 
-def audit_zoom_counts(pmtiles: Path, expected: int, zmin: int, zmax: int) -> None:
-    """逐 zoom 解碼數點：每一層都要等於輸入點數（-r1 -pf -pk 不應丟點）。"""
+def audit_zoom_counts(pmtiles: Path, expected: int, zmin: int, zmax: int, ids_from: int | None = None) -> None:
+    """逐 zoom 解碼數點：每一層都要等於輸入點數（-r1 -pf -pk 不應丟點）。
+    ids_from（分段切圖）：低於此 zoom 的圖磚沒有 id 欄位，改查解碼總數 ≥ 輸入點數（緩衝重複只會多不會少）。"""
     if not shutil.which("tippecanoe-decode"):
         raise SystemExit("缺 tippecanoe-decode，無法逐 zoom 稽核")
     for z in range(zmin, zmax + 1):
         res = subprocess.run(["tippecanoe-decode", "-Z", str(z), "-z", str(z), str(pmtiles)],
                              check=True, capture_output=True, text=True)
         ids = set()
+        total = 0
         for tile in json.loads(res.stdout)["features"]:  # 每個 tile 一個 FeatureCollection
             for layer in tile["features"]:
                 for feat in layer["features"]:
-                    ids.add(feat["properties"]["id"])  # buffer 區重複出現的點以 id 去重
+                    total += 1
+                    if ids_from is None or z >= ids_from:
+                        ids.add(feat["properties"]["id"])  # buffer 區重複出現的點以 id 去重
+        if ids_from is not None and z < ids_from:
+            if total < expected:
+                raise SystemExit(f"z{z}: 解碼 {total} 點 < 輸入 {expected}（丟點）")
+            print(f"  z{z}: 解碼 {total} ≥ {expected} ✓（低段無 id）")
+            continue
         if len(ids) != expected:
             raise SystemExit(f"z{z}: 解碼 {len(ids)} 點 ≠ 輸入 {expected}（丟點）")
         print(f"  z{z}: {len(ids)} 點 ✓")

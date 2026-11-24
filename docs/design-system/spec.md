@@ -1005,7 +1005,7 @@
 
 ### 5.41 國家選單（2026-10-28 國家主體化）
 
-- **用途**：圖層、統計兩個入口共用同一個國家主體（`state/countryStore.ts`），桌機與手機共用；任一面板改國家，另一個跟著變。國家清單只有一份 `constants/countries.ts`（目前 TW／JP／FR）。
+- **用途**：圖層、統計兩個入口共用同一個國家主體（`state/countryStore.ts`），桌機與手機共用；任一面板改國家，另一個跟著變。國家清單只有一份：正本在 pulse-data `countries/countries.json`（與 MCP 共用），網站由 `scripts/countries/gen-countries.ts` 產生 `constants/countries.generated.ts`，`constants/countries.ts` 只包裝取用。
 - **位置**：面板標頭（§5.1）下，與「全部關閉」同一列（2026-10-28 使用者要求併成一行省高度）：選單 `flex: 1` 在左、「全部關閉」靠右（padding `5px 10px`、不換行），列 padding `4px 12px 4px`、間距 6；世界、模擬入口沒有國家選單，「全部關閉」維持整列寬。手機分頁下同樣位置。
 - **觸發列**：外觀同「全部關閉」按鈕（`ALLOFF_BG` 底、`1px ALLOFF_BORDER`、`RADIUS.lg`、padding `5px 8px`）；內容＝國碼 chip → 國名（12px 600 `TEXT_STRONG`、單行省略）→ `ChevronDown` 12px `DIM`。`aria-haspopup="menu"`，`aria-label`／`title`「切換國家（目前：{國名}）」。
 - **國碼 chip**：兩字國碼（不用國旗 emoji），沿用 §5.21 `chipOutline(color)`（10px `FONT_DATA` 600、padding `2px 5px`、圓角 3），不新增徽章公式；未選中用 `INACTIVE_TEXT`，選單中選中項用 `TEXT_STRONG`。
@@ -1028,7 +1028,7 @@
 |---|---|
 | 判斷時機 | `moveend` 後停穩 600ms（中途又移動就重算）；啟用當下地圖若停著立刻判斷一次 |
 | zoom 門檻 | zoom < 4.5 不判斷（看東亞、全歐時不跳），卡片收起 |
-| 出現條件 | 視野中心在他國矩形（`constants/countries.ts` `bboxes`）、該國≠目前國家、該國可用圖層數 > 0（扣上鎖與 release-hold） |
+| 出現條件 | 視野中心在他國矩形（`constants/countries.ts` 的 `bboxes`，來自 pulse-data 國家清單正本）、該國≠目前國家、該國可用圖層數 > 0（扣上鎖與 release-hold） |
 | 不判斷 | 拍攝模式、私人畫面、Agent 移動鏡頭的那一段 |
 | 隱藏 | AI 對話框（fixed top 88、right 14）或 Agent 活動卡（top 100、right 18）出現時整個停用，避免重疊 |
 
