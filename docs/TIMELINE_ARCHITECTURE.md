@@ -41,6 +41,22 @@
 - 既有台北 helper（`taipeiDay.ts`、`timeStore` 的 `toDateKey`、`taipeiParts`、`newsFreshness` 的 `taipeiDayKey`、`cardStyle` 的 `taipeiDate*`、`useTimeline` 的 `dayStartUnix`／`dayEndUnix`）都是它的薄包裝，簽名與輸出不變。
 - **新程式碼不得再寫固定 +8／`+08:00` 算日界**；要換時區就傳時區名稱。各國預設時區在 `constants/countries.ts` 的 `timeZone`（正本 pulse-data `countries/countries.json`；目前尚未接任何使用端）。
 
+## 資料時區宣告：dataTimeZone（2026-11-23 起）
+
+時間軸一律顯示台北時間；但「一天」怎麼切，由每個圖層的資料自己決定。台北 11/23 等於倫敦 11/22 16:00 到 11/23 16:00（夏令時間 15:00–15:00），拿台北日期去抓英國按當地日存的每日檔，會差 8 小時（夏令 7 小時）。
+
+- **宣告**：`layerManifest.ts` 的 entry 選填 `dataTimeZone`（IANA 名稱，例 `Europe/London`、`Asia/Tokyo`）。**沒寫＝`Asia/Taipei`**，所以台灣圖層行為不變。台灣圖層不寫（測試會擋多餘的 `Asia/Taipei`）；外國圖層若上游按台北日切（例 `jmaLightning` 的 `get_lightning_day`），要明寫 `Asia/Taipei`，免得之後被誤改成當地時區。只接受 IANA 名稱或 `UTC`，不接受 `+08:00`、`EST` 這類固定位移或縮寫。
+- **取資料**：`src/lib/layerDataTime.ts`
+  - `dataDateKeyFor(layerKey, unixSec)`：時間軸那一刻在資料時區的當地日期。
+  - `dataDayRangeSecFor(layerKey, dateKey)`：當地曆日的 `[start, end)`（DST 當天 23／25 小時）。
+  - `layerDataTimeZone(layerKey)`：直接取時區名稱。
+- **兩種語意，寫程式前先分清楚**：
+  - **同一刻**（絕對時間）：即時位置、事件點、逐時觀測。時間軸那一刻就是那一刻，不需要換日；只有「這一刻屬於上游哪一天的檔」才用 `dataDateKeyFor`。
+  - **當地同時刻**（牆上時間）：時刻表、固定服務日的重播（例：英國列車重播 `gbRailReplayTime`），把時間軸那一刻換成當地「幾點幾分」去對資料，與日期無關。
+- **跨日重載**：`timeStore.subscribeDate` 只在**台北**換日時通知。外國每日資料要在當地換日時重載，改用 `subscribeThrottled`，每次以 `dataDateKeyFor` 算出日期，和上次不同才重抓。
+- **新增外國「依日期取資料」的圖層（日期進 URL／檔名、RPC 帶日期、依日界篩快照）時必須宣告 `dataTimeZone`**，並在 loader 用上面的 helper，不得用 `timeStore.getDateKey()`（那是台北日）或 `toISOString().slice(0, 10)`（那是 UTC 日）。
+- popup／圖例顯示「某日」數值時，日期指資料時區的當地日；加註「當地日期」是後續工作（盤點見 GIS `.gis-agent-system` 多國重構 E2-inventory）。
+
 ## timeStore（外部時間來源）
 
 動態圖層的時間來源是 `src/state/timeStore.ts` 的 `timeStore`，不是 React state。

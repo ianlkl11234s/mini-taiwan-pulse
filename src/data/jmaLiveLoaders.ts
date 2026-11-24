@@ -7,9 +7,10 @@ import {
 } from "./jmaTypes";
 import {
   JMA_PHENOLOGY_LAYER_PHENOMENA, JMA_RAINY_REGION_PREFS, envWbgtLevel, jmaDaysBetween, jmaDiffClass,
-  jmaHourBucketIso, jmaJstDateKey, jmaMinuteBucketIso, jmaMonthDay, jmaRainyPhase, jmaSignedDays,
+  jmaHourBucketIso, jmaMinuteBucketIso, jmaMonthDay, jmaRainyPhase, jmaSignedDays,
   type JmaPhenologyLayerKey, type JmaRainyPhase,
 } from "./jmaPointTypes";
+import { dataDateKeyFor } from "../lib/layerDataTime";
 
 /**
  * 日本氣象廳（JMA）點位／區域圖層 loader，跟 Pulse 時間軸走（RPC 契約 gis-platform docs/jma-time-rpcs.md）。
@@ -220,8 +221,8 @@ export function jmaTimeRequest(key: JmaTimedKey, tSec: number, nowSec: number = 
     return { key, cacheKey: "live", history, at: null, coverageLayer: null, emptyIsUncovered: false };
   }
   if (SEASONAL.has(key)) {
-    // 季節類：live 也用今天 JST 日期當鍵（跨日自動換桶）
-    const date = jmaJstDateKey(history ? tSec : nowSec);
+    // 季節類：live 也用今天 JST 日期當鍵（跨日自動換桶）；JST 來自 manifest dataTimeZone
+    const date = dataDateKeyFor(key, history ? tSec : nowSec);
     return { key, cacheKey: date, history, at: date, coverageLayer: history ? coverageLayer : null, emptyIsUncovered: true };
   }
   if (!history) {
