@@ -83,7 +83,6 @@ export function RiverRpiStationsPanel({ props }: PanelProps) {
     <PopupDetails summary={t("popup.common.notesAndLimits")}>
       <Row label={t("popup.environmentLayer.gradeRule")} value={t("popup.environmentLayer.gradeRuleText")} />
       {anyCensored && <Row label={t("popup.environmentLayer.censoredLabel")} value={t("popup.environmentLayer.censoredText")} />}
-      <Row field="updated" value={t("popup.environmentLayer.riverStationUpdated")} />
       <Row label={t("popup.environmentLayer.window12m")} value={text(props.rpi_12m_window)} />
     </PopupDetails>
     <SourceFooter props={{ source_org: t("popup.environmentLayer.srcRiverStations"), source_url: "https://data.gov.tw/dataset/6078", license: licenseText(i18n), fetched_at: day(props.retrieved_at) }} />
@@ -196,7 +195,6 @@ export function SeaWaterQualityStationsPanel({ props }: PanelProps) {
     <Row field="county" value={placeName(text(props.county), i18n)} />
     <PopupDetails summary={t("popup.common.notesAndLimits")}>
       <Row field="classification" value={t("popup.environmentLayer.seaClassNote")} />
-      <Row field="updated" value={t("popup.environmentLayer.seaUpdated")} />
       <Row label={t("popup.environmentLayer.sampleCount")} value={timesSince(i18n, props.n_samples, props.first_sample_date)} />
     </PopupDetails>
     <SourceFooter props={{ source_org: t("popup.environmentLayer.srcSea"), source_url: "https://data.gov.tw/dataset/155934", license: licenseText(i18n) }} />
@@ -272,7 +270,6 @@ export function RiverRpiSegmentsPanel({ props }: PanelProps) {
     <Row label={t("popup.environmentLayer.flowDirection")} value={direction === "verified" ? "" : (RIVER_RPI_DIRECTION_LABELS[direction] == null ? t("popup.environmentLayer.unverified") : dirLabel(direction, RIVER_RPI_DIRECTION_LABELS[direction]!))} />
     <Row label={t("popup.environmentLayer.toReview")} value={notes.join(t("popup.common.semicolon"))} />
     <PopupDetails summary={t("popup.environmentLayer.methodAndLimits")}>
-      <Row field="method" value={t("popup.environmentLayer.methodText")} />
       <Row label={t("popup.environmentLayer.riverMatch")} value={method == null ? "" : `${enumLabel("envRpiAssign", methodKey, method, i18n)}${distance == null ? "" : t("popup.environmentLayer.assignDistance", { value: fmt(i18n, distance, 0) })}`} />
       <Row label={t("popup.environmentLayer.flowDirection")} value={direction === "verified" ? dirLabel("verified", RIVER_RPI_DIRECTION_LABELS.verified ?? "") : ""} />
       <Row label={t("popup.environmentLayer.downstream")} value={rpiDownstreamNote(i18n, props)} />
@@ -366,7 +363,6 @@ export function IncineratorEmissionsPanel({ props }: PanelProps) {
     {unusual != null && <Row label={t("popup.environmentLayer.unusualReport")} value={unusual ? t("popup.environmentLayer.reportedThatMonth") : t("popup.environmentLayer.noneThatMonth")} color={unusual ? ENV_ALERT_COLOR : undefined} />}
     <Row field="county" value={placeName(text(props.county), i18n)} />
     <PopupDetails summary={t("popup.common.notesAndLimits")}>
-      <Row field="updated" value={t("popup.environmentLayer.incineratorUpdated")} />
       <Row label={t("popup.environmentLayer.compare")} value={t("popup.environmentLayer.compareText")} />
       <Row field="location" value={text(props.location_note)} />
       <Row label={t("popup.environmentLayer.reportPeriod")} value={nMonths == null ? "" : t("popup.environmentLayer.monthsSince", { count: nMonths, n: fmt(i18n, nMonths, 0), since: text(props.first_month) })} />
@@ -391,7 +387,6 @@ export function NuscGammaRadiationPanel({ props }: PanelProps) {
     {high && <Row label={t("popup.environmentLayer.reminder")} value={t("popup.environmentLayer.nuscHigh")} color={ENV_ALERT_COLOR} />}
     <PopupDetails summary={t("popup.common.notesAndLimits")}>
       <Row label={t("popup.environmentLayer.background")} value={t("popup.environmentLayer.nuscBackground")} />
-      <Row field="updated" value={t("popup.environmentLayer.nuscUpdated")} />
       <Row label={t("popup.environmentLayer.distinction")} value={t("popup.environmentLayer.nuscDistinction")} />
     </PopupDetails>
     <SourceFooter props={{ source_org: t("popup.environmentLayer.srcNusc"), source_url: "https://data.gov.tw/dataset/119233", license: licenseText(i18n), fetched_at: formatTaiwanTime(text(props.updated_at) || null) }} />
@@ -448,7 +443,6 @@ export function WaterEffluentLivePanel({ props }: PanelProps) {
     {normalItems.length > 0 && <PopupDetails summary={t("popup.environmentLayer.otherNormalItems", { count: normalItems.length })}><PopupScroll>{normalItems.map((item, index) => effluentItemRow(i18n, item, index))}</PopupScroll></PopupDetails>}
     <PopupDetails summary={t("popup.common.notesAndLimits")}>
       <Row label={t("popup.environmentLayer.judge")} value={t("popup.environmentLayer.effluentJudge")} />
-      <Row field="updated" value={t("popup.environmentLayer.effluentUpdated")} />
     </PopupDetails>
     <SourceFooter props={{ source_org: t("popup.environmentLayer.srcEffluent"), source_url: "https://data.gov.tw/dataset/35105", license: licenseText(i18n) }} />
   </>;
@@ -516,7 +510,6 @@ export function CwaUvDailyPanel({ props }: PanelProps) {
     <Row field="county" value={placeName(text(props.county), i18n)} />
     <PopupDetails summary={t("popup.common.notesAndLimits")}>
       <Row label={t("popup.environmentLayer.dataLabel")} value={t("popup.environmentLayer.uvText")} />
-      <Row field="updated" value={t("popup.environmentLayer.uvUpdated")} />
     </PopupDetails>
     <SourceFooter props={{ source_org: t("popup.environmentLayer.srcUv"), source_url: "https://data.gov.tw/dataset/9039", license: licenseText(i18n), fetched_at: formatTaiwanTime(text(props.collected_at) || null) }} />
   </>;

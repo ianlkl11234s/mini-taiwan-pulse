@@ -1,0 +1,1000 @@
+{
+  "count": 8,
+  "gisLayers": {
+    "islandPowerFacility": {
+      "layers": [
+        "energy-island-grid-core"
+      ],
+      "type": "islandPowerFacility"
+    },
+    "osmPowerPlantStatic": {
+      "layers": [
+        "energy-osm-power-plants-static-core"
+      ],
+      "type": "osmPowerPlantStatic"
+    },
+    "osmSolarFarm": {
+      "layers": [
+        "energy-solar-farms-core",
+        "energy-solar-farms-halo"
+      ],
+      "type": "osmSolarFarm"
+    }
+  },
+  "overlays": {
+    "facOffshore": {
+      "dynamicData": true,
+      "filter": null,
+      "id": "facOffshore",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "status"
+                ],
+                "operating",
+                "#1F4373",
+                "construction",
+                "#2F5A99",
+                "pre-construction",
+                "#3C92A6",
+                "announced",
+                "#7AAEC0",
+                "#475569"
+              ],
+              "fill-opacity": 0.3
+            },
+            "light": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "status"
+                ],
+                "operating",
+                "#1F4373",
+                "construction",
+                "#2F5A99",
+                "pre-construction",
+                "#3C92A6",
+                "announced",
+                "#7AAEC0",
+                "#475569"
+              ],
+              "fill-opacity": 0.15
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "status"
+                ],
+                "operating",
+                "#5fb3c8",
+                "construction",
+                "#8dc2d4",
+                "pre-construction",
+                "#8dc2d4",
+                "announced",
+                "#b5d2dd",
+                "#b5d2dd"
+              ],
+              "line-dasharray": [
+                "match",
+                [
+                  "get",
+                  "status"
+                ],
+                "operating",
+                [
+                  "literal",
+                  [
+                    1
+                  ]
+                ],
+                "construction",
+                [
+                  "literal",
+                  [
+                    3,
+                    2
+                  ]
+                ],
+                "pre-construction",
+                [
+                  "literal",
+                  [
+                    2,
+                    2
+                  ]
+                ],
+                "announced",
+                [
+                  "literal",
+                  [
+                    1,
+                    3
+                  ]
+                ],
+                [
+                  "literal",
+                  [
+                    2,
+                    2
+                  ]
+                ]
+              ],
+              "line-opacity": 0.6,
+              "line-width": 0.5
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "status"
+                ],
+                "operating",
+                "#3C92A6",
+                "construction",
+                "#7AAEC0",
+                "pre-construction",
+                "#7AAEC0",
+                "announced",
+                "#A8C5D0",
+                "#A8C5D0"
+              ],
+              "line-dasharray": [
+                "match",
+                [
+                  "get",
+                  "status"
+                ],
+                "operating",
+                [
+                  "literal",
+                  [
+                    1
+                  ]
+                ],
+                "construction",
+                [
+                  "literal",
+                  [
+                    3,
+                    2
+                  ]
+                ],
+                "pre-construction",
+                [
+                  "literal",
+                  [
+                    2,
+                    2
+                  ]
+                ],
+                "announced",
+                [
+                  "literal",
+                  [
+                    1,
+                    3
+                  ]
+                ],
+                [
+                  "literal",
+                  [
+                    2,
+                    2
+                  ]
+                ]
+              ],
+              "line-opacity": 0.6,
+              "line-width": 0.5
+            }
+          },
+          "suffix": "line",
+          "type": "line"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "facOffshoreOpacity",
+        "fill",
+        "line"
+      ],
+      "sourceId": "energy-fac-offshore",
+      "sourceUrl": "./geo/_empty.geojson"
+    },
+    "islandPowerGrid": {
+      "dynamicData": true,
+      "filter": null,
+      "id": "islandPowerGrid",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "fuel_type"
+                ],
+                "diesel",
+                "#f97316",
+                "gas",
+                "#94a3b8",
+                "solar",
+                "#fbbf24",
+                "wind",
+                "#22d3ee",
+                "hydro",
+                "#3b82f6",
+                "#a78bfa"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "fuel_type"
+                ],
+                "diesel",
+                "#f97316",
+                "gas",
+                "#94a3b8",
+                "solar",
+                "#fbbf24",
+                "wind",
+                "#22d3ee",
+                "hydro",
+                "#3b82f6",
+                "#a78bfa"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "core",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "islandPowerGridOpacity",
+        "islandPowerGridSize",
+        "core"
+      ],
+      "sourceId": "energy-island-grid",
+      "sourceUrl": "./geo/_empty.geojson"
+    },
+    "osmPowerPlantsStatic": {
+      "dynamicData": true,
+      "filter": null,
+      "id": "osmPowerPlantsStatic",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "plant_source"
+                ],
+                "solar",
+                "#fbbf24",
+                "wind",
+                "#22d3ee",
+                "hydro",
+                "#3b82f6",
+                "coal",
+                "#8691a4",
+                "gas",
+                "#94a3b8",
+                "diesel",
+                "#768394",
+                "nuclear",
+                "#facc15",
+                "waste",
+                "#a3a300",
+                "#9ca3af"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "plant_source"
+                ],
+                "solar",
+                "#fbbf24",
+                "wind",
+                "#22d3ee",
+                "hydro",
+                "#3b82f6",
+                "coal",
+                "#374151",
+                "gas",
+                "#94a3b8",
+                "diesel",
+                "#1f2937",
+                "nuclear",
+                "#facc15",
+                "waste",
+                "#a3a300",
+                "#9ca3af"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "core",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "osmPowerPlantsStaticOpacity",
+        "osmPowerPlantsStaticSize",
+        "core"
+      ],
+      "sourceId": "energy-osm-power-plants-static",
+      "sourceUrl": "./geo/_empty.geojson"
+    },
+    "osmSolarFarms": {
+      "dynamicData": true,
+      "filter": null,
+      "id": "osmSolarFarms",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.6,
+              "circle-color": "#fbbf24",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                [
+                  "*",
+                  1,
+                  4
+                ],
+                10,
+                [
+                  "*",
+                  1,
+                  8
+                ],
+                14,
+                [
+                  "*",
+                  1,
+                  14
+                ]
+              ]
+            },
+            "light": {
+              "circle-blur": 0.6,
+              "circle-color": "#fbbf24",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                [
+                  "*",
+                  1,
+                  4
+                ],
+                10,
+                [
+                  "*",
+                  1,
+                  8
+                ],
+                14,
+                [
+                  "*",
+                  1,
+                  14
+                ]
+              ]
+            }
+          },
+          "suffix": "halo",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#fbbf24",
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#fbbf24",
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "core",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "osmSolarFarmsOpacity",
+        "osmSolarFarmsSize"
+      ],
+      "sourceId": "energy-solar-farms",
+      "sourceUrl": "./geo/_empty.geojson"
+    },
+    "powerPlants": {
+      "dynamicData": true,
+      "filter": null,
+      "id": "powerPlants",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "coalesce",
+                [
+                  "get",
+                  "color"
+                ],
+                "#9ca3af"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                [
+                  "*",
+                  0.75,
+                  [
+                    "coalesce",
+                    [
+                      "get",
+                      "radius"
+                    ],
+                    3
+                  ]
+                ],
+                12,
+                [
+                  "*",
+                  1.2,
+                  [
+                    "coalesce",
+                    [
+                      "get",
+                      "radius"
+                    ],
+                    3
+                  ]
+                ]
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "coalesce",
+                [
+                  "get",
+                  "color"
+                ],
+                "#9ca3af"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                [
+                  "*",
+                  0.75,
+                  [
+                    "coalesce",
+                    [
+                      "get",
+                      "radius"
+                    ],
+                    3
+                  ]
+                ],
+                12,
+                [
+                  "*",
+                  1.2,
+                  [
+                    "coalesce",
+                    [
+                      "get",
+                      "radius"
+                    ],
+                    3
+                  ]
+                ]
+              ]
+            }
+          },
+          "suffix": "halo",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "coalesce",
+                [
+                  "get",
+                  "color"
+                ],
+                "#9ca3af"
+              ],
+              "circle-opacity": 0.95,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                [
+                  "*",
+                  0.5,
+                  [
+                    "coalesce",
+                    [
+                      "get",
+                      "radius"
+                    ],
+                    3
+                  ]
+                ],
+                12,
+                [
+                  "*",
+                  0.8,
+                  [
+                    "coalesce",
+                    [
+                      "get",
+                      "radius"
+                    ],
+                    3
+                  ]
+                ]
+              ],
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "coalesce",
+                [
+                  "get",
+                  "color"
+                ],
+                "#9ca3af"
+              ],
+              "circle-opacity": 0.95,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                [
+                  "*",
+                  0.5,
+                  [
+                    "coalesce",
+                    [
+                      "get",
+                      "radius"
+                    ],
+                    3
+                  ]
+                ],
+                12,
+                [
+                  "*",
+                  0.8,
+                  [
+                    "coalesce",
+                    [
+                      "get",
+                      "radius"
+                    ],
+                    3
+                  ]
+                ]
+              ],
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "powerPlantsOpacity",
+        "powerPlantsScale",
+        "halo",
+        "circle"
+      ],
+      "sourceId": "energy-power-plants",
+      "sourceUrl": "./geo/_empty.geojson"
+    }
+  },
+  "params": {
+    "facOffshore": [
+      {
+        "label": "階段",
+        "options": [
+          {
+            "label": "運轉中",
+            "value": "operating"
+          },
+          {
+            "label": "興建中",
+            "value": "construction"
+          },
+          {
+            "label": "規劃中",
+            "value": "pre-construction"
+          },
+          {
+            "label": "公告中",
+            "value": "announced"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "operating",
+          "construction",
+          "pre-construction",
+          "announced"
+        ]
+      },
+      {
+        "label": "透明度 0.45",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.45,
+        "valueText": "0.45"
+      }
+    ],
+    "islandPowerGrid": [
+      {
+        "label": "燃料",
+        "options": [
+          {
+            "label": "柴油",
+            "value": "diesel"
+          },
+          {
+            "label": "天然氣",
+            "value": "gas"
+          },
+          {
+            "label": "太陽",
+            "value": "solar"
+          },
+          {
+            "label": "風力",
+            "value": "wind"
+          },
+          {
+            "label": "水力",
+            "value": "hydro"
+          },
+          {
+            "label": "其他",
+            "value": "__other__"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "diesel",
+          "gas",
+          "solar",
+          "wind",
+          "hydro",
+          "__other__"
+        ]
+      },
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "medICUBeds": [],
+    "osmPowerPlantsStatic": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "太陽",
+            "value": "solar"
+          },
+          {
+            "label": "風力",
+            "value": "wind"
+          },
+          {
+            "label": "水力",
+            "value": "hydro"
+          },
+          {
+            "label": "煤",
+            "value": "coal"
+          },
+          {
+            "label": "天然氣",
+            "value": "gas"
+          },
+          {
+            "label": "核能",
+            "value": "nuclear"
+          },
+          {
+            "label": "廢棄物",
+            "value": "waste"
+          },
+          {
+            "label": "其他/未標",
+            "value": "__other__"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "solar",
+          "wind",
+          "hydro",
+          "coal",
+          "gas",
+          "nuclear",
+          "waste",
+          "__other__"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "osmSolarFarms": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "powerPlants": [
+      {
+        "label": "燃料",
+        "options": [
+          {
+            "label": "核能",
+            "value": "nuclear"
+          },
+          {
+            "label": "燃煤",
+            "value": "coal"
+          },
+          {
+            "label": "燃油",
+            "value": "oil"
+          },
+          {
+            "label": "天然氣",
+            "value": "natural_gas"
+          },
+          {
+            "label": "水力",
+            "value": "hydro"
+          },
+          {
+            "label": "太陽光電",
+            "value": "solar"
+          },
+          {
+            "label": "風力",
+            "value": "wind"
+          },
+          {
+            "label": "地熱",
+            "value": "geothermal"
+          },
+          {
+            "label": "生質",
+            "value": "biomass"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "nuclear",
+          "coal",
+          "oil",
+          "natural_gas",
+          "hydro",
+          "solar",
+          "wind",
+          "geothermal",
+          "biomass"
+        ]
+      },
+      {
+        "label": "透明度 0.95",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.95,
+        "valueText": "0.95"
+      },
+      {
+        "label": "大小 0.5",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 0.5,
+        "valueText": "0.5"
+      }
+    ],
+    "powerRegionDemand": [],
+    "powerStatusHud": []
+  }
+}

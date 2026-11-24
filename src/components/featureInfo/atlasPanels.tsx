@@ -359,7 +359,6 @@ function BeachPanel({ props }: Props) {
     <Row label={t("popup.atlas.enterococcus")} value={str(props.latest_enterococcus) ? `${str(props.latest_enterococcus)} CFU/100mL` : ""} />
     <Row field="sampleCount" value={str(props.sample_count) ? t("popup.atlas.samplesValue", { count: Number(props.sample_count), bad: str(props.unsuitable_count) || "0" }) : ""} />
     <Row label={t("popup.atlas.yearsSampled")} value={str(props.years_sampled).split(",").filter(Boolean).join(t("popup.common.listSeparator"))} />
-    <Row field="limits" value={t("popup.atlas.swimSeasonOnly")} />
     <Precision props={props} />
   </>;
 }
@@ -450,7 +449,6 @@ function FloodgatePanel({ props }: Props) {
     <Row field="county" value={placeName(str(props.county), i18n)} />
     <Row field="managingAgency" value={str(props.river_branch_label)} />
     <Row field="surveyDate" value={str(props.survey_date)} mono />
-    <Row field="caution" value={t("popup.atlas.floodgateCaution")} />
     <Precision props={props} />
   </>;
 }
@@ -515,7 +513,6 @@ function EcologyPanel({ props }: Props) {
     <Row label={t("popup.atlas.taxonGroups")} value={str(props.taxon_groups_label)} />
     <Row label={t("popup.atlas.surveyPeriod")} value={t("popup.atlas.range", { from: str(props.first_survey_date), to: str(props.last_survey_date) })} mono />
     <Row field="county" value={placeName(str(props.county), i18n)} />
-    <Row field="caution" value={t("popup.atlas.ecologyCaution")} />
     <Precision props={props} />
   </>;
 }
@@ -593,7 +590,6 @@ function MarineEcologySitePanel({ props }: Props) {
     <Row label={t("popup.atlas.siteDescription")} value={str(props.description)} />
     <Precision props={props} />
     <DataDate props={props} />
-    <Row field="caution" value={t("popup.atlas.ecologySiteCaution")} />
   </>;
 }
 
@@ -639,7 +635,6 @@ function SetNetPanel({ props }: Props) {
     <Row label={t("popup.atlas.fisheryName")} value={str(props.fishery_name)} />
     <Row field="place" value={str(props.area_name)} />
     <Row label={t("popup.atlas.licenseNo")} value={str(props.license_no)} mono />
-    <Row field="license" value={t("popup.atlas.setNetLicense")} />
     <DataDate props={props} />
     <MarineDisclaimer note={t("popup.atlas.setNetCaution")} />
   </>;
@@ -693,7 +688,6 @@ function IndigenousRegionPanel({ props }: Props) {
     <Row field="category" value={t("popup.atlas.indigenousRegionKind")} color={color} />
     <LinkRow label={t("popup.field.website")} url={str(props.office_website)} />
     <Row label={t("popup.atlas.announcedDate")} value={str(props.source_vintage)} mono />
-    <Row field="caution" value={t("popup.atlas.townBoundaryCaution")} />
   </>;
 }
 
@@ -708,7 +702,6 @@ function IndigenousDialectPanel({ props }: Props) {
     <Row label={t("popup.atlas.dialectCount")} value={str(props.dialect_count)} mono />
     {dialects.map((d) => <Row key={`${d.group}-${d.dialect}`} label={d.dialect} value={d.villages || t("popup.atlas.dialectWholeTown")} />)}
     <Row label={t("popup.atlas.announcedDate")} value={str(props.source_vintage)} mono />
-    <Row field="caution" value={t("popup.atlas.dialectCaution")} />
   </>;
 }
 
@@ -724,7 +717,6 @@ function HakkaZonePanel({ props }: Props) {
     <Row label={t("popup.atlas.hakkaRatio")} value={ratio == null ? "" : i18n.formatNumber(ratio, { style: "percent", maximumFractionDigits: 1 })} mono />
     <Row label={t("popup.atlas.majorFestivals")} value={str(props.major_festivals)} />
     <LinkRow label={t("popup.field.website")} url={str(props.office_website)} />
-    <Row field="caution" value={t("popup.atlas.townBoundaryCaution")} />
   </>;
 }
 
@@ -740,7 +732,6 @@ function TourServiceSitePanel({ props }: Props) {
     <Row field="district" value={placeTown(str(props.county), str(props.town), i18n)} />
     <Row field="authority" value={str(props.authority)} />
     <Row label={t("popup.atlas.sourceUpdated")} value={str(props.source_updated)} mono />
-    <Row field="caution" value={t("popup.atlas.siteClassInferred")} />
   </>;
 }
 
@@ -771,7 +762,6 @@ function TourVisitorStatsPanel({ props }: Props) {
     <Row label={t("popup.atlas.visitorMatched")} value={str(props.matched_name)} />
     {method !== "exact" && <Row field="caution" value={t("popup.atlas.visitorMatchFuzzy", { method: t(method === "suffix" ? "popup.atlas.matchSuffix" : "popup.atlas.matchSubstring") })} color={theme.warn} />}
     {props.coord_basis === "scenic_area_representative_point" && <Row field="caution" value={t("popup.atlas.visitorScenicPoint")} color={theme.warn} />}
-    <Row field="caution" value={t("popup.atlas.visitorCaution")} />
   </>;
 }
 
@@ -922,7 +912,6 @@ function AtmSitePanel({ props }: Props) {
   return <>
     <Title color={color}>{[str(props.institution_name), str(props.name)].filter(Boolean).join(" ")}</Title>
     <Row field="category" value={category} color={color} />
-    <Row field="remarks" value={t("popup.atlas.atmOneSite")} />
     <Row label={t("popup.atlas.atmWheelchair")} value={flag(props.wheelchair_accessible)} />
     <Row label={t("popup.atlas.atmVoice")} value={flag(props.voice_guidance)} />
     <Row label={t("popup.atlas.atmIntlCard")} value={flag(props.intl_card_withdrawal)} />
@@ -955,7 +944,6 @@ function SecuritiesFuturesPanel({ props }: Props) {
     {props.futures_operator_kind ? <Row label={t("popup.atlas.futuresOperatorKind")} value={enumOf("atlasFuturesKind", props.futures_operator_kind, props.futures_operator_kind_label, i18n)} /> : null}
     {props.proprietary_desk === 1 ? <Row field="remarks" value={t("popup.atlas.securitiesProprietary")} /> : null}
     <Row label={t("popup.atlas.openedDate")} value={str(props.opened_date)} mono />
-    <Row field="remarks" value={t("popup.atlas.securitiesRosterPoint")} />
     <FinanceLocationRows props={props} />
   </>;
 }
@@ -1017,7 +1005,6 @@ function SlopelandSwcActPanel({ props }: Props) {
     <Row label={t("popup.atlas.slArea")} value={fmt(props.p_area_ha, 0, t("popup.atlas.unitHectares"), i18n)} mono />
     <Row label={t("popup.atlas.slDate")} value={str(props.p_date)} mono />
     <Row field="authority" value={str(props.authority)} />
-    <Row field="caution" value={t("popup.atlas.slCaution")} />
   </>;
 }
 
@@ -1034,7 +1021,6 @@ function SwcSpecialZonePanel({ props }: Props) {
     <Row label={t("popup.atlas.swcAnnoArea")} value={fmt(props.anno_area_ha, 2, t("popup.atlas.unitHectares"), i18n)} mono />
     <Row label={t("popup.atlas.swcAnnoDate")} value={str(props.anno_date)} mono />
     <Row field="managingAgency" value={str(props.admin_name)} />
-    <Row field="caution" value={t("popup.atlas.swcCaution")} />
   </>;
 }
 
@@ -1059,7 +1045,6 @@ function AntivenomHospitalPanel({ props }: Props) {
     <Row label={t("popup.atlas.avSerums")} value={serums} />
     <Row field="address" value={str(props.address)} />
     <Row field="phone" value={str(props.phone)} mono />
-    <Row field="caution" value={t("popup.atlas.avCaution")} />
   </>;
 }
 
@@ -1091,18 +1076,14 @@ function MotorcycleInspectionPanel({ props }: Props) {
     <Row field="address" value={str(props.address)} />
     <Row field="phone" value={str(props.phone) || "—"} mono />
     <Row field="coordPrecision" value={estimated} color={theme.warn} />
-    <Row field="caution" value={t("popup.atlas.miCaution")} />
   </>;
 }
 
 // G10 外幣：郵局外幣現鈔經辦局（免責句固定顯示：是郵局經辦，不是外幣收兌處）。
 function PostOfficeFxPanel({ props }: Props) {
   const { t } = useLocale();
-  const theme = useFeatureTheme();
   return <>
     <Title color={ATLAS_LAYER_COLORS.postOfficeFxCounters}>{str(props.name)}</Title>
-    <Row field="remarks" value={t("popup.atlas.postFxService")} />
-    <Row field="caution" value={t("popup.atlas.postFxNotExchangeShop")} color={theme.warn} />
     <Row label={t("popup.atlas.postFxZip")} value={str(props.zip6)} mono />
     <FinanceLocationRows props={props} />
   </>;
@@ -1142,14 +1123,12 @@ function ExclusiveFisheryPanel({ props }: Props) {
 
 function ToxicChemicalPanel({ props }: Props) {
   const i18n = useLocale();
-  const { t } = i18n;
   return <>
     <Title color={ATLAS_LAYER_COLORS.toxicChemicalFacilities}>{str(props.name)}</Title>
     <Row field="address" value={str(props.address)} />
     <Row field="county" value={placeName(str(props.city), i18n)} />
     <Precision props={props} flagged={props.qa_flag === "large_shift"} />
     <DataDate props={props} />
-    <Row field="caution" value={t("popup.atlas.toxicCaution")} />
     <ToxicPermitsBlock emsno={props.ems_no} />
   </>;
 }
@@ -1174,7 +1153,6 @@ function OccupationalAccidentPanel({ props }: Props) {
     <Row field="address" value={str(props.address)} />
     <Precision props={props} flagged={props.precision === "parcel_centroid" || props.precision === "interpolated"} />
     <DataDate props={props} />
-    <Row field="caution" value={t("popup.atlas.occCaution")} />
   </>;
 }
 
@@ -1194,7 +1172,6 @@ function RenewablePermitNationalPanel({ props }: Props) {
     <Row label={t("popup.atlas.rpType")} value={enumOf("atlasRenewableClass", props.symbiotic_class, optionLabel(RENEWABLE_PERMIT_CLASS_OPTIONS, props.symbiotic_class), i18n)} color={color} />
     <Row label={t("popup.atlas.rpApplyYear")} value={year == null ? "" : t("popup.atlas.rocYears", { years: displayRocYear(String(year), i18n) })} />
     <Row label={t("popup.atlas.rpConstruction")} value={str(props.construction_date)} mono />
-    <Row field="caution" value={t("popup.atlas.rpCaution")} />
   </>;
 }
 
@@ -1208,7 +1185,6 @@ function ImportantWetlandPanel({ props }: Props) {
     <Row field="county" value={placeNameList(str(props.counties), i18n)} />
     <Row field="area" value={fmt(props.area_ha, 1, t("popup.atlas.unitHectares"), i18n)} />
     <DataDate props={props} />
-    <Row field="caution" value={t("popup.atlas.wlCaution")} />
   </>;
 }
 
@@ -1225,7 +1201,6 @@ function ImportantWetlandZonePanel({ props }: Props) {
     <Row label={t("popup.atlas.wzPlan")} value={str(props.plan)} />
     <Row label={t("popup.atlas.wzPlanDate")} value={str(props.plan_date)} mono />
     <DataDate props={props} />
-    <Row field="caution" value={t("popup.atlas.wzCaution")} />
   </>;
 }
 
@@ -1241,7 +1216,6 @@ function Water1944Panel({ props }: Props) {
     <Title color={color}>{statusText}</Title>
     <Row label={t("popup.atlas.w1944Town")} value={str(props.town) || "—"} />
     <Row field="area" value={area == null ? "—" : fmt(area / 10_000, 2, t("popup.atlas.unitHectares"), i18n)} />
-    <Row field="caution" value={t("popup.atlas.w1944Caution")} />
   </>;
 }
 
@@ -1262,7 +1236,6 @@ function WaterRecreationPanel({ props }: Props) {
     <Row label={t("popup.atlas.wrShape")} value={shapeText} />
     <LinkRow label={t("popup.atlas.wrNotice")} url={str(props.notice_url)} />
     <DataDate props={props} />
-    <Row field="caution" value={t("popup.atlas.wrCaution")} />
   </>;
 }
 
@@ -1446,7 +1419,6 @@ function MountainMobilePanel({ props }: Props) {
     <Row label={t("popup.atlas.mmTech")} value={str(props.tech)} mono />
     {known ? <Row label={t("popup.atlas.mmCoverage")} value={covered || t("popup.atlas.mmCoverageNone")} /> : null}
     {noOperatorInfo ? <Row field="caution" value={t("popup.atlas.mmNoOperator")} /> : null}
-    <Row field="caution" value={t("popup.atlas.mmIllustrative")} />
   </>;
 }
 
@@ -1480,27 +1452,23 @@ function NamrBuoyPanel({ props }: Props) {
     <Row label={t("popup.atlas.nbLast")} value={str(props.last_data_date)} mono />
     {props.overlaps_cwa_station === true ? <Row field="caution" value={t("popup.atlas.nbOverlap")} /> : null}
     {ended ? <Row field="caution" value={t("popup.atlas.nbEnded")} /> : null}
-    <Row field="caution" value={t("popup.atlas.nbNoValues")} />
   </>;
 }
 
 /** 台灣圖層延伸 B3 違規拖吊保管場：位置依地址推定；另有 25 筆未定位。 */
 function TowingYardPanel({ props }: Props) {
   const i18n = useLocale();
-  const { t } = i18n;
   return <>
     <Title color={ATLAS_LAYER_COLORS.towingYards}>{str(props.name)}</Title>
     <Row field="county" value={placeName(str(props.county), i18n)} />
     <Row field="address" value={str(props.address)} />
     <Row field="phone" value={str(props.tel)} mono />
-    <Row field="caution" value={t("popup.atlas.tyEstimated")} />
   </>;
 }
 
 /** 台灣圖層延伸 B3 水保戶外教室：2020 年版管理單位與電話可能過時。 */
 function SwcOutdoorClassroomPanel({ props }: Props) {
   const i18n = useLocale();
-  const { t } = i18n;
   return <>
     <Title color={ATLAS_LAYER_COLORS.swcOutdoorClassrooms}>{str(props.name)}</Title>
     <Row field="description" value={str(props.intro)} />
@@ -1509,7 +1477,6 @@ function SwcOutdoorClassroomPanel({ props }: Props) {
     <Row field="managingAgency" value={str(props.managing_unit)} />
     <Row field="address" value={str(props.address_text)} />
     <Row field="countyDistrict" value={admin(props, i18n)} />
-    <Row field="caution" value={t("popup.atlas.ocOld")} />
   </>;
 }
 
@@ -1521,7 +1488,6 @@ function SwcEcoCheckZonePanel({ props }: Props) {
     <Title color={ATLAS_LAYER_COLORS.swcEcoCheckZones}>{enumOf("atlasEcoZoneName", props.zone_name, str(props.zone_name), i18n)}</Title>
     <Row field="area" value={fmt(props.area_ha, 1, t("popup.atlas.unitHa"), i18n)} mono />
     <Row field="countyDistrict" value={admin(props, i18n)} />
-    <Row field="caution" value={t("popup.atlas.ezNotLegal")} />
   </>;
 }
 
@@ -1541,7 +1507,6 @@ function AirportHeightSurfacePanel({ props }: Props) {
     <Row label={t("popup.atlas.ahStart")} value={fmt(props.start_height_m, 1, "m", i18n)} mono />
     <Row field="area" value={fmt(props.area_km2, 2, "km²", i18n)} mono />
     {props.surface_kind === "facility" ? <Row field="caution" value={t("popup.atlas.ahFacility")} /> : null}
-    <Row field="caution" value={t("popup.atlas.ahQuery")} />
   </>;
 }
 
@@ -1577,7 +1542,6 @@ function NpSpeciesSitePanel({ props }: Props) {
     <Row label={t("popup.atlas.npRelease")} value={str(props.releases)} mono />
     <Row label={t("popup.atlas.npUncertainty")} value={str(props.uncertainty_bucket) || t("popup.atlas.npUncertaintyNone")} mono />
     {obscured === "all" || obscured === "some" ? <Row field="caution" value={t(obscured === "all" ? "popup.atlas.npObscuredAll" : "popup.atlas.npObscuredSome")} /> : null}
-    <Row field="caution" value={t("popup.atlas.npSiteUnit")} />
   </>;
 }
 
@@ -1605,14 +1569,12 @@ function HakkaLivingSchoolPanel({ props }: Props) {
     <Row field="countyDistrict" value={countyTownship(props, i18n)} />
     <Row field="address" value={str(props.address)} />
     <Row label={t("popup.atlas.hsYears")} value={years} mono />
-    <Row field="caution" value={t("popup.atlas.hsEstimated")} />
   </>;
 }
 
 /** 台灣圖層延伸 B7 砂石碎解洗選場：位置依地址推定；名稱為事業單位。 */
 function SandGravelPlantPanel({ props }: Props) {
   const i18n = useLocale();
-  const { t } = i18n;
   const color = optionColor(SAND_GRAVEL_REG_OPTIONS, props.registration);
   return <>
     <Title color={color}>{str(props.name)}</Title>
@@ -1620,7 +1582,6 @@ function SandGravelPlantPanel({ props }: Props) {
     <Row field="county" value={placeName(str(props.county), i18n)} />
     <Row field="address" value={str(props.address)} />
     <Row field="phone" value={str(props.tel)} mono />
-    <Row field="caution" value={t("popup.atlas.sgEstimated")} />
   </>;
 }
 
@@ -1660,7 +1621,6 @@ function EvMotorcycleChargingPanel({ props }: Props) {
     <Row label={t("popup.atlas.evFee")} value={str(props.fee)} />
     {str(props.open_public) === "N" ? <Row field="caution" value={t("popup.atlas.evNotPublic")} /> : null}
     {addressDerived(props) ? <Row field="caution" value={t("popup.atlas.evEstimated")} /> : null}
-    <Row field="caution" value={t("popup.atlas.evScope")} />
   </>;
 }
 
@@ -1680,7 +1640,6 @@ function CountyStreetlightPanel({ props }: Props) {
     <Row label={t("popup.atlas.slHeight")} value={str(props.height_m) ? `${str(props.height_m)} m` : ""} mono />
     {lamps != null && lamps > 1 ? <Row label={t("popup.atlas.slLamps")} value={fmt(lamps, 0, "", i18n)} mono /> : null}
     <Row field="status" value={str(props.status)} />
-    <Row field="caution" value={t("popup.atlas.slScope")} />
   </>;
 }
 
@@ -1714,7 +1673,6 @@ function IOceanFishingPanel({ props }: Props) {
     {speciesN != null ? <Row label={t("popup.atlas.iofSpeciesN")} value={i18n.formatNumber(speciesN)} mono /> : null}
     {/* 0 cm＝回報未填體長（約 5%），視為缺值不顯示 */}
     <Row label={t("popup.atlas.iofMaxLength")} value={Number(props.max_length_cm) > 0 ? fmt(props.max_length_cm, 1, "cm", i18n) : ""} mono />
-    <Row field="remarks" value={t("popup.atlas.iofCitizen")} />
   </>;
 }
 
@@ -1731,7 +1689,6 @@ function IOceanSightingPanel({ props }: Props) {
     {count != null && count > 0 ? <Row label={t("popup.atlas.iosCount")} value={i18n.formatNumber(count)} mono /> : null}
     <Row label={t("popup.atlas.iosAliases")} value={str(props.species_aliases)} />
     {props.location_generalized === true ? <Row field="caution" value={t("popup.atlas.iosGeneralized")} /> : null}
-    <Row field="remarks" value={t("popup.atlas.iosCitizen")} />
   </>;
 }
 

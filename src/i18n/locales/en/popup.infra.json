@@ -44,7 +44,6 @@
   "popup.infra.ooklaDevicesLine": "{tests} · {devices} ({method})",
   "popup.infra.ooklaLowSample": "⚠️ Very few samples",
   "popup.infra.ooklaGridLevel": "Grid level",
-  "popup.infra.ooklaPeriod": "Period",
   "popup.infra.ooklaSampleBias": "Sample bias",
   "popup.infra.ooklaScaleZ6": "Global z6 cell (about 500 km)",
   "popup.infra.ooklaScaleZ10": "Global z10 cell (about 78 km)",

@@ -1,7 +1,7 @@
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import { SourceFooter } from "../shared";
+import { SourceFooter, SourceFooterModeProvider } from "../shared";
 
 /**
  * SourceFooter F2 規格（proposal.md §6.1 / handoff.md §4a 第三輪拍板）：
@@ -77,5 +77,30 @@ describe("SourceFooter (F2)", () => {
       },
     }));
     expect(single).not.toContain("溯源");
+  });
+});
+
+describe("SourceFooter 精簡模式（逐筆來源的 popup）", () => {
+  const props = {
+    source_org: "高雄市政府消防局",
+    source_url: "https://data.gov.tw/dataset/160481",
+    license: "政府資料開放授權條款第1版",
+    fetched_at: "2026-05-16",
+  };
+  const render = (value: "compact" | "full" | "none") => renderToStaticMarkup(
+    createElement(SourceFooterModeProvider, { value }, createElement(SourceFooter, { props })),
+  );
+
+  it("compact 只留機關與連結，不顯示授權", () => {
+    const html = render("compact");
+    expect(html).toContain("高雄市政府消防局");
+    expect(html).toContain("https://data.gov.tw/dataset/160481");
+    expect(html).not.toContain("政府資料開放授權條款");
+    expect(html).not.toContain("2026-05-16");
+  });
+
+  it("full（圖層側沒有授權）仍顯示授權；none 整行不顯示", () => {
+    expect(render("full")).toContain("政府資料開放授權條款第1版");
+    expect(render("none")).toBe("");
   });
 });

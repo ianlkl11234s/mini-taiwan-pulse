@@ -1,4 +1,5 @@
 import { localeStore, type LocaleSnapshot } from "../../../state/localeStore";
+import { DEFAULT_TIME_ZONE, zonedDateKey } from "../../../lib/zonedTime";
 
 /**
  * 新聞四格的來源新鮮度輸入（純函式，可測）。
@@ -28,7 +29,7 @@ export interface NewsFreshnessInput {
   quiet: boolean;
 }
 
-export const taipeiDayKey = (ms: number): string => new Date(ms + 8 * 3600_000).toISOString().slice(0, 10);
+export const taipeiDayKey = (ms: number): string => zonedDateKey(ms, DEFAULT_TIME_ZONE);
 
 export function maxSourceSuccessMs(rows: readonly { last_success_at: string | null }[] | null | undefined): number | null {
   let max: number | null = null;

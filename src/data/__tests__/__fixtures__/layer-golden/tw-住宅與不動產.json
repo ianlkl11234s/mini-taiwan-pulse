@@ -1,0 +1,2731 @@
+{
+  "count": 54,
+  "gisLayers": {
+    "propertyValueAdmin": {
+      "layers": [
+        "property-value-admin-county-fill",
+        "property-value-admin-county-line",
+        "property-value-admin-township-fill",
+        "property-value-admin-township-line"
+      ],
+      "type": "propertyValueAdmin"
+    }
+  },
+  "overlays": {},
+  "params": {
+    "propertyValueAdmin": [
+      {
+        "label": "行政層級",
+        "options": [
+          {
+            "label": "縣市（19 / 22）",
+            "value": "county"
+          },
+          {
+            "label": "鄉鎮市區（352 / 368，z6+）",
+            "value": "township"
+          }
+        ],
+        "type": "select",
+        "value": "county"
+      },
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      }
+    ],
+    "statsComparisonHousingMixedShareOfResidentialOrMixedPctCounty": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "住宅專用（縣市原始數）",
+            "value": "statsHousingResidenceOnlyCounty"
+          },
+          {
+            "label": "兼農工服務業用（縣市原始數）",
+            "value": "statsHousingMixedUseCounty"
+          },
+          {
+            "label": "縣市：有人居住住宅中的混合用途占比",
+            "value": "statsComparisonHousingMixedShareOfResidentialOrMixedPctCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonHousingMixedShareOfResidentialOrMixedPctCounty"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonHousingOccasionalSharePctCounty": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "縣市：原始數",
+            "value": "statsHousingOccasionalCounty"
+          },
+          {
+            "label": "鄉鎮：原始數",
+            "value": "statsHousingOccasionalTownship"
+          },
+          {
+            "label": "縣市：偶爾自住住宅占總住宅比",
+            "value": "statsComparisonHousingOccasionalSharePctCounty"
+          },
+          {
+            "label": "鄉鎮：偶爾自住住宅占總住宅比",
+            "value": "statsComparisonHousingOccasionalSharePctTownship"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonHousingOccasionalSharePctCounty"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonHousingOccasionalSharePctTownship": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "縣市：原始數",
+            "value": "statsHousingOccasionalCounty"
+          },
+          {
+            "label": "鄉鎮：原始數",
+            "value": "statsHousingOccasionalTownship"
+          },
+          {
+            "label": "縣市：偶爾自住住宅占總住宅比",
+            "value": "statsComparisonHousingOccasionalSharePctCounty"
+          },
+          {
+            "label": "鄉鎮：偶爾自住住宅占總住宅比",
+            "value": "statsComparisonHousingOccasionalSharePctTownship"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonHousingOccasionalSharePctTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonHousingOtherUseSharePctCounty": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "縣市：原始數",
+            "value": "statsHousingOtherUseCounty"
+          },
+          {
+            "label": "鄉鎮：原始數",
+            "value": "statsHousingOtherUseTownship"
+          },
+          {
+            "label": "縣市：其他使用住宅占總住宅比",
+            "value": "statsComparisonHousingOtherUseSharePctCounty"
+          },
+          {
+            "label": "鄉鎮：其他使用住宅占總住宅比",
+            "value": "statsComparisonHousingOtherUseSharePctTownship"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonHousingOtherUseSharePctCounty"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonHousingOtherUseSharePctTownship": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "縣市：原始數",
+            "value": "statsHousingOtherUseCounty"
+          },
+          {
+            "label": "鄉鎮：原始數",
+            "value": "statsHousingOtherUseTownship"
+          },
+          {
+            "label": "縣市：其他使用住宅占總住宅比",
+            "value": "statsComparisonHousingOtherUseSharePctCounty"
+          },
+          {
+            "label": "鄉鎮：其他使用住宅占總住宅比",
+            "value": "statsComparisonHousingOtherUseSharePctTownship"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonHousingOtherUseSharePctTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonHousingUnoccupiedSharePctCounty": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "縣市：原始數",
+            "value": "statsHousingUnoccupiedCounty"
+          },
+          {
+            "label": "鄉鎮：原始數",
+            "value": "statsHousingUnoccupiedTownship"
+          },
+          {
+            "label": "縣市：無人經常居住住宅占總住宅比",
+            "value": "statsComparisonHousingUnoccupiedSharePctCounty"
+          },
+          {
+            "label": "鄉鎮：無人經常居住住宅占總住宅比",
+            "value": "statsComparisonHousingUnoccupiedSharePctTownship"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonHousingUnoccupiedSharePctCounty"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonHousingUnoccupiedSharePctTownship": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "縣市：原始數",
+            "value": "statsHousingUnoccupiedCounty"
+          },
+          {
+            "label": "鄉鎮：原始數",
+            "value": "statsHousingUnoccupiedTownship"
+          },
+          {
+            "label": "縣市：無人經常居住住宅占總住宅比",
+            "value": "statsComparisonHousingUnoccupiedSharePctCounty"
+          },
+          {
+            "label": "鄉鎮：無人經常居住住宅占總住宅比",
+            "value": "statsComparisonHousingUnoccupiedSharePctTownship"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonHousingUnoccupiedSharePctTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsHousingMixedUseCounty": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "住宅專用（縣市原始數）",
+            "value": "statsHousingResidenceOnlyCounty"
+          },
+          {
+            "label": "兼農工服務業用（縣市原始數）",
+            "value": "statsHousingMixedUseCounty"
+          },
+          {
+            "label": "縣市：有人居住住宅中的混合用途占比",
+            "value": "statsComparisonHousingMixedShareOfResidentialOrMixedPctCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsHousingMixedUseCounty"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "loading",
+        "statusText": "載入中…",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsHousingOccasionalCounty": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "縣市：原始數",
+            "value": "statsHousingOccasionalCounty"
+          },
+          {
+            "label": "鄉鎮：原始數",
+            "value": "statsHousingOccasionalTownship"
+          },
+          {
+            "label": "縣市：偶爾自住住宅占總住宅比",
+            "value": "statsComparisonHousingOccasionalSharePctCounty"
+          },
+          {
+            "label": "鄉鎮：偶爾自住住宅占總住宅比",
+            "value": "statsComparisonHousingOccasionalSharePctTownship"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsHousingOccasionalCounty"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "loading",
+        "statusText": "載入中…",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsHousingOccasionalTownship": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "縣市：原始數",
+            "value": "statsHousingOccasionalCounty"
+          },
+          {
+            "label": "鄉鎮：原始數",
+            "value": "statsHousingOccasionalTownship"
+          },
+          {
+            "label": "縣市：偶爾自住住宅占總住宅比",
+            "value": "statsComparisonHousingOccasionalSharePctCounty"
+          },
+          {
+            "label": "鄉鎮：偶爾自住住宅占總住宅比",
+            "value": "statsComparisonHousingOccasionalSharePctTownship"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsHousingOccasionalTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "loading",
+        "statusText": "載入中…",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsHousingOccupiedCounty": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "縣市：原始數",
+            "value": "statsHousingOccupiedCounty"
+          },
+          {
+            "label": "鄉鎮：原始數",
+            "value": "statsHousingOccupiedTownship"
+          },
+          {
+            "label": "縣市：占總住宅比",
+            "value": "statsHousingOccupiedPctCounty"
+          },
+          {
+            "label": "鄉鎮：占總住宅比",
+            "value": "statsHousingOccupiedPctTownship"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsHousingOccupiedCounty"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "loading",
+        "statusText": "載入中…",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsHousingOccupiedPctCounty": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "縣市：原始數",
+            "value": "statsHousingOccupiedCounty"
+          },
+          {
+            "label": "鄉鎮：原始數",
+            "value": "statsHousingOccupiedTownship"
+          },
+          {
+            "label": "縣市：占總住宅比",
+            "value": "statsHousingOccupiedPctCounty"
+          },
+          {
+            "label": "鄉鎮：占總住宅比",
+            "value": "statsHousingOccupiedPctTownship"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsHousingOccupiedPctCounty"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "loading",
+        "statusText": "載入中…",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsHousingOccupiedPctTownship": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "縣市：原始數",
+            "value": "statsHousingOccupiedCounty"
+          },
+          {
+            "label": "鄉鎮：原始數",
+            "value": "statsHousingOccupiedTownship"
+          },
+          {
+            "label": "縣市：占總住宅比",
+            "value": "statsHousingOccupiedPctCounty"
+          },
+          {
+            "label": "鄉鎮：占總住宅比",
+            "value": "statsHousingOccupiedPctTownship"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsHousingOccupiedPctTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "loading",
+        "statusText": "載入中…",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsHousingOccupiedTownship": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "縣市：原始數",
+            "value": "statsHousingOccupiedCounty"
+          },
+          {
+            "label": "鄉鎮：原始數",
+            "value": "statsHousingOccupiedTownship"
+          },
+          {
+            "label": "縣市：占總住宅比",
+            "value": "statsHousingOccupiedPctCounty"
+          },
+          {
+            "label": "鄉鎮：占總住宅比",
+            "value": "statsHousingOccupiedPctTownship"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsHousingOccupiedTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "loading",
+        "statusText": "載入中…",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsHousingOtherUseCounty": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "縣市：原始數",
+            "value": "statsHousingOtherUseCounty"
+          },
+          {
+            "label": "鄉鎮：原始數",
+            "value": "statsHousingOtherUseTownship"
+          },
+          {
+            "label": "縣市：其他使用住宅占總住宅比",
+            "value": "statsComparisonHousingOtherUseSharePctCounty"
+          },
+          {
+            "label": "鄉鎮：其他使用住宅占總住宅比",
+            "value": "statsComparisonHousingOtherUseSharePctTownship"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsHousingOtherUseCounty"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "loading",
+        "statusText": "載入中…",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsHousingOtherUseTownship": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "縣市：原始數",
+            "value": "statsHousingOtherUseCounty"
+          },
+          {
+            "label": "鄉鎮：原始數",
+            "value": "statsHousingOtherUseTownship"
+          },
+          {
+            "label": "縣市：其他使用住宅占總住宅比",
+            "value": "statsComparisonHousingOtherUseSharePctCounty"
+          },
+          {
+            "label": "鄉鎮：其他使用住宅占總住宅比",
+            "value": "statsComparisonHousingOtherUseSharePctTownship"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsHousingOtherUseTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "loading",
+        "statusText": "載入中…",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsHousingResidenceOnlyCounty": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "住宅專用（縣市原始數）",
+            "value": "statsHousingResidenceOnlyCounty"
+          },
+          {
+            "label": "兼農工服務業用（縣市原始數）",
+            "value": "statsHousingMixedUseCounty"
+          },
+          {
+            "label": "縣市：有人居住住宅中的混合用途占比",
+            "value": "statsComparisonHousingMixedShareOfResidentialOrMixedPctCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsHousingResidenceOnlyCounty"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "loading",
+        "statusText": "載入中…",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsHousingTotalCounty": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "縣市：原始數",
+            "value": "statsHousingTotalCounty"
+          },
+          {
+            "label": "鄉鎮：原始數",
+            "value": "statsHousingTotalTownship"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsHousingTotalCounty"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "loading",
+        "statusText": "載入中…",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsHousingTotalTownship": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "縣市：原始數",
+            "value": "statsHousingTotalCounty"
+          },
+          {
+            "label": "鄉鎮：原始數",
+            "value": "statsHousingTotalTownship"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsHousingTotalTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "loading",
+        "statusText": "載入中…",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsHousingUnoccupiedCounty": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "縣市：原始數",
+            "value": "statsHousingUnoccupiedCounty"
+          },
+          {
+            "label": "鄉鎮：原始數",
+            "value": "statsHousingUnoccupiedTownship"
+          },
+          {
+            "label": "縣市：無人經常居住住宅占總住宅比",
+            "value": "statsComparisonHousingUnoccupiedSharePctCounty"
+          },
+          {
+            "label": "鄉鎮：無人經常居住住宅占總住宅比",
+            "value": "statsComparisonHousingUnoccupiedSharePctTownship"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsHousingUnoccupiedCounty"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "loading",
+        "statusText": "載入中…",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsHousingUnoccupiedTownship": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "縣市：原始數",
+            "value": "statsHousingUnoccupiedCounty"
+          },
+          {
+            "label": "鄉鎮：原始數",
+            "value": "statsHousingUnoccupiedTownship"
+          },
+          {
+            "label": "縣市：無人經常居住住宅占總住宅比",
+            "value": "statsComparisonHousingUnoccupiedSharePctCounty"
+          },
+          {
+            "label": "鄉鎮：無人經常居住住宅占總住宅比",
+            "value": "statsComparisonHousingUnoccupiedSharePctTownship"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsHousingUnoccupiedTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "loading",
+        "statusText": "載入中…",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsHousingUnusedCounty": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "縣市：原始數",
+            "value": "statsHousingUnusedCounty"
+          },
+          {
+            "label": "鄉鎮：原始數",
+            "value": "statsHousingUnusedTownship"
+          },
+          {
+            "label": "縣市：占總住宅比",
+            "value": "statsHousingUnusedPctCounty"
+          },
+          {
+            "label": "鄉鎮：占總住宅比",
+            "value": "statsHousingUnusedPctTownship"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsHousingUnusedCounty"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "loading",
+        "statusText": "載入中…",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsHousingUnusedPctCounty": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "縣市：原始數",
+            "value": "statsHousingUnusedCounty"
+          },
+          {
+            "label": "鄉鎮：原始數",
+            "value": "statsHousingUnusedTownship"
+          },
+          {
+            "label": "縣市：占總住宅比",
+            "value": "statsHousingUnusedPctCounty"
+          },
+          {
+            "label": "鄉鎮：占總住宅比",
+            "value": "statsHousingUnusedPctTownship"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsHousingUnusedPctCounty"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "loading",
+        "statusText": "載入中…",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsHousingUnusedPctTownship": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "縣市：原始數",
+            "value": "statsHousingUnusedCounty"
+          },
+          {
+            "label": "鄉鎮：原始數",
+            "value": "statsHousingUnusedTownship"
+          },
+          {
+            "label": "縣市：占總住宅比",
+            "value": "statsHousingUnusedPctCounty"
+          },
+          {
+            "label": "鄉鎮：占總住宅比",
+            "value": "statsHousingUnusedPctTownship"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsHousingUnusedPctTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "loading",
+        "statusText": "載入中…",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsHousingUnusedTownship": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "縣市：原始數",
+            "value": "statsHousingUnusedCounty"
+          },
+          {
+            "label": "鄉鎮：原始數",
+            "value": "statsHousingUnusedTownship"
+          },
+          {
+            "label": "縣市：占總住宅比",
+            "value": "statsHousingUnusedPctCounty"
+          },
+          {
+            "label": "鄉鎮：占總住宅比",
+            "value": "statsHousingUnusedPctTownship"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsHousingUnusedTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "loading",
+        "statusText": "載入中…",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsMojAuctionItems": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "縣市・標的數",
+            "value": "statsMojAuctionItems"
+          },
+          {
+            "label": "縣市・拍賣案數",
+            "value": "statsMojAuctionLots"
+          },
+          {
+            "label": "縣市・標的數（依類別）",
+            "value": "statsMojAuctionItemsByCategory"
+          },
+          {
+            "label": "鄉鎮・標的數",
+            "value": "statsMojAuctionItemsTown"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsMojAuctionItems"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsMojAuctionItemsByCategory": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "縣市・標的數",
+            "value": "statsMojAuctionItems"
+          },
+          {
+            "label": "縣市・拍賣案數",
+            "value": "statsMojAuctionLots"
+          },
+          {
+            "label": "縣市・標的數（依類別）",
+            "value": "statsMojAuctionItemsByCategory"
+          },
+          {
+            "label": "鄉鎮・標的數",
+            "value": "statsMojAuctionItemsTown"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsMojAuctionItemsByCategory"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsMojAuctionItemsTown": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "縣市・標的數",
+            "value": "statsMojAuctionItems"
+          },
+          {
+            "label": "縣市・拍賣案數",
+            "value": "statsMojAuctionLots"
+          },
+          {
+            "label": "縣市・標的數（依類別）",
+            "value": "statsMojAuctionItemsByCategory"
+          },
+          {
+            "label": "鄉鎮・標的數",
+            "value": "statsMojAuctionItemsTown"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsMojAuctionItemsTown"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsMojAuctionLots": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "縣市・標的數",
+            "value": "statsMojAuctionItems"
+          },
+          {
+            "label": "縣市・拍賣案數",
+            "value": "statsMojAuctionLots"
+          },
+          {
+            "label": "縣市・標的數（依類別）",
+            "value": "statsMojAuctionItemsByCategory"
+          },
+          {
+            "label": "鄉鎮・標的數",
+            "value": "statsMojAuctionItemsTown"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsMojAuctionLots"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsStateLandArea": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "面積",
+            "value": "statsStateLandArea"
+          },
+          {
+            "label": "筆戶數",
+            "value": "statsStateLandParcels"
+          },
+          {
+            "label": "每平方公尺價值",
+            "value": "statsStateLandValuePerSqm"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsStateLandArea"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsStateLandIdleArea": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "面積",
+            "value": "statsStateLandIdleArea"
+          },
+          {
+            "label": "占未處理土地比例",
+            "value": "statsStateLandIdleShare"
+          },
+          {
+            "label": "筆戶數",
+            "value": "statsStateLandIdleParcels"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsStateLandIdleArea"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsStateLandIdleParcels": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "面積",
+            "value": "statsStateLandIdleArea"
+          },
+          {
+            "label": "占未處理土地比例",
+            "value": "statsStateLandIdleShare"
+          },
+          {
+            "label": "筆戶數",
+            "value": "statsStateLandIdleParcels"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsStateLandIdleParcels"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsStateLandIdleShare": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "面積",
+            "value": "statsStateLandIdleArea"
+          },
+          {
+            "label": "占未處理土地比例",
+            "value": "statsStateLandIdleShare"
+          },
+          {
+            "label": "筆戶數",
+            "value": "statsStateLandIdleParcels"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsStateLandIdleShare"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsStateLandParcels": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "面積",
+            "value": "statsStateLandArea"
+          },
+          {
+            "label": "筆戶數",
+            "value": "statsStateLandParcels"
+          },
+          {
+            "label": "每平方公尺價值",
+            "value": "statsStateLandValuePerSqm"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsStateLandParcels"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsStateLandRentalArea": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "出租面積",
+            "value": "statsStateLandRentalArea"
+          },
+          {
+            "label": "出租筆數",
+            "value": "statsStateLandRentalParcels"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsStateLandRentalArea"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsStateLandRentalParcels": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "出租面積",
+            "value": "statsStateLandRentalArea"
+          },
+          {
+            "label": "出租筆數",
+            "value": "statsStateLandRentalParcels"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsStateLandRentalParcels"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsStateLandStatusShare": [
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsStateLandValuePerSqm": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "面積",
+            "value": "statsStateLandArea"
+          },
+          {
+            "label": "筆戶數",
+            "value": "statsStateLandParcels"
+          },
+          {
+            "label": "每平方公尺價值",
+            "value": "statsStateLandValuePerSqm"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsStateLandValuePerSqm"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsStatePropertyArea": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "面積",
+            "value": "statsStatePropertyArea"
+          },
+          {
+            "label": "筆戶數",
+            "value": "statsStatePropertyParcels"
+          },
+          {
+            "label": "每平方公尺價值",
+            "value": "statsStatePropertyValuePerSqm"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsStatePropertyArea"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsStatePropertyParcels": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "面積",
+            "value": "statsStatePropertyArea"
+          },
+          {
+            "label": "筆戶數",
+            "value": "statsStatePropertyParcels"
+          },
+          {
+            "label": "每平方公尺價值",
+            "value": "statsStatePropertyValuePerSqm"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsStatePropertyParcels"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsStatePropertyValuePerSqm": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "面積",
+            "value": "statsStatePropertyArea"
+          },
+          {
+            "label": "筆戶數",
+            "value": "statsStatePropertyParcels"
+          },
+          {
+            "label": "每平方公尺價值",
+            "value": "statsStatePropertyValuePerSqm"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsStatePropertyValuePerSqm"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsStateResidentialArea": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "面積",
+            "value": "statsStateResidentialArea"
+          },
+          {
+            "label": "筆數",
+            "value": "statsStateResidentialParcels"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsStateResidentialArea"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsStateResidentialParcels": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "面積",
+            "value": "statsStateResidentialArea"
+          },
+          {
+            "label": "筆數",
+            "value": "statsStateResidentialParcels"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsStateResidentialParcels"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsTaipeiUsagePermitBuildingAreaTownship": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "件數（合計）",
+            "value": "statsTaipeiUsagePermitCountTownship"
+          },
+          {
+            "label": "件數（依建造類別）",
+            "value": "statsTaipeiUsagePermitCountByBuildTypeTownship"
+          },
+          {
+            "label": "棟數",
+            "value": "statsTaipeiUsagePermitBuildingCountTownship"
+          },
+          {
+            "label": "戶數",
+            "value": "statsTaipeiUsagePermitHouseholdCountTownship"
+          },
+          {
+            "label": "建築面積",
+            "value": "statsTaipeiUsagePermitBuildingAreaTownship"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsTaipeiUsagePermitBuildingAreaTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsTaipeiUsagePermitBuildingCountTownship": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "件數（合計）",
+            "value": "statsTaipeiUsagePermitCountTownship"
+          },
+          {
+            "label": "件數（依建造類別）",
+            "value": "statsTaipeiUsagePermitCountByBuildTypeTownship"
+          },
+          {
+            "label": "棟數",
+            "value": "statsTaipeiUsagePermitBuildingCountTownship"
+          },
+          {
+            "label": "戶數",
+            "value": "statsTaipeiUsagePermitHouseholdCountTownship"
+          },
+          {
+            "label": "建築面積",
+            "value": "statsTaipeiUsagePermitBuildingAreaTownship"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsTaipeiUsagePermitBuildingCountTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsTaipeiUsagePermitCountByBuildTypeTownship": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "件數（合計）",
+            "value": "statsTaipeiUsagePermitCountTownship"
+          },
+          {
+            "label": "件數（依建造類別）",
+            "value": "statsTaipeiUsagePermitCountByBuildTypeTownship"
+          },
+          {
+            "label": "棟數",
+            "value": "statsTaipeiUsagePermitBuildingCountTownship"
+          },
+          {
+            "label": "戶數",
+            "value": "statsTaipeiUsagePermitHouseholdCountTownship"
+          },
+          {
+            "label": "建築面積",
+            "value": "statsTaipeiUsagePermitBuildingAreaTownship"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsTaipeiUsagePermitCountByBuildTypeTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          },
+          {
+            "label": "點密度",
+            "value": "dots"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsTaipeiUsagePermitCountTownship": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "件數（合計）",
+            "value": "statsTaipeiUsagePermitCountTownship"
+          },
+          {
+            "label": "件數（依建造類別）",
+            "value": "statsTaipeiUsagePermitCountByBuildTypeTownship"
+          },
+          {
+            "label": "棟數",
+            "value": "statsTaipeiUsagePermitBuildingCountTownship"
+          },
+          {
+            "label": "戶數",
+            "value": "statsTaipeiUsagePermitHouseholdCountTownship"
+          },
+          {
+            "label": "建築面積",
+            "value": "statsTaipeiUsagePermitBuildingAreaTownship"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsTaipeiUsagePermitCountTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          },
+          {
+            "label": "點密度",
+            "value": "dots"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsTaipeiUsagePermitHouseholdCountTownship": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "件數（合計）",
+            "value": "statsTaipeiUsagePermitCountTownship"
+          },
+          {
+            "label": "件數（依建造類別）",
+            "value": "statsTaipeiUsagePermitCountByBuildTypeTownship"
+          },
+          {
+            "label": "棟數",
+            "value": "statsTaipeiUsagePermitBuildingCountTownship"
+          },
+          {
+            "label": "戶數",
+            "value": "statsTaipeiUsagePermitHouseholdCountTownship"
+          },
+          {
+            "label": "建築面積",
+            "value": "statsTaipeiUsagePermitBuildingAreaTownship"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsTaipeiUsagePermitHouseholdCountTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          },
+          {
+            "label": "點密度",
+            "value": "dots"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsTaisugarAnnouncedArea": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "面積（依地號去重）",
+            "value": "statsTaisugarAnnouncedArea"
+          },
+          {
+            "label": "地號數（去重）",
+            "value": "statsTaisugarAnnouncedParcels"
+          },
+          {
+            "label": "公告列數（未去重）",
+            "value": "statsTaisugarAnnouncedListings"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsTaisugarAnnouncedArea"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsTaisugarAnnouncedListings": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "面積（依地號去重）",
+            "value": "statsTaisugarAnnouncedArea"
+          },
+          {
+            "label": "地號數（去重）",
+            "value": "statsTaisugarAnnouncedParcels"
+          },
+          {
+            "label": "公告列數（未去重）",
+            "value": "statsTaisugarAnnouncedListings"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsTaisugarAnnouncedListings"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsTaisugarAnnouncedParcels": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "面積（依地號去重）",
+            "value": "statsTaisugarAnnouncedArea"
+          },
+          {
+            "label": "地號數（去重）",
+            "value": "statsTaisugarAnnouncedParcels"
+          },
+          {
+            "label": "公告列數（未去重）",
+            "value": "statsTaisugarAnnouncedListings"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsTaisugarAnnouncedParcels"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsTaisugarRentableArea": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "面積",
+            "value": "statsTaisugarRentableArea"
+          },
+          {
+            "label": "地號數",
+            "value": "statsTaisugarRentableParcels"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsTaisugarRentableArea"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsTaisugarRentableParcels": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "面積",
+            "value": "statsTaisugarRentableArea"
+          },
+          {
+            "label": "地號數",
+            "value": "statsTaisugarRentableParcels"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsTaisugarRentableParcels"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ]
+  }
+}

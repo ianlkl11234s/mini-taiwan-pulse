@@ -1863,7 +1863,7 @@ pulse 這端只做接線（不改 pipeline、不建 Supabase 表）。
 6. **驗收四段，缺一不可**：
    - `npm run check`（新層要進 `NO_HOOK_LEDGER` 之類的 ledger）
    - 黃金快照重生 `npx vite-node scripts/preprocess/dump-layer-golden.ts`
-     → **`git diff` 確認只有新 key ＋ keyCount 那一行動**，既有層任何 diff 都是回歸
+     → **`git diff` 確認只有新 key（在你那主題的 group 檔與 _order.json）那幾行動**，既有層任何 diff 都是回歸
    - 瀏覽器：深連結 `?v=1&layers=…` 開層，驗渲染點數／分色／數值視覺／popup／圖例
    - 🔴 **側欄實測**：深連結**繞過** sidebar，而四鐵則 #4（控件不溢出）是唯一沒有
      測試守門的一條 → 必須真的點開 Layers → 展開參數面板 → 截圖看有沒有折行

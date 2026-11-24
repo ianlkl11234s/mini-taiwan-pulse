@@ -9,10 +9,10 @@
  */
 import type { CnDataKey, CnRasterKey } from "./cnDataKeys";
 import { CN_PREFECTURE_NAMES } from "./cnPrefectureNames";
-import type { L3, PhCat, PhCatGetter, PhField, PhLayerSpec, PhNote, PhPart, PhSizeBands } from "./phDataLayers";
+import type { L3, PhCat, PhCatGetter, PhField, PhLayerSpec, PhNote, PhPart, PhSizeBands } from "./intlLayerShared";
 
-export type { L3 } from "./krDataLayers";
-export { pickL3 } from "./krDataLayers";
+export type { L3 } from "./intlLayerShared";
+export { pickL3 } from "./intlLayerShared";
 
 type Expr = unknown[];
 const l3 = (zh: string, en: string, ja: string): L3 => ({ zh, en, ja });
@@ -338,7 +338,6 @@ const WDPA_CATS: readonly PhCat[] = [
   { id: "scenic_area", values: ["scenic_area"], color: "#a855f7", label: l3("風景名勝區", "Scenic area", "風景名勝区") },
   { id: "other", values: ["other"], color: "#94a3b8", label: l3("其他保護區", "Other protected area", "その他の保護地域") },
 ];
-const WDPA_NC_NOTE = l3("WDPA 使用條款：禁止商業使用（含衍生品）", "WDPA terms: no commercial use (including derived works)", "WDPA 利用規約：商用禁止（派生物を含む）");
 
 // ───────────── 長橋與長隧道（C015） ─────────────
 const STRUCT_CATS: readonly PhCat[] = [
@@ -487,7 +486,6 @@ const CN_W25_SPECS: readonly CnLayerSpec[] = [
     legendNotes: [
       l3("HydroRIVERS 模型河網 51,444 段（流量等級 2–5，平均流量 ≥10 m³/s）；31/31 省", "HydroRIVERS modelled network, 51,444 reaches (flow orders 2–5, mean discharge ≥10 m³/s); 31 of 31 provinces", "HydroRIVERS モデル河川網 51,444 区間（流量等級 2–5、平均流量 ≥10 m³/s）。31 省すべて"),
       l3("由 15 秒 DEM 推導，沒有河名；平原區河道位置可能偏移，流量是模型值", "Derived from a 15-arc-second DEM, no names; channel positions may be off in plains, discharge is modelled", "15 秒 DEM から推定、名称なし。平野部では位置がずれることがあり、流量はモデル値"),
-      l3("HydroSHEDS 授權：只可放在衍生作品中散布，不可單獨轉發原始資料", "HydroSHEDS licence: may be distributed only within derived works, not as stand-alone data", "HydroSHEDS ライセンス：派生物に組み込んだ形でのみ配布可、単体での再配布は不可"),
     ],
     popupNotes: [],
     sourceOrg: "HydroRIVERS v1.0（Lehner & Grill 2013），www.hydrosheds.org", sourceUrl: "https://www.hydrosheds.org/products/hydrorivers",
@@ -556,9 +554,8 @@ const CN_W25_SPECS: readonly CnLayerSpec[] = [
     legendNotes: [
       l3("WDPA 公開版中國 149 處（面 106、只有中心點者 43）；28/31 省", "149 sites in the public WDPA for China (106 polygons, 43 centre points only); 28 of 31 provinces", "WDPA 公開版の中国 149 か所（面 106・中心点のみ 43）。31 省中 28 省"),
       l3("中國國家級、省級保護區多不在公開版（國家級自然保護區見另一層）；公開版沒有中國海洋保護區面", "Most national and provincial reserves are not in the public WDPA (see the national nature reserves layer); no Chinese marine protected area polygons in the public release", "国家級・省級保護区の多くは公開版にない（国家級自然保護区は別レイヤー）。公開版に中国の海洋保護区の面はない"),
-      WDPA_NC_NOTE,
     ],
-    popupNotes: [{ text: WDPA_NC_NOTE }],
+    popupNotes: [],
     sourceOrg: "UNEP-WCMC and IUCN, Protected Planet：World Database on Protected Areas（Nov 2026）", sourceUrl: "https://www.protectedplanet.net/",
     license: "WDPA Terms of Use（非商用，含衍生品）", fetchedAt: CN_W25_FETCHED_AT,
     loading: l3("中國保護區（WDPA）載入中", "Loading China protected areas (WDPA)", "中国の保護地域（WDPA）を読み込み中"),
@@ -825,7 +822,7 @@ export const CN_DATA_SPECS: readonly CnLayerSpec[] = [
     legendNotes: [
       l3("GEM 31,700 座（運轉中：太陽能 13,052、風電 5,581、煤 1,217、生質 1,078、水力 1,006、燃氣 240、燃油 105、核能 17、地熱 1）；預設只顯示運轉中與興建中", "31,700 GEM plants (operating: solar 13,052, wind 5,581, coal 1,217, bioenergy 1,078, hydro 1,006, gas 240, oil 105, nuclear 17, geothermal 1); operating and under construction shown by default", "GEM 31,700 か所（運転中：太陽光 13,052・風力 5,581・石炭 1,217・バイオ 1,078・水力 1,006・ガス 240・石油 105・原子力 17・地熱 1）。既定は運転中と建設中のみ"),
       l3("再生能源（C090）是同一層的子集，用「範圍」切換，不另成一層", "Renewables (C090) are a subset of this layer, switched with 'scope', not a separate layer", "再生可能エネルギー（C090）はこの層の部分集合で「範囲」で切り替える"),
-      l3("63 筆 TransitionZero 光電為 CC BY-NC 4.0（非商用），彈窗逐筆標示；約 77% 位置為概略", "63 TransitionZero solar records are CC BY-NC 4.0 (non-commercial), shown per record; about 77% of locations are approximate", "TransitionZero の太陽光 63 件は CC BY-NC 4.0（非商用）でレコードごとに表示。位置の約 77% は概略"),
+      l3("約 77% 位置為概略", "About 77% of locations are approximate", "位置の約 77% は概略"),
       CN_SIMPLIFIED_NOTE,
     ],
     popupNotes: [

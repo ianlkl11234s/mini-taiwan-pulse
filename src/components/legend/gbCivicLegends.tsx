@@ -4,9 +4,8 @@ import { LegendNote, LegendRow, LegendTitle, SwatchDot, useLegendTheme } from ".
 import { DenseHeatmapLegendRow } from "./legendShared";
 import { LAYER_MANIFEST, type LayerName } from "../../data/layerManifest";
 import {
-  GB_CARE_CI_ATTRIBUTION, GB_CARE_CQC_ATTRIBUTION, GB_CARE_KINDS, GB_COURT_KINDS, GB_COURTS_ATTRIBUTION, GB_FIRE_COLOR, GB_FIRE_COUNTS,
-  GB_FIRE_MHCLG_ATTRIBUTION, GB_FIRE_OSM_STROKE_WIDTH, GB_HEALTH_KINDS, GB_HEALTH_ODS_ATTRIBUTION,
-  GB_HEALTH_PHS_ATTRIBUTION, GB_ONSPD_ATTRIBUTION, GB_OSM_ATTRIBUTION, GB_SCHOOL_CATEGORIES, GB_SCHOOLS_ATTRIBUTION, gbHealthColor,
+  GB_CARE_KINDS, GB_COURT_KINDS, GB_FIRE_COLOR, GB_FIRE_COUNTS,
+  GB_FIRE_OSM_STROKE_WIDTH, GB_HEALTH_KINDS, GB_SCHOOL_CATEGORIES, gbHealthColor,
   type GbCareKind, type GbCourtKind, type GbHealthKind, type GbSchoolCategory,
 } from "../../data/gbCivicTypes";
 import { useLocale } from "../../state/localeStore";
@@ -17,9 +16,6 @@ type I18n = ReturnType<typeof useLocale>;
 function layerTitle(key: string, i18n: I18n): string {
   const name = (LAYER_MANIFEST as Record<string, { name?: LayerName }>)[key]?.name;
   return name ? localizeLayerName(key, name, i18n).primary : key;
-}
-function OnspdNote() {
-  return <>{GB_ONSPD_ATTRIBUTION.map((line) => <LegendNote key={line}>{line}</LegendNote>)}</>;
 }
 
 export const GB_SCHOOL_CATEGORY_KEYS: Record<GbSchoolCategory, MessageKey> = {
@@ -40,8 +36,6 @@ export function GbSchoolsLegend() {
     <LegendNote>{i18n.t("legend.civic.gbPostcodeNote")}</LegendNote>
     <DenseHeatmapLegendRow layers={["gbSchools"]} />
     <LegendNote>{i18n.t("legend.civic.gbPointsZoom10")}</LegendNote>
-    <LegendNote>{GB_SCHOOLS_ATTRIBUTION}</LegendNote>
-    <OnspdNote />
   </div>;
 }
 
@@ -61,9 +55,6 @@ export function GbHealthFacilitiesLegend() {
     <DenseHeatmapLegendRow layers={["gbHealthFacilities"]} />
     <LegendNote>{i18n.t("legend.civic.gbHealthZoom")}</LegendNote>
     <LegendNote>{i18n.t("legend.civic.gbPostcodeNote")}</LegendNote>
-    <LegendNote>{GB_HEALTH_ODS_ATTRIBUTION}</LegendNote>
-    <LegendNote>{GB_HEALTH_PHS_ATTRIBUTION}</LegendNote>
-    <OnspdNote />
   </div>;
 }
 
@@ -83,9 +74,6 @@ function GbCareLegend({ layerKey, en, home }: { layerKey: "gbCareHomes" | "gbCar
     <LegendNote>{i18n.t("legend.civic.gbCarePostcodeNote")}</LegendNote>
     <DenseHeatmapLegendRow layers={[layerKey]} />
     <LegendNote>{i18n.t("legend.civic.gbPointsZoom10")}</LegendNote>
-    <LegendNote>{GB_CARE_CQC_ATTRIBUTION}</LegendNote>
-    <LegendNote>{GB_CARE_CI_ATTRIBUTION}</LegendNote>
-    <OnspdNote />
   </div>;
 }
 /** 英國照護之家（住宿照顧）：護理照護之家／照護之家。 */
@@ -105,9 +93,6 @@ export function GbFireStationsLegend() {
     <LegendRow swatch={<SwatchDot color={GB_FIRE_COLOR} />}>{i18n.t("legend.civic.gbFireOfficial", { n: i18n.formatNumber(GB_FIRE_COUNTS.official) })}</LegendRow>
     <LegendRow swatch={<SwatchDot color="transparent" opacity={1} stroke={GB_FIRE_COLOR} strokeWidth={GB_FIRE_OSM_STROKE_WIDTH} />}>{i18n.t("legend.civic.gbFireOsm", { n: i18n.formatNumber(GB_FIRE_COUNTS.osm) })}</LegendRow>
     <LegendNote>{i18n.t("legend.civic.gbFireNote")}</LegendNote>
-    <LegendNote>{GB_FIRE_MHCLG_ATTRIBUTION}</LegendNote>
-    <LegendNote>{GB_OSM_ATTRIBUTION}</LegendNote>
-    <OnspdNote />
   </div>;
 }
 
@@ -123,7 +108,5 @@ export function GbCourtsLegend() {
     <LegendTitle zh={layerTitle("gbCourts", i18n)} en="Courts & Tribunals" />
     {GB_COURT_KINDS.map((k) => <LegendRow key={k.value} swatch={<SwatchDot color={k.color} />}>{i18n.t(GB_COURT_KIND_KEYS[k.value])}</LegendRow>)}
     <LegendNote>{i18n.t("legend.civic.gbCourtsUncovered")}</LegendNote>
-    <LegendNote>{GB_COURTS_ATTRIBUTION}</LegendNote>
-    <OnspdNote />
   </div>;
 }

@@ -126,15 +126,19 @@ function sourceSearchText(key: ManifestKey): string {
   return [sourceSummary(key), upstream.status, note, processing, sourceDetails].join(" ");
 }
 
+function searchableKeys(includeLocalComparisonRecipes: boolean): ManifestKey[] {
+  return MANIFEST_KEYS.filter((key) =>
+    LAYER_MANIFEST[key].section !== null
+    && (includeLocalComparisonRecipes || isDataSourceBrowserVisible(key)),
+  );
+}
+
 /** 建立一次即可重用的 deterministic manifest 搜尋索引。 */
 export function buildLayerSearchIndex(options: { includeLocalComparisonRecipes?: boolean } = {}): readonly SearchDocument[] {
   const includeLocalComparisonRecipes = options.includeLocalComparisonRecipes ?? false;
   // Orphans have no supported sidebar action. Local-only comparison recipes stay out of production.
   // Gated entries remain here; callers with an authorized empty lockedKeys set may search them.
-  return MANIFEST_KEYS.filter((key) =>
-    LAYER_MANIFEST[key].section !== null
-    && (includeLocalComparisonRecipes || isDataSourceBrowserVisible(key)),
-  ).map((key) => {
+  return searchableKeys(includeLocalComparisonRecipes).map((key) => {
     const entry = LAYER_MANIFEST[key];
     const aliases = LAYER_SEARCH_ALIASES[key] ?? [];
     const theme = entry.section?.theme ?? null;
@@ -168,9 +172,26 @@ export function buildLayerSearchIndex(options: { includeLocalComparisonRecipes?:
   });
 }
 
-export const LAYER_SEARCH_INDEX = buildLayerSearchIndex({
-  includeLocalComparisonRecipes: Boolean(import.meta.env?.DEV),
-});
+let layerSearchIndex: readonly SearchDocument[] | null = null;
+
+/**
+ * 全站搜尋索引（B1 P4）：第一次搜尋（或第一次需要完整索引）時才建，不在模組載入時建。
+ * 本階段外國 manifest 仍靜態存在，所以直接建完整索引；P5 起外國細節改由國家包補上時，建立時機不用再動。
+ */
+export function getLayerSearchIndex(): readonly SearchDocument[] {
+  layerSearchIndex ??= buildLayerSearchIndex({ includeLocalComparisonRecipes: Boolean(import.meta.env?.DEV) });
+  return layerSearchIndex;
+}
+
+let layerSearchLabels: Readonly<Record<string, string>> | null = null;
+
+/** key → 顯示名稱（與搜尋索引同一組圖層）。只讀名稱、不建全文索引，開站就能便宜地用（會員清單、場景還原）。 */
+export function getLayerSearchLabels(): Readonly<Record<string, string>> {
+  layerSearchLabels ??= Object.fromEntries(
+    searchableKeys(Boolean(import.meta.env?.DEV)).map((key) => { const entry = LAYER_MANIFEST[key]; return [key, entry.section === null ? key : entry.label] as const; }),
+  );
+  return layerSearchLabels;
+}
 
 function scoreTerm(doc: SearchDocument, term: string): number {
   if (doc.normalized.key === term || doc.normalized.label === term) return 1000;
@@ -208,7 +229,7 @@ export function searchLayers(
   if (terms.length === 0) return [];
   const limit = options.limit ?? Number.MAX_SAFE_INTEGER;
   const lockedKeys = options.excludeLocked === false ? null : options.lockedKeys ?? GATED_LAYERS;
-  return LAYER_SEARCH_INDEX
+  return getLayerSearchIndex()
     .filter((doc) => (!options.scopeKeys || options.scopeKeys.has(doc.key)) && !lockedKeys?.has(doc.key))
     .map((doc) => {
       const context = normalize(options.contextByKey?.get(doc.key) ?? "");

@@ -11,7 +11,7 @@
  * 沒有資料的省區一律寫「未涵蓋」，不當 0；「該省沒有」（內陸無潮位站、沒有冰川）與「未涵蓋」分開寫。
  */
 import type { CaWaveKey } from "./caWavesKeys";
-import { phCatOptionIds, type L3, type PhCat, type PhCatGetter, type PhField, type PhLayerSpec, type PhNote, type PhPart } from "./phDataLayers";
+import { phCatOptionIds, type L3, type PhCat, type PhCatGetter, type PhField, type PhLayerSpec, type PhNote, type PhPart } from "./intlLayerShared";
 
 export interface CaWaveSpec extends PhLayerSpec<CaWaveKey> {
   /** 類別多選預設勾選（省略＝全選；例：LODE 運動的步道 14 萬點預設關） */
@@ -67,7 +67,7 @@ const PRECISION: PhField = { prop: "geocode_precision", label: l3("定位方式"
   street: l3("路段（位置為路段，非門牌）", "Street segment (not the exact address)", "路線（番地ではなく路線上）"), name_match: l3("設施名比對", "Facility-name match", "施設名照合"),
 } };
 const PRECISION_NOTE: PhNote = { text: l3("位置為路段，不是門牌", "Location is a street segment, not the exact address", "位置は路線上で番地ではない"), when: (p) => str(p.geocode_precision) === "street" };
-const LODE_ODBL = l3("空心點是 OSM 補點：官方名冊只有地址，經 Nominatim 地理編碼（© OpenStreetMap contributors，ODbL）", "Hollow points are OSM gap-fills: addresses from the official list geocoded with Nominatim (© OpenStreetMap contributors, ODbL)", "白抜きは OSM 補完：公式名簿の住所を Nominatim でジオコーディング（© OpenStreetMap contributors、ODbL）");
+const LODE_ODBL = l3("空心點是 OSM 補點：官方名冊只有地址，經 Nominatim 地理編碼", "Hollow points are OSM gap-fills: addresses from the official list geocoded with Nominatim", "白抜きは OSM 補完：公式名簿の住所を Nominatim でジオコーディング");
 const lodeSrc = (db: string): L3 => l3(
   `Statistics Canada, ${db} (LODE)（${OGL_CA}）；OSM 補點：© OpenStreetMap contributors（ODbL），經 Nominatim 地理編碼`,
   `Statistics Canada, ${db} (LODE) (${OGL_CA}); OSM gap-fill: © OpenStreetMap contributors (ODbL), geocoded with Nominatim`,
@@ -137,7 +137,7 @@ const W3: CaWaveSpec[] = [
     fields: [ZONE_FIELD, { prop: "pol_type", label: l3("類型", "Type", "種別") }, { prop: "line_type", label: l3("界線類型", "Line type", "境界線の種別") },
       { prop: "territory1", label: l3("主權方 1", "Territory 1", "主権者 1") }, { prop: "territory2", label: l3("主權方 2", "Territory 2", "主権者 2") },
       { prop: "area_km2", label: l3("面積", "Area", "面積"), kind: "num", unit: "km²" }, { prop: "source1", label: l3("依據", "Source", "根拠") }, { prop: "doc_date", label: l3("文件日期", "Document date", "文書日付") }],
-    legendNotes: [l3("來源：VLIZ Marine Regions，非加拿大官方界線（CHS 官方檔未開放）", "Source: VLIZ Marine Regions, not official Canadian boundaries (CHS files not open)", "出典：VLIZ Marine Regions。カナダ公式の境界ではない（CHS 公式データは非公開）"),
+    legendNotes: [l3("非加拿大官方界線（CHS 官方檔未開放）", "Not official Canadian boundaries (CHS files not open)", "カナダ公式の境界ではない（CHS 公式データは非公開）"),
       l3("國家級海域，不依省區計", "National maritime zones, not counted by province", "国レベルの海域で州別には数えない")],
     popupNotes: [],
     sourceOrg: l3("Flanders Marine Institute (2023), Maritime Boundaries Geodatabase v12（EEZ、界線）／v4（12、24 浬），marineregions.org",
@@ -153,8 +153,7 @@ const W3: CaWaveSpec[] = [
     fields: [{ prop: "pmf_class", label: l3("永凍土分布", "Permafrost extent", "永久凍土の分布"), map: catMap(PERMAFROST_CATS) },
       { prop: "ice_e", label: l3("地下冰含量", "Ground ice content", "地下氷の含有量") }, { prop: "wedge_e", label: l3("冰楔", "Ice wedges", "アイスウェッジ") },
       { prop: "pingo_e", label: l3("冰丘", "Pingos", "ピンゴ") }, { prop: "massive_e", label: l3("塊狀冰", "Massive ice", "塊状氷") }],
-    legendNotes: [l3("1993 年地圖（Atlas of Canada 第 5 版）", "1993 map (Atlas of Canada, 5th edition)", "1993 年の地図（Atlas of Canada 第 5 版）"),
-      l3("南部無永凍土區不畫（不是未涵蓋）", "Southern areas without permafrost are not drawn (not 'not covered')", "南部の永久凍土なし地域は描画しない（未収録ではない）")],
+    legendNotes: [l3("南部無永凍土區不畫（不是未涵蓋）", "Southern areas without permafrost are not drawn (not 'not covered')", "南部の永久凍土なし地域は描画しない（未収録ではない）")],
     popupNotes: [],
     sourceOrg: "Natural Resources Canada, Permafrost, The Atlas of Canada 5th Edition (1993)", sourceUrl: "https://open.canada.ca/data/en/dataset/d1e2048b-ccff-5852-aaa5-b861bd55c367", license: OGL_CA,
     fetchedAt: CA_WAVES_FETCHED_AT, loading: loading("永凍土", "permafrost"),
@@ -413,7 +412,7 @@ const W4: CaWaveSpec[] = [
     cats: [cat("ferry", "#22d3ee", "汽車渡輪航線", "Road ferry route", "カーフェリー航路")], dashLabel: null,
     title: { props: [], fallback: l3("渡輪航線", "Ferry route", "フェリー航路") },
     fields: [PROV],
-    legendNotes: [l3("Atlas of Canada 1:1M 汽車渡輪航線，沒有時刻", "Atlas of Canada 1:1M road ferries, no timetable", "Atlas of Canada 1:1M のカーフェリー航路。時刻表なし"), COVER(9, ["AB", "YT", "NT", "NU"])],
+    legendNotes: [l3("汽車渡輪航線，沒有時刻", "Road ferry routes, no timetable", "カーフェリー航路。時刻表なし"), COVER(9, ["AB", "YT", "NT", "NU"])],
     popupNotes: [],
     sourceOrg: "Natural Resources Canada, Atlas of Canada National Scale Data 1:1,000,000 — Road Ferries", sourceUrl: "https://open.canada.ca/data/en/dataset/7cb17094-f1fb-591c-b8a9-9ace4bfef68c", license: OGL_CA,
     fetchedAt: CA_WAVES_FETCHED_AT, loading: loading("渡輪航線", "ferry routes"),
@@ -513,7 +512,7 @@ const W56: CaWaveSpec[] = [
     cats: HEALTH_CATS,
     title: { props: ["name"], fallback: l3("醫療設施", "Healthcare facility", "医療施設") },
     fields: [{ prop: "facility_type", label: l3("類型", "Type", "種別"), map: catMap(HEALTH_CATS) }, { prop: "source_type", label: l3("原始類型", "Source type", "元の種別") }, CITY, PRECISION, PROVIDER, PROV],
-    legendNotes: [l3("ODHF 2020 版；另有 370 筆只能定位到城市，未上圖", "ODHF 2020 edition; another 370 records locate only to a city and are not drawn", "ODHF 2020 年版。都市までしか特定できない 370 件は描画しない"), LODE_ODBL, COVER_ALL],
+    legendNotes: [l3("另有 370 筆只能定位到城市，未上圖", "Another 370 records locate only to a city and are not drawn", "都市までしか特定できない 370 件は描画しない"), LODE_ODBL, COVER_ALL],
     popupNotes: [PRECISION_NOTE, { text: l3("已隱去執業者姓名，只顯示機構類型", "Practitioner's name withheld; facility type shown", "開業者の氏名は伏せ、施設種別のみ表示"), when: (p) => p.name_masked === true || str(p.name_masked) === "true" }],
     sourceOrg: lodeSrc("Open Database of Healthcare Facilities (ODHF) v1.1"), sourceUrl: `${LODE_URL}/odhf`, license: LODE_LICENSE,
     fetchedAt: CA_WAVES_FETCHED_AT, loading: loading("醫療設施", "healthcare facilities"),
@@ -525,7 +524,7 @@ const W56: CaWaveSpec[] = [
     title: { props: ["name"], fallback: l3("學校", "School", "学校") },
     fields: [{ prop: "level", label: l3("學制", "Level", "段階") }, { prop: "facility_type", label: l3("類型", "Type", "種別") }, { prop: "authority", label: l3("學區／主管", "Authority", "所管") },
       { prop: "olms", label: l3("官方語言少數學校", "Official-language minority school", "公用語少数派学校"), map: { 1: l3("是", "Yes", "はい") } }, CITY, PRECISION, PROV],
-    legendNotes: [l3("ODEF 2022 版；另有 1,821 筆只到城市，未上圖", "ODEF 2022 edition; another 1,821 records locate only to a city and are not drawn", "ODEF 2022 年版。都市までしか特定できない 1,821 件は描画しない"), LODE_ODBL, COVER_ALL],
+    legendNotes: [l3("另有 1,821 筆只到城市，未上圖", "Another 1,821 records locate only to a city and are not drawn", "都市までしか特定できない 1,821 件は描画しない"), LODE_ODBL, COVER_ALL],
     popupNotes: [PRECISION_NOTE],
     sourceOrg: lodeSrc("Open Database of Educational Facilities (ODEF) v2.1"), sourceUrl: `${LODE_URL}/odef`, license: LODE_LICENSE,
     fetchedAt: CA_WAVES_FETCHED_AT, loading: loading("學校", "schools"),
@@ -621,7 +620,7 @@ const W56: CaWaveSpec[] = [
     title: { props: [], fallback: l3("野火點", "Wildfire point", "林野火災地点") },
     fields: [{ prop: "year", label: l3("年份", "Year", "年"), kind: "year" }, PROV],
     legendNotes: [l3("CWFIS 國家火災資料庫大型火災點（1980–2023），依年代上色", "CWFIS National Fire Database large-fire points (1980–2023), coloured by decade", "CWFIS 国家火災データベースの大規模火災点（1980–2023）、年代で色分け"),
-      l3("授權：OGL-Canada；只上位置與年份", "Licence: OGL-Canada; location and year only", "ライセンス：OGL-Canada。位置と年のみ"), COVER(12, ["PE"])],
+      l3("只上位置與年份", "Location and year only", "位置と年のみ"), COVER(12, ["PE"])],
     popupNotes: [],
     sourceOrg: "Natural Resources Canada, Canadian Wildland Fire Information System — National Fire Database", sourceUrl: "https://cwfis.cfs.nrcan.gc.ca/datamart", license: l3(`${OGL_CA}（只上位置與年份）`, `${OGL_CA} (location and year only)`, `${OGL_CA}（位置と年のみ）`),
     fetchedAt: CA_WAVES_FETCHED_AT, loading: loading("野火點", "wildfire points"),
@@ -735,8 +734,7 @@ const W78: CaWaveSpec[] = [
     cats: DROUGHT_CATS,
     title: { props: [], fallback: l3("乾旱", "Drought", "干ばつ"), fallbackBy: { prop: "category", map: catMap(DROUGHT_CATS) } },
     fields: [{ prop: "category", label: l3("等級", "Category", "区分"), map: catMap(DROUGHT_CATS) }, { prop: "month", label: l3("月份", "Month", "月") }],
-    legendNotes: [l3("2026 年 10 月一期（快照 2026-11-17）", "October 2026 edition (snapshot 2026-11-17)", "2026 年 10 月版（2026-11-17 取得）"),
-      l3("沒有面＝該月無乾旱，不是未涵蓋", "No polygon = no drought that month, not 'not covered'", "面がない＝その月は干ばつなし（未収録ではない）")],
+    legendNotes: [l3("沒有面＝該月無乾旱，不是未涵蓋", "No polygon = no drought that month, not 'not covered'", "面がない＝その月は干ばつなし（未収録ではない）")],
     popupNotes: [],
     sourceOrg: "Agriculture and Agri-Food Canada, Canadian Drought Monitor", sourceUrl: "https://open.canada.ca/data/en/dataset/292646cd-619f-4200-afb1-8b2c52f984a2", license: OGL_CA,
     fetchedAt: CA_WAVES_FETCHED_AT, loading: loading("乾旱監測", "drought monitor"),
@@ -800,7 +798,7 @@ const W78: CaWaveSpec[] = [
     cats: [cat("dev", "#f472b6", "開發申請位置", "Development application location", "開発申請の位置")],
     title: { props: [], fallback: l3("開發申請", "Development application", "開発申請") },
     fields: [PROV],
-    legendNotes: [TORONTO_ONLY, l3("授權未明示，只上位置（快照 2026-11-17）", "Licence not stated: locations only (snapshot 2026-11-17)", "ライセンス未明示のため位置のみ（2026-11-17 取得）")],
+    legendNotes: [TORONTO_ONLY, l3("只上位置", "Locations only", "位置のみ")],
     popupNotes: [],
     sourceOrg: "City of Toronto Open Data, Development Applications", sourceUrl: "https://open.toronto.ca/dataset/development-applications/", license: l3("授權未明示（Toronto CKAN：License not specified）", "Licence not stated (Toronto CKAN: License not specified)", "ライセンス未明示（Toronto CKAN：License not specified）"),
     fetchedAt: CA_WAVES_FETCHED_AT, loading: loading("多倫多開發申請", "Toronto development applications"),

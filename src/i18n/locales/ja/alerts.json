@@ -41,5 +41,6 @@
   "alerts.card.notStated": "記載なし（長期）",
   "alerts.card.magnitude": "規模",
   "alerts.card.depth": "深さ",
-  "alerts.card.area": "対象範囲"
+  "alerts.card.area": "対象範囲",
+  "alerts.noneInFilter": "現在の絞り込みでは有効な警報はありません"
 }

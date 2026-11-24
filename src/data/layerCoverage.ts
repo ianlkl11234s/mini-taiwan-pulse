@@ -48,8 +48,19 @@ export const COVERAGE_AREAS = {
   thCentralPlain: { label: { zh: "泰國中部平原（16 府）", en: "Central Thailand (16 provinces)", ja: "タイ中部平野（16 県）" }, bbox: [99.4, 12.6, 102.9, 14.8] },
   // th_eec.pmtiles header bounds 100.646–101.992E、12.506–13.977N 取整（EEC 3 府：Chon Buri、Rayong、Chachoengsao）
   thEec: { label: { zh: "泰國東部經濟走廊（3 府）", en: "Eastern Economic Corridor, Thailand (3 provinces)", ja: "タイ東部経済回廊（3 県）" }, bbox: [100.6, 12.5, 102.0, 14.0] },
+  // id_subsidence.pmtiles 雅加達 5 縣市觀測點（2023–2025；106.7–106.95E、-6.4–-6.1N 取整）：全國只有雅加達有資料
+  // id_transjakarta.pmtiles header bounds 106.61–107.17E、-6.60–-6.04N 取整（TransJakarta 靜態 GTFS，雅加達都會區 Jabodetabek 3 省 13 縣市）
+  jabodetabek: { label: { zh: "雅加達都會區", en: "Greater Jakarta (Jabodetabek)", ja: "ジャカルタ首都圏" }, bbox: [106.6, -6.65, 107.2, -6.0] },
+  // id_ikn.pmtiles header bounds 116.53–117.27E、-1.14–-0.64N 取整（新首都 IKN 與周邊規劃範圍）
+  ikn: { label: { zh: "新首都 IKN 一帶", en: "New capital (IKN) area", ja: "新首都 IKN 周辺" }, bbox: [116.5, -1.15, 117.3, -0.6] },
+  jakarta: { label: { zh: "雅加達", en: "Jakarta", ja: "ジャカルタ" }, bbox: [106.65, -6.45, 107.0, -6.05] },
   // 30 天地圖挑戰 Day 6 西南海岸線三代：高雄北端到雲林口湖（資料 22.77–23.66°N）
   swCoast: { label: { zh: "臺灣西南沿海", en: "Southwest coast of Taiwan", ja: "台湾南西部沿岸" }, bbox: [119.95, 22.74, 120.42, 23.70] },
+  // 30 天地圖挑戰 Day 23 味覺第三批：資料涵蓋整個國家（day23_taste_terms_{kr,gb,jp}.geojson 外框取整，2026-11-23）。
+  // 這三層掛在模擬面板（台灣視角下開），所以登記整國外框，讓提示卡給「前往」按鈕。
+  day23Korea: { label: { zh: "南韓", en: "South Korea", ja: "韓国" }, bbox: [126.0, 33.1, 131.1, 38.7] },
+  day23Uk: { label: { zh: "英國", en: "United Kingdom", ja: "イギリス" }, bbox: [-7.9, 49.9, 1.9, 60.3] },
+  day23Japan: { label: { zh: "日本", en: "Japan", ja: "日本" }, bbox: [122.8, 24.1, 145.4, 45.6] },
 } as const satisfies Record<string, CoverageArea>;
 
 export type CoverageAreaId = keyof typeof COVERAGE_AREAS;
@@ -122,9 +133,15 @@ export const LAYER_COVERAGE: Partial<Record<keyof LayerVisibility, CoverageAreaI
   mapchallengeDay08Parks: "zhongheYonghe",
   mapchallengeDay08Sites: "zhongheYonghe",
   mapchallengeDay08Plan1955: "zhongheYonghe",
+  mapchallengeDay23TasteKr: "day23Korea",
+  mapchallengeDay23TasteGb: "day23Uk",
+  mapchallengeDay23TasteJp: "day23Japan",
   tainanRoadTunnels: "tainan",
   vnAngiangDemo: "anGiang",
   vnAngiangAquaculture: "anGiang",
+  idSubsidence: "jakarta",
+  idTransjakarta: "jabodetabek",
+  idIkn: "ikn",
   thFloodHistory: "thCentralPlain",
   thEec: "thEec",
   caTorontoKsi: "toronto",

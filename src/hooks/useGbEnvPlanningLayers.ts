@@ -11,7 +11,7 @@ import {
   GB_RECYCLING_CONTAINER_MINZOOM, GB_RECYCLING_KINDS, GB_RECYCLING_TILE_ZOOM, GB_WASTE_PERMITS_ATTRIBUTION, GB_WASTE_PERMITS_COLOR,
   GB_WASTE_PERMITS_MINZOOM, GB_WASTE_PERMITS_TILE_ZOOM, type GbRecyclingKind, gbBrownfieldView, gbNoiseSourceView, gbPlanningView, gbWasteAuthorityView,
 } from "../data/gbEnvPlanningTypes";
-import { gbHeatmapBuild, gbMaskFilter, gbWithFilter, useGbPmtilesLayers, useGbRepPointLayers, type GbDisplayMode, type SourceSpec } from "./useGbWaterLayers";
+import { gbHeatmapBuild, gbMaskFilter, gbWithFilter, useGbPmtilesLayers, useGbRepPointLayers, type GbDisplayMode, type SourceSpec } from "./intlPmtilesLayers";
 
 /**
  * 英國第 11 波環境與規劃 6 層：規劃限制區（面，類別選單）、棕地登記冊（點，許可狀態選單）、回收點（點，中心／回收桶）、
@@ -126,7 +126,7 @@ export function useGbPlanningConstraintsLayer(mapRef: MapRef, visible: boolean, 
 // ─────────────────────────── 棕地登記冊 ───────────────────────────
 
 const BROWNFIELD_SOURCE: SourceSpec = {
-  id: "gb-brownfield", file: "gb_brownfield.pmtiles", ...GB_BROWNFIELD_TILE_ZOOM, attribution: GB_BROWNFIELD_ATTRIBUTION, loading: "英國棕地登記冊載入中",
+  id: "gb-brownfield", file: "gb_brownfield_lt2.pmtiles", ...GB_BROWNFIELD_TILE_ZOOM, attribution: GB_BROWNFIELD_ATTRIBUTION, loading: "英國棕地登記冊載入中",
 };
 const KNOWN_STATUSES = GB_BROWNFIELD_STATUSES.filter((s) => s.value !== "other").map((s) => s.value);
 /** permission_status 歸類：null 與未列舉值都算 other（未載明）。 */

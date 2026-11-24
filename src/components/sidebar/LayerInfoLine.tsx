@@ -4,7 +4,7 @@ import { FONT_CJK, FONT_SIZE } from "../../styles/designTokens";
 import { LAYER_MANIFEST, type ManifestKey } from "../../data/layerManifest";
 import { humanizeStatisticsText } from "../../data/statisticsLabels";
 import type { LayerVisibility } from "../../types";
-import { DataSourceCard, dataSourcePalette } from "./DataSourcePanel";
+import { LazyLayerInfoSourceCard } from "./LazyDataSourcePanel";
 import { useRailTheme } from "./railTheme";
 import { useLocale } from "../../state/localeStore";
 
@@ -35,7 +35,7 @@ export function LayerInfoLine({ layerKey, children }: { layerKey: keyof LayerVis
       {open && (
         <div>
           {description && <p style={{ margin: "2px 0 4px", color: DIM, fontSize: FONT_SIZE.sm, lineHeight: 1.5 }}>{description}</p>}
-          {children ?? <DataSourceCard p={dataSourcePalette(COLOR_SCHEME === "dark")} layerKey={layerKey} locked={false} hideActivate />}
+          {children ?? <LazyLayerInfoSourceCard layerKey={layerKey} isDarkTheme={COLOR_SCHEME === "dark"} />}
         </div>
       )}
     </div>

@@ -154,7 +154,6 @@ export function TemperatureGridPanel({ props }: { props: Record<string, unknown>
         label={tr("popup.air.gridPoint")}
         value={lng != null && lat != null ? `${lng.toFixed(3)}, ${lat.toFixed(3)}` : ""}
       />
-      <Row field="source" value={tr("popup.air.gridSource")} />
     </>
   );
 }

@@ -19,11 +19,16 @@
   "popup.globalClimate.verification": "查證狀態",
   "popup.globalClimate.verifyPending": "待 AI 判斷（尚未研究確認）",
   "popup.globalClimate.verifyInitial": "AI 初判（尚未研究確認）",
+  "popup.globalClimate.verifyUnassessed": "AI 未判讀（不會再判）",
+  "popup.globalClimate.unassessedProviderRejected": "這則新聞沒有通過 AI 服務的自動內容審查，所以沒有 AI 判讀，之後也不會再判。不代表不重要，請直接看來源報導。",
+  "popup.globalClimate.unassessedModelFailed": "多次嘗試都沒有取得有效的 AI 判讀，之後不會再判。不代表不重要，請直接看來源報導。",
   "popup.globalClimate.verifyPublished": "已研究並正式發布",
   "popup.globalClimate.summary": "摘要",
   "popup.globalClimate.categorySeverity": "分類／嚴重度",
   "popup.globalClimate.taiwanImpact": "臺灣影響",
   "popup.globalClimate.reason": "判斷理由",
+  "popup.globalClimate.storyLinks": "可能相關報導",
+  "popup.globalClimate.storyLinksValue": "{n} 則可能是同一件事的不同報導（地圖上加亮；不同地點以虛線連起，不代表因果）",
   "popup.globalClimate.locationSemantics": "落點語意",
   "popup.globalClimate.collectedAt": "來源收集時間",
   "popup.globalClimate.locationSource": "位置來源",
@@ -127,5 +132,8 @@
   "popup.globalClimate.typLeadValue": "+{h} 小時",
   "popup.globalClimate.typValidAt": "預報時刻",
   "popup.globalClimate.typUnmatched": "未對上颱風（不標名稱）",
-  "popup.globalClimate.typAgencyNote": "國家災害防救科技中心彙整，每家每 24 小時一點，比各家原始預報粗，只適合比較路線。"
+  "popup.globalClimate.typAgencyNote": "國家災害防救科技中心彙整，每家每 24 小時一點，比各家原始預報粗，只適合比較路線。",
+  "popup.globalClimate.storyLinksMore": "還有 {n} 則（地圖上已加亮）",
+  "popup.globalClimate.entityLinks": "共同人物／組織",
+  "popup.globalClimate.entityLinksValue": "{n} 則報導提到相同的人物或組織：{names}"
 }

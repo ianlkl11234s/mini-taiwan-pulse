@@ -1,6 +1,7 @@
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
+import { layerNotesZh } from "./layerNotesText";
 import { AccessibleParkFacilitiesPanel, NationalParkPanel, PublicLifeOsmPanel } from "../publicLifePanels";
 import { PublicToiletPanel } from "../infraPanels";
 
@@ -72,7 +73,7 @@ describe("public life popup panels", () => {
       type2: "公園",
     } }));
 
-    expect(html).toContain("環境部列管公廁（同址聚合）");
+    expect(layerNotesZh("publicToilet")).toContain("環境部列管公廁（同址聚合）"); // 固定說明已搬到圖層「說明・來源」
     expect(html).toContain("環境部環境資料開放平台");
     expect(html).toContain("OGDL-Taiwan-1.0");
     expect(html).toContain("2026-07-17");

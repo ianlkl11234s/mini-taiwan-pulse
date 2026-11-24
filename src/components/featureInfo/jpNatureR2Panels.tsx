@@ -38,7 +38,6 @@ export function JpNaturalParkAreas2015Panel({ props }: Props) {
     <Row label={t("popup.jpNature.areaHa")} value={area === null ? na : `${formatNumber(area, { maximumFractionDigits: 1 })} ha`} mono />
     <Row label={t("popup.jpNature.sourceYear")} value={text(props.fis_year) || na} mono />
     {note ? <Row label={t("popup.jpNature.licenseNote")} value={note} /> : null}
-    <Row label={t("popup.jpNature.notes")} value={t("popup.jpNature.parkAreasAccuracy")} />
     <SourceFooter props={{ source_org: JP_NATURAL_PARK_AREAS_ATTRIBUTION, source_url: JP_NATURAL_PARK_AREAS_SOURCE_URL, license: JP_NATURAL_PARK_AREAS_LICENSE, fetched_at: JP_NATURAL_PARK_AREAS_DATA_AS_OF }} />
   </>;
 }

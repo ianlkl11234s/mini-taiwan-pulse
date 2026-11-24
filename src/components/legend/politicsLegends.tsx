@@ -138,7 +138,6 @@ export function ElectionEventsLegend() {
       {loadedAt && !Number.isNaN(loadedAt.getTime()) && (
         <LegendNote>{t("legend.politics.updated", { time: formatDateTime(loadedAt, { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false }) })}</LegendNote>
       )}
-      <LegendNote>{t("legend.politics.source")}</LegendNote>
     </div>
   );
 }
@@ -200,7 +199,6 @@ export function PollingStationsLegend() {
           : t("legend.politics.polling.unmapped")}
       </LegendNote>
       <LegendNote>{t("legend.politics.polling.year")}</LegendNote>
-      <LegendNote>{t("legend.politics.polling.source")}</LegendNote>
     </div>
   );
 }
@@ -214,7 +212,6 @@ export function CouncilDistrictsLegend() {
       <LegendTitle zh={localizeLayerName("councilDistricts2026", LAYER_MANIFEST.councilDistricts2026.name, i18n).primary} en="2026 Council Districts" />
       <LegendRow swatch={<SwatchSquare color={COUNCIL_DISTRICT_COLOR} opacity={0.25} stroke={COUNCIL_DISTRICT_COLOR} />}>{t("legend.politics.council.area")}</LegendRow>
       <LegendNote>{t("legend.politics.council.noIndigenous")}</LegendNote>
-      <LegendNote>{t("legend.politics.council.source")}</LegendNote>
     </div>
   );
 }

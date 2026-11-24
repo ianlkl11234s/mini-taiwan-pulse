@@ -89,7 +89,7 @@ export const GlobalEventsHost: LayerHostComponent = ({ deps }) => {
     p.globalEventsOpacity ?? 0.9,
     deps.appMode === "historical" ? "replay" : deps.timeMode,
     p.globalEventsViewIdx === 1 ? "timeline" : "recent7d",
-    (p.globalEventsRelations ?? 0) === 1,
+    (p.globalEventsRelations ?? 1) === 1,
     deps.featureInfo?.layerType === "globalEvent" ? String(deps.featureInfo.properties.event_id ?? "") : null,
     (p.globalEventsIncludeAI ?? 1) === 1,
     p.globalEventsDays ?? 1,
@@ -97,6 +97,7 @@ export const GlobalEventsHost: LayerHostComponent = ({ deps }) => {
     p.globalEventsMinSeverity ?? 3,
     (p.globalEventsTaiwanOnly ?? 0) === 1,
     deps.isDarkTheme,
+    (p.globalEventsShowNoise ?? 0) === 1,
   );
   return null;
 };

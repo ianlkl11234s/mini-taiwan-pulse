@@ -23,13 +23,13 @@ import { searchLocationPresets } from "../lib/locationSearch";
 import type { PlaceSearchHit } from "../lib/placeSearch";
 import type { LayerSearchResult } from "../lib/layerSearch";
 import { UnifiedSearchResults, usePlaceSearchIndex } from "./sidebar/UnifiedSearchResults";
-import { DataSourcePanel } from "./sidebar/DataSourcePanel";
+import { LazyDataSourcePanel } from "./sidebar/LazyDataSourcePanel";
 import { panelForExplorationLayers, type ExplorationPanel } from "../research/explorationNavigation";
 // 圖層面板共用外殼（layer-panel-unify A 段）：四個入口與手機底部面板用同一套元件
 import { useLocale } from "../state/localeStore";
 import { LayersPanel, RailPanelHeader } from "./sidebar/LayersPanel";
 import { LAYER_PANELS, resolveLayerPanel, type LayerPanelId } from "./sidebar/layerPanels";
-import { countryStore, useCountry } from "../state/countryStore";
+import { countryStore, useCountry, type CountryFlyMode } from "../state/countryStore";
 import type { CountryCode } from "../constants/countries";
 import { railPalette, RailThemeContext, useRailTheme } from "./sidebar/railTheme";
 import { maxHeightAboveLongTermBar } from "./longTermBar/longTermBarLayout";
@@ -80,7 +80,7 @@ interface IconRailSidebarProps {
   /** split 開啟時把 Layers 浮動面板縮短，避免擋住台灣本島 */
   compactLayers?: boolean;
   /** 使用者在國家選單選了國家（App 用來 flyTo 該國）；網址、Agent 切國家都不呼叫 */
-  onCountryFly?: (code: CountryCode) => void;
+  onCountryFly?: (code: CountryCode, mode?: CountryFlyMode) => void;
   /** 外部持有會員面板互斥與登入狀態；rail 只提供入口。 */
   onMemberToggle?: () => void;
   memberActive?: boolean;
@@ -131,9 +131,9 @@ export function IconRailSidebar({
   const [panelSearch, setPanelSearch] = useState<Record<LayerPanelId, string>>({ layers: "", statistics: "", world: "", simulation: "" });
   // 國家主體：圖層與統計共用，桌機與手機共用（countryStore）
   const country = useCountry();
-  const selectCountry = (code: CountryCode) => {
+  const selectCountry = (code: CountryCode, mode?: CountryFlyMode) => {
     countryStore.set(code);
-    onCountryFly?.(code);
+    onCountryFly?.(code, mode);
   };
   const panels = LAYER_PANELS;
   const panelIds = panels.map((panel) => panel.id);
@@ -484,7 +484,7 @@ export function IconRailSidebar({
               />
             )}
             {activePanel === "datasource" && (
-              <DataSourcePanel
+              <LazyDataSourcePanel
                 isDarkTheme={isDarkTheme}
                 lockedKeys={lockedKeys}
                 onActivateLayer={onBulkSetVisibility ? (key) => onBulkSetVisibility([key], true) : undefined}

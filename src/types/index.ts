@@ -4,6 +4,7 @@ import type { IeDataKey } from '../data/ieDataKeys';
 import type { PhDataKey, PhRasterKey } from '../data/phDataKeys';
 import type { VnDataKey, VnRasterKey } from '../data/vnDataKeys';
 import type { ThDataKey, ThRasterKey } from '../data/thDataKeys';
+import type { IdDataKey, IdRasterKey } from '../data/idDataKeys';
 import type { CnDataKey, CnRasterKey } from '../data/cnDataKeys';
 import type { CaWaveKey } from '../data/caWavesKeys';
 import type { LaborStatisticsLayerKey } from '../data/laborStatisticsRecipes';
@@ -464,7 +465,8 @@ export type ExpandableLayerKey =
   | "mapchallengeDay17DarkSky" | "mapchallengeDay17DarkRoads" | "mapchallengeDay17NightFall" | "mapchallengeDay17LedShare"
   | "mapchallengeDay19Complaints" | "mapchallengeDay19Potential" | "mapchallengeDay19Penalties"
   | "mapchallengeDay21OsmRoads"
-  | "mapchallengeDay23TasteTerms" | "mapchallengeDay23TasteVariants"
+  | "mapchallengeDay23TasteTerms" | "mapchallengeDay23TasteVariants" | "mapchallengeDay23TastePlaces" | "mapchallengeDay23TasteForeign"
+  | "mapchallengeDay23TasteKr" | "mapchallengeDay23TasteGb" | "mapchallengeDay23TasteJp"
   | "twCountyMigrationFlows"
   | "jpReligionGsi" | "jpReligionOsm" | "jpReligionWikidata"
   | "jpAdminPrefecture" | "jpAdminBoundaries" | "jpStations" | "jpAirports" | "jpRailways"
@@ -486,6 +488,7 @@ export type ExpandableLayerKey =
   | "phAdminBoundaries" | "phPopulation" | "phOpenaqAir" | PhDataKey | PhRasterKey
   | "vnAdminBoundaries" | "vnPopulation" | VnDataKey | VnRasterKey
   | "thAdminBoundaries" | "thPopulation" | ThDataKey | ThRasterKey
+  | "idAdminBoundaries" | "idPopulation" | "idRuralDevelopment" | IdDataKey | IdRasterKey
   | "cnAdminBoundaries" | "cnPopulation" | "cnPopulationGrid" | CnDataKey | CnRasterKey
   | "caAdminBoundaries" | "caTransitStops" | "caAirportsPorts" | "caMajorRoads" | "caRailways" | "caPowerPlants" | "caWindTurbines" | "caPowerGrid" | "caOilGas" | "caPopulationCentres" | "caFederalDistricts" | "caPostalFsa" | "caIndigenousLands" | "caDeprivation" | "caRents" | "caPlaceNames" | "caHillshade" | "caClimateStations" | "caAqhiStations" | "caRadiationStations" | "caNpriFacilities" | "caWastewaterSystems" | "caEarthquakes" | "caEarthquakesLive" | "caPopulationGrid" | CaWaveKey
   | "krBusStops" | "krRailStations" | "krAirports" | "krPorts" | "krNationalRoads" | "krRailLines" | "krFuelStations" | "krPowerPlants" | "krRenewables" | "krPowerLines" | "krSubstations" | "krPowerTowers" | "krOilGas"
@@ -1065,7 +1068,8 @@ export interface FeatureInfo {
   | "mapchallengeDay17DarkSky" | "mapchallengeDay17DarkRoads" | "mapchallengeDay17LedShare"
   | "mapchallengeDay19Complaints" | "mapchallengeDay19Potential" | "mapchallengeDay19Penalties"
   | "mapchallengeDay21OsmRoads"
-  | "mapchallengeDay23TasteTerms" | "mapchallengeDay23TasteVariants"
+  | "mapchallengeDay23TasteTerms" | "mapchallengeDay23TasteVariants" | "mapchallengeDay23TastePlaces" | "mapchallengeDay23TasteForeign"
+  | "mapchallengeDay23TasteKr" | "mapchallengeDay23TasteGb" | "mapchallengeDay23TasteJp"
   | "twCountyMigrationFlows"
   | "jpReligionGsi" | "jpReligionOsm" | "jpReligionWikidata"
     // 🗾 日本 Japan Batch 2（行政區 2 層 + 交通 2 層）
@@ -1104,6 +1108,8 @@ export interface FeatureInfo {
     | "vnAdminBoundaries" | "vnPopulation" | VnDataKey
     // 泰國第 0–1 波
     | "thAdminBoundaries" | "thPopulation" | ThDataKey
+    // 印尼第 0–4 波
+    | "idAdminBoundaries" | "idPopulation" | "idRuralDevelopment" | IdDataKey
     // 中國第 0–1 波（站主限定；人口網格是 raster，沒有 popup）
     | "cnAdminBoundaries" | "cnPopulation" | CnDataKey
     // 南韓第 1 波：交通 6 層、能源 7 個 key
@@ -1159,7 +1165,7 @@ export interface FeatureInfo {
 
 // ── 圖層控制 ──
 
-export interface LayerVisibility extends Record<KrDataKey | IeDataKey | PhDataKey | PhRasterKey | VnDataKey | VnRasterKey | ThDataKey | ThRasterKey | CnDataKey | CnRasterKey | CaWaveKey | ComparisonStatisticsLayerKey | LaborStatisticsLayerKey | EnvironmentStatisticsLayerKey | DemographicsStatisticsLayerKey | AddictionStatisticsLayerKey | LandslideStatisticsLayerKey | AtlasStatisticsLayerKey, boolean> {
+export interface LayerVisibility extends Record<KrDataKey | IeDataKey | PhDataKey | PhRasterKey | VnDataKey | VnRasterKey | ThDataKey | ThRasterKey | IdDataKey | IdRasterKey | CnDataKey | CnRasterKey | CaWaveKey | ComparisonStatisticsLayerKey | LaborStatisticsLayerKey | EnvironmentStatisticsLayerKey | DemographicsStatisticsLayerKey | AddictionStatisticsLayerKey | LandslideStatisticsLayerKey | AtlasStatisticsLayerKey, boolean> {
   statsWasteRecyclingRate: boolean;
   statsEducationCountyInstitutionCount: boolean;
   statsEducationCountyTeacherCount: boolean;
@@ -1502,6 +1508,14 @@ export interface LayerVisibility extends Record<KrDataKey | IeDataKey | PhDataKe
   mapchallengeDay23TasteTerms: boolean;
   /** 30 天地圖挑戰 Day 23 味覺（模擬面板，公開）：同物異字三組的店名寫法分布（H3 六角格彙總，色＝寫法，半徑依家數） */
   mapchallengeDay23TasteVariants: boolean;
+  /** 30 天地圖挑戰 Day 23 味覺（模擬面板，公開）：店名同時含地名與品項、且登記在原產縣市以外的餐飲店（H3 六角格彙總家數＋原產地空心圈＋弧線） */
+  mapchallengeDay23TastePlaces: boolean;
+  /** 30 天地圖挑戰 Day 23 味覺（模擬面板，公開）：店名含外來料理用詞的登記餐飲店家數（九組擇一，H3 六角格彙總） */
+  mapchallengeDay23TasteForeign: boolean;
+  /** 30 天地圖挑戰 Day 23 味覺（模擬面板，公開）：南韓／英國／日本店名含某料理詞的店家數（H3 六角格彙總，選單選詞，半徑依家數） */
+  mapchallengeDay23TasteKr: boolean;
+  mapchallengeDay23TasteGb: boolean;
+  mapchallengeDay23TasteJp: boolean;
   /** 雙北大眾運輸可及性（模擬面板，公開、情境推演）：H3 res9 網格到最近醫院／超市／學校／金融的大眾運輸時間 */
   transitAccessGrid: boolean;
   /** 雙北大眾運輸可及性（模擬面板，公開、情境推演）：單一起點 0–4 小時大眾運輸擴張播放 */
@@ -2123,6 +2137,9 @@ export interface LayerVisibility extends Record<KrDataKey | IeDataKey | PhDataKe
   phPopulation: boolean;   // 菲律賓人口（2024 普查，四層級人口密度；其餘 8 層走 PhDataKey）
   vnAdminBoundaries: boolean;   // 越南行政邊界（PMTiles polygon，2025-07 新制 34 省；2026-11-13 第 0 波）
   thAdminBoundaries: boolean;   // 泰國行政邊界（PMTiles polygon，國界／府 77／amphoe 928／tambon 7,425；2026-11-22 第 0 波）
+  idAdminBoundaries: boolean;   // 印尼行政邊界（PMTiles polygon，國界／38 省／514 縣市；2026-11-23 第 0 波）
+  idPopulation: boolean;   // 印尼人口（2020 推估，省／縣市人口密度）
+  idRuralDevelopment: boolean;   // 印尼農村發展指數 IDM 2024（省／縣市；其餘 19＋5 層走 IdDataKey／IdRasterKey）
   thPopulation: boolean;   // 泰國人口（DOPA 戶籍登記，府／amphoe 人口密度；其餘 8 層走 ThDataKey）
   vnPopulation: boolean;   // 越南人口（NSO 2025，34 省人口密度；其餘 10 層走 VnDataKey）
   cnAdminBoundaries: boolean;   // 中國行政邊界（站主限定私人 PMTiles，省 31／地級 357；2026-11-13 第 0 波）

@@ -60,12 +60,10 @@ export function SubmarineCablePanel({ props }: { props: Record<string, unknown> 
           {String(props.name ?? "Unknown Cable")}
         </div>
       </div>
-      <Row field="dataRole" value={tr("popup.infra.cableRole")} color={accentColor} />
       <Row field="status" value={String(props.status ?? "")} />
       <Row field="operator" value={String(props.operator ?? "")} />
       <Row label={tr("popup.infra.owner")} value={String(props.owner ?? "")} />
       <Row label={tr("popup.infra.lineQuality")} value={String(props.geometry_source ?? "")} />
-      <Row field="coverageLimit" value={tr("popup.infra.cableCoverage")} />
       <Row field="license" value={`${String(props.license ?? "ODbL 1.0")} · ${String(props.attribution ?? "© OpenStreetMap contributors")}`} />
     </>
   );
@@ -85,13 +83,11 @@ export function LandingStationPanel({ props }: { props: Record<string, unknown> 
           {String(props.name ?? "Unknown Station")}
         </div>
       </div>
-      <Row field="dataRole" value={tr("popup.infra.landingRole")} color={accentColor} />
       <Row field="operator" value={String(props.operator ?? "")} />
       <Row label={tr("popup.infra.owner")} value={String(props.owner ?? "")} />
       <Row field="status" value={String(props.status ?? "")} />
       <Row label={tr("popup.infra.cableCount")} value={String(props.cable_count ?? "")} />
       <Row label={tr("popup.infra.cableNames")} value={String(props.cable_names ?? "")} />
-      <Row field="coverageLimit" value={tr("popup.infra.landingCoverage")} />
       <Row field="license" value={`${String(props.license ?? "ODbL 1.0")} · ${String(props.attribution ?? "© OpenStreetMap contributors")}`} />
     </>
   );
@@ -196,7 +192,6 @@ export function RipeAtlasProbePanel({ props }: { props: Record<string, unknown> 
     <Row label="Uptime" value={String(props.total_uptime ?? "")} />
     <Row label={tr("popup.infra.ripeCoordQuality")} value={`${String(props.coord_qc_status ?? "obfuscated")} · ${String(props.location_obfuscation_m ?? "80–400")}m`} />
     <Row label={tr("popup.infra.ripeUse")} value={tr("popup.infra.ripeUseValue")} />
-    <Row field="sourceLicense" value="RIPE NCC · © RIPE NCC" />
   </>;
 }
 
@@ -248,7 +243,6 @@ function OoklaGridPanel({ props, service }: { props: Record<string, unknown>; se
       })}${thin ? ` ${tr("popup.infra.ooklaLowSample")}` : ""}`}
     />
     <Row label={tr("popup.infra.ooklaGridLevel")} value={ooklaGridScale(props, tr)} />
-    <Row label={tr("popup.infra.ooklaPeriod")} value={OOKLA_GRID_META.period} />
     <Row field="limits" value={OOKLA_GRID_META.coverageCaveat} />
     <Row label={tr("popup.infra.ooklaSampleBias")} value={OOKLA_GRID_META.sampleBias} />
     <Row field="sourceLicense" value={OOKLA_GRID_META.attribution} />
@@ -477,7 +471,6 @@ export function PublicToiletPanel({ props }: { props: Record<string, unknown> })
           {String(props.name ?? tr("popup.infra.unnamedToilet"))}
         </div>
       </div>
-      <Row field="dataRole" value={tr("popup.infra.toiletRole")} color={gradeColor} />
       <Row field="county" value={placeName(String(props.county ?? ""), i18n)} />
       <Row field="level" value={grade ? enumLabel("infraToiletGrade", grade, grade, i18n) : ""} color={gradeColor} />
       <Row field="category" value={String(props.type2 ?? "")} />

@@ -10,7 +10,7 @@ import {
   GB_AADF_ALL_MINZOOM, GB_AADF_BUCKETS, GB_AADF_MAJOR_CLASSES, GB_AADF_MAJOR_MINZOOM, GB_AADF_METHOD_FILTERS,
   GB_DFT_ROAD_TRAFFIC_ATTRIBUTION, GB_ROAD_CLASSES, GB_ROAD_FALLBACK_COLOR, GB_ROADS_MAP_ATTRIBUTION,
 } from "../data/gbTransportTypes";
-import { gbHeatmapBuild, gbMaskFilter, gbWithFilter, useGbPmtilesLayers, type SourceSpec } from "./useGbWaterLayers";
+import { gbHeatmapBuild, gbMaskFilter, gbWithFilter, useGbPmtilesLayers, type SourceSpec } from "./intlPmtilesLayers";
 
 /**
  * 英國第 4 波交通 7 層：樞紐（點）＋站客流（點，同檔）、倫敦軌道線＋車站（同檔）、BikePoint、JamCams、收費區（面）。

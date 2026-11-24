@@ -1,0 +1,1848 @@
+{
+  "count": 8,
+  "gisLayers": {
+    "disasterResourceSites": {
+      "layers": [
+        "disaster-resource-sites-circle",
+        "disaster-resource-sites-glow"
+      ],
+      "type": "disasterResourceSites"
+    },
+    "fire119Live": {
+      "layers": [
+        "fire119-live-point",
+        "fire119-live-badge"
+      ],
+      "type": "fire119Live"
+    },
+    "fire119Live#2": {
+      "layers": [
+        "fire119-live-district-fill"
+      ],
+      "type": "fire119Live"
+    },
+    "fireEvent": {
+      "layers": [
+        "fire-events-layer"
+      ],
+      "type": "fireEvent"
+    },
+    "fireEvent#2": {
+      "layers": [
+        "fire-latest-layer"
+      ],
+      "type": "fireEvent"
+    },
+    "fireHydrant": {
+      "layers": [
+        "fire-hydrants-circle",
+        "fire-hydrants-glow"
+      ],
+      "type": "fireHydrant"
+    },
+    "fireIsochrone": {
+      "layers": [
+        "fire-isochrone-coverage-fill"
+      ],
+      "type": "fireIsochrone"
+    },
+    "fireStation": {
+      "layers": [
+        "fire-stations-circle",
+        "fire-stations-glow"
+      ],
+      "type": "fireStation"
+    },
+    "fireworksSites": {
+      "layers": [
+        "fireworks-sites-circle",
+        "fireworks-sites-glow"
+      ],
+      "type": "fireworksSites"
+    }
+  },
+  "overlays": {
+    "disasterResourceSites": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "disasterResourceSites",
+      "layers": [
+        {
+          "filter": [
+            "has",
+            "holder"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "holder"
+                ],
+                "fire",
+                "#e53935",
+                "township",
+                "#f59e0b",
+                "police",
+                "#2563eb",
+                "health",
+                "#10b981",
+                "other",
+                "#94a3b8",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "holder"
+                ],
+                "fire",
+                "#e53935",
+                "township",
+                "#f59e0b",
+                "police",
+                "#2563eb",
+                "health",
+                "#10b981",
+                "other",
+                "#94a3b8",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "has",
+            "holder"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "holder"
+                ],
+                "fire",
+                "#f64b44",
+                "township",
+                "#f59e0b",
+                "police",
+                "#4782ff",
+                "health",
+                "#10b981",
+                "other",
+                "#94a3b8",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": 3,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "holder"
+                ],
+                "fire",
+                "#e53935",
+                "township",
+                "#f59e0b",
+                "police",
+                "#2563eb",
+                "health",
+                "#10b981",
+                "other",
+                "#94a3b8",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": 3,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "holder"
+            ],
+            [
+              "has",
+              "name"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "name"
+              ],
+              ""
+            ]
+          ],
+          "layout": {
+            "text-allow-overlap": false,
+            "text-field": [
+              "get",
+              "name"
+            ],
+            "text-font": [
+              "DIN Pro Medium",
+              "Arial Unicode MS Regular"
+            ],
+            "text-max-width": 14,
+            "text-optional": true,
+            "text-radial-offset": 0.8,
+            "text-size": [
+              "interpolate",
+              [
+                "linear"
+              ],
+              [
+                "zoom"
+              ],
+              10,
+              10,
+              14,
+              12
+            ],
+            "text-variable-anchor": [
+              "top",
+              "bottom",
+              "left",
+              "right"
+            ]
+          },
+          "minzoom": 15,
+          "paint": {
+            "dark": {
+              "text-color": "#f8fafc",
+              "text-halo-color": "rgba(15,23,42,0.92)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.8
+            },
+            "light": {
+              "text-color": "#0f172a",
+              "text-halo-color": "rgba(255,255,255,0.94)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.8
+            }
+          },
+          "suffix": "label",
+          "type": "symbol"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle",
+        "label"
+      ],
+      "sourceId": "disaster-resource-sites",
+      "sourceUrl": "./geo/disaster_resource_sites.geojson"
+    },
+    "fireHydrants": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "fireHydrants",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "maxzoom": 12.01,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(43,92,149,0.00)",
+                0.05,
+                "rgba(43,92,149,0.11)",
+                0.15,
+                "rgba(68,114,179,0.33)",
+                0.3,
+                "rgba(101,138,198,0.66)",
+                0.45,
+                "rgba(140,162,201,0.99)",
+                0.6,
+                "rgba(178,187,204,1.00)",
+                0.8,
+                "rgba(209,212,217,1.00)",
+                1,
+                "rgba(238,238,239,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.000390625,
+                12,
+                0.1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(145,165,201,0.00)",
+                0.05,
+                "rgba(145,165,201,0.11)",
+                0.15,
+                "rgba(110,144,201,0.33)",
+                0.3,
+                "rgba(79,123,188,0.66)",
+                0.45,
+                "rgba(54,103,165,0.99)",
+                0.6,
+                "rgba(36,84,136,1.00)",
+                0.8,
+                "rgba(25,66,105,1.00)",
+                1,
+                "rgba(18,47,76,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.000390625,
+                12,
+                0.1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "heatmap",
+          "type": "heatmap"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": 12,
+          "paint": {
+            "dark": {
+              "circle-blur": 1,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "cat"
+                ],
+                "地上式",
+                "#2196f3",
+                "地下式",
+                "#00acc1",
+                "#90a4ae"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                12,
+                1.5,
+                15,
+                4,
+                18,
+                8
+              ],
+              "circle-translate": [
+                0,
+                0
+              ],
+              "circle-translate-anchor": "viewport"
+            },
+            "light": {
+              "circle-blur": 1,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "cat"
+                ],
+                "地上式",
+                "#2196f3",
+                "地下式",
+                "#00acc1",
+                "#90a4ae"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                12,
+                1.5,
+                15,
+                4,
+                18,
+                8
+              ],
+              "circle-translate": [
+                0,
+                0
+              ],
+              "circle-translate-anchor": "viewport"
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": 12,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "cat"
+                ],
+                "地上式",
+                "#55adff",
+                "地下式",
+                "#26b9ce",
+                "#96aab4"
+              ],
+              "circle-opacity": 0.6,
+              "circle-radius": 3,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1,
+              "circle-translate": [
+                0,
+                0
+              ],
+              "circle-translate-anchor": "viewport"
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "cat"
+                ],
+                "地上式",
+                "#2196f3",
+                "地下式",
+                "#00acc1",
+                "#90a4ae"
+              ],
+              "circle-opacity": 0.6,
+              "circle-radius": 3,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1,
+              "circle-translate": [
+                0,
+                0
+              ],
+              "circle-translate-anchor": "viewport"
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 12,
+        "minzoom": 0,
+        "sourceLayer": "fire_hydrants"
+      },
+      "rebuildOnParamChange": [
+        "heatmap",
+        "glow",
+        "circle"
+      ],
+      "sourceId": "fire-hydrants",
+      "sourceUrl": "./geo/fire_hydrants_national_v2.pmtiles"
+    },
+    "fireStations": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "fireStations",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": 7,
+          "paint": {
+            "dark": {
+              "circle-blur": 1,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "cat"
+                ],
+                "大隊",
+                "#b71c1c",
+                "分隊",
+                "#e53935",
+                "分駐所",
+                "#ff7043",
+                "#bdbdbd"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                7,
+                [
+                  "match",
+                  [
+                    "get",
+                    "cat"
+                  ],
+                  "大隊",
+                  3.6,
+                  "分隊",
+                  2.4,
+                  "分駐所",
+                  1.7,
+                  1.2
+                ],
+                11,
+                [
+                  "match",
+                  [
+                    "get",
+                    "cat"
+                  ],
+                  "大隊",
+                  9,
+                  "分隊",
+                  6,
+                  "分駐所",
+                  4.25,
+                  3
+                ],
+                14,
+                [
+                  "match",
+                  [
+                    "get",
+                    "cat"
+                  ],
+                  "大隊",
+                  16.2,
+                  "分隊",
+                  10.799999999999999,
+                  "分駐所",
+                  7.6499999999999995,
+                  5.3999999999999995
+                ],
+                17,
+                [
+                  "match",
+                  [
+                    "get",
+                    "cat"
+                  ],
+                  "大隊",
+                  25.2,
+                  "分隊",
+                  16.8,
+                  "分駐所",
+                  11.9,
+                  8.4
+                ]
+              ],
+              "circle-translate": [
+                0,
+                0
+              ],
+              "circle-translate-anchor": "viewport"
+            },
+            "light": {
+              "circle-blur": 1,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "cat"
+                ],
+                "大隊",
+                "#b71c1c",
+                "分隊",
+                "#e53935",
+                "分駐所",
+                "#ff7043",
+                "#bdbdbd"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                7,
+                [
+                  "match",
+                  [
+                    "get",
+                    "cat"
+                  ],
+                  "大隊",
+                  3.6,
+                  "分隊",
+                  2.4,
+                  "分駐所",
+                  1.7,
+                  1.2
+                ],
+                11,
+                [
+                  "match",
+                  [
+                    "get",
+                    "cat"
+                  ],
+                  "大隊",
+                  9,
+                  "分隊",
+                  6,
+                  "分駐所",
+                  4.25,
+                  3
+                ],
+                14,
+                [
+                  "match",
+                  [
+                    "get",
+                    "cat"
+                  ],
+                  "大隊",
+                  16.2,
+                  "分隊",
+                  10.799999999999999,
+                  "分駐所",
+                  7.6499999999999995,
+                  5.3999999999999995
+                ],
+                17,
+                [
+                  "match",
+                  [
+                    "get",
+                    "cat"
+                  ],
+                  "大隊",
+                  25.2,
+                  "分隊",
+                  16.8,
+                  "分駐所",
+                  11.9,
+                  8.4
+                ]
+              ],
+              "circle-translate": [
+                0,
+                0
+              ],
+              "circle-translate-anchor": "viewport"
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": 7,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "cat"
+                ],
+                "大隊",
+                "#e54e45",
+                "分隊",
+                "#ff6156",
+                "分駐所",
+                "#ff835d",
+                "#bdbdbd"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                7,
+                [
+                  "match",
+                  [
+                    "get",
+                    "cat"
+                  ],
+                  "大隊",
+                  1.8,
+                  "分隊",
+                  1.2,
+                  "分駐所",
+                  0.85,
+                  0.6
+                ],
+                11,
+                [
+                  "match",
+                  [
+                    "get",
+                    "cat"
+                  ],
+                  "大隊",
+                  3.9600000000000004,
+                  "分隊",
+                  2.64,
+                  "分駐所",
+                  1.87,
+                  1.32
+                ],
+                14,
+                [
+                  "match",
+                  [
+                    "get",
+                    "cat"
+                  ],
+                  "大隊",
+                  7.2,
+                  "分隊",
+                  4.8,
+                  "分駐所",
+                  3.4,
+                  2.4
+                ],
+                17,
+                [
+                  "match",
+                  [
+                    "get",
+                    "cat"
+                  ],
+                  "大隊",
+                  11.700000000000001,
+                  "分隊",
+                  7.8,
+                  "分駐所",
+                  5.5249999999999995,
+                  3.9
+                ]
+              ],
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1,
+              "circle-translate": [
+                0,
+                0
+              ],
+              "circle-translate-anchor": "viewport"
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "cat"
+                ],
+                "大隊",
+                "#b71c1c",
+                "分隊",
+                "#e53935",
+                "分駐所",
+                "#ff7043",
+                "#bdbdbd"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                7,
+                [
+                  "match",
+                  [
+                    "get",
+                    "cat"
+                  ],
+                  "大隊",
+                  1.8,
+                  "分隊",
+                  1.2,
+                  "分駐所",
+                  0.85,
+                  0.6
+                ],
+                11,
+                [
+                  "match",
+                  [
+                    "get",
+                    "cat"
+                  ],
+                  "大隊",
+                  3.9600000000000004,
+                  "分隊",
+                  2.64,
+                  "分駐所",
+                  1.87,
+                  1.32
+                ],
+                14,
+                [
+                  "match",
+                  [
+                    "get",
+                    "cat"
+                  ],
+                  "大隊",
+                  7.2,
+                  "分隊",
+                  4.8,
+                  "分駐所",
+                  3.4,
+                  2.4
+                ],
+                17,
+                [
+                  "match",
+                  [
+                    "get",
+                    "cat"
+                  ],
+                  "大隊",
+                  11.700000000000001,
+                  "分隊",
+                  7.8,
+                  "分駐所",
+                  5.5249999999999995,
+                  3.9
+                ]
+              ],
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1,
+              "circle-translate": [
+                0,
+                0
+              ],
+              "circle-translate-anchor": "viewport"
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
+      "sourceId": "fire-stations",
+      "sourceUrl": "./geo/fire_stations.geojson"
+    },
+    "fireworksSites": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "fireworksSites",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "site_kind"
+                ],
+                "manufacturing",
+                "#dc2626",
+                "storage",
+                "#f97316",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                2,
+                5,
+                7.2,
+                12,
+                14.4
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "site_kind"
+                ],
+                "manufacturing",
+                "#dc2626",
+                "storage",
+                "#f97316",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                2,
+                5,
+                7.2,
+                12,
+                14.4
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "site_kind"
+                ],
+                "manufacturing",
+                "#eb3934",
+                "storage",
+                "#f97316",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.4,
+                5,
+                4,
+                12,
+                8
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "site_kind"
+                ],
+                "manufacturing",
+                "#eb3934",
+                "storage",
+                "#f97316",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.4,
+                5,
+                4,
+                12,
+                8
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 4,
+        "sourceLayer": "fireworks_sites"
+      },
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
+      "sourceId": "fireworks-sites",
+      "sourceUrl": "./geo/fireworks_sites_7070_v2.pmtiles"
+    }
+  },
+  "params": {
+    "disasterResourceSites": [
+      {
+        "label": "保管單位",
+        "options": [
+          {
+            "label": "消防單位",
+            "value": "fire"
+          },
+          {
+            "label": "鄉鎮市區公所",
+            "value": "township"
+          },
+          {
+            "label": "警察單位",
+            "value": "police"
+          },
+          {
+            "label": "衛生醫療",
+            "value": "health"
+          },
+          {
+            "label": "其他（清潔隊、學校、企業等）",
+            "value": "other"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "fire",
+          "township",
+          "police",
+          "health",
+          "other"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "fire119Live": [
+      {
+        "label": "時間範圍",
+        "options": [
+          {
+            "label": "最近 1 小時",
+            "value": "60"
+          },
+          {
+            "label": "最近 3 小時",
+            "value": "180"
+          },
+          {
+            "label": "最近 6 小時",
+            "value": "360"
+          }
+        ],
+        "type": "select",
+        "value": "180"
+      },
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "fireEvents": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "有死傷",
+            "value": "true"
+          },
+          {
+            "label": "無死傷",
+            "value": "false"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "true",
+          "false"
+        ]
+      },
+      {
+        "defaultValue": "magma",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "magma"
+      },
+      {
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 1,
+        "valueText": "1.00"
+      }
+    ],
+    "fireHydrants": [
+      {
+        "label": "型式",
+        "options": [
+          {
+            "label": "地上式",
+            "value": "地上式"
+          },
+          {
+            "label": "地下式",
+            "value": "地下式"
+          },
+          {
+            "label": "其他",
+            "value": "__other__"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "地上式",
+          "地下式",
+          "__other__"
+        ]
+      },
+      {
+        "defaultValue": "oslo",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "oslo"
+      },
+      {
+        "label": "透明度 0.60",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.6,
+        "valueText": "0.60"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "漂浮高度 0px",
+        "max": 100,
+        "min": 0,
+        "name": "漂浮高度",
+        "step": 2,
+        "value": 0,
+        "valueText": "0 px"
+      }
+    ],
+    "fireIsochrone": [
+      {
+        "label": "縣市",
+        "options": [
+          {
+            "label": "全台",
+            "value": "all"
+          },
+          {
+            "label": "基隆市",
+            "value": "基隆市"
+          },
+          {
+            "label": "臺北市",
+            "value": "臺北市"
+          },
+          {
+            "label": "新北市",
+            "value": "新北市"
+          },
+          {
+            "label": "桃園市",
+            "value": "桃園市"
+          },
+          {
+            "label": "新竹市",
+            "value": "新竹市"
+          },
+          {
+            "label": "新竹縣",
+            "value": "新竹縣"
+          },
+          {
+            "label": "苗栗縣",
+            "value": "苗栗縣"
+          },
+          {
+            "label": "臺中市",
+            "value": "臺中市"
+          },
+          {
+            "label": "彰化縣",
+            "value": "彰化縣"
+          },
+          {
+            "label": "南投縣",
+            "value": "南投縣"
+          },
+          {
+            "label": "雲林縣",
+            "value": "雲林縣"
+          },
+          {
+            "label": "嘉義市",
+            "value": "嘉義市"
+          },
+          {
+            "label": "嘉義縣",
+            "value": "嘉義縣"
+          },
+          {
+            "label": "臺南市",
+            "value": "臺南市"
+          },
+          {
+            "label": "高雄市",
+            "value": "高雄市"
+          },
+          {
+            "label": "宜蘭縣",
+            "value": "宜蘭縣"
+          },
+          {
+            "label": "花蓮縣",
+            "value": "花蓮縣"
+          },
+          {
+            "label": "臺東縣",
+            "value": "臺東縣"
+          },
+          {
+            "label": "澎湖縣",
+            "value": "澎湖縣"
+          },
+          {
+            "label": "金門縣",
+            "value": "金門縣"
+          },
+          {
+            "label": "連江縣",
+            "value": "連江縣"
+          }
+        ],
+        "type": "select",
+        "value": "all"
+      },
+      {
+        "label": "透明度 0.50",
+        "max": 0.9,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.5,
+        "valueText": "0.50"
+      }
+    ],
+    "fireLatest": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "有死傷",
+            "value": "true"
+          },
+          {
+            "label": "無死傷",
+            "value": "false"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "true",
+          "false"
+        ]
+      },
+      {
+        "defaultValue": "rocket",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "rocket"
+      },
+      {
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 1,
+        "valueText": "1.00"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "fireStations": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "大隊",
+            "value": "大隊"
+          },
+          {
+            "label": "分隊",
+            "value": "分隊"
+          },
+          {
+            "label": "分駐所",
+            "value": "分駐所"
+          },
+          {
+            "label": "其他",
+            "value": "__other__"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "大隊",
+          "分隊",
+          "分駐所",
+          "__other__"
+        ]
+      },
+      {
+        "label": "立體效果",
+        "type": "toggle",
+        "value": false
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "散點",
+        "type": "toggle",
+        "value": true
+      },
+      {
+        "label": "漂浮高度 0px",
+        "max": 100,
+        "min": 0,
+        "name": "漂浮高度",
+        "step": 2,
+        "value": 0,
+        "valueText": "0 px"
+      }
+    ],
+    "fireworksSites": [
+      {
+        "label": "種類",
+        "options": [
+          {
+            "label": "製造場所",
+            "value": "manufacturing"
+          },
+          {
+            "label": "儲存場所",
+            "value": "storage"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "manufacturing",
+          "storage"
+        ]
+      },
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ]
+  }
+}

@@ -4,8 +4,8 @@ import type { FC } from "react";
 import { Row, SourceFooter, Title } from "./shared";
 import { TrendChart } from "./landSubsidencePanels";
 import { useLocale } from "../../state/localeStore";
-import { caText } from "../../data/caInfraTypes";
-import { makePhPanel } from "./phPanels";
+import { caText } from "../../data/intlLayerShared";
+import { makePhPanel } from "./intlSpecPanel";
 import {
   VN_ADMIN_COLOR, VN_ADMIN_SOURCE, VN_DATA_SPECS, VN_FETCHED_AT, VN_POP_YEARS, VN_POPULATION_SOURCE, phText, pickL3, vnMoreSpec, type L3,
 } from "../../data/vnDataLayers";

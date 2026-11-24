@@ -1,4 +1,4 @@
-最後更新：2026-11-03（新增 §5.43 地圖導航控制 N-1；§5.17 T2 例外）；2026-10-31（§5.42.1 視野提示卡新增「圖層看不到」段）；2026-10-28（新增 §5.41 國家選單、§5.42 視野提示卡；rail 改為四個入口，日本併入圖層入口）
+最後更新：2026-11-24（§5.41 國家選單新增釘選 chip 列與各國記住鏡頭）；2026-11-23（§5.44 量測條改浮在品牌列下方；右上浮動元件依品牌列換行高度 `--top-bar-shift` 往下讓）；2026-11-03（新增 §5.43 地圖導航控制 N-1；§5.17 T2 例外）；2026-10-31（§5.42.1 視野提示卡新增「圖層看不到」段）；2026-10-28（新增 §5.41 國家選單、§5.42 視野提示卡；rail 改為四個入口，日本併入圖層入口）
 
 # Mini Taiwan Pulse — Design System
 
@@ -347,7 +347,8 @@
 ### 5.2 停靠 popup（B 版「細線緊湊」）
 
 - **用途**：點地圖圖徵／Agent 分析結果後的資訊面板。**全部停靠右下**，不用 `mapboxgl.Popup` 錨定、無尖角；點擊處另畫選取圈（§5.4）。
-- **結構**：eyebrow「主題 · 圖層」→ Title（色點＋名稱）→ Row 列表 → SourceFooter（§5.3）。
+- **結構**：eyebrow「主題 · 圖層」→ Title（色點＋名稱）→ Row 列表 →（必要時）一行來源（§5.3）。
+- **只放這一筆的資料**（2026-11-23 站主決定）：資料來源、授權、每筆都一樣的備註／方法說明／資料時點放在圖層「說明・來源」（§5.22，`src/data/layerSourceInfo.ts`），popup 不重複。逐筆不同的時間（觀測時間、發生時間）、隨 feature 變的警語、只對部分 feature 成立的條件備註留在 popup。
 - **容器**：寬 280px（CCTV 460px）、`maxWidth 92vw`、`maxHeight 80vh`；底 `SURFACE.strong`、`backdrop-filter: blur(14px)`、框 `rgba(100,170,255,0.25)`（淡 `LIGHT.border`）、`RADIUS.xl`、padding `12px 14px`、`FONT_CJK`；右上關閉鈕 `<X size={14}/>`。
 - **Eyebrow**：9px `textDim`、letterSpacing 1.2、下距 6；文字「主題中文名 · 圖層名」（例「宗教 · 寺廟」），對不到主題時只顯示圖層名；中文、不轉大寫。
 - **Title**：13px bold `textStrong`；前置 9px 分類色點（`RADIUS.full`、`flexShrink 0`）、gap 6；底線 `1px palette.border`、paddingBottom 5、marginBottom 4。
@@ -367,16 +368,17 @@
 - **授權**：只接授權允許網頁直接引用影像的來源；禁止 hotlink 或需轉存授權的來源（例 Traffic Scotland、TrafficWatchNI）不接，先查條款。
 - **實作**：`src/components/CctvStreamView.tsx`（cleanup 只在元素真的離開畫面才清 src，`releaseMediaIfDetached`，避免 StrictMode 雙掛載清掉影像）、`src/components/featureInfo/ukPanels.tsx` `GbLondonJamCamsPanel`。
 
-### 5.3 來源 footer（F2）
+### 5.3 popup 來源列（2026-11-23 改版，取代 F2 兩行 footer）
 
-- **結構**：上緣 `1px borderSoft`、marginTop 10、paddingTop 8、9px `textDim`。
-  - 第一行：`機關 · Tier N · 原始下載頁 ↗`（任一項缺就省略，不留孤立「·」；連結色 `palette.link`）。
-  - 第二行：`授權 · 抓取於 …`，`FONT_DATA`（§4.2 例外）。
-  - `_provenance`／`provenance` 超過 1 筆時 `<details>` 收合「溯源 N 筆」。
-  - 無 `source_org` 也無 `source_url`：整段只顯示「資料來源 · 來源資訊待補」，`warn` 色（暗 `#ff9800`／淡 `#c2410c`）。
-- **掛載**：`FeatureInfoPanel` 在內容後統一掛一次；**排除清單** `FOOTER_SELF_MANAGED_LAYER_TYPES`：`chatHighlight`（非資料圖層）、`publicToilet`／`disasterShelters`／`nationalParks`（panel 端補來源常數）、`networkStructuresPanels.tsx` 全部 9 個 panel（`source_name` schema 不同）；水庫 context 彙整視圖不掛；`analysisResult` 自帶「暫時分析結果 · 非完整來源圖層」footer。
-- **禁止**：panel 內再自己畫「來源機關」「原始資料 ↗」造成重複；沒有來源時整段省略。
-- **實作**：`src/components/featureInfo/shared.tsx` `SourceFooter`、`FeatureInfoPanel.tsx`。
+- **原則**：來源與授權在圖層「說明・來源」（§5.22）。popup 依 `popupSourceMode(layerType)`（`src/data/layerSourceInfo.ts`）決定：
+  - `none`：用到這個 popup 的圖層在圖層側都已有機關＋授權（來源表 `LAYER_SOURCE_INFO` 或資料目錄）→ popup 不放來源。
+  - `compact`：逐筆來源不同（`POPUP_PER_FEATURE_SOURCE`：依來源欄切換機關、多源 provenance、逐案資料集、郵遞區號定位等）→ 一行「機關 · 資料來源 ↗」。
+  - `full`：圖層側還補不到（測試 `POPUP_SOURCE_PENDING` 明列）→ 一行「機關 · 授權 · 資料來源 ↗」；無機關也無連結時顯示「資料來源 · 來源資訊待補」，`warn` 色。
+- **結構**：上緣 `1px borderSoft`、marginTop 10、paddingTop 8、9px `textDim`，單行；不顯示 Tier、不顯示抓取時間。`_provenance`／`provenance` 超過 1 筆時 `<details>` 收合「溯源 N 筆」（不帶 Tier）。
+- **掛載**：`FeatureInfoPanel` 統一掛一次，以 `SourceFooterModeProvider` 傳模式；panel 自掛的 `SourceFooter` 也讀同一模式。popup 以外（衛星詳細卡、元件頁）維持舊兩行版（`legacy`）。
+- **授權署名**：政府資料必標機關、資料名稱、授權條款（與連結）；OSM 標 ODbL 署名。popup 拿掉來源前，圖層側必須已能顯示機關＋授權（＋原本有的連結），`src/data/__tests__/layerSourceInfo.test.ts` 檢查。來源未標授權時圖層側寫「授權未明示」。
+- **禁止**：panel 內另畫「來源機關」「原始資料 ↗」列；把每筆都一樣的備註、資料時點留在 popup。
+- **實作**：`src/components/featureInfo/shared.tsx` `SourceFooter`、`FeatureInfoPanel.tsx`、`src/data/layerSourceInfo.ts`。
 
 ### 5.4 選取圈（R2 呼吸脈衝）
 
@@ -545,7 +547,7 @@
 - **位置**：右上，單一底板；左上為品牌字標＋座標 HUD（§5.18）。
 - **底板**：`SURFACE.strong`（淡 `LIGHT.surfacePanel`）、`1px BORDER.panel`、`borderRadius 7`、padding 3、gap 4、`ELEVATION.lg`；窄寬度整條換行並維持靠右（`marginLeft: auto`）。
 - **組成順序**（固定）：即時／歷史分段 ｜ 底圖 ｜ 左右比較（圖示，桌機才有）、分享（圖示）、說明（圖示）、AI（一般，開啟時主要）、**拍攝模式**（主要按鈕）｜ 語言（圖示）、帳號。
-- **左右比較**（2026-11-11，§5.45）：lucide `Columns2` 13px 一般圖示按鈕，開啟時 accentFaint 底（`ToolbarButton` `pressed`、`aria-pressed`）；title「左右比較」／「結束左右比較」。窄螢幕（手機）不放（第一期只做桌機）。
+- **左右比較**（2026-11-11，§5.45；2026-11-24 改成選單）：lucide `Columns2` 13px 一般圖示按鈕，開啟時 accentFaint 底（`ToolbarButton` `pressed`、`aria-pressed`）；title「左右比較」／「結束左右比較」。點了打開模式選單（§5.45.1「入口」），不直接開關。窄螢幕（手機）不放這顆按鈕，改由標頭「⋯」選單的「兩國切換」進入（§5.45.1）。
 - **語言**（2026-10-12）：lucide `Languages` 13px 圖示按鈕，點開 popover 列出「中文／EN／日本語」，目前語系用 accentFaint 底、accent 字標示；popover 樣式同底圖選單（§5.19）。手機不放工具列，收在 ⋯ 選單（§5.29）。實作 `src/components/toolbar/LanguageMenu.tsx`。`｜` 為 1px×16 直線，色 `palette.controlBorder`（暗 `CONTROL.border`／淡 `LIGHT.controlBorder`）。
 - **項目**：高 26、圓角 4、icon 13px（§5.7）。
 - **拿掉的東西**：Monitor BETA 按鈕（左側 rail「監測模式」保留）、第二排、計數列「flights · ships · 台灣好行」；操作提示移進「說明」。
@@ -594,6 +596,7 @@
 - **列**：共用圖層列（§5.5 圖層列，2026-10-03 起）：圖層 icon＋中文名，英文名小字 `textDim`；沒有開關，狀態圖示（✓ 已接上 `statusLive`／⚙ 派生 `statusDerived`／? 待補 `statusWarn`）放在開關那格；鎖頭圖示表示受限。L2 群組標題用共用 `SubGroupLabel`。
 - **展開**：點列在列下方展開上游資料卡，同時只展開一筆（`aria-expanded`）；卡內 Fact 列標籤 10px `muted` 寬 44、值 `textStrong`，代碼類值 `FONT_DATA`；連結 `link` 色。
 - **暗／淡**：`DARK_DS`／`LIGHT_DS`（皆取 token）。
+- **來源表補位**（2026-11-23）：資料目錄沒有機關＋授權時，卡內加「圖層來源」區塊（機關、授權或「授權未明示」、資料時點、連結），資料取 `src/data/layerSourceInfo.ts`；從 popup 搬來的固定說明（`LAYER_NOTES_DATA`、外國規格層 `popupNotes`）一律顯示在卡內。資料集代號、md 路徑不顯示，只放在標題 `title` 提示。
 - **禁止**：顯示 `datasetId` 當標題（§6.3）。2026-10-03 B 段已修掉 2 處 fallback：沒有 catalog 標題時卡片標題改「上游資料集」／「已比對的上游資料集」，代號移到「資料集」事實列（`FONT_DATA`），比對信心印「高／中／低」。
 - **實作**：`src/components/sidebar/DataSourcePanel.tsx`、`IconRailSidebar.tsx`（rail 入口）。
 
@@ -601,8 +604,10 @@
 
 - **結構**：圖例面板頂端整列按鈕：chevron（展開 `ChevronDown`／收合 `ChevronRight`，12px）＋「圖例」。
 - **尺寸**：padding `6px 10px`、gap 6、10px `FONT_CJK`、透明底。
-- **高度上限**：右下停靠區（popup＋圖例）上緣封頂在 `LAYOUT.rightDockTop`（60；手機 52；不跟左側面板的 leftDockTop 一起往下，避免短視窗圖例更擠），不得往上頂出工具列。popup 優先保留自身高度（最多到停靠區高度減 36px，留給圖例標題列）；圖例吃剩下的空間，標題列固定、內容在面板內捲動。
+- **高度上限**：右下停靠區（popup＋圖例）上緣封頂在 `LAYOUT.rightDockTop ＋ --top-bar-shift`（60；手機 52；不跟左側面板的 leftDockTop 一起往下，避免短視窗圖例更擠），不得往上頂出工具列。popup 優先保留自身高度（最多到停靠區高度減 36px，留給圖例標題列）；圖例吃剩下的空間，標題列固定、內容在面板內捲動。
 - **禁止**：英文「LEGEND」、大寫。
+- **品牌列換行讓位（右上浮動元件，2026-11-23）**：桌機品牌列（品牌＋右上工具列）是 flex-wrap 的一列，窄寬度或長語系時右上工具列會掉到第二行。`App.tsx` 用 ResizeObserver 量右上工具列底邊超出品牌欄底邊多少，寫進 `<html>` 的 `--top-bar-shift`（單行時 0），整列底邊寫 `--top-bar-bottom`；以下右上元件的 `top` 一律寫 `calc(原值 ＋ var(--top-bar-shift, 0px))`：右下停靠區上緣（60）、載入狀態條（60，§5.30）、視野提示卡（88，§5.42）、AI 對話框（88）、Agent 面板鈕（68）、Agent 活動卡（100）、Monitor split dock（56）。單行時位置與原本完全相同；手機與拍攝模式不渲染品牌列，變數移除。新增掛在右上、`top` 依工具列決定的浮動元件也要加這個變數，不得寫死數字。
+- **版權列讓位**：右下停靠區 `bottom` ＝ `max(LAYOUT.mapBottomInset, 手機 sheet 高度 ＋ 版權列實際高度 ＋ SPACING.sm)`；英日文窄螢幕版權列折成兩行時圖例自動上移，一行時位置不變（`AttributionBar` 用 ResizeObserver 把高度寫進 `--attrib-bar-h`）。
 - **實作**：`src/components/LegendPanel.tsx`、`App.tsx` 右下停靠區。
 
 ### 5.24 左下時間軸（TC3 收合＋展開；展開＝TC1 單列）
@@ -762,7 +767,7 @@
 
 2026-09-28 拍板（`map-layers.md` §4.2，LG-1–LG-12）。新圖例一律用 `src/components/legend/legendKit.tsx`，不再手寫色票尺寸。
 
-- **結構**：`LegendTitle`（標題）→ `LegendRow`（色票＋標籤）→ `LegendNote`（註記、方法、來源）。組間距 10、列間距 2–4、色票與文字間 6。
+- **結構**：`LegendTitle`（標題）→ `LegendRow`（色票＋標籤）→ `LegendNote`（註記、方法）。機關、授權、data.gov.tw 代號、資料日期放圖層「說明・來源」（§5.22），圖例只留色階、符號、單位、縮放提示與涵蓋限制（2026-11-23）。組間距 10、列間距 2–4、色票與文字間 6。
 - **標題**（LG-11）：`<LegendTitle zh="醫療據點" en="Medical" />`：中文 10px 600 `textStrong`，英文 9px `textDim`、不轉大寫，中文在前。不要再寫「MEDICAL 醫療據點」或「污染嚴重度 SEVERITY」。
 - **色票**：`SwatchDot` 10px 圓＋1px 底圖色描邊（LG-1）、`SwatchSquare` 12×10 圓角 2（LG-2，`outline` 為框線面）、`SwatchLine` 20px 線段含虛線（LG-4）、`SwatchSteps` 分級列＋分界數字（LG-3）、`SwatchGradient` 漸層條（LG-8）、`SwatchHatch` 缺值單向細斜線／遮蔽交叉斜線（LG-7）、`SwatchArrow` 14px 方向箭頭（LG-6，與地圖 SDF 箭頭同形狀，R6 段 3 移動物件平面模式）。
 - **色票參數**（R4 補）：`SwatchDot` 可帶 `stroke`／`strokeWidth`（地圖描邊是資料編碼時照畫，例：設施狀態框）與 `glow`（即時光暈）；`SwatchSquare`、`SwatchGradient` 可帶 `stroke`（面外框，分級面／網格用 `mapSeamColor(isDark)`，與 R3a 地圖細縫同源）；`SwatchLine` 可帶 `opacity`。
@@ -1000,21 +1005,25 @@
 
 ### 5.41 國家選單（2026-10-28 國家主體化）
 
-- **用途**：圖層、統計兩個入口共用同一個國家主體（`state/countryStore.ts`），桌機與手機共用；任一面板改國家，另一個跟著變。國家清單只有一份 `constants/countries.ts`（目前 TW／JP／FR）。
+- **用途**：圖層、統計兩個入口共用同一個國家主體（`state/countryStore.ts`），桌機與手機共用；任一面板改國家，另一個跟著變。國家清單只有一份：正本在 pulse-data `countries/countries.json`（與 MCP 共用），網站由 `scripts/countries/gen-countries.ts` 產生 `constants/countries.generated.ts`，`constants/countries.ts` 只包裝取用。
 - **位置**：面板標頭（§5.1）下，與「全部關閉」同一列（2026-10-28 使用者要求併成一行省高度）：選單 `flex: 1` 在左、「全部關閉」靠右（padding `5px 10px`、不換行），列 padding `4px 12px 4px`、間距 6；世界、模擬入口沒有國家選單，「全部關閉」維持整列寬。手機分頁下同樣位置。
 - **觸發列**：外觀同「全部關閉」按鈕（`ALLOFF_BG` 底、`1px ALLOFF_BORDER`、`RADIUS.lg`、padding `5px 8px`）；內容＝國碼 chip → 國名（12px 600 `TEXT_STRONG`、單行省略）→ `ChevronDown` 12px `DIM`。`aria-haspopup="menu"`，`aria-label`／`title`「切換國家（目前：{國名}）」。
 - **國碼 chip**：兩字國碼（不用國旗 emoji），沿用 §5.21 `chipOutline(color)`（10px `FONT_DATA` 600、padding `2px 5px`、圓角 3），不新增徽章公式；未選中用 `INACTIVE_TEXT`，選單中選中項用 `TEXT_STRONG`。
 - **彈出層**：沿用 §5.19 popover（top `100% + 6px`、左右對齊整列（含「全部關閉」）、底**不透明**（暗 `SURFACE.app`／淡 `LIGHT.surfaceSolid`；彈出層疊在半透明面板上，半透明底會讓下方按鈕與搜尋框的字透出）、`1px PANEL_BORDER`、`RADIUS.xl`、`ELEVATION.lg`、padding 4、`Z_INDEX.popover`）；選項 `role="menuitemradio"`，chip＋國名，選中 `ROW_ACTIVE` 底＋600 字、hover `ROW_HOVER`；點外部或 Esc 關閉。
-- **鏡頭**：只有在選單選國家（或統計未涵蓋時按「切回台灣」）才 flyTo 該國預設鏡頭（台灣＝全台總覽，同 `cameraPresets` 的 overview；開站預設鏡頭仍是台北）；網址 `c=`、Agent 開他國圖層、搜尋提示切國家都**不飛**。
+- **鏡頭**：只有在選單選國家（或統計未涵蓋時按「切回台灣」）才 flyTo 該國預設鏡頭（點釘選 chip 例外，飛記住的鏡頭）（台灣＝全台總覽，同 `cameraPresets` 的 overview；開站預設鏡頭仍是台北）；網址 `c=`、Agent 開他國圖層、搜尋提示切國家都**不飛**。
 - **網址**：非台灣時帶 `c=<小寫國碼>`；開站初始國家＝`c=` → 網址相機中心所屬國 →（網址沒有相機時）第一個國家圖層所屬國 → 台灣，不存 localStorage。
+- **釘選 chip 列（G1-a，2026-11-24）**：觸發列**上方**一排釘選 chip（沒有釘選時整列不出現）；最多 3 國，依釘選順序（gap 4）；目前國家那顆＝`CountryChip`＋國名（`FONT_SIZE.base`、單行省略、吃剩餘寬度），其餘只顯示 `CountryChip`（國名放 `title`／`aria-label`，避免窄面板把「United Kingdom」截成「Unite…」），padding `4px 6px`、`1px ALLOFF_BORDER`、`RADIUS.lg`；目前國家 `ROW_ACTIVE` 底＋`TEXT_STRONG` 邊與 600 字，`aria-pressed`。列 `role="group"`。手機分頁下同一個元件、同位置。點 chip＝`countryStore.set` ＋ 飛到**該國上次的鏡頭**（沒記錄才用國家預設鏡頭）。站主限定國家對非站主不列（釘過也不列）。
+- **釘選切換**：彈出層每國右側一顆圖釘按鈕（28×28、`Pin` 已釘填滿／`PinOff` 未釘，14px，`role="menuitemcheckbox"`、`aria-checked`）；已釘 `TEXT_STRONG`、未釘 `DIM`；已滿 3 國時未釘的灰掉（opacity 0.4、`aria-disabled`、tooltip「最多釘選 3 國，先取消一國」），不彈錯誤。取消釘選只在選單內，chip 上不放關閉鈕。
+- **各國記住鏡頭**：網站記住每一國最後的鏡頭（中心、縮放、旋轉、傾斜）：地圖 `moveend` 時，若鏡頭中心落在**目前面板國家**的範圍內才記（拖到別國不污染原國）。點 chip 飛記住的鏡頭；選單選國家仍飛國家預設鏡頭（明確「回到該國」）。釘選清單（`pulse.pinnedCountries.v1`）與鏡頭（`pulse.countryCameras.v1`）存 localStorage，讀取時驗證，壞資料丟棄；「目前國家」本身仍不存。釘選清單 `pinnedCountries` 是並排地圖（G2-1）的候選清單。
+- **其他釘選國家已開的圖層（G1-b，2026-11-24）**：圖層入口面板**底部**（主題樹捲動區之外、`flexShrink: 0`）一個摺疊區，只列「釘選、不是目前國家、目前開著」的圖層；沒有時整區不畫，搜尋中不畫，站主限定國家對非站主不列，WORLD／SIM 不列。外觀＝`BANNER_BG` 底、上緣 1px `BORDER`；標題列 chevron＋標題 `FONT_SIZE.md` 600＋圖層總數（`FONT_DATA` `FONT_SIZE.sm` `DIM`）；置底（`position: sticky; bottom: 0`，手機整頁捲動時也貼在面板底），底有 `blur(8px)`；展開內容最高 `min(200px, 22vh)` 內捲。依釘選順序分組：組頭＝`CountryChip`＋國名（`FONT_SIZE.base` 600，點了切國家並飛記住的鏡頭，同釘選 chip）＋右側「全部關閉」小按鈕（`1px ALLOFF_BORDER`、`RADIUS.lg`、`FONT_SIZE.sm`）；列＝共用 `LayerRow`（不可展開，點整列或開關都是關掉該層）。展開狀態存 localStorage `pulse.pinnedOpenExpanded.v1`，預設收合。面板「全部關閉」語意不變（只關目前國家）。實作：`sidebar/PinnedOpenLayers.tsx`、分組邏輯 `sidebar/pinnedOpenGroups.ts`。
 - **未涵蓋**：統計只有台灣。他國時統計入口不畫主題樹，改顯示「{國名}目前沒有統計資料」（12px `DIM`）＋「切回台灣」按鈕（外觀同「全部關閉」）；國家選單、全部關閉、單一／可重疊仍保留。
 - **禁止**：自動依視野切國家（只提示，見 §5.42）；在 rail 為單一國家另開入口。
-- **實作**：`src/components/sidebar/CountryMenu.tsx`、`sidebar/layerPanels.ts` `resolveLayerPanel`。
+- **實作**：`src/components/sidebar/CountryMenu.tsx`、`sidebar/layerPanels.ts` `resolveLayerPanel`、`state/countryStore.ts`（`pinnedCountries`、`countryCameraMemory`）。
 
 ### 5.42 視野提示卡（2026-10-28 國家主體化）
 
 - **用途**：地圖視野停在「目前國家主體以外」的國家時，在右上提示可以切換國家；**只提示，不自動切換**。
-- **位置**：桌機 `top 88px`、`right 16px`（載入狀態條 §5.30 之下）；Monitor split 時沿用載入狀態條的 `right`（讓到 dock 左邊）。層級 `Z_INDEX.toolbar`（`--z-toolbar`）。**手機不顯示**（第一版不做）。
+- **位置**：桌機 `top 88px ＋ --top-bar-shift`、`right 16px`（載入狀態條 §5.30 之下；品牌列換行時跟著往下讓，單行時就是 88px，見 §5.23「品牌列換行讓位」）；Monitor split 時沿用載入狀態條的 `right`（讓到 dock 左邊）。層級 `Z_INDEX.toolbar`（`--z-toolbar`）。**手機不顯示**（第一版不做）。
 - **外觀**：寬依內容、最寬 300px（2026-10-31 由 280 放寬，容納圖層列）；底 `SURFACE.strong`＋1px `BORDER.panel`＋`RADIUS.xl`＋`ELEVATION.lg`＋`blur(12px)`，padding `8px 12px`（淡色用 `--light-*`）。第一行＝國碼 chip（§5.41 `CountryChip`，`chipOutline(textMuted)`）＋標題 12px 600；第二行說明 11px `textMuted`；按鈕列＝C2 主要按鈕「切換到〇〇」＋C2 一般按鈕「保持〇〇」（§5.7）。`role="status"`、`aria-live="polite"`。
 - **文案**：標題「目前視野在{他國}」；說明「圖層面板仍是{目前國家}的圖層」；按鈕「切換到{他國}」「保持{目前國家}」。
 - **節奏**（`src/hooks/useViewportCountry.ts`）：
@@ -1023,7 +1032,7 @@
 |---|---|
 | 判斷時機 | `moveend` 後停穩 600ms（中途又移動就重算）；啟用當下地圖若停著立刻判斷一次 |
 | zoom 門檻 | zoom < 4.5 不判斷（看東亞、全歐時不跳），卡片收起 |
-| 出現條件 | 視野中心在他國矩形（`constants/countries.ts` `bboxes`）、該國≠目前國家、該國可用圖層數 > 0（扣上鎖與 release-hold） |
+| 出現條件 | 視野中心在他國矩形（`constants/countries.ts` 的 `bboxes`，來自 pulse-data 國家清單正本）、該國≠目前國家、該國可用圖層數 > 0（扣上鎖與 release-hold） |
 | 不判斷 | 拍攝模式、私人畫面、Agent 移動鏡頭的那一段 |
 | 隱藏 | AI 對話框（fixed top 88、right 14）或 Agent 活動卡（top 100、right 18）出現時整個停用，避免重疊 |
 
@@ -1044,7 +1053,7 @@
 
 同一張視野提示卡的第二段：**開著的圖層在目前畫面看不到時說明原因並給一鍵處理**。和「視野在他國」同時成立時上下兩段放同一張卡（國家段在上，中間 1px `BORDER.panel` 分隔），**不疊兩張、不另做元件**。
 
-- **範圍**：目前開著、屬於目前國家主體（或全球 WORLD）、沒上鎖的圖層。
+- **範圍**：目前開著、屬於目前國家主體（或全球 WORLD、模擬面板 SIM）、沒上鎖的圖層。模擬面板的圖層在各國主體下都開得到，30 天地圖挑戰的局部／外國資料層（例：Day 23 南韓、英國、日本）靠這段給「前往」按鈕（2026-11-23）。
 - **兩種原因**（只做這兩條；不用 `queryRenderedFeatures` 判「畫面沒東西」，圖磚載入中會誤報）：
 
 | 原因 | 條件 | 說明文案 | 按鈕 |
@@ -1099,7 +1108,7 @@
 #### 量測（C1）
 
 - **入口**：右鍵選單兩項（第一點＝右鍵位置）、控制柱尺規鈕（開始距離量測，§5.43）。
-- **工具列**：桌機放在品牌列（§5.18）中間的彈性欄位，水平置中於品牌字標與右上工具列之間（同一個 flex 列，不會重疊；空間不足時隨品牌列換行）；手機在時間軸列下方 12px、左 12、右 54（讓過導航鈕），距離／面積只顯示 icon。高 36、`SURFACE.strong`、1px `BORDER.panel`、`RADIUS.xl`、`ELEVATION.lg`、`blur(12px)`。內容：`Ruler` 13px accent → 距離／面積分段（§5.8，選中 accent-faint 底＋accent 600 字，`aria-pressed`）→ 分隔線 → 總數（`FONT_DATA` 12px 600 `textStrong`、min-width 76 靠右）→ 分隔線 → 刪上一點（`Undo2`）、清除（`Trash2`）、完成（C2 主要按鈕、`Check`）。按鈕高 26（§5.7）。`role="toolbar"`。拍攝模式隱藏工具列，量測線保留。
+- **工具列**：桌機浮在地圖上方、品牌列（§5.18）正下方 8px（`top: --top-bar-bottom ＋ SPACING.sm`），**不參與品牌列排版**（2026-11-23 根治：原本放品牌列中間，英日文會把右上工具列擠到第二行蓋住右側卡片）。容器 `.measure-float` ＝地圖可用區（左＝側欄寬＋16、右＝右上元件共用的 `right`，Monitor split 時已扣掉 dock），量測條位置由 `src/components/measureFloatPlacement.ts` 依要避開的卡片實際外框計算（`.country-hint`、`.loading-status`、`.research-activity` 與標 `data-measure-avoid` 的 popup〔含 CCTV 460 寬〕、AI 對話框、珊瑚警示）：(1) 品牌列下方那一列避開卡片後放得下單行 → 盡量置中（擠時往左讓，與卡片留 12px）；(2) 放不下 → 往下排到擋住它的卡片下方，仍單行、文字完整；(3) 連地圖可用區全寬都放不下單行才折行。文字一律完整顯示，不收成 icon。新增會疊在地圖上方的卡片要加 `data-measure-avoid`；容器 `pointer-events: none`。手機在時間軸列下方 12px、左 12、右 54（讓過導航鈕），距離／面積只顯示 icon。高 36、`SURFACE.strong`、1px `BORDER.panel`、`RADIUS.xl`、`ELEVATION.lg`、`blur(12px)`。內容：`Ruler` 13px accent → 距離／面積分段（§5.8，選中 accent-faint 底＋accent 600 字，`aria-pressed`）→ 分隔線 → 總數（`FONT_DATA` 12px 600 `textStrong`、min-width 76 靠右）→ 分隔線 → 刪上一點（`Undo2`）、清除（`Trash2`）、完成（C2 主要按鈕、`Check`）。按鈕高 26（§5.7）。`role="toolbar"`。拍攝模式隱藏工具列，量測線保留。
 - **互動**：單擊加點；雙擊或 Enter 完成；Backspace 刪上一點；繪製中按 Esc 取消（清除並離開；完成後的結果不受 Esc 影響，避免關視窗的 Esc 一併清掉）；距離至少 2 點、面積 3 點才算完成，不足時完成＝取消。繪製中在地圖容器的 capture 階段攔截 click／dblclick（先於 mapbox），所以圖層 popup 點擊不觸發；同時停用雙擊縮放，離開時還原（原本開著才開回）。拖曳、滾輪縮放照常；拖曳後放開不算點。游標改十字。完成後保留線、標籤與工具列（總數），直到按清除、按尺規鈕或開新量測；完成後地圖點擊恢復正常。切換距離／面積清除已畫的點並重新繪製。「清除」＝清除並離開。手機：點地圖加點、按「完成」結束。拍攝模式暫停加點與快捷鍵。
 - **繪製**：GeoJSON source `measure-tool`＋4 支 layer（面 accent 12%、線 accent 2px、預覽段 1.5px 虛線 5／4、頂點半徑 5 白底 accent 2px 框）；暗 `COLORS.accent`、淡 `LIGHT.accent`。切底圖在 `style.load` 重掛；每次加點 `moveLayer` 到最上層。
 - **標籤**（DOM Marker，`pointer-events: none`）：距離模式每段中點上方 14px 標該段長度（`SURFACE.strong` 底、1px `BORDER.panel`、`RADIUS.md`、`FONT_DATA` 10px）；總長在最後一點上方 24px（11px 600 `textStrong`、accent 框）；面積模式在頂點平均位置標面積（同總長樣式），下方一行「周長 x km」。繪製中游標右下 hint「雙擊完成 · Backspace 刪點」（10px `textMuted`，手機不顯示）。
@@ -1124,6 +1133,30 @@
 - **文案**：`compare.*`（三語）。
 - **禁止**：在右圖另做一套圖層控制或圖例面板；把比較狀態寫進 localStorage；讓不支援的層靜默消失（一律畫在左側並標示）。
 - **實作**：`src/components/compare/{CompareDivider.tsx,compareDivider.css,CompareStatisticsLegend.tsx}`、`src/map/{CompareMapView.tsx,compareSync.ts,compareRightMap.ts}`、`src/state/{compareStore.ts,compareStatistics.ts,compareControls.ts}`；掛在 `App.tsx`。
+
+#### 5.45.1 兩國並排（2026-11-24，G2-1）
+
+站主 2026-11-24 拍板（`.gis-agent-system/projects/2026-11-23-multi-country-restructure/G2-EVAL.md`）：同一個「比較」入口，選「兩國並排」時左右各放一個國家，同比例尺、同一刻。
+
+- **入口**：工具列比較鈕打開選單（`role="menu"`，寬 232、`popupBg`、`RADIUS.xl`）：每個模式一列 `menuitemradio`（名稱 sm 600＋一行說明 xs `textMuted`；目前模式 accentFaint 底），比較開著時下面分隔線＋「結束比較」。模式清單來自 `COMPARE_MODES`，之後加模式只多一列。
+- **版面**：右圖是右半幅容器（不用 clip-path），主地圖全寬、右 padding＝半寬，所以主地圖中心落在左半。中間分隔線固定 50%、不可拖（同拉桿的線，不畫圓鈕與熱區）。
+- **頂端列**（工具列下方，`pointer-events` 只在按鈕上）：左側國家 chip（下拉，任何國家＝圖層面板目前國家，換國家會飛到該國上次的鏡頭）｜比例尺同步開關（lucide `Ruler`，開著 accentFaint 底、`aria-pressed`）｜右側國家 chip 列（只列釘選的外國；目前右國永遠在列；「其他國家…」下拉可選任何外國，台灣不能放右邊）。下面左右各一條比例尺（各量各的地圖）；底部 dock 的比例尺在並排時不畫。
+- **比例尺同步**：預設開。`zoomB = zoomA + log2(cos φB / cos φA)`，雙向、每次移動重算、防重入；方位與傾角各自獨立。關掉後兩邊各自縮放，再打開時以左圖為準重新對齊。
+- **哪些圖層畫在右邊**：看 manifest `country`。右國圖層畫在右圖（右圖另掛一份 `<LayerHosts role="right">`，主圖同一批 Host 讀到的開關是 false）；其他國家、WORLD、SIM 都在左圖。走 overlay registry 的右國圖層由右圖自己掛一份 overlay（hydrate 紀錄以地圖實例分開；2026-11-24 G2-1b），主地圖把它們讀成關閉。例外：立體層（`jpHistoricalFlightTrails`）仍只畫在左圖，圖層列標「只在左側」（滑過看原因）；其他右國圖層列尾標「右」。拉桿專用的「顯示在」控制與統計左右合成圖例在並排時不出現。
+- **點擊**：右圖的點擊由右圖處理（命中順序同主地圖，`src/map/gisClickQuery.ts`），結果進同一個停靠 popup；選取圈只畫在被點的那一側。
+- **圖例**：仍只有一個面板，分「左・國家」「右・國家」兩段（小標 xs 600 `headerText`、下底線）。
+- **時間**：同一刻；時間軸展開時列出兩國當地時間（和台灣同時區的不另列；右側時間來源留給 G2-4「當地同時刻」）。
+- **分享網址**：`cmp=2`、`cmpc`（右國，小寫）、`cmpv`（右圖 `lng,lat,zoom[,bearing,pitch]`）、`cmpsl=0`（比例尺同步關）；`cmp=1` 照舊是拉桿。
+- **AI（MCP）**：只操作左圖；畫面摘要只算主地圖露出的左半，且不列右國圖層。
+- **手機**：不並排兩張地圖，改「兩國 A／B 切換」（G2-2，站主 2026-11-24 決定；`src/state/countryAbStore.ts`、`src/components/compare/CountryAbSwitch.tsx`）：
+  - **入口**：手機標頭「⋯」選單的「兩國切換」（開著時 accent 字色、文字改「結束兩國切換」）。開啟時 A＝目前國家、B＝下一個釘選外國（同桌機右側規則，B 一律是外國）。
+  - **切換鈕**：時間軸列下方 12px、靠左（跟著時間軸列實際高度；量測工具列出現時往下讓一列），分段鈕 `role="group"`＋兩段 `aria-pressed`：每段 ≥44px 高、最小寬 72，內容是國碼 chip（`CountryChip`）；目前顯示的國家 accentFaint 底＋1px accent 內框。底色用 `surfaceBg`＋模糊，深淺色都讀得到；不碰右側導航鈕與底部面板。點另一段才動作，點目前那段不做事。
+  - **切換行為**：先記下離開那一國的鏡頭（飛行途中不記），換 `countryStore`，再 `flyTo` 到目標國上次的鏡頭（沒記錄＝國家預設；G1-a 的 `countryCameraMemory`）。時間軸當地時間小字跟著地圖中心所在國更新。
+  - **合法性**：從國家選單換國家＝新國家變 A；B 與 A 撞到或看不到就換成下一個釘選外國。
+  - **網址**：仍寫成桌機的 `cmp=2`（顯示國家＝左，另一國＝右 `cmpc`；另一國是台灣時不寫 `cmpc`，桌機再挑預設）。帶 `cmp=2` 的網址在手機開＝進入 A／B（A＝`c=`／鏡頭所在國，B＝`cmpc`）；回到桌機寬度時還原成兩國並排。拉桿（`cmp=1`）在手機仍退回單一地圖並提示。
+- **說明卡**：開並排時同一張提示卡（§5.42）說明左右分工；按「知道了」後記在這個瀏覽器（`pulse.compareCountriesTipSeen.v1`），之後不再出現。拉桿的說明照舊每次開比較出現一次。
+- **載入**：右圖建立登記 loadingRegistry（「右側地圖」），右圖 overlay 的載入任務加 `-right` 後綴；換右國時整張右圖重建，舊國圖層不殘留。
+- **實作**：`src/map/{CountryCompareMapView.tsx,compareCountrySides.ts,gisClickQuery.ts,compareSync.ts}`、`src/components/compare/CountryCompareChrome.tsx`、`src/components/toolbar/CompareMenu.tsx`、`src/state/compareStore.ts`、`src/layers/LayerHost.tsx`（`role`）、`src/research/visibleSummary.ts`（左半範圍）。
 
 ### 5.46 星期格子（popup 內的每週排程，2026-11-17，南韓 KRH-1）
 
@@ -1173,7 +1206,8 @@
 | 上游資料已對上目錄 | 已接上 | `statusLive` |
 | Pulse 自行計算／衍生 | 派生 | `statusDerived` |
 | 目錄尚缺 | 待補 | `statusWarn` |
-| popup 無來源 | 資料來源 · 來源資訊待補 | `warn` |
+| popup 無來源（圖層側也補不到，§5.3 `full`） | 資料來源 · 來源資訊待補 | `warn` |
+| 來源未標授權 | 授權未明示 | `textMuted` |
 | 載入中 | 載入中…（走 loadingRegistry） | `textMuted` |
 | 缺值 | —（不寫 0） | `textDim` |
 | 模擬結果的資料性質 | 推估（圖層名限定詞）；可信度三級見 §5.40 S-2 | — |

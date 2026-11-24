@@ -159,7 +159,7 @@ export const CA_QUAKE_CLASSES: readonly CaCat[] = [
 ];
 export const CA_QUAKE_SOURCE = OGL_SOURCE("Natural Resources Canada, Earthquakes in Canada（1985–2019）", "https://open.canada.ca/data/en/dataset/4cedd37e-0023-41fe-8eff-bea45385e469");
 export const CA_QUAKE_NOTES: readonly L3[] = [
-  l3("加拿大地震網目錄 1985–2019（資料停更），含鄰近海域與境外事件", "Canadian National Seismograph Network catalogue 1985–2019 (no longer updated); includes offshore and cross-border events", "カナダ地震観測網カタログ 1985–2019（更新停止）。近海・国外のイベントを含む"),
+  l3("加拿大地震網目錄 1985–2019，含鄰近海域與境外事件", "Canadian National Seismograph Network catalogue 1985–2019; includes offshore and cross-border events", "カナダ地震観測網カタログ 1985–2019。近海・国外のイベントを含む"),
   l3("規模 ≥4 全國視角直接畫點，其餘拉遠畫熱區；規模型別混合（ML、MN、Mw…）", "M≥4 drawn as points at national view, others as heatmap; mixed magnitude types (ML, MN, Mw…)", "M4 以上は全国表示で点、それ以外は縮小時ヒートマップ。マグニチュード種別は混在"),
 ];
 export const CA_QUAKE_POPUP: CaPopupSpec = {

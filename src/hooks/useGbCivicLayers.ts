@@ -8,7 +8,7 @@ import {
   GB_HEALTH_ODS_ATTRIBUTION, GB_SCHOOL_CATEGORIES, GB_SCHOOLS_ATTRIBUTION, GB_SCHOOLS_COUNT, GB_CARE_HOMES_COUNT,
   GB_CARE_SERVICES_COUNT, gbHealthColor,
 } from "../data/gbCivicTypes";
-import { gbHeatmapBuild, gbMaskFilter, gbWithFilter, useGbPmtilesLayers, type SourceSpec } from "./useGbWaterLayers";
+import { gbHeatmapBuild, gbMaskFilter, gbWithFilter, useGbPmtilesLayers, type SourceSpec } from "./intlPmtilesLayers";
 
 /**
  * 英國第 7 波公共服務 6 層：學校、醫療（醫院 z5 起、GP／藥局 z10 起，同 source 兩個 circle）、
@@ -59,7 +59,7 @@ function pointPaint(key: string, fallbackOpacity: number, color: unknown, isDark
 // ─────────────────────────── 學校 ───────────────────────────
 
 const SCHOOLS_SOURCE: SourceSpec = {
-  id: "gb-schools", file: "gb_schools.pmtiles", minzoom: 5, maxzoom: 12, attribution: GB_SCHOOLS_ATTRIBUTION, loading: "英國學校載入中",
+  id: "gb-schools", file: "gb_schools_lt2.pmtiles", minzoom: 5, maxzoom: 12, attribution: GB_SCHOOLS_ATTRIBUTION, loading: "英國學校載入中",
 };
 const schoolColor = (): Expr => matchColor("category", GB_SCHOOL_CATEGORIES.map((c) => [c.value, c.color] as const), GB_CIVIC_FALLBACK_COLOR);
 
@@ -135,7 +135,7 @@ export function useGbHealthFacilitiesLayer(mapRef: MapRef, visible: boolean, opa
 // ─────────────────────────── 照護（同檔兩層） ───────────────────────────
 
 const CARE_SOURCE: SourceSpec = {
-  id: "gb-care-services", file: "gb_care_services.pmtiles", minzoom: 5, maxzoom: 12, attribution: GB_CARE_CQC_ATTRIBUTION, loading: "英國照護服務載入中",
+  id: "gb-care-services", file: "gb_care_services_lt2.pmtiles", minzoom: 5, maxzoom: 12, attribution: GB_CARE_CQC_ATTRIBUTION, loading: "英國照護服務載入中",
 };
 const careColor = (): Expr => matchColor("care_kind", GB_CARE_KINDS.map((k) => [k.value, k.color] as const), GB_CIVIC_FALLBACK_COLOR);
 

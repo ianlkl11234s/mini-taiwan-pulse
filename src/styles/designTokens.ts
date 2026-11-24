@@ -307,6 +307,9 @@ export const LAYOUT = {
    * CSS 端 research/mainMapConnection.css 的 Agent 面板寫同值，改這裡要一起改。
    */
   leftDockTop: 80,
-  /** 右側停靠欄（popup＋圖例）的上緣封頂（px）；只是高度上限，不跟左側面板一起往下 */
+  /**
+   * 右側停靠欄（popup＋圖例）的上緣封頂（px）；只是高度上限，不跟左側面板一起往下。
+   * 桌機品牌列換行時 App 再加 --top-bar-shift（右上工具列超出品牌欄底邊的高度），單行時就是這個值。
+   */
   rightDockTop: 60,
 } as const;

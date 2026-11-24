@@ -39,3 +39,14 @@ Platform #91／migration399與45舊候選概略位置enrichment已上線；Colle
 18:29台北最終anon讀回179候選，110有位置／69unknown、199代表點，所有core34／watch39／drop106保留。正式browser合併重複報導後155件／58待定位（97件有位置），待判斷標籤0。來源仍落後約14小時，不宣稱近七天已完整；Publisher始終0。不同筆數分母與完整證據以上游handoff及PR #205發布紀錄為準。
 
 正式網址：https://mini-taiwan-pulse.itsmigu.com/?v=1&lng=10&lat=25&z=1.8&layers=globalEvents&style=dark 。圖層會啟用，World側欄需自行展開。
+
+## AI 未判讀（2026-11-24）
+
+**上線狀態**：2026-11-24 15:4x（台北）gis-platform #256 合併（6ab0f07），migration 566 已套用正式 DB（隨附驗證 566 OK）；pulse-host 收集器已開 `GLOBAL_EVENTS_ASSESSMENT_NOTE_ENABLED=true` 並重建（映像 d071ba8）。之後新寫入的 AI 未判讀候選會帶 `assessment_note`。
+
+契約正本：data-collectors `docs/GLOBAL_EVENTS_AI_UNASSESSED.md`；欄位：gis-platform migration 566（`assessment_note`，未套用前前端退回比對理由句）。
+
+- 候選永遠不會再有 AI 判讀時稱「AI 未判讀」：`provider_rejected`（AI 服務內容審查擋下）、`model_failed`（連續 4 輪判讀失敗後放行）。資料上仍是 `assessment_status='pending'`、`decision=null`。
+- 前端判定：`globalEventAiUnassessed()`（`src/data/globalEventsLoader.ts`）。先看 RPC 的 `assessment_note`，沒有才逐字比對 `AI_UNASSESSED_REASON_TEXTS`：collector 的兩句固定白話理由，加上 2026-11-24 13:09 那一筆的舊句。候選表有不可修改的 trigger，舊列不改，前端辨識即可。collector 改句子時兩邊要一起改。
+- 顯示：popup「查證狀態」顯示「AI 未判讀（不會再判）」，「判斷理由」改用介面語系的白話說明（zh-TW／en／ja），不顯示原文、供應商名稱或錯誤代碼。INTEL 卡片的來源標籤是「AI 未判讀」。
+- 分類與計數：沿用「包含 AI 初判／待判斷」開關與 INTEL「觀察中與未判斷」那一組（`decision=null`），不另設篩選或計數；這類事件很少（2026-11-24 一天 1 筆），且已不會被當成「之後還會判」。

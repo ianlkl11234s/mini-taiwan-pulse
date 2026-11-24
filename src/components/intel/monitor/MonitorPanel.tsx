@@ -779,7 +779,8 @@ export function MonitorPanel({
         left: isSplit ? `${(1 - MONITOR_SPLIT_DOCK.widthPct) * 100}%` : (isWall ? 0 : 64),
         right: isSplit ? MONITOR_SPLIT_DOCK.right : 14,
         bottom: isSplit ? MONITOR_SPLIT_DOCK.bottom : (isWall ? 0 : 14),
-        top: isSplit ? MONITOR_SPLIT_DOCK.top : (isWall ? 0 : "auto"),
+        // split 的上緣跟著桌機品牌列換行往下讓（--top-bar-shift，App 寫在 <html>；單行為 0）
+        top: isSplit ? `calc(${MONITOR_SPLIT_DOCK.top}px + var(--top-bar-shift, 0px))` : (isWall ? 0 : "auto"),
         height: isSplit ? "auto" : (isWall ? "auto" : `${height * 100}vh`),
         // W1：淡色 95% 淡灰（S1 白卡疊在上面）、全屏不透明
         background: light ? (isWall ? MON_LIGHT_PANEL_SOLID : MON_LIGHT_PANEL) : isWall ? "rgba(6,7,11,0.97)" : "rgba(8,9,13,0.86)",

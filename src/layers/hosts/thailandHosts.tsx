@@ -1,6 +1,6 @@
 // 泰國 Layer Host（2026-11-22 第 0–1 波）。比照 hosts/vietnamHosts.tsx：一個 key 一個 Host；規格驅動層重用 usePhDataLayer。
 
-import { usePhDataLayer } from "../../hooks/usePhLayers";
+import { usePhDataLayer } from "../../hooks/intlPhSpecLayers";
 import { useThAdminLayers, useThPopulationLayers, useThRasterLayer } from "../../hooks/useThLayers";
 import { TH_RASTER_BY_KEY } from "../../data/thWavesLayers";
 import { selectedMultiSelectValues } from "../../data/multiSelectMapbox";

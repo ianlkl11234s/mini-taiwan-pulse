@@ -10,12 +10,10 @@
  */
 import { FOSSIL_PAINT_COLORS, ROAD_DRIVE_PAINT_COLORS } from "../map/layerPaintColors";
 import { FUEL_COLORS, FUEL_FALLBACK_COLOR } from "./energyLoader";
-import { JP_BUS_STOP_CLASSES } from "./jpBusStopTypes";
-import { KR_CAPACITY_BANDS } from "./krInfraTypes";
-import type { L3 } from "./krDataLayers";
+import { CAPACITY_RADIUS_BANDS, INTL_BUS_STOP_COLOR, type CaSource, type L3 } from "./intlLayerShared";
 
-export type { L3 } from "./krDataLayers";
-export { pickL3 } from "./krDataLayers";
+export { caText, pickL3 } from "./intlLayerShared";
+export type { CaSource, L3 } from "./intlLayerShared";
 
 const l3 = (zh: string, en: string, ja: string): L3 => ({ zh, en, ja });
 const fuel = (key: string) => FUEL_COLORS[key] ?? FUEL_FALLBACK_COLOR;
@@ -33,13 +31,6 @@ export interface CaField { prop: string; label: L3; kind?: "text" | "num" | "cod
 export interface CaPopupSpec { title: { props: readonly string[]; fallback: L3 }; typeLabel?: L3; fields: readonly CaField[]; notes?: readonly L3[] }
 /** 一個 layer key 的來源（popup 底部 SourceFooter 與圖例署名共用）。 */
 /** `short`：中文署名（地圖 attribution 用）；含中文說明時另給 `shortL3`，圖例依語系顯示（2026-11-18）。 */
-export interface CaSource { org: string; url: string; license: string; short: string; shortL3?: L3 }
-
-export const caText = (value: unknown): string => {
-  if (value == null) return "";
-  const s = String(value).trim();
-  return /^(none|nan|nat|null|\.\.|\?)$/i.test(s) ? "" : s;
-};
 
 const PROVINCE: CaField = { prop: "province", label: l3("省／地區", "Province / territory", "州・準州") };
 const OGL_SOURCE = (org: string, url: string): CaSource => ({ org, url, license: CA_OGL_LICENSE, short: `© ${org}（OGL–Canada）` });
@@ -75,7 +66,7 @@ export const CA_NO_DATA = l3("無資料", "No data", "データなし");
 // ─────────────────────────── 交通：公共運輸站點（C009） ───────────────────────────
 
 export const CA_TRANSIT_COUNT = 133_029;
-export const CA_TRANSIT_COLOR = JP_BUS_STOP_CLASSES[0].color;
+export const CA_TRANSIT_COLOR = INTL_BUS_STOP_COLOR;
 export const CA_TRANSIT_TYPES: readonly CaCat[] = [
   { id: "0", values: ["0"], color: CA_TRANSIT_COLOR, label: l3("站牌／月台", "Stop / platform", "停留所・ホーム") },
   { id: "1", values: ["1"], color: "#ab47bc", label: l3("車站", "Station", "駅") },
@@ -89,7 +80,6 @@ export const CA_TRANSIT_SOURCE: CaSource = {
 };
 export const CA_TRANSIT_NOTES: readonly L3[] = [
   l3("135 個 GTFS feed 的站點；不同機構共站會重複", "Stops from 135 GTFS feeds; stops shared by several agencies are repeated", "135 の GTFS フィードの停留所。複数事業者の共用停留所は重複する"),
-  l3("授權依各機構（多數未明示）", "Licence varies by agency (mostly unstated)", "ライセンスは事業者ごと（多くは明示なし）"),
   l3("Nunavut 未涵蓋", "Nunavut not covered", "ヌナブト準州は対象外"),
   l3("z12 起顯示單站，之下為密度熱區（格網計數；類別篩選只作用於單站）", "Individual stops from zoom 12; density heatmap (grid counts) below; the type filter applies to individual stops only", "ズーム 12 から個別表示、それ以下は密度ヒートマップ（格子集計。種別フィルタは個別表示のみ）"),
 ];
@@ -131,7 +121,7 @@ export const CA_AIRPORTS_SOURCE: CaSource = {
 export const CA_AIRPORTS_NOTES: readonly L3[] = [
   l3("拉遠只顯示大中型機場與港口，z7 起補上小型機場、直升機場、水上飛機基地、綜合港與遊艇港", "Zoomed out, only large/medium airports and ports are shown; smaller types appear from zoom 7", "広域表示では大・中規模空港と港湾のみ。ズーム 7 から小規模空港などを追加"),
   l3("機場 13/13 省／地區；港口 12/13（Yukon 未涵蓋）", "Airports 13/13; ports 12/13 (Yukon not covered)", "空港 13/13、港湾 12/13（ユーコン準州は対象外）"),
-  l3("港口 197 筆來自美國 NGA World Port Index（授權頁未讀到）", "197 ports come from the US NGA World Port Index (licence page not available)", "港湾 197 件は米 NGA World Port Index 由来（ライセンス頁未確認）"),
+  l3("港口 197 筆來自美國 NGA World Port Index", "197 ports come from the US NGA World Port Index", "港湾 197 件は米 NGA World Port Index 由来"),
 ];
 export const CA_AIRPORT_POPUP: CaPopupSpec = {
   title: { props: ["name"], fallback: l3("機場", "Airport", "空港") },
@@ -242,7 +232,7 @@ export const CA_PLANT_FUELS: readonly CaCat[] = [
   { id: "pumped_hydro", values: ["pumped_hydro"], color: fuel("storage"), label: l3("抽蓄水力", "Pumped storage", "揚水") },
   { id: "other", values: ["tidal", "other"], color: fuel("other"), label: l3("潮汐／其他", "Tidal / other", "潮力・その他") },
 ];
-export const CA_CAPACITY_BANDS = KR_CAPACITY_BANDS;
+export const CA_CAPACITY_BANDS = CAPACITY_RADIUS_BANDS;
 export const CA_PLANTS_SOURCE: CaSource = OGL_SOURCE("Natural Resources Canada, NACEI（Power Plants ≥100 MW；Renewable Energy Power Plants ≥1 MW）", "https://open.canada.ca/data/en/dataset/40ea8a2b-7b8f-4e41-91f2-a0e7c3cbcd2b");
 export const CA_PLANTS_NOTES: readonly L3[] = [
   l3("資料年份 2017（NACEI 2017-08）", "Data year 2017 (NACEI, 2017-08)", "データ年 2017（NACEI 2017-08）"),
@@ -461,7 +451,6 @@ export const CA_FED_SOURCE: CaSource = {
   short: CA_STATCAN_SOURCE_NOTE,
 };
 export const CA_FED_NOTES: readonly L3[] = [
-  l3("2025 大選起改用 2023 代表令 343 區（本層未更新）", "From the 2025 election the 2023 Representation Order (343 districts) applies; this layer is not updated", "2025 年総選挙からは 2023 年代表令（343 区）。本レイヤーは未更新"),
   l3("涵蓋 13/13 省／地區；z6 以下另畫代表點；選區名見點選資訊", "Coverage 13/13; representative points below zoom 6; click for district names", "13/13 州・準州を収録。ズーム 6 未満は代表点。選挙区名はクリックで表示"),
 ];
 export const CA_FED_POPUP: CaPopupSpec = {

@@ -6,7 +6,7 @@ import type { KrDataKey } from "../../data/krDataKeys";
 import type { MessageKey } from "../../i18n/keys";
 import { useLocale } from "../../state/localeStore";
 import {
-  KR_ADMIN_ATTRIBUTION, KR_ADMIN_COLOR, KR_ADMIN_FETCHED_AT, KR_ADMIN_LICENSE, KR_ADMIN_SOURCE_URL, KR_ADMIN_VERSION,
+  KR_ADMIN_ATTRIBUTION, KR_ADMIN_COLOR, KR_ADMIN_FETCHED_AT, KR_ADMIN_LICENSE, KR_ADMIN_SOURCE_URL,
 } from "../../data/krAdminTypes";
 import {
   KR_AIRPORT_COLOR, KR_AIRPORTS_ATTRIBUTION, KR_AIRPORTS_URL, KR_BUS_STOPS_ATTRIBUTION, KR_BUS_STOPS_COLOR, KR_BUS_STOPS_URL, KR_FETCHED_AT,
@@ -40,7 +40,6 @@ export function KrAdminBoundariesPanel({ props }: { props: Record<string, unknow
     {level === "sido" && text(props.sido_name_en) ? <Row label={t("popup.baseMap.krNameEnglish")} value={text(props.sido_name_en)} /> : null}
     {level !== "sido" ? <Row label={t("popup.baseMap.krSido")} value={sido} /> : null}
     {level === "emd" ? <Row label={t("popup.baseMap.krSgg")} value={[text(props.sgg_name), text(props.sgg_code)].filter(Boolean).join(" · ")} /> : null}
-    <Row label={t("popup.baseMap.gbDataVersion")} value={KR_ADMIN_VERSION} />
     <SourceFooter props={{ source_org: KR_ADMIN_ATTRIBUTION, source_url: KR_ADMIN_SOURCE_URL, license: KR_ADMIN_LICENSE, fetched_at: KR_ADMIN_FETCHED_AT }} />
   </>;
 }
@@ -160,7 +159,6 @@ export function KrRailLinesPanel({ props }: { props: Record<string, unknown> }) 
     <Row label={t("popup.transport.krGauge")} value={krText(props.gauge)} mono />
     <Row label={t("popup.transport.krStructure")} value={[tunnel && tunnel !== "no" ? t("popup.transport.krTunnel") : "", bridge && bridge !== "no" ? t("popup.transport.krBridge") : ""].filter(Boolean).join(" · ")} />
     <Row label={t("popup.transport.krLocation")} value={place(props)} />
-    <Row label={t("popup.baseMap.gbNotes")} value={t("legend.transport.krOsmSupplement")} />
     {osmFooter()}
   </>;
 }
@@ -244,7 +242,6 @@ export function KrPowerLinesPanel({ props }: { props: Record<string, unknown> })
     <Row label={t("popup.energy.gbOperator")} value={krText(props.operator)} />
     <Row label={t("popup.energy.gbLength")} value={km != null ? (km < 0.1 ? t("popup.energy.gbKmUnder") : t("popup.energy.gbKm", { value: km.toLocaleString(undefined, { maximumFractionDigits: 1 }) })) : ""} />
     <Row label={t("popup.energy.krLocation")} value={place(props)} />
-    <Row label={t("popup.baseMap.gbNotes")} value={t("legend.energy.krGridNote")} />
     {osmFooter()}
   </>;
 }
@@ -263,7 +260,6 @@ export function KrSubstationsPanel({ props }: { props: Record<string, unknown> }
     <Row label={t("popup.energy.gbOperator")} value={krText(props.operator)} />
     <Row label={t("popup.energy.krArea")} value={area != null ? t("popup.energy.krM2", { value: area.toLocaleString(undefined, { maximumFractionDigits: 0 }) }) : ""} />
     <Row label={t("popup.energy.krLocation")} value={place(props)} />
-    <Row label={t("popup.baseMap.gbNotes")} value={t("legend.energy.krGridNote")} />
     {osmFooter()}
   </>;
 }
@@ -312,7 +308,6 @@ export function KrOilGasPanel({ props: raw }: { props: Record<string, unknown> }
       <Row label={t("popup.energy.krArea")} value={area != null ? t("popup.energy.krM2", { value: area.toLocaleString(undefined, { maximumFractionDigits: 0 }) }) : ""} />
     </>}
     <Row label={t("popup.energy.krLocation")} value={place(props)} />
-    <Row label={t("popup.baseMap.gbNotes")} value={t("legend.energy.krOgSparse")} />
     {osmFooter()}
   </>;
 }
@@ -380,7 +375,6 @@ function makePanel(spec: KrLayerSpec): FC<{ props: Record<string, unknown> }> {
         const value = measuredNone && f.kind === "measure" ? pickL3(KR_UNMEASURED, locale) : formatField(f, props, locale, fmt);
         return <Row key={f.prop} label={pickL3(f.label, locale)} value={value} mono={f.kind === "code"} />;
       })}
-      {spec.popupNotes.map((n, i) => <Row key={i} label={locale === "en" ? "Note" : locale === "ja" ? "備考" : "備註"} value={pickL3(n, locale)} />)}
       <SourceFooter props={{ source_org: spec.sourceOrg, source_url: spec.sourceUrl, license: spec.license, fetched_at: spec.fetchedAt }} />
     </>;
   };

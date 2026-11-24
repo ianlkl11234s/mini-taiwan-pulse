@@ -122,11 +122,9 @@ function gridMeters(value: unknown, i18n: I18n): string {
 
 /** 三種工商密度格共用的欄位契約；快照與資料粒度由各圖層明確傳入。 */
 export function IndustrialDensityGridPanel({
-  props, snapshot, grain, recordUnit,
+  props, recordUnit,
 }: {
   props: Record<string, unknown>;
-  snapshot: string;
-  grain: string;
   recordUnit: string;
 }) {
   const i18n = useLocale();
@@ -138,7 +136,6 @@ export function IndustrialDensityGridPanel({
     <Row field="gridScale" value={gridMeters(props.grid_size_m, i18n)} />
     <Row label={t("popup.businessRegistry.recordsInCell")} value={records} />
     <Row label={t("popup.businessRegistry.density")} value={densityValue(props.density_per_km2, recordUnit, i18n)} />
-    <Row label={t("popup.businessRegistry.snapshotGrain")} value={t("popup.businessRegistry.snapshotGrainValue", { snapshot, grain })} />
   </>;
 }
 
@@ -224,7 +221,6 @@ export function CompanyAgeStructurePanel({ props }: { props: Record<string, unkn
       return <Row key={field} label={label} value={count === null || known === null || known === 0 ? missing(i18n) : t("popup.businessRegistry.companyWithShare", { count, n: i18n.formatNumber(count), pct: (count / known * 100).toFixed(1) })} />;
     })}
     <Row label={t("popup.businessRegistry.missingInvalidYear")} value={t("popup.businessRegistry.pairSep", { a: validCount(props.age_missing) ?? missing(i18n), b: validCount(props.age_invalid) ?? missing(i18n) })} />
-    <Row field="snapshot" value={t("popup.businessRegistry.ageNote")} />
   </>;
 }
 

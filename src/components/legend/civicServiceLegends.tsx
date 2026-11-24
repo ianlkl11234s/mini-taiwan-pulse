@@ -7,19 +7,19 @@ import { GOV_HR_BRANCH_COLOR } from "../../data/atlasLayerTypes";
 import { JpMedicalStatus } from "../JpMedicalStatus";
 import { JP_MEDICAL_AREA_LEVELS, JP_MEDICAL_CARE_GROUPS, JP_MEDICAL_CATEGORIES, JP_MEDICAL_GRID_BANDS } from "../../data/jpMedicalTypes";
 import { JP_POLICE_FACILITY_TYPES, JP_POLICE_DEGRADED_COLOR, JP_POLICE_ATTRIBUTION } from "../../data/jpPoliceFacilityTypes";
-import { JP_EVACUATION_SITE_TYPES, JP_EVACUATION_ATTRIBUTION } from "../../data/jpEvacuationSiteTypes";
-import { JP_PUBLIC_OFFICE_CLASSES, JP_PUBLIC_OFFICE_ATTRIBUTION } from "../../data/jpPublicOfficeTypes";
-import { JP_BUS_STOP_CLASSES, JP_BUS_STOP_ATTRIBUTION } from "../../data/jpBusStopTypes";
-import { JP_LANDSLIDE_ZONES, JP_LANDSLIDE_ATTRIBUTION, JP_LANDSLIDE_FEATURE_COUNT } from "../../data/jpLandslideWarningTypes";
-import { JP_ZONING_CLASSES, JP_ZONING_ATTRIBUTION, JP_ZONING_FEATURE_COUNT } from "../../data/jpZoningUseDistrictTypes";
-import { JP_FOREST_FUNCTION_TYPES, JP_FOREST_BLANK_COLOR, JP_FOREST_ATTRIBUTION } from "../../data/jpNationalForestTypes";
-import { JP_WELFARE_ATTRIBUTION, JP_WELFARE_LAYER_MAJOR, jpWelfareCategoriesOf, jpWelfareGroupsOf, type JpWelfareLayerKey } from "../../data/jpWelfareFacilityTypes";
-import { JP_INLAND_FLOOD_DEPTH_CLASSES, JP_INLAND_FLOOD_ATTRIBUTION, JP_INLAND_FLOOD_STEPS } from "../../data/jpInlandFloodTypes";
-import { LegendNote, LegendRow, LegendTitle, SwatchDot, SwatchSquare, useLegendColorMapper, useLegendTheme } from "./legendKit";
+import { JP_EVACUATION_SITE_TYPES } from "../../data/jpEvacuationSiteTypes";
+import { JP_PUBLIC_OFFICE_CLASSES } from "../../data/jpPublicOfficeTypes";
+import { JP_BUS_STOP_CLASSES } from "../../data/jpBusStopTypes";
+import { JP_LANDSLIDE_ZONES, JP_LANDSLIDE_FEATURE_COUNT } from "../../data/jpLandslideWarningTypes";
+import { JP_ZONING_CLASSES, JP_ZONING_FEATURE_COUNT } from "../../data/jpZoningUseDistrictTypes";
+import { JP_FOREST_FUNCTION_TYPES, JP_FOREST_BLANK_COLOR } from "../../data/jpNationalForestTypes";
+import { JP_WELFARE_LAYER_MAJOR, jpWelfareCategoriesOf, jpWelfareGroupsOf, type JpWelfareLayerKey } from "../../data/jpWelfareFacilityTypes";
+import { JP_INLAND_FLOOD_DEPTH_CLASSES, JP_INLAND_FLOOD_STEPS } from "../../data/jpInlandFloodTypes";
+import { LegendNote, LegendRow, LegendTitle, SwatchDot, SwatchSquare, useLegendColorMapper, useLegendTheme, LegendRestrictions } from "./legendKit";
 import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
 import { type LayerVisibility } from "../../types";
 import { MEDICAL_POI_TYPES, medicalPoiColor } from "../../data/medicalPOITypes";
-import { EMERGENCY_HOSPITAL_LEVELS, EMERGENCY_HOSPITAL_DATA_AS_OF } from "../../data/emergencyHospitalTypes";
+import { EMERGENCY_HOSPITAL_LEVELS } from "../../data/emergencyHospitalTypes";
 import { ACCESSIBILITY_STATUS_COLORS, BICYCLE_SUPPORT_COLORS } from "../../data/publicLifePalette";
 import { JP_SCHOOL_TYPES } from "../../data/jpSchoolTypes";
 import { ANIMAL_WELFARE_POINT_TYPES } from "../../data/animalWelfarePointsTypes";
@@ -557,7 +557,7 @@ export function EmergencyHospitalLegend({ isDark = true }: { isDark?: boolean })
       </div>
       <LegendNote style={{ marginTop: 4 }}>
         {i18n.t("legend.civic.emergencyHospitalNote1")}<br />
-        {i18n.t("legend.civic.emergencyHospitalNote2", { asOf: EMERGENCY_HOSPITAL_DATA_AS_OF })}
+        {i18n.t("legend.civic.emergencyHospitalNote2")}
       </LegendNote>
     </div>
   );
@@ -896,9 +896,6 @@ export function JpEvacuationSitesLegend() {
     {JP_EVACUATION_SITE_TYPES.map(c => <LegendRow key={c.value} swatch={<SwatchDot color={c.color} />}>{enumLabel("jpEvacSite", c.value, c.label, i18n)}</LegendRow>)}
     <LegendNote>{i18n.t("legend.civic.jpEvacLegal")}</LegendNote>
     <LegendNote>{i18n.t("legend.civic.jpEvacFilterNote")}</LegendNote>
-    <LegendNote>{i18n.t("legend.civic.jpEvacStale")}</LegendNote>
-    <LegendNote>{i18n.t("legend.civic.jpEvacDate")}</LegendNote>
-    <LegendNote>{JP_EVACUATION_ATTRIBUTION}</LegendNote>
     <DenseHeatmapLegendRow layers={["jpEvacuationSites"]} />
   </div>;
 }
@@ -911,7 +908,6 @@ export function JpPublicOfficesLegend() {
     {JP_PUBLIC_OFFICE_CLASSES.map(c => <LegendRow key={c.value} swatch={<SwatchDot color={c.color} />}>{enumLabel("jpPublicOfficeClass", c.value, c.label, i18n)}</LegendRow>)}
     <LegendNote>{i18n.t("legend.civic.jpOfficeHidden")}</LegendNote>
     <LegendNote>{i18n.t("legend.civic.jpOfficeBasis")}</LegendNote>
-    <LegendNote>{JP_PUBLIC_OFFICE_ATTRIBUTION}</LegendNote>
     <DenseHeatmapLegendRow layers={["jpPublicOffices"]} />
   </div>;
 }
@@ -924,7 +920,6 @@ export function JpBusStopsLegend() {
     {JP_BUS_STOP_CLASSES.map(c => <LegendRow key={c.value} swatch={<SwatchDot color={c.color} />}>{enumLabel("jpBusClass", c.value, c.label, i18n)}</LegendRow>)}
     <LegendNote>{i18n.t("legend.civic.jpBusCount")}</LegendNote>
     <LegendNote>{i18n.t("legend.civic.jpBusScope")}</LegendNote>
-    <LegendNote>{JP_BUS_STOP_ATTRIBUTION}</LegendNote>
     <DenseHeatmapLegendRow layers={["jpBusStops"]} />
   </div>;
 }
@@ -940,7 +935,6 @@ export function JpLandslideWarningAreasLegend() {
     <LegendNote>{i18n.t("legend.civic.jpLandslidePre")}</LegendNote>
     <LegendNote>{i18n.t("legend.civic.jpLandslideVintage", { count: i18n.formatNumber(JP_LANDSLIDE_FEATURE_COUNT) })}</LegendNote>
     <LegendNote>{i18n.t("legend.civic.jpLandslideZoom")}</LegendNote>
-    <LegendNote>{JP_LANDSLIDE_ATTRIBUTION}</LegendNote>
   </div>;
 }
 
@@ -957,7 +951,6 @@ export function JpInlandFloodAreasLegend() {
     <LegendNote>{i18n.t("legend.civic.jpInlandFloodScenario")}</LegendNote>
     <LegendNote>{i18n.t("legend.civic.jpInlandFloodNoData")}</LegendNote>
     <LegendNote>{i18n.t("legend.civic.jpInlandFloodDistinct")}</LegendNote>
-    <LegendNote>{JP_INLAND_FLOOD_ATTRIBUTION}</LegendNote>
   </div>;
 }
 
@@ -972,7 +965,6 @@ export function JpZoningUseDistrictsLegend() {
     <LegendNote>{i18n.t("legend.civic.jpZoningOutside")}</LegendNote>
     <LegendNote>{i18n.t("legend.civic.jpZoningDisclaimer")}</LegendNote>
     <LegendNote>{i18n.t("legend.civic.jpZoningVintage", { count: i18n.formatNumber(JP_ZONING_FEATURE_COUNT) })}</LegendNote>
-    <LegendNote>{JP_ZONING_ATTRIBUTION}</LegendNote>
   </div>;
 }
 
@@ -987,7 +979,6 @@ export function JpNationalForestsLegend() {
     <LegendNote>{i18n.t("legend.civic.jpForestMerged")}</LegendNote>
     <LegendNote>{i18n.t("legend.civic.jpForestProtected")}</LegendNote>
     <LegendNote>{i18n.t("legend.civic.jpForestZoom")}</LegendNote>
-    <LegendNote>{JP_FOREST_ATTRIBUTION}</LegendNote>
   </div>;
 }
 
@@ -1090,9 +1081,8 @@ export function JpWelfareFacilitiesLegend({ layerKey }: { layerKey: JpWelfareLay
     </LegendRow>)}
     <LegendNote>{i18n.t("legend.civic.jpWelfareMissing")}</LegendNote>
     <LegendNote>{i18n.t("legend.civic.jpWelfareAccuracy")}</LegendNote>
-    <LegendNote>{i18n.t("legend.civic.jpWelfareLicense")}</LegendNote>
-    <LegendNote>{i18n.t("legend.civic.jpWelfareStale")}</LegendNote>
-    <LegendNote>{JP_WELFARE_ATTRIBUTION}</LegendNote>
+    <LegendRestrictions layers={[layerKey]} />
+    <LegendNote>{i18n.t("legend.civic.jpWelfareMasked")}</LegendNote>
     <DenseHeatmapLegendRow layers={[layerKey]} />
   </div>;
 }

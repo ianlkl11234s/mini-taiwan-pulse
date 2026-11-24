@@ -29,7 +29,25 @@ export type VisibleSummaryMap = {
   getStyle(): { layers?: VisibleSummaryStyleLayer[] } | null | undefined;
   getLayer(id: string): unknown;
   queryRenderedFeatures(options: { layers: string[] }): VisibleSummaryFeature[];
+  /**
+   * 右側被蓋住時（兩國並排的右圖、Monitor 分割的 dock）主地圖設了右 padding：摘要範圍只算露出的左邊。
+   * 這三個都有、而且右 padding > 0 才啟用；測試的假地圖不給就照整張畫布。
+   */
+  getPadding?(): { right?: number } | null | undefined;
+  getContainer?(): { clientWidth: number; clientHeight: number };
+  unproject?(point: [number, number]): { lng: number; lat: number };
 };
+
+type ScreenBox = [[number, number], [number, number]];
+
+/** 主地圖露出的區域（畫布扣掉右 padding）；沒有右 padding 回 null（＝整張畫布） */
+export function uncoveredBox(map: Pick<VisibleSummaryMap, "getPadding" | "getContainer">): ScreenBox | null {
+  const right = map.getPadding?.()?.right ?? 0;
+  const container = map.getContainer?.();
+  if (!container || !(right > 0)) return null;
+  const width = container.clientWidth - right;
+  return width > 0 ? [[0, 0], [width, container.clientHeight]] : null;
+}
 
 export type VisibleSummaryArea = { level: "town" | "county"; field: string; items: { name: string; count: number }[] };
 export type VisibleSummaryMax = { field: string; value: number; name: string | null; lngLat: [number, number] | null };
@@ -92,7 +110,16 @@ export function registryStyleLayerIds(layerKey: string): ReadonlySet<string> | n
 }
 
 const round5 = (value: number) => Math.round(value * 1e5) / 1e5;
-export function viewportBounds(map: Pick<VisibleSummaryMap, "getBounds">): [number, number, number, number] | null {
+export function viewportBounds(map: Pick<VisibleSummaryMap, "getBounds" | "getPadding" | "getContainer" | "unproject">): [number, number, number, number] | null {
+  const box = uncoveredBox(map);
+  if (box && map.unproject) {
+    const [[x0, y0], [x1, y1]] = box;
+    const corners = ([[x0, y0], [x1, y0], [x1, y1], [x0, y1]] as [number, number][]).map((point) => map.unproject!(point));
+    const lngs = corners.map((c) => c.lng);
+    const lats = corners.map((c) => c.lat);
+    const out: [number, number, number, number] = [round5(Math.min(...lngs)), round5(Math.min(...lats)), round5(Math.max(...lngs)), round5(Math.max(...lats))];
+    return out.every(Number.isFinite) ? out : null;
+  }
   const bounds = map.getBounds();
   if (!bounds) return null;
   const out: [number, number, number, number] = [round5(bounds.getWest()), round5(bounds.getSouth()), round5(bounds.getEast()), round5(bounds.getNorth())];
@@ -181,6 +208,8 @@ export function summarizeVisibleLayers(map: VisibleSummaryMap, visibleLayerKeys:
   const started = now();
   let bounds: [number, number, number, number] | null = null;
   try { bounds = viewportBounds(map); } catch { bounds = null; }
+  let box: ScreenBox | null = null;
+  try { box = uncoveredBox(map); } catch { box = null; }
   const keys = visibleLayerKeys.slice(0, VISIBLE_SUMMARY_MAX_LAYERS);
   let styleLayers: VisibleSummaryStyleLayer[] = [];
   try { styleLayers = map.getStyle()?.layers ?? []; } catch { styleLayers = []; }
@@ -209,7 +238,13 @@ export function summarizeVisibleLayers(map: VisibleSummaryMap, visibleLayerKeys:
     const vector = candidates.filter(layer => layer.type !== "raster" && layer.type !== "hillshade");
     if (!vector.length) { layers.push({ layerKey, status: "not_applicable", reason: "raster" }); continue; }
     let raw: VisibleSummaryFeature[] = [];
-    try { raw = map.queryRenderedFeatures({ layers: vector.map(layer => layer.id) }); } catch { raw = []; }
+    try {
+      const layerIds = vector.map(layer => layer.id);
+      // 右側被蓋住：只查露出的左邊（Mapbox 的 queryRenderedFeatures(geometry, options) 多載）
+      raw = box
+        ? (map.queryRenderedFeatures as unknown as (geometry: ScreenBox, options: { layers: string[] }) => VisibleSummaryFeature[])(box, { layers: layerIds })
+        : map.queryRenderedFeatures({ layers: layerIds });
+    } catch { raw = []; }
     const capped = raw.length > VISIBLE_SUMMARY_MAX_FEATURES;
     const seen = new Set<string>();
     const features: VisibleSummaryFeature[] = [];

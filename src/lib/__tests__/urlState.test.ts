@@ -595,3 +595,37 @@ describe("比較模式 cmp*（選填欄位、不升版）", () => {
     expect(parseUrlState(buildUrl({ compare }, "/").slice(1)).compare).toEqual(compare);
   });
 });
+
+describe("兩國並排 cmp=2（G2-1，選填欄位、不升版）", () => {
+  const camera = { center: [121.5, 25.03] as [number, number], zoom: 10, pitch: 0, bearing: 0 };
+
+  it("往返：右側國家、右圖鏡頭（含旋轉傾斜）、關掉比例尺同步", () => {
+    const compare = {
+      mode: "countries" as const,
+      rightCountry: "GB" as const,
+      rightCamera: { center: [-0.1276, 51.5072] as [number, number], zoom: 9.36, bearing: 15, pitch: 30 },
+      scaleLocked: false as const,
+    };
+    const url = buildUrl({ camera, compare }, "/");
+    expect(url).toContain("cmp=2");
+    expect(url).toContain("cmpc=gb");
+    expect(decodeURIComponent(url)).toContain("cmpv=-0.1276,51.5072,9.36,15,30");
+    expect(url).toContain("cmpsl=0");
+    expect(parseUrlState(url.slice(url.indexOf("?"))).compare).toEqual(compare);
+  });
+
+  it("只記非預設：比例尺同步開著不寫 cmpsl；沒有旋轉傾斜時 cmpv 只有三段；不寫拉桿參數", () => {
+    const url = buildUrl({ camera, compare: { mode: "countries", rightCountry: "JP", rightCamera: { center: [139.7, 35.68], zoom: 10, bearing: 0, pitch: 0 }, split: 0.3, left: ["statsA"] } }, "/");
+    expect(decodeURIComponent(url)).toBe("/?v=1&lng=121.5&lat=25.03&z=10&cmp=2&cmpc=jp&cmpv=139.7,35.68,10");
+    expect(parseUrlState(url.slice(url.indexOf("?"))).compare).toEqual({ mode: "countries", rightCountry: "JP", rightCamera: { center: [139.7, 35.68], zoom: 10, bearing: 0, pitch: 0 } });
+  });
+
+  it("右側不收台灣與未知國碼；鏡頭壞掉整個不收；cmp=1 舊網址不受影響", () => {
+    expect(parseUrlState(`?${V}&cmp=2&cmpc=tw&cmpv=121,25,10`).compare).toEqual({ mode: "countries" });
+    expect(parseUrlState(`?${V}&cmp=2&cmpc=zz`).compare).toEqual({ mode: "countries" });
+    expect(parseUrlState(`?${V}&cmp=2&cmpc=gb&cmpv=-0.1,95,10`).compare).toEqual({ mode: "countries", rightCountry: "GB" });
+    expect(parseUrlState(`?${V}&cmp=2&cmpc=gb&cmpv=-0.1,51.5`).compare).toEqual({ mode: "countries", rightCountry: "GB" });
+    expect(parseUrlState(`?${V}&cmp=1&cmpc=gb&cmpsl=0`).compare).toEqual({});
+    expect(parseUrlState(`?${V}&cmp=3&cmpc=gb`).compare).toBeUndefined();
+  });
+});

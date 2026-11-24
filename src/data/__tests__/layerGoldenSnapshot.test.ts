@@ -11,7 +11,7 @@
  * ── ⚠️ Phase 4 縮編：12 section → 3（`FIXTURE_SECTIONS`）────────────
  *   搬移收官後，12 個 section 裡有 9 個已被 `layerManifest.test.ts` 逐 key
  *   **雙向**焊死（manifest 宣告 ⇔ 下游登記簿實際值）。同一件事凍兩份的後果是
- *   **每加一層就要重跑 REGEN 改一份 1.35MB 的 fixture，而那份 diff 沒有保護價值**
+ *   **每加一層就要重跑 REGEN 改一份大 fixture，而那份 diff 沒有保護價值**
  *   —— 純 churn 訓練出「無腦重跑」的習慣，那正是本檔開頭警告的拆護欄行為。
  *
  *   留下的 3 個是「沒有別的護欄在守、而且由共用機制 fan-out」的：
@@ -37,12 +37,12 @@
  *   去證明「護欄會叫」，證出來的是假的。
  */
 import { describe, it, expect } from "vitest";
-import { readFileSync, existsSync } from "node:fs";
 
 import {
   extractGolden, canonicalJson, diffGolden, allLayerKeys,
-  pickFixture, FIXTURE_PATH, FIXTURE_SECTIONS, SECTION_NAMES,
+  pickFixture, FIXTURE_SECTIONS, SECTION_NAMES,
 } from "./layerGoldenExtract";
+import { GOLDEN_DIR, baseId, goldenDirExists, readGoldenDir, assembleFixture } from "./layerGoldenFiles";
 import { MIGRATED_PARAMS_KEYS } from "../layerParamsSpec";
 import { PENALTY_YEAR_MAX } from "../pollutionTypes";
 
@@ -53,22 +53,50 @@ const full = extractGolden();
 const actual = pickFixture(full);
 const actualJson = canonicalJson(actual);
 
-const fixtureExists = existsSync(FIXTURE_PATH);
+const fixtureExists = goldenDirExists();
+const { files: goldenFiles, order: goldenOrder } = fixtureExists
+  ? readGoldenDir()
+  : { files: new Map(), order: { gisLayers: [], overlays: [] } };
+// 依 _order 把 group 檔組回舊 canonical 結構（B1 P1：fixture 已目錄化）
 const expected: Record<string, unknown> | null = fixtureExists
-  ? (JSON.parse(readFileSync(FIXTURE_PATH, "utf8")) as Record<string, unknown>)
+  ? (assembleFixture(goldenFiles, goldenOrder) as unknown as Record<string, unknown>)
   : null;
 
 describe("layer 黃金快照", () => {
-  it("fixture 存在（不存在代表護欄根本沒生效）", () => {
-    expect(fixtureExists, `找不到 ${FIXTURE_PATH} → 跑 ${REGEN}`).toBe(true);
+  it("fixture 目錄存在（不存在代表護欄根本沒生效）", () => {
+    expect(fixtureExists, `找不到 ${GOLDEN_DIR}/ → 跑 ${REGEN}`).toBe(true);
   });
 
-  it("fixture 自我描述的 section 清單與 FIXTURE_SECTIONS 一致", () => {
-    // 防「縮編後有人手改 fixture 或跑了舊版 dump 腳本」——
-    // 少一個 section 的 fixture 會讓下方逐 section 比對整段靜默略過。
-    const meta = expected?.meta as { sections?: string[] } | undefined;
-    expect(meta?.sections, `fixture 的 meta.sections 與程式碼不符 → ${REGEN}`)
-      .toEqual(FIXTURE_SECTIONS);
+  it("_order 的 id 集合 ＝ 各 group 檔的 id 聯集（不多不少、不重複）", () => {
+    for (const section of ["gisLayers", "overlays"] as const) {
+      const union: string[] = [];
+      for (const g of goldenFiles.values()) union.push(...Object.keys(g[section]));
+      expect([...union].sort(), `${section}：_order 與 group 檔的 id 不一致 → ${REGEN}`)
+        .toEqual([...goldenOrder[section]].sort());
+      expect(new Set(goldenOrder[section]).size, `${section}：_order 有重複 id`).toBe(goldenOrder[section].length);
+    }
+  });
+
+  it("重複 id 的唯一鍵連號（id、id#2、id#3…）", () => {
+    for (const section of ["gisLayers", "overlays"] as const) {
+      const seen = new Map<string, number>();
+      for (const k of goldenOrder[section]) {
+        const n = (seen.get(baseId(k)) ?? 0) + 1;
+        seen.set(baseId(k), n);
+        expect(k, `${section}：${k} 的序號應為 ${n}`).toBe(n === 1 ? baseId(k) : `${baseId(k)}#${n}`);
+      }
+    }
+  });
+
+  it("每個 group 檔的 count ＝ 自己 params 的 key 數，且 params key 不跨檔重複", () => {
+    const all = new Set<string>();
+    for (const [name, g] of goldenFiles) {
+      expect(g.count, `${name} 的 count 與 params key 數不符 → ${REGEN}`).toBe(Object.keys(g.params).length);
+      for (const k of Object.keys(g.params)) {
+        expect(all.has(k), `${k} 同時出現在多個 group 檔`).toBe(false);
+        all.add(k);
+      }
+    }
   });
 
   // 逐 section 比對 —— 整檔 byte-diff 在數十萬字元規模下沒法用人眼收斂，
@@ -86,7 +114,7 @@ describe("layer 黃金快照", () => {
 
   it("整份 canonical JSON 逐位元一致（含 meta / 順序 / 格式）", () => {
     expect(fixtureExists).toBe(true);
-    const expectedJson = readFileSync(FIXTURE_PATH, "utf8");
+    const expectedJson = canonicalJson(expected);
     // 先用 diffGolden 給出人類可讀的定位，再做全字串斷言
     const diffs = diffGolden(actual, expected, FIXTURE_SECTIONS);
     expect(
@@ -109,222 +137,13 @@ describe("layer 黃金快照", () => {
 });
 
 describe("黃金快照覆蓋度", () => {
-  it("涵蓋全部 794 個 layer key", () => {
+  it("涵蓋全部 layer key（總數不寫死；各 group 檔的 count 加總必須等於實際 key 數）", () => {
     const keys = allLayerKeys();
-    // 2026-08-12：+1 = vesselWatch（特殊船舶）。這個數字是 ratchet，加層時一起加。
-    // 2026-08-13：+1 = maritimeBoundary（領海界線）。
-    // 2026-08-18：+3 = companyPoints / companyCapitalGrid / manufacturingCompanyPoints。
-    // 2026-08-18：+3 = factoryLocations / industrialParkBoundaries / regulatedFacilities。
-    // 2026-08-18：+1 = industrialParkComparison。
-    // 2026-08-18：+1 = internetExchangePoints（全球 IXP 點位）；+1 ANFR；+1 OSM 通訊候選點；+1 RIPE Atlas 量測節點；+2 Ookla 效能格網。
-    // 2026-08-19：+1 = animalAdoption（每日待認養收容所摘要）；+1 = animalShelterPressure（官方月報縣市壓力）。
-    // 2026-08-20：+1 = animalWelfarePoints（7 類動物福利服務據點）。
-    // 2026-08-23：+1 = isobath（海底等深線 GEBCO 2025，等深線 11 級 + 深度分帶 12 級）。
-    // 2026-08-24：+3 = jpReligionGsi / jpReligionOsm / jpReligionWikidata（日本宗教設施三獨立源）。
-    // 2026-08-24：+2 = aisstreamVessels / gfwVesselPresence（全球海事兩個獨立來源）。
-    // 2026-08-25：+1 = gfwHourlyGrid（GFW HOURLY/HIGH 時間軸格網）。
-    // 2026-08-25：+1 = gfwHourlyTracks（GFW 抽樣近似航跡時間軸拖尾）。
-    // 2026-08-25：+1 = gfwDarkVessels（GFW SAR 未與 AIS 匹配偵測）。
-    // 2026-08-26：+2 = ooklaMobileTaiwan / ooklaFixedTaiwan（台灣 z14/z16 PMTiles）。
-    // 2026-08-28：+1 = gfwFishingEffort（DEV-only v4 shadow daily sample）。
-    // 2026-09-01：+4 = jpAdminPrefecture / jpAdminBoundaries / jpStations / jpAirports
-    // （日本 Japan Batch 2：行政區 2 層 PMTiles + 交通 2 層 GeoJSON）。
-    // 2026-09-02：+1 = jpRailways（日本鐵道路線 PMTiles line，事業者種別 5 色）。
-    // 2026-09-02：+1 = jpSchools（日本學校 PMTiles point，学校分類 13 色；新增「教育」theme）。
-    // 2026-09-02：+1 = jpPopulationMesh1km（日本 1km 人口網格 PMTiles polygon choropleth，
-    // 9 指標／年份 select；新增「人口」theme）。
-    // 2026-09-03：+1 = globalEvents（已發布全球重要事件的真實 Point 點位）。
-    // 2026-09-04：+2 = marineObservationCwa / marineObservationIsohe（CWA／ISOHE 固定站觀測分源）。
-    // 2026-09-04：+6 = 噪音／聲響六層（官方測站、NoiseCapture 公民格網、噪音管制區、
-    // 航空噪音法定里別、噪音裁處事件、聲音照相設備）。
-    // 2026-09-06：+4 = Network Structures 四層（OSM 承載線／輪廓、
-    // 新北市轄管橋梁、OSM × 官方候選比對）。
-    // +30 = 區域統計：航港、民航、DGBAS、違規、噪音、客運、TMRT、
-    // 臺北自行車、A1 事故與機場活動。
-    // 2026-09-07：+1 = jpPoliceFacilities（日本核心警察設施）。
-    // 2026-09-08：+24 = 農林漁牧 enabled Statistics recipes；3 HOLD recipe 不入 registry。
-    // coralReefDistribution: local research layer.
-    // 2026-09-10：+18 日本旅宿／自然保護／世界遺產本地 static GeoJSON layers。
-    // 2026-09-15：+45 社會統計（教育與少子化、醫療與長照、住宅存量與使用）。
-    // 2026-09-16: 12 education views + 188 comparison metric keys.
-    // 2026-09-16: +3 日本醫療、+1 Allen 私人研究。
-    // 2026-09-18: +1 jpAccommodationDensity（旅宿密度雙尺度網格）。
-    // 2026-09-18: 日本醫療 3 總覽拆為 14 個獨立 layer（淨增 11）。
-    // 2026-09-18: +1 propertyValueAdmin（房地產總市值行政區 Statistics）。
-    // 2026-09-18: +4 日本水資源本地靜態資料（湖泊、高松供排水設施、水質／水位測站）。
-    // 2026-09-18: +2 台灣／日本歷史航班軌跡。
-    // 2026-09-19: +9 LOCAL_ONLY 日本全國水資源向量／洪水背景。
-    // 2026-09-20: +2 日本建物高度／樹冠高度分區圖層。
-    // 2026-09-22: +10 公共生活與韌性圖層。
-    // 2026-09-23/24: +6 交通設施與橋梁雨量圖層。
-    // 2026-09-27: +9 勞動與所得 Statistics 圖層。
-    // 2026-09-29: +8 土壤液化 owner-only 圖層（潛勢、弱層 6、監測站）。
-    // 2026-09-29: +2 全臺橋梁方向候選／清冊點位（進行中，站主限定私人 PMTiles）。
-    // 2026-09-30: +1 雙北跨河橋梁韌性（研究中，站主限定私人 PMTiles＋JSON）。
-    // 2026-10-02: +37 環境統計 Statistics 圖層（環境部／國土管理署 18 dataset）。
-    // 2026-10-02: +4 水質與污水靜態圖層（RPI 測站、水質測站、污水處理廠、飲用水水源水質保護區）。
-    // 2026-10-02: +9 環境第二波（海域水質、RPI 河段試作、PM2.5 手動站、戴奧辛、焚化廠＋即時輻射／放流水／CEMS／紫外線）。
-    // 2026-10-04: +1 軌道路線 railRoutes（靜態 geojson 線層，不載入時刻表）。
-    // 2026-10-04: +32 人口統計 Statistics 圖層（戶籍人口 8＋年齡結構 24；村里 HOLD 不收）。
-    // 2026-10-04: +65 人口統計 P3–P6（人口動態 30＋遷徙 14＋原住民 8＋外來人口 13）。
-    // 2026-10-04: +20 人口統計村里（戶籍人口 4＋年齡結構 12＋原住民 4；11508 × 內政部村里界 1150817）。
-    // 2026-10-06: +5 減害服務（清潔針具／替代療法與藥癮戒治／愛滋自我篩檢／愛滋篩檢與指定醫療／毒品危害防制中心）。
-    // 2026-10-06: +9 減害服務第二批（酒癮／PrEP／網路成癮／更生保護／戒菸／反毒藥局／保險套／治療性社區／酒駕肇事事故）。
-    // 2026-10-06: +61 成癮與減害 Statistics 圖層（HIV 4、執法 15、行為調查 2、服務據點 40；第二級毒品／毒防中心不接）。
-    // 2026-10-06: +13 成癮與減害第三輪（地檢署轄區 5、清潔針具三類任一 4、替代治療執行機構 4）。
-    // 2026-10-06: +4 崩塌與水土保持 Statistics 圖層（崩塌筆數／面積、治山防災工程總經費、水土保持災害總損失；崩塌地處理面積不接）。
-    // 2026-10-06: +4 崩塌（大規模崩塌潛勢區／影響範圍、省道歷史災情、年度全島崩塌地）。
-    // 2026-10-09: +4 日本氣象廳即時（AMeDAS、警報・注意報、地震、火山警戒）。
-    // 2026-10-12: +66 atlas 批次 Statistics 圖層（疾病與健康 19、財稅與消費 22、原民與農村 3、體育 4、災害風險 8、海洋 10）。
-    // 2026-10-12: +26 atlas 批次點／線／面圖層（原民與農村 3、道路設施 7、淹水與災害照片 3、海洋 6、地名 2、水利設施 5）。
-    // 2026-10-15: +1 日本氣象廳發布幀影像（解析積雪深 jmaSnowDepth）。
-    // 2026-10-15: +8 日本氣象廳發布幀影像（雨雲雷達、解析雨量、土砂／浸水キキクル、紫外線、日別海面水溫、海冰、向日葵 B13 雲圖）。
-    // 2026-10-15: +5 日本氣象廳分析圖（初雪日、積雪日數、雨日數、土砂／浸水警戒時數；count_la_v1 每日一張）。
-    // 2026-10-15: +3 上游直連（衛星雪覆蓋 gibsSnowCover、洪水キキクル jmaRiskFlood、黃砂預測 jmaKosa）。
-    // 2026-10-15: +6 JMA／環境省時間軸層（日本落雷、WBGT、山頂初冠雪、紅葉・黃葉前線、櫻花前線、梅雨入梅・出梅）。
-    // 2026-10-17: -2 移除無 consumer 的 wasteRoute / wasteStop。
-    // 2026-10-17: +7 海域保護與漁業 G08（自然保留區、野生動物保護區、開放捕魚點、海岸地區範圍、人工魚礁／保護礁中心點、定置漁業權區）。
-    // 2026-10-17: +4 地層下陷＋海堤 G19（測站、累積／速率等值線、一般性海堤區域）。
-    // 2026-10-17: +36 治安統計 G17（8 案類＋電信詐欺 × 鄉鎮／縣市 × 件數／每十萬人）；-1 移除被取代的 crimeAreaMonthly。
-    // 2026-10-17: +1 各國颱風預報 G02（NCDR 五家路徑 typhoonAgencyForecasts）。
-    // 2026-10-23: +11 臺北市局處統計（資源回收、垃圾清運、污水普及率兩口徑、工廠家數兩層、使用執照五指標）。
-    // 2026-10-24: +1 文化幣藝文消費點 G23（cultureCoinVenues）。
-    // 2026-10-24: +7 死因統計 G20（鄉鎮 4＋縣市 2）＋原民文化健康站（culturalHealthStations）。
-    // 2026-10-24: +2 街頭藝人登記人數 G23（鄉鎮／縣市）。
-    // 2026-10-24: +27 國有資產 G16（統計 23＋台水廠所／台水淨水設施／台糖糖廠／國產署待標售 4 點層）。
-    // 2026-10-24: +13 金融據點 G10（統計 11＋ATM 裝設點／總分支機構 2 點層）。
-    // 2026-10-24: +12 金融延伸 G10 延伸（統計 10＋證券期貨據點／保險公司與保險代理人 2 點層）。
-    // 2026-10-25: +1 公車擁擠模擬（模擬面板，busCrowdingSim）。
-    // 2026-10-25: +1 郵局外幣現鈔經辦局 G10 外幣（postOfficeFxCounters）。
-    // 2026-10-25: +3 日本第一波（避難場所 jpEvacuationSites、役所與公民館 jpPublicOffices、公車站 jpBusStops）。
-    // 2026-10-26: +2 日本第二波面圖層（土砂災害警戒區域 jpLandslideWarningAreas、內水浸水想定區域 jpInlandFloodAreas）。
-    // 2026-10-26: +2 日本第三波面圖層（用途地域 jpZoningUseDistricts、国有林 jpNationalForests）。
-    // 2026-10-27: +6 日本第四波（福祉 jpWelfareDisability／jpWelfareChild、主要道路 jpMajorRoads、高速道路 jpExpressways、地理院地形 jpGsiHillshade／jpGsiRelief）。
-    // 2026-10-29: +2 英國第 0b 波（地方政府區 gbAdminBoundaries、統計小區 gbSmallAreaBoundaries）。
-    // 2026-10-29: +18 英國統計（gb 家族 18 個 LAD 統計層 statsGb*）。
-    // 2026-10-29: +1 急救責任醫院分級（emergencyHospitals）。
-    // 2026-10-29: +2 海洋保育補接 G33（海域野生動物保護區與棲息環境 marineWildlifeAreas、全海域生態系調查點位 marineEcologicalMonitoringSites）。
-    // 2026-10-29: +5 英國第 1 波（海域界線 gbMaritimeLimits、建成區 gbBuiltUpAreas、綠地三層 gbGreenspace／gbSportsFacilities／gbCemeteries）。
-    // 2026-10-29: +5 英國第 3 波（河川 gbRivers、水文測站 gbHydroStations、防洪設施 gbFloodDefenceAssets、海岸侵蝕 gbCoastalErosionRisk、浴場 gbBathingWaters）。
-    // 2026-10-29: +7 英國第 4 波（交通樞紐 gbTransportHubs、車站年進出人次 gbStationUsage、倫敦軌道路線 gbLondonRailLines／車站 gbLondonStations、單車站 gbLondonBikePoints、道路攝影機 gbLondonJamCams、收費區 gbLondonChargingZones）。
-    // 2026-10-29: +7 英國第 5 波（保護區 gbProtectedAreas、海洋保護區 gbMarineProtectedAreas、林地 gbWoodland、森林遊憩 gbForestRecreation、步道 gbTrails、開放進入地 gbOpenAccessLand、樹木保護 gbTreeProtection）。
-    // 2026-10-29: +6 英國第 6 波（電廠 gbPowerPlants、再生能源 gbRenewables、電網線 gbPowerLines、變電所 gbSubstations、加油站 gbFuelStations、離岸油氣田 gbOilGasFields）。
-    // 2026-10-29: +6 英國第 7 波（學校 gbSchools、醫療 gbHealthFacilities、照護之家 gbCareHomes、長照服務 gbCareServices、消防站 gbFireStations、法院 gbCourts）。
-    // 2026-10-29: +3 英國第 8 波（文化設施 gbCulturalFacilities、藝文場館 gbArtsVenues、觀光體驗 gbVisitorExperience）。
-    // 2026-10-29: +7 英國地形／公有地／作物（山體陰影 gbTerrainHillshade、色別標高 gbTerrainRelief、公有地標售 gbSurplusLand、作物統計 statsGbCrop* 4 層）。
-    // 2026-10-29: +5 英國第 9 波災害地質（GeoSure gbGroundStability、山崩 gbLandslide、氡氣 gbRadon、環境輻射 gbRadiation、地震目錄 gbEarthquakes）。
-    // 2026-10-29: +2 英國第 10 波道路（主要路網 gbMajorRoads、AADF 交通計數點 gbTrafficCountsAadf）。
-    // 2026-10-29: +6 英國第 11 波環境與規劃（規劃限制區 gbPlanningConstraints、棕地 gbBrownfield、回收點 gbRecyclingCentres、廢棄物許可 gbWastePermits、污染排放 gbPollutionInventory、噪音 gbNoise）。
-    // 2026-10-29: +5 英國第 12 波（公司登記 gbCompanies、製造業 gbManufacturing、殯葬 gbFuneral、養殖 gbAquaculture、土壤母質 gbSoilParentMaterial）。
-    // 2026-10-31: +1 南韓第 0 波（行政區界 krAdminBoundaries）。
-    // 2026-10-31: +5 G36 消防民防與交通事故（2025 A1／A2 事故 trafficAccidents2025、救災資源據點 disasterResourceSites、海嘯警報臺 tsunamiSirens、核電廠集結點與收容處所 nuclearEpzEvacuation、射擊公告區 firingNoticeAreas）。
-    // 2026-10-31: +7 台灣 G37（專用漁業權 exclusiveFisheryRightAreas、毒化物運作場所 toxicChemicalFacilities、重大職災 majorOccupationalAccidents、全國太陽光電施工許可 renewablePermitsNational、國家重要濕地 importantWetlands、水域遊憩禁止／限制區 waterRecreationRestrictedAreas、換電站 batterySwapStations）。
-    // 2026-10-31: +13 南韓第 1 波（交通 6：krBusStops／krRailStations／krAirports／krPorts／krNationalRoads／krRailLines；能源 7：krFuelStations／krPowerPlants／krRenewables／krPowerLines／krSubstations／krPowerTowers／krOilGas）。
-    // 2026-10-31: +5 文化、觀光、原民補強 G35（indigenousRegions、indigenousLanguageDialects、hakkaCulturalZones、tourServiceSites、tourVisitorStats）。
-    // 2026-10-31: +18 南韓第 3–5 波（水系統與海洋 8、公共運輸與道路設施 6、自然保護與林業 4；C101、C117 HOLD 未接）。
-    // 2026-10-31: +33 南韓統計（kr 家族 statsKr*，道級 16／市郡區 256）。
-    // 2026-10-31: +1 英國高爾夫球場 gbGolfCourses（§3.8 從運動場地拆出）。
-    // 2026-10-31: +1 重要濕地功能分區 importantWetlandZones（TWL-16）。
-    // 2026-11-01: +2 交通可及性公開模擬 transitReachGrid、transitReachPlayback（G28 P5）。
-    // 2026-11-02: +1 政治 2026 選舉活動 electionEvents2026（owner-only）。
-    // 2026-11-03: +1 政治 2024 投開票所 pollingStations2024（公開 bbox RPC）。
-    // 2026-11-03: +2 雙北大眾運輸可及性 transitAccessGrid／transitAccessPlayback（模擬面板）。
-    // 2026-11-04: +1 雙北國道逐車模擬 freewayTdcsSim（模擬面板）。
-    // 2026-11-04: +10 加拿大第 0＋1 波 ca*（行政邊界、交通 4、能源 4、人口中心）。
-    // 2026-11-04: +7 加拿大第 2 波（聯邦選區、FSA、原住民土地、CIMD、租金、地名、山體陰影）。
-    // 2026-11-04: +24 加拿大統計（ca 家族 statsCa*，省／地區 13／普查區 293）。
-    // 2026-11-03: +1 政治 2026 議員選區 councilDistricts2026（公開 RPC）。
-    // 2026-11-04: +66 選舉統計（election 家族 statsElection*，政治 → 選舉；村里／鄉鎮／縣市）。
-    // 2026-11-04: +4 30 天地圖挑戰 Day 4 群聚 mapchallengeDay04*（模擬面板）。
-    // 2026-11-05: +2 30 天地圖挑戰 Day 5 視野 mapchallengeDay05*（模擬面板）。
-    // 2026-11-05: +1 古地圖 historicalMapSinica（外部 XYZ raster，7 個年代）。
-    // 2026-11-07: +5 臺灣百年歷史地圖拆六層（historicalMapPostwar／historicalImagery／historicalBoundaries／historicalLandUse／historicalThematic，外部 XYZ raster）。
-    // 2026-11-06: +5 南韓第 6 波（領海線、都市公園、綜合體育設施、OSM 墓地、人口 H3 網格）。
-    // 2026-11-06: +4 日本第二輪（自然公園地域 jpNaturalParkAreas2015、国立公園 jpNationalParksMoe、国指定鳥獣保護区 jpWildlifeProtectionMoe、人口集中地区 jpDid）。
-    // 2026-11-06: +7 加拿大第 3 波（氣象站、AQHI、輻射監測站、NPRI、污水系統、地震、人口網格）。
-    // 2026-11-06: +1 英格蘭污染排放申報（gbPollutionInventoryEngland，站主限定 owner-only RPC）。
-    // 2026-11-06: +1 日本第二輪 C083 人身交通事故 jpTrafficAccidents2025。
-    // 2026-11-06: +1 加拿大即時地震 caEarthquakesLive（NRCan FDSN 上游直連）。
-    // 2026-11-06: +4 30 天地圖挑戰 Day 6 復古 mapchallengeDay06*（模擬面板）。
-    // 2026-11-06: +1 1944 水域（臺北盆地）water1944Taipei（站主限定，靜態 GeoJSON 面）。
-    // 2026-11-07: +1 愛爾蘭第 0 波（行政區界 ieAdminBoundaries）。
-    // 2026-11-07: +7 愛爾蘭第 1 波（海域界線、海床地形、地名、Gaeltacht、運動活動地點、公園、墓地）。
-    // 2026-11-07: +6 南韓第 7 波（學校、小學通學區、醫院與藥局、消防署、民防避難設施、派出所）。
-    // 2026-11-07: +16 南韓統計公共安全（火災、交通事故 × 道級／市郡區）。
-    // 2026-11-07: +29 愛爾蘭統計（ie 家族 statsIe*，地方政府 31／選舉分區 3,420）。
-    // 2026-11-07: +2 愛爾蘭第 2 波（商業房產估值、國有登記土地）。
-    // 2026-11-08: +7 愛爾蘭第 3a 波（水文站、水質監測站與污水廠、WFD 河川／湖泊水體、主幹排水、河川淹水 NIFM、海岸侵蝕 ICPSS）。
-    // 2026-11-08: +5 愛爾蘭第 3b 波（浴場、漁業調查站位、海床調查範圍、受保護海域、離岸再生能源海域）。
-    // 2026-11-08: +6 愛爾蘭第 4 波（交通：站牌、Dublinbikes、道路鐵路、里程標、計數站、機場港口）。
-    // 2026-11-08: +9 愛爾蘭第 5 波（國家公園、Wild Atlantic Way、指定保護區、國家步道、都柏林樹木、輻射站、崩塌事件／範圍、氡氣）。
-    // 2026-11-08: +6 愛爾蘭第 6 波（能源：電廠、輸電線、變電站、風場、充電站、加油站）。
-    // 2026-11-08: +3 愛爾蘭第 7a 波（學校、學校規劃區、早期教保服務）。
-    // 2026-11-08: +5 愛爾蘭第 8 波（文化資產、博物館、藝文場館、公共設施、宗教場所）。
-    // 2026-11-08: +5 愛爾蘭第 7b 波（醫療院所、HIQA 老人照護、消防站、Garda 站、法院）。
-    // 2026-11-08: +4 愛爾蘭第 10 波（EPA 持照工業設施、土壤圖、泥炭土壤、養殖場）。
-    // 2026-11-08: +6 愛爾蘭第 9 波（土地使用分區、規劃申請、策略噪音、回收點、廢棄物許可設施、PRTR）。
-    // 2026-11-08: +2 愛爾蘭第 5c 波（Coillte 國有林遊憩點與森林入口、林道與遊憩步道；站主限定 owner-only RPC）。
-    // 2026-11-08: +3 30 天地圖挑戰 Day 8 烏托邦 mapchallengeDay08*（模擬面板）。
-    // 2026-11-08: +1 mapchallengeDay08Parks（現有公園與河濱入口）。
-    // 2026-11-09: +1 台灣圖層待辦池第一批 motorcycleInspectionStations（G53 批 1）。
-    // 2026-11-09: +1 台灣圖層待辦池第一批 postMailboxes（G53 批 1）。
-    // 2026-11-09: +1 台灣圖層待辦池第一批 antivenomHospitals（G53 批 1）。
-    // 2026-11-09: +1 台灣圖層待辦池第一批 freewayHundredMeterStakes（G53 批 1）。
-    // 2026-11-09: +1 台灣圖層待辦池第一批 swcSpecialZones（G53 批 1）。
-    // 2026-11-09: +1 台灣圖層待辦池第一批 slopelandSwcAct（G53 批 1）。
-    // 2026-11-09: +1 台灣圖層待辦池第一批 debrisFlowPotential（G53 批 1）。
-    // 2026-11-10: +1 日本市町村道 jpMunicipalRoads（JPRD-1，6 片 PMTiles，z12 起）。
-    // 2026-11-09: +1 台灣圖層待辦池第一批 landUseChangeMonitoring（G53 批 1）。
-    // 2026-11-09: +1 30 天地圖挑戰 Day 9 城鄉 mapchallengeDay09UrbanRural（模擬面板）。
-    // 2026-11-09: +4 南韓每萬人比率 statsKr{FireIncidents,TrafficAccidents}Per10k{Sido,Sgg}（KRSTAT-1）。
-    // 2026-11-10: +1 台灣圖層待辦池第二＋三批 broadcastTransmitters（G53 批 2／3）。
-    // 2026-11-10: +1 台灣圖層待辦池第二＋三批 tedsGridEmissions（G53 批 2／3）。
-    // 2026-11-10: +1 台灣圖層待辦池第二＋三批 pollutionControlZones（G53 批 2／3）。
-    // 2026-11-10: +1 台灣圖層待辦池第二＋三批 landslideEventCatalog（G53 批 2／3）。
-    // 2026-11-10: +1 台灣圖層待辦池第二＋三批 wraDisasterCctv（G53 批 2／3）。
-    // 2026-11-10: +1 台灣圖層待辦池第二＋三批 traLevelCrossings（G53 批 2／3）。
-    // 2026-11-10: +1 台灣圖層待辦池第二＋三批 vegetationForestTypes（G53 批 2／3）。
-    // 2026-11-10: +1 台灣圖層待辦池第二＋三批 iOceanSightings（G53 批 2／3）。
-    // 2026-11-10: +1 台灣圖層待辦池第二＋三批 iOceanFishing（G53 批 2／3）。
-    // 2026-11-10: +1 台灣圖層待辦池第二＋三批 fireworksSites（G53 批 2／3）。
-    // 2026-11-10: +1 vehicleInspectionOffices（G53 批 2／3）。
-    // 2026-11-10: +8 南韓第 8 波（圖書館、博物館美術館、公演、文化祭、國家遺產、住宿、安心宅配櫃、敬老堂）。
-    // 2026-11-10: +6 愛爾蘭第 11 波（AED、監獄、pNHA、郡議會淹水分區、GSI 地下水淹水、泥炭開採沼地）。
-    // 2026-11-13: +10 菲律賓第 0–1 波（行政區界、人口密度、機場港口、車站碼頭、主要道路鐵道、電廠、電網、家用太陽能補助與微電網、加油站、管線與儲槽）。
-    // 2026-11-13: +12 越南第 0–1 波（行政區界、人口密度、車站、機場港口、主要道路鐵道、電廠、風光與充電站、電網、加油站、油氣、環境監測站、安江示範）。
-    // 2026-11-14: +3 菲律賓第 2 波補充（公車站、LRT／MRT 軌道與車站、高速公路與收費道路）。
-    // 2026-11-14: +10 南韓第 10 波（動物醫院、地方文化院、傳統寺剎、保護樹、漁場、自行車停放處、民防給水、安全緊急鈴、體驗休養村、屠宰場）。
-    // 2026-11-16: +1 南韓首爾用途地域（站主限定，#1050）。
-    // 2026-11-14: +4 英國第 13 波 OSM（橋梁與隧道 gbBridgesTunnels、道路設施 gbRoadFacilities、公共設施 gbPublicFacilities、宗教場所 gbPlacesOfWorship）。
-    // 2026-11-16: +2 即時 119 案件 fire119Live、警廣即時路況 pbsRoadEventsLive（站主限定，mig 555）。
-    // 2026-11-16: +49 菲律賓觀光波（5）與第 2–9 波（44：含 raster 4 層）。
-    // 2026-11-17: +35 越南觀光波與第 2–7 波（31 層規格驅動＋山體陰影、色別標高、崩塌潛勢、WDPCA 站主限定 4 層 raster）。
-    // 2026-11-17: +1 NASA GIBS 衛星夜光（gibsNightLights，30 天地圖挑戰 Light & dark）。
-    // 2026-11-17: +3 30 天地圖挑戰 Day 17 光與暗（mapchallengeDay17DarkSky／DarkRoads／NightFall）。
-    // 2026-11-17: +1 Day 17 縣市路燈 LED 化 mapchallengeDay17LedShare。
-    // 2026-11-13: +9 中國第 0–1 波（站主限定：行政區界、人口密度、人口網格、公交站、機場港口、主要道路鐵路、電廠、電網、油氣管線）。
-    // 2026-11-16: +15 中國第 2–5 波（站主限定：EEZ、地形、地名、民族自治、壩與水庫、河川、斷層、自然保護區、WDPA、養殖、土壤、長橋隧道、學校、醫療、核電）。
-    // 2026-11-17: +36 加拿大第 3–8 波（規格驅動，analytics #402）。
-    // 2026-11-17: +2 南韓 KRH-1（生態自然圖、垃圾排出規則）。
-    // 2026-11-18: +5 縣市開放資料完整度（30 天地圖挑戰 Day 18 NULL，統計）。
-    // 2026-11-19: +3 30 天地圖挑戰 Day 19 氣味（mapchallengeDay19Complaints／Potential／Penalties）。
-    // 2026-11-20: +2 台灣圖層延伸 B2 點層（mountainMobileImprovement、ecoLabelHotels）、+9 台灣圖層延伸 B2 統計（新住民子女就學 5、前二十大姓 3、現存坑洞數 1）。
-    // 2026-11-20: +7 台灣圖層延伸 B3（namrBuoys、towingYards、swcOutdoorClassrooms、swcEcoCheckZones、airportHeightSurfaces、landOfficeJurisdiction、npSpeciesSites）。
-    // 2026-11-20: +1 菲律賓即時空品 phOpenaqAir（OpenAQ，RPC get_openaq_latest）。
-    // 2026-11-20: +4 台灣圖層延伸 B1 統計（法定傳染病鄉鎮／縣市 × 病例數／每十萬人）。
-    // 2026-11-20: +23 台灣圖層延伸 B4 統計（普查常住人口 6、原住民族別 4、住宅用電 4、公司登記動態 4、未參加健保 2、工商普查鄉鎮 3）。
-    // 2026-11-21: +1 台灣圖層延伸 B5 縣市間遷徙流向（twCountyMigrationFlows）、+4 B5 統計（縣市間淨遷入人數／率、遷入、遷出）。
-    // 2026-11-21: +5 台灣圖層延伸 B7（hakkaLivingSchools、sandGravelPlants、countyWelfarePoints、evMotorcycleCharging、countyStreetlights）。
-    // 2026-11-21: +1 30 天地圖挑戰 Day 21 OSM（mapchallengeDay21OsmRoads）。
-    // 2026-11-21: +2 台灣圖層延伸 B6（twMarineHeatwaves、twCoralBleachingHeatStress）。
-    // 2026-11-22: +3 台灣圖層延伸 B8 R2 即時快照（dengueClusters、navNotices、tideSwellAlerts）。
-    // 2026-11-22: +2 30 天地圖挑戰 Day 23 味覺（mapchallengeDay23TasteTerms、mapchallengeDay23TasteVariants）。
-    // 2026-11-22: +10 泰國第 0–1 波（行政區界、人口密度、機場港口渡輪、車站與公車站、國道鐵道、電廠、電網、風電太陽能、加油站、儲槽與管線）。
-    // 2026-11-22: +15 泰國第 2–4 波（山體陰影、色別標高、地名、選區、高地村、府級社經、人行天橋、平交道、事故、EEC、歷史淹水、流域、灌溉、坍方安全點、垃圾場址）。
-    // 2026-11-22: +19 泰國第 5–7 波（學校、幼兒班、長者住宿、醫療、警察、監所法院、自然景點、保留林、國家公園、拉姆薩、森林公園、博物館圖書館、藝文、古蹟、體驗、住宿、銀行、宗教、郵局）。
-    // 2026-11-23: +14 泰國第 8–9 波（空品、氣象、海洋棲地、海洋保護區、潮位站、海岸變遷、運動、公園、工廠、農會市集、土壤 pH、有機碳、作物、獸醫）。
-    // 2026-11-23: +1 英國列車重播（gbRailReplay，站主限定測試圖層）。
-    expect(keys.length).toBe(2141);
+    // 加層不必再改任何數字：dump 會重算各 group 檔的 count，這裡驗加總與實際一致。
+    expect(
+      [...goldenFiles.values()].reduce((n, g) => n + g.count, 0),
+      `各 group 檔 count 加總與實際 layer key 數不同 → ${REGEN}`,
+    ).toBe(keys.length);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

@@ -37,7 +37,6 @@ export function SoilLiquefactionPotentialPanel({ props }: { props: Record<string
     {notInvestigated && <Row label={t("popup.soilLiquefaction.notInvestigatedLabel")} value={t("popup.soilLiquefaction.notInvestigatedText")} />}
     {!known && !notInvestigated && <Row field="dataLimits" value={t("popup.soilLiquefaction.noDataText")} />}
     <Row label={t("popup.soilLiquefaction.assessmentYear")} value={str(props.source_year)} mono />
-    <Row label={t("popup.soilLiquefaction.usageLimits")} value={t("popup.soilLiquefaction.siteCaveat")} />
     <SourceFooter props={footerProps(props)} />
   </>;
 }
@@ -89,7 +88,6 @@ export function LiquefactionMonitoringSitePanel({ props }: { props: Record<strin
     <Title color={LIQUEFACTION_SITE_COLOR}>{str(props.name) || t("popup.soilLiquefaction.siteFallback")}</Title>
     <Row label={t("popup.soilLiquefaction.siteStatus")} value={enumLabel("soilSiteStatus", status, LIQUEFACTION_SITE_STATUS_LABEL[status] ?? status, i18n)} />
     <Row label={t("popup.soilLiquefaction.sitePrecision")} value={enumLabel("soilSitePrecision", precision, LIQUEFACTION_SITE_PRECISION_LABEL[precision] ?? precision, i18n)} />
-    <Row field="dataLimits" value={t("popup.soilLiquefaction.siteLimits")} />
     <SourceFooter props={footerProps(props)} />
   </>;
 }

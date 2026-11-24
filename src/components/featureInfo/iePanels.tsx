@@ -3,7 +3,7 @@
 import type { FC } from "react";
 import { Row, SourceFooter, Title } from "./shared";
 import { useLocale } from "../../state/localeStore";
-import { caText } from "../../data/caInfraTypes";
+import { caText } from "../../data/intlLayerShared";
 import { IE_DATA_SPECS, type IeField, type IeLayerSpec } from "../../data/ieDataLayers";
 import type { IeDataKey } from "../../data/ieDataKeys";
 import { IE_ADMIN_COLOR, IE_ADMIN_LEVEL_LABELS, IE_ADMIN_SOURCE, IE_FETCHED_AT, IE_NO_DATA, pickL3, type L3 } from "../../data/ieAdminTypes";
@@ -70,7 +70,6 @@ export function makeIePanel(spec: IePanelSpec): FC<P> {
     return <>
       <Title color={catColor(spec, props)}>{title}</Title>
       {spec.fields.map((f) => <Row key={f.prop} label={pickL3(f.label, locale)} value={formatField(f, props, locale, fmt)} mono={f.kind === "code"} />)}
-      {spec.popupNotes.map((n, i) => <Row key={i} label={locale === "en" ? "Note" : locale === "ja" ? "備考" : "備註"} value={pickL3(n, locale)} />)}
       <SourceFooter props={{ source_org: spec.sourceOrg, source_url: spec.sourceUrl, license: spec.license, fetched_at: spec.fetchedAt }} />
     </>;
   };

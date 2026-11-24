@@ -146,9 +146,6 @@ function MountainHutTypesLegend() {
           </div>
         ))}
       </div>
-      <LegendNote style={{ marginTop: 3, lineHeight: 1.4 }}>
-        {i18n.t("legend.agri.hutOsmNote")}
-      </LegendNote>
     </div>
   );
 }

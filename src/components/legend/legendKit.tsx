@@ -6,10 +6,11 @@
  */
 
 import { useLocale } from "../../state/localeStore";
-import { createContext, useContext, type CSSProperties, type ReactNode } from "react";
+import { createContext, useContext, useState, type CSSProperties, type ReactNode } from "react";
 import { COLORS, FONT_CJK, FONT_DATA, FONT_SIZE, FONT_WEIGHT, LIGHT, RADIUS } from "../../styles/designTokens";
 import { MAP_SEAM, MISSING_HATCH, MOVING_POINT, POINT_STROKE, basemapLandColor } from "../../map/mapStyleScale";
 import { compositeHex, normalizeColor, parseColor } from "../../map/colorContrast";
+import { getLayerRestrictions, resolveSourceText, type RestrictionKind } from "../../data/layerSourceInfo";
 
 // ── 主題 ──────────────────────────────────────────────────
 export interface LegendPalette {
@@ -137,6 +138,45 @@ export function LegendNote({ children, style }: { children: ReactNode; style?: C
   const t = useLegendTheme();
   if (useLegendCompact()) return null;
   return <div style={{ marginTop: 4, fontSize: FONT_SIZE.xs, color: t.textDim, lineHeight: 1.4, ...style }}>{children}</div>;
+}
+
+const RESTRICTION_KEYS: Record<RestrictionKind, "legend.restriction.nonCommercial" | "legend.restriction.noDerivatives" | "legend.restriction.ownerOnly" | "legend.restriction.noRedistribution" | "legend.restriction.commercialConditions"> = {
+  nonCommercial: "legend.restriction.nonCommercial",
+  noDerivatives: "legend.restriction.noDerivatives",
+  ownerOnly: "legend.restriction.ownerOnly",
+  noRedistribution: "legend.restriction.noRedistribution",
+  commercialConditions: "legend.restriction.commercialConditions",
+};
+
+/**
+ * 使用限制短標（2026-11-23 站主決定 4-1 a）：全文在圖層「說明・來源」的使用限制欄，
+ * 圖例只放「⚠ 不可商用」這類短標；點短標在下方展開全文（觸控也能看），滑鼠停留另有 title。同種限制多層只列一次。
+ */
+export function LegendRestrictions({ layers }: { layers: readonly string[] }) {
+  const i18n = useLocale();
+  const t = useLegendTheme();
+  const [open, setOpen] = useState(false);
+  const byKind = new Map<RestrictionKind, string[]>();
+  for (const layer of layers) {
+    for (const r of getLayerRestrictions(layer)) {
+      const full = resolveSourceText(r.text, i18n);
+      const list = byKind.get(r.kind) ?? [];
+      if (full && !list.includes(full)) list.push(full);
+      byKind.set(r.kind, list);
+    }
+  }
+  if (byKind.size === 0) return null;
+  const fullTexts = [...new Set([...byKind.values()].flat())];
+  return <LegendNote>
+    {[...byKind.entries()].map(([kind, texts], i) => (
+      <button key={kind} type="button" aria-expanded={open} title={texts.join("\n")}
+        onClick={(event) => { event.stopPropagation(); setOpen((value) => !value); }}
+        style={{ marginRight: i < byKind.size - 1 ? 8 : 0, padding: 0, border: 0, background: "transparent", color: "inherit", font: "inherit", whiteSpace: "nowrap", cursor: "pointer", textDecoration: "underline dotted", textUnderlineOffset: 2 }}>
+        {i18n.t(RESTRICTION_KEYS[kind])}
+      </button>
+    ))}
+    {open && fullTexts.map((text) => <div key={text} style={{ marginTop: 2, color: t.textMuted }}>{text}</div>)}
+  </LegendNote>;
 }
 
 /** 數字（分界、計數、單位）：等寬＋tabular-nums。 */

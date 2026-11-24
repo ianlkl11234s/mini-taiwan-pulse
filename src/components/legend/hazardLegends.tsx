@@ -1,6 +1,7 @@
 // Legend sub-components (hazardLegends) — moved verbatim out of LegendPanel.tsx; registry wiring stays in LegendPanel.tsx (LEGEND_REGISTRY).
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { timeStore } from "../../state/timeStore";
+import { summarizeGlobalEventCounts } from "../../data/globalEventsPresentation";
 import { activeAgencyVersions, fetchTyphoonAgencyForecasts, groupAgencyTracks, subscribeTyphoonAgencyForecastsRefresh, type AgencyForecastTrack } from "../../data/typhoonAgencyForecastsLoader";
 import { TYPHOON_AGENCIES, TYPHOON_AGENCY_COLORS, TYPHOON_AGENCY_LABELS, TYPHOON_GALE_COLOR, TYPHOON_STORM_COLOR } from "../../data/typhoonTypes";
 import { useLocale } from "../../state/localeStore";
@@ -18,7 +19,8 @@ import { COLORS, RADIUS, FONT_SIZE } from "../../styles/designTokens";
 import { type LayerVisibility } from "../../types";
 import { ALERT_GROUPS, ALERT_GROUP_KEYS } from "../../data/disasterAlertTypes";
 import { NEWS_CATEGORIES } from "../../data/newsEventTypes";
-import { GLOBAL_EVENT_CATEGORIES, GLOBAL_EVENT_SEVERITIES } from "../../data/globalEventsTypes";
+import { GLOBAL_EVENT_CATEGORIES, GLOBAL_EVENT_RELATION_COLOR, GLOBAL_EVENT_SEVERITIES, GLOBAL_EVENT_STORY_LINK_COLOR } from "../../data/globalEventsTypes";
+import { globalEventsViewStore } from "../../state/globalEventsViewStore";
 import { CWA_INTENSITY_BANDS } from "../../data/earthquakeReplayTypes";
 import { FIRE_STATION_CATS, FIRE_HYDRANT_CATS, FIRE_EVENT_CATS, FIRE_ISOCHRONE_BANDS } from "../../data/fireTypes";
 import { MOUNTAIN_RESCUE_CAUSES } from "../../data/mountainSafetyTypes";
@@ -291,7 +293,6 @@ export function SoilLiquefactionPotentialLegend() {
     <LegendRow swatch={<SwatchHatch />}>{i18n.t("legend.hazard.soilNotInvestigated")}</LegendRow>
     <LegendRow swatch={<SwatchSquare color={t.border} outline />}>{i18n.t("legend.hazard.soilNoData")}</LegendRow>
     <LegendNote>{i18n.t("legend.hazard.soilNote")}</LegendNote>
-    <LegendNote>{i18n.t("legend.hazard.soilRights")}</LegendNote>
   </div>;
 }
 
@@ -312,7 +313,6 @@ export function WeakSoilLegend({ type }: { type: 'clay' | 'sand' }) {
     <LegendRow swatch={<SwatchSquare color={t.border} outline />}>{zeroBefore}<LegendNum>0 m</LegendNum>{zeroAfter}</LegendRow>
     <LegendRow swatch={<SwatchHatch />}>{i18n.t("legend.hazard.weakMissing")}</LegendRow>
     <LegendNote>{i18n.t("legend.hazard.weakNote", { threshold: WEAK_SOIL_SPT_THRESHOLD[type], zoom: WEAK_SOIL_MIN_ZOOM })}</LegendNote>
-    <LegendNote>{i18n.t("legend.hazard.soilRights")}</LegendNote>
   </div>;
 }
 
@@ -322,7 +322,6 @@ export function LiquefactionMonitoringLegend() {
     <LegendTitle zh={localizeLayerName("liquefactionMonitoringSites", LAYER_MANIFEST.liquefactionMonitoringSites.name, i18n).primary} en="Liquefaction Monitoring" />
     <LegendRow swatch={<SwatchDot color={LIQUEFACTION_SITE_COLOR} />}>{i18n.t("legend.hazard.monitorRow")}</LegendRow>
     <LegendNote>{i18n.t("legend.hazard.monitorNote")}</LegendNote>
-    <LegendNote>{i18n.t("legend.hazard.soilRights")}</LegendNote>
   </div>;
 }
 
@@ -617,12 +616,35 @@ export function NewsEventsLegend({ isDark = true }: { isDark?: boolean }) {
   );
 }
 
+/** 圖層狀態：地圖幾件、未定位幾件、資料最新收到時間；失敗或只載一部分時照實寫（不當成零件）。 */
+function GlobalEventsStatus() {
+  const t = useLegendTheme();
+  const i18n = useLocale();
+  const view = useSyncExternalStore(globalEventsViewStore.subscribe, globalEventsViewStore.getSnapshot, globalEventsViewStore.getSnapshot);
+  if (view.status === "idle") return null;
+  const noiseHidden = view.noiseHidden ?? 0;
+  const { mapped, unlocated, latest } = summarizeGlobalEventCounts(view.entries, noiseHidden);
+  return (
+    <LegendNote style={{ marginTop: 4, color: t.textDim }}>
+      {view.status === "loading" && view.entries.length === 0 ? null
+        : i18n.t("legend.hazard.globalStatus", { mapped, unlocated })}
+      {Number.isFinite(latest) ? <><br />{i18n.t("legend.hazard.globalLatest", {
+        time: i18n.formatDateTime(new Date(latest), { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false }),
+        hours: Math.max(0, Math.round((Date.now() - latest) / 3_600_000)),
+      })}</> : null}
+      {noiseHidden > 0 ? <><br />{i18n.t("legend.hazard.globalNoiseHidden", { n: noiseHidden })}</> : null}
+      {view.message ? <><br />{view.message}</> : null}
+    </LegendNote>
+  );
+}
+
 export function GlobalEventsLegend() {
   const t = useLegendTheme();
   const i18n = useLocale();
   return (
     <div>
       <LegendTitle zh={i18n.t("legend.hazard.globalTitle")} en="Global Events" />
+      <GlobalEventsStatus />
       <FireCatRows cats={GLOBAL_EVENT_CATEGORIES.map(({ value, color, label }) => ({ color, label: enumLabel("globalEventCategory", value, label, i18n) }))} />
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 5 }}>
         {GLOBAL_EVENT_SEVERITIES.map((item) => (
@@ -643,6 +665,8 @@ export function GlobalEventsLegend() {
         {i18n.t("legend.hazard.globalSize")}
         <br />{i18n.t("legend.hazard.globalOutline")}
       </LegendNote>
+      <LegendRow swatch={<SwatchLine color={GLOBAL_EVENT_RELATION_COLOR} width={1.5} />}>{i18n.t("legend.hazard.globalLineAssoc")}</LegendRow>
+      <LegendRow swatch={<SwatchLine color={GLOBAL_EVENT_STORY_LINK_COLOR} width={1.5} dash={[2, 2]} />}>{i18n.t("legend.hazard.globalLineStory")}</LegendRow>
       <div style={{ display: "flex", gap: 9, marginTop: 4, fontSize: FONT_SIZE.xs, color: t.textDim }}>
         <span><span style={{ color: "#facc15" }}>○</span> {i18n.t("legend.hazard.globalNew")}</span>
         <span><span style={{ color: "#38bdf8" }}>○</span> {i18n.t("legend.hazard.globalUpdated")}</span>

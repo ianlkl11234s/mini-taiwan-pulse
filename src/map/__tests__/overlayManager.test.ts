@@ -510,6 +510,32 @@ describe("Ookla static overlay 的 attribution / loading 契約", () => {
     }
   });
 
+  // 2026-11-23：細格（z=10）只在圖磚縮放 ≥3；縮放分界靠 layer minzoom／maxzoom（filter 內的 zoom 不隨地圖縮放重算）。
+  it("global 格網：-lo 層與一般層縮放區間互補（分界 2.5），選「細」時低縮放退回 z=8", () => {
+    for (const [id, sourceId, paramKey] of [
+      ["ooklaMobilePerformance", "ookla-mobile-global", "ooklaMobileGridZoom"],
+      ["ooklaFixedPerformance", "ookla-fixed-global", "ooklaFixedGridZoom"],
+    ] as const) {
+      const config = ookla(id, sourceId);
+      expect(config.sourceUrl).toMatch(/_20260930_t3\.pmtiles$/);
+      const by = (suffix: string) => config.layers.find((l) => l.suffix === suffix)!;
+      const filterOf = (suffix: string, grid: number) => (by(suffix).filter as (p: Record<string, number>) => unknown)({ [paramKey]: grid });
+      for (const [lo, hi] of [["fill-lo", "fill"], ["line-lo", "line"]] as const) {
+        expect(by(lo).maxzoom).toBe(2.5);
+        expect(by(hi).minzoom).toBe(2.5);
+        expect(by(lo).minzoom).toBeUndefined();
+        expect(by(hi).maxzoom).toBeUndefined();
+        expect(filterOf(lo, 10)).toEqual(["==", ["get", "z"], 8]);   // zoom<3 選細 → 中格
+        expect(filterOf(hi, 10)).toEqual(["==", ["get", "z"], 10]);  // zoom≥3 選細 → 細格
+        for (const grid of [6, 8]) {
+          expect(filterOf(lo, grid)).toEqual(["==", ["get", "z"], grid]);
+          expect(filterOf(hi, grid)).toEqual(["==", ["get", "z"], grid]);
+        }
+      }
+      expect(config.rebuildOnParamChange).toEqual(expect.arrayContaining(["fill", "line", "fill-lo", "line-lo"]));
+    }
+  });
+
   it("global PMTiles 不再整包 fetch GeoJSON（hydrate 直接略過）", async () => {
     const config = ookla("ooklaMobilePerformance", "ookla-mobile-global");
     const fetchSpy = vi.fn();
@@ -638,4 +664,54 @@ describe("manifest overlay source specs", () => {
       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
     });
   }
+});
+
+describe("hydrate 紀錄以地圖實例分開（兩國並排 G2-1b）", () => {
+  const config = { id: "g2TestOverlay", sourceId: "g2-test-overlay", sourceUrl: "./g2_test/never_migrated.geojson", layers: [] } as unknown as OverlayConfig;
+  const fakeMap = () => {
+    const setData = vi.fn();
+    return { map: { getSource: () => ({ setData }) } as unknown as MapboxMap, setData };
+  };
+  const stubFetch = () => {
+    const spy = vi.fn(async () => new Response(JSON.stringify({ type: "FeatureCollection", features: [] }), { status: 200 }));
+    vi.stubGlobal("fetch", spy);
+    return spy;
+  };
+
+  it("同一個 source 在兩張地圖各自 hydrate；同一張圖不重抓", async () => {
+    resetOverlayHydration();
+    const fetchSpy = stubFetch();
+    const left = fakeMap();
+    const right = fakeMap();
+    try {
+      await hydrateOverlayIfNeeded(left.map, config);
+      await hydrateOverlayIfNeeded(right.map, config);
+      await hydrateOverlayIfNeeded(left.map, config);
+      expect(left.setData).toHaveBeenCalledTimes(1);
+      expect(right.setData).toHaveBeenCalledTimes(1);
+      expect(fetchSpy).toHaveBeenCalledTimes(2);
+    } finally {
+      vi.unstubAllGlobals();
+      resetOverlayHydration();
+    }
+  });
+
+  it("一張圖清掉（換底圖或 remove 後重建）不影響另一張的紀錄", async () => {
+    resetOverlayHydration();
+    stubFetch();
+    const left = fakeMap();
+    const right = fakeMap();
+    try {
+      await hydrateOverlayIfNeeded(left.map, config);
+      await hydrateOverlayIfNeeded(right.map, config);
+      resetOverlayHydration(right.map);
+      await hydrateOverlayIfNeeded(right.map, config);
+      await hydrateOverlayIfNeeded(left.map, config);
+      expect(right.setData).toHaveBeenCalledTimes(2);
+      expect(left.setData).toHaveBeenCalledTimes(1);
+    } finally {
+      vi.unstubAllGlobals();
+      resetOverlayHydration();
+    }
+  });
 });

@@ -25,6 +25,7 @@ import { existsSync, readdirSync, readFileSync, statSync, writeFileSync } from "
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { LAYER_MANIFEST, MANIFEST_KEYS } from "../../src/data/layerManifest.ts";
+import { COUNTRIES } from "../../src/constants/countries.ts";
 import { ensureStatisticsResearchDatasets, registeredDatasetsForLayer } from "../../src/research/researchDatasets.ts";
 import { panelForExplorationLayers } from "../../src/research/explorationNavigation.ts";
 import { layerAlias, sharedTableWarning } from "./layer-status-helpers.mjs";
@@ -92,9 +93,9 @@ for (const key of MANIFEST_KEYS) {
 }
 const PANEL_LABEL = { statistics: "統計", world: "世界", simulation: "模擬" };
 /** 「圖層」入口依國家主體分欄（2026-10-28 國家主體化；舊「日本」入口併入圖層入口的日本）。 */
-const COUNTRY_PANEL_LABEL = { TW: "臺灣圖層", JP: "日本", FR: "法國", GB: "英國", KR: "南韓", CA: "加拿大", IE: "愛爾蘭", PH: "菲律賓", VN: "越南", TH: "泰國", CN: "中國" };
-/** 國別順序（與 src/constants/countries.ts 的 COUNTRIES 相同），之後是跨國與模擬。 */
-const COUNTRY_ORDER = ["TW", "JP", "FR", "GB", "KR", "CA", "IE", "PH", "VN", "TH", "CN", "WORLD", "SIM"];
+const COUNTRY_PANEL_LABEL = { TW: "臺灣圖層", JP: "日本", FR: "法國", GB: "英國", KR: "南韓", CA: "加拿大", IE: "愛爾蘭", PH: "菲律賓", VN: "越南", TH: "泰國", ID: "印尼", CN: "中國" };
+/** 國別順序取自 COUNTRIES（pulse-data 國家清單正本的產生檔），之後是跨國與模擬。 */
+const COUNTRY_ORDER = [...COUNTRIES.map(country => country.code), "WORLD", "SIM"];
 function panelLabel(target) {
   if (target.panel === "layers") return COUNTRY_PANEL_LABEL[target.country ?? "TW"] ?? target.country;
   return PANEL_LABEL[target.panel] ?? target.panel;

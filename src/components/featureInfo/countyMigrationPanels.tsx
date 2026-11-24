@@ -21,7 +21,6 @@ export function CountyMigrationFlowsPanel({ props }: { props: Record<string, unk
       <Row label={t("popup.migration.outflow")} value={t("popup.migration.persons", { value: num(props.outflow) })} />
       <Row label={t("popup.migration.net")} value={t("popup.migration.persons", { value: signed(Number(props.net ?? 0)) })} />
       <Row label={t("popup.migration.notes")} value={t("popup.migration.seatHint")} />
-      <Row label={t("popup.migration.scope")} value={t("popup.migration.scopeText")} />
       {footer}
     </>;
   }
@@ -36,7 +35,6 @@ export function CountyMigrationFlowsPanel({ props }: { props: Record<string, unk
     <Row label={t("popup.migration.bySex")} value={t("popup.migration.bySexValue", { male: num(props.male), female: num(props.female) })} />
     <Row label={t("popup.migration.reverse", { origin: dest, dest: origin })} value={t("popup.migration.persons", { value: num(props.reverse) })} />
     <Row label={t("popup.migration.pairNet")} value={net === 0 ? t("popup.migration.pairNetZero") : net > 0 ? t("popup.migration.pairNetTo", { place: dest, value: num(net) }) : t("popup.migration.pairNetTo", { place: origin, value: num(-net) })} />
-    <Row label={t("popup.migration.scope")} value={t("popup.migration.scopeText")} />
     {footer}
   </>;
 }

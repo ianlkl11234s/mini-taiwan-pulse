@@ -44,9 +44,6 @@ export function JmaWbgtPanel({ props }: PanelProps) {
     <Row label={tr("popup.jmaTime.wbgt")} value={wbgt == null ? tr("popup.jma.noObservation") : `${formatNumber(wbgt, { maximumFractionDigits: 1 })} °C`} color={wbgt == null ? JMA_MISSING_COLOR : level?.color} />
     <Row label={tr("popup.jmaTime.level")} value={level ? enumLabel("envWbgtLevel", level.value, level.label, i18n) : tr("popup.common.none")} color={level?.color} />
     <Row field="observedAt" value={formatJst(props.observed_at) || tr("popup.common.none")} mono />
-    <PopupDetails summary={tr("popup.common.notesAndLimits")}>
-      <Row field="description" value={tr("popup.jmaTime.wbgtNote")} />
-    </PopupDetails>
     <SourceFooter props={{ source_org: tr("popup.jmaTime.footerEnv"), source_url: ENV_WBGT_SOURCE_URL, license: ENV_WBGT_LICENSE, fetched_at: formatJst(props.observed_at) }} />
   </>;
 }
@@ -82,7 +79,6 @@ export function JmaSnowcapPanel({ props }: PanelProps) {
     <PopupDetails summary={tr("popup.common.notesAndLimits")}>
       <Row label={tr("popup.jmaTime.observatory")} value={text(props.observatory)} />
       <Row field="elevation" value={elev == null ? tr("popup.common.none") : `${formatNumber(elev)} m`} />
-      <Row field="description" value={tr("popup.jmaTime.methodCaveat")} />
     </PopupDetails>
     <JmaFooter fetchedAt={props.as_of} />
   </>;

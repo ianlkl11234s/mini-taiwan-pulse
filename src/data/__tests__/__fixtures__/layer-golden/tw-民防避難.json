@@ -1,0 +1,913 @@
+{
+  "count": 4,
+  "gisLayers": {
+    "civilDefenseShelter": {
+      "layers": [
+        "civil-defense-shelter-circle"
+      ],
+      "type": "civilDefenseShelter"
+    },
+    "disasterShelters": {
+      "layers": [
+        "disaster-shelters-circle",
+        "disaster-shelters-glow"
+      ],
+      "type": "disasterShelters"
+    },
+    "nuclearEpzEvacuation": {
+      "layers": [
+        "nuclear-epz-evacuation-circle",
+        "nuclear-epz-evacuation-glow"
+      ],
+      "type": "nuclearEpzEvacuation"
+    },
+    "tsunamiSirens": {
+      "layers": [
+        "tsunami-sirens-circle",
+        "tsunami-sirens-glow"
+      ],
+      "type": "tsunamiSirens"
+    }
+  },
+  "overlays": {
+    "civilDefenseShelter": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "civilDefenseShelter",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "maxzoom": 10.01,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(34,89,165,0.00)",
+                0.05,
+                "rgba(34,89,165,0.11)",
+                0.15,
+                "rgba(32,119,180,0.33)",
+                0.3,
+                "rgba(33,150,192,0.66)",
+                0.45,
+                "rgba(62,179,196,0.99)",
+                0.6,
+                "rgba(125,204,187,1.00)",
+                0.8,
+                "rgba(181,226,182,1.00)",
+                1,
+                "rgba(234,247,177,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(68,183,196,0.00)",
+                0.05,
+                "rgba(68,183,196,0.11)",
+                0.15,
+                "rgba(41,157,193,0.33)",
+                0.3,
+                "rgba(30,131,185,0.66)",
+                0.45,
+                "rgba(33,104,173,0.99)",
+                0.6,
+                "rgba(35,77,160,1.00)",
+                0.8,
+                "rgba(35,50,143,1.00)",
+                1,
+                "rgba(17,36,107,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "heatmap",
+          "type": "heatmap"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": 10,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "subtype"
+                ],
+                "一般住宅",
+                "#7e8fa7",
+                "公共設施",
+                "#0ea5e9",
+                "機關",
+                "#9b76ff",
+                "#7e8fa7"
+              ],
+              "circle-opacity": 0.75,
+              "circle-radius": 3,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "subtype"
+                ],
+                "一般住宅",
+                "#64748b",
+                "公共設施",
+                "#0ea5e9",
+                "機關",
+                "#7c3aed",
+                "#64748b"
+              ],
+              "circle-opacity": 0.75,
+              "circle-radius": 3,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 7,
+        "sourceLayer": "civil_defense_shelters"
+      },
+      "rebuildOnParamChange": [
+        "civilDefenseShelterOpacity",
+        "civilDefenseShelterScale"
+      ],
+      "sourceId": "civil-defense-shelter",
+      "sourceUrl": "./police_justice/civil_defense_shelters/civil_defense_shelters_v2.pmtiles"
+    },
+    "disasterShelters": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "disasterShelters",
+      "layers": [
+        {
+          "filter": [
+            "has",
+            "name"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": "#f97316",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": "#f97316",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "has",
+            "name"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#f97316",
+              "circle-opacity": 0.8,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#f97316",
+              "circle-opacity": 0.8,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 0,
+        "sourceLayer": "disaster_shelters"
+      },
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
+      "sourceId": "disaster-shelters",
+      "sourceUrl": "./public_life/disaster_shelters.pmtiles"
+    },
+    "nuclearEpzEvacuation": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "nuclearEpzEvacuation",
+      "layers": [
+        {
+          "filter": [
+            "has",
+            "kind"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "kind"
+                ],
+                "assembly",
+                "#eab308",
+                "shelter",
+                "#7c3aed",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.75,
+                5,
+                6.3,
+                12,
+                12.6
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "kind"
+                ],
+                "assembly",
+                "#eab308",
+                "shelter",
+                "#7c3aed",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.75,
+                5,
+                6.3,
+                12,
+                12.6
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "has",
+            "kind"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "kind"
+                ],
+                "assembly",
+                "#eab308",
+                "shelter",
+                "#8f5bff",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "kind"
+                ],
+                "assembly",
+                "#eab308",
+                "shelter",
+                "#8f5bff",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "kind"
+            ],
+            [
+              "has",
+              "name"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "name"
+              ],
+              ""
+            ]
+          ],
+          "layout": {
+            "text-allow-overlap": false,
+            "text-field": [
+              "get",
+              "name"
+            ],
+            "text-font": [
+              "DIN Pro Medium",
+              "Arial Unicode MS Regular"
+            ],
+            "text-max-width": 14,
+            "text-optional": true,
+            "text-radial-offset": 0.8,
+            "text-size": [
+              "interpolate",
+              [
+                "linear"
+              ],
+              [
+                "zoom"
+              ],
+              10,
+              10,
+              14,
+              12
+            ],
+            "text-variable-anchor": [
+              "top",
+              "bottom",
+              "left",
+              "right"
+            ]
+          },
+          "minzoom": 13,
+          "paint": {
+            "dark": {
+              "text-color": "#f8fafc",
+              "text-halo-color": "rgba(15,23,42,0.92)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.9
+            },
+            "light": {
+              "text-color": "#0f172a",
+              "text-halo-color": "rgba(255,255,255,0.94)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.9
+            }
+          },
+          "suffix": "label",
+          "type": "symbol"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle",
+        "label"
+      ],
+      "sourceId": "nuclear-epz-evacuation",
+      "sourceUrl": "./hazards/nuclear_epz_evacuation.geojson"
+    },
+    "tsunamiSirens": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "tsunamiSirens",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": "#0891b2",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.75,
+                5,
+                6.3,
+                12,
+                12.6
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": "#0891b2",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.75,
+                5,
+                6.3,
+                12,
+                12.6
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#0891b2",
+              "circle-opacity": 0.9,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#0891b2",
+              "circle-opacity": 0.9,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "name"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "name"
+              ],
+              ""
+            ]
+          ],
+          "layout": {
+            "text-allow-overlap": false,
+            "text-field": [
+              "get",
+              "name"
+            ],
+            "text-font": [
+              "DIN Pro Medium",
+              "Arial Unicode MS Regular"
+            ],
+            "text-max-width": 14,
+            "text-optional": true,
+            "text-radial-offset": 0.8,
+            "text-size": [
+              "interpolate",
+              [
+                "linear"
+              ],
+              [
+                "zoom"
+              ],
+              10,
+              10,
+              14,
+              12
+            ],
+            "text-variable-anchor": [
+              "top",
+              "bottom",
+              "left",
+              "right"
+            ]
+          },
+          "minzoom": 13,
+          "paint": {
+            "dark": {
+              "text-color": "#f8fafc",
+              "text-halo-color": "rgba(15,23,42,0.92)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.9
+            },
+            "light": {
+              "text-color": "#0f172a",
+              "text-halo-color": "rgba(255,255,255,0.94)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.9
+            }
+          },
+          "suffix": "label",
+          "type": "symbol"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle",
+        "label"
+      ],
+      "sourceId": "tsunami-sirens",
+      "sourceUrl": "./hazards/tsunami_sirens.geojson"
+    }
+  },
+  "params": {
+    "civilDefenseShelter": [
+      {
+        "defaultValue": "YlGnBu",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "YlGnBu"
+      },
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.75,
+        "valueText": "0.75"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "disasterShelters": [
+      {
+        "label": "適用災害",
+        "options": [
+          {
+            "label": "水災",
+            "value": "水災"
+          },
+          {
+            "label": "震災",
+            "value": "震災"
+          },
+          {
+            "label": "土石流",
+            "value": "土石流"
+          },
+          {
+            "label": "海嘯",
+            "value": "海嘯"
+          },
+          {
+            "label": "核子事故",
+            "value": "核子事故"
+          },
+          {
+            "label": "坡地災害",
+            "value": "坡地災害"
+          },
+          {
+            "label": "未註明",
+            "value": "__unspecified__"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "水災",
+          "震災",
+          "土石流",
+          "海嘯",
+          "核子事故",
+          "坡地災害",
+          "__unspecified__"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "nuclearEpzEvacuation": [
+      {
+        "label": "類型",
+        "options": [
+          {
+            "label": "集結點",
+            "value": "assembly"
+          },
+          {
+            "label": "避難收容處所",
+            "value": "shelter"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "assembly",
+          "shelter"
+        ]
+      },
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "tsunamiSirens": [
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ]
+  }
+}

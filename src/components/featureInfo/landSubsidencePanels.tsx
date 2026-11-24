@@ -217,7 +217,6 @@ export function SeawallZonePanel({ props }: Props) {
     <Row label={t("popup.atlas.lsShore")} value={str(props.shore_name)} />
     <Row field="managingAgency" value={enumLabel("atlasWraBranch", orgLabel, orgLabel, i18n)} />
     {org && org !== orgLabel && <Row label={t("popup.atlas.lsOrgRaw")} value={org} />}
-    <Row label={t("popup.atlas.lsBuilt")} value="2024-06-12" mono />
   </>;
 }
 

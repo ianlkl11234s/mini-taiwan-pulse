@@ -14,8 +14,11 @@ import baseline from "./sourceFooterPendingBaseline.json";
  * 實際點擊會顯示來源。基準清單的意思是「面板本身不補固定出處，全靠 feature 欄位」，
  * 其中哪些在正式資料也缺來源欄、真的待補，需逐層看資料確認（待修）。
  *
+ * 2026-11-23 起圖層側（src/data/layerSourceInfo.ts）已有機關＋授權的 layerType，popup 不再掛來源列，
+ * 只剩圖層側補不到的（popupSourceMode = full）會顯示「來源資訊待補」。
+ *
  * 新增 layerType 出現在掃描結果時，兩條出路：
- *  1. 面板自掛有依據的 SourceFooter，並加進 FeatureInfoPanel 的 FOOTER_SELF_MANAGED_LAYER_TYPES；
+ *  1. 在 src/data/layerSourceInfo.data.ts 補該圖層的機關＋授權（首選）；
  *  2. 確認 feature 自帶 source_org／source_url 等欄位 → 加進 sourceFooterPendingBaseline.json。
  */
 
@@ -46,11 +49,11 @@ describe("popup 來源列 ratchet", () => {
   });
 
   it.each(["popCount", "h3Population", "jpMedicalAreasPrimary", "jpMedicalAreasSecondary", "jpMedicalAreasTertiary", "jpPopulationMesh1km", "fireIsochrone"])(
-    "%s：面板自掛固定出處，footer 恰好一個",
+    "%s：固定出處已搬到圖層側，popup 不掛來源列",
     (layerType) => {
       const html = render(layerType);
       expect(html).not.toContain(PENDING);
-      expect(html.match(/fi-footer/g)).toHaveLength(1);
+      expect(html).not.toContain("fi-footer");
     },
   );
 });

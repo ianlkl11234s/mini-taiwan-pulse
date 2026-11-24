@@ -8,6 +8,7 @@ import { IE_DATA_KEYS } from "../data/ieDataKeys";
 import { PH_DATA_KEYS } from "../data/phDataKeys";
 import { VN_DATA_KEYS } from "../data/vnDataKeys";
 import { TH_DATA_KEYS } from "../data/thDataKeys";
+import { ID_DATA_KEYS } from "../data/idDataKeys";
 import { CN_DATA_KEYS } from "../data/cnDataKeys";
 import { CA_WAVE_KEYS } from "../data/caWavesKeys";
 import { G53_SELF_FOOTER_KEYS } from "../data/atlasLayerTypes";
@@ -19,7 +20,8 @@ import type { ReservoirContext } from "../data/reservoirContextLoader";
 import { PANEL_REGISTRY, HEADER_LABELS } from "./featureInfo/registry";
 import { WaterReservoirContextPanel } from "./featureInfo/waterPanels";
 import { DARK_FEATURE, LIGHT_FEATURE, FeatureThemeProvider } from "./featureInfo/featureTheme";
-import { SourceFooter } from "./featureInfo/shared";
+import { SourceFooter, SourceFooterModeProvider } from "./featureInfo/shared";
+import { popupSourceMode } from "../data/layerSourceInfo";
 import { THEMES } from "./sidebar/layerCatalog";
 import { LAYER_MANIFEST, type LayerManifestEntry } from "../data/layerManifest";
 import { useLocale } from "../state/localeStore";
@@ -41,6 +43,7 @@ const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
   ...PH_DATA_KEYS,
   ...VN_DATA_KEYS,
   ...TH_DATA_KEYS,
+  ...ID_DATA_KEYS,
   ...CN_DATA_KEYS,
   ...CA_WAVE_KEYS, // 加拿大第 3–8 波：makePhPanel 自掛 SourceFooter
   "twMarineHeat", // 台灣圖層延伸 B6：海洋熱浪／珊瑚熱壓力 panel 依兩層各自掛 SourceFooter
@@ -123,6 +126,9 @@ const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
   "vnPopulation",
   "thAdminBoundaries",
   "thPopulation",
+  "idAdminBoundaries",
+  "idPopulation",
+  "idRuralDevelopment",
   "cnAdminBoundaries",
   "cnPopulation",
   "caTransitStops",
@@ -252,7 +258,7 @@ const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
   // 30 天地圖挑戰 Day 19 氣味：panel 自掛公害陳情／潛勢來源／環保裁處出處。
   "mapchallengeDay19Complaints", "mapchallengeDay19Potential", "mapchallengeDay19Penalties", "mapchallengeDay21OsmRoads",
   // 30 天地圖挑戰 Day 23 味覺：panel 自掛財政部稅籍登記來源。
-  "mapchallengeDay23TasteTerms", "mapchallengeDay23TasteVariants",
+  "mapchallengeDay23TasteTerms", "mapchallengeDay23TasteVariants", "mapchallengeDay23TastePlaces", "mapchallengeDay23TasteForeign", "mapchallengeDay23TasteKr", "mapchallengeDay23TasteGb", "mapchallengeDay23TasteJp",
   // 縣市間遷徙流向：panel 自掛內政部戶政司來源。
   "twCountyMigrationFlows",
   "transitAccessGrid",
@@ -376,7 +382,9 @@ export function FeatureInfoPanel({ feature, onClose, reservoirContext, isDarkThe
 
   // content 為 null（BASELINE_NO_PANEL：無對應 panel，只顯示 header）時不掛 footer——
   // 目標是「PANEL_REGISTRY 會渲染的 panel 都有 footer」，不是空白內容也硬掛一行待補。
-  const showCentralFooter = content != null && !isReservoirContextView && !FOOTER_SELF_MANAGED_LAYER_TYPES.has(feature.layerType);
+  // 來源列模式（spec §5.2）：圖層側已有機關＋授權的不顯示；逐筆不同的留一行精簡來源；圖層側補不到的沿用一行來源。
+  const sourceMode = popupSourceMode(feature.layerType);
+  const showCentralFooter = sourceMode !== "none" && content != null && !isReservoirContextView && !FOOTER_SELF_MANAGED_LAYER_TYPES.has(feature.layerType);
 
   // CCTV 內嵌即時影像需要較大空間，只加寬此類 popup（影像框 width:100% 會跟著放大）
   const isCctv = feature.layerType === "cctv";
@@ -431,8 +439,10 @@ export function FeatureInfoPanel({ feature, onClose, reservoirContext, isDarkThe
       </div>
 
       <div style={{ overflowY: "auto", minHeight: 0, flex: 1 }}>
-        {content}
-        {showCentralFooter && <SourceFooter props={feature.properties} />}
+        <SourceFooterModeProvider value={sourceMode}>
+          {content}
+          {showCentralFooter && <SourceFooter props={feature.properties} />}
+        </SourceFooterModeProvider>
       </div>
     </div>
     </FeatureThemeProvider>

@@ -4,7 +4,7 @@
 import { cnPlantScopeFilter, cnPlantStatusFilter, useCnAdminLayers, useCnDataLayer, useCnPopulationGridLayer, useCnPopulationLayers, useCnRasterLayer } from "../../hooks/useCnLayers";
 import { CN_RASTER_SPEC_BY_KEY, CN_SPEC_BY_KEY } from "../../data/cnDataLayers";
 import type { CnDataKey, CnRasterKey } from "../../data/cnDataKeys";
-import { gbAllOf } from "../../hooks/useGbWaterLayers";
+import { gbAllOf } from "../../hooks/intlPmtilesLayers";
 import { bumpHostRender, type LayerHostComponent } from "../layerHostDeps";
 import { useKeyOverlayParams } from "../layerParamsAccess";
 

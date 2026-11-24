@@ -1,4 +1,5 @@
 // atlas 批次 2026-10 的 26 層圖例（legendKit；色票與地圖 paint 同源，皆 import atlasLayerTypes）。
+import { layerSourceCovered } from "../../data/layerSourceInfo";
 import type { ReactNode } from "react";
 import { LegendNote, LegendRow, LegendTitle, SwatchDot, SwatchHatch, SwatchLine, SwatchSquare, useLegendTheme } from "./legendKit";
 import { DenseHeatmapLegendRow } from "./legendShared";
@@ -83,9 +84,12 @@ function AtlasLegend({ layer, en, rows, kind = "dot", source, domain, title, lic
     {subtitle ? <LegendNote>{subtitle}</LegendNote> : null}
     {rows.map((row, index) => <LegendRow key={`${index}-${row.value ?? row.label ?? row.labelKey}`} swatch={row.hatch ? <SwatchHatch kind="missing" /> : row.ring ? <SwatchDot color={row.color} opacity={0.15} stroke={row.color} strokeWidth={2} /> : swatchOf(row.swatch ?? kind, row.color)}>{labelOf(row)}</LegendRow>)}
     {dense && <DenseHeatmapLegendRow layers={[layer]} />}
-    <LegendNote>{license
-      ? i18n.t("legend.atlas.noteSourceLicense", { note, source: sourceText, license: i18n.t(license) })
-      : i18n.t("legend.atlas.noteSource", { note, source: sourceText })}</LegendNote>
+    {/* 來源與授權（含特殊授權）已在圖層「說明・來源」（layerSourceInfo）的，圖例只留說明 */}
+    {layerSourceCovered(layer)
+      ? (note ? <LegendNote>{note}</LegendNote> : null)
+      : <LegendNote>{license
+        ? i18n.t("legend.atlas.noteSourceLicense", { note, source: sourceText, license: i18n.t(license) })
+        : i18n.t("legend.atlas.noteSource", { note, source: sourceText })}</LegendNote>}
   </div>;
 }
 

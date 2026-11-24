@@ -10,6 +10,27 @@ export interface GlobalCandidateAssessment {
   taiwanImpact: string | null; reason: string | null;
 }
 
+/**
+ * 「AI 未判讀」：候選永遠不會再有 AI 判讀（契約：data-collectors docs/GLOBAL_EVENTS_AI_UNASSESSED.md）。
+ * 優先看 RPC 的 assessment_note（gis-platform migration 566 後才有）；沒有這欄時逐字比對 collector 的固定理由句，
+ * 外加 2026-11-24 13:09 寫入的舊句（候選表不可 UPDATE，前端辨識即可）。
+ */
+export type GlobalEventAiUnassessed = "provider_rejected" | "model_failed";
+export const AI_UNASSESSED_REASON_TEXTS: Readonly<Record<string, GlobalEventAiUnassessed>> = {
+  "AI 未判讀：這則新聞沒有通過 AI 服務的自動內容審查，所以沒有 AI 判讀，之後也不會再判；不代表不重要。": "provider_rejected",
+  "AI 未判讀：多次嘗試都沒有取得有效的 AI 判讀，之後不會再判；不代表不重要。": "model_failed",
+  "AI 供應商內容審查拒絕判讀（Alibaba data_inspection_failed）；本筆未經 AI 判讀，不代表不相關或不重要。": "provider_rejected",
+};
+
+export function globalEventAiUnassessed(row: { assessment_note?: unknown; assessment_status?: unknown; reason_zh_tw?: unknown }): GlobalEventAiUnassessed | null {
+  if (row.assessment_note === "provider_rejected" || row.assessment_note === "model_failed") return row.assessment_note;
+  if (row.assessment_status !== "pending" || typeof row.reason_zh_tw !== "string") return null;
+  return AI_UNASSESSED_REASON_TEXTS[row.reason_zh_tw.trim()] ?? null;
+}
+
+/** GDELT 已解析的人物／組織（collector 保留前 5 名）。上游 migration 套用前 RPC 不回這欄，前端欄位存在才用。 */
+export interface GlobalEventEntity { kind: "person" | "org"; name: string }
+
 export interface GlobalEventPoint {
   eventId: string;
   versionId: string;
@@ -61,6 +82,9 @@ export interface GlobalEventPoint {
   aiGroupId?: string | null;
   candidateIds?: string[];
   candidateAssessments?: GlobalCandidateAssessment[];
+  entities?: GlobalEventEntity[];
+  /** 非 null = AI 未判讀（不會再判），顯示成獨立狀態而不是「待 AI 判斷」 */
+  aiUnassessed?: GlobalEventAiUnassessed | null;
 }
 
 export interface GlobalEventRecord extends Omit<GlobalEventPoint, "coordinates"> {
@@ -113,6 +137,16 @@ function pointCoordinates(value: unknown): [number, number] | null {
   if (typeof lng !== "number" || typeof lat !== "number" || !Number.isFinite(lng) || !Number.isFinite(lat)) return null;
   if (lng < -180 || lng > 180 || lat < -90 || lat > 90) return null;
   return [lng, lat];
+}
+
+function parseEntities(value: unknown): GlobalEventEntity[] | undefined {
+  if (!Array.isArray(value)) return undefined;
+  const entities = value.flatMap((item): GlobalEventEntity[] => {
+    if (!item || typeof item !== "object") return [];
+    const { kind, name } = item as JsonObject;
+    return (kind === "person" || kind === "org") && typeof name === "string" && name.trim() ? [{ kind, name: name.trim().slice(0, 120) }] : [];
+  });
+  return entities.slice(0, 5);
 }
 
 function parseGlobalEventFields(row: JsonObject): Omit<GlobalEventPoint, "coordinates"> {
@@ -181,6 +215,8 @@ export function parseGlobalEventCandidate(row: JsonObject): GlobalEventCandidate
     canonicalLatestLifecycle: lifecycle(row.canonical_latest_lifecycle), linkedEffectiveAt: nullableString(row.linked_effective_at),
     sourceKind: nullableString(row.source_kind), countryCodeScheme: nullableString(row.country_code_scheme),
     aiGroupId: typeof row.ai_group_id === "string" && /^aigroup_[a-f0-9]{24}$/.test(row.ai_group_id) ? row.ai_group_id : null,
+    ...(Array.isArray(row.entities) ? { entities: parseEntities(row.entities) } : {}),
+    aiUnassessed: globalEventAiUnassessed(row),
   };
 }
 
@@ -410,6 +446,7 @@ export function globalEventsToGeoJSON(
         taiwan_relationship: event.taiwanRelationship ?? null,
         taiwan_impact_zh_tw: event.taiwanImpactZhTw ?? null,
         reason_zh_tw: event.reasonZhTw ?? null,
+        ai_unassessed: event.aiUnassessed ?? null,
         source_urls: JSON.stringify(event.sourceUrls ?? []),
         source_headline: event.sourceHeadline ?? null,
         source_kind: event.sourceKind ?? null,

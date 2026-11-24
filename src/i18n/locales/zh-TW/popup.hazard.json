@@ -87,6 +87,5 @@
   "popup.hazard.gbQuakeSetting": "位置",
   "popup.hazard.gbOffshore": "海上",
   "popup.hazard.gbOnshore": "陸上",
-  "popup.hazard.gbQuakeDataEnd": "BGS 地震目錄資料截至 {date}",
   "popup.hazard.gbMagTypeBgs": "BGS 綜合規模"
 }

@@ -134,5 +134,10 @@
   "popupHeader.householdRegistrationBranch": "Household Registration Office Branches",
   "popupHeader.mapchallengeDay21OsmRoads": "When Roads Were Drawn into OSM",
   "popupHeader.mapchallengeDay23TasteTerms": "Snack Words in Shop Names",
-  "popupHeader.mapchallengeDay23TasteVariants": "Same Dish, Different Characters"
+  "popupHeader.mapchallengeDay23TasteVariants": "Same Dish, Different Characters",
+  "popupHeader.mapchallengeDay23TastePlaces": "Place Names in Shop Names",
+  "popupHeader.mapchallengeDay23TasteForeign": "Foreign Cuisine Words in Shop Names",
+  "popupHeader.mapchallengeDay23TasteKr": "Tastes in Korean restaurant names",
+  "popupHeader.mapchallengeDay23TasteGb": "Tastes in UK food business names",
+  "popupHeader.mapchallengeDay23TasteJp": "Tastes in Japanese restaurant names (OSM)"
 }

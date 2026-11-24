@@ -1,4 +1,5 @@
-import type { ReactNode } from "react";
+import { createContext, useContext, type ReactNode } from "react";
+import type { PopupSourceMode } from "../../data/layerSourceInfo";
 import { RADIUS, FONT_SIZE, FONT_WEIGHT, FONT_DATA } from "../../styles/designTokens";
 import { useFeatureTheme } from "./featureTheme";
 import { LOCALES } from "../../i18n/locales";
@@ -192,18 +193,73 @@ function toProvenanceArray(raw: unknown): Record<string, unknown>[] {
 }
 
 /**
- * 標準溯源 footer（F2 規格，見 proposal.md §6.1 / handoff.md §4a 第三輪拍板）——
- * 2026-09-27 起由 FeatureInfoPanel 統一在 content 後掛一次，各 panel 不再各自呼叫
- * （少數欄位需要 panel 端 enrich 常數值，或另有自訂溯源 UI 的例外見 FeatureInfoPanel.tsx）。
- * props 期望帶：source / source_org / source_url / license / fetched_at / source_tier
- * （無 source_org／source_url 時退用 attribution／attribution_href）。
- * canonical SSOT layer 多帶 provenance jsonb（會展成 details 列出）；
- * 部分 pipeline（如宗教）欄位名是 `_provenance`（底線開頭），兩者都接。
+ * popup 來源列的顯示方式（站主 2026-11-23：來源與資料說明放圖層的「說明・來源」，popup 只放使用者需要的資料）。
+ * FeatureInfoPanel 依 `popupSourceMode(layerType)` 提供；popup 以外（衛星主控台、設計系統頁）沒有 provider，維持 `legacy` 原樣。
+ */
+export type SourceFooterMode = PopupSourceMode | "legacy";
+const SourceFooterModeContext = createContext<SourceFooterMode>("legacy");
+export const SourceFooterModeProvider = SourceFooterModeContext.Provider;
+
+/**
+ * 溯源 footer。props 期望帶：source / source_org / source_url / license / fetched_at / source_tier
+ * （無 source_org／source_url 時退用 attribution／attribution_href）；provenance／_provenance 會展成 details。
  *
- * F2：第一行「機關 · Tier N · 原始下載頁 ↗」（缺項省略）；第二行 license ＋ 抓取時間
- * （FONT_DATA 等寬）；完全沒有 org/url 時整段改顯示「來源資訊待補」（warn 色）。
+ * popup 內（spec §5.2）：
+ * - `none`：圖層側已有機關＋授權，不顯示。
+ * - `compact`：逐筆來源不同，只留一行「機關 · 來源 ↗」，不放 Tier、授權、抓取時間。
+ * - `full`：圖層側還補不到，一行「機關 · 授權 · 來源 ↗」；完全沒有機關／連結時顯示「來源資訊待補」。
+ * `legacy`（popup 以外）：第一行「機關 · Tier N · 原始下載頁 ↗」，第二行授權＋抓取時間。
  */
 export function SourceFooter({ props }: { props: Record<string, unknown> }) {
+  const mode = useContext(SourceFooterModeContext);
+  if (mode === "none") return null;
+  return mode === "legacy" ? <LegacySourceFooter props={props} /> : <PopupSourceLine props={props} withLicense={mode === "full"} />;
+}
+
+function PopupSourceLine({ props, withLicense }: { props: Record<string, unknown>; withLicense: boolean }) {
+  const t = useFeatureTheme();
+  const { t: tr } = useLocale();
+  const org = String(props.source_org ?? props.source ?? props.attribution ?? "");
+  const url = String(props.source_url ?? "") || String(props.attribution_href ?? "");
+  const license = withLicense ? String(props.license ?? "") : "";
+  const provenance = toProvenanceArray(props._provenance ?? props.provenance);
+  const style = { marginTop: 10, paddingTop: 8, borderTop: `1px solid ${t.borderSoft}`, fontSize: FONT_SIZE.xs, color: t.textDim } as const;
+  if (!org && !url) {
+    if (!withLicense) return null;
+    return <div className="fi-footer" style={{ ...style, color: t.warn }}>{tr("popup.common.sourceLabel")} · {tr("popup.common.sourceMissing")}</div>;
+  }
+  const text = [org, license].filter(Boolean).join(" · ");
+  return (
+    <div className="fi-footer" style={style}>
+      {text}
+      {url && (
+        <>
+          {text ? " · " : ""}
+          <a href={url} target="_blank" rel="noreferrer" style={{ color: t.link, textDecoration: "none" }}>{tr("popup.common.sourceLink")}</a>
+        </>
+      )}
+      {provenance.length > 1 && (
+        <details style={{ marginTop: 4 }}>
+          <summary style={{ cursor: "pointer" }}>{tr("popup.common.provenanceCount", { count: provenance.length })}</summary>
+          <ul style={{ margin: "4px 0 0 12px", padding: 0 }}>
+            {provenance.map((p, i) => {
+              const pOrg = String(p.source_org ?? p.source ?? "");
+              const pUrl = String(p.source_url ?? "");
+              return (
+                <li key={i} style={{ marginTop: 2 }}>
+                  {pOrg}
+                  {pUrl && <>{pOrg ? " · " : ""}<a href={pUrl} target="_blank" rel="noreferrer" style={{ color: t.link }}>{tr("popup.common.originalPage")}</a></>}
+                </li>
+              );
+            })}
+          </ul>
+        </details>
+      )}
+    </div>
+  );
+}
+
+function LegacySourceFooter({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
   const { t: tr } = useLocale();
   // 部分 loader（如 gfwFishingEffortLoader）以 attribution / attribution_href 帶來源，一併視為來源。

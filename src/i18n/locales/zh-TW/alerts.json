@@ -41,5 +41,6 @@
   "alerts.card.notStated": "未標示（長期）",
   "alerts.card.magnitude": "規模",
   "alerts.card.depth": "深度",
-  "alerts.card.area": "範圍"
+  "alerts.card.area": "範圍",
+  "alerts.noneInFilter": "目前篩選下沒有生效中警報"
 }

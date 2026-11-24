@@ -6,6 +6,8 @@ import { useGfwV4TrackDataWindow } from "../state/gfwV4TrackDataWindowStore";
 import { formatGfwUtcWindow, nearestGfwWindowHour, utcDateWindowSeconds } from "../state/gfwTimelineDataWindow";
 import { useUiTime } from "../hooks/useTimeline";
 import { useLocale } from "../state/localeStore";
+import { countryDef } from "../constants/countries";
+import { localClockForCountry, type LocalClockSource } from "../lib/localClock";
 import { SLOTS, slotParts } from "./intel/intelTokens";
 import { TimeAxis } from "./timeline/TimeAxis";
 import { TimelineShell } from "./timeline/TimelineShell";
@@ -33,6 +35,11 @@ interface Props {
   isDarkTheme?: boolean;
   isMobile?: boolean;
   leftOffset?: number;
+  /**
+   * 時間旁附當地時間小字的國家（位移與台北相同的不顯示）。單地圖＝地圖中心所在國家（moveend 才更新）；
+   * 兩國並排＝左右兩國（G2-1）。`unixSec` 留給「當地同時刻」（G2-4）讓某側用自己的時鐘，缺省＝時間軸同一刻。
+   */
+  localClocks?: readonly LocalClockSource[];
   onToggle: () => void;
   onSpeedChange: (speed: number) => void;
   onSeekByProgress: (p: number) => void;
@@ -94,6 +101,7 @@ export function TimelineControls({
   isDarkTheme = true,
   isMobile = false,
   leftOffset = 16,
+  localClocks,
   onToggle,
   onSpeedChange,
   onSeekByProgress,
@@ -107,6 +115,11 @@ export function TimelineControls({
   const { t } = i18n;
   const isLive = timeMode === "live";
   const isFuture = currentTime > Date.now() / 1000;
+  // currentTime 是 LiveTimelineControls 以 useUiTime（timeStore 訂閱）傳入的 prop，不進任何 hook deps
+  const clocks = (localClocks ?? []).flatMap(({ country, unixSec }) => {
+    const clock = localClockForCountry(unixSec ?? currentTime, country);
+    return clock ? [{ country, clock }] : [];
+  });
   const gridWindow = useSyncExternalStore(
     subscribeGfwHourlyGridDataWindow,
     getGfwHourlyGridDataWindowSnapshot,
@@ -224,6 +237,14 @@ export function TimelineControls({
               </span>
               {timeLabel.slice(timeLabel.lastIndexOf(":") + 1)}
             </span>
+            {expanded && clocks.map(({ country, clock }) => (
+              <span key={country} className="tl3-local" title={t(clock.utc ? "timeline.localClockUtcTitle" : "timeline.localClockTitle")}>
+                {clock.utc
+                  ? t("timeline.localClockUtc", { country: t(countryDef(country).labelKey), time: clock.time })
+                  : t("timeline.localClock", { country: t(countryDef(country).labelKey), time: clock.time, offset: clock.offset })}
+                {clock.dayShift !== 0 && ` ${t(clock.dayShift < 0 ? "timeline.localPrevDay" : "timeline.localNextDay")}`}
+              </span>
+            ))}
             {expanded && isLive && (
               <span className="tl3-live"><i />{t("timeline.live")}</span>
             )}

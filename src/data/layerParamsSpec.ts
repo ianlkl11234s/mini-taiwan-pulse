@@ -105,7 +105,7 @@ import { FIRE_ISOCHRONE_COUNTY_OPTIONS } from "./fireIsochroneCounties";
 import { RASTER, EXTRUSION, densePointOpacity } from "../map/mapStyleScale";
 import { MAPCHALLENGE_DAY17_LED_DEFAULT_YEAR, MAPCHALLENGE_DAY17_LED_YEARS, MAPCHALLENGE_DAY17_PRODUCTS, MAPCHALLENGE_DAY17_ROAD_SCOPES } from "./mapchallengeDay17Types";
 import { MAPCHALLENGE_DAY21_YEAR_MAX, MAPCHALLENGE_DAY21_YEAR_MIN } from "./mapchallengeDay21Types";
-import { MAPCHALLENGE_DAY23_TERMS, MAPCHALLENGE_DAY23_VARIANT_GROUPS } from "./mapchallengeDay23Types";
+import { MAPCHALLENGE_DAY23_INTL, mapchallengeDay23IntlOptionLabel, MAPCHALLENGE_DAY23_FOREIGN, MAPCHALLENGE_DAY23_PLACES, MAPCHALLENGE_DAY23_TERMS, MAPCHALLENGE_DAY23_VARIANT_GROUPS } from "./mapchallengeDay23Types";
 import { MAPCHALLENGE_DAY19_CATEGORY_OPTIONS, MAPCHALLENGE_DAY19_PENALTY_SCOPES, MAPCHALLENGE_DAY19_PERIODS, MAPCHALLENGE_DAY19_WINDS } from "./mapchallengeDay19Types";
 import { CATEGORY_FILTERS, categoryDefs, categoryMaskKey, categoryParamName, categoryParamOptions } from "./categoryFilters";
 import { KR_DATA_SPECS, krCatOptionIds, type KrLayerSpec } from "./krDataLayers";
@@ -115,10 +115,13 @@ import { PH_RASTER_SPECS } from "./phWavesLayers";
 import { VN_DATA_SPECS, VN_STATUSES } from "./vnDataLayers";
 import { TH_ADMIN_LEVELS, TH_DATA_SPECS, TH_POP_LEVELS, TH_STATUSES } from "./thDataLayers";
 import { TH_RASTER_SPECS } from "./thWavesLayers";
+import { ID_ADMIN_LEVELS, ID_DATA_SPECS, ID_LEVELS_2 } from "./idDataLayers";
+import { ID_RASTER_SPECS } from "./idWavesLayers";
 import { CA_WAVE_SPECS } from "./caWavesLayers";
 import { VN_RASTER_SPECS } from "./vnWavesLayers";
 import { CN_ADMIN_LEVELS, CN_DATA_SPECS, CN_PLANT_SCOPES, CN_PLANT_STATUSES, CN_PLANT_STATUS_DEFAULT, CN_RASTER_SPECS, cnCatOptions } from "./cnDataLayers";
-import { IE_DATA_SPECS, IE_FLOOD_SCENARIOS, IE_FLOOD_SCENARIO_DEFAULT, IE_NOISE_METRICS, IE_NOISE_METRIC_DEFAULT, IE_GW_FLOOD_PRODUCTS, IE_GW_FLOOD_DEFAULT, asKrSpec } from "./ieDataLayers";
+import { IE_DATA_SPECS, IE_FLOOD_SCENARIOS, IE_FLOOD_SCENARIO_DEFAULT, IE_NOISE_METRICS, IE_NOISE_METRIC_DEFAULT, IE_GW_FLOOD_PRODUCTS, IE_GW_FLOOD_DEFAULT } from "./ieDataLayers";
+import { asKrSpec } from "./intlSpecBridge";
 import { PALETTE_IDS, type PaletteId } from "../map/palettes";
 import { defaultHeatmapPalette } from "../map/heatmapPaletteDefaults";
 import { URBAN_HEAT_MODES } from "./urbanHeatTypes";
@@ -714,7 +717,7 @@ const CATEGORY_BY_LABEL: Readonly<Record<string, ParamControlCategory>> = {
     "指標", "品項 全部", "類別", "年份", "定位精度", "位置精度", "狀態", "類型", "型別", "介質", "縣市", "最低嚴重度",
     "登記", "方向 全部", "航線範圍 全部", "品質", "營業狀態", "服務型態", "共同登記 ≥", "行業中類", "資本額分位",
     "設立年下限", "設立年上限", "製造業", "上市櫃", "有商標", "地址不一致", "聚焦行業中類", "回溯", "主題", "研究區域",
-    "分類", "過去", "時間範圍", "拖尾", "其他", "跨國關聯線（非移動軌跡）", "包含 AI 初判／待判斷", "僅顯示臺灣相關（直接／間接）",
+    "分類", "過去", "時間範圍", "拖尾", "其他", "關聯線（非移動或因果）", "包含 AI 初判／待判斷", "僅顯示臺灣相關（直接／間接）", "包含 AI 判為雜訊的報導",
     "漁船", "貨輪", "客輪", "運搬船", "未知", "承載類型", "比對狀態", "交通類別", "交通模式", "權重",
     "顯示受影響村里（先點選一座橋；再點村里看目的地視角）", "顯示替代路線（代表性起訖對）", "關渡＋淡江同時中斷", "設施類型",
     "資料源", "即時水位", "預測水位 (12-19h)", "累計流量", "閘門", "堤防安全", "河床沖刷", "揚塵", "信心", "確認", "漁電共生",
@@ -1834,6 +1837,34 @@ export const LAYER_PARAMS_SPEC = {
       out: "mapchallengeDay23TasteVariantsGroupIdx", encode: MAPCHALLENGE_DAY23_VARIANT_GROUPS.map((o) => o.value),
     },
   ],
+  mapchallengeDay23TastePlaces: [
+    opacitySlider("mapchallengeDay23TastePlacesOpacity", 0.85),
+    scaleSlider("mapchallengeDay23TastePlacesScale", 1),
+    {
+      kind: "select", category: "data", name: "mapchallengeDay23TastePlacesSign", label: "店名招牌", default: MAPCHALLENGE_DAY23_PLACES[0].value,
+      options: MAPCHALLENGE_DAY23_PLACES.map((o) => ({ label: o.label, value: o.value })),
+      out: "mapchallengeDay23TastePlacesSignIdx", encode: MAPCHALLENGE_DAY23_PLACES.map((o) => o.value),
+    },
+  ],
+  mapchallengeDay23TasteForeign: [
+    opacitySlider("mapchallengeDay23TasteForeignOpacity", 0.85),
+    scaleSlider("mapchallengeDay23TasteForeignScale", 1),
+    {
+      kind: "select", category: "data", name: "mapchallengeDay23TasteForeignGroup", label: "料理組", default: MAPCHALLENGE_DAY23_FOREIGN[0].value,
+      options: MAPCHALLENGE_DAY23_FOREIGN.map((o) => ({ label: o.label, value: o.value })),
+      out: "mapchallengeDay23TasteForeignGroupIdx", encode: MAPCHALLENGE_DAY23_FOREIGN.map((o) => o.value),
+    },
+  ],
+  // 第三批：南韓／英國／日本，同一套規格（選單標籤＝原文（中文說明））
+  ...Object.fromEntries(MAPCHALLENGE_DAY23_INTL.map((c) => [c.key, [
+    opacitySlider(`${c.key}Opacity`, 0.85),
+    scaleSlider(`${c.key}Scale`, 1),
+    {
+      kind: "select" as const, category: "data" as const, name: `${c.key}Term`, label: "店名用詞", default: c.terms[0].value,
+      options: c.terms.map((o) => ({ label: mapchallengeDay23IntlOptionLabel(o), value: o.value })),
+      out: `${c.key}TermIdx`, encode: c.terms.map((o) => o.value),
+    },
+  ]])),
   freewayTdcsSim: [
     opacitySlider("freewayTdcsSimOpacity", 0.9),
     {
@@ -2163,9 +2194,11 @@ export const LAYER_PARAMS_SPEC = {
     { kind: "select", name: "globalEventsView", label: "時間範圍", default: "recent7d", options: [
       { label: "最近範圍", value: "recent7d" }, { label: "跟隨時間軸", value: "timeline" },
     ], out: "globalEventsViewIdx", encode: ["recent7d", "timeline"] },
-    { kind: "toggle", name: "globalEventsRelations", label: "跨國關聯線（非移動軌跡）", default: false },
+    { kind: "toggle", name: "globalEventsRelations", label: "關聯線（非移動或因果）", default: true },
     { kind: "toggle", name: "globalEventsIncludeAI", label: "包含 AI 初判／待判斷", default: true },
     { kind: "toggle", name: "globalEventsTaiwanOnly", label: "僅顯示臺灣相關（直接／間接）", default: false },
+    // 站主 11-23（D4）：地圖預設不畫 AI 判為雜訊的報導，打開這個開關才畫；INTEL 列表不受影響。
+    { kind: "toggle", name: "globalEventsShowNoise", label: "包含 AI 判為雜訊的報導", default: false },
   ],
   aisstreamVessels: [
     { kind: "slider", name: "aisstreamVesselsOpacity", labelPrefix: "透明度", digits: 2, default: 0.9, min: 0, max: 1, step: 0.05 },
@@ -2417,6 +2450,46 @@ export const LAYER_PARAMS_SPEC = {
   })),
   // 泰國 raster 2 層（2026-11-22）：只有透明度（同 phTerrain）
   ...Object.fromEntries(TH_RASTER_SPECS.map((spec) => [spec.key, [
+    { kind: "slider" as const, name: `${spec.key}Opacity`, labelPrefix: "透明度", digits: 2, default: spec.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05 },
+  ]])),
+  // 印尼第 0–3 波（2026-11-23）：選項順序＝ ID_ADMIN_LEVELS／ID_LEVELS_2；行政邊界、人口、IDM 預設 province（國家全覽 z4 有圖磚）
+  idAdminBoundaries: [
+    opacitySlider("idAdminBoundariesOpacity", 0.85),
+    {
+      kind: "select", category: "data", name: "idAdminBoundariesLevel", label: "行政層級", default: "province",
+      options: ID_ADMIN_LEVELS.map((x) => ({ label: x.label, value: x.value })),
+      out: "idAdminBoundariesLevelIdx", encode: ID_ADMIN_LEVELS.map((x) => x.value),
+    },
+  ],
+  idPopulation: [
+    {
+      kind: "select", category: "data", name: "idPopulationLevel", label: "行政層級", default: "province",
+      options: ID_LEVELS_2.map((x) => ({ label: x.label, value: x.value })),
+      out: "idPopulationLevelIdx", encode: ID_LEVELS_2.map((x) => x.value),
+    },
+    opacitySlider("idPopulationOpacity", 0.7),
+  ],
+  idRuralDevelopment: [
+    {
+      kind: "select", category: "data", name: "idRuralDevelopmentLevel", label: "行政層級", default: "province",
+      options: ID_LEVELS_2.map((x) => ({ label: x.label, value: x.value })),
+      out: "idRuralDevelopmentLevelIdx", encode: ID_LEVELS_2.map((x) => x.value),
+    },
+    opacitySlider("idRuralDevelopmentOpacity", 0.7),
+  ],
+  // 印尼規格驅動 19 層：類別多選（順序＝規格 cats＋「其他」＝bitmask；沉降預設只開 2025）；≥1 萬點加熱區顏色
+  ...Object.fromEntries(ID_DATA_SPECS.map((spec) => {
+    const hasPoint = spec.parts.some((p) => p.geom === "point");
+    const pointOnly = spec.parts.every((p) => p.geom === "point");
+    return [spec.key, [
+      categoryMultiSelect(spec.key, phCatOptions(spec), spec.defaultCats ? serializeMultiSelectValues([...spec.defaultCats]) : undefined),
+      ...(spec.heat ? [heatmapPalette(spec.key)] : []),
+      opacitySlider(`${spec.key}Opacity`, spec.opacity ?? (pointOnly ? densePointOpacity(spec.count) : 0.85)),
+      ...(hasPoint ? [scaleSlider(`${spec.key}Scale`, 1)] : []),
+    ]];
+  })),
+  // 印尼 raster 5 層（2026-11-23）：只有透明度（同 thTerrain）
+  ...Object.fromEntries(ID_RASTER_SPECS.map((spec) => [spec.key, [
     { kind: "slider" as const, name: `${spec.key}Opacity`, labelPrefix: "透明度", digits: 2, default: spec.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05 },
   ]])),
   // 越南第 0–1 波（2026-11-13）：行政邊界、人口只有 34 省一級（不需層級 select）
@@ -6003,39 +6076,43 @@ export interface SharedSlotMember {
 }
 
 /**
- * `sharedGroup` id → 參與的 (key, name) 成員。模組載入時掃一次規格建好。
+ * `sharedGroup` id → 參與的 (key, name) 成員。
  *
  * 消費者只有一個：`layerParamsStore.setParam` —— 寫入時把同群成員一起改、一起通知，
  * 讓 N 個 store slot 的行為與「共用一個 useState」逐字等價。
+ *
+ * B1 P4：改成增量登記。模組載入時用 `registerSharedParamGroups` 掃一次現有規格；
+ * P5 國家包載入時對自己的規格再呼叫一次，把成員累加進來（同一個 Map 物件，讀者不用換引用）。
  */
-export const SHARED_PARAM_GROUPS: ReadonlyMap<string, readonly SharedSlotMember[]> = (() => {
-  const groups = new Map<string, SharedSlotMember[]>();
-  for (const key of Object.keys(LAYER_PARAMS_SPEC) as MigratedParamsKey[]) {
-    for (const spec of LAYER_PARAMS_SPEC[key] as LayerParamSpec[]) {
-      if (!spec.sharedGroup) continue;
-      const list = groups.get(spec.sharedGroup) ?? [];
-      list.push({ key, name: spec.name });
-      groups.set(spec.sharedGroup, list);
-    }
-  }
-  return groups;
-})();
+const sharedParamGroups = new Map<string, SharedSlotMember[]>();
+export const SHARED_PARAM_GROUPS: ReadonlyMap<string, readonly SharedSlotMember[]> = sharedParamGroups;
 
-/** (key, name) → 反查所屬共用群組的 id；獨佔回 null */
-const SHARED_GROUP_OF = (() => {
-  const m = new Map<string, string>();
-  for (const [id, members] of SHARED_PARAM_GROUPS) {
-    for (const mem of members) m.set(`${mem.key} ${mem.name}`, id);
+/** (key, name) → 反查所屬共用群組的 id；獨佔不在表內 */
+const SHARED_GROUP_OF = new Map<string, string>();
+
+/** 登記一個圖層的共用參數成員（重複登記同一 (key, name) 不會產生重複成員）。 */
+export function registerSharedParamGroups(key: MigratedParamsKey, specs: readonly LayerParamSpec[]): void {
+  for (const spec of specs) {
+    if (!spec.sharedGroup) continue;
+    const slot = `${key}\0${spec.name}`;
+    if (SHARED_GROUP_OF.has(slot)) continue;
+    const list = sharedParamGroups.get(spec.sharedGroup) ?? [];
+    list.push({ key, name: spec.name });
+    sharedParamGroups.set(spec.sharedGroup, list);
+    SHARED_GROUP_OF.set(slot, spec.sharedGroup);
   }
-  return m;
-})();
+}
+
+for (const key of Object.keys(LAYER_PARAMS_SPEC) as MigratedParamsKey[]) {
+  registerSharedParamGroups(key, LAYER_PARAMS_SPEC[key] as LayerParamSpec[]);
+}
 
 /**
  * 與 (key, name) 共用同一份值的全部成員（含自己）。獨佔參數回 null，
  * 呼叫端據此走「只寫自己」的快路徑。
  */
 export function sharedSlotMembers(key: string, name: string): readonly SharedSlotMember[] | null {
-  const id = SHARED_GROUP_OF.get(`${key} ${name}`);
+  const id = SHARED_GROUP_OF.get(`${key}\0${name}`);
   return id ? (SHARED_PARAM_GROUPS.get(id) ?? null) : null;
 }
 

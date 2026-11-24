@@ -10,13 +10,13 @@ import {
   GB_BUILT_UP_COLOR, GB_GREENSPACE_CATEGORIES, GB_OS_ATTRIBUTION, gbGreenspaceColorExpr, type GbGreenspaceKey,
 } from "../data/gbOpenSpaceTypes";
 import { useMapReadyTick } from "./useMapReadyTick";
-import { gbAllOf, gbMaskFilter, useGbRepPointLayers, type GbDisplayMode, type SourceSpec } from "./useGbWaterLayers";
+import { gbAllOf, gbMaskFilter, useGbRepPointLayers, type GbDisplayMode, type SourceSpec } from "./intlPmtilesLayers";
 
 /**
  * 英國建成區（C023 OS Open Built Up Areas）與綠地四層（C044 公園／C043 運動場、高爾夫球場／C052 墓園，OS Open Greenspace）。
  * 綠地共用一個 PMTiles source（tile layer `gb_greenspace`），每個 key 各自一個 fill，以 `category`／`function` filter，可獨立開關。
  *
- * §3.8（2026-10-31）：綠地四層都有點／面切換（V-5）與類型多選（V-4），代表點檔 `gb_greenspace_points.pmtiles`
+ * §3.8（2026-10-31）：綠地四層都有點／面切換（V-5）與類型多選（V-4），代表點檔 `gb_greenspace_points_lt2.pmtiles`
  * （每塊面一個 representative_point，z5–10，高縮放 overzoom）：
  * - 「面」：≥ 1 萬點的層先畫密度熱區（P-4），到面出現的縮放（z9／z10）交給面；高爾夫球場（2,980 處，< 1 萬）以代表點代替熱區；
  * - 「點」：熱區到出點縮放（`densePointsFromZoom`），之後畫代表點 circle，面不畫。
@@ -56,7 +56,7 @@ const GREENSPACE_SOURCE: SourceConfig = {
 };
 
 const GREENSPACE_POINTS_SOURCE: SourceSpec = {
-  id: "gb-greenspace-points", file: "gb_greenspace_points.pmtiles", minzoom: 5, maxzoom: 10,
+  id: "gb-greenspace-points", file: "gb_greenspace_points_lt2.pmtiles", minzoom: 5, maxzoom: 10,
   attribution: GB_OS_ATTRIBUTION, loading: "英國綠地代表點載入中",
 };
 const GREENSPACE_POINTS_LAYER = "gb_greenspace_points";

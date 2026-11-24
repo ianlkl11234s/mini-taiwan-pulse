@@ -12,24 +12,27 @@ import {
   type GlobalEventRecord,
 } from "../data/globalEventsLoader";
 import {
-  GLOBAL_EVENT_CATEGORY_COLOR_EXPR,
+  GLOBAL_EVENT_CATEGORY_COLOR_EXPR, GLOBAL_EVENT_STORY_LINK_COLOR,
 } from "../data/globalEventsTypes";
 import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 import { timeStore } from "../state/timeStore";
 import type { TimeMode } from "../types";
 import { useMapReadyTick } from "./useMapReadyTick";
 import { hookLineLayout, hookLineOpacity, hookLinePaint, hookLineWidth } from "../map/lineFillSpec";
-import { GLOBAL_EVENT_ICON_RADIUS, filterGlobalEvents, globalEventRelations, layoutGlobalEventPoints, recentGlobalEventWindow, selectGlobalEventsOverview, type GlobalEventsView } from "../data/globalEventsPresentation";
+import { GLOBAL_EVENT_ICON_RADIUS, GLOBAL_EVENT_LABEL_MIN_ZOOM, GLOBAL_EVENT_STORY_LIST_MAX, filterGlobalEvents, firstPointFeatureByEvent, globalEventShortLabel, globalEventRelations, globalEventStoryLinks, layoutGlobalEventPoints, recentGlobalEventWindow, selectGlobalEventsOverview, type GlobalEventsView } from "../data/globalEventsPresentation";
 import { globalEventsViewStore } from "../state/globalEventsViewStore";
 import { startThrottledRaf } from "../utils/throttledRaf";
-import { badgeLabelLayout, labelHaloPaint } from "../map/mapStyleScale";
+import { badgeLabelLayout, labelHaloPaint, poiLabelLayout } from "../map/mapStyleScale";
 
 const SOURCE_ID = "global-events-current";
 export const GLOBAL_EVENTS_LAYER_ID = "global-events-current-circle";
 export const GLOBAL_EVENTS_PULSE_LAYER_ID = "global-events-current-pulse";
 export const GLOBAL_EVENTS_RELATIONS_LAYER_ID = "global-events-relations-line";
 export const GLOBAL_EVENTS_CLUSTER_LAYER_ID = "global-events-clusters-circle";
+/** 「可能同一件事」虛線：不同報導標題相近（不代表移動、因果或先後）。 */
+export const GLOBAL_EVENTS_STORY_LINKS_LAYER_ID = "global-events-story-links-line";
 const RELATIONS_SOURCE_ID = "global-events-relations";
+const STORY_LINKS_SOURCE_ID = "global-events-story-links";
 const CONNECTORS_SOURCE_ID = "global-events-connectors";
 const CLUSTERS_SOURCE_ID = "global-events-clusters";
 const CONNECTORS_LAYER_ID = "global-events-connectors-line";
@@ -108,13 +111,20 @@ function ensurePointImage(map: MapboxMap): void {
 
 function ensureLayers(map: MapboxMap, isDarkTheme: boolean): void {
   ensurePointImage(map);
-  for (const id of [RELATIONS_SOURCE_ID, CONNECTORS_SOURCE_ID, CLUSTERS_SOURCE_ID]) {
+  for (const id of [RELATIONS_SOURCE_ID, STORY_LINKS_SOURCE_ID, CONNECTORS_SOURCE_ID, CLUSTERS_SOURCE_ID]) {
     if (!map.getSource(id)) map.addSource(id, { type: "geojson", data: EMPTY });
   }
   if (!map.getLayer(GLOBAL_EVENTS_RELATIONS_LAYER_ID)) map.addLayer({
     id: GLOBAL_EVENTS_RELATIONS_LAYER_ID, type: "line", source: RELATIONS_SOURCE_ID,
     layout: hookLineLayout("globalEvents", GLOBAL_EVENTS_RELATIONS_LAYER_ID),
     paint: hookLinePaint("globalEvents", GLOBAL_EVENTS_RELATIONS_LAYER_ID, { "line-color": "#94a3b8", "line-width": 1, "line-opacity": 0.22 }, { "line-color": "#94a3b8", "line-width": 1, "line-opacity": 0.22 }),
+  });
+  if (!map.getLayer(GLOBAL_EVENTS_STORY_LINKS_LAYER_ID)) map.addLayer({
+    id: GLOBAL_EVENTS_STORY_LINKS_LAYER_ID, type: "line", source: STORY_LINKS_SOURCE_ID,
+    layout: hookLineLayout("globalEvents", GLOBAL_EVENTS_STORY_LINKS_LAYER_ID),
+    paint: hookLinePaint("globalEvents", GLOBAL_EVENTS_STORY_LINKS_LAYER_ID,
+      { "line-color": GLOBAL_EVENT_STORY_LINK_COLOR, "line-width": 1.5, "line-opacity": 0.35, "line-dasharray": [2, 2] },
+      { "line-color": GLOBAL_EVENT_STORY_LINK_COLOR, "line-width": 1.5, "line-opacity": 0.35, "line-dasharray": [2, 2] }),
   });
   if (!map.getLayer(CONNECTORS_LAYER_ID)) map.addLayer({
     // Keep legacy IDs, but render only the actual shared location, never an offset line endpoint.
@@ -138,8 +148,18 @@ function ensureLayers(map: MapboxMap, isDarkTheme: boolean): void {
         "icon-allow-overlap": true,
         "icon-ignore-placement": true,
         "icon-padding": 0,
+        // 短標題：全球縮放不顯示，放大到區域尺度才出現；文字互相碰撞時自動隱藏，點永遠保留。
+        "text-field": ["step", ["zoom"], "", GLOBAL_EVENT_LABEL_MIN_ZOOM, ["get", "label_short"]],
+        "text-optional": true,
+        ...poiLabelLayout(),
+        "text-max-width": 9,
+        "text-anchor": "top",
+        "text-offset": [0, 1.1],
+        "text-font": ["DIN Pro Medium", "Arial Unicode MS Regular"],
       },
       paint: {
+        "text-color": isDarkTheme ? "#e2e8f0" : "#1e293b",
+        ...labelHaloPaint(isDarkTheme),
         "icon-color": GLOBAL_EVENT_CATEGORY_COLOR_EXPR,
         "icon-opacity": 0.9,
         "icon-halo-color": ["case", ["==", ["get", "research_status"], "ai_assessed"], "#e2e8f0", "#0f172a"],
@@ -192,7 +212,7 @@ function ensureLayers(map: MapboxMap, isDarkTheme: boolean): void {
 function setLayerVisibility(map: MapboxMap, visible: boolean): void {
   const value = visible ? "visible" : "none";
   for (const id of [GLOBAL_EVENTS_LAYER_ID, GLOBAL_EVENTS_PULSE_LAYER_ID, GLOBAL_EVENTS_RELATIONS_LAYER_ID,
-    CONNECTORS_LAYER_ID, GLOBAL_EVENTS_CLUSTER_LAYER_ID, CLUSTER_LABEL_LAYER_ID]) {
+    GLOBAL_EVENTS_STORY_LINKS_LAYER_ID, CONNECTORS_LAYER_ID, GLOBAL_EVENTS_CLUSTER_LAYER_ID, CLUSTER_LABEL_LAYER_ID]) {
     if (map.getLayer(id)) map.setLayoutProperty(id, "visibility", value);
   }
 }
@@ -218,6 +238,7 @@ export function useGlobalEventsLayer(
   minSeverity = 0,
   taiwanOnly = false,
   isDarkTheme = true,
+  showNoise = false,
 ) {
   const mapTick = useMapReadyTick(mapRef, visible);
   const allEventsRef = useRef<GlobalEventRecord[]>([]);
@@ -235,18 +256,41 @@ export function useGlobalEventsLayer(
   const selectedRef = useRef(selectedEventId);
   selectedRef.current = selectedEventId;
   const displayedRowsRef = useRef<GlobalEventPoint[]>([]);
+  /** eventId → 可能同一件事的其他 eventId；feed() 每次重算，applyPaint 讀它做點選加亮。 */
+  const storyNeighboursRef = useRef(new Map<string, Set<string>>());
   const expandedGroupsRef = useRef(new Set<string>());
+  /** 同一批事件只算一次「可能同一件事」（7 天全量約 0.7 秒）；展開群聚、pulse 轉場不重算。 */
+  const storyCacheRef = useRef<{ key: string; story: ReturnType<typeof globalEventStoryLinks> } | null>(null);
+  const fedFeaturesRef = useRef<Map<string, { properties: Record<string, unknown>; coords: [number, number] }>>(new Map());
   opacityRef.current = opacity;
   themeRef.current = isDarkTheme;
 
   const applyPaint = useCallback((map: MapboxMap) => {
     const safeOpacity = Math.max(0, Math.min(1, opacityRef.current));
     const selected = selectedRef.current ?? "";
+    // 點選後：自己與「可能同一件事」的事件加亮，其餘變淡；沒選時一律原樣。
+    const related = selected && relationsRef.current ? [...(storyNeighboursRef.current.get(selected) ?? [])] : [];
+    const isRelated = ["in", ["get", "event_id"], ["literal", related]];
     if (map.getLayer(GLOBAL_EVENTS_LAYER_ID)) {
-      map.setPaintProperty(GLOBAL_EVENTS_LAYER_ID, "icon-opacity", safeOpacity);
-      map.setPaintProperty(GLOBAL_EVENTS_LAYER_ID, "icon-halo-width", ["case", ["==", ["get", "event_id"], selected], 3, 1.5]);
+      const labelHalo = labelHaloPaint(themeRef.current);
+      map.setPaintProperty(GLOBAL_EVENTS_LAYER_ID, "text-color", themeRef.current ? "#e2e8f0" : "#1e293b");
+      map.setPaintProperty(GLOBAL_EVENTS_LAYER_ID, "text-halo-color", labelHalo["text-halo-color"]);
+      map.setPaintProperty(GLOBAL_EVENTS_LAYER_ID, "text-opacity", selected && related.length
+        ? ["case", ["any", ["==", ["get", "event_id"], selected], isRelated], safeOpacity, safeOpacity * 0.3] : safeOpacity);
+      map.setPaintProperty(GLOBAL_EVENTS_LAYER_ID, "icon-opacity", selected && related.length
+        ? ["case", ["any", ["==", ["get", "event_id"], selected], isRelated], safeOpacity, safeOpacity * 0.3] : safeOpacity);
+      map.setPaintProperty(GLOBAL_EVENTS_LAYER_ID, "icon-halo-width", ["case", ["==", ["get", "event_id"], selected], 3, isRelated, 2.5, 1.5]);
       map.setPaintProperty(GLOBAL_EVENTS_LAYER_ID, "icon-halo-color", ["case", ["==", ["get", "event_id"], selected], "#facc15",
-        ["==", ["get", "research_status"], "ai_assessed"], "#e2e8f0", "#0f172a"]);
+        isRelated, "#fbbf24", ["==", ["get", "research_status"], "ai_assessed"], "#e2e8f0", "#0f172a"]);
+    }
+    if (map.getLayer(GLOBAL_EVENTS_STORY_LINKS_LAYER_ID)) {
+      const touchesSelected = ["any", ["==", ["get", "event_id"], selected], ["==", ["get", "related_event_id"], selected]];
+      map.setLayoutProperty(GLOBAL_EVENTS_STORY_LINKS_LAYER_ID, "visibility", relationsRef.current ? "visible" : "none");
+      map.setPaintProperty(GLOBAL_EVENTS_STORY_LINKS_LAYER_ID, "line-opacity", hookLineOpacity("globalEvents", GLOBAL_EVENTS_STORY_LINKS_LAYER_ID,
+        selected ? ["case", touchesSelected, safeOpacity * 0.95, safeOpacity * 0.06] : safeOpacity * 0.35,
+        ["case", ["==", ["get", "event_id"], ""], 0.95, 0.35]));
+      map.setPaintProperty(GLOBAL_EVENTS_STORY_LINKS_LAYER_ID, "line-width", hookLineWidth("globalEvents", GLOBAL_EVENTS_STORY_LINKS_LAYER_ID,
+        selected ? ["case", touchesSelected, 2.5, 1.5] : 1.5, ["case", ["==", ["get", "event_id"], ""], 2.5, 1.5]));
     }
     if (map.getLayer(GLOBAL_EVENTS_RELATIONS_LAYER_ID)) {
       map.setLayoutProperty(GLOBAL_EVENTS_RELATIONS_LAYER_ID, "visibility", relationsRef.current ? "visible" : "none");
@@ -323,14 +367,31 @@ export function useGlobalEventsLayer(
       displayedRowsRef.current = [...events];
       const layout = layoutGlobalEventPoints(events, expandedGroupsRef.current);
       const collection = layout.points;
+      const storyKey = events.map((event) => `${event.eventId}@${event.versionId}`).join("|");
+      if (storyCacheRef.current?.key !== storyKey) storyCacheRef.current = { key: storyKey, story: globalEventStoryLinks(events) };
+      const story = storyCacheRef.current.story;
+      storyNeighboursRef.current = story.neighbours;
       for (const feature of collection.features) {
-        if (feature.properties) feature.properties.transition_kind = transitions.get(String(feature.properties.event_id)) ?? null;
+        if (!feature.properties) continue;
+        const eventId = String(feature.properties.event_id);
+        feature.properties.transition_kind = transitions.get(eventId) ?? null;
+        const related = story.related.get(eventId) ?? [];
+        feature.properties.story_link_count = related.length;
+        // popup 清單只帶前幾則（標題＋id），其餘寫「還有 N 則」；大型事件會有上百則。
+        feature.properties.story_links = JSON.stringify(related.slice(0, GLOBAL_EVENT_STORY_LIST_MAX).map((item) => ({ id: item.eventId, title: item.title })));
+        const entities = story.entityLinks.get(eventId);
+        feature.properties.entity_link_count = entities?.size ?? 0;
+        feature.properties.entity_names = JSON.stringify([...new Set([...(entities?.values() ?? [])].flat())].slice(0, 6));
+        feature.properties.label_short = globalEventShortLabel(String(feature.properties.title_zh_tw ?? ""));
       }
+      fedFeaturesRef.current = firstPointFeatureByEvent(collection.features as GeoJSON.Feature<GeoJSON.Geometry, Record<string, unknown>>[]);
       const source = map.getSource(SOURCE_ID) as GeoJSONSource | undefined;
       source?.setData(collection);
       (map.getSource(CONNECTORS_SOURCE_ID) as GeoJSONSource | undefined)?.setData(layout.anchors);
       (map.getSource(CLUSTERS_SOURCE_ID) as GeoJSONSource | undefined)?.setData(layout.clusters);
       (map.getSource(RELATIONS_SOURCE_ID) as GeoJSONSource | undefined)?.setData(globalEventRelations(events));
+      (map.getSource(STORY_LINKS_SOURCE_ID) as GeoJSONSource | undefined)?.setData(story.lines);
+      applyPaint(map);
       startPulse(map, transitions);
     };
 
@@ -343,7 +404,13 @@ export function useGlobalEventsLayer(
       const entries = selectGlobalSituationEntries(
         filterGlobalEvents(published, asOf, days, category, minSeverity, taiwanOnly),
         filterGlobalEvents(includeAI ? candidatesRef.current : [], asOf, days, category, minSeverity, taiwanOnly), asOf);
-      const events = entries.filter((entry): entry is GlobalEventPoint => entry.coordinates !== null && !entry.mapSuppressed);
+      const located = entries.filter((entry): entry is GlobalEventPoint => entry.coordinates !== null && !entry.mapSuppressed);
+      // 站主 11-23（D4）：地圖預設不畫 AI 判為雜訊的報導；INTEL 列表不受影響（它讀自己的 feed store）。
+      const events = showNoise ? located : located.filter((entry) => entry.decision !== "drop_noise");
+      const noiseHidden = new Set(located.filter((entry) => entry.decision === "drop_noise").map((entry) => entry.eventId)).size;
+      if (showNoise ? globalEventsViewStore.getSnapshot().noiseHidden !== 0 : globalEventsViewStore.getSnapshot().noiseHidden !== noiseHidden) {
+        globalEventsViewStore.set({ ...globalEventsViewStore.getSnapshot(), noiseHidden: showNoise ? 0 : noiseHidden });
+      }
       const listSignature = entries.map((entry) => `${entry.eventId}/${entry.versionId}/${entry.eventPlaceId}/${entry.mapSuppressed ?? false}`).sort().join("|");
       if (listSignature !== listSignatureRef.current) {
         listSignatureRef.current = listSignature;
@@ -393,7 +460,7 @@ export function useGlobalEventsLayer(
         signatureRef.current = "";
         listSignatureRef.current = "";
         feed([]);
-        globalEventsViewStore.set({ entries: [], status: "loading", message: null,
+        globalEventsViewStore.set({ entries: [], status: "loading", message: null, noiseHidden: 0,
           windowLabel: view === "recent7d" || current ? `最近 ${days} 天` : `跟隨時間軸・過去 ${days} 天` });
       } else {
         // 同一個 window 的背景刷新（例如 recent7d 每 5 分鐘 interval）：保留舊
@@ -474,12 +541,15 @@ export function useGlobalEventsLayer(
     };
     map.on("click", onClick);
     globalEventsViewStore.setSelectHandler((entry) => {
-      const point = displayedRowsRef.current.find((row) => row.eventId === entry.eventId);
-      if (!point) return;
-      expandedGroupsRef.current.add(point.coordinates.map((value) => value.toFixed(6)).join(","));
-      map.easeTo({ center: point.coordinates, duration: prefersReducedMotion() ? 0 : 500 });
+      // 與 popup／選取標記（featureLookup）同一個地點：取 fed 的第一個 feature
+      const coordinates = fedFeaturesRef.current.get(entry.eventId)?.coords
+        ?? displayedRowsRef.current.find((row) => row.eventId === entry.eventId)?.coordinates;
+      if (!coordinates) return;
+      expandedGroupsRef.current.add(coordinates.map((value) => value.toFixed(6)).join(","));
+      map.easeTo({ center: coordinates, duration: prefersReducedMotion() ? 0 : 500 });
       feed(displayedRowsRef.current);
     });
+    globalEventsViewStore.setFeatureLookup((eventId) => fedFeaturesRef.current.get(eventId) ?? null);
 
     let refreshTimer: ReturnType<typeof setInterval> | undefined;
     if (view === "recent7d") {
@@ -506,13 +576,14 @@ export function useGlobalEventsLayer(
       map.off("click", onClick);
       clearInterval(refreshTimer);
       globalEventsViewStore.setSelectHandler(null);
+      globalEventsViewStore.setFeatureLookup(null);
       // 圖層關閉／unmount：清空共用 store，避免 IntelPanel 之後重新開啟時
       // 先閃一下上一輪的殘留 entries／status。
-      globalEventsViewStore.set({ entries: [], status: "idle", message: null, windowLabel: "最近七天" });
+      globalEventsViewStore.set({ entries: [], status: "idle", message: null, windowLabel: "最近七天", noiseHidden: 0 });
       stopPulse(map);
       setLayerVisibility(map, false);
     };
-  }, [mapRef, mapTick, startPulse, stopPulse, timeMode, view, visible, applyPaint, includeAI, days, category, minSeverity, taiwanOnly]);
+  }, [mapRef, mapTick, startPulse, stopPulse, timeMode, view, visible, applyPaint, includeAI, days, category, minSeverity, taiwanOnly, showNoise]);
 
   useEffect(() => {
     const map = mapRef.current;

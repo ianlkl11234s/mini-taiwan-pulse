@@ -29,7 +29,6 @@
   "popup.businessRegistry.recordsInCell": "Records in cell",
   "popup.businessRegistry.density": "Density",
   "popup.businessRegistry.snapshotGrain": "Snapshot and granularity",
-  "popup.businessRegistry.snapshotGrainValue": "{snapshot}; {grain}.",
   "popup.businessRegistry.densityPerKm2": "{value} {unit}/km²",
   "popup.businessRegistry.selectedCategory": "Selected categories",
   "popup.businessRegistry.noneSelected": "None selected",

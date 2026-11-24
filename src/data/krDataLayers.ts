@@ -7,61 +7,14 @@
  * 色票沿用台灣同語意圖層與英國第 3 波（水系藍／青、堤防琥珀、海洋保護區綠…），分類色之間以明度與色相區分。
  */
 import type { KrDataKey } from "./krDataKeys";
-import { selectedMultiSelectValues } from "./multiSelectMapbox";
-import { paletteRamp, resampleRamp } from "../map/palettes";
+import { KR_CAT_OTHER_ID, type KrLayerSpec as IntlKrLayerSpec, type L3 } from "./intlLayerShared";
 
-export interface L3 { zh: string; en: string; ja: string }
+export { krRampColors, pickL3, krGroupFilter, krStringProp, krSpecCatFilter, KR_CONGESTION_BREAKS, KR_CAT_OTHER_ID } from "./intlLayerShared";
+export type { KrFilterGroup } from "./intlLayerShared";
+export type { KrCat, KrField, KrFieldKind, L3 } from "./intlLayerShared";
+export type KrLayerSpec<K extends string = KrDataKey> = IntlKrLayerSpec<K>;
+
 const l3 = (zh: string, en: string, ja: string): L3 => ({ zh, en, ja });
-
-export interface KrCat { id: string; values: readonly string[]; color: string; label: L3; faded?: boolean }
-/** `permit`：許可期間（`lcns_bgng_`～本欄，YYYYMMDD）＋快照日判斷的許可狀態。 */
-export type KrFieldKind = "text" | "num" | "year" | "measure" | "peak" | "code" | "permit";
-export interface KrField { prop: string; label: L3; kind?: KrFieldKind; unit?: string; digits?: number; map?: Readonly<Record<string, L3>> }
-export interface KrLayerSpec {
-  key: KrDataKey;
-  file: string;
-  sourceLayer: string;
-  geom: "point" | "line" | "polygon";
-  /** 主 layer id（literal；gisClickRegistry 以此比對）。polygon 另有 `${id}` fill 與 outline。 */
-  layerId: string;
-  outlineId?: string;
-  /** 鋪滿國土的面（如通學區）：此縮放以下只畫細外框、不填色（全國視角不糊成一片），此縮放起才加填色。 */
-  fillFromZoom?: number;
-  /** 站主限定：圖磚只走私人 owner-data（同源 Range API，`OWNER_DATA_ASSETS` 的 key），不進公開 CDN；沒有站主存取權就不掛 source。 */
-  ownerAsset?: "kr-seoul-zoning";
-  srcMinzoom: number;
-  srcMaxzoom: number;
-  minzoom: number;
-  /** V-1／P-4：拉遠改熱區（點在 `densePointsFromZoom(count, minzoom)` 起畫、之下為熱區）；intensity 依資料密度目視校正。 */
-  /**
-   * 序列分級面（第 6 波人口網格）：`prop` 依固定斷點 `breaks` 分 `breaks.length + 1` 級，色取色盤庫 `palette`
-   * （暗／淡兩版，`paletteRamp`）重新取樣；不設外框。圖例逐級列出 `labels`。
-   */
-  ramp?: { prop: string; palette: "YlOrBr"; breaks: readonly number[]; labels: readonly string[]; unit: L3 };
-  heat?: {
-    intensity: number;
-    /** 低縮放另用「格網計數」檔畫熱區（weight 吃 `count`；source maxzoom 以上自動 overzoom），點檔 `file` 從 `minzoom` 起接手。 */
-    density?: { file: string; sourceLayer: string; srcMinzoom: number; srcMaxzoom: number; attribution: string };
-  };
-  color: string;
-  tier?: "S" | "M";
-  count: number;
-  catProp?: string;
-  /** 衍生分類（第 10 波漁場：許可到期另成一類）：`expr` 回傳分類值字串（hook 上色、類別多選共用），`of` 是 popup 標題色用的同一判斷。 */
-  derivedCat?: { expr: unknown[]; of: (props: Record<string, unknown>) => string };
-  cats?: readonly KrCat[];
-  otherColor?: string;
-  otherLabel?: L3;
-  title: { props: readonly string[]; fallback: L3 };
-  fields: readonly KrField[];
-  legendNotes: readonly L3[];
-  popupNotes: readonly L3[];
-  sourceOrg: string;
-  sourceUrl: string;
-  license: string;
-  fetchedAt: string;
-  loading: L3;
-}
 
 export const KR_FETCHED_AT = "2026-10-31";
 export const KR_PLATFORM_LICENSE = "이용허락범위 제한 없음（data.go.kr 平台標籤）";
@@ -624,8 +577,7 @@ export const KR_DATA_SPECS: readonly KrLayerSpec[] = [
              { prop: "address", label: l3("地址", "Address", "住所") },
              { prop: "precision", label: l3("定位精度", "Geocode precision", "位置精度"), map: { "시설": l3("OSM 設施點", "OSM facility", "OSM施設"), "門牌": l3("門牌", "House number", "番地") } }],
     legendNotes: [l3("名冊 2,047 處只有地址；以 Nominatim 補座標，只上設施點與門牌精度 1,544 處（75%），其餘 503 處未定位、未上圖", "The list of 2,047 has addresses only; geocoded with Nominatim and only facility- or house-level matches are shown (1,544, 75%); 503 unlocated", "名簿2,047件は住所のみ。Nominatimで位置付けし、施設・番地精度の1,544件（75%）のみ表示、503件は未表示"),
-                  l3("廣域市定位率偏低（大田 19%、釜山 23%、蔚山 31%、大邱 32%、光州 38%、首爾 44%、仁川 44%；道級 81–98%），都市點少是未定位，不代表派出所少", "Match rates are low in metropolitan cities (Daejeon 19%, Busan 23%, Ulsan 31%, Daegu 32%, Gwangju 38%, Seoul 44%, Incheon 44%; provinces 81–98%) — sparse city points mean unlocated, not fewer police boxes", "広域市は位置付け率が低い（大田19%・釜山23%・蔚山31%・大邱32%・光州38%・ソウル44%・仁川44%、道は81–98%）。都市部の点が少ないのは未表示分で、派出所が少ないわけではない"),
-                  l3("座標：Nominatim／© OpenStreetMap contributors（ODbL）", "Coordinates: Nominatim / © OpenStreetMap contributors (ODbL)", "座標：Nominatim／© OpenStreetMap contributors（ODbL）")],
+                  l3("廣域市定位率偏低（大田 19%、釜山 23%、蔚山 31%、大邱 32%、光州 38%、首爾 44%、仁川 44%；道級 81–98%），都市點少是未定位，不代表派出所少", "Match rates are low in metropolitan cities (Daejeon 19%, Busan 23%, Ulsan 31%, Daegu 32%, Gwangju 38%, Seoul 44%, Incheon 44%; provinces 81–98%) — sparse city points mean unlocated, not fewer police boxes", "広域市は位置付け率が低い（大田19%・釜山23%・蔚山31%・大邱32%・光州38%・ソウル44%・仁川44%、道は81–98%）。都市部の点が少ないのは未表示分で、派出所が少ないわけではない")],
     popupNotes: [l3("位置由地址比對 OpenStreetMap 推得，可能有數十公尺偏差", "Location derived by matching the address to OpenStreetMap; may be off by tens of metres", "位置は住所とOpenStreetMapの照合による推定で、数十m程度ずれる場合あり")],
     sourceOrg: "경찰청 전국 지구대 파출소 주소 현황 (공공데이터포털)；座標 Nominatim／© OpenStreetMap contributors", sourceUrl: DG("15077036"), license: KR_PLATFORM_LICENSE, fetchedAt: KR_W7_FETCHED_AT,
     loading: l3("南韓派出所載入中", "Loading South Korea police boxes", "韓国の派出所を読み込み中"),
@@ -731,7 +683,7 @@ export const KR_DATA_SPECS: readonly KrLayerSpec[] = [
     loading: l3("南韓國家遺產載入中", "Loading South Korea heritage", "韓国の国家遺産を読み込み中"),
   },
   {
-    key: "krLodging", file: "kr_lodging.pmtiles", sourceLayer: "kr_lodging", geom: "point", layerId: "kr-lodging-circle",
+    key: "krLodging", file: "kr_lodging_lt2.pmtiles", sourceLayer: "kr_lodging", geom: "point", layerId: "kr-lodging-circle",
     srcMinzoom: 0, srcMaxzoom: 14, minzoom: 10, heat: { intensity: 3 }, color: "#fb7185", tier: "S", count: 30358,
     catProp: "cat",
     cats: [
@@ -765,7 +717,7 @@ export const KR_DATA_SPECS: readonly KrLayerSpec[] = [
     loading: l3("南韓安心宅配櫃載入中", "Loading South Korea parcel lockers", "韓国の安心宅配ボックスを読み込み中"),
   },
   {
-    key: "krSeniorCenters", file: "kr_senior_centers.pmtiles", sourceLayer: "kr_senior_centers", geom: "point", layerId: "kr-senior-centers-circle",
+    key: "krSeniorCenters", file: "kr_senior_centers_lt2.pmtiles", sourceLayer: "kr_senior_centers", geom: "point", layerId: "kr-senior-centers-circle",
     srcMinzoom: 0, srcMaxzoom: 14, minzoom: 10, heat: { intensity: 2 }, color: "#a78bfa", tier: "S", count: 56028,
     catProp: "kind",
     cats: [
@@ -802,9 +754,8 @@ export const KR_DATA_SPECS: readonly KrLayerSpec[] = [
     fields: [{ prop: "DANJI_TYPE", label: l3("園區類型", "Type", "団地種別"), map: { "1": l3("國家產業園區", "National", "国家"), "2": l3("一般產業園區", "General", "一般"), "3": l3("都市尖端產業園區", "Urban high-tech", "都市先端"), "4": l3("農工園區", "Agro-industrial", "農工") } },
              { prop: "GOSI", label: l3("告示", "Official notice", "告示") }, { prop: "REMARK", label: l3("備註", "Remarks", "備考") },
              ],
-    legendNotes: [l3("公共著作物第 4 類（KOGL 4）：須標示出處、禁止商業使用、禁止變更；本層原樣呈現邊界與屬性、未改作", "KOGL Type 4: attribution required, no commercial use, no modification; boundaries and attributes are shown as published, unmodified", "公共ヌリ第4類型（出典表示・商用禁止・改変禁止）。境界と属性は原データのまま表示し、改変していない"),
-                  l3("1,372 處：國家 65、一般 771、都市尖端 53、農工 483（同一園區可能分成多筆）", "1,372 areas: national 65, general 771, urban high-tech 53, agro-industrial 483 (one complex may span several records)", "1,372か所：国家65・一般771・都市先端53・農工483（1団地が複数件に分かれる場合あり）")],
-    popupNotes: [l3("KOGL 4：非商用、未改作", "KOGL 4: non-commercial, unmodified", "KOGL 4：非商用・改変なし")],
+    legendNotes: [                  l3("1,372 處：國家 65、一般 771、都市尖端 53、農工 483（同一園區可能分成多筆）", "1,372 areas: national 65, general 771, urban high-tech 53, agro-industrial 483 (one complex may span several records)", "1,372か所：国家65・一般771・都市先端53・農工483（1団地が複数件に分かれる場合あり）")],
+    popupNotes: [],
     sourceOrg: "국토교통부 산업단지 경계도면 (공공데이터포털)", sourceUrl: DG("15152766"), license: KOGL4_LICENSE, fetchedAt: KR_W9_FETCHED_AT,
     loading: l3("南韓產業園區載入中", "Loading South Korea industrial complexes", "韓国の産業団地を読み込み中"),
   },
@@ -926,7 +877,7 @@ export const KR_DATA_SPECS: readonly KrLayerSpec[] = [
              { prop: "farm_knd", label: l3("品種", "Species", "品種") }, { prop: "addr", label: l3("位置", "Location", "位置") },
              { prop: "area", label: l3("面積", "Area", "面積"), kind: "num", unit: "ha", digits: 1 }, { prop: "rgn_nm", label: l3("市郡", "City/county", "市郡") },
              { prop: "rvsn_yr", label: l3("調查年", "Survey year", "調査年") }, { prop: "lcns_no", label: l3("許可編號", "Licence no.", "免許番号"), kind: "code" }],
-    legendNotes: [l3("漁場 14,858 面（調查 2020–2023，資料快照 2024-04-24），涵蓋 11 個沿海市道；內陸的首爾、大邱、大田、世宗、忠北不適用", "14,858 fishing grounds (surveyed 2020–2023, snapshot 2024-04-24) in all 11 coastal provinces; inland Seoul, Daegu, Daejeon, Sejong and North Chungcheong not applicable", "漁場14,858面（調査2020–2023、スナップショット2024-04-24）。沿岸11広域をカバー。内陸のソウル・大邱・大田・世宗・忠清北道は対象外"),
+    legendNotes: [l3("漁場 14,858 面（調查 2020–2023），涵蓋 11 個沿海市道；內陸的首爾、大邱、大田、世宗、忠北不適用", "14,858 fishing grounds (surveyed 2020–2023) in all 11 coastal provinces; inland Seoul, Daegu, Daejeon, Sejong and North Chungcheong not applicable", "漁場14,858面（調査2020–2023）。沿岸11広域をカバー。内陸のソウル・大邱・大田・世宗・忠清北道は対象外"),
                   l3("快照日前許可已到期 3,010 面照原樣保留、以灰色顯示，不刪除", "3,010 grounds whose licence ended before the snapshot are kept and shown in grey, not removed", "スナップショット時点で免許期間が終了した3,010面はそのまま残し灰色で表示（削除しない）"),
                   l3("拉遠時圖磚略去小面，放大到 8 級起完整顯示；許可人姓名不在資料中", "Small grounds are dropped when zoomed out; complete from zoom 8. No licensee names in the data", "縮小時は小さい面を省略、ズーム8から全件表示。免許者の氏名はデータに含まれない")],
     popupNotes: [],
@@ -974,7 +925,7 @@ export const KR_DATA_SPECS: readonly KrLayerSpec[] = [
     loading: l3("南韓民防給水設施載入中", "Loading South Korea civil defence water facilities", "韓国の民防給水施設を読み込み中"),
   },
   {
-    key: "krEmergencyBells", file: "kr_emergency_bells.pmtiles", sourceLayer: "kr_emergency_bells", geom: "point", layerId: "kr-emergency-bells-circle",
+    key: "krEmergencyBells", file: "kr_emergency_bells_lt2.pmtiles", sourceLayer: "kr_emergency_bells", geom: "point", layerId: "kr-emergency-bells-circle",
     srcMinzoom: 0, srcMaxzoom: 14, minzoom: 10, heat: { intensity: 1.5 }, color: "#ef4444", tier: "M", count: 87711,
     catProp: "place_type",
     cats: [
@@ -1053,54 +1004,12 @@ export const KR_SPEC_BY_KEY: Readonly<Record<KrDataKey, KrLayerSpec>> = Object.f
 export const KR_UNNAMED = UNNAMED;
 
 /** X003 擁擠度分級：以 `peak_wkd` 數值判斷（hook 用 step 表達式，圖例用同一組門檻）。 */
-export const KR_CONGESTION_BREAKS = [34, 80, 130] as const;
-
-/** 序列分級面的色階（色盤庫暗／淡版重新取樣成「斷點數＋1」級；圖例與 hook 共用）。 */
-export function krRampColors(spec: Pick<KrLayerSpec, "ramp">, isDark: boolean): string[] {
-  const r = spec.ramp!;
-  return resampleRamp(paletteRamp(r.palette, isDark)!, r.breaks.length + 1);
-}
-
-export function pickL3(text: L3, locale: string): string {
-  return locale === "ja" ? text.ja : locale === "en" ? text.en : text.zh;
-}
 
 // ─────────────────────────── V-4 類別篩選（分類多選）與 V-1 縮放區間共用 ───────────────────────────
 
 
-/** 多選「其他」選項的固定 id（圖例有「其他」列的層才有）。 */
-export const KR_CAT_OTHER_ID = "other";
-export interface KrFilterGroup { id: string; values: readonly string[] }
 
 /** 規格的多選選項 id（宣告順序；有 `otherLabel` 者最後加「其他」）。 */
 export const krCatOptionIds = (spec: Pick<KrLayerSpec, "cats" | "otherLabel">): string[] =>
   spec.cats ? [...spec.cats.map((c) => c.id), ...(spec.otherLabel ? [KR_CAT_OTHER_ID] : [])] : [];
 
-/**
- * 分類多選 → Mapbox filter。`getter` 是回傳字串的表達式（屬性值轉字串；subway 用擁擠度分級表達式）。
- * 全選／未傳 → null（不篩、含缺值 feature）；全關 → 永假 sentinel；選了「其他」→ 補上「不屬於任何已列類別」。
- */
-export function krGroupFilter(getter: unknown, groups: readonly KrFilterGroup[], withOther: boolean, mask: number | undefined): unknown[] | null {
-  if (mask === undefined || !Number.isFinite(mask)) return null;
-  const ids = [...groups.map((g) => g.id), ...(withOther ? [KR_CAT_OTHER_ID] : [])];
-  const selected = selectedMultiSelectValues(mask, ids);
-  if (selected.length === ids.length) return null;
-  if (selected.length === 0) return ["==", getter, "__multi_select_none__"];
-  const chosen = groups.filter((g) => selected.includes(g.id)).flatMap((g) => [...g.values]);
-  const hit = ["in", getter, ["literal", chosen]];
-  if (!selected.includes(KR_CAT_OTHER_ID)) return hit;
-  const other = ["!", ["in", getter, ["literal", groups.flatMap((g) => [...g.values])]]];
-  return chosen.length ? ["any", hit, other] : other;
-}
-
-/** 屬性值（含數值型）統一轉字串，缺值＝""。 */
-export const krStringProp = (prop: string): unknown[] => ["to-string", ["coalesce", ["get", prop], ""]];
-
-/** 規格的分類篩選 filter（subway 以平日尖峰擁擠度分級當類別）。 */
-export function krSpecCatFilter(spec: KrLayerSpec, mask: number | undefined): unknown[] | null {
-  if (!spec.cats) return null;
-  const getter = spec.key === "krSeoulSubwayCongestion"
-    ? ["case", ["has", "peak_wkd"], ["step", ["to-number", ["get", "peak_wkd"], 0], "<34", KR_CONGESTION_BREAKS[0], "34-80", KR_CONGESTION_BREAKS[1], "80-130", KR_CONGESTION_BREAKS[2], ">=130"], ""]
-    : spec.derivedCat ? spec.derivedCat.expr : krStringProp(spec.catProp!);
-  return krGroupFilter(getter, spec.cats, !!spec.otherLabel, mask);
-}
