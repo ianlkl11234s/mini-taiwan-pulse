@@ -12,13 +12,9 @@ interface Props {
   newsCount: number;
   /** 警報 tab 的數字 = 全部 active（含折疊區） */
   alertCount: number;
-  /** 全部 tab 的數字只算沒被折疊的（長期持續事件不進「全部」時間軸） */
-  alertCountInAll: number;
   alertSevere: number;
   /** 全球情勢 tab 的數字 = decision + RANGE 過濾後的筆數 */
   globalCount: number;
-  /** 全部 tab 併入的國際筆數（只有已研究＋keep_core 會進「全部」時間軸） */
-  globalCountInAll: number;
 }
 
 const TABS = [
@@ -28,10 +24,10 @@ const TABS = [
   { key: "globalEvents", labelKey: "alerts.tabs.globalEvents" },
 ] as const satisfies readonly { key: FeedTab; labelKey: string }[];
 
-export function FeedTabs({ tab, onTab, newsCount, alertCount, alertCountInAll, alertSevere, globalCount, globalCountInAll }: Props) {
+export function FeedTabs({ tab, onTab, newsCount, alertCount, alertSevere, globalCount }: Props) {
   const palette = useIntelTheme();
   const { t } = useLocale();
-  const counts = feedCounts({ news: newsCount, alerts: alertCount, alertsInAll: alertCountInAll, globalEvents: globalCount, globalInAll: globalCountInAll });
+  const counts = feedCounts({ news: newsCount, alerts: alertCount, globalEvents: globalCount });
   return (
     <div
       style={{
