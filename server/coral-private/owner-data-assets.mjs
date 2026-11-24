@@ -110,4 +110,7 @@ export const OWNER_DATA_ASSETS = Object.freeze({
   //    來源 taipei-gis-analytics output/uk_rail_darwin/replay/{geometry.json.gz,trips_2026-11-21.json.gz}）──
   "gb-rail-replay-geometry": Object.freeze({ filename: "gb_rail_replay_geometry_20261121.json.gz", size: 907575, sha256: "32c62ec2d5e1fd5b6eee862717dec229ad9453299f41de241bb023f8d4dd26e3" }),
   "gb-rail-replay-trips-20261121": Object.freeze({ filename: "gb_rail_replay_trips_20261121.json.gz", size: 2743026, sha256: "34aaf353dd9c107f41bb2fc69e9ccb5c41cfac2d428ae35059e5d270f956d41b" }),
+  // ── 設施研究 M（2026-11-24，站主限定研究資料；GeoJSON FeatureCollection＋頂層 meta.legend，圖例與 popup 文字都在檔內）──
+  "study-m-sites": Object.freeze({ filename: "study_m_sites.geojson", size: 1210791, sha256: "8c6151fc79f28e2af152776b5eb2494963c73f006282b18eeb3a3855826c5b44" }),
+  "study-m-overlays": Object.freeze({ filename: "study_m_overlays.geojson", size: 1573095, sha256: "077b7a6496da5fb648fec21dca2afcd85d952fa954a8d92020e36740dad57c60" }),
 });
