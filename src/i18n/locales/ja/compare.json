@@ -43,5 +43,8 @@
   "compare.countriesHintBody": "右の国のレイヤーは右側、それ以外は左側に表示します。縮尺は既定で左右同じ、時刻は同じ瞬間です。",
   "compare.countriesHintUnsupported": "右の国のレイヤー {count} 件は並列表示に未対応のため、左の地図にのみ表示します。",
   "compare.legendSide": "{side}・{country}",
-  "compare.rightMapLoading": "右の地図"
+  "compare.rightMapLoading": "右の地図",
+  "compare.abSwitch": "国の切り替え",
+  "compare.mobileAb": "2か国切り替え",
+  "compare.mobileAbClose": "2か国切り替えを終了"
 }
