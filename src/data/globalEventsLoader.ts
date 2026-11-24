@@ -242,7 +242,8 @@ const MAP_PAGE_BUDGET = 40;
 const MAP_RPC = "get_global_event_candidates_map_window";
 /** 567 還沒套用時，PostgREST 回「找不到函式」：這次瀏覽改走舊 RPC，不再重試。 */
 let mapRpcUnavailable = false;
-export function resetGlobalEventMapRpcProbe(): void { mapRpcUnavailable = false; }
+/** 測試用：重設探測結果（unavailable=true 模擬 567 未套用，直接走舊 RPC）。 */
+export function resetGlobalEventMapRpcProbe(unavailable = false): void { mapRpcUnavailable = unavailable; }
 function isMissingFunction(error: { code?: string; message?: string } | null): boolean {
   return !!error && error.code === "PGRST202";
 }
