@@ -43,5 +43,8 @@
   "compare.countriesHintBody": "Layers of the right-hand country are drawn on the right, all others on the left. Both sides share one scale by default and show the same moment.",
   "compare.countriesHintUnsupported": "{count} layers of the right-hand country are not yet supported side by side and are drawn on the left map only.",
   "compare.legendSide": "{side} · {country}",
-  "compare.rightMapLoading": "Right map"
+  "compare.rightMapLoading": "Right map",
+  "compare.abSwitch": "Switch country",
+  "compare.mobileAb": "Two-country switch",
+  "compare.mobileAbClose": "End two-country switch"
 }

@@ -43,5 +43,8 @@
   "compare.countriesHintBody": "右側國家的圖層畫在右邊，其他畫在左邊；兩邊比例尺預設一致，時間軸是同一刻。",
   "compare.countriesHintUnsupported": "{count} 個右側國家的圖層暫不支援並排，只畫在左邊的地圖。",
   "compare.legendSide": "{side}・{country}",
-  "compare.rightMapLoading": "右側地圖"
+  "compare.rightMapLoading": "右側地圖",
+  "compare.abSwitch": "兩國切換",
+  "compare.mobileAb": "兩國切換",
+  "compare.mobileAbClose": "結束兩國切換"
 }

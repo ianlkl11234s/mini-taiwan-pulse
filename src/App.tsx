@@ -132,7 +132,7 @@ import { HEADER_LABELS } from "./components/featureInfo/registry";
 import { ChatPanel } from "./components/chat/ChatPanel";
 import { runChatTurn, testKey } from "./chat/lazyAgent";
 import type { MapBridge } from "./chat/types";
-import { BookOpen, Bot, Box, Camera, CircleHelp, MessageSquare, Share2, UserRound } from "lucide-react";
+import { BookOpen, Bot, Box, Camera, CircleHelp, Columns2, MessageSquare, Share2, UserRound } from "lucide-react";
 import { CompareMapView } from "./map/CompareMapView";
 import { CompareDivider } from "./components/compare/CompareDivider";
 import { CountryCompareChrome } from "./components/compare/CountryCompareChrome";
@@ -141,6 +141,8 @@ import { CountryCompareMapView } from "./map/CountryCompareMapView";
 import { rightSideBlocker } from "./map/compareCountrySides";
 import { compareHydrateFromUrl, compareStore, countriesTipSeen, isCompareSupported, markCountriesTipSeen, pickRightCountry, useCompareSelector, type CompareMode } from "./state/compareStore";
 import { restoreMobileCompare } from "./utils/mobileCompareRestore";
+import { abStash, countryAbStore, normalizeAb, switchAb, useCountryAb } from "./state/countryAbStore";
+import { CountryAbSwitch } from "./components/compare/CountryAbSwitch";
 import { compareSelectionsForUrl, restoreSelectionsAfterLoad, singleSelectionsForUrl } from "./state/compareStatistics";
 import { layerParamsForUrl, resolveUrlLayerParams } from "./lib/urlLayerParams";
 import { statisticsDefaultOpacity } from "./data/statisticsVisuals";
@@ -585,12 +587,47 @@ export default function App() {
    * 回到桌機寬度時還原成比較畫面。store 在手機維持關閉，右側相關的讀取端不必各自判斷手機。
    */
   const mobileCompareRef = useRef<UrlState["compare"]>(undefined);
+  // 手機兩國 A／B 切換（G2-2）：一次一張地圖，A、B 之間切換；網址仍寫成 cmp=2（寄放的比較狀態）
+  const countryAb = useCountryAb();
+  const countryAbOpenRef = useRef<(preferredB: CountryCode | null) => boolean>(() => false);
+  countryAbOpenRef.current = (preferredB) => countryAbStore.open(countryStore.getSnapshot(), pinnedCountryCodes, visibleCountryCodes, preferredB);
+  // A／B 保持合法（從國家選單換了國家、身分降級）＋寄放狀態跟著目前顯示的國家（網址／回桌機用）
+  useEffect(() => {
+    if (!isMobile || !countryAb) return;
+    const next = normalizeAb(countryAb, country, pinnedCountryCodes, visibleCountryCodes);
+    if (next !== countryAb) { countryAbStore.set(next); return; }
+    mobileCompareRef.current = abStash(countryAb, country, mobileCompareRef.current);
+  }, [isMobile, countryAb, country, visibleCountryCodes.join(","), pinnedCountryCodes]);
+  /** 手機標頭 ⋯ 的「兩國切換」：開／關 */
+  const handleToggleCountryAb = useCallback(() => {
+    if (countryAbStore.getSnapshot()) {
+      countryAbStore.close();
+      if (mobileCompareRef.current?.mode === "countries") mobileCompareRef.current = undefined;
+    } else countryAbOpenRef.current(null);
+  }, []);
+  /** 點另一國：記下離開那一國的鏡頭，飛到目標國上次的鏡頭（沒記錄＝預設） */
+  const handleCountryAbSwitch = useCallback((target: CountryCode) => {
+    const ab = countryAbStore.getSnapshot();
+    const map = mapRef.current;
+    if (!ab) return;
+    const c = map?.getCenter();
+    // 飛行途中（上一次切換還沒到）的鏡頭不記：那只是半路上的一點，不是使用者停下來的位置
+    const { country: next, camera } = switchAb(ab, countryStore.getSnapshot(), map && c && !map.isMoving()
+      ? { center: [c.lng, c.lat], zoom: map.getZoom(), pitch: map.getPitch(), bearing: map.getBearing() }
+      : null, target);
+    countryStore.set(next);
+    map?.flyTo({ center: camera.center, zoom: camera.zoom, pitch: camera.pitch, bearing: camera.bearing, speed: 1.0 });
+  }, []);
   useEffect(() => {
     if (isMobile && compareStore.getSnapshot().enabled) {
-      mobileCompareRef.current = compareStateFromStoreRef.current();
+      const stash = compareStateFromStoreRef.current();
+      mobileCompareRef.current = stash;
       compareStore.setEnabled(false);
+      // 兩國並排縮到手機＝進入 A／B 切換（A＝目前國家、B＝原本的右國；G2-2）
+      if (stash?.mode === "countries") countryAbOpenRef.current(stash.rightCountry ?? null);
       return;
     }
+    if (!isMobile) countryAbStore.close();
     const stashedRaw = mobileCompareRef.current;
     if (isMobile || !stashedRaw) return;
     mobileCompareRef.current = undefined;
@@ -2079,7 +2116,9 @@ export default function App() {
     if (urlCompare) {
       if (isMobile) {
         mobileCompareRef.current = urlCompare;
-        // 語系包是 lazy 載入：開頁當下 t 還停在預設語系，等目標語系載完（active＝locale）再翻，否則英日文介面會看到中文
+        // 兩國並排的網址在手機＝A／B 切換（A＝目前國家，B＝cmpc）；拉桿仍退回單地圖並提示
+        if (urlCompare.mode === "countries") countryAbOpenRef.current(urlCompare.rightCountry ?? null);
+        else {        // 語系包是 lazy 載入：開頁當下 t 還停在預設語系，等目標語系載完（active＝locale）再翻，否則英日文介面會看到中文
         const notify = () => showTransientNotice(localeStore.getSnapshot().t("compare.mobileFallback"));
         const snap = localeStore.getSnapshot();
         if (snap.active === snap.locale) notify();
@@ -2088,6 +2127,7 @@ export default function App() {
             const next = localeStore.getSnapshot();
             if (next.active === next.locale) { off(); notify(); }
           });
+        }
         }
       } else compareStore.hydrate(compareHydrateFromUrl(urlCompare));
     }
@@ -3152,6 +3192,7 @@ export default function App() {
                   onSelect: () => setRenderMode((m) => (m === "3d" ? "2d" : "3d")),
                   trailing: <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, color: toolbarPalette.textDim }}>{renderMode === "3d" ? "3D" : "2D"}</span>,
                 },
+                { key: "compare", label: t(countryAb ? "compare.mobileAbClose" : "compare.mobileAb"), icon: <Columns2 size={15} />, active: countryAb !== null, onSelect: handleToggleCountryAb },
                 ...(agentEnabled
                   ? [{ key: "agent", label: t("toolbar.agent"), icon: <Bot size={15} />, active: agentOpen, onSelect: () => setAgentOpen((value) => !value) }]
                   : []),
@@ -3231,6 +3272,10 @@ export default function App() {
             <div style={{ position: "absolute", top: "calc(100% + 12px)", left: 12, right: 54, display: "flex", justifyContent: "center", pointerEvents: "none" }}>
               <MeasureToolbar controller={measure} isDarkTheme={isDarkTheme} variant="mobile" />
             </div>
+            {/* 兩國 A／B 切換（§5.45.1 手機；G2-2）：時間軸列下方 12px、靠左，跟著時間軸列實際高度走；量測工具列出現時往下讓一列 */}
+            {countryAb && (
+              <CountryAbSwitch isDarkTheme={isDarkTheme} ab={countryAb} current={country} onSwitch={handleCountryAbSwitch} top={measuring ? "calc(100% + 64px)" : "calc(100% + 12px)"} />
+            )}
           </div>
 
           {/* Bottom Sheet */}
