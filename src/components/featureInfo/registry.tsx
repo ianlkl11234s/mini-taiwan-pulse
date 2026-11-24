@@ -67,10 +67,6 @@ import {
   JpRailwaysPanel, JpSchoolsPanel, JpPoliceFacilitiesPanel, JpEvacuationSitesPanel, JpPublicOfficesPanel, JpBusStopsPanel, JpLandslideWarningAreasPanel, JpInlandFloodAreasPanel, JpZoningUseDistrictsPanel, JpNationalForestsPanel, JpWelfareDisabilityPanel, JpWelfareChildPanel, JpMajorRoadsPanel, JpMunicipalRoadsPanel, JpExpresswaysPanel, JpPopulationMeshPanel,
   JpTourismPanel, JpAccommodationDensityPanel, JpWaterPanel,
 } from "./japanPanels";
-import { ID_DATA_PANELS, IdAdminBoundariesPanel, IdPopulationPanel, IdRuralDevelopmentPanel } from "./idPanels";
-import { ID_DATA_SPECS } from "../../data/idDataLayers";
-import type { IdDataKey } from "../../data/idDataKeys";
-const ID_HEADER_LABELS = Object.fromEntries(ID_DATA_SPECS.map((s) => [s.key, `${s.title.fallback.zh} ${s.title.fallback.en}`])) as Record<IdDataKey, string>;
 import { BridgeResiliencePanel } from "./bridgeResiliencePanels";
 import { BusCrowdingSimPanel, BusCrowdingSimVehiclePanel } from "./busCrowdingSimPanels";
 import { TransitReachGridPanel, TransitReachPlaybackPanel } from "./transitReachPanels";
@@ -452,10 +448,6 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   jpReligionWikidata: JpReligionWikidataPanel,
   jpAdminPrefecture: JpAdminPrefecturePanel,
   jpAdminBoundaries: JpAdminBoundariesPanel,
-  idAdminBoundaries: IdAdminBoundariesPanel,
-  idPopulation: IdPopulationPanel,
-  idRuralDevelopment: IdRuralDevelopmentPanel,
-  ...ID_DATA_PANELS,
   jpStations: JpStationsPanel,
   jpAirports: JpAirportsPanel,
   jpRailways: JpRailwaysPanel,
@@ -1058,10 +1050,6 @@ export const HEADER_LABELS = extensibleRecord("featureHeaderLabels", {
   jpReligionWikidata: "宗教設施 宗教施設（Wikidata）",
   jpAdminPrefecture: "都道府縣界 都道府県境",
   jpAdminBoundaries: "市區町村界 市区町村境",
-  idAdminBoundaries: "行政邊界 Administrative Boundaries",
-  idPopulation: "人口密度 Population Density",
-  idRuralDevelopment: "農村發展指數 Village Development Index",
-  ...ID_HEADER_LABELS,
   jpStations: "車站 駅",
   jpAirports: "機場 空港",
   jpRailways: "鐵道路線 鉄道路線",

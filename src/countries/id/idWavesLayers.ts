@@ -5,8 +5,8 @@
  * 本檔不 import idDataLayers 的值（idDataLayers 會 spread 本檔）；只 import 型別。
  * `idProtectedAreas`（WDPA，非商用、禁再散布）等授權確認前不接。
  */
-import type { IdDataKey, IdRasterKey } from "./idDataKeys";
-import type { L3, PhCat, PhCatGetter, PhField, PhLayerSpec, PhNote, PhPart, PhSizeBands } from "./intlLayerShared";
+import type { IdDataKey, IdRasterKey } from "./keys";
+import type { L3, PhCat, PhCatGetter, PhField, PhLayerSpec, PhNote, PhPart, PhSizeBands } from "../../data/intlLayerShared";
 
 export interface IdLayerSpec extends PhLayerSpec<IdDataKey> {
   /** 類別多選的預設選取（類別 id）；省略＝全選 */

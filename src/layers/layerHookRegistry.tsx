@@ -104,7 +104,6 @@ import {
   JpPopulationMeshHost,
   JpTourismHost, JpWaterHost,
 } from "./hosts/japanHosts";
-import { IdAdminHost, IdPopulationHost, IdRuralDevelopmentHost, IdStationsHost, IdRailLinesHost, IdTransportHubsHost, IdPowerPlantsHost, IdPowerGridHost, IdRenewablesHost, IdFuelStationsHost, IdPlaceNamesHost, IdOuterIslandsHost, IdFaultsHost, IdMountainRescueHost, IdDibiHydrometHost, IdBridgesHost, IdWaterFacilitiesHost, IdWatershedsHost, IdSubsidenceHost, IdNatureSpotsHost, IdConservationForestHost, IdCampsHost, IdTerrainHillshadeHost, IdTerrainReliefHost, IdInariskLandslideHost, IdInariskFloodHost, IdInariskMultiHost, IdSchoolsHost, IdHealthFacilitiesHost, IdFireStationsHost, IdPoliceStationsHost, IdPrisonsCourtsHost, IdImmigrationOfficesHost, IdTransjakartaHost, IdSpecialEconomicZonesHost, IdIknHost, IdPostOfficesHost, IdMarketsHost, IdBanksHost, IdCulturalFacilitiesHost, IdHeritageSitesHost, IdCommTowersHost, IdPlacesOfWorshipHost, IdExperiencesHost, IdAccommodationHost, IdWeatherStationsHost, IdFactoriesHost, IdSportsVenuesHost, IdParksHost, IdCemeteriesHost, IdAquacultureHost, IdFarmlandHost, IdVeterinaryHost } from "./hosts/indonesiaHosts";
 
 export interface LayerHookEntry {
   /** hook 名（同名多次呼叫加 `:後綴` 區分）—— 也是 `window.__layerRenderCounts` 的 key */
@@ -311,60 +310,7 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = slottedList<LayerH
   countrySlot("CA", 1), // 加拿大國家包（src/countries/ca/）
   countrySlot("IE", 1), // 愛爾蘭國家包（src/countries/ie/）
   countrySlot("PH", 1), // 菲律賓國家包（src/countries/ph/）
-  // 泰國（2026-11-22 第 0–1 波：行政邊界、人口、交通 3 層、能源 5 層）
-  { id: "useIdAdminLayers", keys: ["idAdminBoundaries"], Host: IdAdminHost },
-  { id: "useIdPopulationLayers", keys: ["idPopulation"], Host: IdPopulationHost },
-  { id: "useIdRuralDevelopmentLayers", keys: ["idRuralDevelopment"], Host: IdRuralDevelopmentHost },
-  { id: "useIdStationsLayer", keys: ["idStations"], Host: IdStationsHost },
-  { id: "useIdRailLinesLayer", keys: ["idRailLines"], Host: IdRailLinesHost },
-  { id: "useIdTransportHubsLayer", keys: ["idTransportHubs"], Host: IdTransportHubsHost },
-  { id: "useIdPowerPlantsLayer", keys: ["idPowerPlants"], Host: IdPowerPlantsHost },
-  { id: "useIdPowerGridLayer", keys: ["idPowerGrid"], Host: IdPowerGridHost },
-  { id: "useIdRenewablesLayer", keys: ["idRenewables"], Host: IdRenewablesHost },
-  { id: "useIdFuelStationsLayer", keys: ["idFuelStations"], Host: IdFuelStationsHost },
-  { id: "useIdPlaceNamesLayer", keys: ["idPlaceNames"], Host: IdPlaceNamesHost },
-  { id: "useIdOuterIslandsLayer", keys: ["idOuterIslands"], Host: IdOuterIslandsHost },
-  { id: "useIdFaultsLayer", keys: ["idFaults"], Host: IdFaultsHost },
-  { id: "useIdMountainRescueLayer", keys: ["idMountainRescue"], Host: IdMountainRescueHost },
-  { id: "useIdDibiHydrometLayer", keys: ["idDibiHydromet"], Host: IdDibiHydrometHost },
-  { id: "useIdBridgesLayer", keys: ["idBridges"], Host: IdBridgesHost },
-  { id: "useIdWaterFacilitiesLayer", keys: ["idWaterFacilities"], Host: IdWaterFacilitiesHost },
-  { id: "useIdWatershedsLayer", keys: ["idWatersheds"], Host: IdWatershedsHost },
-  { id: "useIdSubsidenceLayer", keys: ["idSubsidence"], Host: IdSubsidenceHost },
-  { id: "useIdNatureSpotsLayer", keys: ["idNatureSpots"], Host: IdNatureSpotsHost },
-  { id: "useIdConservationForestLayer", keys: ["idConservationForest"], Host: IdConservationForestHost },
-  { id: "useIdCampsLayer", keys: ["idCamps"], Host: IdCampsHost },
-  { id: "useIdTerrainHillshadeLayer", keys: ["idTerrainHillshade"], Host: IdTerrainHillshadeHost },
-  { id: "useIdTerrainReliefLayer", keys: ["idTerrainRelief"], Host: IdTerrainReliefHost },
-  { id: "useIdInariskLandslideLayer", keys: ["idInariskLandslide"], Host: IdInariskLandslideHost },
-  { id: "useIdInariskFloodLayer", keys: ["idInariskFlood"], Host: IdInariskFloodHost },
-  { id: "useIdInariskMultiLayer", keys: ["idInariskMulti"], Host: IdInariskMultiHost },
-  { id: "useIdSchoolsLayer", keys: ["idSchools"], Host: IdSchoolsHost },
-  { id: "useIdHealthFacilitiesLayer", keys: ["idHealthFacilities"], Host: IdHealthFacilitiesHost },
-  { id: "useIdFireStationsLayer", keys: ["idFireStations"], Host: IdFireStationsHost },
-  { id: "useIdPoliceStationsLayer", keys: ["idPoliceStations"], Host: IdPoliceStationsHost },
-  { id: "useIdPrisonsCourtsLayer", keys: ["idPrisonsCourts"], Host: IdPrisonsCourtsHost },
-  { id: "useIdImmigrationOfficesLayer", keys: ["idImmigrationOffices"], Host: IdImmigrationOfficesHost },
-  { id: "useIdTransjakartaLayer", keys: ["idTransjakarta"], Host: IdTransjakartaHost },
-  { id: "useIdSpecialEconomicZonesLayer", keys: ["idSpecialEconomicZones"], Host: IdSpecialEconomicZonesHost },
-  { id: "useIdIknLayer", keys: ["idIkn"], Host: IdIknHost },
-  { id: "useIdPostOfficesLayer", keys: ["idPostOffices"], Host: IdPostOfficesHost },
-  { id: "useIdMarketsLayer", keys: ["idMarkets"], Host: IdMarketsHost },
-  { id: "useIdBanksLayer", keys: ["idBanks"], Host: IdBanksHost },
-  { id: "useIdCulturalFacilitiesLayer", keys: ["idCulturalFacilities"], Host: IdCulturalFacilitiesHost },
-  { id: "useIdHeritageSitesLayer", keys: ["idHeritageSites"], Host: IdHeritageSitesHost },
-  { id: "useIdCommTowersLayer", keys: ["idCommTowers"], Host: IdCommTowersHost },
-  { id: "useIdPlacesOfWorshipLayer", keys: ["idPlacesOfWorship"], Host: IdPlacesOfWorshipHost },
-  { id: "useIdExperiencesLayer", keys: ["idExperiences"], Host: IdExperiencesHost },
-  { id: "useIdAccommodationLayer", keys: ["idAccommodation"], Host: IdAccommodationHost },
-  { id: "useIdWeatherStationsLayer", keys: ["idWeatherStations"], Host: IdWeatherStationsHost },
-  { id: "useIdFactoriesLayer", keys: ["idFactories"], Host: IdFactoriesHost },
-  { id: "useIdSportsVenuesLayer", keys: ["idSportsVenues"], Host: IdSportsVenuesHost },
-  { id: "useIdParksLayer", keys: ["idParks"], Host: IdParksHost },
-  { id: "useIdCemeteriesLayer", keys: ["idCemeteries"], Host: IdCemeteriesHost },
-  { id: "useIdAquacultureLayer", keys: ["idAquaculture"], Host: IdAquacultureHost },
-  { id: "useIdFarmlandLayer", keys: ["idFarmland"], Host: IdFarmlandHost },
-  { id: "useIdVeterinaryLayer", keys: ["idVeterinary"], Host: IdVeterinaryHost },
+  countrySlot("ID", 1), // 印尼國家包（src/countries/id/）
   countrySlot("TH", 1), // 泰國國家包（src/countries/th/）
   countrySlot("VN", 1), // 越南國家包（src/countries/vn/）
   countrySlot("PH", 2), // 菲律賓國家包（src/countries/ph/）

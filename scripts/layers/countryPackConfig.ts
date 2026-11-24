@@ -160,4 +160,17 @@ export const COUNTRY_PACK_CONFIG: Record<string, CountryPackConfig> = {
     keyType: "VnLayerKey",
     specNotes: { specsImport: "./vnDataLayers", specsName: "VN_DATA_SPECS" },
   },
+  ID: {
+    dir: "id",
+    nameZh: "印尼",
+    dedicated: [
+      /^src\/data\/id[A-Z][A-Za-z0-9]*\.ts$/,
+      /^src\/hooks\/useId[A-Z][A-Za-z]*\.ts$/,
+      /^src\/components\/legend\/id[A-Z][A-Za-z]*\.tsx$/,
+      /^src\/components\/featureInfo\/id[A-Z][A-Za-z]*\.tsx$/,
+      /^src\/layers\/hosts\/indonesiaHosts\.tsx$/,
+    ],
+    rename: { "src/data/idDataKeys.ts": "keys.ts" },
+    keyType: "IdLayerKey",
+  },
 };

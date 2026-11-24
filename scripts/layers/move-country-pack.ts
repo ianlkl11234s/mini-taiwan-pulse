@@ -697,7 +697,7 @@ const sParams = section("params.ts", `${CC}_PACK_PARAMS`, "record", `satisfies P
 moveRecordEntries("src/data/layerParamsSpec.ts", "STATIC_LAYER_PARAMS_SPEC", inKeys, sParams);
 const sSource = section("sourceInfo.ts", `${CC}_PACK_SOURCE_INFO`, "record", `satisfies Partial<Record<${KEY_T}, LayerSourceInfo>>`,
   [keyTypeImport, 'import type { LayerSourceInfo } from "../../data/layerSourceInfo";']);
-moveRecordEntries("src/data/layerSourceInfo.data.ts", "LAYER_SOURCE_INFO_DATA", inKeys, sSource, false);
+moveRecordEntries("src/data/layerSourceInfo.data.ts", "LAYER_SOURCE_INFO_DATA", inKeys, sSource);
 const sNotes = section("notes.ts", `${CC}_PACK_NOTES`, "record", `satisfies Partial<Record<${KEY_T}, SourceText[]>>`,
   [keyTypeImport, 'import type { SourceText } from "../../data/layerSourceInfo";']);
 moveRecordEntries("src/data/layerSourceInfo.data.ts", "LAYER_NOTES_DATA", inKeys, sNotes, false);

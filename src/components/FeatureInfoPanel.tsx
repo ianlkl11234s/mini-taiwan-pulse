@@ -8,7 +8,7 @@ import { IE_DATA_KEYS } from "../countries/ie/keys";
 import { PH_DATA_KEYS } from "../countries/ph/keys";
 import { VN_DATA_KEYS } from "../countries/vn/keys";
 import { TH_DATA_KEYS } from "../countries/th/keys";
-import { ID_DATA_KEYS } from "../data/idDataKeys";
+import { ID_DATA_KEYS } from "../countries/id/keys";
 import { CN_DATA_KEYS } from "../countries/cn/keys";
 import { CA_WAVE_KEYS } from "../countries/ca/keys";
 import { G53_SELF_FOOTER_KEYS } from "../data/atlasLayerTypes";

@@ -2,7 +2,7 @@
 // ⚠️ 只能經 src/countries/packs.ts 的 ensureCountryPack 動態載入，不可從國家目錄以外靜態 import（lint 擋）。
 import type { PhLayerKey } from "./keys";
 import type { LayerParamSpec } from "../../data/layerParamsSpec";
-import { ID_DATA_SPECS } from "../../data/idDataLayers";
+import { ID_DATA_SPECS } from "../id/idDataLayers";
 import { categoryMultiSelect, heatmapPalette, opacitySlider, scaleSlider, serializeMultiSelectValues } from "../../data/layerParamsSpec";
 import { VN_DATA_SPECS, VN_STATUSES } from "../vn/vnDataLayers";
 import { densePointOpacity, RASTER } from "../../map/mapStyleScale";

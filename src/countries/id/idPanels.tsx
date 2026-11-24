@@ -1,15 +1,15 @@
 // 印尼圖層 popup（2026-11-23 第 0–4 波）。規格 SSOT 在 data/idDataLayers.ts、data/idWavesLayers.ts；規格驅動層重用菲律賓 makePhPanel。
 // 來源與授權由 panel 自掛 SourceFooter（FOOTER_SELF_MANAGED）。空值列由 Row 自動隱藏，不寫 0；沒有值的縣市寫「未涵蓋」。
 import type { FC } from "react";
-import { Row, SourceFooter, Title } from "./shared";
+import { Row, SourceFooter, Title } from "../../components/featureInfo/shared";
 import { useLocale } from "../../state/localeStore";
 import { caText } from "../../data/intlLayerShared";
-import { makePhPanel } from "./intlSpecPanel";
+import { makePhPanel } from "../../components/featureInfo/intlSpecPanel";
 import {
   ID_ADMIN_COLOR, ID_ADMIN_LEVEL_LABELS, ID_DATA_SPECS, ID_FETCHED_AT, ID_IDM_STATUS_KEYS, ID_NOT_COVERED_COLOR, phText, pickL3, type L3, type IdAdminLevel,
-} from "../../data/idDataLayers";
-import { ID_SPEC_BY_KEY } from "../../data/idDataLayers";
-import type { IdDataKey } from "../../data/idDataKeys";
+} from "./idDataLayers";
+import { ID_SPEC_BY_KEY } from "./idDataLayers";
+import type { IdDataKey } from "./keys";
 
 type P = { props: Record<string, unknown> };
 

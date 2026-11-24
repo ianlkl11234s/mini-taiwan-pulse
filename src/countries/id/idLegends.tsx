@@ -1,17 +1,17 @@
 // 印尼圖例（2026-11-23 第 0–4 波）：行政邊界、人口密度、農村發展指數、規格驅動 19 層（重用菲律賓 PhSpecLegend）、5 張 raster。SSOT：data/idDataLayers.ts。
 // 來源、授權、資料日期在圖層「說明・來源」，圖例只留色階、單位、縮放與涵蓋範圍提示。
-import { LegendNote, LegendRow, LegendTitle, SwatchGradient, SwatchLine, SwatchSquare, SwatchSteps, useLegendTheme } from "./legendKit";
+import { LegendNote, LegendRow, LegendTitle, SwatchGradient, SwatchLine, SwatchSquare, SwatchSteps, useLegendTheme } from "../../components/legend/legendKit";
 import { LAYER_MANIFEST, type LayerName } from "../../data/layerManifest";
 import { localizeLayerName } from "../../i18n/layerText";
 import { useLocale } from "../../state/localeStore";
 import { BOUNDARY_GRAY, LINE_WIDTH } from "../../map/mapStyleScale";
 import {
   ID_ADMIN_NOTES, ID_DENSITY_LABELS_BY_LEVEL, ID_IDM_LABELS_BY_LEVEL, ID_NOT_COVERED_COLOR, ID_POPULATION_NOTES, ID_RURAL_NOTES, ID_SPEC_BY_KEY, phText, pickL3,
-} from "../../data/idDataLayers";
-import type { IdDataKey, IdRasterKey } from "../../data/idDataKeys";
-import { ID_RASTER_BY_KEY } from "../../data/idWavesLayers";
-import { idDensityColors, idIdmColors } from "../../hooks/useIdLayers";
-import { PhSpecLegend } from "./intlSpecLegend";
+} from "./idDataLayers";
+import type { IdDataKey, IdRasterKey } from "./keys";
+import { ID_RASTER_BY_KEY } from "./idWavesLayers";
+import { idDensityColors, idIdmColors } from "./useIdLayers";
+import { PhSpecLegend } from "../../components/legend/intlSpecLegend";
 
 function useLayerTitle(key: string): string {
   const i18n = useLocale();

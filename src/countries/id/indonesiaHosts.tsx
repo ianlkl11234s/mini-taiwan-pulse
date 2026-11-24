@@ -1,12 +1,12 @@
 // 印尼 Layer Host（2026-11-23 第 0–4 波）。比照 hosts/thailandHosts.tsx：一個 key 一個 Host；規格驅動層重用 usePhDataLayer。
 
 import { usePhDataLayer } from "../../hooks/intlPhSpecLayers";
-import { useIdAdminLayers, useIdPopulationLayers, useIdRasterLayer, useIdRuralDevelopmentLayers } from "../../hooks/useIdLayers";
-import { ID_RASTER_BY_KEY } from "../../data/idWavesLayers";
-import { ID_SPEC_BY_KEY } from "../../data/idDataLayers";
-import type { IdDataKey, IdRasterKey } from "../../data/idDataKeys";
-import { bumpHostRender, type LayerHostComponent } from "../layerHostDeps";
-import { useKeyOverlayParams } from "../layerParamsAccess";
+import { useIdAdminLayers, useIdPopulationLayers, useIdRasterLayer, useIdRuralDevelopmentLayers } from "./useIdLayers";
+import { ID_RASTER_BY_KEY } from "./idWavesLayers";
+import { ID_SPEC_BY_KEY } from "./idDataLayers";
+import type { IdDataKey, IdRasterKey } from "./keys";
+import { bumpHostRender, type LayerHostComponent } from "../../layers/layerHostDeps";
+import { useKeyOverlayParams } from "../../layers/layerParamsAccess";
 
 /** 行政邊界：國界、省、縣市三層級（同一個 PMTiles，select 切換）。 */
 export const IdAdminHost: LayerHostComponent = ({ deps }) => {

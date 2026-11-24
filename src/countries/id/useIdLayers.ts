@@ -1,14 +1,14 @@
 import type { AnyLayer, Map as MapboxMap } from "mapbox-gl";
-import { hookFillPaint, hookLineLayout, hookLinePaint } from "../map/lineFillSpec";
-import { BOUNDARY_GRAY, MAP_SEAM } from "../map/mapStyleScale";
-import { paletteRamp, resampleRamp } from "../map/palettes";
-import { paramDefault } from "../data/layerParamsSpec";
+import { hookFillPaint, hookLineLayout, hookLinePaint } from "../../map/lineFillSpec";
+import { BOUNDARY_GRAY, MAP_SEAM } from "../../map/mapStyleScale";
+import { paletteRamp, resampleRamp } from "../../map/palettes";
+import { paramDefault } from "../../data/layerParamsSpec";
 import {
   ID_ADMIN_COLOR, ID_ADMIN_LEVELS, ID_DENSITY_BREAKS_BY_LEVEL, ID_IDM_BREAKS_BY_LEVEL, ID_LEVELS_2, ID_NOT_COVERED_COLOR, ID_POP_KEY, ID_RURAL_KEY,
   phText, type IdAdminLevel, type IdLevel2,
-} from "../data/idDataLayers";
-import type { IdRasterSpec } from "../data/idWavesLayers";
-import { useGbPmtilesLayers, type SourceSpec } from "./intlPmtilesLayers";
+} from "./idDataLayers";
+import type { IdRasterSpec } from "./idWavesLayers";
+import { useGbPmtilesLayers, type SourceSpec } from "../../hooks/intlPmtilesLayers";
 
 /**
  * 印尼第 0–3 波（2026-11-23）：行政邊界（國界／省／縣市）、人口、農村發展指數 IDM（省／縣市兩層級 select）與 5 張 raster。靜態 PMTiles、不訂閱時間。
