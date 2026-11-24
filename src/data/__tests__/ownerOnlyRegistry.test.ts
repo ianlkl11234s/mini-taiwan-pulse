@@ -39,6 +39,8 @@ const PINNED = [
   "fire119Live", "pbsRoadEventsLive",
   // 英國列車重播測試圖層（站主 2026-11-23「先做成一個測試 layer」；只有 2026-11-21 一天，owner-data 私人檔；gis-platform gated_layers migration 待套用）
   "gbRailReplay",
+  // 設施研究 M（站主 2026-11-24 決定站主限定；owner-data 私人檔）
+  "siteStudyM",
   // 中國第 0–1 波 9 層（使用者 2026-11-10 決定站主限定；私人 owner-data 圖磚）
   "cnAdminBoundaries", "cnPopulation", "cnPopulationGrid", "cnBusStops", "cnTransportHubs", "cnMajorRoads",
   "cnPowerPlants", "cnPowerGrid", "cnPipelines",
