@@ -7249,6 +7249,76 @@
    "s3_key": "deploy-assets/world/gb_woodland_nfi_points.pmtiles"
   },
   {
+   "path": "public/world/gu_admin_boundaries.pmtiles",
+   "bytes": 87970,
+   "sha256": "c0d04d52c79bd0e88d39ccf4906a6af2e92cef7307ecc6e11bbd458b10dacb6a",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/gu_admin_boundaries.pmtiles"
+  },
+  {
+   "path": "public/world/gu_fuel_stations.pmtiles",
+   "bytes": 43279,
+   "sha256": "6f80c7b572f64a9d74e3b33fd9bac0897537c5d84c2ec2c822eba39bbeac27d1",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/gu_fuel_stations.pmtiles"
+  },
+  {
+   "path": "public/world/gu_major_roads.pmtiles",
+   "bytes": 98230,
+   "sha256": "6537ce5d1e7228f3d6018dd992ffef7113e252828aa094d25f33e8ee1c832eb4",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/gu_major_roads.pmtiles"
+  },
+  {
+   "path": "public/world/gu_petroleum.pmtiles",
+   "bytes": 72822,
+   "sha256": "8c2f63d011b958e145f8eb05d636b9935dd32c3e05241eba64175acfaa206f21",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/gu_petroleum.pmtiles"
+  },
+  {
+   "path": "public/world/gu_population.pmtiles",
+   "bytes": 309930,
+   "sha256": "e2499ca3c6b1ffdf1377dd6dd849b0ab32639af9cf19b74f4f91f70413d0f74e",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/gu_population.pmtiles"
+  },
+  {
+   "path": "public/world/gu_power_grid.pmtiles",
+   "bytes": 345617,
+   "sha256": "6f052d38e59c1674ca8e7b82748ca89476057e591b984656ced7bfad5f0a9b8b",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/gu_power_grid.pmtiles"
+  },
+  {
+   "path": "public/world/gu_power_plants.pmtiles",
+   "bytes": 22544,
+   "sha256": "ca8a43ebde81059f58cde26621c31f7bf2c2908db1b6a5c4e4eb74bc2a0b3548",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/gu_power_plants.pmtiles"
+  },
+  {
+   "path": "public/world/gu_renewables.pmtiles",
+   "bytes": 44941,
+   "sha256": "090a911f0901f74478ac9a0aa076923fc1e2eda5ac6aac2147bd4d1bfbda665f",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/gu_renewables.pmtiles"
+  },
+  {
+   "path": "public/world/gu_transit_stops.pmtiles",
+   "bytes": 74729,
+   "sha256": "afa46803912bc2115af647c2afe6cfd6c81c5c5d580aead4cda34b342aaefc30",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/gu_transit_stops.pmtiles"
+  },
+  {
+   "path": "public/world/gu_transport_hubs.pmtiles",
+   "bytes": 16608,
+   "sha256": "71bf4383cef4443df89c96844cb1a3f9d5ab02c78054e30dd67e93cb30aaea87",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/gu_transport_hubs.pmtiles"
+  },
+  {
    "path": "public/world/id_accommodation.pmtiles",
    "bytes": 39363016,
    "sha256": "be64aa5c7043b1300a67d5b6d02fd00f8525d88a625bf6d19123482e2eec6ad9",
@@ -9522,6 +9592,76 @@
    "sha256": "84f3972eace4542efcde49a386cf9a22128249ed144503f483f53bdb17c96318",
    "delivery": "r2",
    "s3_key": "deploy-assets/world/ph_wetlands.pmtiles"
+  },
+  {
+   "path": "public/world/pr_admin_boundaries.pmtiles",
+   "bytes": 1581868,
+   "sha256": "1fa24a90c0c1fb882ea46860c51d7107a076e1cbeb341aeed098aad204071928",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/pr_admin_boundaries.pmtiles"
+  },
+  {
+   "path": "public/world/pr_fuel_stations.pmtiles",
+   "bytes": 416253,
+   "sha256": "0ebafa9566eadac7036538cc30ae2c1dd7aebb688bb9e44cfc2bc505c71268ad",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/pr_fuel_stations.pmtiles"
+  },
+  {
+   "path": "public/world/pr_major_roads.pmtiles",
+   "bytes": 898569,
+   "sha256": "537a791e4614bd6ae8b49a3bcde48262bee8e5f5c7871d3ad81dca3dad1eb7bb",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/pr_major_roads.pmtiles"
+  },
+  {
+   "path": "public/world/pr_petroleum.pmtiles",
+   "bytes": 6268,
+   "sha256": "a7774ae4deb6a207e3328219a630b9b8dfbdf5ad1af5b903674ffd8d267e2698",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/pr_petroleum.pmtiles"
+  },
+  {
+   "path": "public/world/pr_population.pmtiles",
+   "bytes": 1639148,
+   "sha256": "79b2e592ba1bd390d0d468c7e4e0799ce4d81914bcaf1d361c7567969a6fa2fa",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/pr_population.pmtiles"
+  },
+  {
+   "path": "public/world/pr_power_grid.pmtiles",
+   "bytes": 809118,
+   "sha256": "2e4374be7ef74b3a5974facdd8cbd28b5f500ee72b00f4f16312e008f64758fb",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/pr_power_grid.pmtiles"
+  },
+  {
+   "path": "public/world/pr_power_plants.pmtiles",
+   "bytes": 78842,
+   "sha256": "18361bcd160d84c78e1ddc2deee7f3417e3685449580dab97165829ace5b02f7",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/pr_power_plants.pmtiles"
+  },
+  {
+   "path": "public/world/pr_renewables.pmtiles",
+   "bytes": 89007,
+   "sha256": "dced4b31c9f9a5bc5e1cc8d7d55ad0e766e8fb0f9665162c4666bb0ea40d005e",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/pr_renewables.pmtiles"
+  },
+  {
+   "path": "public/world/pr_transit_stops.pmtiles",
+   "bytes": 1383149,
+   "sha256": "8ab6fdf663862513625ef50e438902d93ea454b869ea71cad00a71e2a65e5ad1",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/pr_transit_stops.pmtiles"
+  },
+  {
+   "path": "public/world/pr_transport_hubs.pmtiles",
+   "bytes": 64336,
+   "sha256": "088f4e32275fd98bd3500f368acf95f16a6729a7a71307f89378d3a64263e91f",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/pr_transport_hubs.pmtiles"
   },
   {
    "path": "public/world/th_accommodation.pmtiles",

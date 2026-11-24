@@ -1,12 +1,12 @@
 // ⚠️ 自動產生，請勿手改：PULSE_DATA_ROOT=<pulse-data> npx tsx scripts/countries/gen-countries.ts
 // 正本：pulse-data countries/countries.json（網站與 MCP 共用；陣列順序是語意，判國先比國家順序、再比框順序）
-// source-sha256: bb1440faed3e8734cd36f9477ec53d7d1f1b250d16d3fe97bb999f4775cd32b2
-// payload-sha256: fb5b673d7c586f5474fbe4bc92c5c103f711b5701baccb354b749beaef4847c6
+// source-sha256: cc68a1aab77acad2adaf543793233340780c4bba6ee8dd9ffb410147c3e10924
+// payload-sha256: 915d79c93e1c9facfe68a046d32c9ead66cc5199500471b2e0896e03fca27094
 
-export type CountryCode = "TW" | "JP" | "FR" | "GB" | "KR" | "CA" | "IE" | "PH" | "VN" | "TH" | "ID" | "CN";
+export type CountryCode = "TW" | "JP" | "FR" | "GB" | "KR" | "CA" | "IE" | "PH" | "VN" | "TH" | "ID" | "CN" | "PR" | "GU";
 
 /** 國名 i18n 鍵（common.json 的 country.*）；寫成字面值，i18n 的「沒人用的 key」檢查才找得到。 */
-export const COUNTRY_LABEL_KEYS = { TW: "country.TW", JP: "country.JP", FR: "country.FR", GB: "country.GB", KR: "country.KR", CA: "country.CA", IE: "country.IE", PH: "country.PH", VN: "country.VN", TH: "country.TH", ID: "country.ID", CN: "country.CN" } as const;
+export const COUNTRY_LABEL_KEYS = { TW: "country.TW", JP: "country.JP", FR: "country.FR", GB: "country.GB", KR: "country.KR", CA: "country.CA", IE: "country.IE", PH: "country.PH", VN: "country.VN", TH: "country.TH", ID: "country.ID", CN: "country.CN", PR: "country.PR", GU: "country.GU" } as const;
 
 export interface GeneratedCountry {
   code: CountryCode;
@@ -368,6 +368,26 @@ export const GENERATED_COUNTRIES: readonly GeneratedCountry[] =
       [112.92,22.48,113.99,22.54],
       [113.55,22.22,113.83,22.3],
       [123.38,40.12,124.39,40.41]
+    ]
+  },
+  {
+    "code": "PR",
+    "chip": "PR",
+    "timeZone": "America/Puerto_Rico",
+    "camera": {"center":[-66.45,18.2],"zoom":8.2,"pitch":0,"bearing":0},
+    "bboxes": [
+      [-67.3,17.86,-65.55,18.54],
+      [-65.6,18.05,-65.21,18.38],
+      [-67.98,17.98,-67.3,18.42]
+    ]
+  },
+  {
+    "code": "GU",
+    "chip": "GU",
+    "timeZone": "Pacific/Guam",
+    "camera": {"center":[144.79,13.44],"zoom":9.6,"pitch":0,"bearing":0},
+    "bboxes": [
+      [144.6,13.22,144.98,13.66]
     ]
   }
 ]

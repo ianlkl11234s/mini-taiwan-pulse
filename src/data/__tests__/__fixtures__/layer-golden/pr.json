@@ -1,0 +1,511 @@
+{
+  "count": 10,
+  "gisLayers": {
+    "prAdminBoundaries": {
+      "layers": [
+        "pr-admin-barrio-fill",
+        "pr-admin-municipio-fill",
+        "pr-admin-territory-fill"
+      ],
+      "type": "prAdminBoundaries"
+    },
+    "prFuelStations": {
+      "layers": [
+        "pr-fuel-stations-circle"
+      ],
+      "type": "prFuelStations"
+    },
+    "prMajorRoads": {
+      "layers": [
+        "pr-major-roads-line"
+      ],
+      "type": "prMajorRoads"
+    },
+    "prPetroleum": {
+      "layers": [
+        "pr-petroleum-circle"
+      ],
+      "type": "prPetroleum"
+    },
+    "prPopulation": {
+      "layers": [
+        "pr-population-barrio-fill",
+        "pr-population-municipio-fill"
+      ],
+      "type": "prPopulation"
+    },
+    "prPowerGrid": {
+      "layers": [
+        "pr-power-substations-circle",
+        "pr-power-lines-line",
+        "pr-power-substations-fill"
+      ],
+      "type": "prPowerGrid"
+    },
+    "prPowerPlants": {
+      "layers": [
+        "pr-power-plants-circle",
+        "pr-power-plants-fill"
+      ],
+      "type": "prPowerPlants"
+    },
+    "prRenewables": {
+      "layers": [
+        "pr-renewables-circle",
+        "pr-renewables-fill"
+      ],
+      "type": "prRenewables"
+    },
+    "prTransitStops": {
+      "layers": [
+        "pr-transit-stops-circle"
+      ],
+      "type": "prTransitStops"
+    },
+    "prTransportHubs": {
+      "layers": [
+        "pr-transport-hubs-circle"
+      ],
+      "type": "prTransportHubs"
+    }
+  },
+  "overlays": {},
+  "params": {
+    "prAdminBoundaries": [
+      {
+        "label": "行政層級",
+        "options": [
+          {
+            "label": "屬地界（Territory）",
+            "value": "territory"
+          },
+          {
+            "label": "市（Municipio，78）",
+            "value": "municipio"
+          },
+          {
+            "label": "區（Barrio，901）",
+            "value": "barrio"
+          }
+        ],
+        "type": "select",
+        "value": "municipio"
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      }
+    ],
+    "prFuelStations": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "Total",
+            "value": "Total"
+          },
+          {
+            "label": "Gulf",
+            "value": "Gulf"
+          },
+          {
+            "label": "Mobil",
+            "value": "Mobil"
+          },
+          {
+            "label": "Texaco",
+            "value": "Texaco"
+          },
+          {
+            "label": "Puma",
+            "value": "Puma"
+          },
+          {
+            "label": "Shell",
+            "value": "Shell"
+          },
+          {
+            "label": "其他品牌、未標品牌",
+            "value": "other_brand"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "Total",
+          "Gulf",
+          "Mobil",
+          "Texaco",
+          "Puma",
+          "Shell",
+          "other_brand"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "prMajorRoads": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "州際公路級（PR-52、PR-22 等，FHWA 功能分類 1）",
+            "value": "interstate"
+          },
+          {
+            "label": "快速道路（功能分類 2）",
+            "value": "freeway"
+          },
+          {
+            "label": "主要幹道（功能分類 3）",
+            "value": "principal_arterial"
+          },
+          {
+            "label": "其他國道系統路段",
+            "value": "other"
+          },
+          {
+            "label": "Tren Urbano 捷運線（OSM）",
+            "value": "metro"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "interstate",
+          "freeway",
+          "principal_arterial",
+          "other",
+          "metro"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      }
+    ],
+    "prPetroleum": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "油品儲運站（HIFLD）",
+            "value": "terminal"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "terminal"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "prPopulation": [
+      {
+        "label": "行政層級",
+        "options": [
+          {
+            "label": "市（Municipio，78）",
+            "value": "municipio"
+          },
+          {
+            "label": "區（Barrio，901）",
+            "value": "barrio"
+          }
+        ],
+        "type": "select",
+        "value": "municipio"
+      },
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      }
+    ],
+    "prPowerGrid": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "230 kV",
+            "value": "kv230"
+          },
+          {
+            "label": "115 kV",
+            "value": "kv115"
+          },
+          {
+            "label": "34.5–38 kV",
+            "value": "kv38"
+          },
+          {
+            "label": "電壓未知",
+            "value": "unknown"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "kv230",
+          "kv115",
+          "kv38",
+          "unknown"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "prPowerPlants": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "石油、柴油",
+            "value": "oil"
+          },
+          {
+            "label": "天然氣",
+            "value": "gas"
+          },
+          {
+            "label": "燃煤",
+            "value": "coal"
+          },
+          {
+            "label": "太陽能",
+            "value": "solar"
+          },
+          {
+            "label": "風力",
+            "value": "wind"
+          },
+          {
+            "label": "水力",
+            "value": "hydro"
+          },
+          {
+            "label": "掩埋場沼氣、廢棄物",
+            "value": "waste"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "oil",
+          "gas",
+          "coal",
+          "solar",
+          "wind",
+          "hydro",
+          "waste"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "prRenewables": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "太陽能（發電場、板陣）",
+            "value": "solar"
+          },
+          {
+            "label": "風機（USWTDB）",
+            "value": "wind"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "solar",
+          "wind"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "prTransitStops": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "公車站",
+            "value": "bus"
+          },
+          {
+            "label": "捷運站（Tren Urbano）",
+            "value": "metro"
+          },
+          {
+            "label": "渡輪站",
+            "value": "ferry"
+          },
+          {
+            "label": "未標類型（市營業者，多為公車招呼站）",
+            "value": "other"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "bus",
+          "metro",
+          "ferry",
+          "other"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "prTransportHubs": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "機場",
+            "value": "airport"
+          },
+          {
+            "label": "直升機場",
+            "value": "heliport"
+          },
+          {
+            "label": "港口",
+            "value": "port"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "airport",
+          "heliport",
+          "port"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ]
+  }
+}

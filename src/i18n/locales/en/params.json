@@ -3216,5 +3216,11 @@
   "param.BWP 分區 C（共 6 區，名稱見 popup）": "BWP sub-area C (6 in total; names in popup)",
   "param.BWP 分區 D（共 6 區，名稱見 popup）": "BWP sub-area D (6 in total; names in popup)",
   "param.BWP 分區 E（共 6 區，名稱見 popup）": "BWP sub-area E (6 in total; names in popup)",
-  "param.BWP 分區 F（共 6 區，名稱見 popup）": "BWP sub-area F (6 in total; names in popup)"
+  "param.BWP 分區 F（共 6 區，名稱見 popup）": "BWP sub-area F (6 in total; names in popup)",
+  "param.屬地界（Territory）": "Territory",
+  "param.市（Municipio，78）": "Municipio (78)",
+  "param.區（Barrio，901）": "Barrio (901)",
+  "param.島界（Territory）": "Territory",
+  "param.村（Village，19）": "Village (19)",
+  "param.普查區塊群（Block Group，218）": "Census block group (218)"
 }

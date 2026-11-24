@@ -5,6 +5,7 @@ import type { PhDataKey, PhRasterKey } from '../data/phDataKeys';
 import type { VnDataKey, VnRasterKey } from '../data/vnDataKeys';
 import type { ThDataKey, ThRasterKey } from '../data/thDataKeys';
 import type { IdDataKey, IdRasterKey } from '../data/idDataKeys';
+import type { UstAreaKey, UstDataKey } from '../data/ustDataKeys';
 import type { CnDataKey, CnRasterKey } from '../data/cnDataKeys';
 import type { CaWaveKey } from '../data/caWavesKeys';
 import type { LaborStatisticsLayerKey } from '../data/laborStatisticsRecipes';
@@ -489,6 +490,7 @@ export type ExpandableLayerKey =
   | "vnAdminBoundaries" | "vnPopulation" | VnDataKey | VnRasterKey
   | "thAdminBoundaries" | "thPopulation" | ThDataKey | ThRasterKey
   | "idAdminBoundaries" | "idPopulation" | "idRuralDevelopment" | IdDataKey | IdRasterKey
+  | UstAreaKey | UstDataKey
   | "cnAdminBoundaries" | "cnPopulation" | "cnPopulationGrid" | CnDataKey | CnRasterKey
   | "caAdminBoundaries" | "caTransitStops" | "caAirportsPorts" | "caMajorRoads" | "caRailways" | "caPowerPlants" | "caWindTurbines" | "caPowerGrid" | "caOilGas" | "caPopulationCentres" | "caFederalDistricts" | "caPostalFsa" | "caIndigenousLands" | "caDeprivation" | "caRents" | "caPlaceNames" | "caHillshade" | "caClimateStations" | "caAqhiStations" | "caRadiationStations" | "caNpriFacilities" | "caWastewaterSystems" | "caEarthquakes" | "caEarthquakesLive" | "caPopulationGrid" | CaWaveKey
   | "krBusStops" | "krRailStations" | "krAirports" | "krPorts" | "krNationalRoads" | "krRailLines" | "krFuelStations" | "krPowerPlants" | "krRenewables" | "krPowerLines" | "krSubstations" | "krPowerTowers" | "krOilGas"
@@ -1110,6 +1112,8 @@ export interface FeatureInfo {
     | "thAdminBoundaries" | "thPopulation" | ThDataKey
     // 印尼第 0–4 波
     | "idAdminBoundaries" | "idPopulation" | "idRuralDevelopment" | IdDataKey
+    // 美國屬地（波多黎各、關島）第 0–1 波
+    | UstAreaKey | UstDataKey
     // 中國第 0–1 波（站主限定；人口網格是 raster，沒有 popup）
     | "cnAdminBoundaries" | "cnPopulation" | CnDataKey
     // 南韓第 1 波：交通 6 層、能源 7 個 key
@@ -1165,7 +1169,7 @@ export interface FeatureInfo {
 
 // ── 圖層控制 ──
 
-export interface LayerVisibility extends Record<KrDataKey | IeDataKey | PhDataKey | PhRasterKey | VnDataKey | VnRasterKey | ThDataKey | ThRasterKey | IdDataKey | IdRasterKey | CnDataKey | CnRasterKey | CaWaveKey | ComparisonStatisticsLayerKey | LaborStatisticsLayerKey | EnvironmentStatisticsLayerKey | DemographicsStatisticsLayerKey | AddictionStatisticsLayerKey | LandslideStatisticsLayerKey | AtlasStatisticsLayerKey, boolean> {
+export interface LayerVisibility extends Record<KrDataKey | IeDataKey | PhDataKey | PhRasterKey | VnDataKey | VnRasterKey | ThDataKey | ThRasterKey | IdDataKey | IdRasterKey | UstAreaKey | UstDataKey | CnDataKey | CnRasterKey | CaWaveKey | ComparisonStatisticsLayerKey | LaborStatisticsLayerKey | EnvironmentStatisticsLayerKey | DemographicsStatisticsLayerKey | AddictionStatisticsLayerKey | LandslideStatisticsLayerKey | AtlasStatisticsLayerKey, boolean> {
   statsWasteRecyclingRate: boolean;
   statsEducationCountyInstitutionCount: boolean;
   statsEducationCountyTeacherCount: boolean;

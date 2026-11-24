@@ -2198,3 +2198,23 @@ harmReductionDuiCrashes,酒駕肇事事故 Drunk-driving Crashes,TW,臺灣圖層
 medICUBeds,,TW,臺灣圖層,(orphan),custom,pulse_only,,,,,,,yes,none,,missing,,,override: unclear: 全 repo 僅有 type 宣告與三張全量表的值，layerConsistency 僅記載 baseline，無任何 loader/hook/RPC 實作（幽靈 toggle 已於 2026-06-10 自 sidebar 移除）；沒有可查的資料來源，無法判斷屬於哪一類。,,,unclear: 全 repo 僅有 type 宣告與三張全量表的值，layerConsistency 僅記載 baseline，無任何 loader/hook/RPC 實作（幽靈 toggle 已於 2026-06-10 自 sidebar 移除）；沒有可查的資料來源，無法判斷屬於哪一類。,急重症床位壓力（規劃中，尚未實作渲染）
 twMarineHeatwaves,海洋熱浪月分級 Marine Heatwaves,TW,臺灣圖層,海洋 Marine,custom,verified,marine.odb_marine_heatwave_monthly,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,國科會海洋學門資料庫（ODB）海洋熱浪月分級（0.25° 網格、月平均，1982-01～2026-10）：無熱浪、中等、強烈、嚴重、極端。
 twCoralBleachingHeatStress,珊瑚白化熱壓力 Coral Bleaching Heat Stress,TW,臺灣圖層,海洋 Marine,custom,verified,marine.coral_bleaching_heat_stress,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,NOAA Coral Reef Watch 珊瑚白化熱壓力月最大值（5 km，2003-01～2026-10）：白化警報 8 級或累積熱壓力 DHW，只畫 NOAA 珊瑚礁監測範圍。
+prTransitStops,大眾運輸站點 Transit Stops,PR,波多黎各,交通,custom,verified,pr_transit_stops,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"波多黎各大眾運輸站點 5,550 處（National Transit Map；Tren Urbano 16、渡輪 6）"
+prTransportHubs,機場與港口 Airports & Ports,PR,波多黎各,交通,custom,verified,pr_transport_hubs,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,波多黎各機場 17、直升機場 27、主要港口 3（FAA、USACE）
+prMajorRoads,主要道路 Major Roads,PR,波多黎各,交通,custom,verified,pr_major_roads,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"波多黎各國道系統 9,598 段（FHWA，含交通量）＋Tren Urbano 捷運線"
+prPowerPlants,電廠 Power Plants,PR,波多黎各,能源,custom,verified,pr_power_plants,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,波多黎各電廠 48 座（HIFLD 存檔；依燃料分色）
+prPowerGrid,輸電線與變電所 Power Lines & Substations,PR,波多黎各,能源,custom,verified,pr_power_grid,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,波多黎各輸電線 268 段（HIFLD 存檔）、變電所 551 處（OSM）
+prRenewables,風機與太陽能 Wind Turbines & Solar,PR,波多黎各,能源,custom,verified,pr_renewables,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,波多黎各風機 63 座、太陽能發電場 48 處
+prFuelStations,加油站 Fuel Stations,PR,波多黎各,能源,custom,verified,pr_fuel_stations,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,波多黎各加油站 919 處（OSM，依品牌分色）
+prPetroleum,油氣設施 Oil & Gas Facilities,PR,波多黎各,能源,custom,verified,pr_petroleum,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,波多黎各油品儲運站 4 處（HIFLD 存檔；聯邦名冊未列煉油廠、LNG）
+guTransitStops,大眾運輸站點 Transit Stops,GU,關島,交通,custom,verified,gu_transit_stops,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,關島 GRTA 公車站 124 處（National Transit Map 靜態 GTFS）
+guTransportHubs,機場與港口 Airports & Ports,GU,關島,交通,custom,verified,gu_transport_hubs,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,關島機場 3、港口 2、遊艇港 3、下水坡道 7、直升機場 1（FAA、GovGuamGIS）
+guMajorRoads,主要道路 Major Roads,GU,關島,交通,custom,verified,gu_major_roads,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,關島主要道路 347 段（Census TIGER/Line 2026）
+guPowerPlants,電廠 Power Plants,GU,關島,能源,custom,verified,gu_power_plants,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,關島電廠 18 處（HIFLD 存檔 12＋Overture 補 6）
+guPowerGrid,輸電線與變電所 Power Lines & Substations,GU,關島,能源,custom,verified,gu_power_grid,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"關島電力局輸配電線 4,256 段、變電所 53 處（GovGuamGIS）"
+guRenewables,風機與太陽能 Wind Turbines & Solar,GU,關島,能源,custom,verified,gu_renewables,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,關島太陽能 83 處、風機 1 座
+guFuelStations,加油站 Fuel Stations,GU,關島,能源,custom,verified,gu_fuel_stations,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,關島加油站 46 處（Overture）
+guPetroleum,油氣設施 Oil & Gas Facilities,GU,關島,能源,custom,verified,gu_petroleum,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,關島油品儲運站 1、儲槽 150、管線 48（HIFLD、OSM）
+prAdminBoundaries,行政區界 Administrative Boundaries,PR,波多黎各,底圖,custom,verified,pr_admin_boundaries,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,波多黎各行政區界（屬地、78 市、901 區；Census 製圖邊界 2024）
+prPopulation,人口密度 Population Density（ACS 2020–2024）,PR,波多黎各,人口社經,custom,verified,pr_population,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,波多黎各人口密度（ACS 2020–2024 五年估計；市、區兩層級）
+guAdminBoundaries,行政區界 Administrative Boundaries,GU,關島,底圖,custom,verified,gu_admin_boundaries,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,關島行政區界（島界、19 村；Census 製圖邊界 2024）
+guPopulation,人口密度 Population Density（2020 普查）,GU,關島,人口社經,custom,verified,gu_population,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,關島人口密度（2020 普查；村、區塊群兩層級）

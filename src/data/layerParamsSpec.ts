@@ -116,6 +116,7 @@ import { VN_DATA_SPECS, VN_STATUSES } from "./vnDataLayers";
 import { TH_ADMIN_LEVELS, TH_DATA_SPECS, TH_POP_LEVELS, TH_STATUSES } from "./thDataLayers";
 import { TH_RASTER_SPECS } from "./thWavesLayers";
 import { ID_ADMIN_LEVELS, ID_DATA_SPECS, ID_LEVELS_2 } from "./idDataLayers";
+import { UST_ADMIN_DEFAULT, UST_ADMIN_LEVELS, UST_DATA_SPECS, UST_POP_LEVELS } from "./ustDataLayers";
 import { ID_RASTER_SPECS } from "./idWavesLayers";
 import { CA_WAVE_SPECS } from "./caWavesLayers";
 import { VN_RASTER_SPECS } from "./vnWavesLayers";
@@ -2492,6 +2493,35 @@ export const LAYER_PARAMS_SPEC = {
   ...Object.fromEntries(ID_RASTER_SPECS.map((spec) => [spec.key, [
     { kind: "slider" as const, name: `${spec.key}Opacity`, labelPrefix: "透明度", digits: 2, default: spec.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05 },
   ]])),
+  // 美國屬地（2026-11-25 波多黎各、關島第 0–1 波）：選項順序＝ UST_ADMIN_LEVELS／UST_POP_LEVELS；行政邊界預設 PR 市、GU 村，人口預設第一層
+  ...Object.fromEntries((["pr", "gu"] as const).flatMap((cc) => [
+    [`${cc}AdminBoundaries`, [
+      opacitySlider(`${cc}AdminBoundariesOpacity`, 0.85),
+      {
+        kind: "select" as const, category: "data" as const, name: `${cc}AdminBoundariesLevel`, label: "行政層級", default: UST_ADMIN_DEFAULT[cc],
+        options: UST_ADMIN_LEVELS[cc].map((x) => ({ label: x.label, value: x.value })),
+        out: `${cc}AdminBoundariesLevelIdx`, encode: UST_ADMIN_LEVELS[cc].map((x) => x.value),
+      },
+    ]],
+    [`${cc}Population`, [
+      {
+        kind: "select" as const, category: "data" as const, name: `${cc}PopulationLevel`, label: "行政層級", default: UST_POP_LEVELS[cc][0]!.value,
+        options: UST_POP_LEVELS[cc].map((x) => ({ label: x.label, value: x.value })),
+        out: `${cc}PopulationLevelIdx`, encode: UST_POP_LEVELS[cc].map((x) => x.value),
+      },
+      opacitySlider(`${cc}PopulationOpacity`, 0.7),
+    ]],
+  ])),
+  // 美國屬地規格驅動 8×2 層：類別多選（順序＝規格 cats＋「其他」＝bitmask）
+  ...Object.fromEntries(UST_DATA_SPECS.map((spec) => {
+    const hasPoint = spec.parts.some((p) => p.geom === "point");
+    const pointOnly = spec.parts.every((p) => p.geom === "point");
+    return [spec.key, [
+      categoryMultiSelect(spec.key, phCatOptions(spec)),
+      opacitySlider(`${spec.key}Opacity`, spec.opacity ?? (pointOnly ? densePointOpacity(spec.count) : 0.85)),
+      ...(hasPoint ? [scaleSlider(`${spec.key}Scale`, 1)] : []),
+    ]];
+  })),
   // 越南第 0–1 波（2026-11-13）：行政邊界、人口只有 34 省一級（不需層級 select）
   vnAdminBoundaries: [opacitySlider("vnAdminBoundariesOpacity", 0.85)],
   vnPopulation: [opacitySlider("vnPopulationOpacity", 0.7)],

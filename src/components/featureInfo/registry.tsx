@@ -92,6 +92,9 @@ import { VN_DATA_PANELS, VnAdminBoundariesPanel, VnPopulationPanel } from "./vnP
 import { TH_DATA_PANELS, ThAdminBoundariesPanel, ThPopulationPanel } from "./thPanels";
 import { TH_DATA_SPECS } from "../../data/thDataLayers";
 import { ID_DATA_PANELS, IdAdminBoundariesPanel, IdPopulationPanel, IdRuralDevelopmentPanel } from "./idPanels";
+import { UST_AREA_PANELS, UST_DATA_PANELS } from "./ustPanels";
+import { UST_DATA_SPECS } from "../../data/ustDataLayers";
+import type { UstDataKey } from "../../data/ustDataKeys";
 import { ID_DATA_SPECS } from "../../data/idDataLayers";
 import type { IdDataKey } from "../../data/idDataKeys";
 import type { ThDataKey } from "../../data/thDataKeys";
@@ -108,6 +111,7 @@ const PH_HEADER_LABELS = Object.fromEntries(PH_DATA_SPECS.map((s) => [s.key, `${
 /** 加拿大第 3–8 波（2026-11-17）：規格驅動，popup 重用 makePhPanel（自掛 SourceFooter）。 */
 const CA_WAVE_PANELS = Object.fromEntries(CA_WAVE_SPECS.map((s) => [s.key, makePhPanel(s)])) as Record<CaWaveKey, ReturnType<typeof makePhPanel>>;
 const CA_WAVE_HEADER_LABELS = Object.fromEntries(CA_WAVE_SPECS.map((s) => [s.key, `${s.title.fallback.zh} ${s.title.fallback.en}`])) as Record<CaWaveKey, string>;
+const UST_HEADER_LABELS = Object.fromEntries(UST_DATA_SPECS.map((s) => [s.key, `${s.title.fallback.zh} ${s.title.fallback.en}`])) as Record<UstDataKey, string>;
 const ID_HEADER_LABELS = Object.fromEntries(ID_DATA_SPECS.map((s) => [s.key, `${s.title.fallback.zh} ${s.title.fallback.en}`])) as Record<IdDataKey, string>;
 const TH_HEADER_LABELS = Object.fromEntries(TH_DATA_SPECS.map((s) => [s.key, `${s.title.fallback.zh} ${s.title.fallback.en}`])) as Record<ThDataKey, string>;
 const VN_HEADER_LABELS = Object.fromEntries(VN_DATA_SPECS.map((s) => [s.key, `${s.title.fallback.zh} ${s.title.fallback.en}`])) as Record<VnDataKey, string>;
@@ -528,6 +532,8 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   idPopulation: IdPopulationPanel,
   idRuralDevelopment: IdRuralDevelopmentPanel,
   ...ID_DATA_PANELS,
+  ...UST_AREA_PANELS,
+  ...UST_DATA_PANELS,
   ...CA_WAVE_PANELS,
   cnAdminBoundaries: CnAdminBoundariesPanel,
   cnPopulation: CnPopulationPanel,
@@ -1259,6 +1265,11 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   idPopulation: "人口密度 Population Density",
   idRuralDevelopment: "農村發展指數 Village Development Index",
   ...ID_HEADER_LABELS,
+  prAdminBoundaries: "行政邊界 Administrative Boundaries",
+  guAdminBoundaries: "行政邊界 Administrative Boundaries",
+  prPopulation: "人口密度 Population Density",
+  guPopulation: "人口密度 Population Density",
+  ...UST_HEADER_LABELS,
   ...CA_WAVE_HEADER_LABELS,
   cnAdminBoundaries: "行政邊界 Administrative Boundaries",
   cnPopulation: "人口密度 Population Density",
