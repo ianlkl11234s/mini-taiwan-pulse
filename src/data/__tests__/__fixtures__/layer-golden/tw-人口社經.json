@@ -1,0 +1,367 @@
+{
+  "count": 6,
+  "gisLayers": {
+    "h3Population": {
+      "layers": [
+        "h3-population-fill",
+        "h3-population-ext"
+      ],
+      "type": "h3Population"
+    },
+    "indicators": {
+      "layers": [
+        "h3-indicators-fill",
+        "h3-indicators-ext"
+      ],
+      "type": "indicators"
+    },
+    "popCount": {
+      "layers": [
+        "h3-pop-count-fill",
+        "h3-pop-count-ext"
+      ],
+      "type": "popCount"
+    },
+    "socioeconomic": {
+      "layers": [
+        "h3-socio-fill",
+        "h3-socio-ext"
+      ],
+      "type": "socioeconomic"
+    },
+    "spatialEconomy": {
+      "layers": [
+        "h3-spatial-fill",
+        "h3-spatial-ext"
+      ],
+      "type": "spatialEconomy"
+    },
+    "twCountyMigrationFlows": {
+      "layers": [
+        "tw-county-migration-flows-line",
+        "tw-county-migration-flows-seat"
+      ],
+      "type": "twCountyMigrationFlows"
+    }
+  },
+  "overlays": {},
+  "params": {
+    "h3Population": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "Day",
+            "value": "day"
+          },
+          {
+            "label": "Night",
+            "value": "night"
+          }
+        ],
+        "type": "select",
+        "value": "day"
+      },
+      {
+        "label": "透明度 0.6",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.1,
+        "value": 0.6,
+        "valueText": "0.6"
+      },
+      {
+        "label": "對比 1.8",
+        "max": 4,
+        "min": 0.5,
+        "name": "對比",
+        "step": 0.1,
+        "value": 1.8,
+        "valueText": "1.8"
+      },
+      {
+        "label": "3D",
+        "type": "toggle",
+        "value": false
+      },
+      {
+        "label": "高度 1.00",
+        "max": 4,
+        "min": 0.2,
+        "name": "高度",
+        "step": 0.2,
+        "value": 1,
+        "valueText": "1.00"
+      }
+    ],
+    "indicators": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "Count",
+            "value": "count"
+          },
+          {
+            "label": "Struct",
+            "value": "struct"
+          },
+          {
+            "label": "Burden",
+            "value": "burden"
+          }
+        ],
+        "type": "select",
+        "value": "count"
+      },
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "HH",
+            "value": "hh"
+          },
+          {
+            "label": "M",
+            "value": "m"
+          },
+          {
+            "label": "F",
+            "value": "f"
+          }
+        ],
+        "type": "select",
+        "value": "hh"
+      },
+      {
+        "label": "透明度 0.6",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.1,
+        "value": 0.6,
+        "valueText": "0.6"
+      },
+      {
+        "label": "對比 1.8",
+        "max": 4,
+        "min": 0.5,
+        "name": "對比",
+        "step": 0.1,
+        "value": 1.8,
+        "valueText": "1.8"
+      },
+      {
+        "label": "3D",
+        "type": "toggle",
+        "value": false
+      },
+      {
+        "label": "高度 1.00",
+        "max": 4,
+        "min": 0.2,
+        "name": "高度",
+        "step": 0.2,
+        "value": 1,
+        "valueText": "1.00"
+      }
+    ],
+    "popCount": [
+      {
+        "label": "透明度 0.6",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.1,
+        "value": 0.6,
+        "valueText": "0.6"
+      },
+      {
+        "label": "對比 1.8",
+        "max": 4,
+        "min": 0.5,
+        "name": "對比",
+        "step": 0.1,
+        "value": 1.8,
+        "valueText": "1.8"
+      },
+      {
+        "label": "3D",
+        "type": "toggle",
+        "value": false
+      },
+      {
+        "label": "高度 1.00",
+        "max": 4,
+        "min": 0.2,
+        "name": "高度",
+        "step": 0.2,
+        "value": 1,
+        "valueText": "1.00"
+      }
+    ],
+    "socioeconomic": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "Income",
+            "value": "income"
+          },
+          {
+            "label": "Social",
+            "value": "social"
+          }
+        ],
+        "type": "select",
+        "value": "income"
+      },
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "Med",
+            "value": "im"
+          },
+          {
+            "label": "IQR",
+            "value": "iq"
+          },
+          {
+            "label": "Sal%",
+            "value": "sr"
+          }
+        ],
+        "type": "select",
+        "value": "im"
+      },
+      {
+        "label": "透明度 0.6",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.1,
+        "value": 0.6,
+        "valueText": "0.6"
+      },
+      {
+        "label": "對比 1.8",
+        "max": 4,
+        "min": 0.5,
+        "name": "對比",
+        "step": 0.1,
+        "value": 1.8,
+        "valueText": "1.8"
+      },
+      {
+        "label": "3D",
+        "type": "toggle",
+        "value": false
+      },
+      {
+        "label": "高度 1.00",
+        "max": 4,
+        "min": 0.2,
+        "name": "高度",
+        "step": 0.2,
+        "value": 1,
+        "valueText": "1.00"
+      }
+    ],
+    "spatialEconomy": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "Housing",
+            "value": "housing"
+          },
+          {
+            "label": "Land",
+            "value": "land"
+          }
+        ],
+        "type": "select",
+        "value": "housing"
+      },
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "Price",
+            "value": "hp"
+          },
+          {
+            "label": "Unit",
+            "value": "hu"
+          },
+          {
+            "label": "P/I",
+            "value": "hpr"
+          }
+        ],
+        "type": "select",
+        "value": "hp"
+      },
+      {
+        "label": "透明度 0.6",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.1,
+        "value": 0.6,
+        "valueText": "0.6"
+      },
+      {
+        "label": "對比 1.8",
+        "max": 4,
+        "min": 0.5,
+        "name": "對比",
+        "step": 0.1,
+        "value": 1.8,
+        "valueText": "1.8"
+      },
+      {
+        "label": "3D",
+        "type": "toggle",
+        "value": false
+      },
+      {
+        "label": "高度 1.00",
+        "max": 4,
+        "min": 0.2,
+        "name": "高度",
+        "step": 0.2,
+        "value": 1,
+        "valueText": "1.00"
+      }
+    ],
+    "twCountyMigrationFlows": [
+      {
+        "label": "年份",
+        "options": [
+          {
+            "label": "2025 年",
+            "value": "2025"
+          },
+          {
+            "label": "2024 年",
+            "value": "2024"
+          }
+        ],
+        "type": "select",
+        "value": "2025"
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      }
+    ]
+  }
+}

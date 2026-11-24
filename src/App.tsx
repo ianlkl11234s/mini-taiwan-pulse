@@ -1,4 +1,4 @@
-import { MainMapConnection } from "./research/MainMapConnection";
+import { LazyMainMapConnection } from "./research/LazyMainMapConnection";
 import { globalEventsViewStore } from "./state/globalEventsViewStore";
 import { useAnalysisLegend } from "./research/analysisLegendStore";
 import type { AnalysisResultPanelProperties } from "./research/researchResultPopup";
@@ -88,10 +88,12 @@ import { countryCameraMemory, countryStore, resolveInitialCountry, useCountry, u
 import { countryForLayerKeys } from "./research/explorationNavigation";
 // filterByTimeWindow removed — airspace shows all flights, isFlightActive handles visibility
 import { LocationJump } from "./components/AirportSelector";
-import { DataSourcePanel } from "./components/sidebar/DataSourcePanel";
+import { LazyDataSourcePanel } from "./components/sidebar/LazyDataSourcePanel";
 import { LayerSidebar } from "./components/LayerSidebar";
 import { IconRailSidebar } from "./components/IconRailSidebar";
 import { showPlaceSearchResult } from "./map/placeSearchMarker";
+import { createPlaceMarkerSlot } from "./map/placeMarkerSlot";
+import { clearOwnerAddressCache } from "./data/addressOwnerLoader";
 import type { PlaceSearchHit } from "./lib/placeSearch";
 import { IntelPanel } from "./components/intel/IntelPanel";
 import { MonitorPanel } from "./components/intel/monitor/MonitorPanel";
@@ -138,6 +140,7 @@ import { CompareMenu } from "./components/toolbar/CompareMenu";
 import { CountryCompareMapView } from "./map/CountryCompareMapView";
 import { rightSideBlocker } from "./map/compareCountrySides";
 import { compareHydrateFromUrl, compareStore, countriesTipSeen, isCompareSupported, markCountriesTipSeen, pickRightCountry, useCompareSelector, type CompareMode } from "./state/compareStore";
+import { restoreMobileCompare } from "./utils/mobileCompareRestore";
 import { compareSelectionsForUrl, restoreSelectionsAfterLoad, singleSelectionsForUrl } from "./state/compareStatistics";
 import { layerParamsForUrl, resolveUrlLayerParams } from "./lib/urlLayerParams";
 import { statisticsDefaultOpacity } from "./data/statisticsVisuals";
@@ -162,7 +165,7 @@ import { createMeasureController } from "./map/measureController";
 import { formatMeasureArea, formatMeasureDistance } from "./map/measureMath";
 import { MemberPanel } from "./components/member/MemberPanel";
 import { memberLibraryStore, useMemberLibrary } from "./state/memberLibraryStore";
-import { LAYER_SEARCH_INDEX } from "./lib/layerSearch";
+import { getLayerSearchLabels } from "./lib/layerSearch";
 import { captureSceneParams, resolveSceneRestore } from "./lib/memberSceneAdapter";
 import { restoreLinkedSelects } from "./state/linkedSelect";
 import { validateScene, type MemberSceneSnapshot, type MemberPlaceGeometry } from "./lib/memberSchema";
@@ -297,7 +300,7 @@ export default function App() {
   const pendingSceneDoneRef = useRef<((skipped: string[]) => void) | null>(null);
   const [pendingMemberScene, setPendingMemberScene] = useState<MemberSceneSnapshot | null>(null);
   const favoriteKeys = useMemo(() => new Set(memberLibrary.userId === (memberUser?.id ?? null) ? memberLibrary.favorites : []), [memberLibrary.favorites, memberLibrary.userId, memberUser?.id]);
-  const memberLabels = useMemo(() => Object.fromEntries(LAYER_SEARCH_INDEX.map((item) => [item.key, item.label])), []);
+  const memberLabels = useMemo(() => getLayerSearchLabels() as Record<string, string>, []);
   const knownMemberKeys = useMemo(() => new Set(Object.keys(memberLabels)), [memberLabels]);
   useEffect(() => { memberLibraryStore.setUser(memberUser?.id ?? null); }, [memberUser?.id]);
   useEffect(() => {
@@ -588,9 +591,11 @@ export default function App() {
       compareStore.setEnabled(false);
       return;
     }
-    const stashed = mobileCompareRef.current;
-    if (isMobile || !stashed) return;
+    const stashedRaw = mobileCompareRef.current;
+    if (isMobile || !stashedRaw) return;
     mobileCompareRef.current = undefined;
+    // 左側期別以手機單地圖目前的選擇為準（不蓋掉使用者在手機上的改動）；此時單地圖選擇還沒被比較模式接管
+    const stashed = restoreMobileCompare(stashedRaw, singleSelectionsForUrl((key) => !lockedKeysRef.current.has(key as keyof LayerVisibility)));
     compareStore.hydrate(compareHydrateFromUrl(stashed));
     if (stashed.leftSelection || stashed.rightSelection) void restoreSelectionsAfterLoad(stashed.leftSelection, stashed.rightSelection);
   }, [isMobile]);
@@ -2036,12 +2041,18 @@ export default function App() {
   }, [timelineSeek, timelineSetSpeed, timelinePlay, setLayerVisibility]);
 
   // 側欄地點搜尋：飛過去＋暫時標記；null＝移除標記（再搜尋或關閉 Locations 面板）
-  const placeMarkerCleanupRef = useRef<(() => void) | null>(null);
-  const handlePlacePick = useCallback((place: PlaceSearchHit | null) => {
-    placeMarkerCleanupRef.current?.();
-    placeMarkerCleanupRef.current = null;
-    if (place && mapRef.current) placeMarkerCleanupRef.current = showPlaceSearchResult(mapRef.current, place, isDarkThemeRef.current);
-  }, []);
+  const placeMarkerSlot = useMemo(
+    () => createPlaceMarkerSlot((place) => (mapRef.current ? showPlaceSearchResult(mapRef.current, place, isDarkThemeRef.current) : null)),
+    [],
+  );
+  const handlePlacePick = useCallback((place: PlaceSearchHit | null) => placeMarkerSlot.set(place), [placeMarkerSlot]);
+  // 站主版私人地址：撤權（登出、失去站主權限）時清掉快取與已選的私人標記。
+  // 放在常駐的 App：搜尋面板選完就卸載，hook 內的 effect 已不在了（review L1）。
+  useEffect(() => {
+    if (isOwner) return;
+    clearOwnerAddressCache();
+    placeMarkerSlot.revokePrivate();
+  }, [isOwner, placeMarkerSlot]);
 
   // EM-03 深連結：套用網址指定的圖層與日期。**只跑一次**（deps 空陣列）——
   // 相機走 preset 那條路，這裡只處理 setter 型的狀態。
@@ -2068,7 +2079,16 @@ export default function App() {
     if (urlCompare) {
       if (isMobile) {
         mobileCompareRef.current = urlCompare;
-        showTransientNotice(t("compare.mobileFallback"));
+        // 語系包是 lazy 載入：開頁當下 t 還停在預設語系，等目標語系載完（active＝locale）再翻，否則英日文介面會看到中文
+        const notify = () => showTransientNotice(localeStore.getSnapshot().t("compare.mobileFallback"));
+        const snap = localeStore.getSnapshot();
+        if (snap.active === snap.locale) notify();
+        else {
+          const off = localeStore.subscribe(() => {
+            const next = localeStore.getSnapshot();
+            if (next.active === next.locale) { off(); notify(); }
+          });
+        }
       } else compareStore.hydrate(compareHydrateFromUrl(urlCompare));
     }
     // URL 明示模式優先於 localStorage；舊連結若列出統計面卻沒有 sm，安全地以單一
@@ -2587,7 +2607,7 @@ export default function App() {
           <CompareDivider isDarkTheme={isDarkTheme} captureMode={captureMode} />
         </>
       )}
-      {agentEnabled && <MainMapConnection
+      {agentEnabled && <LazyMainMapConnection
         bridge={chatBridge}
         map={mapPrepared ? mapRef.current : null}
         labels={memberLabels}
@@ -3321,7 +3341,7 @@ export default function App() {
                 background: isDarkTheme ? SURFACE.solid : LIGHT.surfaceSolid,
               }}
             >
-              <DataSourcePanel
+              <LazyDataSourcePanel
                 isDarkTheme={isDarkTheme}
                 lockedKeys={lockedKeys}
                 onActivateLayer={(key) => { handleBulkSetVisibility([key], true); setMobileDataSourceOpen(false); }}

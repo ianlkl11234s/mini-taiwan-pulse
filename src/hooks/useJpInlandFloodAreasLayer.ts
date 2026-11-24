@@ -10,7 +10,7 @@ import { PMTILES_SOURCE_TYPE } from "../map/pmtilesConstants";
 import { registerPmtilesSourceTypeOnce } from "../map/pmtilesSourceType";
 import { hookFillOpacity, hookFillPaint } from "../map/lineFillSpec";
 import { gridRampFor, useGridPaletteSignature, useHeatmapStyleSignature } from "../state/layerPalette";
-import { repPointSpecFor, useGbRepPointLayers, type GbDisplayMode } from "./useGbWaterLayers";
+import { repPointSpecFor, useGbRepPointLayers, type GbDisplayMode } from "./intlPmtilesLayers";
 import { paramDefault } from "../data/layerParamsSpec";
 import { useMapReadyTick } from "./useMapReadyTick";
 

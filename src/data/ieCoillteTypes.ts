@@ -10,7 +10,7 @@
  * 不放進 IE_DATA_SPECS（那條鏈假設 PMTiles）；圖例與 popup 共用 ieLegends／iePanels 的規格版元件（`IeSpecLegend`、`makeIePanel`），
  * 樣式在 overlayRegistry（dynamicData），資料由 hooks/useIeCoillteLayers.ts setData。
  */
-import type { KrCat, L3 } from "./krDataLayers";
+import type { KrCat, L3 } from "./intlLayerShared";
 import type { IeLayerSpec } from "./ieDataLayers";
 import { selectedMultiSelectValues } from "./multiSelectMapbox";
 

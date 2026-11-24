@@ -10,7 +10,7 @@
  */
 import { FACILITY_STATUS_PAINT_COLORS, FOSSIL_PAINT_COLORS } from "../map/layerPaintColors";
 import { FUEL_COLORS, FUEL_FALLBACK_COLOR } from "./energyLoader";
-import { JP_BUS_STOP_CLASSES } from "./jpBusStopTypes";
+import { CAPACITY_RADIUS_BANDS, INTL_BUS_STOP_COLOR } from "./intlLayerShared";
 
 export const KR_FETCHED_AT = "2026-10-31";
 export const KR_OSM_ATTRIBUTION = "© OpenStreetMap contributors";
@@ -39,7 +39,7 @@ export function krNum(value: unknown): number | null {
 
 // ─────────────────────────── 交通 ───────────────────────────
 
-export const KR_BUS_STOPS_COLOR = JP_BUS_STOP_CLASSES[0].color;
+export const KR_BUS_STOPS_COLOR = INTL_BUS_STOP_COLOR;
 export const KR_BUS_STOPS_COUNT = 227_059;
 export const KR_BUS_STOPS_ATTRIBUTION = portal("국토교통부_전국 버스정류장 위치정보", "15067528");
 export const KR_BUS_STOPS_URL = "https://www.data.go.kr/data/15067528/fileData.do";
@@ -105,13 +105,8 @@ export const KR_RENEWABLE_FUELS: readonly KrFuelGroup[] = ["solar", "wind", "hyd
 export const KR_POWER_PLANTS_COLOR = fuel("natural_gas");
 export const KR_RENEWABLES_COLOR = fuel("solar");
 export const krFuelGroup = (value: unknown) => KR_FUEL_GROUPS.find((g) => g.value === value);
-/** 裝置容量分級（MW），半徑沿用台灣電廠 `CAPACITY_RADIUS`；未標容量用最小級。 */
-export const KR_CAPACITY_BANDS: readonly { min: number; radius: number; label: string }[] = [
-  { min: 0, radius: 3, label: "<10" },
-  { min: 10, radius: 4.5, label: "10–100" },
-  { min: 100, radius: 7, label: "100–1,000" },
-  { min: 1000, radius: 11, label: "≥1,000" },
-];
+/** 裝置容量分級（MW）：與加拿大共用，定義在 intlLayerShared。 */
+export const KR_CAPACITY_BANDS = CAPACITY_RADIUS_BANDS;
 
 /** 電網電壓分級（OSM voltage，韓國 765／345／154kV 輸電）；色票沿用台灣 osmPowerLines 4 色。 */
 export type KrVoltageClass = "ehv_765" | "hv_345" | "hv_154" | "mv_lt100" | "unknown";

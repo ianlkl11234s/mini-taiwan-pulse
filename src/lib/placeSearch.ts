@@ -25,6 +25,8 @@ export interface PlaceSearchHit {
   center: [number, number];
   bbox?: [number, number, number, number];
   score: number;
+  /** 站主版私人地址：撤權時標記必須撤掉 */
+  private?: boolean;
 }
 
 export type LocalPlaceHit = PlaceSearchHit & { kind: PlaceKind };

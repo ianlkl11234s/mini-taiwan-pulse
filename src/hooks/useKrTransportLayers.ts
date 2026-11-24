@@ -13,7 +13,7 @@ import {
   KR_NATIONAL_ROAD_COLOR, KR_NATIONAL_ROADS_ATTRIBUTION, KR_OSM_ATTRIBUTION, KR_PORT_COLOR, KR_PORTS_ATTRIBUTION, KR_RAIL_LINE_CLASSES,
   KR_RAIL_NETWORKS, KR_RAIL_STATIONS_ATTRIBUTION,
 } from "../data/krInfraTypes";
-import { useGbPmtilesLayers, type SourceSpec } from "./useGbWaterLayers";
+import { useGbPmtilesLayers, type SourceSpec } from "./intlPmtilesLayers";
 import { useMapReadyTick } from "./useMapReadyTick";
 
 /**

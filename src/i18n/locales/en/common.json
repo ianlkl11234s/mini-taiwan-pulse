@@ -206,5 +206,8 @@
   "addressSearch.attribution.osmShare": "address tiles are provided under the ODbL",
   "addressSearch.attribution.panelTitle": "Address search",
   "addressSearch.attribution.panelToggle": "Address sources and licences by county",
-  "addressSearch.attribution.panelNote": "Each county uses a single source; sources are never mixed. Coordinates are for reference only."
+  "addressSearch.attribution.panelNote": "Each county uses a single source; sources are never mixed. Coordinates are for reference only.",
+  "mobileSheet.label": "Layers & search",
+  "mobileSheet.collapse": "Collapse layers and search",
+  "mobileSheet.expand": "Expand layers and search"
 }

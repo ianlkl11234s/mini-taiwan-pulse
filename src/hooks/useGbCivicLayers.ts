@@ -8,7 +8,7 @@ import {
   GB_HEALTH_ODS_ATTRIBUTION, GB_SCHOOL_CATEGORIES, GB_SCHOOLS_ATTRIBUTION, GB_SCHOOLS_COUNT, GB_CARE_HOMES_COUNT,
   GB_CARE_SERVICES_COUNT, gbHealthColor,
 } from "../data/gbCivicTypes";
-import { gbHeatmapBuild, gbMaskFilter, gbWithFilter, useGbPmtilesLayers, type SourceSpec } from "./useGbWaterLayers";
+import { gbHeatmapBuild, gbMaskFilter, gbWithFilter, useGbPmtilesLayers, type SourceSpec } from "./intlPmtilesLayers";
 
 /**
  * 英國第 7 波公共服務 6 層：學校、醫療（醫院 z5 起、GP／藥局 z10 起，同 source 兩個 circle）、

@@ -9,7 +9,7 @@
  *   4. 都沒有 → 依 id 形狀取 `loading.*` 通用名稱（預設「資料」）。
  * 名稱裡的年份、日期、時間（動態部分）一律保留。
  */
-import { LAYER_MANIFEST, type ManifestKey } from "../data/layerManifest";
+import { allLayerKeys, layerNameOf } from "../data/layerLookup";
 import { isLoadingTaskForLayer } from "./layerLoading";
 import { localizeLayerName, type I18nContext } from "../i18n/layerText";
 import type { MessageKey } from "../i18n/keys";
@@ -40,7 +40,7 @@ export function layerKeyForLoadingTask(taskId: string): string | null {
   const cached = layerKeyCache.get(taskId);
   if (cached !== undefined) return cached;
   let best: string | null = null;
-  for (const key of Object.keys(LAYER_MANIFEST)) {
+  for (const key of allLayerKeys()) {
     if (best != null && key.length <= best.length) continue;
     if (isLoadingTaskForLayer(taskId, key)) best = key;
   }
@@ -59,11 +59,11 @@ export function localizeLoadingLabel(id: string, label: string, ctx: LoadingLabe
 
   const layerKey = layerKeyForLoadingTask(id);
   if (layerKey) {
-    const entry = LAYER_MANIFEST[layerKey as ManifestKey] as { name?: Parameters<typeof localizeLayerName>[1] } | undefined;
-    if (entry?.name) {
-      const { primary } = localizeLayerName(layerKey, entry.name, ctx);
+    const name = layerNameOf(layerKey);
+    if (name) {
+      const { primary } = localizeLayerName(layerKey, name, ctx);
       // 日文名稱本身含漢字／假名，所以只要不是中文原名就算翻譯過
-      if (primary !== entry.name.zh && (ctx.active === "ja" || !HAS_CJK.test(primary))) return withTokens(primary);
+      if (primary !== name.zh && (ctx.active === "ja" || !HAS_CJK.test(primary))) return withTokens(primary);
     }
   }
 

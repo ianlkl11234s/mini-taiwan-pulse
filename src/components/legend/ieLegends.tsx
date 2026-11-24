@@ -8,7 +8,7 @@ import { BOUNDARY_GRAY, LINE_WIDTH } from "../../map/mapStyleScale";
 import { IE_ADMIN_NOTES, pickL3 } from "../../data/ieAdminTypes";
 import { IE_BATHYMETRY, IE_SPEC_BY_KEY, type IeLayerSpec } from "../../data/ieDataLayers";
 import type { IeDataKey } from "../../data/ieDataKeys";
-import { krRampColors } from "../../data/krDataLayers";
+import { krRampColors } from "../../data/intlLayerShared";
 
 export function IeAdminBoundariesLegend() {
   const i18n = useLocale();

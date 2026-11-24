@@ -5,7 +5,7 @@ import {
   GB_OS_TERRAIN_ATTRIBUTION, GB_SURPLUS_ATTRIBUTION, GB_SURPLUS_COLOR, GB_SURPLUS_MINZOOM, GB_SURPLUS_STATUSES, GB_SURPLUS_STROKE_WIDTH,
   GB_SURPLUS_TILE_ZOOM, GB_TERRAIN_TILE_ZOOM,
 } from "../data/gbLandTypes";
-import { useGbPmtilesLayers, type SourceSpec } from "./useGbWaterLayers";
+import { useGbPmtilesLayers, type SourceSpec } from "./intlPmtilesLayers";
 
 /**
  * 英國 C003 地形兩層（OS Terrain 50 raster PNG PMTiles，已上色成品、沒有 feature 可點）與 C028 公有地標售（點）。

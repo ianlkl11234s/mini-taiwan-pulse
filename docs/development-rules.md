@@ -195,7 +195,7 @@ myNewLayer: [
 2. 這層**有意沒有控件**（純靜態展示層）→ **只有一種寫法**：manifest 寫 `params: null`
    ＋ 把 key 加進 `layerConsistency.test.ts` 的 `NO_PARAMS_LEDGER` 並寫下理由（目前會被 `layerUxPolicy.test.ts` 的透明度基線擋，等於要使用者同意的例外）。
 
-**驗收**：`npm run verify` 加 CI 綠，且 `src/data/__tests__/__fixtures__/layer-golden.json`
+**驗收**：`npm run verify` 加 CI 綠，且 `src/data/__tests__/__fixtures__/layer-golden/`（每個國家／台灣主題一檔）
 的**既有層那幾行必須逐位元不變**（新層是新增 key，只有新 key 那幾行會動；既有層的任何 diff 都是回歸）。
 ⚠️ AR-22 Phase 4 起該 fixture 只凍 3 個 section（`overlays` / `params` / `gisLayers`）——
 另外 9 個已被 `layerManifest.test.ts` 逐 key 焊死，凍第二份只是 churn。

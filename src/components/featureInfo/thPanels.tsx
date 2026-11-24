@@ -3,8 +3,8 @@
 import type { FC } from "react";
 import { Row, SourceFooter, Title } from "./shared";
 import { useLocale } from "../../state/localeStore";
-import { caText } from "../../data/caInfraTypes";
-import { makePhPanel } from "./phPanels";
+import { caText } from "../../data/intlLayerShared";
+import { makePhPanel } from "./intlSpecPanel";
 import {
   TH_ADMIN_COLOR, TH_ADMIN_LEVEL_LABELS, TH_ADMIN_SOURCE, TH_BOUNDARY_NOTE, TH_DATA_SPECS, TH_FETCHED_AT, TH_NOT_COVERED_COLOR, TH_POP_STATUS,
   TH_POP_YEARS, TH_POPULATION_SOURCE, phText, pickL3, type L3, type ThAdminLevel,

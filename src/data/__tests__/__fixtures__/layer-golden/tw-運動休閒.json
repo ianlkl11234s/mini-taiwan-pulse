@@ -1,0 +1,3344 @@
+{
+  "count": 8,
+  "gisLayers": {
+    "parksTaipei": {
+      "layers": [
+        "parks-taipei-circle"
+      ],
+      "type": "parksTaipei"
+    },
+    "playgrounds": {
+      "layers": [
+        "playgrounds-circle",
+        "playgrounds-glow"
+      ],
+      "type": "playgrounds"
+    },
+    "sportsVenue": {
+      "layers": [
+        "sports-venues-school",
+        "sports-venues-public-other",
+        "sports-venues-private",
+        "sports-venues-park",
+        "sports-venues-center"
+      ],
+      "type": "sportsVenue"
+    },
+    "waterRecreationRestrictedAreas": {
+      "layers": [
+        "water-recreation-restricted-areas-fill",
+        "water-recreation-restricted-areas-outline",
+        "water-recreation-restricted-areas-points-circle-point",
+        "water-recreation-restricted-areas-points-circle-polygon"
+      ],
+      "type": "waterRecreationRestrictedAreas"
+    }
+  },
+  "overlays": {
+    "parksTaipei": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "parksTaipei",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "category"
+                ],
+                "公園",
+                "#59b359",
+                "兒童遊戲場",
+                "#f2d64b",
+                "綠地",
+                "#9ed45a",
+                "鄰里公園",
+                "#2fc2d4",
+                "區域公園",
+                "#4c9be0",
+                "廣場",
+                "#b07ad9",
+                "其他",
+                "#8c929b",
+                "#9e9e9e"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                [
+                  "case",
+                  [
+                    ">",
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "area_sqm"
+                      ],
+                      0
+                    ],
+                    0
+                  ],
+                  [
+                    "interpolate",
+                    [
+                      "linear"
+                    ],
+                    [
+                      "ln",
+                      [
+                        "max",
+                        [
+                          "to-number",
+                          [
+                            "get",
+                            "area_sqm"
+                          ],
+                          0
+                        ],
+                        1
+                      ]
+                    ],
+                    5.298317366548036,
+                    1.5,
+                    13.122363377404328,
+                    5
+                  ],
+                  1.5
+                ],
+                12,
+                [
+                  "case",
+                  [
+                    ">",
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "area_sqm"
+                      ],
+                      0
+                    ],
+                    0
+                  ],
+                  [
+                    "interpolate",
+                    [
+                      "linear"
+                    ],
+                    [
+                      "ln",
+                      [
+                        "max",
+                        [
+                          "to-number",
+                          [
+                            "get",
+                            "area_sqm"
+                          ],
+                          0
+                        ],
+                        1
+                      ]
+                    ],
+                    5.298317366548036,
+                    3,
+                    13.122363377404328,
+                    10
+                  ],
+                  3
+                ]
+              ],
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "category"
+                ],
+                "公園",
+                "#59b359",
+                "兒童遊戲場",
+                "#f2d64b",
+                "綠地",
+                "#9ed45a",
+                "鄰里公園",
+                "#2fc2d4",
+                "區域公園",
+                "#4c9be0",
+                "廣場",
+                "#b07ad9",
+                "其他",
+                "#8c929b",
+                "#9e9e9e"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                [
+                  "case",
+                  [
+                    ">",
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "area_sqm"
+                      ],
+                      0
+                    ],
+                    0
+                  ],
+                  [
+                    "interpolate",
+                    [
+                      "linear"
+                    ],
+                    [
+                      "ln",
+                      [
+                        "max",
+                        [
+                          "to-number",
+                          [
+                            "get",
+                            "area_sqm"
+                          ],
+                          0
+                        ],
+                        1
+                      ]
+                    ],
+                    5.298317366548036,
+                    1.5,
+                    13.122363377404328,
+                    5
+                  ],
+                  1.5
+                ],
+                12,
+                [
+                  "case",
+                  [
+                    ">",
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "area_sqm"
+                      ],
+                      0
+                    ],
+                    0
+                  ],
+                  [
+                    "interpolate",
+                    [
+                      "linear"
+                    ],
+                    [
+                      "ln",
+                      [
+                        "max",
+                        [
+                          "to-number",
+                          [
+                            "get",
+                            "area_sqm"
+                          ],
+                          0
+                        ],
+                        1
+                      ]
+                    ],
+                    5.298317366548036,
+                    3,
+                    13.122363377404328,
+                    10
+                  ],
+                  3
+                ]
+              ],
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "parksTaipeiOpacity",
+        "parksTaipeiRadius",
+        "parksTaipeiCategoryMask"
+      ],
+      "sourceId": "parks-taipei",
+      "sourceUrl": "./urban/parks_taipei.geojson"
+    },
+    "playgrounds": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "playgrounds",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": "#ec4899",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": "#ec4899",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#ec4899",
+              "circle-opacity": 0.8,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#ec4899",
+              "circle-opacity": 0.8,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "name"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "name"
+              ],
+              ""
+            ]
+          ],
+          "layout": {
+            "text-allow-overlap": false,
+            "text-field": [
+              "get",
+              "name"
+            ],
+            "text-font": [
+              "DIN Pro Medium",
+              "Arial Unicode MS Regular"
+            ],
+            "text-max-width": 14,
+            "text-optional": true,
+            "text-radial-offset": 0.8,
+            "text-size": [
+              "interpolate",
+              [
+                "linear"
+              ],
+              [
+                "zoom"
+              ],
+              10,
+              10,
+              14,
+              12
+            ],
+            "text-variable-anchor": [
+              "top",
+              "bottom",
+              "left",
+              "right"
+            ]
+          },
+          "minzoom": 14,
+          "paint": {
+            "dark": {
+              "text-color": "#f8fafc",
+              "text-halo-color": "rgba(15,23,42,0.92)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.8
+            },
+            "light": {
+              "text-color": "#0f172a",
+              "text-halo-color": "rgba(255,255,255,0.94)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.8
+            }
+          },
+          "suffix": "label",
+          "type": "symbol"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle",
+        "label"
+      ],
+      "sourceId": "playgrounds",
+      "sourceUrl": "./public_life/playgrounds.geojson"
+    },
+    "sportsCenter": {
+      "dynamicData": null,
+      "filter": [
+        "==",
+        [
+          "get",
+          "layer"
+        ],
+        "國民運動中心"
+      ],
+      "id": "sportsCenter",
+      "layers": [
+        {
+          "filter": [
+            "==",
+            [
+              "get",
+              "layer"
+            ],
+            "國民運動中心"
+          ],
+          "layout": null,
+          "minzoom": 7,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "category"
+                ],
+                "籃球場",
+                "#ff7043",
+                "田徑場",
+                "#ef5350",
+                "羽球場",
+                "#ffca28",
+                "排球場",
+                "#26a69a",
+                "游泳池",
+                "#29b6f6",
+                "健身房",
+                "#a883f2",
+                "足球場",
+                "#66bb6a",
+                "躲避球場",
+                "#ec407a",
+                "網球場",
+                "#9ccc65",
+                "桌球場",
+                "#8ea1fb",
+                "綜合體育館",
+                "#db75ec",
+                "舞蹈教室",
+                "#f06292",
+                "棒球場",
+                "#9a7b6f",
+                "棒壘打擊練習場",
+                "#a1887f",
+                "直排輪/滑輪場",
+                "#26c6da",
+                "壘球場",
+                "#d4a373",
+                "武術/技擊場",
+                "#ff877b",
+                "高爾夫球場",
+                "#5dab5e",
+                "撞球場",
+                "#3b8f81",
+                "攀岩場",
+                "#ff8f00",
+                "射箭/射擊場",
+                "#bd988b",
+                "體操館",
+                "#ba68c8",
+                "慢跑道",
+                "#9e9d24",
+                "運動公園/廣場",
+                "#43a047",
+                "自由車場",
+                "#647be2",
+                "保齡球館",
+                "#4bb1be",
+                "其他/未分類",
+                "#90a4ae",
+                "#728f9d"
+              ],
+              "circle-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "open_status"
+                  ],
+                  "不對外"
+                ],
+                0.2975,
+                0.85
+              ],
+              "circle-radius": [
+                "case",
+                [
+                  ">",
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "area_sqm"
+                    ],
+                    0
+                  ],
+                  0
+                ],
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "ln",
+                    [
+                      "max",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "area_sqm"
+                        ],
+                        0
+                      ],
+                      1
+                    ]
+                  ],
+                  5.298317366548036,
+                  2.7,
+                  9.903487552536127,
+                  14.4
+                ],
+                3.6
+              ],
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "open_status"
+                  ],
+                  "不對外"
+                ],
+                0.238,
+                0.45
+              ],
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "category"
+                ],
+                "籃球場",
+                "#ff7043",
+                "田徑場",
+                "#ef5350",
+                "羽球場",
+                "#ffca28",
+                "排球場",
+                "#26a69a",
+                "游泳池",
+                "#29b6f6",
+                "健身房",
+                "#7e57c2",
+                "足球場",
+                "#66bb6a",
+                "躲避球場",
+                "#ec407a",
+                "網球場",
+                "#9ccc65",
+                "桌球場",
+                "#5c6bc0",
+                "綜合體育館",
+                "#ab47bc",
+                "舞蹈教室",
+                "#f06292",
+                "棒球場",
+                "#8d6e63",
+                "棒壘打擊練習場",
+                "#a1887f",
+                "直排輪/滑輪場",
+                "#26c6da",
+                "壘球場",
+                "#d4a373",
+                "武術/技擊場",
+                "#c62828",
+                "高爾夫球場",
+                "#2e7d32",
+                "撞球場",
+                "#00695c",
+                "攀岩場",
+                "#ff8f00",
+                "射箭/射擊場",
+                "#6d4c41",
+                "體操館",
+                "#ba68c8",
+                "慢跑道",
+                "#9e9d24",
+                "運動公園/廣場",
+                "#43a047",
+                "自由車場",
+                "#3949ab",
+                "保齡球館",
+                "#00838f",
+                "其他/未分類",
+                "#90a4ae",
+                "#607d8b"
+              ],
+              "circle-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "open_status"
+                  ],
+                  "不對外"
+                ],
+                0.2975,
+                0.85
+              ],
+              "circle-radius": [
+                "case",
+                [
+                  ">",
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "area_sqm"
+                    ],
+                    0
+                  ],
+                  0
+                ],
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "ln",
+                    [
+                      "max",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "area_sqm"
+                        ],
+                        0
+                      ],
+                      1
+                    ]
+                  ],
+                  5.298317366548036,
+                  2.7,
+                  9.903487552536127,
+                  14.4
+                ],
+                3.6
+              ],
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "open_status"
+                  ],
+                  "不對外"
+                ],
+                0.238,
+                0.9
+              ],
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "center",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "center"
+      ],
+      "sourceId": "sports-venues",
+      "sourceUrl": "./sports/all_venues.geojson"
+    },
+    "sportsPark": {
+      "dynamicData": null,
+      "filter": [
+        "==",
+        [
+          "get",
+          "layer"
+        ],
+        "運動公園/開放空間"
+      ],
+      "id": "sportsPark",
+      "layers": [
+        {
+          "filter": [
+            "==",
+            [
+              "get",
+              "layer"
+            ],
+            "運動公園/開放空間"
+          ],
+          "layout": null,
+          "minzoom": 7,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "category"
+                ],
+                "籃球場",
+                "#ff7043",
+                "田徑場",
+                "#ef5350",
+                "羽球場",
+                "#ffca28",
+                "排球場",
+                "#26a69a",
+                "游泳池",
+                "#29b6f6",
+                "健身房",
+                "#a883f2",
+                "足球場",
+                "#66bb6a",
+                "躲避球場",
+                "#ff7d9f",
+                "網球場",
+                "#9ccc65",
+                "桌球場",
+                "#91a4ff",
+                "綜合體育館",
+                "#db75ec",
+                "舞蹈教室",
+                "#f06292",
+                "棒球場",
+                "#c6a599",
+                "棒壘打擊練習場",
+                "#a1887f",
+                "直排輪/滑輪場",
+                "#26c6da",
+                "壘球場",
+                "#d4a373",
+                "武術/技擊場",
+                "#ff9186",
+                "高爾夫球場",
+                "#5dab5e",
+                "撞球場",
+                "#65b7a8",
+                "攀岩場",
+                "#ff8f00",
+                "射箭/射擊場",
+                "#bc978b",
+                "體操館",
+                "#ba68c8",
+                "慢跑道",
+                "#9e9d24",
+                "運動公園/廣場",
+                "#43a047",
+                "自由車場",
+                "#6981e8",
+                "保齡球館",
+                "#2895a1",
+                "其他/未分類",
+                "#90a4ae",
+                "#7492a0"
+              ],
+              "circle-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "open_status"
+                  ],
+                  "不對外"
+                ],
+                0.27999999999999997,
+                0.8
+              ],
+              "circle-radius": [
+                "case",
+                [
+                  ">",
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "area_sqm"
+                    ],
+                    0
+                  ],
+                  0
+                ],
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "ln",
+                    [
+                      "max",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "area_sqm"
+                        ],
+                        0
+                      ],
+                      1
+                    ]
+                  ],
+                  5.298317366548036,
+                  2.0999999999999996,
+                  9.903487552536127,
+                  11.2
+                ],
+                2.8
+              ],
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "open_status"
+                  ],
+                  "不對外"
+                ],
+                0.22399999999999998,
+                0.45
+              ],
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "category"
+                ],
+                "籃球場",
+                "#ff7043",
+                "田徑場",
+                "#ef5350",
+                "羽球場",
+                "#ffca28",
+                "排球場",
+                "#26a69a",
+                "游泳池",
+                "#29b6f6",
+                "健身房",
+                "#7e57c2",
+                "足球場",
+                "#66bb6a",
+                "躲避球場",
+                "#ec407a",
+                "網球場",
+                "#9ccc65",
+                "桌球場",
+                "#5c6bc0",
+                "綜合體育館",
+                "#ab47bc",
+                "舞蹈教室",
+                "#f06292",
+                "棒球場",
+                "#8d6e63",
+                "棒壘打擊練習場",
+                "#a1887f",
+                "直排輪/滑輪場",
+                "#26c6da",
+                "壘球場",
+                "#d4a373",
+                "武術/技擊場",
+                "#c62828",
+                "高爾夫球場",
+                "#2e7d32",
+                "撞球場",
+                "#00695c",
+                "攀岩場",
+                "#ff8f00",
+                "射箭/射擊場",
+                "#6d4c41",
+                "體操館",
+                "#ba68c8",
+                "慢跑道",
+                "#9e9d24",
+                "運動公園/廣場",
+                "#43a047",
+                "自由車場",
+                "#3949ab",
+                "保齡球館",
+                "#00838f",
+                "其他/未分類",
+                "#90a4ae",
+                "#607d8b"
+              ],
+              "circle-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "open_status"
+                  ],
+                  "不對外"
+                ],
+                0.27999999999999997,
+                0.8
+              ],
+              "circle-radius": [
+                "case",
+                [
+                  ">",
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "area_sqm"
+                    ],
+                    0
+                  ],
+                  0
+                ],
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "ln",
+                    [
+                      "max",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "area_sqm"
+                        ],
+                        0
+                      ],
+                      1
+                    ]
+                  ],
+                  5.298317366548036,
+                  2.0999999999999996,
+                  9.903487552536127,
+                  11.2
+                ],
+                2.8
+              ],
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "open_status"
+                  ],
+                  "不對外"
+                ],
+                0.22399999999999998,
+                0.9
+              ],
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "park",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "park"
+      ],
+      "sourceId": "sports-venues",
+      "sourceUrl": "./sports/all_venues.geojson"
+    },
+    "sportsPrivate": {
+      "dynamicData": null,
+      "filter": [
+        "==",
+        [
+          "get",
+          "layer"
+        ],
+        "民營場館"
+      ],
+      "id": "sportsPrivate",
+      "layers": [
+        {
+          "filter": [
+            "==",
+            [
+              "get",
+              "layer"
+            ],
+            "民營場館"
+          ],
+          "layout": null,
+          "minzoom": 7,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "category"
+                ],
+                "籃球場",
+                "#ff7043",
+                "田徑場",
+                "#ef5350",
+                "羽球場",
+                "#ffca28",
+                "排球場",
+                "#26a69a",
+                "游泳池",
+                "#29b6f6",
+                "健身房",
+                "#a883f2",
+                "足球場",
+                "#66bb6a",
+                "躲避球場",
+                "#ff7d9f",
+                "網球場",
+                "#9ccc65",
+                "桌球場",
+                "#91a4ff",
+                "綜合體育館",
+                "#db75ec",
+                "舞蹈教室",
+                "#f06292",
+                "棒球場",
+                "#c6a599",
+                "棒壘打擊練習場",
+                "#a1887f",
+                "直排輪/滑輪場",
+                "#26c6da",
+                "壘球場",
+                "#d4a373",
+                "武術/技擊場",
+                "#ff9186",
+                "高爾夫球場",
+                "#5dab5e",
+                "撞球場",
+                "#65b7a8",
+                "攀岩場",
+                "#ff8f00",
+                "射箭/射擊場",
+                "#bc978b",
+                "體操館",
+                "#ba68c8",
+                "慢跑道",
+                "#9e9d24",
+                "運動公園/廣場",
+                "#43a047",
+                "自由車場",
+                "#6981e8",
+                "保齡球館",
+                "#2895a1",
+                "其他/未分類",
+                "#90a4ae",
+                "#7492a0"
+              ],
+              "circle-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "open_status"
+                  ],
+                  "不對外"
+                ],
+                0.27999999999999997,
+                0.8
+              ],
+              "circle-radius": [
+                "case",
+                [
+                  ">",
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "area_sqm"
+                    ],
+                    0
+                  ],
+                  0
+                ],
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "ln",
+                    [
+                      "max",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "area_sqm"
+                        ],
+                        0
+                      ],
+                      1
+                    ]
+                  ],
+                  5.298317366548036,
+                  1.5,
+                  9.903487552536127,
+                  8
+                ],
+                2
+              ],
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "open_status"
+                  ],
+                  "不對外"
+                ],
+                0.22399999999999998,
+                0.45
+              ],
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "category"
+                ],
+                "籃球場",
+                "#ff7043",
+                "田徑場",
+                "#ef5350",
+                "羽球場",
+                "#ffca28",
+                "排球場",
+                "#26a69a",
+                "游泳池",
+                "#29b6f6",
+                "健身房",
+                "#7e57c2",
+                "足球場",
+                "#66bb6a",
+                "躲避球場",
+                "#ec407a",
+                "網球場",
+                "#9ccc65",
+                "桌球場",
+                "#5c6bc0",
+                "綜合體育館",
+                "#ab47bc",
+                "舞蹈教室",
+                "#f06292",
+                "棒球場",
+                "#8d6e63",
+                "棒壘打擊練習場",
+                "#a1887f",
+                "直排輪/滑輪場",
+                "#26c6da",
+                "壘球場",
+                "#d4a373",
+                "武術/技擊場",
+                "#c62828",
+                "高爾夫球場",
+                "#2e7d32",
+                "撞球場",
+                "#00695c",
+                "攀岩場",
+                "#ff8f00",
+                "射箭/射擊場",
+                "#6d4c41",
+                "體操館",
+                "#ba68c8",
+                "慢跑道",
+                "#9e9d24",
+                "運動公園/廣場",
+                "#43a047",
+                "自由車場",
+                "#3949ab",
+                "保齡球館",
+                "#00838f",
+                "其他/未分類",
+                "#90a4ae",
+                "#607d8b"
+              ],
+              "circle-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "open_status"
+                  ],
+                  "不對外"
+                ],
+                0.27999999999999997,
+                0.8
+              ],
+              "circle-radius": [
+                "case",
+                [
+                  ">",
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "area_sqm"
+                    ],
+                    0
+                  ],
+                  0
+                ],
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "ln",
+                    [
+                      "max",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "area_sqm"
+                        ],
+                        0
+                      ],
+                      1
+                    ]
+                  ],
+                  5.298317366548036,
+                  1.5,
+                  9.903487552536127,
+                  8
+                ],
+                2
+              ],
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "open_status"
+                  ],
+                  "不對外"
+                ],
+                0.22399999999999998,
+                0.9
+              ],
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "private",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "private"
+      ],
+      "sourceId": "sports-venues",
+      "sourceUrl": "./sports/all_venues.geojson"
+    },
+    "sportsPublicOther": {
+      "dynamicData": null,
+      "filter": [
+        "==",
+        [
+          "get",
+          "layer"
+        ],
+        "其他公共場館"
+      ],
+      "id": "sportsPublicOther",
+      "layers": [
+        {
+          "filter": [
+            "==",
+            [
+              "get",
+              "layer"
+            ],
+            "其他公共場館"
+          ],
+          "layout": null,
+          "minzoom": 7,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "category"
+                ],
+                "籃球場",
+                "#ff7043",
+                "田徑場",
+                "#ef5350",
+                "羽球場",
+                "#ffca28",
+                "排球場",
+                "#26a69a",
+                "游泳池",
+                "#29b6f6",
+                "健身房",
+                "#a883f2",
+                "足球場",
+                "#66bb6a",
+                "躲避球場",
+                "#ff7d9f",
+                "網球場",
+                "#9ccc65",
+                "桌球場",
+                "#91a4ff",
+                "綜合體育館",
+                "#db75ec",
+                "舞蹈教室",
+                "#f06292",
+                "棒球場",
+                "#c6a599",
+                "棒壘打擊練習場",
+                "#a1887f",
+                "直排輪/滑輪場",
+                "#26c6da",
+                "壘球場",
+                "#d4a373",
+                "武術/技擊場",
+                "#ff9186",
+                "高爾夫球場",
+                "#5dab5e",
+                "撞球場",
+                "#65b7a8",
+                "攀岩場",
+                "#ff8f00",
+                "射箭/射擊場",
+                "#bc978b",
+                "體操館",
+                "#ba68c8",
+                "慢跑道",
+                "#9e9d24",
+                "運動公園/廣場",
+                "#43a047",
+                "自由車場",
+                "#6981e8",
+                "保齡球館",
+                "#2895a1",
+                "其他/未分類",
+                "#90a4ae",
+                "#7492a0"
+              ],
+              "circle-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "open_status"
+                  ],
+                  "不對外"
+                ],
+                0.27999999999999997,
+                0.8
+              ],
+              "circle-radius": [
+                "case",
+                [
+                  ">",
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "area_sqm"
+                    ],
+                    0
+                  ],
+                  0
+                ],
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "ln",
+                    [
+                      "max",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "area_sqm"
+                        ],
+                        0
+                      ],
+                      1
+                    ]
+                  ],
+                  5.298317366548036,
+                  1.5,
+                  9.903487552536127,
+                  8
+                ],
+                2
+              ],
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "open_status"
+                  ],
+                  "不對外"
+                ],
+                0.22399999999999998,
+                0.45
+              ],
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "category"
+                ],
+                "籃球場",
+                "#ff7043",
+                "田徑場",
+                "#ef5350",
+                "羽球場",
+                "#ffca28",
+                "排球場",
+                "#26a69a",
+                "游泳池",
+                "#29b6f6",
+                "健身房",
+                "#7e57c2",
+                "足球場",
+                "#66bb6a",
+                "躲避球場",
+                "#ec407a",
+                "網球場",
+                "#9ccc65",
+                "桌球場",
+                "#5c6bc0",
+                "綜合體育館",
+                "#ab47bc",
+                "舞蹈教室",
+                "#f06292",
+                "棒球場",
+                "#8d6e63",
+                "棒壘打擊練習場",
+                "#a1887f",
+                "直排輪/滑輪場",
+                "#26c6da",
+                "壘球場",
+                "#d4a373",
+                "武術/技擊場",
+                "#c62828",
+                "高爾夫球場",
+                "#2e7d32",
+                "撞球場",
+                "#00695c",
+                "攀岩場",
+                "#ff8f00",
+                "射箭/射擊場",
+                "#6d4c41",
+                "體操館",
+                "#ba68c8",
+                "慢跑道",
+                "#9e9d24",
+                "運動公園/廣場",
+                "#43a047",
+                "自由車場",
+                "#3949ab",
+                "保齡球館",
+                "#00838f",
+                "其他/未分類",
+                "#90a4ae",
+                "#607d8b"
+              ],
+              "circle-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "open_status"
+                  ],
+                  "不對外"
+                ],
+                0.27999999999999997,
+                0.8
+              ],
+              "circle-radius": [
+                "case",
+                [
+                  ">",
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "area_sqm"
+                    ],
+                    0
+                  ],
+                  0
+                ],
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "ln",
+                    [
+                      "max",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "area_sqm"
+                        ],
+                        0
+                      ],
+                      1
+                    ]
+                  ],
+                  5.298317366548036,
+                  1.5,
+                  9.903487552536127,
+                  8
+                ],
+                2
+              ],
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "open_status"
+                  ],
+                  "不對外"
+                ],
+                0.22399999999999998,
+                0.9
+              ],
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "public-other",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "public-other"
+      ],
+      "sourceId": "sports-venues",
+      "sourceUrl": "./sports/all_venues.geojson"
+    },
+    "sportsSchool": {
+      "dynamicData": null,
+      "filter": [
+        "==",
+        [
+          "get",
+          "layer"
+        ],
+        "學校場館"
+      ],
+      "id": "sportsSchool",
+      "layers": [
+        {
+          "filter": [
+            "==",
+            [
+              "get",
+              "layer"
+            ],
+            "學校場館"
+          ],
+          "layout": null,
+          "maxzoom": 10.01,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(1,107,88,0.00)",
+                0.05,
+                "rgba(1,107,88,0.11)",
+                0.15,
+                "rgba(2,129,138,0.33)",
+                0.3,
+                "rgba(59,147,194,0.66)",
+                0.45,
+                "rgba(107,170,208,0.99)",
+                0.6,
+                "rgba(165,189,219,1.00)",
+                0.8,
+                "rgba(210,210,231,1.00)",
+                1,
+                "rgba(244,235,245,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.01171875,
+                12,
+                3
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(114,173,209,0.00)",
+                0.05,
+                "rgba(114,173,209,0.11)",
+                0.15,
+                "rgba(76,155,199,0.33)",
+                0.3,
+                "rgba(37,139,175,0.66)",
+                0.45,
+                "rgba(2,125,129,0.99)",
+                0.6,
+                "rgba(1,108,89,1.00)",
+                0.8,
+                "rgba(1,89,71,1.00)",
+                1,
+                "rgba(1,70,54,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.01171875,
+                12,
+                3
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "school-heatmap",
+          "type": "heatmap"
+        },
+        {
+          "filter": [
+            "==",
+            [
+              "get",
+              "layer"
+            ],
+            "學校場館"
+          ],
+          "layout": null,
+          "minzoom": 10,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "category"
+                ],
+                "籃球場",
+                "#ff7043",
+                "田徑場",
+                "#f65a56",
+                "羽球場",
+                "#ffca28",
+                "排球場",
+                "#26a69a",
+                "游泳池",
+                "#29b6f6",
+                "健身房",
+                "#a882f2",
+                "足球場",
+                "#66bb6a",
+                "躲避球場",
+                "#ff7fa0",
+                "網球場",
+                "#9ccc65",
+                "桌球場",
+                "#91a4ff",
+                "綜合體育館",
+                "#cb66dc",
+                "舞蹈教室",
+                "#f06292",
+                "棒球場",
+                "#cdaca0",
+                "棒壘打擊練習場",
+                "#a1887f",
+                "直排輪/滑輪場",
+                "#26c6da",
+                "壘球場",
+                "#d4a373",
+                "武術/技擊場",
+                "#ff9388",
+                "高爾夫球場",
+                "#5eac5f",
+                "撞球場",
+                "#66b8a9",
+                "攀岩場",
+                "#ff8f00",
+                "射箭/射擊場",
+                "#bd978b",
+                "體操館",
+                "#dc88ea",
+                "慢跑道",
+                "#9e9d24",
+                "運動公園/廣場",
+                "#43a047",
+                "自由車場",
+                "#6f87ef",
+                "保齡球館",
+                "#44acb8",
+                "其他/未分類",
+                "#90a4ae",
+                "#7492a0"
+              ],
+              "circle-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "open_status"
+                  ],
+                  "不對外"
+                ],
+                0.26249999999999996,
+                0.75
+              ],
+              "circle-radius": [
+                "case",
+                [
+                  ">",
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "area_sqm"
+                    ],
+                    0
+                  ],
+                  0
+                ],
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "ln",
+                    [
+                      "max",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "area_sqm"
+                        ],
+                        0
+                      ],
+                      1
+                    ]
+                  ],
+                  5.298317366548036,
+                  1.5,
+                  9.903487552536127,
+                  8
+                ],
+                2
+              ],
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "open_status"
+                  ],
+                  "不對外"
+                ],
+                0.20999999999999996,
+                0.45
+              ],
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "category"
+                ],
+                "籃球場",
+                "#ff7043",
+                "田徑場",
+                "#ef5350",
+                "羽球場",
+                "#ffca28",
+                "排球場",
+                "#26a69a",
+                "游泳池",
+                "#29b6f6",
+                "健身房",
+                "#7e57c2",
+                "足球場",
+                "#66bb6a",
+                "躲避球場",
+                "#ec407a",
+                "網球場",
+                "#9ccc65",
+                "桌球場",
+                "#5c6bc0",
+                "綜合體育館",
+                "#ab47bc",
+                "舞蹈教室",
+                "#f06292",
+                "棒球場",
+                "#8d6e63",
+                "棒壘打擊練習場",
+                "#a1887f",
+                "直排輪/滑輪場",
+                "#26c6da",
+                "壘球場",
+                "#d4a373",
+                "武術/技擊場",
+                "#c62828",
+                "高爾夫球場",
+                "#2e7d32",
+                "撞球場",
+                "#00695c",
+                "攀岩場",
+                "#ff8f00",
+                "射箭/射擊場",
+                "#6d4c41",
+                "體操館",
+                "#ba68c8",
+                "慢跑道",
+                "#9e9d24",
+                "運動公園/廣場",
+                "#43a047",
+                "自由車場",
+                "#3949ab",
+                "保齡球館",
+                "#00838f",
+                "其他/未分類",
+                "#90a4ae",
+                "#607d8b"
+              ],
+              "circle-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "open_status"
+                  ],
+                  "不對外"
+                ],
+                0.26249999999999996,
+                0.75
+              ],
+              "circle-radius": [
+                "case",
+                [
+                  ">",
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "area_sqm"
+                    ],
+                    0
+                  ],
+                  0
+                ],
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "ln",
+                    [
+                      "max",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "area_sqm"
+                        ],
+                        0
+                      ],
+                      1
+                    ]
+                  ],
+                  5.298317366548036,
+                  1.5,
+                  9.903487552536127,
+                  8
+                ],
+                2
+              ],
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "open_status"
+                  ],
+                  "不對外"
+                ],
+                0.20999999999999996,
+                0.9
+              ],
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "school",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "school-heatmap",
+        "school"
+      ],
+      "sourceId": "sports-venues",
+      "sourceUrl": "./sports/all_venues.geojson"
+    },
+    "waterRecreationRestrictedAreas": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "waterRecreationRestrictedAreas",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "kind"
+                ],
+                "prohibited",
+                "#be123c",
+                "mixed",
+                "#c2410c",
+                "restricted",
+                "#d97706",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.35
+            },
+            "light": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "kind"
+                ],
+                "prohibited",
+                "#be123c",
+                "mixed",
+                "#c2410c",
+                "restricted",
+                "#d97706",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.35
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#e2e8f0",
+              "line-opacity": 0.6499999999999999,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "kind"
+                ],
+                "prohibited",
+                "#be123c",
+                "mixed",
+                "#c2410c",
+                "restricted",
+                "#d97706",
+                "#94a3b8"
+              ],
+              "line-opacity": 0.6499999999999999,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "water-recreation-restricted-areas",
+      "sourceUrl": "./tourism/water_recreation_restricted_areas.geojson"
+    },
+    "waterRecreationRestrictedAreas#2": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "waterRecreationRestrictedAreas",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "kind"
+                ],
+                "prohibited",
+                "#e9475e",
+                "mixed",
+                "#ff7a4e",
+                "restricted",
+                "#d97706",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "kind"
+                ],
+                "prohibited",
+                "#be123c",
+                "mixed",
+                "#c2410c",
+                "restricted",
+                "#d97706",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle-point",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "circle-point"
+      ],
+      "sourceId": "water-recreation-restricted-areas-points",
+      "sourceUrl": "./tourism/water_recreation_restricted_areas.geojson"
+    }
+  },
+  "params": {
+    "parksTaipei": [
+      {
+        "label": "分類",
+        "options": [
+          {
+            "label": "公園",
+            "value": "公園"
+          },
+          {
+            "label": "兒童遊戲場",
+            "value": "兒童遊戲場"
+          },
+          {
+            "label": "綠地",
+            "value": "綠地"
+          },
+          {
+            "label": "鄰里公園",
+            "value": "鄰里公園"
+          },
+          {
+            "label": "區域公園",
+            "value": "區域公園"
+          },
+          {
+            "label": "廣場",
+            "value": "廣場"
+          },
+          {
+            "label": "其他",
+            "value": "其他"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "公園",
+          "兒童遊戲場",
+          "綠地",
+          "鄰里公園",
+          "區域公園",
+          "廣場",
+          "其他"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "點位大小 1.00",
+        "max": 3,
+        "min": 0.5,
+        "name": "點位大小",
+        "step": 0.25,
+        "value": 1,
+        "valueText": "1.00"
+      }
+    ],
+    "playgrounds": [
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "sportsCenter": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "籃球場",
+            "value": "籃球場"
+          },
+          {
+            "label": "田徑場",
+            "value": "田徑場"
+          },
+          {
+            "label": "羽球場",
+            "value": "羽球場"
+          },
+          {
+            "label": "排球場",
+            "value": "排球場"
+          },
+          {
+            "label": "游泳池",
+            "value": "游泳池"
+          },
+          {
+            "label": "健身房",
+            "value": "健身房"
+          },
+          {
+            "label": "足球場",
+            "value": "足球場"
+          },
+          {
+            "label": "躲避球場",
+            "value": "躲避球場"
+          },
+          {
+            "label": "網球場",
+            "value": "網球場"
+          },
+          {
+            "label": "桌球場",
+            "value": "桌球場"
+          },
+          {
+            "label": "綜合體育館",
+            "value": "綜合體育館"
+          },
+          {
+            "label": "舞蹈教室",
+            "value": "舞蹈教室"
+          },
+          {
+            "label": "棒球場",
+            "value": "棒球場"
+          },
+          {
+            "label": "棒壘打擊練習場",
+            "value": "棒壘打擊練習場"
+          },
+          {
+            "label": "直排輪/滑輪場",
+            "value": "直排輪/滑輪場"
+          },
+          {
+            "label": "壘球場",
+            "value": "壘球場"
+          },
+          {
+            "label": "武術/技擊場",
+            "value": "武術/技擊場"
+          },
+          {
+            "label": "高爾夫球場",
+            "value": "高爾夫球場"
+          },
+          {
+            "label": "撞球場",
+            "value": "撞球場"
+          },
+          {
+            "label": "攀岩場",
+            "value": "攀岩場"
+          },
+          {
+            "label": "射箭/射擊場",
+            "value": "射箭/射擊場"
+          },
+          {
+            "label": "體操館",
+            "value": "體操館"
+          },
+          {
+            "label": "慢跑道",
+            "value": "慢跑道"
+          },
+          {
+            "label": "運動公園/廣場",
+            "value": "運動公園/廣場"
+          },
+          {
+            "label": "自由車場",
+            "value": "自由車場"
+          },
+          {
+            "label": "保齡球館",
+            "value": "保齡球館"
+          },
+          {
+            "label": "其他/未分類",
+            "value": "其他/未分類"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "籃球場",
+          "田徑場",
+          "羽球場",
+          "排球場",
+          "游泳池",
+          "健身房",
+          "足球場",
+          "躲避球場",
+          "網球場",
+          "桌球場",
+          "綜合體育館",
+          "舞蹈教室",
+          "棒球場",
+          "棒壘打擊練習場",
+          "直排輪/滑輪場",
+          "壘球場",
+          "武術/技擊場",
+          "高爾夫球場",
+          "撞球場",
+          "攀岩場",
+          "射箭/射擊場",
+          "體操館",
+          "慢跑道",
+          "運動公園/廣場",
+          "自由車場",
+          "保齡球館",
+          "其他/未分類"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 0.90",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 0.9,
+        "valueText": "0.90"
+      }
+    ],
+    "sportsPark": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "籃球場",
+            "value": "籃球場"
+          },
+          {
+            "label": "田徑場",
+            "value": "田徑場"
+          },
+          {
+            "label": "羽球場",
+            "value": "羽球場"
+          },
+          {
+            "label": "排球場",
+            "value": "排球場"
+          },
+          {
+            "label": "游泳池",
+            "value": "游泳池"
+          },
+          {
+            "label": "健身房",
+            "value": "健身房"
+          },
+          {
+            "label": "足球場",
+            "value": "足球場"
+          },
+          {
+            "label": "躲避球場",
+            "value": "躲避球場"
+          },
+          {
+            "label": "網球場",
+            "value": "網球場"
+          },
+          {
+            "label": "桌球場",
+            "value": "桌球場"
+          },
+          {
+            "label": "綜合體育館",
+            "value": "綜合體育館"
+          },
+          {
+            "label": "舞蹈教室",
+            "value": "舞蹈教室"
+          },
+          {
+            "label": "棒球場",
+            "value": "棒球場"
+          },
+          {
+            "label": "棒壘打擊練習場",
+            "value": "棒壘打擊練習場"
+          },
+          {
+            "label": "直排輪/滑輪場",
+            "value": "直排輪/滑輪場"
+          },
+          {
+            "label": "壘球場",
+            "value": "壘球場"
+          },
+          {
+            "label": "武術/技擊場",
+            "value": "武術/技擊場"
+          },
+          {
+            "label": "高爾夫球場",
+            "value": "高爾夫球場"
+          },
+          {
+            "label": "撞球場",
+            "value": "撞球場"
+          },
+          {
+            "label": "攀岩場",
+            "value": "攀岩場"
+          },
+          {
+            "label": "射箭/射擊場",
+            "value": "射箭/射擊場"
+          },
+          {
+            "label": "體操館",
+            "value": "體操館"
+          },
+          {
+            "label": "慢跑道",
+            "value": "慢跑道"
+          },
+          {
+            "label": "運動公園/廣場",
+            "value": "運動公園/廣場"
+          },
+          {
+            "label": "自由車場",
+            "value": "自由車場"
+          },
+          {
+            "label": "保齡球館",
+            "value": "保齡球館"
+          },
+          {
+            "label": "其他/未分類",
+            "value": "其他/未分類"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "籃球場",
+          "田徑場",
+          "羽球場",
+          "排球場",
+          "游泳池",
+          "健身房",
+          "足球場",
+          "躲避球場",
+          "網球場",
+          "桌球場",
+          "綜合體育館",
+          "舞蹈教室",
+          "棒球場",
+          "棒壘打擊練習場",
+          "直排輪/滑輪場",
+          "壘球場",
+          "武術/技擊場",
+          "高爾夫球場",
+          "撞球場",
+          "攀岩場",
+          "射箭/射擊場",
+          "體操館",
+          "慢跑道",
+          "運動公園/廣場",
+          "自由車場",
+          "保齡球館",
+          "其他/未分類"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 0.70",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 0.7,
+        "valueText": "0.70"
+      }
+    ],
+    "sportsPrivate": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "籃球場",
+            "value": "籃球場"
+          },
+          {
+            "label": "田徑場",
+            "value": "田徑場"
+          },
+          {
+            "label": "羽球場",
+            "value": "羽球場"
+          },
+          {
+            "label": "排球場",
+            "value": "排球場"
+          },
+          {
+            "label": "游泳池",
+            "value": "游泳池"
+          },
+          {
+            "label": "健身房",
+            "value": "健身房"
+          },
+          {
+            "label": "足球場",
+            "value": "足球場"
+          },
+          {
+            "label": "躲避球場",
+            "value": "躲避球場"
+          },
+          {
+            "label": "網球場",
+            "value": "網球場"
+          },
+          {
+            "label": "桌球場",
+            "value": "桌球場"
+          },
+          {
+            "label": "綜合體育館",
+            "value": "綜合體育館"
+          },
+          {
+            "label": "舞蹈教室",
+            "value": "舞蹈教室"
+          },
+          {
+            "label": "棒球場",
+            "value": "棒球場"
+          },
+          {
+            "label": "棒壘打擊練習場",
+            "value": "棒壘打擊練習場"
+          },
+          {
+            "label": "直排輪/滑輪場",
+            "value": "直排輪/滑輪場"
+          },
+          {
+            "label": "壘球場",
+            "value": "壘球場"
+          },
+          {
+            "label": "武術/技擊場",
+            "value": "武術/技擊場"
+          },
+          {
+            "label": "高爾夫球場",
+            "value": "高爾夫球場"
+          },
+          {
+            "label": "撞球場",
+            "value": "撞球場"
+          },
+          {
+            "label": "攀岩場",
+            "value": "攀岩場"
+          },
+          {
+            "label": "射箭/射擊場",
+            "value": "射箭/射擊場"
+          },
+          {
+            "label": "體操館",
+            "value": "體操館"
+          },
+          {
+            "label": "慢跑道",
+            "value": "慢跑道"
+          },
+          {
+            "label": "運動公園/廣場",
+            "value": "運動公園/廣場"
+          },
+          {
+            "label": "自由車場",
+            "value": "自由車場"
+          },
+          {
+            "label": "保齡球館",
+            "value": "保齡球館"
+          },
+          {
+            "label": "其他/未分類",
+            "value": "其他/未分類"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "籃球場",
+          "田徑場",
+          "羽球場",
+          "排球場",
+          "游泳池",
+          "健身房",
+          "足球場",
+          "躲避球場",
+          "網球場",
+          "桌球場",
+          "綜合體育館",
+          "舞蹈教室",
+          "棒球場",
+          "棒壘打擊練習場",
+          "直排輪/滑輪場",
+          "壘球場",
+          "武術/技擊場",
+          "高爾夫球場",
+          "撞球場",
+          "攀岩場",
+          "射箭/射擊場",
+          "體操館",
+          "慢跑道",
+          "運動公園/廣場",
+          "自由車場",
+          "保齡球館",
+          "其他/未分類"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 0.50",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 0.5,
+        "valueText": "0.50"
+      }
+    ],
+    "sportsPublicOther": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "籃球場",
+            "value": "籃球場"
+          },
+          {
+            "label": "田徑場",
+            "value": "田徑場"
+          },
+          {
+            "label": "羽球場",
+            "value": "羽球場"
+          },
+          {
+            "label": "排球場",
+            "value": "排球場"
+          },
+          {
+            "label": "游泳池",
+            "value": "游泳池"
+          },
+          {
+            "label": "健身房",
+            "value": "健身房"
+          },
+          {
+            "label": "足球場",
+            "value": "足球場"
+          },
+          {
+            "label": "躲避球場",
+            "value": "躲避球場"
+          },
+          {
+            "label": "網球場",
+            "value": "網球場"
+          },
+          {
+            "label": "桌球場",
+            "value": "桌球場"
+          },
+          {
+            "label": "綜合體育館",
+            "value": "綜合體育館"
+          },
+          {
+            "label": "舞蹈教室",
+            "value": "舞蹈教室"
+          },
+          {
+            "label": "棒球場",
+            "value": "棒球場"
+          },
+          {
+            "label": "棒壘打擊練習場",
+            "value": "棒壘打擊練習場"
+          },
+          {
+            "label": "直排輪/滑輪場",
+            "value": "直排輪/滑輪場"
+          },
+          {
+            "label": "壘球場",
+            "value": "壘球場"
+          },
+          {
+            "label": "武術/技擊場",
+            "value": "武術/技擊場"
+          },
+          {
+            "label": "高爾夫球場",
+            "value": "高爾夫球場"
+          },
+          {
+            "label": "撞球場",
+            "value": "撞球場"
+          },
+          {
+            "label": "攀岩場",
+            "value": "攀岩場"
+          },
+          {
+            "label": "射箭/射擊場",
+            "value": "射箭/射擊場"
+          },
+          {
+            "label": "體操館",
+            "value": "體操館"
+          },
+          {
+            "label": "慢跑道",
+            "value": "慢跑道"
+          },
+          {
+            "label": "運動公園/廣場",
+            "value": "運動公園/廣場"
+          },
+          {
+            "label": "自由車場",
+            "value": "自由車場"
+          },
+          {
+            "label": "保齡球館",
+            "value": "保齡球館"
+          },
+          {
+            "label": "其他/未分類",
+            "value": "其他/未分類"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "籃球場",
+          "田徑場",
+          "羽球場",
+          "排球場",
+          "游泳池",
+          "健身房",
+          "足球場",
+          "躲避球場",
+          "網球場",
+          "桌球場",
+          "綜合體育館",
+          "舞蹈教室",
+          "棒球場",
+          "棒壘打擊練習場",
+          "直排輪/滑輪場",
+          "壘球場",
+          "武術/技擊場",
+          "高爾夫球場",
+          "撞球場",
+          "攀岩場",
+          "射箭/射擊場",
+          "體操館",
+          "慢跑道",
+          "運動公園/廣場",
+          "自由車場",
+          "保齡球館",
+          "其他/未分類"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 0.50",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 0.5,
+        "valueText": "0.50"
+      }
+    ],
+    "sportsSchool": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "籃球場",
+            "value": "籃球場"
+          },
+          {
+            "label": "田徑場",
+            "value": "田徑場"
+          },
+          {
+            "label": "羽球場",
+            "value": "羽球場"
+          },
+          {
+            "label": "排球場",
+            "value": "排球場"
+          },
+          {
+            "label": "游泳池",
+            "value": "游泳池"
+          },
+          {
+            "label": "健身房",
+            "value": "健身房"
+          },
+          {
+            "label": "足球場",
+            "value": "足球場"
+          },
+          {
+            "label": "躲避球場",
+            "value": "躲避球場"
+          },
+          {
+            "label": "網球場",
+            "value": "網球場"
+          },
+          {
+            "label": "桌球場",
+            "value": "桌球場"
+          },
+          {
+            "label": "綜合體育館",
+            "value": "綜合體育館"
+          },
+          {
+            "label": "舞蹈教室",
+            "value": "舞蹈教室"
+          },
+          {
+            "label": "棒球場",
+            "value": "棒球場"
+          },
+          {
+            "label": "棒壘打擊練習場",
+            "value": "棒壘打擊練習場"
+          },
+          {
+            "label": "直排輪/滑輪場",
+            "value": "直排輪/滑輪場"
+          },
+          {
+            "label": "壘球場",
+            "value": "壘球場"
+          },
+          {
+            "label": "武術/技擊場",
+            "value": "武術/技擊場"
+          },
+          {
+            "label": "高爾夫球場",
+            "value": "高爾夫球場"
+          },
+          {
+            "label": "撞球場",
+            "value": "撞球場"
+          },
+          {
+            "label": "攀岩場",
+            "value": "攀岩場"
+          },
+          {
+            "label": "射箭/射擊場",
+            "value": "射箭/射擊場"
+          },
+          {
+            "label": "體操館",
+            "value": "體操館"
+          },
+          {
+            "label": "慢跑道",
+            "value": "慢跑道"
+          },
+          {
+            "label": "運動公園/廣場",
+            "value": "運動公園/廣場"
+          },
+          {
+            "label": "自由車場",
+            "value": "自由車場"
+          },
+          {
+            "label": "保齡球館",
+            "value": "保齡球館"
+          },
+          {
+            "label": "其他/未分類",
+            "value": "其他/未分類"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "籃球場",
+          "田徑場",
+          "羽球場",
+          "排球場",
+          "游泳池",
+          "健身房",
+          "足球場",
+          "躲避球場",
+          "網球場",
+          "桌球場",
+          "綜合體育館",
+          "舞蹈教室",
+          "棒球場",
+          "棒壘打擊練習場",
+          "直排輪/滑輪場",
+          "壘球場",
+          "武術/技擊場",
+          "高爾夫球場",
+          "撞球場",
+          "攀岩場",
+          "射箭/射擊場",
+          "體操館",
+          "慢跑道",
+          "運動公園/廣場",
+          "自由車場",
+          "保齡球館",
+          "其他/未分類"
+        ]
+      },
+      {
+        "defaultValue": "PuBuGn",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "PuBuGn"
+      },
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.75,
+        "valueText": "0.75"
+      },
+      {
+        "label": "大小 0.50",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 0.5,
+        "valueText": "0.50"
+      }
+    ],
+    "waterRecreationRestrictedAreas": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "禁止水域遊憩活動",
+            "value": "prohibited"
+          },
+          {
+            "label": "禁止＋限制（同一公告）",
+            "value": "mixed"
+          },
+          {
+            "label": "限制或活動分區",
+            "value": "restricted"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "prohibited",
+          "mixed",
+          "restricted"
+        ]
+      },
+      {
+        "label": "透明度 0.35",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.35,
+        "valueText": "0.35"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "point"
+      }
+    ]
+  }
+}

@@ -1,11 +1,17 @@
 import { describe, expect, it } from "vitest";
-import { LAYER_SEARCH_INDEX, searchLayers } from "../layerSearch";
+import { getLayerSearchIndex, getLayerSearchLabels, searchLayers } from "../layerSearch";
 import { COMPARISON_STATISTICS_KEYS } from "../../data/comparisonStatisticsRecipes";
 import { isDataSourceBrowserVisible } from "../../data/statisticsDataSources";
 
 describe("layerSearch", () => {
+  it("builds the index lazily and once; labels match the index", () => {
+    expect(getLayerSearchIndex()).toBe(getLayerSearchIndex());
+    const labels = getLayerSearchLabels();
+    expect(Object.keys(labels)).toEqual(getLayerSearchIndex().map((layer) => layer.key));
+    for (const layer of getLayerSearchIndex()) expect(labels[layer.key]).toBe(layer.label);
+  });
   it("does not expose orphan registrations as selectable layers", () => {
-    expect(LAYER_SEARCH_INDEX.some((layer) => layer.key === "facOffshore")).toBe(false);
+    expect(getLayerSearchIndex().some((layer) => layer.key === "facOffshore")).toBe(false);
     expect(searchLayers("facOffshore")).toEqual([]);
   });
   it("fails closed for guest searches but lets an authorized caller search gated production layers", () => {
@@ -14,7 +20,7 @@ describe("layerSearch", () => {
     expect(searchLayers("facPrimary", { lockedKeys: new Set(["facPrimary"]) }).map((layer) => layer.key)).not.toContain("facPrimary");
   });
   it("derives searchable metadata from the manifest", () => {
-    const hospital = LAYER_SEARCH_INDEX.find((layer) => layer.key === "medHospital");
+    const hospital = getLayerSearchIndex().find((layer) => layer.key === "medHospital");
     expect(hospital?.description).toBeTruthy();
     expect(hospital?.topics.length).toBeGreaterThan(0);
     expect(hospital?.source).toContain("上游：");
@@ -57,7 +63,7 @@ describe("layerSearch", () => {
 
   it("only indexes comparison recipes when their release gate allows the current environment", () => {
     const key = COMPARISON_STATISTICS_KEYS[0]!;
-    expect(LAYER_SEARCH_INDEX.some((layer) => layer.key === key)).toBe(isDataSourceBrowserVisible(key));
+    expect(getLayerSearchIndex().some((layer) => layer.key === key)).toBe(isDataSourceBrowserVisible(key));
   });
 
   it("scopes results to one sidebar and searches its local taxonomy", () => {

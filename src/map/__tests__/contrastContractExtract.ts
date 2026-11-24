@@ -2,7 +2,7 @@
  * 對比契約（design-system map-layers §3.9 C-3）的抽取與計算：測試與重產基準腳本共用同一份，兩邊各寫一份必漂移。
  *
  * 來源：
- *   - registry 圖層：`layer-golden.json` 的 overlays（預設參數下已求值的暗底 paint）。
+ *   - registry 圖層：`layer-golden/` 目錄（各 group 檔依 _order 組回）的 overlays（預設參數下已求值的暗底 paint）。
  *   - 統計圖層：`statisticsRenderRecipe(key, …, { isDark: true })` 的實際色階＋`STATISTICS_FILL_OPACITY.dark`。
  *
  * registry 規則（同 2026-11-10 稽核 extract.py／analyze.py）：
@@ -15,14 +15,13 @@
  * 最深一級對比 ≥ 2.2 且 OKLCH 彩度 ≥ 0.10、最淺一級對比 6–9；違規時記最深一級對比（政黨色另記 statistics-party）。
  * 不涵蓋：hook 自建圖層、Three.js／3D、heatmap／raster（另有色盤測試）、symbol 文字。
  */
-import { readFileSync } from "node:fs";
 import { BASEMAP_LAND } from "../mapStyleScale";
 import { compositeOver, contrastRatio, oklab, parseColor } from "../colorContrast";
 import { STATISTICS_RENDER_KEYS, statisticsRenderRecipe } from "../../data/regionalStatisticsRecipes";
 import { STATISTICS_FILL_OPACITY } from "../../data/statisticsVisuals";
 import { isDecorativeSuffix } from "../legendLayerOpacity";
+import { loadGoldenFixture } from "../../data/__tests__/layerGoldenFiles";
 
-export const GOLDEN_PATH = "src/data/__tests__/__fixtures__/layer-golden.json";
 export const CONTRAST_BASELINE_PATH = "src/map/__tests__/__fixtures__/contrast-baseline.json";
 export const MIN_CONTRAST_DARK = 3;
 export const STATISTICS_DEEPEST_MIN = 2.2;
@@ -99,7 +98,7 @@ const round2 = (value: number) => Math.round(value * 100) / 100;
 interface GoldenOverlay { id: string; layers: Array<{ suffix?: string; type: string; paint?: { dark?: Record<string, unknown> } }> }
 
 /** registry 每個 key 的「最顯眼主體子圖層」代表對比（暗陸）。 */
-export function registryKeyContrasts(golden = JSON.parse(readFileSync(GOLDEN_PATH, "utf8")) as { overlays: GoldenOverlay[] }): Map<string, ContrastViolation> {
+export function registryKeyContrasts(golden = loadGoldenFixture() as unknown as { overlays: GoldenOverlay[] }): Map<string, ContrastViolation> {
   const best = new Map<string, ContrastViolation>();
   for (const overlay of golden.overlays) {
     for (const layer of overlay.layers) {
