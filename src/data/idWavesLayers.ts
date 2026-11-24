@@ -34,6 +34,11 @@ export const KAB_FIELDS: readonly PhField[] = [
   { prop: "kabkota_name", label: l3("縣市", "Regency / city", "県・市") },
   { prop: "province_name", label: l3("省", "Province", "州") },
 ];
+/** popup 類別欄用：去掉圖例標籤尾端的筆數括號（例：「公園（9,241）」→「公園」）。 */
+export const plain = (t: L3): L3 => {
+  const cut = (x: string) => x.replace(/\s*[（(][~約]?[\d,]+[^）)]*[）)]$/, "");
+  return { zh: cut(t.zh), en: cut(t.en), ja: cut(t.ja) };
+};
 export const cat = (id: string, values: readonly string[], color: string, zh: string, en: string, ja: string, extra: Partial<PhCat> = {}): PhCat =>
   ({ id, values, color, label: l3(zh, en, ja), ...extra });
 export const point = (id: string, sourceLayer: string, minzoom: number, c: PhCatGetter, extra: Partial<PhPart> = {}): PhPart => ({ id, sourceLayer, geom: "point", minzoom, cat: c, ...extra });
@@ -262,7 +267,7 @@ const SPOT_CATS: readonly PhCat[] = [
   cat("zoo", ["zoo"], "#a3e635", "動物園（88）", "Zoo (88)", "動物園（88）", { radius: 3.5 }),
   cat("aquarium", ["aquarium"], "#2dd4bf", "水族館（24）", "Aquarium (24)", "水族館（24）", { radius: 3.5 }),
 ];
-const SPOT_KIND_MAP = Object.fromEntries(SPOT_CATS.map((c) => [c.values[0]!, c.label]));
+const SPOT_KIND_MAP = Object.fromEntries(SPOT_CATS.map((c) => [c.values[0]!, plain(c.label)]));
 
 // 營地
 const CAMP_CATS: readonly PhCat[] = [
@@ -547,7 +552,7 @@ export const ID_WAVE_SPECS: readonly IdLayerSpec[] = [
     cats: FACILITY_CATS,
     title: { props: ["name", "name_en", "name_id"], fallback: l3("水利設施", "Water facility", "水利施設"), fallbackBy: REDACT_TITLE },
     fields: [
-      { prop: "kind", label: l3("類別", "Type", "種別"), map: Object.fromEntries(FACILITY_CATS.map((c) => [c.values[0]!, c.label])) },
+      { prop: "kind", label: l3("類別", "Type", "種別"), map: Object.fromEntries(FACILITY_CATS.map((c) => [c.values[0]!, plain(c.label)])) },
       ...KAB_FIELDS,
     ],
     legendNotes: [l3("OSM（非官方）：筆數是 OSM 物件數，不是壩座數；點線面並存不去重", "OSM (unofficial): counts are OSM objects, not dam counts; points, lines and polygons not de-duplicated", "OSM（非公式）：件数は OSM オブジェクト数でダムの数ではない。点・線・面は重複排除しない")],

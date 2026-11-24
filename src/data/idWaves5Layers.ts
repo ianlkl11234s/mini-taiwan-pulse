@@ -5,7 +5,7 @@
  * 本檔只 import 型別與 idWavesLayers 的小工具（idDataLayers 會 spread 本檔）。
  */
 import type { IdLayerSpec } from "./idWavesLayers";
-import { BNPB_URL, KAB_FIELDS, NEAREST, ODBL, OSM_HOT, OSM_URL, OVERTURE_URL, POLY, PT, REDACT_TITLE, UNSTATED, cat, constGetter, l3, point, propGetter, str } from "./idWavesLayers";
+import { BNPB_URL, KAB_FIELDS, plain, NEAREST, ODBL, OSM_HOT, OSM_URL, OVERTURE_URL, POLY, PT, REDACT_TITLE, UNSTATED, cat, constGetter, l3, point, propGetter, str } from "./idWavesLayers";
 import type { L3, PhCat, PhCatGetter, PhField, PhPart } from "./phDataLayers";
 
 export const ID_FETCHED_AT_W5 = "2026-11-24";
@@ -18,7 +18,7 @@ const CDLA = l3("CDLA-Permissive-2.0（部分來源 CC0／Apache-2.0）", "CDLA-
 const BNPB_ORG = (what: string) => l3(`BNPB（原資料 ${what}），存取 2026-11-24`, `BNPB (original data ${what}), accessed 2026-11-24`, `BNPB（原データ ${what}）、2026-11-24 取得`);
 const loading = (zh: string, en: string, ja: string) => l3(`${zh}載入中`, `Loading ${en}`, `${ja}を読み込み中`);
 const nameFields: readonly PhField[] = [{ prop: "name_en", label: l3("英文名稱", "English name", "英語名"), unlessSameAs: "name" }];
-const kindMap = (cats: readonly PhCat[]) => Object.fromEntries(cats.flatMap((c) => c.values.map((v) => [v, c.label])));
+const kindMap = (cats: readonly PhCat[]) => Object.fromEntries(cats.flatMap((c) => c.values.map((v) => [v, plain(c.label)])));
 const AREA_FIELD: PhField = { prop: "area_km2", label: l3("面積", "Area", "面積"), kind: "num", unit: "km²", digits: 3 };
 const TITLE_PROPS = ["name", "name_en", "name_id"] as const;
 
