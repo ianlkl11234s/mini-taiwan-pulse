@@ -25,7 +25,8 @@ export interface CountryPackConfig {
   excludeKeys?: RegExp;
   /** key 型別：已存在的 keys.ts 型別名稱；沒有就由 codemod 產生 keys.ts（<Cc>LayerKey） */
   keyType: string;
-  specNotes?: { specsImport: string; specsName: string };
+  /** all：備註全收（KR／IE 的規格層）；預設只收沒有 when 條件的（specLayerNotes） */
+  specNotes?: { specsImport: string; specsName: string; all?: boolean };
   /** 這國的 overlay 但留在中央 registry（例：jpHeightLifecycle 依視窗管理的樣板，MapView 開站就要） */
   keepOverlays?: string[];
 }

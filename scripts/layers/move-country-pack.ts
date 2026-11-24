@@ -749,6 +749,18 @@ ${ALL_KEYS.map((k) => `  "${k}",`).join("\n")}
 export type ${KEY_T} = (typeof ${constName})[number];
 `);
   log.push(`產生 ${PACK_DIR}/keys.ts（${ALL_KEYS.length} 個 key）`);
+} else if (!new RegExp(`export type ${KEY_T}\\b`).test(readFileSync(keysAbs, "utf8"))) {
+  // 既有 key 檔（例：xxDataKeys.ts 改名成 keys.ts）只列了規格層：補上這國全部圖層的 key 與型別
+  const constName = `${CC}_LAYER_KEYS`;
+  writeFileSync(keysAbs, `${readFileSync(keysAbs, "utf8").trimEnd()}
+
+/** ${cfg.nameZh}全部圖層 key（B1 P5；索引裡這國的 key）。型別給 LayerVisibility、packKeys 用。 */
+export const ${constName} = [
+${ALL_KEYS.map((k) => `  "${k}",`).join("\n")}
+] as const;
+export type ${KEY_T} = (typeof ${constName})[number];
+`);
+  log.push(`${PACK_DIR}/keys.ts 補上 ${KEY_T}（${ALL_KEYS.length} 個 key）`);
 }
 writeFileSync(join(PACK_ABS, "popupTypes.ts"), `// ⚠️ 自動產生（move-country-pack.ts，依索引的 popup 欄位）：這國搬進國家包的 popup 類型，HEADER_LABELS 的完整性型別用。
 export type ${Cc}PopupType =
@@ -757,16 +769,30 @@ ${[...POPUPS].sort().map((p) => `  | "${p}"`).join("\n")};
 if (cfg.specNotes) {
   const p = join(PACK_ABS, "specNotes.ts");
   if (!existsSync(p)) {
-    writeFileSync(p, `${HEADER("規格層 popupNotes 的固定備註（圖層側說明）")}import { specLayerNotes } from "../../data/layerSourceInfo";
+    const fn = cfg.specNotes.all ? "specLayerNotesAll" : "specLayerNotes";
+    writeFileSync(p, `${HEADER("規格層 popupNotes 的固定備註（圖層側說明）")}import { ${fn} } from "../../data/layerSourceInfo";
 import type { SourceText } from "../../data/layerSourceInfo";
 import { ${cfg.specNotes.specsName} } from "${cfg.specNotes.specsImport}";
 
 export const ${CC}_PACK_SPEC_NOTES: Record<string, SourceText[]> = Object.fromEntries(
-  ${cfg.specNotes.specsName}.map((spec) => [spec.key, specLayerNotes(spec)] as const).filter(([, notes]) => notes.length > 0),
+  ${cfg.specNotes.specsName}.map((spec) => [spec.key, ${fn}(spec)] as const).filter(([, notes]) => notes.length > 0),
 );
 `);
     log.push(`產生 ${PACK_DIR}/specNotes.ts（設定 specNotes）`);
   }
+  // layerSourceInfo.ts 的中央 SPEC_NOTES 拿掉這國的規格（改由國家包登記），沒人用的 import 一起刪
+  const lsAbs = join(ROOT, "src/data/layerSourceInfo.ts");
+  let ls = readFileSync(lsAbs, "utf8");
+  const name = cfg.specNotes.specsName;
+  const before = ls;
+  ls = ls.replace(new RegExp(`\\.\\.\\.${name}, |, \\.\\.\\.${name}\\b|\\.\\.\\.${name}\\b`), "");
+  ls = ls.replace(/^\s*for \(const spec of \[\]\) [^\n]*\n/m, "");
+  // 兩個迴圈都清空了：整個區塊（只剩沒人用的 add）一起刪
+  ls = ls.replace(/\{\n  const add = \(key: string, notes: SourceText\[\]\) => \{[^\n]*\};\n\}\n/, "");
+  if (!new RegExp(`\\b${name}\\b`).test(ls.replace(new RegExp(`^import \\{ ${name} \\} from "[^"]+";\\n`, "m"), ""))) {
+    ls = ls.replace(new RegExp(`^import \\{ ${name} \\} from "[^"]+";\\n`, "m"), "");
+  }
+  if (ls !== before) { writeFileSync(lsAbs, ls); log.push(`layerSourceInfo.ts 中央 SPEC_NOTES 拿掉 ${name}`); }
 }
 // pack.ts：依實際存在的區段檔接線
 const REC: Array<[string, string, string]> = [

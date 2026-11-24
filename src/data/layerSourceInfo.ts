@@ -84,6 +84,11 @@ export function specLayerNotes(spec: { popupNotes: ReadonlyArray<{ text: L3; whe
   return spec.popupNotes.filter((note) => !note.when).map((note) => fromL3(note.text));
 }
 
+/** 規格層備註全收（KR／IE 的規格層：popupNotes 沒有 when 條件） */
+export function specLayerNotesAll(spec: { popupNotes: ReadonlyArray<L3> }): SourceText[] {
+  return spec.popupNotes.map(fromL3);
+}
+
 const SPEC_NOTES = new Map<string, SourceText[]>();
 {
   const add = (key: string, notes: SourceText[]) => { if (notes.length) SPEC_NOTES.set(key, notes); };
