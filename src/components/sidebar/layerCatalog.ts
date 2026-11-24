@@ -33,10 +33,11 @@ import { GB_STATISTICS_DATA_THEME_TITLES, GB_STATISTICS_TAB_THEME_TITLES, KR_STA
 // ── Color Config ──
 
 import {
-  LAYER_MANIFEST,
+  LAYER_MANIFEST, composeLayerLabel,
   type ManifestKey, type LayerManifestEntry, type LayerName, type LayerCountry,
 } from "../../data/layerManifest";
 import { layerColorTable, layerGatedKeys } from "../../data/layerLookup";
+import { layerIndexRow } from "../../data/layerIndex";
 
 /**
  * 手寫色票殘量 —— **AR-22 Phase 2 完成後為空**（348/348 全部由 layerManifest 派生）。
@@ -181,6 +182,14 @@ function fromManifest(key: ManifestKey): LayerDef {
   // 顯式標成 LayerManifestEntry：LAYER_MANIFEST 走 `satisfies`，逐筆型別只含
   // 該筆真的寫了的欄位 —— 直接讀 m.gated 會被 TS 判成不存在。這裡要的是
   // 「介面上宣告過的選填欄位」語意，widen 到介面才對。
+  // B1 P5a：國家包的圖層（manifest 還沒有、索引有）讀索引 —— 國家包延後載入，模組載入時 manifest 沒有這筆。
+  // 欄位口徑與 manifest 相同（name／label／expandable；manifest 沒有任何 entry 寫 gated 欄位，索引的 gated 來自 OWNER_ONLY，不在這裡用）。
+  const row = (LAYER_MANIFEST as Partial<Record<string, LayerManifestEntry>>)[key] ? undefined : layerIndexRow(key);
+  if (row) {
+    const def: LayerDef = { key, name: row.name, label: composeLayerLabel(row.name) };
+    if (row.expandable) def.expandable = true;
+    return def;
+  }
   const m: LayerManifestEntry = LAYER_MANIFEST[key];
   // orphan（section: null）沒有 LayerDef 可派生 —— 連 label 都不存在（型別是 never）。
   // 走到這裡代表有人把 orphan key 寫進了 THEMES，那是接線錯誤不是資料錯誤，

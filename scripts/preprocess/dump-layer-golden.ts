@@ -18,12 +18,15 @@ import {
 import {
   GOLDEN_DIR, splitFixture, writeGoldenDir, type GoldenFixture,
 } from "../../src/data/__tests__/layerGoldenFiles";
+import { loadAllPacks } from "../../src/countries/packs";
 
 // ⚠️ Phase 4 起只有 FIXTURE_SECTIONS 那 3 個 section 入檔（其餘 9 個已被
 //    layerManifest.test.ts 逐 key 焊死，凍第二份只是 churn）——判準見
 //    layerGoldenExtract.ts 的 FIXTURE_SECTIONS 註解。
 // B1 P1：fixture 是目錄 layer-golden/<group>.json ＋ _order.json（格式見 layerGoldenFiles.ts）；
 //    只重寫內容有變的檔，已不存在的 group 檔會刪掉。
+// B1 P5a：國家包的圖層也在 golden 裡（位元組與搬家前相同）——先全部載入
+await loadAllPacks();
 const snapshot = extractGolden();
 const fixture = pickFixture(snapshot) as unknown as GoldenFixture;
 const { written, removed, unchanged } = writeGoldenDir(splitFixture(fixture, goldenGrouper()));

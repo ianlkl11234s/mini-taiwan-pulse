@@ -9,7 +9,10 @@
 import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { renderLayerIndexModule } from "../../src/data/__tests__/layerIndexCodegen";
+import { loadAllPacks } from "../../src/countries/packs";
 
 const root = join(import.meta.dirname, "..", "..");
+// 國家包（B1 P5a）的圖層也要進索引：先全部載入
+await loadAllPacks();
 writeFileSync(join(root, "src/data/layerIndex.generated.ts"), renderLayerIndexModule());
 console.log("已更新 src/data/layerIndex.generated.ts");
