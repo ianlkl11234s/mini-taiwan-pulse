@@ -172,7 +172,7 @@ export const LAYER_INDEX = {
   "idBanks": {"country":"ID","name":{"zh":"銀行與 ATM","alt":"Banks & ATMs"},"section":{"theme":"基礎建設","group":"金融據點"},"color":"#38bdf8","icon":"Building2","expandable":true,"click":663},
   "idBridges": {"country":"ID","name":{"zh":"橋梁","alt":"Bridges"},"section":{"theme":"交通","group":"橋梁"},"color":"#fbbf24","icon":"Construction","expandable":true,"click":685},
   "idCamps": {"country":"ID","name":{"zh":"營地與山屋","alt":"Campsites & Mountain Huts"},"section":{"theme":"觀光","group":"營地與山屋"},"color":"#f59e0b","icon":"Tent","expandable":true,"click":691},
-  "idCemeteries": {"country":"ID","name":{"zh":"墓地範圍","alt":"Cemeteries"},"section":{"theme":"基礎建設","group":"墓區"},"color":"#94a3b8","icon":"Flower2","expandable":true,"click":694},
+  "idCemeteries": {"country":"ID","name":{"zh":"墓地範圍","alt":"Cemeteries"},"section":{"theme":"基礎建設","group":"墓區"},"color":"#cbd5e1","icon":"Flower2","expandable":true,"click":694},
   "idCommTowers": {"country":"ID","name":{"zh":"通訊塔","alt":"Communications Towers"},"section":{"theme":"基礎建設","group":"通訊塔"},"color":"#94a3b8","icon":"RadioTower","expandable":true,"click":666},
   "idConservationForest": {"country":"ID","name":{"zh":"保護與保育林分區（舊版）","alt":"Protection & Conservation Forest (Legacy)"},"section":{"theme":"自然保育","group":"保護與保育林"},"color":"#22c55e","icon":"TreePine","expandable":true,"click":690},
   "idCulturalFacilities": {"country":"ID","name":{"zh":"文化設施","alt":"Cultural Facilities"},"section":{"theme":"文化","group":"文化設施"},"color":"#f472b6","icon":"Theater","expandable":true,"click":664},
