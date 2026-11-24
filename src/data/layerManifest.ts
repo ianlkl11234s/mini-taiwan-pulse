@@ -1507,7 +1507,7 @@ const US_DATA_ENTRY_META: Record<UsDataKey, { theme: string; group: string; zh: 
   usRenewables: { theme: "能源", group: "再生能源", zh: "風機與大型太陽能", alt: "Wind Turbines & Utility Solar", icon: Wind, dataset: "us_renewables", topics: ["美國", "能源", "風機", "太陽能", "USWTDB", "USPVDB"],
     description: "美國風機 77,649 座（USWTDB v9.1）＋大型地面型太陽能 6,611 處（USPVDB v4.0，z8 起畫範圍）", processing: "USWTDB CSV、USPVDB GeoJSON；郡面空間判定；PMTiles turbines z4–10／solar_points z3–10／solar z8–13", note: "公有領域；屋頂型太陽能不含" },
   usOilGas: { theme: "能源", group: "石化 · 油氣", zh: "油氣設施與管線", alt: "Oil & Gas Infrastructure", icon: Flame, dataset: "us_oil_gas", topics: ["美國", "能源", "煉油廠", "天然氣", "管線", "外海", "BOEM", "HIFLD"],
-    description: "美國煉油廠 132、天然氣處理廠 478、LNG 站 8、外海平台 1,303、外海井 56,495、管線 49,165 段", processing: "HIFLD 存檔（EIA 層）＋BOEM／BSEE MMC_Layers 0–2；外海標 offshore 保留；PMTiles facilities z3–10／wells z6–10／pipelines z3–11", note: "逐列：HIFLD 存檔 CC BY 4.0／BOEM 聯邦作品；陸域油氣井（州職權）未做" },
+    description: "美國煉油廠 132、天然氣處理廠 478、LNG 站 8、外海平台 1,303、外海井 56,495、管線 49,165 段", processing: "HIFLD 存檔（EIA 層）＋BOEM／BSEE MMC_Layers 0–2；外海標 offshore 保留；PMTiles facilities z3–10／wells z6–10／pipelines z3–11", note: "逐列：HIFLD 存檔 CC BY 4.0／BOEM 聯邦作品；陸域油氣井見「州油氣井」（12 州）" },
   usStateWells: { theme: "能源", group: "石化 · 油氣", zh: "州油氣井", alt: "State Oil & Gas Wells", icon: Flame, dataset: "us_state_wells", topics: ["美國", "能源", "油氣井", "州"],
     description: "美國 12 州 州主管機關油氣井 337,938 口（州子層；其他州未涵蓋）", processing: "各州 ArcGIS 井位服務逐州下載（筆數對帳）；狀態依州原文關鍵字歸類；郡面空間判定、跨州誤落點丟棄；PMTiles wells z6–12", note: "授權未明示（各州）；不收井名與地主名" },
   usFuelStations: { theme: "能源", group: "加油站", zh: "加油站", alt: "Gas Stations", icon: Fuel, dataset: "us_fuel_stations", topics: ["美國", "能源", "加油站", "Overture"],
