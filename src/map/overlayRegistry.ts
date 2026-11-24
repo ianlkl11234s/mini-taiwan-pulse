@@ -13631,5 +13631,8 @@ function withCategoryFilter(config: OverlayConfig): OverlayConfig {
     };
   });
   const rebuild = new Set([...(config.rebuildOnParamChange ?? []), ...layers.filter((l) => l.type !== "raster" && !l.skipCategoryFilter).map((l) => l.suffix)]);
-  return { ...config, layers, rebuildOnParamChange: [...rebuild] };
+  // 明列 rebuildOnParamKeys 時 overlayManager 只比對清單內的參數（不再比 filter 快照）→ 類別 mask 也要進清單
+  const maskKeys = defs.map((def) => categoryMaskKey(config.id, def));
+  const rebuildKeys = config.rebuildOnParamKeys?.length ? [...new Set([...config.rebuildOnParamKeys, ...maskKeys])] : config.rebuildOnParamKeys;
+  return { ...config, layers, rebuildOnParamChange: [...rebuild], ...(rebuildKeys ? { rebuildOnParamKeys: rebuildKeys } : {}) };
 }
