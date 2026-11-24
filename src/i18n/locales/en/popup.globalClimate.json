@@ -32,6 +32,7 @@
   "popup.globalClimate.locationSemantics": "Location meaning",
   "popup.globalClimate.collectedAt": "Source collected at",
   "popup.globalClimate.locationSource": "Location source",
+  "popup.globalClimate.reportSources": "Reported by",
   "popup.globalClimate.loc.mention": "Approximate location mentioned in news geography; exact site not verified",
   "popup.globalClimate.loc.headline": "Approximate location of the country/city named in the headline; exact site not verified",
   "popup.globalClimate.loc.related": "Approximate location of the country/city related to the news; exact site not confirmed",

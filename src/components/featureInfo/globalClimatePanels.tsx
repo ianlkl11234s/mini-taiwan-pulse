@@ -226,6 +226,28 @@ function parseStringList(value: unknown): string[] {
   } catch { return []; }
 }
 
+/**
+ * 這一筆事件的報導來源（每筆不同，屬於這一筆的資訊，留在 popup）：source_urls 取 http(s)、
+ * 去掉已在「位置來源」列出的網址、同網域只留一個，最多 maxHosts 個；沒有就回空陣列（不顯示該列，不放占位字）。
+ */
+export function globalEventReportSources(props: Record<string, unknown>, maxHosts = 3): { host: string; url: string }[] {
+  const location = typeof props.location_source === "string" ? props.location_source : null;
+  const seen = new Set<string>();
+  const out: { host: string; url: string }[] = [];
+  for (const raw of parseStringList(props.source_urls)) {
+    if (raw === location) continue;
+    let parsed: URL;
+    try { parsed = new URL(raw); } catch { continue; }
+    if (!["https:", "http:"].includes(parsed.protocol) || parsed.username || parsed.password) continue;
+    const host = parsed.hostname.replace(/^www\./, "");
+    if (seen.has(host)) continue;
+    seen.add(host);
+    out.push({ host, url: raw });
+    if (out.length >= maxHosts) break;
+  }
+  return out;
+}
+
 function parseStoryLinks(value: unknown): { id: string; title: string }[] {
   try {
     const parsed: unknown = typeof value === "string" ? JSON.parse(value) : [];
@@ -277,6 +299,7 @@ export function GlobalEventPanel({ props }: { props: Record<string, unknown> }) 
       if (["https:", "http:"].includes(parsed.protocol) && !parsed.username && !parsed.password) locationUrl = parsed;
     } catch { /* Missing/invalid evidence links are not replaced with invented sources. */ }
   }
+  const reportSources = globalEventReportSources(props);
   const placeParts = [...new Set(
     [props.place_name, props.admin2, props.admin1,
       displayCountryCode(typeof props.country_code === "string" ? props.country_code : null, typeof props.country_code_scheme === "string" ? props.country_code_scheme : null)]
@@ -312,6 +335,10 @@ export function GlobalEventPanel({ props }: { props: Record<string, unknown> }) 
         {locationUrl ? <a href={String(props.location_source)} target="_blank" rel="noopener noreferrer"
           style={{ color: t.link, overflowWrap: "anywhere" }}>{locationUrl.hostname}</a> : <span style={{ color: t.textStrong }}>—</span>}
       </div>
+      {reportSources.length > 0 && <div style={{ display: "flex", gap: 8, marginTop: 4, fontSize: FONT_SIZE.base, lineHeight: 1.5 }}>
+        <span style={{ color: t.textMuted, flexShrink: 0 }}>{i18n.t("popup.globalClimate.reportSources")}</span>
+        <span style={{ overflowWrap: "anywhere" }}>{reportSources.map((src, i) => <span key={src.url}>{i > 0 ? "、" : ""}<a href={src.url} target="_blank" rel="noopener noreferrer" style={{ color: t.link }}>{src.host}</a></span>)}</span>
+      </div>}
     </div>
   );
 }
