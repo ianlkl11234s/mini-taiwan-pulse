@@ -5,7 +5,8 @@ import { LAYER_MANIFEST } from "../../data/layerManifest";
 import { localizeLayerName } from "../../i18n/layerText";
 import { useLocale } from "../../state/localeStore";
 
-const str = (value: unknown): string => (value === null || value === undefined ? "" : String(value));
+/** 空值一律當成沒有（GeoJSON 的 null 經地圖圖磚回來可能變成字串 "null"） */
+const str = (value: unknown): string => (value === null || value === undefined || value === "null" ? "" : String(value));
 
 /** `names` 以 | 分隔；去掉與標題相同的那個，其餘用頓號接起來。 */
 export function siteStudyOtherNames(names: unknown, title: string): string {
