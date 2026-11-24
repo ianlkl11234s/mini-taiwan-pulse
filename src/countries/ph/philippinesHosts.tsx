@@ -1,12 +1,12 @@
 // 菲律賓 Layer Host（2026-11-13 第 0–1 波）。比照 hosts/irelandHosts.tsx：一個 key 一個 Host。
 
-import { phPlantStatusFilter, usePhAdminLayers, usePhDataLayer, usePhPopulationLayers, usePhRasterLayer } from "../../hooks/usePhLayers";
-import { PH_SPEC_BY_KEY, phFileSpecs } from "../../data/phDataLayers";
-import { PH_RASTER_BY_KEY } from "../../data/phWavesLayers";
-import type { PhDataKey, PhRasterKey } from "../../data/phDataKeys";
-import { usePhOpenaqAirLayer } from "../../hooks/usePhOpenaqAirLayer";
-import { bumpHostRender, type LayerHostComponent } from "../layerHostDeps";
-import { useKeyOverlayParams } from "../layerParamsAccess";
+import { phPlantStatusFilter, usePhAdminLayers, usePhDataLayer, usePhPopulationLayers, usePhRasterLayer } from "./usePhLayers";
+import { PH_SPEC_BY_KEY, phFileSpecs } from "./phDataLayers";
+import { PH_RASTER_BY_KEY } from "./phWavesLayers";
+import type { PhDataKey, PhRasterKey } from "./keys";
+import { usePhOpenaqAirLayer } from "./usePhOpenaqAirLayer";
+import { bumpHostRender, type LayerHostComponent } from "../../layers/layerHostDeps";
+import { useKeyOverlayParams } from "../../layers/layerParamsAccess";
 
 /** 行政邊界：region、province、municipality、barangay 四層級（同一個 PMTiles，select 切換）。 */
 export const PhAdminHost: LayerHostComponent = ({ deps }) => {

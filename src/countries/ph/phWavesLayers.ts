@@ -8,9 +8,9 @@
  * 卡拉延群島：其他層資料端已不輸出；地震保留周邊海域（`PH_EQ_SHOW_KALAYAAN_SEA`，站主可能改）。
  * 地名不畫文字標籤：PMTiles vector source 上的 symbol placement 會讓整張地圖 render 中止（見 useCaTerrainLayers），比照加拿大地名畫點、名稱放 popup。
  */
-import type { PhDataKey, PhRasterKey } from "./phDataKeys";
-import type { L3 } from "./intlLayerShared";
-import type { PhCat, PhCatGetter, PhField, PhLayerSpec as IntlPhLayerSpec, PhSizeBands } from "./intlLayerShared";
+import type { PhDataKey, PhRasterKey } from "./keys";
+import type { L3 } from "../../data/intlLayerShared";
+import type { PhCat, PhCatGetter, PhField, PhLayerSpec as IntlPhLayerSpec, PhSizeBands } from "../../data/intlLayerShared";
 type PhLayerSpec<K extends string = PhDataKey> = IntlPhLayerSpec<K>;
 
 type Expr = unknown[];

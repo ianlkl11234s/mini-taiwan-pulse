@@ -1,3 +1,4 @@
+import type { PhLayerKey } from "../countries/ph/keys";
 import type { ThLayerKey } from "../countries/th/keys";
 import type { CaLayerKey } from "../countries/ca/keys";
 import type { KrLayerKey } from "../countries/kr/keys";
@@ -6,7 +7,7 @@ import type { GbLayerKey } from "../countries/gb/keys";
 import type { ComparisonStatisticsLayerKey } from '../data/comparisonStatisticsKeys';
 import type { KrDataKey } from '../countries/kr/keys';
 import type { IeDataKey } from '../countries/ie/keys';
-import type { PhDataKey, PhRasterKey } from '../data/phDataKeys';
+import type { PhDataKey, PhRasterKey } from '../countries/ph/keys';
 import type { VnDataKey, VnRasterKey } from '../data/vnDataKeys';
 import type { ThDataKey, ThRasterKey } from '../countries/th/keys';
 import type { IdDataKey, IdRasterKey } from '../data/idDataKeys';
@@ -1170,7 +1171,7 @@ export interface FeatureInfo {
 
 // ── 圖層控制 ──
 
-export interface LayerVisibility extends Record<KrDataKey | IeDataKey | PhDataKey | PhRasterKey | VnDataKey | VnRasterKey | ThDataKey | ThRasterKey | IdDataKey | IdRasterKey | CnDataKey | CnRasterKey | CaWaveKey | ComparisonStatisticsLayerKey | LaborStatisticsLayerKey | EnvironmentStatisticsLayerKey | DemographicsStatisticsLayerKey | AddictionStatisticsLayerKey | LandslideStatisticsLayerKey | AtlasStatisticsLayerKey | GbLayerKey | IeLayerKey | KrLayerKey | CaLayerKey | ThLayerKey, boolean> {
+export interface LayerVisibility extends Record<KrDataKey | IeDataKey | PhDataKey | PhRasterKey | VnDataKey | VnRasterKey | ThDataKey | ThRasterKey | IdDataKey | IdRasterKey | CnDataKey | CnRasterKey | CaWaveKey | ComparisonStatisticsLayerKey | LaborStatisticsLayerKey | EnvironmentStatisticsLayerKey | DemographicsStatisticsLayerKey | AddictionStatisticsLayerKey | LandslideStatisticsLayerKey | AtlasStatisticsLayerKey | GbLayerKey | IeLayerKey | KrLayerKey | CaLayerKey | ThLayerKey | PhLayerKey, boolean> {
   statsWasteRecyclingRate: boolean;
   statsEducationCountyInstitutionCount: boolean;
   statsEducationCountyTeacherCount: boolean;
@@ -2131,8 +2132,6 @@ export interface LayerVisibility extends Record<KrDataKey | IeDataKey | PhDataKe
   historicalLandUse: boolean;   // 同上：歷史土地利用
   historicalThematic: boolean;  // 同上：歷史主題圖（水利、地質、林務、測量）
   water1944Taipei: boolean; // 1944 水域（臺北盆地）：1944 美軍地形圖顏色抽取的水域面，依今日是否仍為河道分兩類（站主限定）
-  phAdminBoundaries: boolean;   // 菲律賓行政邊界（PMTiles polygon，region 18／province 88／municipality 1,642／barangay 42,048；2026-11-13 第 0 波）
-  phPopulation: boolean;   // 菲律賓人口（2024 普查，四層級人口密度；其餘 8 層走 PhDataKey）
   vnAdminBoundaries: boolean;   // 越南行政邊界（PMTiles polygon，2025-07 新制 34 省；2026-11-13 第 0 波）
   idAdminBoundaries: boolean;   // 印尼行政邊界（PMTiles polygon，國界／38 省／514 縣市；2026-11-23 第 0 波）
   idPopulation: boolean;   // 印尼人口（2020 推估，省／縣市人口密度）
@@ -2141,7 +2140,6 @@ export interface LayerVisibility extends Record<KrDataKey | IeDataKey | PhDataKe
   cnAdminBoundaries: boolean;   // 中國行政邊界（站主限定私人 PMTiles，省 31／地級 357；2026-11-13 第 0 波）
   cnPopulation: boolean;   // 中國人口（省 2020 普查、地級 GHS 模型值；站主限定）
   cnPopulationGrid: boolean;   // 中國人口網格（GHS-POP 2025 模型值 raster；站主限定；其餘 6 層走 CnDataKey）
-  phOpenaqAir: boolean;   // 菲律賓即時空品（OpenAQ，RPC get_openaq_latest）
   jpInlandFloodAreas: boolean;  // 日本內水浸水想定區域（PMTiles polygon，202,357 面；28 市町村、想定最大規模）
   jmaAmedas: boolean;     // 日本 AMeDAS 即時觀測（public.jma_amedas_current）
   jmaWarnings: boolean;   // 日本警報・注意報（市町村界 choropleth）

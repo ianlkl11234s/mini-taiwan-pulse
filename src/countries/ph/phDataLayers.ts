@@ -9,15 +9,15 @@
  * 不上任何西菲律賓海／海域主張線；卡拉延群島（Kalayaan）的面與點不畫（使用者 2026-11-10）。
  * 本檔不 import energyLoader 等重相依（layerParamsSpec 會讀本檔）；燃料色抄自 `energyLoader.FUEL_COLORS`。
  */
-import type { PhDataKey } from "./phDataKeys";
+import type { PhDataKey } from "./keys";
 import {
   PH_CAT_OTHER_ID,
   type L3, type PhCat, type PhCatGetter, type PhField, type PhLayerSpec as IntlPhLayerSpec, type PhSizeBands,
-} from "./intlLayerShared";
+} from "../../data/intlLayerShared";
 import { PH_WAVE_SPECS } from "./phWavesLayers";
 
-export { pickL3, phCatOf, phCatOptionIds, phFileSpecs, phText, PH_CAT_OTHER_ID } from "./intlLayerShared";
-export type { L3, PhCat, PhCatGetter, PhField, PhNote, PhPart, PhSizeBands } from "./intlLayerShared";
+export { pickL3, phCatOf, phCatOptionIds, phFileSpecs, phText, PH_CAT_OTHER_ID } from "../../data/intlLayerShared";
+export type { L3, PhCat, PhCatGetter, PhField, PhNote, PhPart, PhSizeBands } from "../../data/intlLayerShared";
 export type PhLayerSpec<K extends string = PhDataKey> = IntlPhLayerSpec<K>;
 
 type Expr = unknown[];

@@ -3,7 +3,7 @@
 import type { ThLayerKey } from "./keys";
 import type { LayerParamSpec } from "../../data/layerParamsSpec";
 import { categoryMultiSelect, heatmapPalette, opacitySlider, scaleSlider, serializeMultiSelectValues } from "../../data/layerParamsSpec";
-import { phCatOptions } from "../../data/phDataLayers";
+import { phCatOptions } from "../ph/phDataLayers";
 import { densePointOpacity, RASTER } from "../../map/mapStyleScale";
 import { TH_ADMIN_LEVELS, TH_DATA_SPECS, TH_POP_LEVELS, TH_STATUSES } from "./thDataLayers";
 import { TH_RASTER_SPECS } from "./thWavesLayers";

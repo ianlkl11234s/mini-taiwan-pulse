@@ -58,8 +58,6 @@ import { AgriCompanyLegend, AgriPOILegend, CommonRegistrationAddressesLegend, Co
 import { DrinkingWaterProtectionZonesLegend, GroundwaterLegend, IotRiverLegend, IotStructureLegend, JpWaterFloodHazardLegend, JpWaterLegend, LakesPondsLegend, RainGaugeLegend, ReservoirStatusLegend, ReservoirStaticLegend, RiverLevelLegend, RiverRpiStationsLegend, SewageTreatmentPlantsLegend, TaipeiEvacuateLegend, TaipeiPumbLegend, TaipeiSewerLegend, WaterCanalLegend, WaterFacilityLegend, WaterFloodExtremeLegend, WaterMonitorStationLegend, WaterProtectionZoneLegend, WaterQualityStationsLegend } from "./legend/waterLegends";
 import { AnfrWirelessSitesLegend, CoverageLegend, EnergyFuelLegend, EnergyReserveLegend, EnergySpecialtyLegend, FacOffshoreLegend, FacilityFuelLegend, FossilFuelLegend, InternetExchangePointsLegend, LandingStationLegend, NetworkStructuresLegend, OoklaPerformanceGridLegend, OsmCommunicationSitesLegend, PowerGridLegend, PowerPolesLegend, RenewablePoiLegend, RipeAtlasProbesLegend, SubmarineCableLegend, SubstationEhvLegend, SubstationLocalLegend } from "./legend/energyTelecomLegends";
 import { AccessibleParkLegend, AnimalAdoptionLegend, AnimalShelterPressureLegend, AnimalWelfarePointsLegend, BicycleSupportLegend, EducationLegend, GovServiceOfficeLegend, GovernmentLifeLegend, JpMedicalLegend, JpPoliceFacilitiesLegend, JpEvacuationSitesLegend, JpLandslideWarningAreasLegend, JpInlandFloodAreasLegend, JpZoningUseDistrictsLegend, JpNationalForestsLegend, JpWelfareFacilitiesLegend, JpPublicOfficesLegend, JpBusStopsLegend, JpSchoolsLegend, EmergencyHospitalLegend, MedicalIsochroneLegend, MedicalLegend, PoliceIsochroneLegend, PoliceJusticeLegend, PublicLifeCoverageLegend, PublicLifeOsmLegend, PublicToiletLegend, WelfareLegend } from "./legend/civicServiceLegends";
-import { PH_DATA_KEYS, PH_RASTER_KEYS } from "../data/phDataKeys";
-import { PhAdminBoundariesLegend, PhDataLegend, PhOpenaqAirLegend, PhPopulationLegend, PhRasterLegend } from "./legend/phLegends";
 import { VN_DATA_KEYS, VN_RASTER_KEYS } from "../data/vnDataKeys";
 import { ID_DATA_KEYS, ID_RASTER_KEYS } from "../data/idDataKeys";
 import { IdAdminBoundariesLegend, IdDataLegend, IdPopulationLegend, IdRasterLegend, IdRuralDevelopmentLegend } from "./legend/idLegends";
@@ -348,11 +346,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = slottedList<LegendEntry>("legends"
   countrySlot("KR", 1), // 南韓國家包（src/countries/kr/）
   countrySlot("CA", 1), // 加拿大國家包（src/countries/ca/）
   countrySlot("IE", 1), // 愛爾蘭國家包（src/countries/ie/）
-  { id: "phAdminBoundaries", render: () => <PhAdminBoundariesLegend /> },
-  { id: "phPopulation", render: () => <PhPopulationLegend /> },
-  { id: "phOpenaqAir", render: () => <PhOpenaqAirLegend /> },
-  ...PH_DATA_KEYS.map((key) => ({ id: key, render: () => <PhDataLegend layerKey={key} /> })),
-  ...PH_RASTER_KEYS.map((key) => ({ id: key, render: () => <PhRasterLegend layerKey={key} /> })),
+  countrySlot("PH", 1), // 菲律賓國家包（src/countries/ph/）
   { id: "vnAdminBoundaries", render: () => <VnAdminBoundariesLegend /> },
   { id: "vnPopulation", render: () => <VnPopulationLegend /> },
   ...VN_DATA_KEYS.map((key) => ({ id: key, render: () => <VnDataLegend layerKey={key} /> })),

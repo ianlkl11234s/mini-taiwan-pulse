@@ -5,7 +5,7 @@
 // 1) 對應 domain 檔寫 panel 元件  2) registry.tsx 加 PANEL_REGISTRY + HEADER_LABELS 各一行。
 import { KR_DATA_KEYS } from "../countries/kr/keys";
 import { IE_DATA_KEYS } from "../countries/ie/keys";
-import { PH_DATA_KEYS } from "../data/phDataKeys";
+import { PH_DATA_KEYS } from "../countries/ph/keys";
 import { VN_DATA_KEYS } from "../data/vnDataKeys";
 import { TH_DATA_KEYS } from "../countries/th/keys";
 import { ID_DATA_KEYS } from "../data/idDataKeys";

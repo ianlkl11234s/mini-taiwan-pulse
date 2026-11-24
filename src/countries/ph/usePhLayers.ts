@@ -1,14 +1,14 @@
 import type { AnyLayer, Map as MapboxMap } from "mapbox-gl";
-import { hookFillPaint, hookLineLayout, hookLinePaint } from "../map/lineFillSpec";
-import { BOUNDARY_GRAY, MAP_SEAM } from "../map/mapStyleScale";
-import { paletteRamp, resampleRamp } from "../map/palettes";
-import { paramDefault } from "../data/layerParamsSpec";
-import { selectedMultiSelectValues } from "../data/multiSelectMapbox";
-import { PH_ADMIN_COLOR, PH_ADMIN_LEVELS, PH_DENSITY_BREAKS, PH_NOT_COVERED_COLOR, PH_PLANT_STATUSES, PH_PLANT_STATUS_DEFAULT, phKigExcludeFilter, phText, type PhAdminLevel } from "../data/phDataLayers";
-import { NONE, setPaint } from "./intlPhSpecLayers";
-export { phColorExpr, phPartCatFilter, phHeatmapId, phSourceSpec, usePhDataLayer } from "./intlPhSpecLayers";
-import type { PhRasterSpec } from "../data/phWavesLayers";
-import { useGbPmtilesLayers, type SourceSpec } from "./intlPmtilesLayers";
+import { hookFillPaint, hookLineLayout, hookLinePaint } from "../../map/lineFillSpec";
+import { BOUNDARY_GRAY, MAP_SEAM } from "../../map/mapStyleScale";
+import { paletteRamp, resampleRamp } from "../../map/palettes";
+import { paramDefault } from "../../data/layerParamsSpec";
+import { selectedMultiSelectValues } from "../../data/multiSelectMapbox";
+import { PH_ADMIN_COLOR, PH_ADMIN_LEVELS, PH_DENSITY_BREAKS, PH_NOT_COVERED_COLOR, PH_PLANT_STATUSES, PH_PLANT_STATUS_DEFAULT, phKigExcludeFilter, phText, type PhAdminLevel } from "./phDataLayers";
+import { NONE, setPaint } from "../../hooks/intlPhSpecLayers";
+export { phColorExpr, phPartCatFilter, phHeatmapId, phSourceSpec, usePhDataLayer } from "../../hooks/intlPhSpecLayers";
+import type { PhRasterSpec } from "./phWavesLayers";
+import { useGbPmtilesLayers, type SourceSpec } from "../../hooks/intlPmtilesLayers";
 
 /**
  * 菲律賓第 0–1 波（2026-11-13）：行政邊界、人口（四層級 select）與規格驅動 8 層。靜態 PMTiles、不訂閱時間。

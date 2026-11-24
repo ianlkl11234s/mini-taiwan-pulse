@@ -132,4 +132,18 @@ export const COUNTRY_PACK_CONFIG: Record<string, CountryPackConfig> = {
     rename: { "src/data/thDataKeys.ts": "keys.ts" },
     keyType: "ThLayerKey",
   },
+  PH: {
+    dir: "ph",
+    nameZh: "菲律賓",
+    dedicated: [
+      /^src\/data\/ph[A-Z][A-Za-z0-9]*\.ts$/,
+      /^src\/hooks\/usePh[A-Z][A-Za-z]*\.ts$/,
+      /^src\/components\/legend\/ph[A-Z][A-Za-z]*\.tsx$/,
+      /^src\/components\/featureInfo\/ph[A-Z][A-Za-z]*\.tsx$/,
+      /^src\/layers\/hosts\/philippinesHosts\.tsx$/,
+    ],
+    rename: { "src/data/phDataKeys.ts": "keys.ts" },
+    keyType: "PhLayerKey",
+    specNotes: { specsImport: "./phDataLayers", specsName: "PH_DATA_SPECS" },
+  },
 };

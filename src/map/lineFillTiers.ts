@@ -310,41 +310,41 @@ export const HOOK_LINE_TIERS: Readonly<Record<string, HookLineTierSpec>> = {
   "typhoonTracks/typhoon-tracks-line-observed": {"width": "emphasis", "opacity": "standard"}, // src/hooks/useTyphoonTracksLayer.ts
   "vesselWatch/vessel-watch-trail-line": {"width": "standard", "opacity": "reference"}, // src/hooks/useVesselWatchLayer.ts
   "weatherAlerts/weatherAlerts-line": {"width": "standard", "opacity": "standard"}, // src/hooks/useDisasterAlertLayer.ts
-  "phAdminBoundaries/ph-admin-region-line": {"width": "emphasis", "opacity": "standard"}, // L-5 行政界：region 比照縣市 · src/hooks/usePhLayers.ts
-  "phAdminBoundaries/ph-admin-province-line": {"width": "emphasis", "opacity": "standard"}, // L-5：省比照縣市 · src/hooks/usePhLayers.ts
-  "phAdminBoundaries/ph-admin-municipality-line": {"width": "standard", "opacity": "standard"}, // L-5：市鎮比照鄉鎮市區 · src/hooks/usePhLayers.ts
-  "phAdminBoundaries/ph-admin-barangay-line": {"width": "thin", "opacity": "standard"}, // L-5：barangay 比照村里 · src/hooks/usePhLayers.ts
-  "phPopulation/ph-population-region-line": {"width": "keep", "opacity": "keep"}, // 分級面底圖色細縫（F-2）· src/hooks/usePhLayers.ts
-  "phPopulation/ph-population-province-line": {"width": "keep", "opacity": "keep"}, // 分級面底圖色細縫（F-2）· src/hooks/usePhLayers.ts
-  "phPopulation/ph-population-municipality-line": {"width": "keep", "opacity": "keep"}, // 分級面底圖色細縫（F-2）· src/hooks/usePhLayers.ts
-  "phPopulation/ph-population-barangay-line": {"width": "keep", "opacity": "keep"}, // 分級面底圖色細縫（F-2）· src/hooks/usePhLayers.ts
-  "phMajorRoads/ph-major-roads-line": {"width": "keep", "opacity": "standard"}, // 寬依道路等級 · src/hooks/usePhLayers.ts
-  "phMajorRoads/ph-major-rail-line": {"width": "standard", "opacity": "standard"}, // 鐵道單一類 · src/hooks/usePhLayers.ts
-  "phPowerGrid/ph-power-lines-line": {"width": "keep", "opacity": "standard"}, // 寬依電壓（比照 osmPowerLines）· src/hooks/usePhLayers.ts
-  "phPowerGrid/ph-power-cables-line": {"width": "keep", "opacity": "standard"}, // 地下／海底電纜虛線，寬依電壓 · src/hooks/usePhLayers.ts
-  "phPipelines/ph-pipelines-line": {"width": "standard", "opacity": "standard"}, // 依內容物分色 · src/hooks/usePhLayers.ts
+  "phAdminBoundaries/ph-admin-region-line": {"width": "emphasis", "opacity": "standard"}, // L-5 行政界：region 比照縣市 · src/countries/ph/usePhLayers.ts
+  "phAdminBoundaries/ph-admin-province-line": {"width": "emphasis", "opacity": "standard"}, // L-5：省比照縣市 · src/countries/ph/usePhLayers.ts
+  "phAdminBoundaries/ph-admin-municipality-line": {"width": "standard", "opacity": "standard"}, // L-5：市鎮比照鄉鎮市區 · src/countries/ph/usePhLayers.ts
+  "phAdminBoundaries/ph-admin-barangay-line": {"width": "thin", "opacity": "standard"}, // L-5：barangay 比照村里 · src/countries/ph/usePhLayers.ts
+  "phPopulation/ph-population-region-line": {"width": "keep", "opacity": "keep"}, // 分級面底圖色細縫（F-2）· src/countries/ph/usePhLayers.ts
+  "phPopulation/ph-population-province-line": {"width": "keep", "opacity": "keep"}, // 分級面底圖色細縫（F-2）· src/countries/ph/usePhLayers.ts
+  "phPopulation/ph-population-municipality-line": {"width": "keep", "opacity": "keep"}, // 分級面底圖色細縫（F-2）· src/countries/ph/usePhLayers.ts
+  "phPopulation/ph-population-barangay-line": {"width": "keep", "opacity": "keep"}, // 分級面底圖色細縫（F-2）· src/countries/ph/usePhLayers.ts
+  "phMajorRoads/ph-major-roads-line": {"width": "keep", "opacity": "standard"}, // 寬依道路等級 · src/countries/ph/usePhLayers.ts
+  "phMajorRoads/ph-major-rail-line": {"width": "standard", "opacity": "standard"}, // 鐵道單一類 · src/countries/ph/usePhLayers.ts
+  "phPowerGrid/ph-power-lines-line": {"width": "keep", "opacity": "standard"}, // 寬依電壓（比照 osmPowerLines）· src/countries/ph/usePhLayers.ts
+  "phPowerGrid/ph-power-cables-line": {"width": "keep", "opacity": "standard"}, // 地下／海底電纜虛線，寬依電壓 · src/countries/ph/usePhLayers.ts
+  "phPipelines/ph-pipelines-line": {"width": "standard", "opacity": "standard"}, // 依內容物分色 · src/countries/ph/usePhLayers.ts
   "thAdminBoundaries/th-admin-country-line": {"width": "emphasis", "opacity": "standard"}, // L-5：國界 · src/countries/th/useThLayers.ts
   "thAdminBoundaries/th-admin-province-line": {"width": "emphasis", "opacity": "standard"}, // L-5：77 府比照縣市 · src/countries/th/useThLayers.ts
   "thAdminBoundaries/th-admin-amphoe-line": {"width": "emphasis", "opacity": "standard"}, // L-5：928 縣 · src/countries/th/useThLayers.ts
   "thAdminBoundaries/th-admin-tambon-line": {"width": "emphasis", "opacity": "standard"}, // L-5：7,425 區 · src/countries/th/useThLayers.ts
   "thPopulation/th-population-province-line": {"width": "keep", "opacity": "keep"}, // 分級面底圖色細縫（F-2）· src/countries/th/useThLayers.ts
   "thPopulation/th-population-amphoe-line": {"width": "keep", "opacity": "keep"}, // 同上 · src/countries/th/useThLayers.ts
-  "thMajorRoads/th-major-roads-line": {"width": "keep", "opacity": "standard"}, // 寬依道路等級 · src/hooks/usePhLayers.ts（泰國規格）
-  "thMajorRoads/th-major-rail-line": {"width": "standard", "opacity": "standard"}, // 鐵道 · src/hooks/usePhLayers.ts（泰國規格）
-  "thPowerGrid/th-power-lines-line": {"width": "keep", "opacity": "standard"}, // 寬依電壓 · src/hooks/usePhLayers.ts（泰國規格）
-  "thPipelines/th-pipelines-line": {"width": "keep", "opacity": "standard"}, // 依內容物分色、油氣較寬 · src/hooks/usePhLayers.ts（泰國規格）
+  "thMajorRoads/th-major-roads-line": {"width": "keep", "opacity": "standard"}, // 寬依道路等級 · src/countries/ph/usePhLayers.ts（泰國規格）
+  "thMajorRoads/th-major-rail-line": {"width": "standard", "opacity": "standard"}, // 鐵道 · src/countries/ph/usePhLayers.ts（泰國規格）
+  "thPowerGrid/th-power-lines-line": {"width": "keep", "opacity": "standard"}, // 寬依電壓 · src/countries/ph/usePhLayers.ts（泰國規格）
+  "thPipelines/th-pipelines-line": {"width": "keep", "opacity": "standard"}, // 依內容物分色、油氣較寬 · src/countries/ph/usePhLayers.ts（泰國規格）
   "vnAdminBoundaries/vn-admin-province-line": {"width": "emphasis", "opacity": "standard"}, // L-5：34 省比照縣市 · src/hooks/useVnLayers.ts
   "vnPopulation/vn-population-province-line": {"width": "keep", "opacity": "keep"}, // 分級面底圖色細縫（F-2）· src/hooks/useVnLayers.ts
-  "vnMajorRoads/vn-major-roads-line": {"width": "keep", "opacity": "standard"}, // 寬依道路等級 · src/hooks/usePhLayers.ts（越南規格）
-  "vnMajorRoads/vn-major-rail-line": {"width": "standard", "opacity": "standard"}, // 鐵道營運中 · src/hooks/usePhLayers.ts（越南規格）
-  "vnMajorRoads/vn-major-rail-construction-line": {"width": "standard", "opacity": "standard"}, // 鐵道興建中虛線 · src/hooks/usePhLayers.ts（越南規格）
-  "vnPowerGrid/vn-power-lines-line": {"width": "keep", "opacity": "standard"}, // 寬依電壓 · src/hooks/usePhLayers.ts（越南規格）
-  "vnPowerGrid/vn-power-cables-line": {"width": "keep", "opacity": "standard"}, // 地下／海底電纜虛線 · src/hooks/usePhLayers.ts（越南規格）
-  "vnOilGas/vn-pipelines-gem-line": {"width": "keep", "opacity": "standard"}, // GEM 油氣管線 · src/hooks/usePhLayers.ts（越南規格）
-  "vnOilGas/vn-pipelines-osm-line": {"width": "standard", "opacity": "standard"}, // OSM 天然氣管線 · src/hooks/usePhLayers.ts（越南規格）
-  "vnAngiangDemo/vn-angiang-clusters-outline": {"width": "keep", "opacity": "standard"}, // 安江工業群外框，低縮放加粗 · src/hooks/usePhLayers.ts（越南規格）
-  "phUrbanRail/ph-urban-rail-line": {"width": "keep", "opacity": "standard"}, // 依線別分色，營運線比渡線粗 · src/hooks/usePhLayers.ts
-  "phExpressways/ph-expressways-line": {"width": "keep", "opacity": "standard"}, // 依收費分色，收費路較粗 · src/hooks/usePhLayers.ts  "fire119Live/fire119-live-district-line": {"width": "thin", "opacity": "reference", "outline": "graded"}, // 只到行政區的案件鄉鎮外框 · src/hooks/useFire119LiveLayer.ts
+  "vnMajorRoads/vn-major-roads-line": {"width": "keep", "opacity": "standard"}, // 寬依道路等級 · src/countries/ph/usePhLayers.ts（越南規格）
+  "vnMajorRoads/vn-major-rail-line": {"width": "standard", "opacity": "standard"}, // 鐵道營運中 · src/countries/ph/usePhLayers.ts（越南規格）
+  "vnMajorRoads/vn-major-rail-construction-line": {"width": "standard", "opacity": "standard"}, // 鐵道興建中虛線 · src/countries/ph/usePhLayers.ts（越南規格）
+  "vnPowerGrid/vn-power-lines-line": {"width": "keep", "opacity": "standard"}, // 寬依電壓 · src/countries/ph/usePhLayers.ts（越南規格）
+  "vnPowerGrid/vn-power-cables-line": {"width": "keep", "opacity": "standard"}, // 地下／海底電纜虛線 · src/countries/ph/usePhLayers.ts（越南規格）
+  "vnOilGas/vn-pipelines-gem-line": {"width": "keep", "opacity": "standard"}, // GEM 油氣管線 · src/countries/ph/usePhLayers.ts（越南規格）
+  "vnOilGas/vn-pipelines-osm-line": {"width": "standard", "opacity": "standard"}, // OSM 天然氣管線 · src/countries/ph/usePhLayers.ts（越南規格）
+  "vnAngiangDemo/vn-angiang-clusters-outline": {"width": "keep", "opacity": "standard"}, // 安江工業群外框，低縮放加粗 · src/countries/ph/usePhLayers.ts（越南規格）
+  "phUrbanRail/ph-urban-rail-line": {"width": "keep", "opacity": "standard"}, // 依線別分色，營運線比渡線粗 · src/countries/ph/usePhLayers.ts
+  "phExpressways/ph-expressways-line": {"width": "keep", "opacity": "standard"}, // 依收費分色，收費路較粗 · src/countries/ph/usePhLayers.ts  "fire119Live/fire119-live-district-line": {"width": "thin", "opacity": "reference", "outline": "graded"}, // 只到行政區的案件鄉鎮外框 · src/hooks/useFire119LiveLayer.ts
   "fire119Live/fire119-live-road": {"width": "emphasis", "opacity": "reference"}, // 點開／滑過路段級案件時淡淡高亮整條路 · src/hooks/useFire119LiveLayer.ts
   "cnAdminBoundaries/cn-admin-province-line": {"width": "emphasis", "opacity": "standard"}, // L-5：省比照縣市 · src/countries/cn/useCnLayers.ts
   "cnAdminBoundaries/cn-admin-prefecture-line": {"width": "standard", "opacity": "standard"}, // L-5：地級比照鄉鎮市區 · src/countries/cn/useCnLayers.ts
@@ -498,14 +498,14 @@ export const HOOK_FILL_TIERS: Readonly<Record<string, FillTier | "keep">> = {
   "weakSoilSand5To10/soil-liquefaction-weakSoilSand5To10-missing": "coverage", // src/hooks/useSoilLiquefactionLayers.ts
   "weatherAlerts/weatherAlerts-fill": "keep", // src/hooks/useDisasterAlertLayer.ts
   "youbikeFullness/h3-youbike-fill": "graded", // src/map/youbikeLayerFactory.ts
-  "phPopulation/ph-population-region-fill": "graded", // 人口密度 6 級＋未涵蓋灰 · src/hooks/usePhLayers.ts
-  "phPopulation/ph-population-province-fill": "graded", // 同上 · src/hooks/usePhLayers.ts
-  "phPopulation/ph-population-municipality-fill": "graded", // 同上 · src/hooks/usePhLayers.ts
-  "phPopulation/ph-population-barangay-fill": "graded", // 同上 · src/hooks/usePhLayers.ts
+  "phPopulation/ph-population-region-fill": "graded", // 人口密度 6 級＋未涵蓋灰 · src/countries/ph/usePhLayers.ts
+  "phPopulation/ph-population-province-fill": "graded", // 同上 · src/countries/ph/usePhLayers.ts
+  "phPopulation/ph-population-municipality-fill": "graded", // 同上 · src/countries/ph/usePhLayers.ts
+  "phPopulation/ph-population-barangay-fill": "graded", // 同上 · src/countries/ph/usePhLayers.ts
   "thPopulation/th-population-province-fill": "graded", // 人口密度 6 級 · src/countries/th/useThLayers.ts
   "thPopulation/th-population-amphoe-fill": "graded", // 同上 · src/countries/th/useThLayers.ts
   "vnPopulation/vn-population-province-fill": "graded", // 人口密度 5 級 · src/hooks/useVnLayers.ts
-  "vnAngiangDemo/vn-angiang-clusters-fill": "coverage", // 安江工業群依狀態分色 · src/hooks/usePhLayers.ts（越南規格）
+  "vnAngiangDemo/vn-angiang-clusters-fill": "coverage", // 安江工業群依狀態分色 · src/countries/ph/usePhLayers.ts（越南規格）
   "cnPopulation/cn-population-province-fill": "graded", // 人口密度 6 級＋未涵蓋灰 · src/countries/cn/useCnLayers.ts
   "cnPopulation/cn-population-prefecture-fill": "graded", // 同上（GHS 模型值）· src/countries/cn/useCnLayers.ts
   "cnEez/cn-eez-fill": "coverage", // src/countries/cn/useCnLayers.ts

@@ -1,22 +1,22 @@
 // 菲律賓圖層 popup（2026-11-13 第 0–1 波）。規格與署名 SSOT 在 data/phDataLayers.ts；
 // 來源與授權由 panel 自掛 SourceFooter（FOOTER_SELF_MANAGED）。空值列由 Row 自動隱藏，不寫 0。
 import { useEffect, useMemo, useState, type FC } from "react";
-import { Badge, Row, SourceFooter, Title } from "./shared";
-import { useFeatureTheme } from "./featureTheme";
-import { TimeseriesSparkline } from "../TimeseriesSparkline";
+import { Badge, Row, SourceFooter, Title } from "../../components/featureInfo/shared";
+import { useFeatureTheme } from "../../components/featureInfo/featureTheme";
+import { TimeseriesSparkline } from "../../components/TimeseriesSparkline";
 import { FONT_SIZE, RADIUS } from "../../styles/designTokens";
 import { microSensorPm25Color } from "../../data/microSensorTypes";
 import {
   PH_OPENAQ_NO_DATA_COLOR, PH_OPENAQ_NOTES, PH_OPENAQ_SOURCE, fetchPhOpenaqSeries, finiteOrNull, phOpenaqIsStale, type PhOpenaqSeriesPoint,
 } from "../../data/openaqLoader";
 import { useLocale } from "../../state/localeStore";
-import { makePhPanel, fmtNum } from "./intlSpecPanel";
+import { makePhPanel, fmtNum } from "../../components/featureInfo/intlSpecPanel";
 import { caText } from "../../data/intlLayerShared";
 import {
   PH_ADMIN_COLOR, PH_ADMIN_LEVEL_LABELS, PH_ADMIN_SOURCE, PH_DATA_SPECS, PH_FETCHED_AT, PH_NOT_COVERED_COLOR, PH_POP_STATUS,
   PH_POPULATION_SOURCE, PH_URBAN_CLASS, phText, pickL3, type L3, type PhAdminLevel,
-} from "../../data/phDataLayers";
-import type { PhDataKey } from "../../data/phDataKeys";
+} from "./phDataLayers";
+import type { PhDataKey } from "./keys";
 
 type P = { props: Record<string, unknown> };
 

@@ -335,7 +335,7 @@ export const HOOK_POINT_TIERS: Partial<Record<keyof LayerVisibility, PointTierOr
   caRadiationStations: "M", // 加拿大輻射監測站（46 點） · src/countries/ca/useCaEnvLayers.ts
   caNpriFacilities: "S", // 加拿大 NPRI 申報設施（2.5 萬點，z10 起單點、之下熱區） · src/countries/ca/useCaEnvLayers.ts
   caWastewaterSystems: "B", // 加拿大污水系統：半徑＝日均放流量級距 · src/countries/ca/useCaEnvLayers.ts
-  phOpenaqAir: "M", // 菲律賓空品（OpenAQ）：低價感測器 M、官方監測站 L＋白框 · src/hooks/usePhOpenaqAirLayer.ts
+  phOpenaqAir: "M", // 菲律賓空品（OpenAQ）：低價感測器 M、官方監測站 L＋白框 · src/countries/ph/usePhOpenaqAirLayer.ts
   caEarthquakesLive: "B", // 加拿大即時地震：半徑＝規模（同 caEarthquakes） · src/countries/ca/useCaLiveEarthquakesLayer.ts
   caEarthquakes: "B", // 加拿大地震：半徑＝規模（同 JMA／英國地震） · src/countries/ca/useCaEnvLayers.ts
   gbPowerPlants: "B", // 英國電廠：半徑＝裝置容量 4 級 · src/countries/gb/useGbEnergyLayers.ts

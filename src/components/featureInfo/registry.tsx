@@ -67,16 +67,12 @@ import {
   JpRailwaysPanel, JpSchoolsPanel, JpPoliceFacilitiesPanel, JpEvacuationSitesPanel, JpPublicOfficesPanel, JpBusStopsPanel, JpLandslideWarningAreasPanel, JpInlandFloodAreasPanel, JpZoningUseDistrictsPanel, JpNationalForestsPanel, JpWelfareDisabilityPanel, JpWelfareChildPanel, JpMajorRoadsPanel, JpMunicipalRoadsPanel, JpExpresswaysPanel, JpPopulationMeshPanel,
   JpTourismPanel, JpAccommodationDensityPanel, JpWaterPanel,
 } from "./japanPanels";
-import { PH_DATA_PANELS, PhAdminBoundariesPanel, PhOpenaqAirPanel, PhPopulationPanel } from "./phPanels";
-import { PH_DATA_SPECS } from "../../data/phDataLayers";
-import type { PhDataKey } from "../../data/phDataKeys";
 import { VN_DATA_PANELS, VnAdminBoundariesPanel, VnPopulationPanel } from "./vnPanels";
 import { ID_DATA_PANELS, IdAdminBoundariesPanel, IdPopulationPanel, IdRuralDevelopmentPanel } from "./idPanels";
 import { ID_DATA_SPECS } from "../../data/idDataLayers";
 import type { IdDataKey } from "../../data/idDataKeys";
 import { VN_DATA_SPECS } from "../../data/vnDataLayers";
 import type { VnDataKey } from "../../data/vnDataKeys";
-const PH_HEADER_LABELS = Object.fromEntries(PH_DATA_SPECS.map((s) => [s.key, `${s.title.fallback.zh} ${s.title.fallback.en}`])) as Record<PhDataKey, string>;
 const ID_HEADER_LABELS = Object.fromEntries(ID_DATA_SPECS.map((s) => [s.key, `${s.title.fallback.zh} ${s.title.fallback.en}`])) as Record<IdDataKey, string>;
 const VN_HEADER_LABELS = Object.fromEntries(VN_DATA_SPECS.map((s) => [s.key, `${s.title.fallback.zh} ${s.title.fallback.en}`])) as Record<VnDataKey, string>;
 import { BridgeResiliencePanel } from "./bridgeResiliencePanels";
@@ -460,10 +456,6 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   jpReligionWikidata: JpReligionWikidataPanel,
   jpAdminPrefecture: JpAdminPrefecturePanel,
   jpAdminBoundaries: JpAdminBoundariesPanel,
-  phAdminBoundaries: PhAdminBoundariesPanel,
-  phPopulation: PhPopulationPanel,
-  phOpenaqAir: PhOpenaqAirPanel,
-  ...PH_DATA_PANELS,
   vnAdminBoundaries: VnAdminBoundariesPanel,
   vnPopulation: VnPopulationPanel,
   ...VN_DATA_PANELS,
@@ -1073,10 +1065,6 @@ export const HEADER_LABELS = extensibleRecord("featureHeaderLabels", {
   jpReligionWikidata: "宗教設施 宗教施設（Wikidata）",
   jpAdminPrefecture: "都道府縣界 都道府県境",
   jpAdminBoundaries: "市區町村界 市区町村境",
-  phAdminBoundaries: "行政邊界 Administrative Boundaries",
-  phPopulation: "人口密度 Population Density",
-  phOpenaqAir: "即時空品 Air Quality（OpenAQ）",
-  ...PH_HEADER_LABELS,
   vnAdminBoundaries: "行政邊界 Administrative Boundaries",
   vnPopulation: "人口密度 Population Density",
   ...VN_HEADER_LABELS,

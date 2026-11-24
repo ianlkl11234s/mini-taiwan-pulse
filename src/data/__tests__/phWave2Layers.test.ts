@@ -6,7 +6,7 @@ import { describe, expect, it } from "vitest";
 // @ts-expect-error — style-spec 的 CJS 入口無型別宣告（mapbox-gl 未導出），僅測試用
 import { expression, featureFilter } from "mapbox-gl/dist/style-spec/index.cjs";
 import { readFileSync } from "node:fs";
-import { PH_SPEC_BY_KEY, PH_STATION_STATUS, PH_STATIONS_URBAN_RAIL_DUP_SRC_IDS, phCatOf } from "../phDataLayers";
+import { PH_SPEC_BY_KEY, PH_STATION_STATUS, PH_STATIONS_URBAN_RAIL_DUP_SRC_IDS, phCatOf } from "../../countries/ph/phDataLayers";
 import v2Index from "./__fixtures__/ph-stations-v2-index.json";
 
 type Props = Record<string, unknown>;

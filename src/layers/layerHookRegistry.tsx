@@ -107,8 +107,6 @@ import {
 import { IdAdminHost, IdPopulationHost, IdRuralDevelopmentHost, IdStationsHost, IdRailLinesHost, IdTransportHubsHost, IdPowerPlantsHost, IdPowerGridHost, IdRenewablesHost, IdFuelStationsHost, IdPlaceNamesHost, IdOuterIslandsHost, IdFaultsHost, IdMountainRescueHost, IdDibiHydrometHost, IdBridgesHost, IdWaterFacilitiesHost, IdWatershedsHost, IdSubsidenceHost, IdNatureSpotsHost, IdConservationForestHost, IdCampsHost, IdTerrainHillshadeHost, IdTerrainReliefHost, IdInariskLandslideHost, IdInariskFloodHost, IdInariskMultiHost, IdSchoolsHost, IdHealthFacilitiesHost, IdFireStationsHost, IdPoliceStationsHost, IdPrisonsCourtsHost, IdImmigrationOfficesHost, IdTransjakartaHost, IdSpecialEconomicZonesHost, IdIknHost, IdPostOfficesHost, IdMarketsHost, IdBanksHost, IdCulturalFacilitiesHost, IdHeritageSitesHost, IdCommTowersHost, IdPlacesOfWorshipHost, IdExperiencesHost, IdAccommodationHost, IdWeatherStationsHost, IdFactoriesHost, IdSportsVenuesHost, IdParksHost, IdCemeteriesHost, IdAquacultureHost, IdFarmlandHost, IdVeterinaryHost } from "./hosts/indonesiaHosts";
 import { VnAdminHost, VnPopulationHost, VnStationsHost, VnTransportHubsHost, VnMajorRoadsHost, VnPowerPlantsHost, VnRenewablesHost, VnPowerGridHost, VnFuelStationsHost, VnOilGasHost, VnEnvisoftStationsHost, VnAngiangDemoHost,
   VnTourAttractionsHost, VnTourNatureHost, VnTourServicesHost, VnNationalTouristAreasHost, VnPlaceNamesHost, VnBicycleRentalHost, VnBridgesHost, VnParkingHost, VnGlideEventsHost, VnDamsHost, VnRiversHost, VnWaterSupplyHost, VnWaterStructuresHost, VnRiverbankErosionHost, VnSchoolsHost, VnSchoolCampusesHost, VnKindergartensHost, VnHealthFacilitiesHost, VnPoliceHost, VnCourtsPrisonsHost, VnPostalServicesHost, VnPublicAmenitiesHost, VnFinancialServicesHost, VnPlacesOfWorshipHost, VnParksHost, VnProtectedAreasOdmHost, VnAngiangAquacultureHost, VnFieldBoundariesHost, VnSoilHost, VnFarmTracksHost, VnCoalMinesHost, VnTerrainHillshadeHost, VnTerrainReliefHost, VnLandslideSusceptibilityHost, VnWdpcaHost } from "./hosts/vietnamHosts";
-import { PhAdminHost, PhPopulationHost, PhOpenaqAirHost, PhTransportHubsHost, PhStationsHost, PhMajorRoadsHost, PhPowerPlantsHost, PhPowerGridHost, PhRenewablesHost, PhFuelStationsHost, PhPipelinesHost, PhBusStopsHost, PhUrbanRailHost, PhExpresswaysHost,
-  PhTouristAttractionsHost, PhCoastIslandsHost, PhNatureSpotsHost, PhTourismServicesHost, PhTourismDevelopmentAreasHost, PhPlaceNamesHost, PhPovertyHost, PhEarthquakesHost, PhNoahFlood100yrHost, PhNoahLandslideHost, PhWaterPermitsHost, PhLakesHost, PhDamsHost, PhBridgesHost, PhParkingHost, PhKmPostsHost, PhEcozonesHost, PhReclamationHost, PhSchoolsHost, PhSchoolCampusesHost, PhHealthFacilitiesHost, PhFireStationsHost, PhNcrSafeOpenSpacesHost, PhPoliceStationsHost, PhJailsHost, PhTreesHost, PhTrailsHost, PhKbaHost, PhWetlandsHost, PhForestryProgramsHost, PhCoastalResourcesHost, PhMarineStationsHost, PhWdpcaHost, PhWasteFacilitiesHost, PhPollutionSourcesHost, PhArtsVenuesHost, PhPostOfficesHost, PhPublicFacilitiesHost, PhFinancialServicesHost, PhPlacesOfWorshipHost, PhSportsVenuesHost, PhParksHost, PhCemeteriesHost, PhFishPortsHost, PhAquacultureHost, PhTerrainHillshadeHost, PhTerrainReliefHost, PhBuiltSurfaceHost, PhForestLossHost } from "./hosts/philippinesHosts";
 
 export interface LayerHookEntry {
   /** hook 名（同名多次呼叫加 `:後綴` 區分）—— 也是 `window.__layerRenderCounts` 的 key */
@@ -314,17 +312,7 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = slottedList<LayerH
   countrySlot("KR", 1), // 南韓國家包（src/countries/kr/）
   countrySlot("CA", 1), // 加拿大國家包（src/countries/ca/）
   countrySlot("IE", 1), // 愛爾蘭國家包（src/countries/ie/）
-  // 菲律賓（2026-11-13 第 0–1 波：行政邊界、人口、交通 3 層、能源 5 層）
-  { id: "usePhAdminLayers", keys: ["phAdminBoundaries"], Host: PhAdminHost },
-  { id: "usePhPopulationLayers", keys: ["phPopulation"], Host: PhPopulationHost },
-  { id: "usePhTransportHubsLayer", keys: ["phTransportHubs"], Host: PhTransportHubsHost },
-  { id: "usePhStationsLayer", keys: ["phStations"], Host: PhStationsHost },
-  { id: "usePhMajorRoadsLayer", keys: ["phMajorRoads"], Host: PhMajorRoadsHost },
-  { id: "usePhPowerPlantsLayer", keys: ["phPowerPlants"], Host: PhPowerPlantsHost },
-  { id: "usePhPowerGridLayer", keys: ["phPowerGrid"], Host: PhPowerGridHost },
-  { id: "usePhRenewablesLayer", keys: ["phRenewables"], Host: PhRenewablesHost },
-  { id: "usePhFuelStationsLayer", keys: ["phFuelStations"], Host: PhFuelStationsHost },
-  { id: "usePhPipelinesLayer", keys: ["phPipelines"], Host: PhPipelinesHost },
+  countrySlot("PH", 1), // 菲律賓國家包（src/countries/ph/）
   // 泰國（2026-11-22 第 0–1 波：行政邊界、人口、交通 3 層、能源 5 層）
   { id: "useIdAdminLayers", keys: ["idAdminBoundaries"], Host: IdAdminHost },
   { id: "useIdPopulationLayers", keys: ["idPopulation"], Host: IdPopulationHost },
@@ -429,61 +417,7 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = slottedList<LayerH
   { id: "useVnTerrainReliefLayer", keys: ["vnTerrainRelief"], Host: VnTerrainReliefHost },
   { id: "useVnLandslideSusceptibilityLayer", keys: ["vnLandslideSusceptibility"], Host: VnLandslideSusceptibilityHost },
   { id: "useVnWdpcaLayer", keys: ["vnWdpca"], Host: VnWdpcaHost },
-  // 菲律賓第 2 波補充（2026-11-14：公車站、LRT／MRT、高速公路）
-  { id: "usePhBusStopsLayer", keys: ["phBusStops"], Host: PhBusStopsHost },
-  { id: "usePhUrbanRailLayer", keys: ["phUrbanRail"], Host: PhUrbanRailHost },
-  { id: "usePhExpresswaysLayer", keys: ["phExpressways"], Host: PhExpresswaysHost },
-  // 菲律賓觀光波與第 2–9 波（2026-11-16）
-  { id: "usePhTouristAttractionsLayer", keys: ["phTouristAttractions"], Host: PhTouristAttractionsHost },
-  { id: "usePhCoastIslandsLayer", keys: ["phCoastIslands"], Host: PhCoastIslandsHost },
-  { id: "usePhNatureSpotsLayer", keys: ["phNatureSpots"], Host: PhNatureSpotsHost },
-  { id: "usePhTourismServicesLayer", keys: ["phTourismServices"], Host: PhTourismServicesHost },
-  { id: "usePhTourismDevelopmentAreasLayer", keys: ["phTourismDevelopmentAreas"], Host: PhTourismDevelopmentAreasHost },
-  { id: "usePhPlaceNamesLayer", keys: ["phPlaceNames"], Host: PhPlaceNamesHost },
-  { id: "usePhPovertyLayer", keys: ["phPoverty"], Host: PhPovertyHost },
-  { id: "usePhEarthquakesLayer", keys: ["phEarthquakes"], Host: PhEarthquakesHost },
-  { id: "usePhNoahFlood100yrLayer", keys: ["phNoahFlood100yr"], Host: PhNoahFlood100yrHost },
-  { id: "usePhNoahLandslideLayer", keys: ["phNoahLandslide"], Host: PhNoahLandslideHost },
-  { id: "usePhWaterPermitsLayer", keys: ["phWaterPermits"], Host: PhWaterPermitsHost },
-  { id: "usePhLakesLayer", keys: ["phLakes"], Host: PhLakesHost },
-  { id: "usePhDamsLayer", keys: ["phDams"], Host: PhDamsHost },
-  { id: "usePhBridgesLayer", keys: ["phBridges"], Host: PhBridgesHost },
-  { id: "usePhParkingLayer", keys: ["phParking"], Host: PhParkingHost },
-  { id: "usePhKmPostsLayer", keys: ["phKmPosts"], Host: PhKmPostsHost },
-  { id: "usePhEcozonesLayer", keys: ["phEcozones"], Host: PhEcozonesHost },
-  { id: "usePhReclamationLayer", keys: ["phReclamation"], Host: PhReclamationHost },
-  { id: "usePhSchoolsLayer", keys: ["phSchools"], Host: PhSchoolsHost },
-  { id: "usePhSchoolCampusesLayer", keys: ["phSchoolCampuses"], Host: PhSchoolCampusesHost },
-  { id: "usePhHealthFacilitiesLayer", keys: ["phHealthFacilities"], Host: PhHealthFacilitiesHost },
-  { id: "usePhFireStationsLayer", keys: ["phFireStations"], Host: PhFireStationsHost },
-  { id: "usePhNcrSafeOpenSpacesLayer", keys: ["phNcrSafeOpenSpaces"], Host: PhNcrSafeOpenSpacesHost },
-  { id: "usePhPoliceStationsLayer", keys: ["phPoliceStations"], Host: PhPoliceStationsHost },
-  { id: "usePhJailsLayer", keys: ["phJails"], Host: PhJailsHost },
-  { id: "usePhTreesLayer", keys: ["phTrees"], Host: PhTreesHost },
-  { id: "usePhTrailsLayer", keys: ["phTrails"], Host: PhTrailsHost },
-  { id: "usePhKbaLayer", keys: ["phKba"], Host: PhKbaHost },
-  { id: "usePhWetlandsLayer", keys: ["phWetlands"], Host: PhWetlandsHost },
-  { id: "usePhForestryProgramsLayer", keys: ["phForestryPrograms"], Host: PhForestryProgramsHost },
-  { id: "usePhCoastalResourcesLayer", keys: ["phCoastalResources"], Host: PhCoastalResourcesHost },
-  { id: "usePhMarineStationsLayer", keys: ["phMarineStations"], Host: PhMarineStationsHost },
-  { id: "usePhWdpcaLayer", keys: ["phWdpca"], Host: PhWdpcaHost },
-  { id: "usePhWasteFacilitiesLayer", keys: ["phWasteFacilities"], Host: PhWasteFacilitiesHost },
-  { id: "usePhPollutionSourcesLayer", keys: ["phPollutionSources"], Host: PhPollutionSourcesHost },
-  { id: "usePhOpenaqAirLayer", keys: ["phOpenaqAir"], Host: PhOpenaqAirHost },
-  { id: "usePhArtsVenuesLayer", keys: ["phArtsVenues"], Host: PhArtsVenuesHost },
-  { id: "usePhPostOfficesLayer", keys: ["phPostOffices"], Host: PhPostOfficesHost },
-  { id: "usePhPublicFacilitiesLayer", keys: ["phPublicFacilities"], Host: PhPublicFacilitiesHost },
-  { id: "usePhFinancialServicesLayer", keys: ["phFinancialServices"], Host: PhFinancialServicesHost },
-  { id: "usePhPlacesOfWorshipLayer", keys: ["phPlacesOfWorship"], Host: PhPlacesOfWorshipHost },
-  { id: "usePhSportsVenuesLayer", keys: ["phSportsVenues"], Host: PhSportsVenuesHost },
-  { id: "usePhParksLayer", keys: ["phParks"], Host: PhParksHost },
-  { id: "usePhCemeteriesLayer", keys: ["phCemeteries"], Host: PhCemeteriesHost },
-  { id: "usePhFishPortsLayer", keys: ["phFishPorts"], Host: PhFishPortsHost },
-  { id: "usePhAquacultureLayer", keys: ["phAquaculture"], Host: PhAquacultureHost },
-  { id: "usePhTerrainHillshadeLayer", keys: ["phTerrainHillshade"], Host: PhTerrainHillshadeHost },
-  { id: "usePhTerrainReliefLayer", keys: ["phTerrainRelief"], Host: PhTerrainReliefHost },
-  { id: "usePhBuiltSurfaceLayer", keys: ["phBuiltSurface"], Host: PhBuiltSurfaceHost },
-  { id: "usePhForestLossLayer", keys: ["phForestLoss"], Host: PhForestLossHost },
+  countrySlot("PH", 2), // 菲律賓國家包（src/countries/ph/）
   countrySlot("CN", 1), // 中國國家包（src/countries/cn/）
   countrySlot("CA", 2), // 加拿大國家包（src/countries/ca/）
   countrySlot("GB", 2), // 英國國家包（src/countries/gb/）

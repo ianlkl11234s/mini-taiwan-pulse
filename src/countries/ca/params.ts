@@ -3,7 +3,7 @@
 import type { CaLayerKey } from "./keys";
 import type { LayerParamSpec } from "../../data/layerParamsSpec";
 import { categoryMultiSelect, displayModeSelect, gridPalette, heatmapPalette, krMulti, type KrOpt, opacitySlider, scaleSlider, serializeMultiSelectValues } from "../../data/layerParamsSpec";
-import { phCatOptions } from "../../data/phDataLayers";
+import { phCatOptions } from "../ph/phDataLayers";
 import { densePointOpacity, RASTER } from "../../map/mapStyleScale";
 import { CA_WAVE_SPECS } from "./caWavesLayers";
 

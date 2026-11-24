@@ -8,7 +8,7 @@ import {
   GraduationCap, HandCoins, Hospital, Landmark, Leaf, LifeBuoy, Lock, Mail, MapPinned, Milestone, Mountain, Recycle, School, Shell,
   Ship, Shrub, Siren, Sprout, SquareParking, Tag, Theater, TreePalm, Trees, TriangleAlert, Trophy, Waves,
 } from "lucide-react";
-import type { PhDataKey } from "./phDataKeys";
+import type { PhDataKey } from "./keys";
 
 export interface PhEntryMeta { theme: string; group: string; zh: string; alt: string; icon: LucideIcon; dataset: string; description: string; topics: string[]; processing: string; note: string }
 

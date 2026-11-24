@@ -1,21 +1,21 @@
 // 菲律賓圖例（2026-11-13 第 0–1 波）：行政邊界、人口密度（未涵蓋＝灰）、規格驅動 8 層。SSOT：data/phDataLayers.ts。
 import { useSyncExternalStore } from "react";
-import { LegendNote, LegendRow, LegendTitle, SwatchDot, SwatchGradient, SwatchLine, SwatchSquare, SwatchSteps, useLegendTheme } from "./legendKit";
+import { LegendNote, LegendRow, LegendTitle, SwatchDot, SwatchGradient, SwatchLine, SwatchSquare, SwatchSteps, useLegendTheme } from "../../components/legend/legendKit";
 import { useLocale } from "../../state/localeStore";
 import { BOUNDARY_GRAY } from "../../map/mapStyleScale";
 import {
   PH_ADMIN_NOTES, PH_DENSITY_LABELS, PH_NOT_COVERED_COLOR, PH_POPULATION_NOTES, PH_POPULATION_SOURCE,
   PH_SPEC_BY_KEY, phText, pickL3,
-} from "../../data/phDataLayers";
-import type { PhDataKey, PhRasterKey } from "../../data/phDataKeys";
-import { PH_RASTER_BY_KEY } from "../../data/phWavesLayers";
-import { phDensityColors } from "../../hooks/usePhLayers";
+} from "./phDataLayers";
+import type { PhDataKey, PhRasterKey } from "./keys";
+import { PH_RASTER_BY_KEY } from "./phWavesLayers";
+import { phDensityColors } from "./usePhLayers";
 import { FONT_SIZE } from "../../styles/designTokens";
 import { MICRO_SENSOR_PM25_BANDS } from "../../data/microSensorTypes";
 import { PH_OPENAQ_HIDE_AFTER_DAYS, PH_OPENAQ_MONITOR_RING, PH_OPENAQ_NO_DATA_COLOR, PH_OPENAQ_NOTES, phOpenaqStatus } from "../../data/openaqLoader";
-import { PH_OPENAQ_STALE_FACTOR } from "../../hooks/usePhOpenaqAirLayer";
+import { PH_OPENAQ_STALE_FACTOR } from "./usePhOpenaqAirLayer";
 import type { L3 } from "../../data/intlLayerShared";
-import { PhSpecLegend, useLayerTitle } from "./intlSpecLegend";
+import { PhSpecLegend, useLayerTitle } from "../../components/legend/intlSpecLegend";
 
 export { PhSpecLegend };
 

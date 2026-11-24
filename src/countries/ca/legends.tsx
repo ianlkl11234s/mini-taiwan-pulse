@@ -1,7 +1,7 @@
 // 加拿大國家包：legends.tsx（B1 P5a；由 scripts/layers/move-country-pack.ts 從中央登記簿搬來，之後就在這裡維護）。
 // ⚠️ 只能經 src/countries/packs.ts 的 ensureCountryPack 動態載入，不可從國家目錄以外靜態 import（lint 擋）。
 import type { LegendEntry } from "../../components/LegendPanel";
-import { PhSpecLegend } from "../../components/legend/phLegends";
+import { PhSpecLegend } from "../ph/phLegends";
 import { CaAqhiStationsLegend, CaClimateStationsLegend, CaEarthquakesLegend, CaEarthquakesLiveLegend, CaNpriFacilitiesLegend, CaPopulationGridLegend, CaRadiationStationsLegend, CaWastewaterSystemsLegend } from "./caEnvLegends";
 import { CaAdminBoundariesLegend, CaAirportsPortsLegend, CaDeprivationLegend, CaFederalDistrictsLegend, CaHillshadeLegend, CaIndigenousLandsLegend, CaMajorRoadsLegend, CaOilGasLegend, CaPlaceNamesLegend, CaPopulationCentresLegend, CaPostalFsaLegend, CaPowerGridLegend, CaPowerPlantsLegend, CaRailwaysLegend, CaRentsLegend, CaTransitStopsLegend, CaWindTurbinesLegend } from "./caLegends";
 import { CA_WAVE_SPEC_BY_KEY } from "./caWavesLayers";

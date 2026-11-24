@@ -1,10 +1,10 @@
 import { useEffect, useRef } from "react";
 import type { AnyLayer, GeoJSONSource, Map as MapboxMap } from "mapbox-gl";
-import { pointRadius, pointStrokePaint } from "../map/mapStyleScale";
-import { paramDefault } from "../data/layerParamsSpec";
-import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
-import { fetchPhOpenaqLatest, PH_OPENAQ_MONITOR_RING, PH_OPENAQ_POLL_MS, PH_OPENAQ_SOURCE } from "../data/openaqLoader";
-import { useMapReadyTick } from "./useMapReadyTick";
+import { pointRadius, pointStrokePaint } from "../../map/mapStyleScale";
+import { paramDefault } from "../../data/layerParamsSpec";
+import { keepLoadingUntilMapIdle } from "../../lib/loadingRegistry";
+import { fetchPhOpenaqLatest, PH_OPENAQ_MONITOR_RING, PH_OPENAQ_POLL_MS, PH_OPENAQ_SOURCE } from "../../data/openaqLoader";
+import { useMapReadyTick } from "../../hooks/useMapReadyTick";
 
 /**
  * 菲律賓空品（OpenAQ）：RPC get_openaq_latest（mig 563）→ 自建 GeoJSON source＋circle。
