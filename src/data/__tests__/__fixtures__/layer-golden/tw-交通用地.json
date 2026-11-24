@@ -1,0 +1,2015 @@
+{
+  "count": 32,
+  "gisLayers": {},
+  "overlays": {},
+  "params": {
+    "statsAirportLandAreaTownship": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsAirportLandAreaTownship"
+          },
+          {
+            "label": "鄉鎮：機場用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonAirportLandNationalSharePct"
+          },
+          {
+            "label": "縣市：機場用地面積－縣市面積",
+            "value": "statsComparisonAirportLandCountyTotalHectare"
+          },
+          {
+            "label": "縣市：機場用地面積－縣市占全臺同類比",
+            "value": "statsComparisonAirportLandCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：機場用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonAirportLandTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：機場用地面積－占縣市行政面積",
+            "value": "statsComparisonAirportLandCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：機場用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonAirportLandCountyLq"
+          },
+          {
+            "label": "鄉鎮：機場用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonAirportLandTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsAirportLandAreaTownship"
+      },
+      {
+        "label": "調查年度",
+        "options": [],
+        "status": "loading",
+        "statusText": "載入中…",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonAirportLandCountyAreaSharePct": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsAirportLandAreaTownship"
+          },
+          {
+            "label": "鄉鎮：機場用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonAirportLandNationalSharePct"
+          },
+          {
+            "label": "縣市：機場用地面積－縣市面積",
+            "value": "statsComparisonAirportLandCountyTotalHectare"
+          },
+          {
+            "label": "縣市：機場用地面積－縣市占全臺同類比",
+            "value": "statsComparisonAirportLandCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：機場用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonAirportLandTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：機場用地面積－占縣市行政面積",
+            "value": "statsComparisonAirportLandCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：機場用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonAirportLandCountyLq"
+          },
+          {
+            "label": "鄉鎮：機場用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonAirportLandTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonAirportLandCountyAreaSharePct"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonAirportLandCountyLq": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsAirportLandAreaTownship"
+          },
+          {
+            "label": "鄉鎮：機場用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonAirportLandNationalSharePct"
+          },
+          {
+            "label": "縣市：機場用地面積－縣市面積",
+            "value": "statsComparisonAirportLandCountyTotalHectare"
+          },
+          {
+            "label": "縣市：機場用地面積－縣市占全臺同類比",
+            "value": "statsComparisonAirportLandCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：機場用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonAirportLandTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：機場用地面積－占縣市行政面積",
+            "value": "statsComparisonAirportLandCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：機場用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonAirportLandCountyLq"
+          },
+          {
+            "label": "鄉鎮：機場用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonAirportLandTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonAirportLandCountyLq"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonAirportLandCountyNationalSharePct": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsAirportLandAreaTownship"
+          },
+          {
+            "label": "鄉鎮：機場用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonAirportLandNationalSharePct"
+          },
+          {
+            "label": "縣市：機場用地面積－縣市面積",
+            "value": "statsComparisonAirportLandCountyTotalHectare"
+          },
+          {
+            "label": "縣市：機場用地面積－縣市占全臺同類比",
+            "value": "statsComparisonAirportLandCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：機場用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonAirportLandTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：機場用地面積－占縣市行政面積",
+            "value": "statsComparisonAirportLandCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：機場用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonAirportLandCountyLq"
+          },
+          {
+            "label": "鄉鎮：機場用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonAirportLandTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonAirportLandCountyNationalSharePct"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonAirportLandCountyTotalHectare": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsAirportLandAreaTownship"
+          },
+          {
+            "label": "鄉鎮：機場用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonAirportLandNationalSharePct"
+          },
+          {
+            "label": "縣市：機場用地面積－縣市面積",
+            "value": "statsComparisonAirportLandCountyTotalHectare"
+          },
+          {
+            "label": "縣市：機場用地面積－縣市占全臺同類比",
+            "value": "statsComparisonAirportLandCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：機場用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonAirportLandTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：機場用地面積－占縣市行政面積",
+            "value": "statsComparisonAirportLandCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：機場用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonAirportLandCountyLq"
+          },
+          {
+            "label": "鄉鎮：機場用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonAirportLandTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonAirportLandCountyTotalHectare"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonAirportLandNationalSharePct": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsAirportLandAreaTownship"
+          },
+          {
+            "label": "鄉鎮：機場用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonAirportLandNationalSharePct"
+          },
+          {
+            "label": "縣市：機場用地面積－縣市面積",
+            "value": "statsComparisonAirportLandCountyTotalHectare"
+          },
+          {
+            "label": "縣市：機場用地面積－縣市占全臺同類比",
+            "value": "statsComparisonAirportLandCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：機場用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonAirportLandTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：機場用地面積－占縣市行政面積",
+            "value": "statsComparisonAirportLandCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：機場用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonAirportLandCountyLq"
+          },
+          {
+            "label": "鄉鎮：機場用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonAirportLandTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonAirportLandNationalSharePct"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonAirportLandTownshipAdminAreaSharePct": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsAirportLandAreaTownship"
+          },
+          {
+            "label": "鄉鎮：機場用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonAirportLandNationalSharePct"
+          },
+          {
+            "label": "縣市：機場用地面積－縣市面積",
+            "value": "statsComparisonAirportLandCountyTotalHectare"
+          },
+          {
+            "label": "縣市：機場用地面積－縣市占全臺同類比",
+            "value": "statsComparisonAirportLandCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：機場用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonAirportLandTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：機場用地面積－占縣市行政面積",
+            "value": "statsComparisonAirportLandCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：機場用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonAirportLandCountyLq"
+          },
+          {
+            "label": "鄉鎮：機場用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonAirportLandTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonAirportLandTownshipAdminAreaSharePct"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonAirportLandTownshipOfCountySharePct": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsAirportLandAreaTownship"
+          },
+          {
+            "label": "鄉鎮：機場用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonAirportLandNationalSharePct"
+          },
+          {
+            "label": "縣市：機場用地面積－縣市面積",
+            "value": "statsComparisonAirportLandCountyTotalHectare"
+          },
+          {
+            "label": "縣市：機場用地面積－縣市占全臺同類比",
+            "value": "statsComparisonAirportLandCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：機場用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonAirportLandTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：機場用地面積－占縣市行政面積",
+            "value": "statsComparisonAirportLandCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：機場用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonAirportLandCountyLq"
+          },
+          {
+            "label": "鄉鎮：機場用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonAirportLandTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonAirportLandTownshipOfCountySharePct"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonPortLandCountyAreaSharePct": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsPortLandAreaTownship"
+          },
+          {
+            "label": "鄉鎮：港口用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonPortLandNationalSharePct"
+          },
+          {
+            "label": "縣市：港口用地面積－縣市面積",
+            "value": "statsComparisonPortLandCountyTotalHectare"
+          },
+          {
+            "label": "縣市：港口用地面積－縣市占全臺同類比",
+            "value": "statsComparisonPortLandCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：港口用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonPortLandTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：港口用地面積－占縣市行政面積",
+            "value": "statsComparisonPortLandCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：港口用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonPortLandCountyLq"
+          },
+          {
+            "label": "鄉鎮：港口用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonPortLandTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonPortLandCountyAreaSharePct"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonPortLandCountyLq": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsPortLandAreaTownship"
+          },
+          {
+            "label": "鄉鎮：港口用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonPortLandNationalSharePct"
+          },
+          {
+            "label": "縣市：港口用地面積－縣市面積",
+            "value": "statsComparisonPortLandCountyTotalHectare"
+          },
+          {
+            "label": "縣市：港口用地面積－縣市占全臺同類比",
+            "value": "statsComparisonPortLandCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：港口用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonPortLandTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：港口用地面積－占縣市行政面積",
+            "value": "statsComparisonPortLandCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：港口用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonPortLandCountyLq"
+          },
+          {
+            "label": "鄉鎮：港口用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonPortLandTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonPortLandCountyLq"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonPortLandCountyNationalSharePct": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsPortLandAreaTownship"
+          },
+          {
+            "label": "鄉鎮：港口用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonPortLandNationalSharePct"
+          },
+          {
+            "label": "縣市：港口用地面積－縣市面積",
+            "value": "statsComparisonPortLandCountyTotalHectare"
+          },
+          {
+            "label": "縣市：港口用地面積－縣市占全臺同類比",
+            "value": "statsComparisonPortLandCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：港口用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonPortLandTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：港口用地面積－占縣市行政面積",
+            "value": "statsComparisonPortLandCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：港口用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonPortLandCountyLq"
+          },
+          {
+            "label": "鄉鎮：港口用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonPortLandTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonPortLandCountyNationalSharePct"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonPortLandCountyTotalHectare": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsPortLandAreaTownship"
+          },
+          {
+            "label": "鄉鎮：港口用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonPortLandNationalSharePct"
+          },
+          {
+            "label": "縣市：港口用地面積－縣市面積",
+            "value": "statsComparisonPortLandCountyTotalHectare"
+          },
+          {
+            "label": "縣市：港口用地面積－縣市占全臺同類比",
+            "value": "statsComparisonPortLandCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：港口用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonPortLandTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：港口用地面積－占縣市行政面積",
+            "value": "statsComparisonPortLandCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：港口用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonPortLandCountyLq"
+          },
+          {
+            "label": "鄉鎮：港口用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonPortLandTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonPortLandCountyTotalHectare"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonPortLandNationalSharePct": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsPortLandAreaTownship"
+          },
+          {
+            "label": "鄉鎮：港口用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonPortLandNationalSharePct"
+          },
+          {
+            "label": "縣市：港口用地面積－縣市面積",
+            "value": "statsComparisonPortLandCountyTotalHectare"
+          },
+          {
+            "label": "縣市：港口用地面積－縣市占全臺同類比",
+            "value": "statsComparisonPortLandCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：港口用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonPortLandTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：港口用地面積－占縣市行政面積",
+            "value": "statsComparisonPortLandCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：港口用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonPortLandCountyLq"
+          },
+          {
+            "label": "鄉鎮：港口用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonPortLandTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonPortLandNationalSharePct"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonPortLandTownshipAdminAreaSharePct": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsPortLandAreaTownship"
+          },
+          {
+            "label": "鄉鎮：港口用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonPortLandNationalSharePct"
+          },
+          {
+            "label": "縣市：港口用地面積－縣市面積",
+            "value": "statsComparisonPortLandCountyTotalHectare"
+          },
+          {
+            "label": "縣市：港口用地面積－縣市占全臺同類比",
+            "value": "statsComparisonPortLandCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：港口用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonPortLandTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：港口用地面積－占縣市行政面積",
+            "value": "statsComparisonPortLandCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：港口用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonPortLandCountyLq"
+          },
+          {
+            "label": "鄉鎮：港口用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonPortLandTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonPortLandTownshipAdminAreaSharePct"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonPortLandTownshipOfCountySharePct": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsPortLandAreaTownship"
+          },
+          {
+            "label": "鄉鎮：港口用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonPortLandNationalSharePct"
+          },
+          {
+            "label": "縣市：港口用地面積－縣市面積",
+            "value": "statsComparisonPortLandCountyTotalHectare"
+          },
+          {
+            "label": "縣市：港口用地面積－縣市占全臺同類比",
+            "value": "statsComparisonPortLandCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：港口用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonPortLandTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：港口用地面積－占縣市行政面積",
+            "value": "statsComparisonPortLandCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：港口用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonPortLandCountyLq"
+          },
+          {
+            "label": "鄉鎮：港口用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonPortLandTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonPortLandTownshipOfCountySharePct"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonRailLandCountyAreaSharePct": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsRailLandAreaTownship"
+          },
+          {
+            "label": "鄉鎮：鐵路用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonRailLandNationalSharePct"
+          },
+          {
+            "label": "縣市：鐵路用地面積－縣市面積",
+            "value": "statsComparisonRailLandCountyTotalHectare"
+          },
+          {
+            "label": "縣市：鐵路用地面積－縣市占全臺同類比",
+            "value": "statsComparisonRailLandCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：鐵路用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonRailLandTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：鐵路用地面積－占縣市行政面積",
+            "value": "statsComparisonRailLandCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：鐵路用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonRailLandCountyLq"
+          },
+          {
+            "label": "鄉鎮：鐵路用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonRailLandTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonRailLandCountyAreaSharePct"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonRailLandCountyLq": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsRailLandAreaTownship"
+          },
+          {
+            "label": "鄉鎮：鐵路用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonRailLandNationalSharePct"
+          },
+          {
+            "label": "縣市：鐵路用地面積－縣市面積",
+            "value": "statsComparisonRailLandCountyTotalHectare"
+          },
+          {
+            "label": "縣市：鐵路用地面積－縣市占全臺同類比",
+            "value": "statsComparisonRailLandCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：鐵路用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonRailLandTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：鐵路用地面積－占縣市行政面積",
+            "value": "statsComparisonRailLandCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：鐵路用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonRailLandCountyLq"
+          },
+          {
+            "label": "鄉鎮：鐵路用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonRailLandTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonRailLandCountyLq"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonRailLandCountyNationalSharePct": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsRailLandAreaTownship"
+          },
+          {
+            "label": "鄉鎮：鐵路用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonRailLandNationalSharePct"
+          },
+          {
+            "label": "縣市：鐵路用地面積－縣市面積",
+            "value": "statsComparisonRailLandCountyTotalHectare"
+          },
+          {
+            "label": "縣市：鐵路用地面積－縣市占全臺同類比",
+            "value": "statsComparisonRailLandCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：鐵路用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonRailLandTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：鐵路用地面積－占縣市行政面積",
+            "value": "statsComparisonRailLandCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：鐵路用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonRailLandCountyLq"
+          },
+          {
+            "label": "鄉鎮：鐵路用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonRailLandTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonRailLandCountyNationalSharePct"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonRailLandCountyTotalHectare": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsRailLandAreaTownship"
+          },
+          {
+            "label": "鄉鎮：鐵路用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonRailLandNationalSharePct"
+          },
+          {
+            "label": "縣市：鐵路用地面積－縣市面積",
+            "value": "statsComparisonRailLandCountyTotalHectare"
+          },
+          {
+            "label": "縣市：鐵路用地面積－縣市占全臺同類比",
+            "value": "statsComparisonRailLandCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：鐵路用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonRailLandTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：鐵路用地面積－占縣市行政面積",
+            "value": "statsComparisonRailLandCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：鐵路用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonRailLandCountyLq"
+          },
+          {
+            "label": "鄉鎮：鐵路用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonRailLandTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonRailLandCountyTotalHectare"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonRailLandNationalSharePct": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsRailLandAreaTownship"
+          },
+          {
+            "label": "鄉鎮：鐵路用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonRailLandNationalSharePct"
+          },
+          {
+            "label": "縣市：鐵路用地面積－縣市面積",
+            "value": "statsComparisonRailLandCountyTotalHectare"
+          },
+          {
+            "label": "縣市：鐵路用地面積－縣市占全臺同類比",
+            "value": "statsComparisonRailLandCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：鐵路用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonRailLandTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：鐵路用地面積－占縣市行政面積",
+            "value": "statsComparisonRailLandCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：鐵路用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonRailLandCountyLq"
+          },
+          {
+            "label": "鄉鎮：鐵路用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonRailLandTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonRailLandNationalSharePct"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonRailLandTownshipAdminAreaSharePct": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsRailLandAreaTownship"
+          },
+          {
+            "label": "鄉鎮：鐵路用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonRailLandNationalSharePct"
+          },
+          {
+            "label": "縣市：鐵路用地面積－縣市面積",
+            "value": "statsComparisonRailLandCountyTotalHectare"
+          },
+          {
+            "label": "縣市：鐵路用地面積－縣市占全臺同類比",
+            "value": "statsComparisonRailLandCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：鐵路用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonRailLandTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：鐵路用地面積－占縣市行政面積",
+            "value": "statsComparisonRailLandCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：鐵路用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonRailLandCountyLq"
+          },
+          {
+            "label": "鄉鎮：鐵路用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonRailLandTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonRailLandTownshipAdminAreaSharePct"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonRailLandTownshipOfCountySharePct": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsRailLandAreaTownship"
+          },
+          {
+            "label": "鄉鎮：鐵路用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonRailLandNationalSharePct"
+          },
+          {
+            "label": "縣市：鐵路用地面積－縣市面積",
+            "value": "statsComparisonRailLandCountyTotalHectare"
+          },
+          {
+            "label": "縣市：鐵路用地面積－縣市占全臺同類比",
+            "value": "statsComparisonRailLandCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：鐵路用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonRailLandTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：鐵路用地面積－占縣市行政面積",
+            "value": "statsComparisonRailLandCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：鐵路用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonRailLandCountyLq"
+          },
+          {
+            "label": "鄉鎮：鐵路用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonRailLandTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonRailLandTownshipOfCountySharePct"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonRoadLandCountyAreaSharePct": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsRoadLandAreaTownship"
+          },
+          {
+            "label": "鄉鎮：道路用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonRoadLandNationalSharePct"
+          },
+          {
+            "label": "縣市：道路用地面積－縣市面積",
+            "value": "statsComparisonRoadLandCountyTotalHectare"
+          },
+          {
+            "label": "縣市：道路用地面積－縣市占全臺同類比",
+            "value": "statsComparisonRoadLandCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：道路用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonRoadLandTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：道路用地面積－占縣市行政面積",
+            "value": "statsComparisonRoadLandCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：道路用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonRoadLandCountyLq"
+          },
+          {
+            "label": "鄉鎮：道路用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonRoadLandTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonRoadLandCountyAreaSharePct"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonRoadLandCountyLq": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsRoadLandAreaTownship"
+          },
+          {
+            "label": "鄉鎮：道路用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonRoadLandNationalSharePct"
+          },
+          {
+            "label": "縣市：道路用地面積－縣市面積",
+            "value": "statsComparisonRoadLandCountyTotalHectare"
+          },
+          {
+            "label": "縣市：道路用地面積－縣市占全臺同類比",
+            "value": "statsComparisonRoadLandCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：道路用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonRoadLandTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：道路用地面積－占縣市行政面積",
+            "value": "statsComparisonRoadLandCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：道路用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonRoadLandCountyLq"
+          },
+          {
+            "label": "鄉鎮：道路用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonRoadLandTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonRoadLandCountyLq"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonRoadLandCountyNationalSharePct": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsRoadLandAreaTownship"
+          },
+          {
+            "label": "鄉鎮：道路用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonRoadLandNationalSharePct"
+          },
+          {
+            "label": "縣市：道路用地面積－縣市面積",
+            "value": "statsComparisonRoadLandCountyTotalHectare"
+          },
+          {
+            "label": "縣市：道路用地面積－縣市占全臺同類比",
+            "value": "statsComparisonRoadLandCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：道路用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonRoadLandTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：道路用地面積－占縣市行政面積",
+            "value": "statsComparisonRoadLandCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：道路用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonRoadLandCountyLq"
+          },
+          {
+            "label": "鄉鎮：道路用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonRoadLandTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonRoadLandCountyNationalSharePct"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonRoadLandCountyTotalHectare": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsRoadLandAreaTownship"
+          },
+          {
+            "label": "鄉鎮：道路用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonRoadLandNationalSharePct"
+          },
+          {
+            "label": "縣市：道路用地面積－縣市面積",
+            "value": "statsComparisonRoadLandCountyTotalHectare"
+          },
+          {
+            "label": "縣市：道路用地面積－縣市占全臺同類比",
+            "value": "statsComparisonRoadLandCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：道路用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonRoadLandTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：道路用地面積－占縣市行政面積",
+            "value": "statsComparisonRoadLandCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：道路用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonRoadLandCountyLq"
+          },
+          {
+            "label": "鄉鎮：道路用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonRoadLandTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonRoadLandCountyTotalHectare"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonRoadLandNationalSharePct": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsRoadLandAreaTownship"
+          },
+          {
+            "label": "鄉鎮：道路用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonRoadLandNationalSharePct"
+          },
+          {
+            "label": "縣市：道路用地面積－縣市面積",
+            "value": "statsComparisonRoadLandCountyTotalHectare"
+          },
+          {
+            "label": "縣市：道路用地面積－縣市占全臺同類比",
+            "value": "statsComparisonRoadLandCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：道路用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonRoadLandTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：道路用地面積－占縣市行政面積",
+            "value": "statsComparisonRoadLandCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：道路用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonRoadLandCountyLq"
+          },
+          {
+            "label": "鄉鎮：道路用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonRoadLandTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonRoadLandNationalSharePct"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonRoadLandTownshipAdminAreaSharePct": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsRoadLandAreaTownship"
+          },
+          {
+            "label": "鄉鎮：道路用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonRoadLandNationalSharePct"
+          },
+          {
+            "label": "縣市：道路用地面積－縣市面積",
+            "value": "statsComparisonRoadLandCountyTotalHectare"
+          },
+          {
+            "label": "縣市：道路用地面積－縣市占全臺同類比",
+            "value": "statsComparisonRoadLandCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：道路用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonRoadLandTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：道路用地面積－占縣市行政面積",
+            "value": "statsComparisonRoadLandCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：道路用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonRoadLandCountyLq"
+          },
+          {
+            "label": "鄉鎮：道路用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonRoadLandTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonRoadLandTownshipAdminAreaSharePct"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonRoadLandTownshipOfCountySharePct": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsRoadLandAreaTownship"
+          },
+          {
+            "label": "鄉鎮：道路用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonRoadLandNationalSharePct"
+          },
+          {
+            "label": "縣市：道路用地面積－縣市面積",
+            "value": "statsComparisonRoadLandCountyTotalHectare"
+          },
+          {
+            "label": "縣市：道路用地面積－縣市占全臺同類比",
+            "value": "statsComparisonRoadLandCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：道路用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonRoadLandTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：道路用地面積－占縣市行政面積",
+            "value": "statsComparisonRoadLandCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：道路用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonRoadLandCountyLq"
+          },
+          {
+            "label": "鄉鎮：道路用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonRoadLandTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonRoadLandTownshipOfCountySharePct"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsPortLandAreaTownship": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsPortLandAreaTownship"
+          },
+          {
+            "label": "鄉鎮：港口用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonPortLandNationalSharePct"
+          },
+          {
+            "label": "縣市：港口用地面積－縣市面積",
+            "value": "statsComparisonPortLandCountyTotalHectare"
+          },
+          {
+            "label": "縣市：港口用地面積－縣市占全臺同類比",
+            "value": "statsComparisonPortLandCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：港口用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonPortLandTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：港口用地面積－占縣市行政面積",
+            "value": "statsComparisonPortLandCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：港口用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonPortLandCountyLq"
+          },
+          {
+            "label": "鄉鎮：港口用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonPortLandTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsPortLandAreaTownship"
+      },
+      {
+        "label": "調查年度",
+        "options": [],
+        "status": "loading",
+        "statusText": "載入中…",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsRailLandAreaTownship": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsRailLandAreaTownship"
+          },
+          {
+            "label": "鄉鎮：鐵路用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonRailLandNationalSharePct"
+          },
+          {
+            "label": "縣市：鐵路用地面積－縣市面積",
+            "value": "statsComparisonRailLandCountyTotalHectare"
+          },
+          {
+            "label": "縣市：鐵路用地面積－縣市占全臺同類比",
+            "value": "statsComparisonRailLandCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：鐵路用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonRailLandTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：鐵路用地面積－占縣市行政面積",
+            "value": "statsComparisonRailLandCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：鐵路用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonRailLandCountyLq"
+          },
+          {
+            "label": "鄉鎮：鐵路用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonRailLandTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsRailLandAreaTownship"
+      },
+      {
+        "label": "調查年度",
+        "options": [],
+        "status": "loading",
+        "statusText": "載入中…",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsRoadLandAreaTownship": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsRoadLandAreaTownship"
+          },
+          {
+            "label": "鄉鎮：道路用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonRoadLandNationalSharePct"
+          },
+          {
+            "label": "縣市：道路用地面積－縣市面積",
+            "value": "statsComparisonRoadLandCountyTotalHectare"
+          },
+          {
+            "label": "縣市：道路用地面積－縣市占全臺同類比",
+            "value": "statsComparisonRoadLandCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：道路用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonRoadLandTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：道路用地面積－占縣市行政面積",
+            "value": "statsComparisonRoadLandCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：道路用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonRoadLandCountyLq"
+          },
+          {
+            "label": "鄉鎮：道路用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonRoadLandTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsRoadLandAreaTownship"
+      },
+      {
+        "label": "調查年度",
+        "options": [],
+        "status": "loading",
+        "statusText": "載入中…",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ]
+  }
+}

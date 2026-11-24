@@ -1,0 +1,2015 @@
+{
+  "count": 14,
+  "gisLayers": {
+    "canopyGiants": {
+      "layers": [
+        "canopy-giants-circle"
+      ],
+      "type": "canopyGiants"
+    },
+    "forestAlishanRail": {
+      "layers": [
+        "forest-alishan-rail-circle",
+        "forest-alishan-rail-glow"
+      ],
+      "type": "forestAlishanRail"
+    },
+    "forestryLine": {
+      "layers": [
+        "forest-roads-line"
+      ],
+      "type": "forestryLine"
+    },
+    "forestryPOI": {
+      "layers": [
+        "forest-education-centers-circle"
+      ],
+      "type": "forestryPOI"
+    },
+    "forestryPOI#2": {
+      "layers": [
+        "forest-trail-signs-circle"
+      ],
+      "type": "forestryPOI"
+    },
+    "forestryPOI#3": {
+      "layers": [
+        "forest-signal-points-circle"
+      ],
+      "type": "forestryPOI"
+    },
+    "forestryPOI#4": {
+      "layers": [
+        "forest-wildlife-circle"
+      ],
+      "type": "forestryPOI"
+    },
+    "forestryPOI#5": {
+      "layers": [
+        "forest-treatment-works-circle"
+      ],
+      "type": "forestryPOI"
+    },
+    "forestryPOI#6": {
+      "layers": [
+        "forest-dam-lakes-circle"
+      ],
+      "type": "forestryPOI"
+    },
+    "forestryPOI#7": {
+      "layers": [
+        "forest-flat-parks-circle"
+      ],
+      "type": "forestryPOI"
+    },
+    "forestryPolygon": {
+      "layers": [
+        "forest-recreation-fill",
+        "forest-recreation-points-circle-point",
+        "forest-recreation-points-circle-polygon"
+      ],
+      "type": "forestryPolygon"
+    },
+    "forestryPolygon#2": {
+      "layers": [
+        "forest-reserve-fill",
+        "forest-reserve-points-circle-point",
+        "forest-reserve-points-circle-polygon"
+      ],
+      "type": "forestryPolygon"
+    },
+    "forestryPolygon#3": {
+      "layers": [
+        "forest-compartments-fill",
+        "forest-compartments-points-circle-point",
+        "forest-compartments-points-circle-polygon"
+      ],
+      "type": "forestryPolygon"
+    },
+    "hikingTrails": {
+      "layers": [
+        "hiking-trails-line",
+        "hiking-trails-glow"
+      ],
+      "type": "hikingTrails"
+    },
+    "mountainHut": {
+      "layers": [
+        "mountain-huts-circle"
+      ],
+      "type": "mountainHut"
+    },
+    "vegetationForestTypes": {
+      "layers": [
+        "natural-vegetation-map-fill",
+        "forest-types-4th-survey-fill"
+      ],
+      "type": "vegetationForestTypes"
+    }
+  },
+  "overlays": {
+    "canopyGiants": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "canopyGiants",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "step",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "dist_access_m"
+                  ],
+                  0
+                ],
+                "#fee08b",
+                500,
+                "#fdae61",
+                1500,
+                "#ff8f6d",
+                3000,
+                "#ff6f5f",
+                5000,
+                "#ea555d"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "step",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "dist_access_m"
+                  ],
+                  0
+                ],
+                "#fee08b",
+                500,
+                "#fdae61",
+                1500,
+                "#f46d43",
+                3000,
+                "#d73027",
+                5000,
+                "#a50026"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "circle"
+      ],
+      "sourceId": "canopy-giants",
+      "sourceUrl": "./forestry/canopy_giants_taiwan.geojson"
+    },
+    "canopyHeight": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "canopyHeight",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "raster-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "raster-value"
+                ],
+                0,
+                "rgba(0,0,0,0)",
+                0.025,
+                "#f7fcf5",
+                0.075,
+                "#c7e9c0",
+                0.15,
+                "#a1d99b",
+                0.25,
+                "#74c476",
+                0.375,
+                "#41ab5d",
+                0.5,
+                "#238b45",
+                0.75,
+                "#006d2c",
+                1,
+                "#00441b"
+              ],
+              "raster-color-mix": [
+                6.375,
+                0,
+                0,
+                0
+              ],
+              "raster-color-range": [
+                0,
+                1
+              ],
+              "raster-opacity": 0.7,
+              "raster-resampling": "nearest"
+            },
+            "light": {
+              "raster-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "raster-value"
+                ],
+                0,
+                "rgba(0,0,0,0)",
+                0.025,
+                "#f7fcf5",
+                0.075,
+                "#c7e9c0",
+                0.15,
+                "#a1d99b",
+                0.25,
+                "#74c476",
+                0.375,
+                "#41ab5d",
+                0.5,
+                "#238b45",
+                0.75,
+                "#006d2c",
+                1,
+                "#00441b"
+              ],
+              "raster-color-mix": [
+                6.375,
+                0,
+                0,
+                0
+              ],
+              "raster-color-range": [
+                0,
+                1
+              ],
+              "raster-opacity": 0.7,
+              "raster-resampling": "nearest"
+            }
+          },
+          "suffix": "raster",
+          "type": "raster"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 12,
+        "minzoom": 6
+      },
+      "rebuildOnParamChange": null,
+      "sourceId": "canopy-height",
+      "sourceUrl": "./forestry/canopy_height_rgb_taiwan.pmtiles"
+    },
+    "forestAlishanRail": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "forestAlishanRail",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "category"
+                ],
+                "車站",
+                "#92400E",
+                "#e0a458"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                2.4,
+                5,
+                8.64,
+                12,
+                17.28
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "category"
+                ],
+                "車站",
+                "#92400E",
+                "#e0a458"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                2.4,
+                5,
+                8.64,
+                12,
+                17.28
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "category"
+                ],
+                "車站",
+                "#bc663a",
+                "#e0a458"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "category"
+                ],
+                "車站",
+                "#bc663a",
+                "#e0a458"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 4,
+        "sourceLayer": "alishan_forest_railway_points"
+      },
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
+      "sourceId": "forest-alishan-rail",
+      "sourceUrl": "./forestry/alishan_forest_railway_points_v1.pmtiles"
+    },
+    "forestCompartments": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "forestCompartments",
+      "layers": [
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": "#15803D",
+              "fill-opacity": 0.5
+            },
+            "light": {
+              "fill-color": "#15803D",
+              "fill-opacity": 0.35
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#22c55e",
+              "line-opacity": 0.8,
+              "line-width": 1
+            },
+            "light": {
+              "line-color": "#166534",
+              "line-opacity": 0.8,
+              "line-width": 1
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 13,
+        "minzoom": 0,
+        "sourceLayer": "national_forest_compartments"
+      },
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "forest-compartments",
+      "sourceUrl": "./forestry/national_forest_compartments.pmtiles"
+    },
+    "forestCompartments#2": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "forestCompartments",
+      "layers": [
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#389a55",
+              "circle-opacity": 0.8,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#15803D",
+              "circle-opacity": 0.8,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle-point",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 10,
+        "minzoom": 4,
+        "sourceLayer": "national_forest_compartments_points"
+      },
+      "rebuildOnParamChange": null,
+      "sourceId": "forest-compartments-points",
+      "sourceUrl": "./forestry/national_forest_compartments_points.pmtiles"
+    },
+    "forestDamLakes": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "forestDamLakes",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#06B6D4",
+              "circle-opacity": 0.7,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#06B6D4",
+              "circle-opacity": 0.7,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "circle"
+      ],
+      "sourceId": "forest-dam-lakes",
+      "sourceUrl": "./forestry/dam_lakes_in_forest.geojson"
+    },
+    "forestEducationCenters": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "forestEducationCenters",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#0EA5E9",
+              "circle-opacity": 0.9,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#0EA5E9",
+              "circle-opacity": 0.9,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "circle"
+      ],
+      "sourceId": "forest-education-centers",
+      "sourceUrl": "./forestry/forest_education_centers.geojson"
+    },
+    "forestFlatParks": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "forestFlatParks",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#A3E635",
+              "circle-opacity": 0.6,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#A3E635",
+              "circle-opacity": 0.6,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "circle"
+      ],
+      "sourceId": "forest-flat-parks",
+      "sourceUrl": "./forestry/flat_forest_parks.geojson"
+    },
+    "forestRoads": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "forestRoads",
+      "layers": [
+        {
+          "filter": null,
+          "layout": {
+            "line-cap": "round",
+            "line-join": "round"
+          },
+          "minzoom": 7,
+          "paint": {
+            "dark": {
+              "line-color": "#b47425",
+              "line-opacity": 0.85,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                10,
+                1,
+                14,
+                2
+              ]
+            },
+            "light": {
+              "line-color": "#A16207",
+              "line-opacity": 0.85,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                10,
+                1,
+                14,
+                2
+              ]
+            }
+          },
+          "suffix": "line",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 0,
+        "sourceLayer": "forest_roads"
+      },
+      "rebuildOnParamChange": [
+        "line"
+      ],
+      "sourceId": "forest-roads",
+      "sourceUrl": "./forestry/forest_roads.pmtiles"
+    },
+    "forestSignalPoints": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "forestSignalPoints",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#22C55E",
+              "circle-opacity": 0.8,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#22C55E",
+              "circle-opacity": 0.8,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "circle"
+      ],
+      "sourceId": "forest-signal-points",
+      "sourceUrl": "./forestry/mountain_signal_points.geojson"
+    },
+    "forestTrailSigns": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "forestTrailSigns",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#84CC16",
+              "circle-opacity": 0.8,
+              "circle-radius": 3,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#84CC16",
+              "circle-opacity": 0.8,
+              "circle-radius": 3,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "circle"
+      ],
+      "sourceId": "forest-trail-signs",
+      "sourceUrl": "./forestry/mountain_trail_signs.geojson"
+    },
+    "forestTreatmentWorks": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "forestTreatmentWorks",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#F59E0B",
+              "circle-opacity": 0.8,
+              "circle-radius": 3,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#F59E0B",
+              "circle-opacity": 0.8,
+              "circle-radius": 3,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "circle"
+      ],
+      "sourceId": "forest-treatment-works",
+      "sourceUrl": "./forestry/forestry_treatment_works.geojson"
+    },
+    "hikingTrails": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "hikingTrails",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "line-cap": "round",
+            "line-join": "round"
+          },
+          "minzoom": 7,
+          "paint": {
+            "dark": {
+              "line-blur": 4,
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "source"
+                ],
+                "A_forest",
+                "#d62728",
+                "B_osm",
+                "#1f77b4",
+                "C_np_sheipa",
+                "#2ca02c",
+                "C_np_kinmen",
+                "#9467bd",
+                "D_taipei_grand",
+                "#ff7f0e",
+                "D_newtaipei",
+                "#e377c2",
+                "#888888"
+              ],
+              "line-opacity": 0,
+              "line-width": 6
+            },
+            "light": {
+              "line-blur": 4,
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "source"
+                ],
+                "A_forest",
+                "#d62728",
+                "B_osm",
+                "#1f77b4",
+                "C_np_sheipa",
+                "#2ca02c",
+                "C_np_kinmen",
+                "#9467bd",
+                "D_taipei_grand",
+                "#ff7f0e",
+                "D_newtaipei",
+                "#e377c2",
+                "#888888"
+              ],
+              "line-opacity": 0,
+              "line-width": 6
+            }
+          },
+          "suffix": "glow",
+          "type": "line"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "line-cap": "round",
+            "line-join": "round"
+          },
+          "minzoom": 7,
+          "paint": {
+            "dark": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "source"
+                ],
+                "A_forest",
+                "#ef433e",
+                "B_osm",
+                "#3488c6",
+                "C_np_sheipa",
+                "#2ca02c",
+                "C_np_kinmen",
+                "#9b6ec5",
+                "D_taipei_grand",
+                "#ff7f0e",
+                "D_newtaipei",
+                "#e377c2",
+                "#888888"
+              ],
+              "line-opacity": 0.85,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                10,
+                1,
+                14,
+                2
+              ]
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "source"
+                ],
+                "A_forest",
+                "#d62728",
+                "B_osm",
+                "#1f77b4",
+                "C_np_sheipa",
+                "#2ca02c",
+                "C_np_kinmen",
+                "#9467bd",
+                "D_taipei_grand",
+                "#ff7f0e",
+                "D_newtaipei",
+                "#e377c2",
+                "#888888"
+              ],
+              "line-opacity": 0.85,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                10,
+                1,
+                14,
+                2
+              ]
+            }
+          },
+          "suffix": "line",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 13,
+        "minzoom": 0,
+        "sourceLayer": "hiking_trails"
+      },
+      "rebuildOnParamChange": [
+        "glow",
+        "line"
+      ],
+      "sourceId": "hiking-trails",
+      "sourceUrl": "./forestry/hiking_trails.pmtiles"
+    },
+    "mountainHuts": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "mountainHuts",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "facility_type"
+                ],
+                "hut",
+                "#ec4899",
+                "lodge",
+                "#fb923c",
+                "campsite",
+                "#2dd4bf",
+                "shelter",
+                "#94a3b8",
+                "#8a8a8a"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "facility_type"
+                ],
+                "hut",
+                "#ec4899",
+                "lodge",
+                "#fb923c",
+                "campsite",
+                "#2dd4bf",
+                "shelter",
+                "#94a3b8",
+                "#8a8a8a"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "circle"
+      ],
+      "sourceId": "mountain-huts",
+      "sourceUrl": "./forestry/mountain_huts.geojson"
+    },
+    "vegetationForestTypes": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "vegetationForestTypes",
+      "layers": [
+        {
+          "filter": [
+            "has",
+            "veg_class_key"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "maxzoom": 11,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "veg_class_key"
+                ],
+                "forest",
+                "#166534",
+                "shrub",
+                "#65a30d",
+                "herbaceous",
+                "#86efac",
+                "special_habitat",
+                "#0e7490",
+                "planted",
+                "#ca8a04",
+                "other",
+                "#94a3b8",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.35
+            },
+            "light": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "veg_class_key"
+                ],
+                "forest",
+                "#166534",
+                "shrub",
+                "#65a30d",
+                "herbaceous",
+                "#86efac",
+                "special_habitat",
+                "#0e7490",
+                "planted",
+                "#ca8a04",
+                "other",
+                "#94a3b8",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.35
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 10,
+        "minzoom": 4,
+        "sourceLayer": "natural_vegetation_map_z4_10"
+      },
+      "rebuildOnParamChange": [
+        "fill"
+      ],
+      "sourceId": "natural-vegetation-map-z4-10",
+      "sourceUrl": "./forestry/natural_vegetation_map_2014_z4_10.pmtiles"
+    },
+    "vegetationForestTypes#2": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "vegetationForestTypes",
+      "layers": [
+        {
+          "filter": [
+            "has",
+            "veg_class_key"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": 11,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "veg_class_key"
+                ],
+                "forest",
+                "#166534",
+                "shrub",
+                "#65a30d",
+                "herbaceous",
+                "#86efac",
+                "special_habitat",
+                "#0e7490",
+                "planted",
+                "#ca8a04",
+                "other",
+                "#94a3b8",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.35
+            },
+            "light": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "veg_class_key"
+                ],
+                "forest",
+                "#166534",
+                "shrub",
+                "#65a30d",
+                "herbaceous",
+                "#86efac",
+                "special_habitat",
+                "#0e7490",
+                "planted",
+                "#ca8a04",
+                "other",
+                "#94a3b8",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.35
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": [
+            "has",
+            "veg_class_key"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": 11,
+          "paint": {
+            "dark": {
+              "line-color": "#e2e8f0",
+              "line-opacity": 0.55,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                11,
+                0.2,
+                14,
+                0.8
+              ]
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "veg_class_key"
+                ],
+                "forest",
+                "#166534",
+                "shrub",
+                "#65a30d",
+                "herbaceous",
+                "#86efac",
+                "special_habitat",
+                "#0e7490",
+                "planted",
+                "#ca8a04",
+                "other",
+                "#94a3b8",
+                "#94a3b8"
+              ],
+              "line-opacity": 0.55,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                11,
+                0.2,
+                14,
+                0.8
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 11,
+        "sourceLayer": "natural_vegetation_map"
+      },
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "natural-vegetation-map",
+      "sourceUrl": "./forestry/natural_vegetation_map_2014.pmtiles"
+    },
+    "vegetationForestTypes#3": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "vegetationForestTypes",
+      "layers": [
+        {
+          "filter": [
+            "has",
+            "forest_type_key"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "maxzoom": 11,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "forest_type_key"
+                ],
+                "broadleaf",
+                "#166534",
+                "conifer",
+                "#0f766e",
+                "mixed_conifer_broadleaf",
+                "#4d7c0f",
+                "bamboo",
+                "#a3e635",
+                "bamboo_broadleaf",
+                "#84cc16",
+                "bamboo_conifer",
+                "#22c55e",
+                "bamboo_conifer_broadleaf",
+                "#3f6212",
+                "regenerating",
+                "#ca8a04",
+                "bare",
+                "#94a3b8",
+                "shadow",
+                "#475569",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.35
+            },
+            "light": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "forest_type_key"
+                ],
+                "broadleaf",
+                "#166534",
+                "conifer",
+                "#0f766e",
+                "mixed_conifer_broadleaf",
+                "#4d7c0f",
+                "bamboo",
+                "#a3e635",
+                "bamboo_broadleaf",
+                "#84cc16",
+                "bamboo_conifer",
+                "#22c55e",
+                "bamboo_conifer_broadleaf",
+                "#3f6212",
+                "regenerating",
+                "#ca8a04",
+                "bare",
+                "#94a3b8",
+                "shadow",
+                "#475569",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.35
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 10,
+        "minzoom": 4,
+        "sourceLayer": "forest_types_4th_survey_z4_10"
+      },
+      "rebuildOnParamChange": [
+        "fill"
+      ],
+      "sourceId": "forest-types-4th-survey-z4-10",
+      "sourceUrl": "./forestry/forest_types_4th_survey_z4_10.pmtiles"
+    },
+    "vegetationForestTypes#4": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "vegetationForestTypes",
+      "layers": [
+        {
+          "filter": [
+            "has",
+            "forest_type_key"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": 11,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "forest_type_key"
+                ],
+                "broadleaf",
+                "#166534",
+                "conifer",
+                "#0f766e",
+                "mixed_conifer_broadleaf",
+                "#4d7c0f",
+                "bamboo",
+                "#a3e635",
+                "bamboo_broadleaf",
+                "#84cc16",
+                "bamboo_conifer",
+                "#22c55e",
+                "bamboo_conifer_broadleaf",
+                "#3f6212",
+                "regenerating",
+                "#ca8a04",
+                "bare",
+                "#94a3b8",
+                "shadow",
+                "#475569",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.35
+            },
+            "light": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "forest_type_key"
+                ],
+                "broadleaf",
+                "#166534",
+                "conifer",
+                "#0f766e",
+                "mixed_conifer_broadleaf",
+                "#4d7c0f",
+                "bamboo",
+                "#a3e635",
+                "bamboo_broadleaf",
+                "#84cc16",
+                "bamboo_conifer",
+                "#22c55e",
+                "bamboo_conifer_broadleaf",
+                "#3f6212",
+                "regenerating",
+                "#ca8a04",
+                "bare",
+                "#94a3b8",
+                "shadow",
+                "#475569",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.35
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": [
+            "has",
+            "forest_type_key"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": 11,
+          "paint": {
+            "dark": {
+              "line-color": "#e2e8f0",
+              "line-opacity": 0.55,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                11,
+                0.2,
+                14,
+                0.8
+              ]
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "forest_type_key"
+                ],
+                "broadleaf",
+                "#166534",
+                "conifer",
+                "#0f766e",
+                "mixed_conifer_broadleaf",
+                "#4d7c0f",
+                "bamboo",
+                "#a3e635",
+                "bamboo_broadleaf",
+                "#84cc16",
+                "bamboo_conifer",
+                "#22c55e",
+                "bamboo_conifer_broadleaf",
+                "#3f6212",
+                "regenerating",
+                "#ca8a04",
+                "bare",
+                "#94a3b8",
+                "shadow",
+                "#475569",
+                "#94a3b8"
+              ],
+              "line-opacity": 0.55,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                11,
+                0.2,
+                14,
+                0.8
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 11,
+        "sourceLayer": "forest_types_4th_survey"
+      },
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "forest-types-4th-survey",
+      "sourceUrl": "./forestry/forest_types_4th_survey.pmtiles"
+    }
+  },
+  "params": {
+    "canopyGiants": [
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.3,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "canopyHeight": [
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.3,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      }
+    ],
+    "forestAlishanRail": [
+      {
+        "label": "點位類別",
+        "options": [
+          {
+            "label": "車站",
+            "value": "車站"
+          },
+          {
+            "label": "其他點位",
+            "value": "監工區"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "車站",
+          "監工區"
+        ]
+      },
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.2",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1.2,
+        "valueText": "1.2"
+      }
+    ],
+    "forestCompartments": [
+      {
+        "label": "透明度 0.45",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.45,
+        "valueText": "0.45"
+      },
+      {
+        "label": "邊框寬 0.5",
+        "max": 3,
+        "min": 0,
+        "name": "邊框寬",
+        "step": 0.1,
+        "value": 0.5,
+        "valueText": "0.5"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "polygon"
+      },
+      {
+        "label": "邊框",
+        "type": "toggle",
+        "value": true
+      }
+    ],
+    "forestDamLakes": [
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      },
+      {
+        "label": "大小 1.2",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1.2,
+        "valueText": "1.2"
+      }
+    ],
+    "forestEducationCenters": [
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.20",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1.2,
+        "valueText": "1.20"
+      }
+    ],
+    "forestFlatParks": [
+      {
+        "label": "透明度 0.60",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.6,
+        "valueText": "0.60"
+      },
+      {
+        "label": "大小 1.3",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1.3,
+        "valueText": "1.3"
+      }
+    ],
+    "forestRoads": [
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "寬度 1.0",
+        "max": 4,
+        "min": 0.3,
+        "name": "寬度",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "forestSignalPoints": [
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.00",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.00"
+      }
+    ],
+    "forestTrailSigns": [
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.00",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.00"
+      }
+    ],
+    "forestTreatmentWorks": [
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "hikingTrails": [
+      {
+        "label": "步道來源",
+        "options": [
+          {
+            "label": "A 林業署國家步道",
+            "value": "A_forest"
+          },
+          {
+            "label": "B OpenStreetMap",
+            "value": "B_osm"
+          },
+          {
+            "label": "C 雪霸國家公園 SHP",
+            "value": "C_np_sheipa"
+          },
+          {
+            "label": "C 金門國家公園 KML",
+            "value": "C_np_kinmen"
+          },
+          {
+            "label": "D 臺北大縱走",
+            "value": "D_taipei_grand"
+          },
+          {
+            "label": "D 新北市觀光局",
+            "value": "D_newtaipei"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "A_forest",
+          "B_osm",
+          "C_np_sheipa",
+          "C_np_kinmen",
+          "D_taipei_grand",
+          "D_newtaipei"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "寬度 1.2",
+        "max": 4,
+        "min": 0.3,
+        "name": "寬度",
+        "step": 0.1,
+        "value": 1.2,
+        "valueText": "1.2"
+      }
+    ],
+    "mountainHuts": [
+      {
+        "label": "設施類型",
+        "options": [
+          {
+            "label": "山屋",
+            "value": "hut"
+          },
+          {
+            "label": "山莊",
+            "value": "lodge"
+          },
+          {
+            "label": "營地",
+            "value": "campsite"
+          },
+          {
+            "label": "避難山屋",
+            "value": "shelter"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "hut",
+          "lodge",
+          "campsite",
+          "shelter"
+        ]
+      },
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.00",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.00"
+      }
+    ],
+    "vegetationForestTypes": [
+      {
+        "label": "資料集",
+        "options": [
+          {
+            "label": "天然植群圖（2014）",
+            "value": "vegetation"
+          },
+          {
+            "label": "森林林型（第四次調查）",
+            "value": "forestType"
+          }
+        ],
+        "type": "select",
+        "value": "vegetation"
+      },
+      {
+        "label": "植群大類",
+        "options": [
+          {
+            "label": "森林",
+            "value": "forest"
+          },
+          {
+            "label": "灌叢",
+            "value": "shrub"
+          },
+          {
+            "label": "草本植群",
+            "value": "herbaceous"
+          },
+          {
+            "label": "特殊棲地",
+            "value": "special_habitat"
+          },
+          {
+            "label": "人工植生",
+            "value": "planted"
+          },
+          {
+            "label": "其他（裸露地、耕地、水域、建地等）",
+            "value": "other"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "forest",
+          "shrub",
+          "herbaceous",
+          "special_habitat",
+          "planted",
+          "other"
+        ]
+      },
+      {
+        "label": "透明度 0.35",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.35,
+        "valueText": "0.35"
+      }
+    ]
+  }
+}

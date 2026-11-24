@@ -1,0 +1,2583 @@
+{
+  "count": 17,
+  "gisLayers": {
+    "eduAfterschoolCare": {
+      "layers": [
+        "edu-afterschool-circle"
+      ],
+      "type": "eduAfterschoolCare"
+    },
+    "eduCampus": {
+      "layers": [
+        "edu-campus-fill",
+        "edu-campus-area-fill",
+        "edu-campus-points-circle-point",
+        "edu-campus-points-circle-polygon"
+      ],
+      "type": "eduCampus"
+    },
+    "eduCramSchool": {
+      "layers": [
+        "edu-cram-circle"
+      ],
+      "type": "eduCramSchool"
+    },
+    "eduDistrictK12": {
+      "layers": [
+        "edu-district-k12-elementary-fill",
+        "edu-district-k12-junior-fill"
+      ],
+      "type": "eduDistrictK12"
+    },
+    "eduDistrictSenior": {
+      "layers": [
+        "edu-district-senior-fill"
+      ],
+      "type": "eduDistrictSenior"
+    },
+    "eduKindergarten": {
+      "layers": [
+        "edu-kindergarten-circle"
+      ],
+      "type": "eduKindergarten"
+    },
+    "eduMutualCare": {
+      "layers": [
+        "edu-mutual-care-circle"
+      ],
+      "type": "eduMutualCare"
+    },
+    "eduUniversityStudents": {
+      "layers": [
+        "edu-university-students-bubble"
+      ],
+      "type": "eduUniversityStudents"
+    },
+    "school": {
+      "layers": [
+        "edu-schools-glow",
+        "edu-schools-circle",
+        "edu-schools-elementary",
+        "edu-schools-junior",
+        "edu-schools-senior",
+        "edu-schools-university",
+        "edu-schools-special",
+        "edu-schools-remote-halo",
+        "edu-schools-remote-dot"
+      ],
+      "type": "school"
+    }
+  },
+  "overlays": {
+    "eduAfterschoolCare": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "eduAfterschoolCare",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#9a7b6f",
+              "circle-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "precision"
+                  ],
+                  "interpolated"
+                ],
+                0.3825,
+                0.85
+              ],
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#8d6e63",
+              "circle-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "precision"
+                  ],
+                  "interpolated"
+                ],
+                0.3825,
+                0.85
+              ],
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "circle"
+      ],
+      "sourceId": "edu-afterschool",
+      "sourceUrl": "./education/afterschool_care.geojson"
+    },
+    "eduCampusArea": {
+      "dynamicData": null,
+      "filter": [
+        "!=",
+        [
+          "get",
+          "school_level"
+        ],
+        "non_school"
+      ],
+      "id": "eduCampusArea",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "step",
+                [
+                  "coalesce",
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "area_ha"
+                    ],
+                    0
+                  ],
+                  0
+                ],
+                "#ffffcc",
+                1,
+                "#a1dab4",
+                2,
+                "#41b6c4",
+                5,
+                "#2c7fb8",
+                10,
+                "#253494"
+              ],
+              "fill-opacity": 0.7
+            },
+            "light": {
+              "fill-color": [
+                "step",
+                [
+                  "coalesce",
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "area_ha"
+                    ],
+                    0
+                  ],
+                  0
+                ],
+                "#ffffcc",
+                1,
+                "#a1dab4",
+                2,
+                "#41b6c4",
+                5,
+                "#2c7fb8",
+                10,
+                "#253494"
+              ],
+              "fill-opacity": 0.55
+            }
+          },
+          "suffix": "area-fill",
+          "type": "fill"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 15,
+        "minzoom": 7,
+        "sourceLayer": "campus_polygon"
+      },
+      "rebuildOnParamChange": null,
+      "sourceId": "edu-campus",
+      "sourceUrl": "./education/campus_polygon_v2.pmtiles"
+    },
+    "eduCampusPolygon": {
+      "dynamicData": null,
+      "filter": [
+        "!=",
+        [
+          "get",
+          "school_level"
+        ],
+        "non_school"
+      ],
+      "id": "eduCampusPolygon",
+      "layers": [
+        {
+          "filter": [
+            "!=",
+            [
+              "get",
+              "school_level"
+            ],
+            "non_school"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "school_level"
+                ],
+                "elementary",
+                "#66bb6a",
+                "junior",
+                "#ffa726",
+                "combined_k9",
+                "#ffa726",
+                "senior",
+                "#ef5350",
+                "university",
+                "#ab47bc",
+                "special",
+                "#78909c",
+                "international",
+                "#7986cb",
+                "experimental",
+                "#7986cb",
+                "kindergarten",
+                "#4dd0e1",
+                "non_school",
+                "#bdbdbd",
+                "#90a4ae"
+              ],
+              "fill-opacity": 0.5
+            },
+            "light": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "school_level"
+                ],
+                "elementary",
+                "#66bb6a",
+                "junior",
+                "#ffa726",
+                "combined_k9",
+                "#ffa726",
+                "senior",
+                "#ef5350",
+                "university",
+                "#ab47bc",
+                "special",
+                "#78909c",
+                "international",
+                "#7986cb",
+                "experimental",
+                "#7986cb",
+                "kindergarten",
+                "#4dd0e1",
+                "non_school",
+                "#bdbdbd",
+                "#90a4ae"
+              ],
+              "fill-opacity": 0.35
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": [
+            "!=",
+            [
+              "get",
+              "school_level"
+            ],
+            "non_school"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "school_level"
+                ],
+                "elementary",
+                "#66bb6a",
+                "junior",
+                "#ffa726",
+                "combined_k9",
+                "#ffa726",
+                "senior",
+                "#ef5350",
+                "university",
+                "#c35fd5",
+                "special",
+                "#78909c",
+                "international",
+                "#7986cb",
+                "experimental",
+                "#7986cb",
+                "kindergarten",
+                "#4dd0e1",
+                "non_school",
+                "#bdbdbd",
+                "#90a4ae"
+              ],
+              "line-opacity": 0.8,
+              "line-width": 1
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "school_level"
+                ],
+                "elementary",
+                "#66bb6a",
+                "junior",
+                "#ffa726",
+                "combined_k9",
+                "#ffa726",
+                "senior",
+                "#ef5350",
+                "university",
+                "#ab47bc",
+                "special",
+                "#78909c",
+                "international",
+                "#7986cb",
+                "experimental",
+                "#7986cb",
+                "kindergarten",
+                "#4dd0e1",
+                "non_school",
+                "#bdbdbd",
+                "#90a4ae"
+              ],
+              "line-opacity": 0.8,
+              "line-width": 1
+            }
+          },
+          "suffix": "line",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 15,
+        "minzoom": 7,
+        "sourceLayer": "campus_polygon"
+      },
+      "rebuildOnParamChange": [
+        "fill",
+        "line"
+      ],
+      "sourceId": "edu-campus",
+      "sourceUrl": "./education/campus_polygon_v2.pmtiles"
+    },
+    "eduCampusPolygon#2": {
+      "dynamicData": null,
+      "filter": [
+        "!=",
+        [
+          "get",
+          "school_level"
+        ],
+        "non_school"
+      ],
+      "id": "eduCampusPolygon",
+      "layers": [
+        {
+          "filter": [
+            "!=",
+            [
+              "get",
+              "school_level"
+            ],
+            "non_school"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "school_level"
+                ],
+                "elementary",
+                "#66bb6a",
+                "junior",
+                "#ffa726",
+                "combined_k9",
+                "#ffa726",
+                "senior",
+                "#ef5350",
+                "university",
+                "#c35fd5",
+                "special",
+                "#78909c",
+                "international",
+                "#7986cb",
+                "experimental",
+                "#7986cb",
+                "kindergarten",
+                "#4dd0e1",
+                "non_school",
+                "#bdbdbd",
+                "#90a4ae"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "school_level"
+                ],
+                "elementary",
+                "#66bb6a",
+                "junior",
+                "#ffa726",
+                "combined_k9",
+                "#ffa726",
+                "senior",
+                "#ef5350",
+                "university",
+                "#ab47bc",
+                "special",
+                "#78909c",
+                "international",
+                "#7986cb",
+                "experimental",
+                "#7986cb",
+                "kindergarten",
+                "#4dd0e1",
+                "non_school",
+                "#bdbdbd",
+                "#90a4ae"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle-point",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "!=",
+            [
+              "get",
+              "school_level"
+            ],
+            "non_school"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "maxzoom": 7,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "school_level"
+                ],
+                "elementary",
+                "#66bb6a",
+                "junior",
+                "#ffa726",
+                "combined_k9",
+                "#ffa726",
+                "senior",
+                "#ef5350",
+                "university",
+                "#c35fd5",
+                "special",
+                "#78909c",
+                "international",
+                "#7986cb",
+                "experimental",
+                "#7986cb",
+                "kindergarten",
+                "#4dd0e1",
+                "non_school",
+                "#bdbdbd",
+                "#90a4ae"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "school_level"
+                ],
+                "elementary",
+                "#66bb6a",
+                "junior",
+                "#ffa726",
+                "combined_k9",
+                "#ffa726",
+                "senior",
+                "#ef5350",
+                "university",
+                "#ab47bc",
+                "special",
+                "#78909c",
+                "international",
+                "#7986cb",
+                "experimental",
+                "#7986cb",
+                "kindergarten",
+                "#4dd0e1",
+                "non_school",
+                "#bdbdbd",
+                "#90a4ae"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle-polygon",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 10,
+        "minzoom": 4,
+        "sourceLayer": "campus_polygon_points"
+      },
+      "rebuildOnParamChange": [
+        "circle-point",
+        "circle-polygon"
+      ],
+      "sourceId": "edu-campus-points",
+      "sourceUrl": "./education/campus_polygon_points.pmtiles"
+    },
+    "eduCramSchool": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "eduCramSchool",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "maxzoom": 10.01,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(84,90,109,0.00)",
+                0.05,
+                "rgba(84,90,109,0.11)",
+                0.15,
+                "rgba(111,112,115,0.33)",
+                0.3,
+                "rgba(138,134,120,0.66)",
+                0.45,
+                "rgba(168,157,115,0.99)",
+                0.6,
+                "rgba(197,181,104,1.00)",
+                0.8,
+                "rgba(227,206,83,1.00)",
+                1,
+                "rgba(254,232,56,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(177,165,112,0.00)",
+                0.05,
+                "rgba(177,165,112,0.11)",
+                0.15,
+                "rgba(150,143,119,0.33)",
+                0.3,
+                "rgba(123,122,120,0.66)",
+                0.45,
+                "rgba(98,102,111,0.99)",
+                0.6,
+                "rgba(72,82,108,1.00)",
+                0.8,
+                "rgba(39,62,110,1.00)",
+                1,
+                "rgba(0,43,98,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "heatmap",
+          "type": "heatmap"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": 10,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "短期補習班類別"
+                ],
+                [
+                  "文理類"
+                ],
+                "#7788e0",
+                [
+                  "外語類"
+                ],
+                "#26a69a",
+                [
+                  "音樂、舞蹈類",
+                  "美術、書法、攝影、美工設計、圍棋類"
+                ],
+                "#fb4f86",
+                [
+                  "商類：珠算、心算、會計",
+                  "資訊類",
+                  "美容、美髮理髮類",
+                  "電機、汽車修護、建築、工藝、製圖類",
+                  "家政、插花、烹飪類",
+                  "縫紉類"
+                ],
+                "#ffa726",
+                [
+                  "法政類",
+                  "其他類",
+                  "瑜珈類",
+                  "速讀類"
+                ],
+                "#90a4ae",
+                "#90a4ae"
+              ],
+              "circle-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "precision"
+                  ],
+                  "interpolated"
+                ],
+                0.3375,
+                0.75
+              ],
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "短期補習班類別"
+                ],
+                [
+                  "文理類"
+                ],
+                "#5c6bc0",
+                [
+                  "外語類"
+                ],
+                "#26a69a",
+                [
+                  "音樂、舞蹈類",
+                  "美術、書法、攝影、美工設計、圍棋類"
+                ],
+                "#ec407a",
+                [
+                  "商類：珠算、心算、會計",
+                  "資訊類",
+                  "美容、美髮理髮類",
+                  "電機、汽車修護、建築、工藝、製圖類",
+                  "家政、插花、烹飪類",
+                  "縫紉類"
+                ],
+                "#ffa726",
+                [
+                  "法政類",
+                  "其他類",
+                  "瑜珈類",
+                  "速讀類"
+                ],
+                "#90a4ae",
+                "#90a4ae"
+              ],
+              "circle-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "precision"
+                  ],
+                  "interpolated"
+                ],
+                0.3375,
+                0.75
+              ],
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 15,
+        "minzoom": 7,
+        "sourceLayer": "cram_schools"
+      },
+      "rebuildOnParamChange": [
+        "circle",
+        "heatmap"
+      ],
+      "sourceId": "edu-cram",
+      "sourceUrl": "./education/cram_schools_v2.pmtiles"
+    },
+    "eduDistrictElementary": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "eduDistrictElementary",
+      "layers": [
+        {
+          "filter": [
+            "==",
+            [
+              "get",
+              "level"
+            ],
+            "elementary"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "precision"
+                ],
+                "village_full",
+                "#66bb6a",
+                "village_partial",
+                "#a5d6a7",
+                "#a5d6a7"
+              ],
+              "fill-opacity": 0.5
+            },
+            "light": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "precision"
+                ],
+                "village_full",
+                "#66bb6a",
+                "village_partial",
+                "#a5d6a7",
+                "#a5d6a7"
+              ],
+              "fill-opacity": 0.35
+            }
+          },
+          "suffix": "elementary-fill",
+          "type": "fill"
+        },
+        {
+          "filter": [
+            "==",
+            [
+              "get",
+              "level"
+            ],
+            "elementary"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "precision"
+                ],
+                "village_full",
+                "#66bb6a",
+                "village_partial",
+                "#a5d6a7",
+                "#a5d6a7"
+              ],
+              "line-opacity": 0.8,
+              "line-width": 1
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "precision"
+                ],
+                "village_full",
+                "#66bb6a",
+                "village_partial",
+                "#a5d6a7",
+                "#a5d6a7"
+              ],
+              "line-opacity": 0.8,
+              "line-width": 1
+            }
+          },
+          "suffix": "elementary-line",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 13,
+        "minzoom": 6,
+        "sourceLayer": "school_district_k12"
+      },
+      "rebuildOnParamChange": [
+        "elementary-fill",
+        "elementary-line"
+      ],
+      "sourceId": "edu-district-k12",
+      "sourceUrl": "./education/school_district_k12.pmtiles"
+    },
+    "eduDistrictJunior": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "eduDistrictJunior",
+      "layers": [
+        {
+          "filter": [
+            "==",
+            [
+              "get",
+              "level"
+            ],
+            "junior"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "precision"
+                ],
+                "village_full",
+                "#ffa726",
+                "village_partial",
+                "#ffcc80",
+                "#ffcc80"
+              ],
+              "fill-opacity": 0.5
+            },
+            "light": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "precision"
+                ],
+                "village_full",
+                "#ffa726",
+                "village_partial",
+                "#ffcc80",
+                "#ffcc80"
+              ],
+              "fill-opacity": 0.35
+            }
+          },
+          "suffix": "junior-fill",
+          "type": "fill"
+        },
+        {
+          "filter": [
+            "==",
+            [
+              "get",
+              "level"
+            ],
+            "junior"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "precision"
+                ],
+                "village_full",
+                "#ffa726",
+                "village_partial",
+                "#ffcc80",
+                "#ffcc80"
+              ],
+              "line-opacity": 0.8,
+              "line-width": 1
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "precision"
+                ],
+                "village_full",
+                "#ffa726",
+                "village_partial",
+                "#ffcc80",
+                "#ffcc80"
+              ],
+              "line-opacity": 0.8,
+              "line-width": 1
+            }
+          },
+          "suffix": "junior-line",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 13,
+        "minzoom": 6,
+        "sourceLayer": "school_district_k12"
+      },
+      "rebuildOnParamChange": [
+        "junior-fill",
+        "junior-line"
+      ],
+      "sourceId": "edu-district-k12",
+      "sourceUrl": "./education/school_district_k12.pmtiles"
+    },
+    "eduDistrictSenior": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "eduDistrictSenior",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "match",
+                [
+                  "%",
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "district_no"
+                    ]
+                  ],
+                  5
+                ],
+                0,
+                "#5c6bc0",
+                1,
+                "#26a69a",
+                2,
+                "#8d6e63",
+                3,
+                "#ec407a",
+                4,
+                "#7e57c2",
+                "#5c6bc0"
+              ],
+              "fill-opacity": 0.3
+            },
+            "light": {
+              "fill-color": [
+                "match",
+                [
+                  "%",
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "district_no"
+                    ]
+                  ],
+                  5
+                ],
+                0,
+                "#5c6bc0",
+                1,
+                "#26a69a",
+                2,
+                "#8d6e63",
+                3,
+                "#ec407a",
+                4,
+                "#7e57c2",
+                "#5c6bc0"
+              ],
+              "fill-opacity": 0.15
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": [
+                "match",
+                [
+                  "%",
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "district_no"
+                    ]
+                  ],
+                  5
+                ],
+                0,
+                "#a7b7ff",
+                1,
+                "#42baad",
+                2,
+                "#c1a094",
+                3,
+                "#ff80a1",
+                4,
+                "#b895ff",
+                "#a7b7ff"
+              ],
+              "line-opacity": 0.6,
+              "line-width": 0.5
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "%",
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "district_no"
+                    ]
+                  ],
+                  5
+                ],
+                0,
+                "#5c6bc0",
+                1,
+                "#26a69a",
+                2,
+                "#8d6e63",
+                3,
+                "#ec407a",
+                4,
+                "#7e57c2",
+                "#5c6bc0"
+              ],
+              "line-opacity": 0.6,
+              "line-width": 0.5
+            }
+          },
+          "suffix": "line",
+          "type": "line"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": null,
+      "sourceId": "edu-district-senior",
+      "sourceUrl": "./education/school_district_senior.geojson"
+    },
+    "eduKindergarten": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "eduKindergarten",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "公/私立"
+                ],
+                "公立",
+                "#26a69a",
+                "私立",
+                "#ec407a",
+                "#ec407a"
+              ],
+              "circle-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "precision"
+                  ],
+                  "interpolated"
+                ],
+                0.3825,
+                0.85
+              ],
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "公/私立"
+                ],
+                "公立",
+                "#26a69a",
+                "私立",
+                "#ec407a",
+                "#ec407a"
+              ],
+              "circle-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "precision"
+                  ],
+                  "interpolated"
+                ],
+                0.3825,
+                0.85
+              ],
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "circle"
+      ],
+      "sourceId": "edu-kindergarten",
+      "sourceUrl": "./education/kindergartens.geojson"
+    },
+    "eduMutualCare": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "eduMutualCare",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#4dd0e1",
+              "circle-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "precision"
+                  ],
+                  "interpolated"
+                ],
+                0.3825,
+                0.85
+              ],
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#4dd0e1",
+              "circle-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "precision"
+                  ],
+                  "interpolated"
+                ],
+                0.3825,
+                0.85
+              ],
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "circle"
+      ],
+      "sourceId": "edu-mutual-care",
+      "sourceUrl": "./education/mutual_care.geojson"
+    },
+    "eduRemoteSchools": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "eduRemoteSchools",
+      "layers": [
+        {
+          "filter": [
+            "match",
+            [
+              "get",
+              "region_type"
+            ],
+            [
+              "偏遠",
+              "特偏",
+              "極偏"
+            ],
+            true,
+            false
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.7,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "region_type"
+                ],
+                "偏遠",
+                "#ffd54f",
+                "特偏",
+                "#ff8f00",
+                "極偏",
+                "#d84315",
+                "#ffd54f"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                4.5,
+                10,
+                8,
+                14,
+                13,
+                17,
+                20
+              ]
+            },
+            "light": {
+              "circle-blur": 0.7,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "region_type"
+                ],
+                "偏遠",
+                "#ffd54f",
+                "特偏",
+                "#ff8f00",
+                "極偏",
+                "#d84315",
+                "#ffd54f"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                4.5,
+                10,
+                8,
+                14,
+                13,
+                17,
+                20
+              ]
+            }
+          },
+          "suffix": "remote-halo",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "match",
+            [
+              "get",
+              "region_type"
+            ],
+            [
+              "偏遠",
+              "特偏",
+              "極偏"
+            ],
+            true,
+            false
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "region_type"
+                ],
+                "偏遠",
+                "#ffd54f",
+                "特偏",
+                "#ff8f00",
+                "極偏",
+                "#e55026",
+                "#ffd54f"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "region_type"
+                ],
+                "偏遠",
+                "#ffd54f",
+                "特偏",
+                "#ff8f00",
+                "極偏",
+                "#e55026",
+                "#ffd54f"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "remote-dot",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "remote-halo",
+        "remote-dot"
+      ],
+      "sourceId": "edu-schools",
+      "sourceUrl": "./education/schools.geojson"
+    },
+    "eduSchoolElementary": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "eduSchoolElementary",
+      "layers": [
+        {
+          "filter": [
+            "in",
+            [
+              "get",
+              "school_level"
+            ],
+            [
+              "literal",
+              [
+                "國民小學",
+                "附設國民小學"
+              ]
+            ]
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#66bb6a",
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#66bb6a",
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "elementary",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "elementary"
+      ],
+      "sourceId": "edu-schools",
+      "sourceUrl": "./education/schools.geojson"
+    },
+    "eduSchoolJunior": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "eduSchoolJunior",
+      "layers": [
+        {
+          "filter": [
+            "in",
+            [
+              "get",
+              "school_level"
+            ],
+            [
+              "literal",
+              [
+                "國民中學",
+                "附設國民中學"
+              ]
+            ]
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#ffa726",
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#ffa726",
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "junior",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "junior"
+      ],
+      "sourceId": "edu-schools",
+      "sourceUrl": "./education/schools.geojson"
+    },
+    "eduSchoolSenior": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "eduSchoolSenior",
+      "layers": [
+        {
+          "filter": [
+            "in",
+            [
+              "get",
+              "school_level"
+            ],
+            [
+              "literal",
+              [
+                "高級中等學校"
+              ]
+            ]
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#ef5350",
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#ef5350",
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "senior",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "senior"
+      ],
+      "sourceId": "edu-schools",
+      "sourceUrl": "./education/schools.geojson"
+    },
+    "eduSchoolSpecial": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "eduSchoolSpecial",
+      "layers": [
+        {
+          "filter": [
+            "in",
+            [
+              "get",
+              "school_level"
+            ],
+            [
+              "literal",
+              [
+                "特殊教育學校"
+              ]
+            ]
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#78909c",
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#78909c",
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "special",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "special"
+      ],
+      "sourceId": "edu-schools",
+      "sourceUrl": "./education/schools.geojson"
+    },
+    "eduSchoolUniversity": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "eduSchoolUniversity",
+      "layers": [
+        {
+          "filter": [
+            "in",
+            [
+              "get",
+              "school_level"
+            ],
+            [
+              "literal",
+              [
+                "大專校院",
+                "空大及大專校院附設進修學校",
+                "宗教研修學院"
+              ]
+            ]
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#bd59ce",
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#ab47bc",
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "university",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "university"
+      ],
+      "sourceId": "edu-schools",
+      "sourceUrl": "./education/schools.geojson"
+    },
+    "eduUniversityStudents": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "eduUniversityStudents",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "students_total"
+                  ],
+                  null
+                ],
+                "#96aab4",
+                "#e780f8"
+              ],
+              "circle-opacity": 0.6,
+              "circle-radius": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "students_total"
+                  ],
+                  null
+                ],
+                3,
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "sqrt",
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "students_total"
+                      ],
+                      0
+                    ]
+                  ],
+                  0,
+                  3,
+                  190,
+                  22
+                ]
+              ],
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "students_total"
+                  ],
+                  null
+                ],
+                "#90a4ae",
+                "#ab47bc"
+              ],
+              "circle-opacity": 0.6,
+              "circle-radius": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "students_total"
+                  ],
+                  null
+                ],
+                3,
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "sqrt",
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "students_total"
+                      ],
+                      0
+                    ]
+                  ],
+                  0,
+                  3,
+                  190,
+                  22
+                ]
+              ],
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "bubble",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "bubble"
+      ],
+      "sourceId": "edu-university-students",
+      "sourceUrl": "./education/university_students.geojson"
+    },
+    "schools": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "schools",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 1,
+              "circle-color": "#42a5f5",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                1.5,
+                10,
+                4,
+                14,
+                8,
+                17,
+                14
+              ]
+            },
+            "light": {
+              "circle-blur": 1,
+              "circle-color": "#1565c0",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                1.5,
+                10,
+                4,
+                14,
+                8,
+                17,
+                14
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#42a5f5",
+              "circle-opacity": 0.85,
+              "circle-radius": 3,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#1565c0",
+              "circle-opacity": 0.85,
+              "circle-radius": 3,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
+      "sourceId": "edu-schools",
+      "sourceUrl": "./education/schools.geojson"
+    }
+  },
+  "params": {
+    "eduAfterschoolCare": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "eduCampusArea": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "eduCampusPolygon": [
+      {
+        "label": "學制",
+        "options": [
+          {
+            "label": "國小",
+            "value": "elementary"
+          },
+          {
+            "label": "國中",
+            "value": "junior"
+          },
+          {
+            "label": "高中職",
+            "value": "senior"
+          },
+          {
+            "label": "大專",
+            "value": "university"
+          },
+          {
+            "label": "特教",
+            "value": "special"
+          },
+          {
+            "label": "實驗／國際",
+            "value": "international"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "elementary",
+          "junior",
+          "senior",
+          "university",
+          "special",
+          "international"
+        ]
+      },
+      {
+        "label": "透明度 0.35",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.35,
+        "valueText": "0.35"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "point"
+      }
+    ],
+    "eduCramSchool": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "文理",
+            "value": "文理類"
+          },
+          {
+            "label": "外語",
+            "value": "外語類"
+          },
+          {
+            "label": "藝術",
+            "value": "音樂、舞蹈類"
+          },
+          {
+            "label": "技職",
+            "value": "商類：珠算、心算、會計"
+          },
+          {
+            "label": "其他",
+            "value": "法政類"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "文理類",
+          "外語類",
+          "音樂、舞蹈類",
+          "商類：珠算、心算、會計",
+          "法政類"
+        ]
+      },
+      {
+        "defaultValue": "cividis",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "cividis"
+      },
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.75,
+        "valueText": "0.75"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "eduDistrictElementary": [
+      {
+        "label": "面的精確度",
+        "options": [
+          {
+            "label": "整里皆屬",
+            "value": "village_full"
+          },
+          {
+            "label": "部分鄰屬",
+            "value": "village_partial"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "village_full",
+          "village_partial"
+        ]
+      },
+      {
+        "label": "透明度 0.30",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.3,
+        "valueText": "0.30"
+      }
+    ],
+    "eduDistrictJunior": [
+      {
+        "label": "面的精確度",
+        "options": [
+          {
+            "label": "整里皆屬",
+            "value": "village_full"
+          },
+          {
+            "label": "部分鄰屬",
+            "value": "village_partial"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "village_full",
+          "village_partial"
+        ]
+      },
+      {
+        "label": "透明度 0.30",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.3,
+        "valueText": "0.30"
+      }
+    ],
+    "eduDistrictSenior": [
+      {
+        "label": "透明度 0.18",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.18,
+        "valueText": "0.18"
+      }
+    ],
+    "eduKindergarten": [
+      {
+        "label": "公私立",
+        "options": [
+          {
+            "label": "公立",
+            "value": "公立"
+          },
+          {
+            "label": "私立",
+            "value": "私立"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "公立",
+          "私立"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "eduMutualCare": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "eduRemoteSchools": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "eduSchoolElementary": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "eduSchoolJunior": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "eduSchoolSenior": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "eduSchoolSpecial": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "eduSchoolUniversity": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "eduUniversityStudents": [
+      {
+        "label": "透明度 0.60",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.6,
+        "valueText": "0.60"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "schools": [
+      {
+        "label": "分級配色",
+        "type": "toggle",
+        "value": false
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ]
+  }
+}

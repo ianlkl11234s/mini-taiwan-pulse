@@ -1,0 +1,162 @@
+{
+  "count": 4,
+  "gisLayers": {},
+  "overlays": {},
+  "params": {
+    "statsExerciseParticipationRate": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "有運動比例",
+            "value": "statsExerciseParticipationRate"
+          },
+          {
+            "label": "規律運動比例",
+            "value": "statsRegularExerciseRate"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsExerciseParticipationRate"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsRegularExerciseRate": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "有運動比例",
+            "value": "statsExerciseParticipationRate"
+          },
+          {
+            "label": "規律運動比例",
+            "value": "statsRegularExerciseRate"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsRegularExerciseRate"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsSportsBudgetPerCapita": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "經費總額",
+            "value": "statsSportsBudgetTotal"
+          },
+          {
+            "label": "每人平均",
+            "value": "statsSportsBudgetPerCapita"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsSportsBudgetPerCapita"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsSportsBudgetTotal": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "經費總額",
+            "value": "statsSportsBudgetTotal"
+          },
+          {
+            "label": "每人平均",
+            "value": "statsSportsBudgetPerCapita"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsSportsBudgetTotal"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ]
+  }
+}

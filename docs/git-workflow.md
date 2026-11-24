@@ -64,10 +64,9 @@ npm run merge:develop                # fetch → git merge --no-commit origin/de
 
 - 工作區有未提交的改動會拒絕執行。沒有衝突就照一般 `git merge` 直接 commit。
 - 自動處理的只有這幾種（`scripts/dev/merge-develop.mjs`）：
-  - `layer-golden.json`、`layer-style-inventory.json`：取 develop 版後用 `npx vite-node scripts/preprocess/dump-layer-golden.ts`、`npm run design:audit-layers` 重產。
+  - `layer-golden/` 目錄下的檔（每個主題一檔，加 `_order.json`）、`layer-style-inventory.json`：取 develop 版（develop 已刪的檔移除）後用 `npx vite-node scripts/preprocess/dump-layer-golden.ts`、`npm run design:audit-layers` 重產（dump 只重寫有變的檔）。
   - `CHANGELOG.md`：只處理 Unreleased，兩邊條目都保留（develop 在前、依 `###` 小節合併）；本分支動到已發布段落就停。
   - `src/**/locales/**/*.json`：兩邊的鍵都留（develop 在前）；同鍵不同值或有重複鍵就停。
-  - `layerGoldenSnapshot.test.ts`：日期註解兩邊都留，key 總數改成重產後的實際值。
 - 其他檔案有衝突：工具不碰，列出清單後以非 0 結束。手動解完、`git add` 後**再跑一次**，會接著做剩下的（重產要等原始碼沒有衝突標記）。
 - 有衝突時不會自動 commit：看完它列出的檔與 `git diff --cached`，跑 `npm run verify` 後自己 `git commit`。工具不使用 `reset --hard`、`checkout -- .`、`clean`。
 
