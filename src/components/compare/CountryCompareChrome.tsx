@@ -116,7 +116,7 @@ export function CountryCompareChrome({ isDarkTheme, captureMode, mainMap, leftCo
         <div className="compare-divider__line" />
       </div>
       {!captureMode && (
-        <div style={{ position: "absolute", top: 12, left: 0, right: 0, zIndex: Z_INDEX.mapOverlay, display: "grid", gridTemplateColumns: "1fr auto 1fr", alignItems: "start", columnGap: 8, pointerEvents: "none" }}>
+        <div style={{ position: "absolute", top: 48, left: 0, right: 0, zIndex: Z_INDEX.mapOverlay, display: "grid", gridTemplateColumns: "1fr auto 1fr", alignItems: "start", columnGap: 8, pointerEvents: "none" }}>
           {/* 左：國家 chip（下拉）＋比例尺，靠分隔線 */}
           <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6 }}>
             <div style={{ pointerEvents: "auto" }}>
