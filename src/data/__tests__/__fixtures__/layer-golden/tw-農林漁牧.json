@@ -1,0 +1,6054 @@
+{
+  "count": 102,
+  "gisLayers": {},
+  "overlays": {},
+  "params": {
+    "statsAgriculturalFacilityAreaTownship": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsAgriculturalFacilityAreaTownship"
+          },
+          {
+            "label": "鄉鎮：農業生產設施用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonAgriculturalFacilityNationalSharePct"
+          },
+          {
+            "label": "縣市：農業生產設施用地面積－縣市面積",
+            "value": "statsComparisonAgriculturalFacilityCountyTotalHectare"
+          },
+          {
+            "label": "縣市：農業生產設施用地面積－縣市占全臺同類比",
+            "value": "statsComparisonAgriculturalFacilityCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：農業生產設施用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonAgriculturalFacilityTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：農業生產設施用地面積－占縣市行政面積",
+            "value": "statsComparisonAgriculturalFacilityCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：農業生產設施用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonAgriculturalFacilityCountyLq"
+          },
+          {
+            "label": "鄉鎮：農業生產設施用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonAgriculturalFacilityTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsAgriculturalFacilityAreaTownship"
+      },
+      {
+        "label": "調查年度",
+        "options": [],
+        "status": "loading",
+        "statusText": "載入中…",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsAquacultureAreaCounty": [
+      {
+        "label": "年度",
+        "options": [],
+        "status": "loading",
+        "statusText": "載入中…",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsAquacultureLandAreaTownship": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsAquacultureLandAreaTownship"
+          },
+          {
+            "label": "鄉鎮：水產養殖用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonAquacultureLandNationalSharePct"
+          },
+          {
+            "label": "縣市：水產養殖用地面積－縣市面積",
+            "value": "statsComparisonAquacultureLandCountyTotalHectare"
+          },
+          {
+            "label": "縣市：水產養殖用地面積－縣市占全臺同類比",
+            "value": "statsComparisonAquacultureLandCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：水產養殖用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonAquacultureLandTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：水產養殖用地面積－占縣市行政面積",
+            "value": "statsComparisonAquacultureLandCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：水產養殖用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonAquacultureLandCountyLq"
+          },
+          {
+            "label": "鄉鎮：水產養殖用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonAquacultureLandTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsAquacultureLandAreaTownship"
+      },
+      {
+        "label": "調查年度",
+        "options": [],
+        "status": "loading",
+        "statusText": "載入中…",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsBambooForestAreaTownship": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsBambooForestAreaTownship"
+          },
+          {
+            "label": "鄉鎮：竹林用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonBambooForestNationalSharePct"
+          },
+          {
+            "label": "縣市：竹林用地面積－縣市面積",
+            "value": "statsComparisonBambooForestCountyTotalHectare"
+          },
+          {
+            "label": "縣市：竹林用地面積－縣市占全臺同類比",
+            "value": "statsComparisonBambooForestCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：竹林用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonBambooForestTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：竹林用地面積－占縣市行政面積",
+            "value": "statsComparisonBambooForestCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：竹林用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonBambooForestCountyLq"
+          },
+          {
+            "label": "鄉鎮：竹林用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonBambooForestTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsBambooForestAreaTownship"
+      },
+      {
+        "label": "調查年度",
+        "options": [],
+        "status": "loading",
+        "statusText": "載入中…",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsBroadleafForestAreaTownship": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsBroadleafForestAreaTownship"
+          },
+          {
+            "label": "鄉鎮：闊葉林用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonBroadleafForestNationalSharePct"
+          },
+          {
+            "label": "縣市：闊葉林用地面積－縣市面積",
+            "value": "statsComparisonBroadleafForestCountyTotalHectare"
+          },
+          {
+            "label": "縣市：闊葉林用地面積－縣市占全臺同類比",
+            "value": "statsComparisonBroadleafForestCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：闊葉林用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonBroadleafForestTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：闊葉林用地面積－占縣市行政面積",
+            "value": "statsComparisonBroadleafForestCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：闊葉林用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonBroadleafForestCountyLq"
+          },
+          {
+            "label": "鄉鎮：闊葉林用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonBroadleafForestTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsBroadleafForestAreaTownship"
+      },
+      {
+        "label": "調查年度",
+        "options": [],
+        "status": "loading",
+        "statusText": "載入中…",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonAgriculturalFacilityCountyAreaSharePct": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsAgriculturalFacilityAreaTownship"
+          },
+          {
+            "label": "鄉鎮：農業生產設施用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonAgriculturalFacilityNationalSharePct"
+          },
+          {
+            "label": "縣市：農業生產設施用地面積－縣市面積",
+            "value": "statsComparisonAgriculturalFacilityCountyTotalHectare"
+          },
+          {
+            "label": "縣市：農業生產設施用地面積－縣市占全臺同類比",
+            "value": "statsComparisonAgriculturalFacilityCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：農業生產設施用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonAgriculturalFacilityTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：農業生產設施用地面積－占縣市行政面積",
+            "value": "statsComparisonAgriculturalFacilityCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：農業生產設施用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonAgriculturalFacilityCountyLq"
+          },
+          {
+            "label": "鄉鎮：農業生產設施用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonAgriculturalFacilityTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonAgriculturalFacilityCountyAreaSharePct"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonAgriculturalFacilityCountyLq": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsAgriculturalFacilityAreaTownship"
+          },
+          {
+            "label": "鄉鎮：農業生產設施用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonAgriculturalFacilityNationalSharePct"
+          },
+          {
+            "label": "縣市：農業生產設施用地面積－縣市面積",
+            "value": "statsComparisonAgriculturalFacilityCountyTotalHectare"
+          },
+          {
+            "label": "縣市：農業生產設施用地面積－縣市占全臺同類比",
+            "value": "statsComparisonAgriculturalFacilityCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：農業生產設施用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonAgriculturalFacilityTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：農業生產設施用地面積－占縣市行政面積",
+            "value": "statsComparisonAgriculturalFacilityCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：農業生產設施用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonAgriculturalFacilityCountyLq"
+          },
+          {
+            "label": "鄉鎮：農業生產設施用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonAgriculturalFacilityTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonAgriculturalFacilityCountyLq"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonAgriculturalFacilityCountyNationalSharePct": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsAgriculturalFacilityAreaTownship"
+          },
+          {
+            "label": "鄉鎮：農業生產設施用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonAgriculturalFacilityNationalSharePct"
+          },
+          {
+            "label": "縣市：農業生產設施用地面積－縣市面積",
+            "value": "statsComparisonAgriculturalFacilityCountyTotalHectare"
+          },
+          {
+            "label": "縣市：農業生產設施用地面積－縣市占全臺同類比",
+            "value": "statsComparisonAgriculturalFacilityCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：農業生產設施用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonAgriculturalFacilityTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：農業生產設施用地面積－占縣市行政面積",
+            "value": "statsComparisonAgriculturalFacilityCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：農業生產設施用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonAgriculturalFacilityCountyLq"
+          },
+          {
+            "label": "鄉鎮：農業生產設施用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonAgriculturalFacilityTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonAgriculturalFacilityCountyNationalSharePct"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonAgriculturalFacilityCountyTotalHectare": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsAgriculturalFacilityAreaTownship"
+          },
+          {
+            "label": "鄉鎮：農業生產設施用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonAgriculturalFacilityNationalSharePct"
+          },
+          {
+            "label": "縣市：農業生產設施用地面積－縣市面積",
+            "value": "statsComparisonAgriculturalFacilityCountyTotalHectare"
+          },
+          {
+            "label": "縣市：農業生產設施用地面積－縣市占全臺同類比",
+            "value": "statsComparisonAgriculturalFacilityCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：農業生產設施用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonAgriculturalFacilityTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：農業生產設施用地面積－占縣市行政面積",
+            "value": "statsComparisonAgriculturalFacilityCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：農業生產設施用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonAgriculturalFacilityCountyLq"
+          },
+          {
+            "label": "鄉鎮：農業生產設施用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonAgriculturalFacilityTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonAgriculturalFacilityCountyTotalHectare"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonAgriculturalFacilityNationalSharePct": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsAgriculturalFacilityAreaTownship"
+          },
+          {
+            "label": "鄉鎮：農業生產設施用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonAgriculturalFacilityNationalSharePct"
+          },
+          {
+            "label": "縣市：農業生產設施用地面積－縣市面積",
+            "value": "statsComparisonAgriculturalFacilityCountyTotalHectare"
+          },
+          {
+            "label": "縣市：農業生產設施用地面積－縣市占全臺同類比",
+            "value": "statsComparisonAgriculturalFacilityCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：農業生產設施用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonAgriculturalFacilityTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：農業生產設施用地面積－占縣市行政面積",
+            "value": "statsComparisonAgriculturalFacilityCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：農業生產設施用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonAgriculturalFacilityCountyLq"
+          },
+          {
+            "label": "鄉鎮：農業生產設施用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonAgriculturalFacilityTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonAgriculturalFacilityNationalSharePct"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonAgriculturalFacilityTownshipAdminAreaSharePct": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsAgriculturalFacilityAreaTownship"
+          },
+          {
+            "label": "鄉鎮：農業生產設施用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonAgriculturalFacilityNationalSharePct"
+          },
+          {
+            "label": "縣市：農業生產設施用地面積－縣市面積",
+            "value": "statsComparisonAgriculturalFacilityCountyTotalHectare"
+          },
+          {
+            "label": "縣市：農業生產設施用地面積－縣市占全臺同類比",
+            "value": "statsComparisonAgriculturalFacilityCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：農業生產設施用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonAgriculturalFacilityTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：農業生產設施用地面積－占縣市行政面積",
+            "value": "statsComparisonAgriculturalFacilityCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：農業生產設施用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonAgriculturalFacilityCountyLq"
+          },
+          {
+            "label": "鄉鎮：農業生產設施用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonAgriculturalFacilityTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonAgriculturalFacilityTownshipAdminAreaSharePct"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonAgriculturalFacilityTownshipOfCountySharePct": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsAgriculturalFacilityAreaTownship"
+          },
+          {
+            "label": "鄉鎮：農業生產設施用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonAgriculturalFacilityNationalSharePct"
+          },
+          {
+            "label": "縣市：農業生產設施用地面積－縣市面積",
+            "value": "statsComparisonAgriculturalFacilityCountyTotalHectare"
+          },
+          {
+            "label": "縣市：農業生產設施用地面積－縣市占全臺同類比",
+            "value": "statsComparisonAgriculturalFacilityCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：農業生產設施用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonAgriculturalFacilityTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：農業生產設施用地面積－占縣市行政面積",
+            "value": "statsComparisonAgriculturalFacilityCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：農業生產設施用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonAgriculturalFacilityCountyLq"
+          },
+          {
+            "label": "鄉鎮：農業生產設施用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonAgriculturalFacilityTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonAgriculturalFacilityTownshipOfCountySharePct"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonAquacultureLandCountyAreaSharePct": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsAquacultureLandAreaTownship"
+          },
+          {
+            "label": "鄉鎮：水產養殖用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonAquacultureLandNationalSharePct"
+          },
+          {
+            "label": "縣市：水產養殖用地面積－縣市面積",
+            "value": "statsComparisonAquacultureLandCountyTotalHectare"
+          },
+          {
+            "label": "縣市：水產養殖用地面積－縣市占全臺同類比",
+            "value": "statsComparisonAquacultureLandCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：水產養殖用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonAquacultureLandTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：水產養殖用地面積－占縣市行政面積",
+            "value": "statsComparisonAquacultureLandCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：水產養殖用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonAquacultureLandCountyLq"
+          },
+          {
+            "label": "鄉鎮：水產養殖用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonAquacultureLandTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonAquacultureLandCountyAreaSharePct"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonAquacultureLandCountyLq": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsAquacultureLandAreaTownship"
+          },
+          {
+            "label": "鄉鎮：水產養殖用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonAquacultureLandNationalSharePct"
+          },
+          {
+            "label": "縣市：水產養殖用地面積－縣市面積",
+            "value": "statsComparisonAquacultureLandCountyTotalHectare"
+          },
+          {
+            "label": "縣市：水產養殖用地面積－縣市占全臺同類比",
+            "value": "statsComparisonAquacultureLandCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：水產養殖用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonAquacultureLandTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：水產養殖用地面積－占縣市行政面積",
+            "value": "statsComparisonAquacultureLandCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：水產養殖用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonAquacultureLandCountyLq"
+          },
+          {
+            "label": "鄉鎮：水產養殖用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonAquacultureLandTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonAquacultureLandCountyLq"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonAquacultureLandCountyNationalSharePct": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsAquacultureLandAreaTownship"
+          },
+          {
+            "label": "鄉鎮：水產養殖用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonAquacultureLandNationalSharePct"
+          },
+          {
+            "label": "縣市：水產養殖用地面積－縣市面積",
+            "value": "statsComparisonAquacultureLandCountyTotalHectare"
+          },
+          {
+            "label": "縣市：水產養殖用地面積－縣市占全臺同類比",
+            "value": "statsComparisonAquacultureLandCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：水產養殖用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonAquacultureLandTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：水產養殖用地面積－占縣市行政面積",
+            "value": "statsComparisonAquacultureLandCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：水產養殖用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonAquacultureLandCountyLq"
+          },
+          {
+            "label": "鄉鎮：水產養殖用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonAquacultureLandTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonAquacultureLandCountyNationalSharePct"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonAquacultureLandCountyTotalHectare": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsAquacultureLandAreaTownship"
+          },
+          {
+            "label": "鄉鎮：水產養殖用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonAquacultureLandNationalSharePct"
+          },
+          {
+            "label": "縣市：水產養殖用地面積－縣市面積",
+            "value": "statsComparisonAquacultureLandCountyTotalHectare"
+          },
+          {
+            "label": "縣市：水產養殖用地面積－縣市占全臺同類比",
+            "value": "statsComparisonAquacultureLandCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：水產養殖用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonAquacultureLandTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：水產養殖用地面積－占縣市行政面積",
+            "value": "statsComparisonAquacultureLandCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：水產養殖用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonAquacultureLandCountyLq"
+          },
+          {
+            "label": "鄉鎮：水產養殖用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonAquacultureLandTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonAquacultureLandCountyTotalHectare"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonAquacultureLandNationalSharePct": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsAquacultureLandAreaTownship"
+          },
+          {
+            "label": "鄉鎮：水產養殖用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonAquacultureLandNationalSharePct"
+          },
+          {
+            "label": "縣市：水產養殖用地面積－縣市面積",
+            "value": "statsComparisonAquacultureLandCountyTotalHectare"
+          },
+          {
+            "label": "縣市：水產養殖用地面積－縣市占全臺同類比",
+            "value": "statsComparisonAquacultureLandCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：水產養殖用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonAquacultureLandTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：水產養殖用地面積－占縣市行政面積",
+            "value": "statsComparisonAquacultureLandCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：水產養殖用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonAquacultureLandCountyLq"
+          },
+          {
+            "label": "鄉鎮：水產養殖用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonAquacultureLandTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonAquacultureLandNationalSharePct"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonAquacultureLandTownshipAdminAreaSharePct": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsAquacultureLandAreaTownship"
+          },
+          {
+            "label": "鄉鎮：水產養殖用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonAquacultureLandNationalSharePct"
+          },
+          {
+            "label": "縣市：水產養殖用地面積－縣市面積",
+            "value": "statsComparisonAquacultureLandCountyTotalHectare"
+          },
+          {
+            "label": "縣市：水產養殖用地面積－縣市占全臺同類比",
+            "value": "statsComparisonAquacultureLandCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：水產養殖用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonAquacultureLandTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：水產養殖用地面積－占縣市行政面積",
+            "value": "statsComparisonAquacultureLandCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：水產養殖用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonAquacultureLandCountyLq"
+          },
+          {
+            "label": "鄉鎮：水產養殖用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonAquacultureLandTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonAquacultureLandTownshipAdminAreaSharePct"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonAquacultureLandTownshipOfCountySharePct": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsAquacultureLandAreaTownship"
+          },
+          {
+            "label": "鄉鎮：水產養殖用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonAquacultureLandNationalSharePct"
+          },
+          {
+            "label": "縣市：水產養殖用地面積－縣市面積",
+            "value": "statsComparisonAquacultureLandCountyTotalHectare"
+          },
+          {
+            "label": "縣市：水產養殖用地面積－縣市占全臺同類比",
+            "value": "statsComparisonAquacultureLandCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：水產養殖用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonAquacultureLandTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：水產養殖用地面積－占縣市行政面積",
+            "value": "statsComparisonAquacultureLandCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：水產養殖用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonAquacultureLandCountyLq"
+          },
+          {
+            "label": "鄉鎮：水產養殖用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonAquacultureLandTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonAquacultureLandTownshipOfCountySharePct"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonBambooForestCountyAreaSharePct": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsBambooForestAreaTownship"
+          },
+          {
+            "label": "鄉鎮：竹林用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonBambooForestNationalSharePct"
+          },
+          {
+            "label": "縣市：竹林用地面積－縣市面積",
+            "value": "statsComparisonBambooForestCountyTotalHectare"
+          },
+          {
+            "label": "縣市：竹林用地面積－縣市占全臺同類比",
+            "value": "statsComparisonBambooForestCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：竹林用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonBambooForestTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：竹林用地面積－占縣市行政面積",
+            "value": "statsComparisonBambooForestCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：竹林用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonBambooForestCountyLq"
+          },
+          {
+            "label": "鄉鎮：竹林用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonBambooForestTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonBambooForestCountyAreaSharePct"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonBambooForestCountyLq": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsBambooForestAreaTownship"
+          },
+          {
+            "label": "鄉鎮：竹林用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonBambooForestNationalSharePct"
+          },
+          {
+            "label": "縣市：竹林用地面積－縣市面積",
+            "value": "statsComparisonBambooForestCountyTotalHectare"
+          },
+          {
+            "label": "縣市：竹林用地面積－縣市占全臺同類比",
+            "value": "statsComparisonBambooForestCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：竹林用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonBambooForestTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：竹林用地面積－占縣市行政面積",
+            "value": "statsComparisonBambooForestCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：竹林用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonBambooForestCountyLq"
+          },
+          {
+            "label": "鄉鎮：竹林用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonBambooForestTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonBambooForestCountyLq"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonBambooForestCountyNationalSharePct": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsBambooForestAreaTownship"
+          },
+          {
+            "label": "鄉鎮：竹林用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonBambooForestNationalSharePct"
+          },
+          {
+            "label": "縣市：竹林用地面積－縣市面積",
+            "value": "statsComparisonBambooForestCountyTotalHectare"
+          },
+          {
+            "label": "縣市：竹林用地面積－縣市占全臺同類比",
+            "value": "statsComparisonBambooForestCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：竹林用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonBambooForestTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：竹林用地面積－占縣市行政面積",
+            "value": "statsComparisonBambooForestCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：竹林用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonBambooForestCountyLq"
+          },
+          {
+            "label": "鄉鎮：竹林用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonBambooForestTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonBambooForestCountyNationalSharePct"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonBambooForestCountyTotalHectare": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsBambooForestAreaTownship"
+          },
+          {
+            "label": "鄉鎮：竹林用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonBambooForestNationalSharePct"
+          },
+          {
+            "label": "縣市：竹林用地面積－縣市面積",
+            "value": "statsComparisonBambooForestCountyTotalHectare"
+          },
+          {
+            "label": "縣市：竹林用地面積－縣市占全臺同類比",
+            "value": "statsComparisonBambooForestCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：竹林用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonBambooForestTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：竹林用地面積－占縣市行政面積",
+            "value": "statsComparisonBambooForestCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：竹林用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonBambooForestCountyLq"
+          },
+          {
+            "label": "鄉鎮：竹林用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonBambooForestTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonBambooForestCountyTotalHectare"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonBambooForestNationalSharePct": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsBambooForestAreaTownship"
+          },
+          {
+            "label": "鄉鎮：竹林用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonBambooForestNationalSharePct"
+          },
+          {
+            "label": "縣市：竹林用地面積－縣市面積",
+            "value": "statsComparisonBambooForestCountyTotalHectare"
+          },
+          {
+            "label": "縣市：竹林用地面積－縣市占全臺同類比",
+            "value": "statsComparisonBambooForestCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：竹林用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonBambooForestTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：竹林用地面積－占縣市行政面積",
+            "value": "statsComparisonBambooForestCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：竹林用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonBambooForestCountyLq"
+          },
+          {
+            "label": "鄉鎮：竹林用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonBambooForestTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonBambooForestNationalSharePct"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonBambooForestTownshipAdminAreaSharePct": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsBambooForestAreaTownship"
+          },
+          {
+            "label": "鄉鎮：竹林用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonBambooForestNationalSharePct"
+          },
+          {
+            "label": "縣市：竹林用地面積－縣市面積",
+            "value": "statsComparisonBambooForestCountyTotalHectare"
+          },
+          {
+            "label": "縣市：竹林用地面積－縣市占全臺同類比",
+            "value": "statsComparisonBambooForestCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：竹林用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonBambooForestTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：竹林用地面積－占縣市行政面積",
+            "value": "statsComparisonBambooForestCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：竹林用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonBambooForestCountyLq"
+          },
+          {
+            "label": "鄉鎮：竹林用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonBambooForestTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonBambooForestTownshipAdminAreaSharePct"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonBambooForestTownshipOfCountySharePct": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsBambooForestAreaTownship"
+          },
+          {
+            "label": "鄉鎮：竹林用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonBambooForestNationalSharePct"
+          },
+          {
+            "label": "縣市：竹林用地面積－縣市面積",
+            "value": "statsComparisonBambooForestCountyTotalHectare"
+          },
+          {
+            "label": "縣市：竹林用地面積－縣市占全臺同類比",
+            "value": "statsComparisonBambooForestCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：竹林用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonBambooForestTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：竹林用地面積－占縣市行政面積",
+            "value": "statsComparisonBambooForestCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：竹林用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonBambooForestCountyLq"
+          },
+          {
+            "label": "鄉鎮：竹林用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonBambooForestTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonBambooForestTownshipOfCountySharePct"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonBroadleafForestCountyAreaSharePct": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsBroadleafForestAreaTownship"
+          },
+          {
+            "label": "鄉鎮：闊葉林用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonBroadleafForestNationalSharePct"
+          },
+          {
+            "label": "縣市：闊葉林用地面積－縣市面積",
+            "value": "statsComparisonBroadleafForestCountyTotalHectare"
+          },
+          {
+            "label": "縣市：闊葉林用地面積－縣市占全臺同類比",
+            "value": "statsComparisonBroadleafForestCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：闊葉林用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonBroadleafForestTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：闊葉林用地面積－占縣市行政面積",
+            "value": "statsComparisonBroadleafForestCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：闊葉林用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonBroadleafForestCountyLq"
+          },
+          {
+            "label": "鄉鎮：闊葉林用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonBroadleafForestTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonBroadleafForestCountyAreaSharePct"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonBroadleafForestCountyLq": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsBroadleafForestAreaTownship"
+          },
+          {
+            "label": "鄉鎮：闊葉林用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonBroadleafForestNationalSharePct"
+          },
+          {
+            "label": "縣市：闊葉林用地面積－縣市面積",
+            "value": "statsComparisonBroadleafForestCountyTotalHectare"
+          },
+          {
+            "label": "縣市：闊葉林用地面積－縣市占全臺同類比",
+            "value": "statsComparisonBroadleafForestCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：闊葉林用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonBroadleafForestTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：闊葉林用地面積－占縣市行政面積",
+            "value": "statsComparisonBroadleafForestCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：闊葉林用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonBroadleafForestCountyLq"
+          },
+          {
+            "label": "鄉鎮：闊葉林用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonBroadleafForestTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonBroadleafForestCountyLq"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonBroadleafForestCountyNationalSharePct": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsBroadleafForestAreaTownship"
+          },
+          {
+            "label": "鄉鎮：闊葉林用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonBroadleafForestNationalSharePct"
+          },
+          {
+            "label": "縣市：闊葉林用地面積－縣市面積",
+            "value": "statsComparisonBroadleafForestCountyTotalHectare"
+          },
+          {
+            "label": "縣市：闊葉林用地面積－縣市占全臺同類比",
+            "value": "statsComparisonBroadleafForestCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：闊葉林用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonBroadleafForestTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：闊葉林用地面積－占縣市行政面積",
+            "value": "statsComparisonBroadleafForestCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：闊葉林用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonBroadleafForestCountyLq"
+          },
+          {
+            "label": "鄉鎮：闊葉林用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonBroadleafForestTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonBroadleafForestCountyNationalSharePct"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonBroadleafForestCountyTotalHectare": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsBroadleafForestAreaTownship"
+          },
+          {
+            "label": "鄉鎮：闊葉林用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonBroadleafForestNationalSharePct"
+          },
+          {
+            "label": "縣市：闊葉林用地面積－縣市面積",
+            "value": "statsComparisonBroadleafForestCountyTotalHectare"
+          },
+          {
+            "label": "縣市：闊葉林用地面積－縣市占全臺同類比",
+            "value": "statsComparisonBroadleafForestCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：闊葉林用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonBroadleafForestTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：闊葉林用地面積－占縣市行政面積",
+            "value": "statsComparisonBroadleafForestCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：闊葉林用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonBroadleafForestCountyLq"
+          },
+          {
+            "label": "鄉鎮：闊葉林用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonBroadleafForestTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonBroadleafForestCountyTotalHectare"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonBroadleafForestNationalSharePct": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsBroadleafForestAreaTownship"
+          },
+          {
+            "label": "鄉鎮：闊葉林用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonBroadleafForestNationalSharePct"
+          },
+          {
+            "label": "縣市：闊葉林用地面積－縣市面積",
+            "value": "statsComparisonBroadleafForestCountyTotalHectare"
+          },
+          {
+            "label": "縣市：闊葉林用地面積－縣市占全臺同類比",
+            "value": "statsComparisonBroadleafForestCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：闊葉林用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonBroadleafForestTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：闊葉林用地面積－占縣市行政面積",
+            "value": "statsComparisonBroadleafForestCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：闊葉林用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonBroadleafForestCountyLq"
+          },
+          {
+            "label": "鄉鎮：闊葉林用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonBroadleafForestTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonBroadleafForestNationalSharePct"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonBroadleafForestTownshipAdminAreaSharePct": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsBroadleafForestAreaTownship"
+          },
+          {
+            "label": "鄉鎮：闊葉林用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonBroadleafForestNationalSharePct"
+          },
+          {
+            "label": "縣市：闊葉林用地面積－縣市面積",
+            "value": "statsComparisonBroadleafForestCountyTotalHectare"
+          },
+          {
+            "label": "縣市：闊葉林用地面積－縣市占全臺同類比",
+            "value": "statsComparisonBroadleafForestCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：闊葉林用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonBroadleafForestTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：闊葉林用地面積－占縣市行政面積",
+            "value": "statsComparisonBroadleafForestCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：闊葉林用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonBroadleafForestCountyLq"
+          },
+          {
+            "label": "鄉鎮：闊葉林用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonBroadleafForestTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonBroadleafForestTownshipAdminAreaSharePct"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonBroadleafForestTownshipOfCountySharePct": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsBroadleafForestAreaTownship"
+          },
+          {
+            "label": "鄉鎮：闊葉林用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonBroadleafForestNationalSharePct"
+          },
+          {
+            "label": "縣市：闊葉林用地面積－縣市面積",
+            "value": "statsComparisonBroadleafForestCountyTotalHectare"
+          },
+          {
+            "label": "縣市：闊葉林用地面積－縣市占全臺同類比",
+            "value": "statsComparisonBroadleafForestCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：闊葉林用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonBroadleafForestTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：闊葉林用地面積－占縣市行政面積",
+            "value": "statsComparisonBroadleafForestCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：闊葉林用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonBroadleafForestCountyLq"
+          },
+          {
+            "label": "鄉鎮：闊葉林用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonBroadleafForestTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonBroadleafForestTownshipOfCountySharePct"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonConiferForestCountyAreaSharePct": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsConiferForestAreaTownship"
+          },
+          {
+            "label": "鄉鎮：針葉林用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonConiferForestNationalSharePct"
+          },
+          {
+            "label": "縣市：針葉林用地面積－縣市面積",
+            "value": "statsComparisonConiferForestCountyTotalHectare"
+          },
+          {
+            "label": "縣市：針葉林用地面積－縣市占全臺同類比",
+            "value": "statsComparisonConiferForestCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：針葉林用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonConiferForestTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：針葉林用地面積－占縣市行政面積",
+            "value": "statsComparisonConiferForestCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：針葉林用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonConiferForestCountyLq"
+          },
+          {
+            "label": "鄉鎮：針葉林用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonConiferForestTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonConiferForestCountyAreaSharePct"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonConiferForestCountyLq": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsConiferForestAreaTownship"
+          },
+          {
+            "label": "鄉鎮：針葉林用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonConiferForestNationalSharePct"
+          },
+          {
+            "label": "縣市：針葉林用地面積－縣市面積",
+            "value": "statsComparisonConiferForestCountyTotalHectare"
+          },
+          {
+            "label": "縣市：針葉林用地面積－縣市占全臺同類比",
+            "value": "statsComparisonConiferForestCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：針葉林用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonConiferForestTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：針葉林用地面積－占縣市行政面積",
+            "value": "statsComparisonConiferForestCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：針葉林用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonConiferForestCountyLq"
+          },
+          {
+            "label": "鄉鎮：針葉林用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonConiferForestTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonConiferForestCountyLq"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonConiferForestCountyNationalSharePct": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsConiferForestAreaTownship"
+          },
+          {
+            "label": "鄉鎮：針葉林用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonConiferForestNationalSharePct"
+          },
+          {
+            "label": "縣市：針葉林用地面積－縣市面積",
+            "value": "statsComparisonConiferForestCountyTotalHectare"
+          },
+          {
+            "label": "縣市：針葉林用地面積－縣市占全臺同類比",
+            "value": "statsComparisonConiferForestCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：針葉林用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonConiferForestTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：針葉林用地面積－占縣市行政面積",
+            "value": "statsComparisonConiferForestCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：針葉林用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonConiferForestCountyLq"
+          },
+          {
+            "label": "鄉鎮：針葉林用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonConiferForestTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonConiferForestCountyNationalSharePct"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonConiferForestCountyTotalHectare": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsConiferForestAreaTownship"
+          },
+          {
+            "label": "鄉鎮：針葉林用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonConiferForestNationalSharePct"
+          },
+          {
+            "label": "縣市：針葉林用地面積－縣市面積",
+            "value": "statsComparisonConiferForestCountyTotalHectare"
+          },
+          {
+            "label": "縣市：針葉林用地面積－縣市占全臺同類比",
+            "value": "statsComparisonConiferForestCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：針葉林用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonConiferForestTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：針葉林用地面積－占縣市行政面積",
+            "value": "statsComparisonConiferForestCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：針葉林用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonConiferForestCountyLq"
+          },
+          {
+            "label": "鄉鎮：針葉林用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonConiferForestTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonConiferForestCountyTotalHectare"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonConiferForestNationalSharePct": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsConiferForestAreaTownship"
+          },
+          {
+            "label": "鄉鎮：針葉林用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonConiferForestNationalSharePct"
+          },
+          {
+            "label": "縣市：針葉林用地面積－縣市面積",
+            "value": "statsComparisonConiferForestCountyTotalHectare"
+          },
+          {
+            "label": "縣市：針葉林用地面積－縣市占全臺同類比",
+            "value": "statsComparisonConiferForestCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：針葉林用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonConiferForestTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：針葉林用地面積－占縣市行政面積",
+            "value": "statsComparisonConiferForestCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：針葉林用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonConiferForestCountyLq"
+          },
+          {
+            "label": "鄉鎮：針葉林用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonConiferForestTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonConiferForestNationalSharePct"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonConiferForestTownshipAdminAreaSharePct": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsConiferForestAreaTownship"
+          },
+          {
+            "label": "鄉鎮：針葉林用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonConiferForestNationalSharePct"
+          },
+          {
+            "label": "縣市：針葉林用地面積－縣市面積",
+            "value": "statsComparisonConiferForestCountyTotalHectare"
+          },
+          {
+            "label": "縣市：針葉林用地面積－縣市占全臺同類比",
+            "value": "statsComparisonConiferForestCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：針葉林用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonConiferForestTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：針葉林用地面積－占縣市行政面積",
+            "value": "statsComparisonConiferForestCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：針葉林用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonConiferForestCountyLq"
+          },
+          {
+            "label": "鄉鎮：針葉林用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonConiferForestTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonConiferForestTownshipAdminAreaSharePct"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonConiferForestTownshipOfCountySharePct": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsConiferForestAreaTownship"
+          },
+          {
+            "label": "鄉鎮：針葉林用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonConiferForestNationalSharePct"
+          },
+          {
+            "label": "縣市：針葉林用地面積－縣市面積",
+            "value": "statsComparisonConiferForestCountyTotalHectare"
+          },
+          {
+            "label": "縣市：針葉林用地面積－縣市占全臺同類比",
+            "value": "statsComparisonConiferForestCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：針葉林用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonConiferForestTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：針葉林用地面積－占縣市行政面積",
+            "value": "statsComparisonConiferForestCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：針葉林用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonConiferForestCountyLq"
+          },
+          {
+            "label": "鄉鎮：針葉林用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonConiferForestTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonConiferForestTownshipOfCountySharePct"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonDryFieldCountyAreaSharePct": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsDryFieldAreaTownship"
+          },
+          {
+            "label": "鄉鎮：旱田用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonDryFieldNationalSharePct"
+          },
+          {
+            "label": "縣市：旱田用地面積－縣市面積",
+            "value": "statsComparisonDryFieldCountyTotalHectare"
+          },
+          {
+            "label": "縣市：旱田用地面積－縣市占全臺同類比",
+            "value": "statsComparisonDryFieldCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：旱田用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonDryFieldTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：旱田用地面積－占縣市行政面積",
+            "value": "statsComparisonDryFieldCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：旱田用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonDryFieldCountyLq"
+          },
+          {
+            "label": "鄉鎮：旱田用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonDryFieldTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonDryFieldCountyAreaSharePct"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonDryFieldCountyLq": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsDryFieldAreaTownship"
+          },
+          {
+            "label": "鄉鎮：旱田用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonDryFieldNationalSharePct"
+          },
+          {
+            "label": "縣市：旱田用地面積－縣市面積",
+            "value": "statsComparisonDryFieldCountyTotalHectare"
+          },
+          {
+            "label": "縣市：旱田用地面積－縣市占全臺同類比",
+            "value": "statsComparisonDryFieldCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：旱田用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonDryFieldTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：旱田用地面積－占縣市行政面積",
+            "value": "statsComparisonDryFieldCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：旱田用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonDryFieldCountyLq"
+          },
+          {
+            "label": "鄉鎮：旱田用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonDryFieldTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonDryFieldCountyLq"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonDryFieldCountyNationalSharePct": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsDryFieldAreaTownship"
+          },
+          {
+            "label": "鄉鎮：旱田用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonDryFieldNationalSharePct"
+          },
+          {
+            "label": "縣市：旱田用地面積－縣市面積",
+            "value": "statsComparisonDryFieldCountyTotalHectare"
+          },
+          {
+            "label": "縣市：旱田用地面積－縣市占全臺同類比",
+            "value": "statsComparisonDryFieldCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：旱田用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonDryFieldTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：旱田用地面積－占縣市行政面積",
+            "value": "statsComparisonDryFieldCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：旱田用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonDryFieldCountyLq"
+          },
+          {
+            "label": "鄉鎮：旱田用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonDryFieldTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonDryFieldCountyNationalSharePct"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonDryFieldCountyTotalHectare": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsDryFieldAreaTownship"
+          },
+          {
+            "label": "鄉鎮：旱田用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonDryFieldNationalSharePct"
+          },
+          {
+            "label": "縣市：旱田用地面積－縣市面積",
+            "value": "statsComparisonDryFieldCountyTotalHectare"
+          },
+          {
+            "label": "縣市：旱田用地面積－縣市占全臺同類比",
+            "value": "statsComparisonDryFieldCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：旱田用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonDryFieldTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：旱田用地面積－占縣市行政面積",
+            "value": "statsComparisonDryFieldCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：旱田用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonDryFieldCountyLq"
+          },
+          {
+            "label": "鄉鎮：旱田用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonDryFieldTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonDryFieldCountyTotalHectare"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonDryFieldNationalSharePct": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsDryFieldAreaTownship"
+          },
+          {
+            "label": "鄉鎮：旱田用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonDryFieldNationalSharePct"
+          },
+          {
+            "label": "縣市：旱田用地面積－縣市面積",
+            "value": "statsComparisonDryFieldCountyTotalHectare"
+          },
+          {
+            "label": "縣市：旱田用地面積－縣市占全臺同類比",
+            "value": "statsComparisonDryFieldCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：旱田用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonDryFieldTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：旱田用地面積－占縣市行政面積",
+            "value": "statsComparisonDryFieldCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：旱田用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonDryFieldCountyLq"
+          },
+          {
+            "label": "鄉鎮：旱田用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonDryFieldTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonDryFieldNationalSharePct"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonDryFieldTownshipAdminAreaSharePct": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsDryFieldAreaTownship"
+          },
+          {
+            "label": "鄉鎮：旱田用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonDryFieldNationalSharePct"
+          },
+          {
+            "label": "縣市：旱田用地面積－縣市面積",
+            "value": "statsComparisonDryFieldCountyTotalHectare"
+          },
+          {
+            "label": "縣市：旱田用地面積－縣市占全臺同類比",
+            "value": "statsComparisonDryFieldCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：旱田用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonDryFieldTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：旱田用地面積－占縣市行政面積",
+            "value": "statsComparisonDryFieldCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：旱田用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonDryFieldCountyLq"
+          },
+          {
+            "label": "鄉鎮：旱田用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonDryFieldTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonDryFieldTownshipAdminAreaSharePct"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonDryFieldTownshipOfCountySharePct": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsDryFieldAreaTownship"
+          },
+          {
+            "label": "鄉鎮：旱田用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonDryFieldNationalSharePct"
+          },
+          {
+            "label": "縣市：旱田用地面積－縣市面積",
+            "value": "statsComparisonDryFieldCountyTotalHectare"
+          },
+          {
+            "label": "縣市：旱田用地面積－縣市占全臺同類比",
+            "value": "statsComparisonDryFieldCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：旱田用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonDryFieldTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：旱田用地面積－占縣市行政面積",
+            "value": "statsComparisonDryFieldCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：旱田用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonDryFieldCountyLq"
+          },
+          {
+            "label": "鄉鎮：旱田用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonDryFieldTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonDryFieldTownshipOfCountySharePct"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonFisheryProductionTonnesNationalSharePctCounty": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "原始數",
+            "value": "statsFisheryProductionCounty"
+          },
+          {
+            "label": "漁業生產量－縣市占全臺比",
+            "value": "statsComparisonFisheryProductionTonnesNationalSharePctCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonFisheryProductionTonnesNationalSharePctCounty"
+      },
+      {
+        "label": "fishery_type",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonFisheryValueThousandNationalSharePctCounty": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "原始數",
+            "value": "statsFisheryProductionValueCounty"
+          },
+          {
+            "label": "漁業生產值－縣市占全臺比",
+            "value": "statsComparisonFisheryValueThousandNationalSharePctCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonFisheryValueThousandNationalSharePctCounty"
+      },
+      {
+        "label": "fishery_type",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonLivestockBuildingCountyAreaSharePct": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsLivestockBuildingAreaTownship"
+          },
+          {
+            "label": "鄉鎮：畜禽舍用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonLivestockBuildingNationalSharePct"
+          },
+          {
+            "label": "縣市：畜禽舍用地面積－縣市面積",
+            "value": "statsComparisonLivestockBuildingCountyTotalHectare"
+          },
+          {
+            "label": "縣市：畜禽舍用地面積－縣市占全臺同類比",
+            "value": "statsComparisonLivestockBuildingCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：畜禽舍用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonLivestockBuildingTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：畜禽舍用地面積－占縣市行政面積",
+            "value": "statsComparisonLivestockBuildingCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：畜禽舍用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonLivestockBuildingCountyLq"
+          },
+          {
+            "label": "鄉鎮：畜禽舍用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonLivestockBuildingTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonLivestockBuildingCountyAreaSharePct"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonLivestockBuildingCountyLq": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsLivestockBuildingAreaTownship"
+          },
+          {
+            "label": "鄉鎮：畜禽舍用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonLivestockBuildingNationalSharePct"
+          },
+          {
+            "label": "縣市：畜禽舍用地面積－縣市面積",
+            "value": "statsComparisonLivestockBuildingCountyTotalHectare"
+          },
+          {
+            "label": "縣市：畜禽舍用地面積－縣市占全臺同類比",
+            "value": "statsComparisonLivestockBuildingCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：畜禽舍用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonLivestockBuildingTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：畜禽舍用地面積－占縣市行政面積",
+            "value": "statsComparisonLivestockBuildingCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：畜禽舍用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonLivestockBuildingCountyLq"
+          },
+          {
+            "label": "鄉鎮：畜禽舍用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonLivestockBuildingTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonLivestockBuildingCountyLq"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonLivestockBuildingCountyNationalSharePct": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsLivestockBuildingAreaTownship"
+          },
+          {
+            "label": "鄉鎮：畜禽舍用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonLivestockBuildingNationalSharePct"
+          },
+          {
+            "label": "縣市：畜禽舍用地面積－縣市面積",
+            "value": "statsComparisonLivestockBuildingCountyTotalHectare"
+          },
+          {
+            "label": "縣市：畜禽舍用地面積－縣市占全臺同類比",
+            "value": "statsComparisonLivestockBuildingCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：畜禽舍用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonLivestockBuildingTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：畜禽舍用地面積－占縣市行政面積",
+            "value": "statsComparisonLivestockBuildingCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：畜禽舍用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonLivestockBuildingCountyLq"
+          },
+          {
+            "label": "鄉鎮：畜禽舍用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonLivestockBuildingTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonLivestockBuildingCountyNationalSharePct"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonLivestockBuildingCountyTotalHectare": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsLivestockBuildingAreaTownship"
+          },
+          {
+            "label": "鄉鎮：畜禽舍用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonLivestockBuildingNationalSharePct"
+          },
+          {
+            "label": "縣市：畜禽舍用地面積－縣市面積",
+            "value": "statsComparisonLivestockBuildingCountyTotalHectare"
+          },
+          {
+            "label": "縣市：畜禽舍用地面積－縣市占全臺同類比",
+            "value": "statsComparisonLivestockBuildingCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：畜禽舍用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonLivestockBuildingTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：畜禽舍用地面積－占縣市行政面積",
+            "value": "statsComparisonLivestockBuildingCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：畜禽舍用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonLivestockBuildingCountyLq"
+          },
+          {
+            "label": "鄉鎮：畜禽舍用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonLivestockBuildingTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonLivestockBuildingCountyTotalHectare"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonLivestockBuildingNationalSharePct": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsLivestockBuildingAreaTownship"
+          },
+          {
+            "label": "鄉鎮：畜禽舍用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonLivestockBuildingNationalSharePct"
+          },
+          {
+            "label": "縣市：畜禽舍用地面積－縣市面積",
+            "value": "statsComparisonLivestockBuildingCountyTotalHectare"
+          },
+          {
+            "label": "縣市：畜禽舍用地面積－縣市占全臺同類比",
+            "value": "statsComparisonLivestockBuildingCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：畜禽舍用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonLivestockBuildingTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：畜禽舍用地面積－占縣市行政面積",
+            "value": "statsComparisonLivestockBuildingCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：畜禽舍用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonLivestockBuildingCountyLq"
+          },
+          {
+            "label": "鄉鎮：畜禽舍用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonLivestockBuildingTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonLivestockBuildingNationalSharePct"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonLivestockBuildingTownshipAdminAreaSharePct": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsLivestockBuildingAreaTownship"
+          },
+          {
+            "label": "鄉鎮：畜禽舍用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonLivestockBuildingNationalSharePct"
+          },
+          {
+            "label": "縣市：畜禽舍用地面積－縣市面積",
+            "value": "statsComparisonLivestockBuildingCountyTotalHectare"
+          },
+          {
+            "label": "縣市：畜禽舍用地面積－縣市占全臺同類比",
+            "value": "statsComparisonLivestockBuildingCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：畜禽舍用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonLivestockBuildingTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：畜禽舍用地面積－占縣市行政面積",
+            "value": "statsComparisonLivestockBuildingCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：畜禽舍用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonLivestockBuildingCountyLq"
+          },
+          {
+            "label": "鄉鎮：畜禽舍用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonLivestockBuildingTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonLivestockBuildingTownshipAdminAreaSharePct"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonLivestockBuildingTownshipOfCountySharePct": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsLivestockBuildingAreaTownship"
+          },
+          {
+            "label": "鄉鎮：畜禽舍用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonLivestockBuildingNationalSharePct"
+          },
+          {
+            "label": "縣市：畜禽舍用地面積－縣市面積",
+            "value": "statsComparisonLivestockBuildingCountyTotalHectare"
+          },
+          {
+            "label": "縣市：畜禽舍用地面積－縣市占全臺同類比",
+            "value": "statsComparisonLivestockBuildingCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：畜禽舍用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonLivestockBuildingTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：畜禽舍用地面積－占縣市行政面積",
+            "value": "statsComparisonLivestockBuildingCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：畜禽舍用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonLivestockBuildingCountyLq"
+          },
+          {
+            "label": "鄉鎮：畜禽舍用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonLivestockBuildingTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonLivestockBuildingTownshipOfCountySharePct"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonLivestockHeadsPerFarmTownship": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "在養數量",
+            "value": "statsLivestockHeadCountTownship"
+          },
+          {
+            "label": "飼養場數",
+            "value": "statsLivestockFarmCountTownship"
+          },
+          {
+            "label": "畜禽每場在養數量",
+            "value": "statsComparisonLivestockHeadsPerFarmTownship"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonLivestockHeadsPerFarmTownship"
+      },
+      {
+        "label": "畜種",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonMixedForestCountyAreaSharePct": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsMixedForestAreaTownship"
+          },
+          {
+            "label": "鄉鎮：混合林用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonMixedForestNationalSharePct"
+          },
+          {
+            "label": "縣市：混合林用地面積－縣市面積",
+            "value": "statsComparisonMixedForestCountyTotalHectare"
+          },
+          {
+            "label": "縣市：混合林用地面積－縣市占全臺同類比",
+            "value": "statsComparisonMixedForestCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：混合林用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonMixedForestTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：混合林用地面積－占縣市行政面積",
+            "value": "statsComparisonMixedForestCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：混合林用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonMixedForestCountyLq"
+          },
+          {
+            "label": "鄉鎮：混合林用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonMixedForestTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonMixedForestCountyAreaSharePct"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonMixedForestCountyLq": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsMixedForestAreaTownship"
+          },
+          {
+            "label": "鄉鎮：混合林用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonMixedForestNationalSharePct"
+          },
+          {
+            "label": "縣市：混合林用地面積－縣市面積",
+            "value": "statsComparisonMixedForestCountyTotalHectare"
+          },
+          {
+            "label": "縣市：混合林用地面積－縣市占全臺同類比",
+            "value": "statsComparisonMixedForestCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：混合林用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonMixedForestTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：混合林用地面積－占縣市行政面積",
+            "value": "statsComparisonMixedForestCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：混合林用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonMixedForestCountyLq"
+          },
+          {
+            "label": "鄉鎮：混合林用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonMixedForestTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonMixedForestCountyLq"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonMixedForestCountyNationalSharePct": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsMixedForestAreaTownship"
+          },
+          {
+            "label": "鄉鎮：混合林用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonMixedForestNationalSharePct"
+          },
+          {
+            "label": "縣市：混合林用地面積－縣市面積",
+            "value": "statsComparisonMixedForestCountyTotalHectare"
+          },
+          {
+            "label": "縣市：混合林用地面積－縣市占全臺同類比",
+            "value": "statsComparisonMixedForestCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：混合林用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonMixedForestTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：混合林用地面積－占縣市行政面積",
+            "value": "statsComparisonMixedForestCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：混合林用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonMixedForestCountyLq"
+          },
+          {
+            "label": "鄉鎮：混合林用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonMixedForestTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonMixedForestCountyNationalSharePct"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonMixedForestCountyTotalHectare": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsMixedForestAreaTownship"
+          },
+          {
+            "label": "鄉鎮：混合林用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonMixedForestNationalSharePct"
+          },
+          {
+            "label": "縣市：混合林用地面積－縣市面積",
+            "value": "statsComparisonMixedForestCountyTotalHectare"
+          },
+          {
+            "label": "縣市：混合林用地面積－縣市占全臺同類比",
+            "value": "statsComparisonMixedForestCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：混合林用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonMixedForestTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：混合林用地面積－占縣市行政面積",
+            "value": "statsComparisonMixedForestCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：混合林用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonMixedForestCountyLq"
+          },
+          {
+            "label": "鄉鎮：混合林用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonMixedForestTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonMixedForestCountyTotalHectare"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonMixedForestNationalSharePct": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsMixedForestAreaTownship"
+          },
+          {
+            "label": "鄉鎮：混合林用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonMixedForestNationalSharePct"
+          },
+          {
+            "label": "縣市：混合林用地面積－縣市面積",
+            "value": "statsComparisonMixedForestCountyTotalHectare"
+          },
+          {
+            "label": "縣市：混合林用地面積－縣市占全臺同類比",
+            "value": "statsComparisonMixedForestCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：混合林用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonMixedForestTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：混合林用地面積－占縣市行政面積",
+            "value": "statsComparisonMixedForestCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：混合林用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonMixedForestCountyLq"
+          },
+          {
+            "label": "鄉鎮：混合林用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonMixedForestTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonMixedForestNationalSharePct"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonMixedForestTownshipAdminAreaSharePct": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsMixedForestAreaTownship"
+          },
+          {
+            "label": "鄉鎮：混合林用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonMixedForestNationalSharePct"
+          },
+          {
+            "label": "縣市：混合林用地面積－縣市面積",
+            "value": "statsComparisonMixedForestCountyTotalHectare"
+          },
+          {
+            "label": "縣市：混合林用地面積－縣市占全臺同類比",
+            "value": "statsComparisonMixedForestCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：混合林用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonMixedForestTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：混合林用地面積－占縣市行政面積",
+            "value": "statsComparisonMixedForestCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：混合林用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonMixedForestCountyLq"
+          },
+          {
+            "label": "鄉鎮：混合林用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonMixedForestTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonMixedForestTownshipAdminAreaSharePct"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonMixedForestTownshipOfCountySharePct": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsMixedForestAreaTownship"
+          },
+          {
+            "label": "鄉鎮：混合林用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonMixedForestNationalSharePct"
+          },
+          {
+            "label": "縣市：混合林用地面積－縣市面積",
+            "value": "statsComparisonMixedForestCountyTotalHectare"
+          },
+          {
+            "label": "縣市：混合林用地面積－縣市占全臺同類比",
+            "value": "statsComparisonMixedForestCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：混合林用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonMixedForestTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：混合林用地面積－占縣市行政面積",
+            "value": "statsComparisonMixedForestCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：混合林用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonMixedForestCountyLq"
+          },
+          {
+            "label": "鄉鎮：混合林用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonMixedForestTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonMixedForestTownshipOfCountySharePct"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonOrchardCountyAreaSharePct": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsOrchardAreaTownship"
+          },
+          {
+            "label": "鄉鎮：果園用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonOrchardNationalSharePct"
+          },
+          {
+            "label": "縣市：果園用地面積－縣市面積",
+            "value": "statsComparisonOrchardCountyTotalHectare"
+          },
+          {
+            "label": "縣市：果園用地面積－縣市占全臺同類比",
+            "value": "statsComparisonOrchardCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：果園用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonOrchardTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：果園用地面積－占縣市行政面積",
+            "value": "statsComparisonOrchardCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：果園用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonOrchardCountyLq"
+          },
+          {
+            "label": "鄉鎮：果園用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonOrchardTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonOrchardCountyAreaSharePct"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonOrchardCountyLq": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsOrchardAreaTownship"
+          },
+          {
+            "label": "鄉鎮：果園用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonOrchardNationalSharePct"
+          },
+          {
+            "label": "縣市：果園用地面積－縣市面積",
+            "value": "statsComparisonOrchardCountyTotalHectare"
+          },
+          {
+            "label": "縣市：果園用地面積－縣市占全臺同類比",
+            "value": "statsComparisonOrchardCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：果園用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonOrchardTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：果園用地面積－占縣市行政面積",
+            "value": "statsComparisonOrchardCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：果園用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonOrchardCountyLq"
+          },
+          {
+            "label": "鄉鎮：果園用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonOrchardTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonOrchardCountyLq"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonOrchardCountyNationalSharePct": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsOrchardAreaTownship"
+          },
+          {
+            "label": "鄉鎮：果園用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonOrchardNationalSharePct"
+          },
+          {
+            "label": "縣市：果園用地面積－縣市面積",
+            "value": "statsComparisonOrchardCountyTotalHectare"
+          },
+          {
+            "label": "縣市：果園用地面積－縣市占全臺同類比",
+            "value": "statsComparisonOrchardCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：果園用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonOrchardTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：果園用地面積－占縣市行政面積",
+            "value": "statsComparisonOrchardCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：果園用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonOrchardCountyLq"
+          },
+          {
+            "label": "鄉鎮：果園用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonOrchardTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonOrchardCountyNationalSharePct"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonOrchardCountyTotalHectare": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsOrchardAreaTownship"
+          },
+          {
+            "label": "鄉鎮：果園用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonOrchardNationalSharePct"
+          },
+          {
+            "label": "縣市：果園用地面積－縣市面積",
+            "value": "statsComparisonOrchardCountyTotalHectare"
+          },
+          {
+            "label": "縣市：果園用地面積－縣市占全臺同類比",
+            "value": "statsComparisonOrchardCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：果園用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonOrchardTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：果園用地面積－占縣市行政面積",
+            "value": "statsComparisonOrchardCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：果園用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonOrchardCountyLq"
+          },
+          {
+            "label": "鄉鎮：果園用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonOrchardTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonOrchardCountyTotalHectare"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonOrchardNationalSharePct": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsOrchardAreaTownship"
+          },
+          {
+            "label": "鄉鎮：果園用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonOrchardNationalSharePct"
+          },
+          {
+            "label": "縣市：果園用地面積－縣市面積",
+            "value": "statsComparisonOrchardCountyTotalHectare"
+          },
+          {
+            "label": "縣市：果園用地面積－縣市占全臺同類比",
+            "value": "statsComparisonOrchardCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：果園用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonOrchardTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：果園用地面積－占縣市行政面積",
+            "value": "statsComparisonOrchardCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：果園用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonOrchardCountyLq"
+          },
+          {
+            "label": "鄉鎮：果園用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonOrchardTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonOrchardNationalSharePct"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonOrchardTownshipAdminAreaSharePct": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsOrchardAreaTownship"
+          },
+          {
+            "label": "鄉鎮：果園用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonOrchardNationalSharePct"
+          },
+          {
+            "label": "縣市：果園用地面積－縣市面積",
+            "value": "statsComparisonOrchardCountyTotalHectare"
+          },
+          {
+            "label": "縣市：果園用地面積－縣市占全臺同類比",
+            "value": "statsComparisonOrchardCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：果園用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonOrchardTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：果園用地面積－占縣市行政面積",
+            "value": "statsComparisonOrchardCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：果園用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonOrchardCountyLq"
+          },
+          {
+            "label": "鄉鎮：果園用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonOrchardTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonOrchardTownshipAdminAreaSharePct"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonOrchardTownshipOfCountySharePct": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsOrchardAreaTownship"
+          },
+          {
+            "label": "鄉鎮：果園用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonOrchardNationalSharePct"
+          },
+          {
+            "label": "縣市：果園用地面積－縣市面積",
+            "value": "statsComparisonOrchardCountyTotalHectare"
+          },
+          {
+            "label": "縣市：果園用地面積－縣市占全臺同類比",
+            "value": "statsComparisonOrchardCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：果園用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonOrchardTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：果園用地面積－占縣市行政面積",
+            "value": "statsComparisonOrchardCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：果園用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonOrchardCountyLq"
+          },
+          {
+            "label": "鄉鎮：果園用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonOrchardTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonOrchardTownshipOfCountySharePct"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonPaddyLandCountyAreaSharePct": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsPaddyLandAreaTownship"
+          },
+          {
+            "label": "鄉鎮：水田用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonPaddyLandNationalSharePct"
+          },
+          {
+            "label": "縣市：水田用地面積－縣市面積",
+            "value": "statsComparisonPaddyLandCountyTotalHectare"
+          },
+          {
+            "label": "縣市：水田用地面積－縣市占全臺同類比",
+            "value": "statsComparisonPaddyLandCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：水田用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonPaddyLandTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：水田用地面積－占縣市行政面積",
+            "value": "statsComparisonPaddyLandCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：水田用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonPaddyLandCountyLq"
+          },
+          {
+            "label": "鄉鎮：水田用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonPaddyLandTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonPaddyLandCountyAreaSharePct"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonPaddyLandCountyLq": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsPaddyLandAreaTownship"
+          },
+          {
+            "label": "鄉鎮：水田用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonPaddyLandNationalSharePct"
+          },
+          {
+            "label": "縣市：水田用地面積－縣市面積",
+            "value": "statsComparisonPaddyLandCountyTotalHectare"
+          },
+          {
+            "label": "縣市：水田用地面積－縣市占全臺同類比",
+            "value": "statsComparisonPaddyLandCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：水田用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonPaddyLandTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：水田用地面積－占縣市行政面積",
+            "value": "statsComparisonPaddyLandCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：水田用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonPaddyLandCountyLq"
+          },
+          {
+            "label": "鄉鎮：水田用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonPaddyLandTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonPaddyLandCountyLq"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonPaddyLandCountyNationalSharePct": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsPaddyLandAreaTownship"
+          },
+          {
+            "label": "鄉鎮：水田用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonPaddyLandNationalSharePct"
+          },
+          {
+            "label": "縣市：水田用地面積－縣市面積",
+            "value": "statsComparisonPaddyLandCountyTotalHectare"
+          },
+          {
+            "label": "縣市：水田用地面積－縣市占全臺同類比",
+            "value": "statsComparisonPaddyLandCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：水田用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonPaddyLandTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：水田用地面積－占縣市行政面積",
+            "value": "statsComparisonPaddyLandCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：水田用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonPaddyLandCountyLq"
+          },
+          {
+            "label": "鄉鎮：水田用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonPaddyLandTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonPaddyLandCountyNationalSharePct"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonPaddyLandCountyTotalHectare": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsPaddyLandAreaTownship"
+          },
+          {
+            "label": "鄉鎮：水田用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonPaddyLandNationalSharePct"
+          },
+          {
+            "label": "縣市：水田用地面積－縣市面積",
+            "value": "statsComparisonPaddyLandCountyTotalHectare"
+          },
+          {
+            "label": "縣市：水田用地面積－縣市占全臺同類比",
+            "value": "statsComparisonPaddyLandCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：水田用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonPaddyLandTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：水田用地面積－占縣市行政面積",
+            "value": "statsComparisonPaddyLandCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：水田用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonPaddyLandCountyLq"
+          },
+          {
+            "label": "鄉鎮：水田用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonPaddyLandTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonPaddyLandCountyTotalHectare"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonPaddyLandNationalSharePct": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsPaddyLandAreaTownship"
+          },
+          {
+            "label": "鄉鎮：水田用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonPaddyLandNationalSharePct"
+          },
+          {
+            "label": "縣市：水田用地面積－縣市面積",
+            "value": "statsComparisonPaddyLandCountyTotalHectare"
+          },
+          {
+            "label": "縣市：水田用地面積－縣市占全臺同類比",
+            "value": "statsComparisonPaddyLandCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：水田用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonPaddyLandTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：水田用地面積－占縣市行政面積",
+            "value": "statsComparisonPaddyLandCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：水田用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonPaddyLandCountyLq"
+          },
+          {
+            "label": "鄉鎮：水田用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonPaddyLandTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonPaddyLandNationalSharePct"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonPaddyLandTownshipAdminAreaSharePct": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsPaddyLandAreaTownship"
+          },
+          {
+            "label": "鄉鎮：水田用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonPaddyLandNationalSharePct"
+          },
+          {
+            "label": "縣市：水田用地面積－縣市面積",
+            "value": "statsComparisonPaddyLandCountyTotalHectare"
+          },
+          {
+            "label": "縣市：水田用地面積－縣市占全臺同類比",
+            "value": "statsComparisonPaddyLandCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：水田用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonPaddyLandTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：水田用地面積－占縣市行政面積",
+            "value": "statsComparisonPaddyLandCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：水田用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonPaddyLandCountyLq"
+          },
+          {
+            "label": "鄉鎮：水田用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonPaddyLandTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonPaddyLandTownshipAdminAreaSharePct"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonPaddyLandTownshipOfCountySharePct": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsPaddyLandAreaTownship"
+          },
+          {
+            "label": "鄉鎮：水田用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonPaddyLandNationalSharePct"
+          },
+          {
+            "label": "縣市：水田用地面積－縣市面積",
+            "value": "statsComparisonPaddyLandCountyTotalHectare"
+          },
+          {
+            "label": "縣市：水田用地面積－縣市占全臺同類比",
+            "value": "statsComparisonPaddyLandCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：水田用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonPaddyLandTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：水田用地面積－占縣市行政面積",
+            "value": "statsComparisonPaddyLandCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：水田用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonPaddyLandCountyLq"
+          },
+          {
+            "label": "鄉鎮：水田用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonPaddyLandTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonPaddyLandTownshipOfCountySharePct"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonPastureCountyAreaSharePct": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsPastureAreaTownship"
+          },
+          {
+            "label": "鄉鎮：牧場用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonPastureNationalSharePct"
+          },
+          {
+            "label": "縣市：牧場用地面積－縣市面積",
+            "value": "statsComparisonPastureCountyTotalHectare"
+          },
+          {
+            "label": "縣市：牧場用地面積－縣市占全臺同類比",
+            "value": "statsComparisonPastureCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：牧場用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonPastureTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：牧場用地面積－占縣市行政面積",
+            "value": "statsComparisonPastureCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：牧場用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonPastureCountyLq"
+          },
+          {
+            "label": "鄉鎮：牧場用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonPastureTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonPastureCountyAreaSharePct"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonPastureCountyLq": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsPastureAreaTownship"
+          },
+          {
+            "label": "鄉鎮：牧場用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonPastureNationalSharePct"
+          },
+          {
+            "label": "縣市：牧場用地面積－縣市面積",
+            "value": "statsComparisonPastureCountyTotalHectare"
+          },
+          {
+            "label": "縣市：牧場用地面積－縣市占全臺同類比",
+            "value": "statsComparisonPastureCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：牧場用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonPastureTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：牧場用地面積－占縣市行政面積",
+            "value": "statsComparisonPastureCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：牧場用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonPastureCountyLq"
+          },
+          {
+            "label": "鄉鎮：牧場用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonPastureTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonPastureCountyLq"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonPastureCountyNationalSharePct": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsPastureAreaTownship"
+          },
+          {
+            "label": "鄉鎮：牧場用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonPastureNationalSharePct"
+          },
+          {
+            "label": "縣市：牧場用地面積－縣市面積",
+            "value": "statsComparisonPastureCountyTotalHectare"
+          },
+          {
+            "label": "縣市：牧場用地面積－縣市占全臺同類比",
+            "value": "statsComparisonPastureCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：牧場用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonPastureTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：牧場用地面積－占縣市行政面積",
+            "value": "statsComparisonPastureCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：牧場用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonPastureCountyLq"
+          },
+          {
+            "label": "鄉鎮：牧場用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonPastureTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonPastureCountyNationalSharePct"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonPastureCountyTotalHectare": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsPastureAreaTownship"
+          },
+          {
+            "label": "鄉鎮：牧場用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonPastureNationalSharePct"
+          },
+          {
+            "label": "縣市：牧場用地面積－縣市面積",
+            "value": "statsComparisonPastureCountyTotalHectare"
+          },
+          {
+            "label": "縣市：牧場用地面積－縣市占全臺同類比",
+            "value": "statsComparisonPastureCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：牧場用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonPastureTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：牧場用地面積－占縣市行政面積",
+            "value": "statsComparisonPastureCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：牧場用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonPastureCountyLq"
+          },
+          {
+            "label": "鄉鎮：牧場用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonPastureTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonPastureCountyTotalHectare"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonPastureNationalSharePct": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsPastureAreaTownship"
+          },
+          {
+            "label": "鄉鎮：牧場用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonPastureNationalSharePct"
+          },
+          {
+            "label": "縣市：牧場用地面積－縣市面積",
+            "value": "statsComparisonPastureCountyTotalHectare"
+          },
+          {
+            "label": "縣市：牧場用地面積－縣市占全臺同類比",
+            "value": "statsComparisonPastureCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：牧場用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonPastureTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：牧場用地面積－占縣市行政面積",
+            "value": "statsComparisonPastureCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：牧場用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonPastureCountyLq"
+          },
+          {
+            "label": "鄉鎮：牧場用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonPastureTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonPastureNationalSharePct"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonPastureTownshipAdminAreaSharePct": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsPastureAreaTownship"
+          },
+          {
+            "label": "鄉鎮：牧場用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonPastureNationalSharePct"
+          },
+          {
+            "label": "縣市：牧場用地面積－縣市面積",
+            "value": "statsComparisonPastureCountyTotalHectare"
+          },
+          {
+            "label": "縣市：牧場用地面積－縣市占全臺同類比",
+            "value": "statsComparisonPastureCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：牧場用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonPastureTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：牧場用地面積－占縣市行政面積",
+            "value": "statsComparisonPastureCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：牧場用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonPastureCountyLq"
+          },
+          {
+            "label": "鄉鎮：牧場用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonPastureTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonPastureTownshipAdminAreaSharePct"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonPastureTownshipOfCountySharePct": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsPastureAreaTownship"
+          },
+          {
+            "label": "鄉鎮：牧場用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonPastureNationalSharePct"
+          },
+          {
+            "label": "縣市：牧場用地面積－縣市面積",
+            "value": "statsComparisonPastureCountyTotalHectare"
+          },
+          {
+            "label": "縣市：牧場用地面積－縣市占全臺同類比",
+            "value": "statsComparisonPastureCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：牧場用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonPastureTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：牧場用地面積－占縣市行政面積",
+            "value": "statsComparisonPastureCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：牧場用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonPastureCountyLq"
+          },
+          {
+            "label": "鄉鎮：牧場用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonPastureTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonPastureTownshipOfCountySharePct"
+      },
+      {
+        "label": "面積單位",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsConiferForestAreaTownship": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsConiferForestAreaTownship"
+          },
+          {
+            "label": "鄉鎮：針葉林用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonConiferForestNationalSharePct"
+          },
+          {
+            "label": "縣市：針葉林用地面積－縣市面積",
+            "value": "statsComparisonConiferForestCountyTotalHectare"
+          },
+          {
+            "label": "縣市：針葉林用地面積－縣市占全臺同類比",
+            "value": "statsComparisonConiferForestCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：針葉林用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonConiferForestTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：針葉林用地面積－占縣市行政面積",
+            "value": "statsComparisonConiferForestCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：針葉林用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonConiferForestCountyLq"
+          },
+          {
+            "label": "鄉鎮：針葉林用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonConiferForestTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsConiferForestAreaTownship"
+      },
+      {
+        "label": "調查年度",
+        "options": [],
+        "status": "loading",
+        "statusText": "載入中…",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCropHarvestedAreaTownship": [
+      {
+        "label": "作物",
+        "options": [],
+        "status": "loading",
+        "statusText": "載入中…",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCropPlantedAreaTownship": [
+      {
+        "label": "作物",
+        "options": [],
+        "status": "loading",
+        "statusText": "載入中…",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCropProductionTownship": [
+      {
+        "label": "作物",
+        "options": [],
+        "status": "loading",
+        "statusText": "載入中…",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCropYieldTownship": [
+      {
+        "label": "作物",
+        "options": [],
+        "status": "loading",
+        "statusText": "載入中…",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDryFieldAreaTownship": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsDryFieldAreaTownship"
+          },
+          {
+            "label": "鄉鎮：旱田用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonDryFieldNationalSharePct"
+          },
+          {
+            "label": "縣市：旱田用地面積－縣市面積",
+            "value": "statsComparisonDryFieldCountyTotalHectare"
+          },
+          {
+            "label": "縣市：旱田用地面積－縣市占全臺同類比",
+            "value": "statsComparisonDryFieldCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：旱田用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonDryFieldTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：旱田用地面積－占縣市行政面積",
+            "value": "statsComparisonDryFieldCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：旱田用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonDryFieldCountyLq"
+          },
+          {
+            "label": "鄉鎮：旱田用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonDryFieldTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDryFieldAreaTownship"
+      },
+      {
+        "label": "調查年度",
+        "options": [],
+        "status": "loading",
+        "statusText": "載入中…",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsFisheryProductionCounty": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "原始數",
+            "value": "statsFisheryProductionCounty"
+          },
+          {
+            "label": "漁業生產量－縣市占全臺比",
+            "value": "statsComparisonFisheryProductionTonnesNationalSharePctCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsFisheryProductionCounty"
+      },
+      {
+        "label": "年度",
+        "options": [],
+        "status": "loading",
+        "statusText": "載入中…",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsFisheryProductionValueCounty": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "原始數",
+            "value": "statsFisheryProductionValueCounty"
+          },
+          {
+            "label": "漁業生產值－縣市占全臺比",
+            "value": "statsComparisonFisheryValueThousandNationalSharePctCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsFisheryProductionValueCounty"
+      },
+      {
+        "label": "年度",
+        "options": [],
+        "status": "loading",
+        "statusText": "載入中…",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsLivestockBuildingAreaTownship": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsLivestockBuildingAreaTownship"
+          },
+          {
+            "label": "鄉鎮：畜禽舍用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonLivestockBuildingNationalSharePct"
+          },
+          {
+            "label": "縣市：畜禽舍用地面積－縣市面積",
+            "value": "statsComparisonLivestockBuildingCountyTotalHectare"
+          },
+          {
+            "label": "縣市：畜禽舍用地面積－縣市占全臺同類比",
+            "value": "statsComparisonLivestockBuildingCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：畜禽舍用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonLivestockBuildingTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：畜禽舍用地面積－占縣市行政面積",
+            "value": "statsComparisonLivestockBuildingCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：畜禽舍用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonLivestockBuildingCountyLq"
+          },
+          {
+            "label": "鄉鎮：畜禽舍用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonLivestockBuildingTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsLivestockBuildingAreaTownship"
+      },
+      {
+        "label": "調查年度",
+        "options": [],
+        "status": "loading",
+        "statusText": "載入中…",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsLivestockFarmCountTownship": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "在養數量",
+            "value": "statsLivestockHeadCountTownship"
+          },
+          {
+            "label": "飼養場數",
+            "value": "statsLivestockFarmCountTownship"
+          },
+          {
+            "label": "畜禽每場在養數量",
+            "value": "statsComparisonLivestockHeadsPerFarmTownship"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsLivestockFarmCountTownship"
+      },
+      {
+        "label": "畜種",
+        "options": [],
+        "status": "loading",
+        "statusText": "載入中…",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsLivestockHeadCountTownship": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "在養數量",
+            "value": "statsLivestockHeadCountTownship"
+          },
+          {
+            "label": "飼養場數",
+            "value": "statsLivestockFarmCountTownship"
+          },
+          {
+            "label": "畜禽每場在養數量",
+            "value": "statsComparisonLivestockHeadsPerFarmTownship"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsLivestockHeadCountTownship"
+      },
+      {
+        "label": "畜種",
+        "options": [],
+        "status": "loading",
+        "statusText": "載入中…",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsMixedForestAreaTownship": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsMixedForestAreaTownship"
+          },
+          {
+            "label": "鄉鎮：混合林用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonMixedForestNationalSharePct"
+          },
+          {
+            "label": "縣市：混合林用地面積－縣市面積",
+            "value": "statsComparisonMixedForestCountyTotalHectare"
+          },
+          {
+            "label": "縣市：混合林用地面積－縣市占全臺同類比",
+            "value": "statsComparisonMixedForestCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：混合林用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonMixedForestTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：混合林用地面積－占縣市行政面積",
+            "value": "statsComparisonMixedForestCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：混合林用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonMixedForestCountyLq"
+          },
+          {
+            "label": "鄉鎮：混合林用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonMixedForestTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsMixedForestAreaTownship"
+      },
+      {
+        "label": "調查年度",
+        "options": [],
+        "status": "loading",
+        "statusText": "載入中…",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsOrchardAreaTownship": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsOrchardAreaTownship"
+          },
+          {
+            "label": "鄉鎮：果園用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonOrchardNationalSharePct"
+          },
+          {
+            "label": "縣市：果園用地面積－縣市面積",
+            "value": "statsComparisonOrchardCountyTotalHectare"
+          },
+          {
+            "label": "縣市：果園用地面積－縣市占全臺同類比",
+            "value": "statsComparisonOrchardCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：果園用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonOrchardTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：果園用地面積－占縣市行政面積",
+            "value": "statsComparisonOrchardCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：果園用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonOrchardCountyLq"
+          },
+          {
+            "label": "鄉鎮：果園用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonOrchardTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsOrchardAreaTownship"
+      },
+      {
+        "label": "調查年度",
+        "options": [],
+        "status": "loading",
+        "statusText": "載入中…",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsPaddyLandAreaTownship": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsPaddyLandAreaTownship"
+          },
+          {
+            "label": "鄉鎮：水田用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonPaddyLandNationalSharePct"
+          },
+          {
+            "label": "縣市：水田用地面積－縣市面積",
+            "value": "statsComparisonPaddyLandCountyTotalHectare"
+          },
+          {
+            "label": "縣市：水田用地面積－縣市占全臺同類比",
+            "value": "statsComparisonPaddyLandCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：水田用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonPaddyLandTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：水田用地面積－占縣市行政面積",
+            "value": "statsComparisonPaddyLandCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：水田用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonPaddyLandCountyLq"
+          },
+          {
+            "label": "鄉鎮：水田用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonPaddyLandTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsPaddyLandAreaTownship"
+      },
+      {
+        "label": "調查年度",
+        "options": [],
+        "status": "loading",
+        "statusText": "載入中…",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsPastureAreaTownship": [
+      {
+        "label": "地理層級／比較口徑",
+        "options": [
+          {
+            "label": "鄉鎮：原始面積",
+            "value": "statsPastureAreaTownship"
+          },
+          {
+            "label": "鄉鎮：牧場用地面積－鄉鎮占全臺同類比",
+            "value": "statsComparisonPastureNationalSharePct"
+          },
+          {
+            "label": "縣市：牧場用地面積－縣市面積",
+            "value": "statsComparisonPastureCountyTotalHectare"
+          },
+          {
+            "label": "縣市：牧場用地面積－縣市占全臺同類比",
+            "value": "statsComparisonPastureCountyNationalSharePct"
+          },
+          {
+            "label": "鄉鎮：牧場用地面積－鄉鎮占所屬縣市同類比",
+            "value": "statsComparisonPastureTownshipOfCountySharePct"
+          },
+          {
+            "label": "縣市：牧場用地面積－占縣市行政面積",
+            "value": "statsComparisonPastureCountyAreaSharePct"
+          },
+          {
+            "label": "縣市：牧場用地面積－縣市相對集中度 LQ",
+            "value": "statsComparisonPastureCountyLq"
+          },
+          {
+            "label": "鄉鎮：牧場用地面積－占鄉鎮行政面積",
+            "value": "statsComparisonPastureTownshipAdminAreaSharePct"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsPastureAreaTownship"
+      },
+      {
+        "label": "調查年度",
+        "options": [],
+        "status": "loading",
+        "statusText": "載入中…",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsRiceHarvest": [
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsRuralRegenTraining": [
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ]
+  }
+}

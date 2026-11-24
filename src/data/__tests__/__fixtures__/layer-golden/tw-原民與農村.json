@@ -1,0 +1,2566 @@
+{
+  "count": 8,
+  "gisLayers": {
+    "agriRuralCommunityVillages": {
+      "layers": [
+        "agri-rural-community-villages-fill",
+        "agri-rural-community-villages-outline",
+        "agri-rural-community-villages-points-circle-point",
+        "agri-rural-community-villages-points-circle-polygon"
+      ],
+      "type": "agriRuralCommunityVillages"
+    },
+    "agriRuralRegen": {
+      "layers": [
+        "agri-rural-regen-fill",
+        "agri-rural-regen-points-circle"
+      ],
+      "type": "agriRuralRegen"
+    },
+    "hakkaCulturalZones": {
+      "layers": [
+        "hakka-cultural-zones-fill",
+        "hakka-cultural-zones-outline",
+        "hakka-cultural-zones-points-circle-point",
+        "hakka-cultural-zones-points-circle-polygon"
+      ],
+      "type": "hakkaCulturalZones"
+    },
+    "hakkaLivingSchools": {
+      "layers": [
+        "hakka-living-schools-circle",
+        "hakka-living-schools-glow"
+      ],
+      "type": "hakkaLivingSchools"
+    },
+    "indigenousIsolationRisk": {
+      "layers": [
+        "indigenous-isolation-risk-circle",
+        "indigenous-isolation-risk-glow"
+      ],
+      "type": "indigenousIsolationRisk"
+    },
+    "indigenousLanguageDialects": {
+      "layers": [
+        "indigenous-language-dialects-fill",
+        "indigenous-language-dialects-outline",
+        "indigenous-language-dialects-points-circle-point",
+        "indigenous-language-dialects-points-circle-polygon"
+      ],
+      "type": "indigenousLanguageDialects"
+    },
+    "indigenousRegions": {
+      "layers": [
+        "indigenous-regions-fill",
+        "indigenous-regions-outline",
+        "indigenous-regions-points-circle-point",
+        "indigenous-regions-points-circle-polygon"
+      ],
+      "type": "indigenousRegions"
+    },
+    "indigenousTribes": {
+      "layers": [
+        "indigenous-tribes-circle",
+        "indigenous-tribes-glow"
+      ],
+      "type": "indigenousTribes"
+    }
+  },
+  "overlays": {
+    "agriRuralCommunityVillages": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "agriRuralCommunityVillages",
+      "layers": [
+        {
+          "filter": [
+            "has",
+            "community_type"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": 7,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "community_type"
+                ],
+                "平地社區",
+                "#84cc16",
+                "丘陵社區",
+                "#ca8a04",
+                "高山社區",
+                "#15803d",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.45
+            },
+            "light": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "community_type"
+                ],
+                "平地社區",
+                "#84cc16",
+                "丘陵社區",
+                "#ca8a04",
+                "高山社區",
+                "#15803d",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.45
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": [
+            "has",
+            "community_type"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": 7,
+          "paint": {
+            "dark": {
+              "line-color": "#e2e8f0",
+              "line-opacity": 0.75,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "community_type"
+                ],
+                "平地社區",
+                "#84cc16",
+                "丘陵社區",
+                "#ca8a04",
+                "高山社區",
+                "#15803d",
+                "#94a3b8"
+              ],
+              "line-opacity": 0.75,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 12,
+        "minzoom": 7,
+        "sourceLayer": "rural_community_villages"
+      },
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "agri-rural-community-villages",
+      "sourceUrl": "./indigenous_rural/rural_community_villages.pmtiles"
+    },
+    "agriRuralCommunityVillages#2": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "agriRuralCommunityVillages",
+      "layers": [
+        {
+          "filter": [
+            "has",
+            "community_type"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "community_type"
+                ],
+                "平地社區",
+                "#84cc16",
+                "丘陵社區",
+                "#ca8a04",
+                "高山社區",
+                "#389a55",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "community_type"
+                ],
+                "平地社區",
+                "#84cc16",
+                "丘陵社區",
+                "#ca8a04",
+                "高山社區",
+                "#15803d",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle-point",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "has",
+            "community_type"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "maxzoom": 7,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "community_type"
+                ],
+                "平地社區",
+                "#84cc16",
+                "丘陵社區",
+                "#ca8a04",
+                "高山社區",
+                "#389a55",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "community_type"
+                ],
+                "平地社區",
+                "#84cc16",
+                "丘陵社區",
+                "#ca8a04",
+                "高山社區",
+                "#15803d",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle-polygon",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 10,
+        "minzoom": 4,
+        "sourceLayer": "rural_community_villages_points"
+      },
+      "rebuildOnParamChange": [
+        "circle-point",
+        "circle-polygon"
+      ],
+      "sourceId": "agri-rural-community-villages-points",
+      "sourceUrl": "./indigenous_rural/rural_community_villages_points.pmtiles"
+    },
+    "hakkaCulturalZones": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "hakkaCulturalZones",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "hakka_accent"
+                ],
+                "四縣腔",
+                "#0f766e",
+                "海陸腔",
+                "#2563eb",
+                "四縣腔海陸腔",
+                "#7c3aed",
+                "大埔腔",
+                "#ca8a04",
+                "四縣腔大埔腔",
+                "#c2410c",
+                "詔安腔",
+                "#be185d",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.45
+            },
+            "light": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "hakka_accent"
+                ],
+                "四縣腔",
+                "#0f766e",
+                "海陸腔",
+                "#2563eb",
+                "四縣腔海陸腔",
+                "#7c3aed",
+                "大埔腔",
+                "#ca8a04",
+                "四縣腔大埔腔",
+                "#c2410c",
+                "詔安腔",
+                "#be185d",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.45
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#e2e8f0",
+              "line-opacity": 0.75,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "hakka_accent"
+                ],
+                "四縣腔",
+                "#0f766e",
+                "海陸腔",
+                "#2563eb",
+                "四縣腔海陸腔",
+                "#7c3aed",
+                "大埔腔",
+                "#ca8a04",
+                "四縣腔大埔腔",
+                "#c2410c",
+                "詔安腔",
+                "#be185d",
+                "#94a3b8"
+              ],
+              "line-opacity": 0.75,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "hakka-cultural-zones",
+      "sourceUrl": "./indigenous_rural/hakka_cultural_zones.geojson"
+    },
+    "hakkaCulturalZones#2": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "hakkaCulturalZones",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "hakka_accent"
+                ],
+                "四縣腔",
+                "#358f87",
+                "海陸腔",
+                "#3d7bff",
+                "四縣腔海陸腔",
+                "#9363ff",
+                "大埔腔",
+                "#ca8a04",
+                "四縣腔大埔腔",
+                "#dc592c",
+                "詔安腔",
+                "#e6467d",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "hakka_accent"
+                ],
+                "四縣腔",
+                "#0f766e",
+                "海陸腔",
+                "#2563eb",
+                "四縣腔海陸腔",
+                "#7c3aed",
+                "大埔腔",
+                "#ca8a04",
+                "四縣腔大埔腔",
+                "#c2410c",
+                "詔安腔",
+                "#be185d",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle-point",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "circle-point"
+      ],
+      "sourceId": "hakka-cultural-zones-points",
+      "sourceUrl": "./indigenous_rural/hakka_cultural_zones.geojson"
+    },
+    "hakkaLivingSchools": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "hakkaLivingSchools",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "school_kind"
+                ],
+                "國小",
+                "#f59e0b",
+                "國中",
+                "#22c55e",
+                "高中",
+                "#3b82f6",
+                "幼兒園",
+                "#ec4899",
+                "其他",
+                "#94a3b8",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                2,
+                5,
+                7.2,
+                12,
+                14.4
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "school_kind"
+                ],
+                "國小",
+                "#f59e0b",
+                "國中",
+                "#22c55e",
+                "高中",
+                "#3b82f6",
+                "幼兒園",
+                "#ec4899",
+                "其他",
+                "#94a3b8",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                2,
+                5,
+                7.2,
+                12,
+                14.4
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "school_kind"
+                ],
+                "國小",
+                "#f59e0b",
+                "國中",
+                "#22c55e",
+                "高中",
+                "#3b82f6",
+                "幼兒園",
+                "#ec4899",
+                "其他",
+                "#94a3b8",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.4,
+                5,
+                4,
+                12,
+                8
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "school_kind"
+                ],
+                "國小",
+                "#f59e0b",
+                "國中",
+                "#22c55e",
+                "高中",
+                "#3b82f6",
+                "幼兒園",
+                "#ec4899",
+                "其他",
+                "#94a3b8",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.4,
+                5,
+                4,
+                12,
+                8
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 4,
+        "sourceLayer": "hakka_living_schools"
+      },
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
+      "sourceId": "hakka-living-schools",
+      "sourceUrl": "./indigenous_rural/hakka_living_schools_v1.pmtiles"
+    },
+    "indigenousIsolationRisk": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "indigenousIsolationRisk",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "cause_combo"
+                ],
+                "debris+flood+road",
+                "#7f1d1d",
+                "debris+road",
+                "#be123c",
+                "flood+road",
+                "#1d4ed8",
+                "debris+flood",
+                "#7c3aed",
+                "road",
+                "#ea580c",
+                "debris",
+                "#a16207",
+                "flood",
+                "#0284c7",
+                "none",
+                "#94a3b8",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                2,
+                5,
+                7.2,
+                12,
+                14.4
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "cause_combo"
+                ],
+                "debris+flood+road",
+                "#7f1d1d",
+                "debris+road",
+                "#be123c",
+                "flood+road",
+                "#1d4ed8",
+                "debris+flood",
+                "#7c3aed",
+                "road",
+                "#ea580c",
+                "debris",
+                "#a16207",
+                "flood",
+                "#0284c7",
+                "none",
+                "#94a3b8",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                2,
+                5,
+                7.2,
+                12,
+                14.4
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "cause_combo"
+                ],
+                "debris+flood+road",
+                "#df766d",
+                "debris+road",
+                "#e9475e",
+                "flood+road",
+                "#447aff",
+                "debris+flood",
+                "#9363ff",
+                "road",
+                "#ea580c",
+                "debris",
+                "#b47425",
+                "flood",
+                "#1189cc",
+                "none",
+                "#94a3b8",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.4,
+                5,
+                4,
+                12,
+                8
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "cause_combo"
+                ],
+                "debris+flood+road",
+                "#7f1d1d",
+                "debris+road",
+                "#be123c",
+                "flood+road",
+                "#1d4ed8",
+                "debris+flood",
+                "#7c3aed",
+                "road",
+                "#ea580c",
+                "debris",
+                "#a16207",
+                "flood",
+                "#0284c7",
+                "none",
+                "#94a3b8",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.4,
+                5,
+                4,
+                12,
+                8
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "name"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "name"
+              ],
+              ""
+            ]
+          ],
+          "layout": {
+            "text-allow-overlap": false,
+            "text-field": [
+              "get",
+              "name"
+            ],
+            "text-font": [
+              "DIN Pro Medium",
+              "Arial Unicode MS Regular"
+            ],
+            "text-max-width": 14,
+            "text-optional": true,
+            "text-radial-offset": 0.8,
+            "text-size": [
+              "interpolate",
+              [
+                "linear"
+              ],
+              [
+                "zoom"
+              ],
+              10,
+              10,
+              14,
+              12
+            ],
+            "text-variable-anchor": [
+              "top",
+              "bottom",
+              "left",
+              "right"
+            ]
+          },
+          "minzoom": 13,
+          "paint": {
+            "dark": {
+              "text-color": "#f8fafc",
+              "text-halo-color": "rgba(15,23,42,0.92)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            },
+            "light": {
+              "text-color": "#0f172a",
+              "text-halo-color": "rgba(255,255,255,0.94)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            }
+          },
+          "suffix": "label",
+          "type": "symbol"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle",
+        "label"
+      ],
+      "sourceId": "indigenous-isolation-risk",
+      "sourceUrl": "./indigenous_rural/indigenous_isolation_risk_areas.geojson"
+    },
+    "indigenousLanguageDialects": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "indigenousLanguageDialects",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "ethnic_group"
+                ],
+                "泰雅族",
+                "#b45309",
+                "阿美族",
+                "#dc2626",
+                "排灣族",
+                "#7c3aed",
+                "布農族",
+                "#2563eb",
+                "太魯閣族",
+                "#0f766e",
+                "賽夏族",
+                "#db2777",
+                "魯凱族",
+                "#65a30d",
+                "賽德克族",
+                "#e879f9",
+                "卑南族",
+                "#ea580c",
+                "鄒族",
+                "#0891b2",
+                "雅美族(達悟族)",
+                "#14b8a6",
+                "邵族",
+                "#16a34a",
+                "噶瑪蘭族",
+                "#7f1d1d",
+                "撒奇萊雅族",
+                "#ca8a04",
+                "拉阿魯哇族",
+                "#4d7c0f",
+                "卡那卡那富族",
+                "#0369a1",
+                "multiple",
+                "#475569",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.45
+            },
+            "light": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "ethnic_group"
+                ],
+                "泰雅族",
+                "#b45309",
+                "阿美族",
+                "#dc2626",
+                "排灣族",
+                "#7c3aed",
+                "布農族",
+                "#2563eb",
+                "太魯閣族",
+                "#0f766e",
+                "賽夏族",
+                "#db2777",
+                "魯凱族",
+                "#65a30d",
+                "賽德克族",
+                "#e879f9",
+                "卑南族",
+                "#ea580c",
+                "鄒族",
+                "#0891b2",
+                "雅美族(達悟族)",
+                "#14b8a6",
+                "邵族",
+                "#16a34a",
+                "噶瑪蘭族",
+                "#7f1d1d",
+                "撒奇萊雅族",
+                "#ca8a04",
+                "拉阿魯哇族",
+                "#4d7c0f",
+                "卡那卡那富族",
+                "#0369a1",
+                "multiple",
+                "#475569",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.45
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#e2e8f0",
+              "line-opacity": 0.75,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "ethnic_group"
+                ],
+                "泰雅族",
+                "#b45309",
+                "阿美族",
+                "#dc2626",
+                "排灣族",
+                "#7c3aed",
+                "布農族",
+                "#2563eb",
+                "太魯閣族",
+                "#0f766e",
+                "賽夏族",
+                "#db2777",
+                "魯凱族",
+                "#65a30d",
+                "賽德克族",
+                "#e879f9",
+                "卑南族",
+                "#ea580c",
+                "鄒族",
+                "#0891b2",
+                "雅美族(達悟族)",
+                "#14b8a6",
+                "邵族",
+                "#16a34a",
+                "噶瑪蘭族",
+                "#7f1d1d",
+                "撒奇萊雅族",
+                "#ca8a04",
+                "拉阿魯哇族",
+                "#4d7c0f",
+                "卡那卡那富族",
+                "#0369a1",
+                "multiple",
+                "#475569",
+                "#94a3b8"
+              ],
+              "line-opacity": 0.75,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "indigenous-language-dialects",
+      "sourceUrl": "./indigenous_rural/indigenous_language_dialects.geojson"
+    },
+    "indigenousLanguageDialects#2": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "indigenousLanguageDialects",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "ethnic_group"
+                ],
+                "泰雅族",
+                "#f38c51",
+                "阿美族",
+                "#ff5a50",
+                "排灣族",
+                "#9363ff",
+                "布農族",
+                "#3d7bff",
+                "太魯閣族",
+                "#469f96",
+                "賽夏族",
+                "#ec3c85",
+                "魯凱族",
+                "#65a30d",
+                "賽德克族",
+                "#e879f9",
+                "卑南族",
+                "#ea580c",
+                "鄒族",
+                "#0891b2",
+                "雅美族(達悟族)",
+                "#14b8a6",
+                "邵族",
+                "#16a34a",
+                "噶瑪蘭族",
+                "#df766d",
+                "撒奇萊雅族",
+                "#ca8a04",
+                "拉阿魯哇族",
+                "#82b552",
+                "卡那卡那富族",
+                "#4fa1dd",
+                "multiple",
+                "#748398",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "ethnic_group"
+                ],
+                "泰雅族",
+                "#b45309",
+                "阿美族",
+                "#dc2626",
+                "排灣族",
+                "#7c3aed",
+                "布農族",
+                "#2563eb",
+                "太魯閣族",
+                "#0f766e",
+                "賽夏族",
+                "#db2777",
+                "魯凱族",
+                "#65a30d",
+                "賽德克族",
+                "#e879f9",
+                "卑南族",
+                "#ea580c",
+                "鄒族",
+                "#0891b2",
+                "雅美族(達悟族)",
+                "#14b8a6",
+                "邵族",
+                "#16a34a",
+                "噶瑪蘭族",
+                "#7f1d1d",
+                "撒奇萊雅族",
+                "#ca8a04",
+                "拉阿魯哇族",
+                "#4d7c0f",
+                "卡那卡那富族",
+                "#0369a1",
+                "multiple",
+                "#475569",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle-point",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "circle-point"
+      ],
+      "sourceId": "indigenous-language-dialects-points",
+      "sourceUrl": "./indigenous_rural/indigenous_language_dialects.geojson"
+    },
+    "indigenousRegions": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "indigenousRegions",
+      "layers": [
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": "#b45309",
+              "fill-opacity": 0.35
+            },
+            "light": {
+              "fill-color": "#b45309",
+              "fill-opacity": 0.35
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#e2e8f0",
+              "line-opacity": 0.6499999999999999,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            },
+            "light": {
+              "line-color": "#b45309",
+              "line-opacity": 0.6499999999999999,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "indigenous-regions",
+      "sourceUrl": "./indigenous_rural/indigenous_regions_55.geojson"
+    },
+    "indigenousRegions#2": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "indigenousRegions",
+      "layers": [
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#ca6728",
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#b45309",
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle-point",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": null,
+      "sourceId": "indigenous-regions-points",
+      "sourceUrl": "./indigenous_rural/indigenous_regions_55.geojson"
+    },
+    "indigenousTribes": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "indigenousTribes",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "in_current_approved_list"
+                  ],
+                  false
+                ],
+                "#64748b",
+                [
+                  "match",
+                  [
+                    "get",
+                    "ethnic_group"
+                  ],
+                  "泰雅族",
+                  "#b45309",
+                  "阿美族",
+                  "#dc2626",
+                  "排灣族",
+                  "#7c3aed",
+                  "布農族",
+                  "#2563eb",
+                  "太魯閣族",
+                  "#0f766e",
+                  "賽夏族",
+                  "#db2777",
+                  "魯凱族",
+                  "#65a30d",
+                  "賽德克族",
+                  "#e879f9",
+                  "卑南族",
+                  "#ea580c",
+                  "鄒族",
+                  "#0891b2",
+                  "雅美族(達悟族)",
+                  "#14b8a6",
+                  "邵族",
+                  "#16a34a",
+                  "噶瑪蘭族",
+                  "#7f1d1d",
+                  "撒奇萊雅族",
+                  "#ca8a04",
+                  "拉阿魯哇族",
+                  "#4d7c0f",
+                  "卡那卡那富族",
+                  "#0369a1",
+                  "#94a3b8"
+                ]
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "in_current_approved_list"
+                  ],
+                  false
+                ],
+                "#64748b",
+                [
+                  "match",
+                  [
+                    "get",
+                    "ethnic_group"
+                  ],
+                  "泰雅族",
+                  "#b45309",
+                  "阿美族",
+                  "#dc2626",
+                  "排灣族",
+                  "#7c3aed",
+                  "布農族",
+                  "#2563eb",
+                  "太魯閣族",
+                  "#0f766e",
+                  "賽夏族",
+                  "#db2777",
+                  "魯凱族",
+                  "#65a30d",
+                  "賽德克族",
+                  "#e879f9",
+                  "卑南族",
+                  "#ea580c",
+                  "鄒族",
+                  "#0891b2",
+                  "雅美族(達悟族)",
+                  "#14b8a6",
+                  "邵族",
+                  "#16a34a",
+                  "噶瑪蘭族",
+                  "#7f1d1d",
+                  "撒奇萊雅族",
+                  "#ca8a04",
+                  "拉阿魯哇族",
+                  "#4d7c0f",
+                  "卡那卡那富族",
+                  "#0369a1",
+                  "#94a3b8"
+                ]
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "in_current_approved_list"
+                  ],
+                  false
+                ],
+                "#72839a",
+                [
+                  "match",
+                  [
+                    "get",
+                    "ethnic_group"
+                  ],
+                  "泰雅族",
+                  "#f38c51",
+                  "阿美族",
+                  "#ff5a50",
+                  "排灣族",
+                  "#9363ff",
+                  "布農族",
+                  "#3d7bff",
+                  "太魯閣族",
+                  "#469f96",
+                  "賽夏族",
+                  "#ec3c85",
+                  "魯凱族",
+                  "#65a30d",
+                  "賽德克族",
+                  "#e879f9",
+                  "卑南族",
+                  "#ea580c",
+                  "鄒族",
+                  "#0891b2",
+                  "雅美族(達悟族)",
+                  "#14b8a6",
+                  "邵族",
+                  "#16a34a",
+                  "噶瑪蘭族",
+                  "#df766d",
+                  "撒奇萊雅族",
+                  "#ca8a04",
+                  "拉阿魯哇族",
+                  "#82b552",
+                  "卡那卡那富族",
+                  "#4fa1dd",
+                  "#94a3b8"
+                ]
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "in_current_approved_list"
+                  ],
+                  false
+                ],
+                "#64748b",
+                [
+                  "match",
+                  [
+                    "get",
+                    "ethnic_group"
+                  ],
+                  "泰雅族",
+                  "#b45309",
+                  "阿美族",
+                  "#dc2626",
+                  "排灣族",
+                  "#7c3aed",
+                  "布農族",
+                  "#2563eb",
+                  "太魯閣族",
+                  "#0f766e",
+                  "賽夏族",
+                  "#db2777",
+                  "魯凱族",
+                  "#65a30d",
+                  "賽德克族",
+                  "#e879f9",
+                  "卑南族",
+                  "#ea580c",
+                  "鄒族",
+                  "#0891b2",
+                  "雅美族(達悟族)",
+                  "#14b8a6",
+                  "邵族",
+                  "#16a34a",
+                  "噶瑪蘭族",
+                  "#7f1d1d",
+                  "撒奇萊雅族",
+                  "#ca8a04",
+                  "拉阿魯哇族",
+                  "#4d7c0f",
+                  "卡那卡那富族",
+                  "#0369a1",
+                  "#94a3b8"
+                ]
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "name"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "name"
+              ],
+              ""
+            ]
+          ],
+          "layout": {
+            "text-allow-overlap": false,
+            "text-field": [
+              "get",
+              "name"
+            ],
+            "text-font": [
+              "DIN Pro Medium",
+              "Arial Unicode MS Regular"
+            ],
+            "text-max-width": 14,
+            "text-optional": true,
+            "text-radial-offset": 0.8,
+            "text-size": [
+              "interpolate",
+              [
+                "linear"
+              ],
+              [
+                "zoom"
+              ],
+              10,
+              10,
+              14,
+              12
+            ],
+            "text-variable-anchor": [
+              "top",
+              "bottom",
+              "left",
+              "right"
+            ]
+          },
+          "minzoom": 13,
+          "paint": {
+            "dark": {
+              "text-color": "#f8fafc",
+              "text-halo-color": "rgba(15,23,42,0.92)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            },
+            "light": {
+              "text-color": "#0f172a",
+              "text-halo-color": "rgba(255,255,255,0.94)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            }
+          },
+          "suffix": "label",
+          "type": "symbol"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle",
+        "label"
+      ],
+      "sourceId": "indigenous-tribes",
+      "sourceUrl": "./indigenous_rural/indigenous_tribes.geojson"
+    }
+  },
+  "params": {
+    "agriRuralCommunityVillages": [
+      {
+        "label": "社區類型",
+        "options": [
+          {
+            "label": "平地社區",
+            "value": "平地社區"
+          },
+          {
+            "label": "丘陵社區",
+            "value": "丘陵社區"
+          },
+          {
+            "label": "高山社區",
+            "value": "高山社區"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "平地社區",
+          "丘陵社區",
+          "高山社區"
+        ]
+      },
+      {
+        "label": "透明度 0.45",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.45,
+        "valueText": "0.45"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "point"
+      }
+    ],
+    "agriRuralRegen": [
+      {
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 1,
+        "valueText": "1.00"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "point"
+      }
+    ],
+    "hakkaCulturalZones": [
+      {
+        "label": "客語腔調",
+        "options": [
+          {
+            "label": "四縣腔",
+            "value": "四縣腔"
+          },
+          {
+            "label": "海陸腔",
+            "value": "海陸腔"
+          },
+          {
+            "label": "四縣腔＋海陸腔",
+            "value": "四縣腔海陸腔"
+          },
+          {
+            "label": "大埔腔",
+            "value": "大埔腔"
+          },
+          {
+            "label": "四縣腔＋大埔腔",
+            "value": "四縣腔大埔腔"
+          },
+          {
+            "label": "詔安腔",
+            "value": "詔安腔"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "四縣腔",
+          "海陸腔",
+          "四縣腔海陸腔",
+          "大埔腔",
+          "四縣腔大埔腔",
+          "詔安腔"
+        ]
+      },
+      {
+        "label": "透明度 0.45",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.45,
+        "valueText": "0.45"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "polygon"
+      }
+    ],
+    "hakkaLivingSchools": [
+      {
+        "label": "學制",
+        "options": [
+          {
+            "label": "國小",
+            "value": "國小"
+          },
+          {
+            "label": "國中",
+            "value": "國中"
+          },
+          {
+            "label": "高中",
+            "value": "高中"
+          },
+          {
+            "label": "幼兒園",
+            "value": "幼兒園"
+          },
+          {
+            "label": "其他",
+            "value": "其他"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "國小",
+          "國中",
+          "高中",
+          "幼兒園",
+          "其他"
+        ]
+      },
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "indigenousIsolationRisk": [
+      {
+        "label": "成因",
+        "options": [
+          {
+            "label": "土石流＋淹水＋道路中斷",
+            "value": "debris+flood+road"
+          },
+          {
+            "label": "土石流＋道路中斷",
+            "value": "debris+road"
+          },
+          {
+            "label": "淹水＋道路中斷",
+            "value": "flood+road"
+          },
+          {
+            "label": "土石流＋淹水",
+            "value": "debris+flood"
+          },
+          {
+            "label": "只有道路中斷",
+            "value": "road"
+          },
+          {
+            "label": "只有土石流",
+            "value": "debris"
+          },
+          {
+            "label": "只有淹水",
+            "value": "flood"
+          },
+          {
+            "label": "未勾選成因",
+            "value": "none"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "debris+flood+road",
+          "debris+road",
+          "flood+road",
+          "debris+flood",
+          "road",
+          "debris",
+          "flood",
+          "none"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "indigenousLanguageDialects": [
+      {
+        "label": "族別",
+        "options": [
+          {
+            "label": "泰雅族",
+            "value": "泰雅族"
+          },
+          {
+            "label": "阿美族",
+            "value": "阿美族"
+          },
+          {
+            "label": "排灣族",
+            "value": "排灣族"
+          },
+          {
+            "label": "布農族",
+            "value": "布農族"
+          },
+          {
+            "label": "太魯閣族",
+            "value": "太魯閣族"
+          },
+          {
+            "label": "賽夏族",
+            "value": "賽夏族"
+          },
+          {
+            "label": "魯凱族",
+            "value": "魯凱族"
+          },
+          {
+            "label": "賽德克族",
+            "value": "賽德克族"
+          },
+          {
+            "label": "卑南族",
+            "value": "卑南族"
+          },
+          {
+            "label": "鄒族",
+            "value": "鄒族"
+          },
+          {
+            "label": "雅美族（達悟族）",
+            "value": "雅美族(達悟族)"
+          },
+          {
+            "label": "邵族",
+            "value": "邵族"
+          },
+          {
+            "label": "噶瑪蘭族",
+            "value": "噶瑪蘭族"
+          },
+          {
+            "label": "撒奇萊雅族",
+            "value": "撒奇萊雅族"
+          },
+          {
+            "label": "拉阿魯哇族",
+            "value": "拉阿魯哇族"
+          },
+          {
+            "label": "卡那卡那富族",
+            "value": "卡那卡那富族"
+          },
+          {
+            "label": "兩族以上",
+            "value": "multiple"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "泰雅族",
+          "阿美族",
+          "排灣族",
+          "布農族",
+          "太魯閣族",
+          "賽夏族",
+          "魯凱族",
+          "賽德克族",
+          "卑南族",
+          "鄒族",
+          "雅美族(達悟族)",
+          "邵族",
+          "噶瑪蘭族",
+          "撒奇萊雅族",
+          "拉阿魯哇族",
+          "卡那卡那富族",
+          "multiple"
+        ]
+      },
+      {
+        "label": "透明度 0.45",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.45,
+        "valueText": "0.45"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "polygon"
+      }
+    ],
+    "indigenousRegions": [
+      {
+        "label": "透明度 0.35",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.35,
+        "valueText": "0.35"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "polygon"
+      }
+    ],
+    "indigenousTribes": [
+      {
+        "label": "族別",
+        "options": [
+          {
+            "label": "泰雅族",
+            "value": "泰雅族"
+          },
+          {
+            "label": "阿美族",
+            "value": "阿美族"
+          },
+          {
+            "label": "排灣族",
+            "value": "排灣族"
+          },
+          {
+            "label": "布農族",
+            "value": "布農族"
+          },
+          {
+            "label": "太魯閣族",
+            "value": "太魯閣族"
+          },
+          {
+            "label": "賽夏族",
+            "value": "賽夏族"
+          },
+          {
+            "label": "魯凱族",
+            "value": "魯凱族"
+          },
+          {
+            "label": "賽德克族",
+            "value": "賽德克族"
+          },
+          {
+            "label": "卑南族",
+            "value": "卑南族"
+          },
+          {
+            "label": "鄒族",
+            "value": "鄒族"
+          },
+          {
+            "label": "雅美族（達悟族）",
+            "value": "雅美族(達悟族)"
+          },
+          {
+            "label": "邵族",
+            "value": "邵族"
+          },
+          {
+            "label": "噶瑪蘭族",
+            "value": "噶瑪蘭族"
+          },
+          {
+            "label": "撒奇萊雅族",
+            "value": "撒奇萊雅族"
+          },
+          {
+            "label": "拉阿魯哇族",
+            "value": "拉阿魯哇族"
+          },
+          {
+            "label": "其他／多族",
+            "value": "__other__"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "泰雅族",
+          "阿美族",
+          "排灣族",
+          "布農族",
+          "太魯閣族",
+          "賽夏族",
+          "魯凱族",
+          "賽德克族",
+          "卑南族",
+          "鄒族",
+          "雅美族(達悟族)",
+          "邵族",
+          "噶瑪蘭族",
+          "撒奇萊雅族",
+          "拉阿魯哇族",
+          "__other__"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ]
+  }
+}

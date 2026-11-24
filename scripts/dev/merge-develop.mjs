@@ -7,13 +7,12 @@
 //   1. 工作區有未提交的追蹤檔改動 → 拒絕執行（不 stash、不 reset）。
 //   2. git fetch origin develop → git merge --no-commit origin/develop。沒有衝突就照一般 git merge 直接 commit，結束。
 //   3. 有衝突時只碰白名單：
-//      - layer-golden.json、layer-style-inventory.json：取 develop 版（checkout --theirs）後用既有指令重產。
+//      - layer-golden/ 目錄下的檔（B1 P1 起 golden 是目錄）、layer-style-inventory.json：取 develop 版
+//        （checkout --theirs；develop 已刪的檔 git rm）後用既有指令重產（dump 只重寫有變的檔）。
 //      - CHANGELOG.md：只處理 Unreleased。以 develop 版為底，把本分支在 Unreleased 新增的條目依 ### 小節接到尾端
 //        （develop 的在前、不產生重複小節）；本分支動到 Unreleased 以外的段落 → 停下不處理。
 //      - src/**/locales/**/*.json（layers.json、params.json、legend.*.json…）：兩邊的鍵都留（develop 的順序在前，本分支新增的接在後面）；
 //        同一個鍵兩邊值不同、或原檔有重複鍵 → 停下不處理。
-//      - layerGoldenSnapshot.test.ts：衝突區塊只能是日期註解與 `expect(keys.length).toBe(N)`；
-//        註解兩邊都留（develop 在前），N 改成重產後 layer-golden.json 的 meta.keyCount。
 //   4. 其他檔案有衝突：一律不碰，列出清單、以非 0 結束、保留現場。手動解完並 git add 後再跑一次，
 //      會從進行中的合併接著做（重產要等原始碼沒有衝突標記才跑）。
 //   不用 reset --hard、checkout -- .、clean；有衝突時不自動 commit，最後印出動過的檔，請人檢查後 git commit。
@@ -22,10 +21,9 @@ import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-export const GOLDEN = "src/data/__tests__/__fixtures__/layer-golden.json";
+export const GOLDEN = "src/data/__tests__/__fixtures__/layer-golden";
 export const INVENTORY = "docs/design-system/layer-style-inventory.json";
 export const CHANGELOG = "CHANGELOG.md";
-export const GOLDEN_TEST = "src/data/__tests__/layerGoldenSnapshot.test.ts";
 export const LOCALE_RE = /^src\/(?:.*\/)?locales\/.+\.json$/;
 export const SECTION_ORDER = ["新增", "修正", "效能", "資料", "注意事項"];
 
@@ -36,10 +34,9 @@ export const DEFAULT_REGEN = {
 
 /** 白名單分類；不在白名單回 null。 */
 export function classify(path) {
-  if (path === GOLDEN) return "golden";
+  if (path === GOLDEN || path.startsWith(`${GOLDEN}/`)) return "golden";
   if (path === INVENTORY) return "inventory";
   if (path === CHANGELOG) return "changelog";
-  if (path === GOLDEN_TEST) return "goldenTest";
   if (LOCALE_RE.test(path)) return "locale";
   return null;
 }
@@ -192,50 +189,6 @@ export function mergeJsonObject({ base, ours, theirs }) {
   return { ok: true, text: `${JSON.stringify(out, null, 2)}\n` };
 }
 
-// ── layerGoldenSnapshot.test.ts 的 key 總數 ─────────────────────────
-
-const COUNT_RE = /^(\s*)expect\(keys\.length\)\.toBe\((\d+)\);\s*$/;
-
-/**
- * 解 layerGoldenSnapshot.test.ts 的衝突標記（支援 diff3）：區塊只能含註解、空行與 key 總數那行。
- * 註解兩邊都留（develop＝theirs 在前），總數改成 keyCount。
- * @returns {{ ok: true, text: string } | { ok: false, reason: string }}
- */
-export function resolveGoldenTest(text, keyCount) {
-  const lines = split(text);
-  const out = [];
-  for (let i = 0; i < lines.length; i++) {
-    if (!lines[i].startsWith("<<<<<<< ")) { out.push(lines[i]); continue; }
-    const ours = [];
-    const theirs = [];
-    let part = ours;
-    let j = i + 1;
-    for (; j < lines.length; j++) {
-      const l = lines[j];
-      if (l.startsWith("||||||| ")) { part = null; continue; }
-      if (l === "=======") { part = theirs; continue; }
-      if (l.startsWith(">>>>>>> ")) break;
-      part?.push(l);
-    }
-    if (j >= lines.length) return { ok: false, reason: "衝突標記不完整" };
-    const bad = [...ours, ...theirs].find((l) => !(l.trim() === "" || /^\s*\/\//.test(l) || COUNT_RE.test(l)));
-    if (bad !== undefined) return { ok: false, reason: `衝突區塊有註解與 key 總數以外的程式：${bad.trim()}` };
-    const count = [...theirs, ...ours].find((l) => COUNT_RE.test(l));
-    const seen = new Set();
-    for (const l of [...theirs, ...ours]) {
-      if (COUNT_RE.test(l) || seen.has(l)) continue;
-      seen.add(l);
-      out.push(l);
-    }
-    if (count) out.push(count);
-    i = j;
-  }
-  const idx = out.map((l, k) => (COUNT_RE.test(l) ? k : -1)).filter((k) => k >= 0);
-  if (idx.length !== 1) return { ok: false, reason: `找到 ${idx.length} 行 expect(keys.length).toBe(N)，預期 1 行` };
-  out[idx[0]] = out[idx[0]].replace(/toBe\(\d+\)/, `toBe(${keyCount})`);
-  return { ok: true, text: out.join("\n") };
-}
-
 // ── 流程 ────────────────────────────────────────────────────────────
 
 /**
@@ -326,7 +279,8 @@ export function runMergeDevelop(opts) {
     else manual.push(`${p}（${r.reason}）`);
   }
 
-  const needGolden = unmerged.some((p) => kinds.get(p) === "golden" || kinds.get(p) === "goldenTest");
+  const goldenConflicts = unmerged.filter((p) => kinds.get(p) === "golden");
+  const needGolden = goldenConflicts.length > 0;
   const needInventory = unmerged.includes(INVENTORY);
   const blockers = [...others, ...manual];
   if (blockers.length) {
@@ -344,17 +298,14 @@ export function runMergeDevelop(opts) {
   };
   try {
     if (needGolden) {
-      if (unmerged.includes(GOLDEN)) git(["checkout", "--theirs", "--", GOLDEN]);
-      run(regen.golden);
-      git(["add", "--", GOLDEN]);
-      touched.push(GOLDEN);
-      if (unmerged.includes(GOLDEN_TEST)) {
-        const keyCount = JSON.parse(readFileSync(join(cwd, GOLDEN), "utf8"))?.meta?.keyCount;
-        if (!Number.isInteger(keyCount)) throw new Error(`${GOLDEN} 沒有 meta.keyCount`);
-        const r = resolveGoldenTest(readFileSync(join(cwd, GOLDEN_TEST), "utf8"), keyCount);
-        if (!r.ok) { manual.push(`${GOLDEN_TEST}（${r.reason}）`); }
-        else { writeAdd(GOLDEN_TEST, r.text); log(`✓ ${GOLDEN_TEST}：註解兩邊都留，key 總數改為 ${keyCount}`); }
+      // develop 版為準：develop 有的檔取 theirs，develop 已刪的 group 檔直接移除；之後 dump 依原始碼重產
+      for (const p of goldenConflicts) {
+        if (stage(3, p) !== null) git(["checkout", "--theirs", "--", p]);
+        else git(["rm", "-q", "--force", "--", p]);
       }
+      run(regen.golden);
+      git(["add", "-A", "--", GOLDEN]);
+      touched.push(`${GOLDEN}/（${goldenConflicts.length} 個衝突檔，重產後整個目錄已 git add）`);
     }
     if (needInventory) {
       git(["checkout", "--theirs", "--", INVENTORY]);
@@ -386,10 +337,9 @@ export function runMergeDevelop(opts) {
 
 function planFor(files, log) {
   const plan = {
-    golden: "取 develop 版後跑 npx vite-node scripts/preprocess/dump-layer-golden.ts 重產",
+    golden: "取 develop 版後跑 npx vite-node scripts/preprocess/dump-layer-golden.ts 重產（只重寫有變的 group 檔）",
     inventory: "取 develop 版後跑 npm run design:audit-layers 重產",
     changelog: "Unreleased 兩邊條目都保留（develop 在前、依 ### 小節合併）；動到已發布段落就停",
-    goldenTest: "註解兩邊都留，key 總數改成重產後的 meta.keyCount",
     locale: "兩邊的鍵都留（develop 在前）；同鍵不同值或重複鍵就停",
   };
   for (const p of files) log(`  - ${p}：${plan[classify(p)] ?? "不在白名單，要手動處理（工具不碰）"}`);

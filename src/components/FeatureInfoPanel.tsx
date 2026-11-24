@@ -8,6 +8,7 @@ import { IE_DATA_KEYS } from "../data/ieDataKeys";
 import { PH_DATA_KEYS } from "../data/phDataKeys";
 import { VN_DATA_KEYS } from "../data/vnDataKeys";
 import { TH_DATA_KEYS } from "../data/thDataKeys";
+import { ID_DATA_KEYS } from "../data/idDataKeys";
 import { CN_DATA_KEYS } from "../data/cnDataKeys";
 import { CA_WAVE_KEYS } from "../data/caWavesKeys";
 import { G53_SELF_FOOTER_KEYS } from "../data/atlasLayerTypes";
@@ -42,6 +43,7 @@ const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
   ...PH_DATA_KEYS,
   ...VN_DATA_KEYS,
   ...TH_DATA_KEYS,
+  ...ID_DATA_KEYS,
   ...CN_DATA_KEYS,
   ...CA_WAVE_KEYS, // 加拿大第 3–8 波：makePhPanel 自掛 SourceFooter
   "twMarineHeat", // 台灣圖層延伸 B6：海洋熱浪／珊瑚熱壓力 panel 依兩層各自掛 SourceFooter
@@ -124,6 +126,9 @@ const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
   "vnPopulation",
   "thAdminBoundaries",
   "thPopulation",
+  "idAdminBoundaries",
+  "idPopulation",
+  "idRuralDevelopment",
   "cnAdminBoundaries",
   "cnPopulation",
   "caTransitStops",

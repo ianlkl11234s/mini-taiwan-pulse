@@ -8,7 +8,7 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 import {
-  classify, CHANGELOG, GOLDEN, GOLDEN_TEST, INVENTORY, mergeChangelog, mergeJsonObject, resolveGoldenTest, runMergeDevelop,
+  classify, CHANGELOG, GOLDEN, INVENTORY, mergeChangelog, mergeJsonObject, runMergeDevelop,
 } from "../../scripts/dev/merge-develop.mjs";
 
 const log = (head: string) => `# Changelog
@@ -33,10 +33,11 @@ ${head}
 
 describe("classify", () => {
   it("白名單", () => {
-    expect(classify(GOLDEN)).toBe("golden");
+    expect(classify(`${GOLDEN}/tw-交通.json`)).toBe("golden");
+    expect(classify(`${GOLDEN}/_order.json`)).toBe("golden");
     expect(classify(INVENTORY)).toBe("inventory");
     expect(classify(CHANGELOG)).toBe("changelog");
-    expect(classify(GOLDEN_TEST)).toBe("goldenTest");
+    expect(classify("src/data/__tests__/layerGoldenSnapshot.test.ts")).toBeNull();
     expect(classify("src/i18n/locales/en/layers.json")).toBe("locale");
     expect(classify("src/i18n/locales/ja/params.json")).toBe("locale");
     expect(classify("src/i18n/keys.generated.ts")).toBeNull();
@@ -105,41 +106,6 @@ describe("mergeJsonObject", () => {
   });
 });
 
-describe("resolveGoldenTest", () => {
-  const text = [
-    "  it(\"x\", () => {",
-    "    // 舊註解",
-    "<<<<<<< HEAD",
-    "    // 2026-11-23: +1 本分支層",
-    "    expect(keys.length).toBe(11);",
-    "||||||| base",
-    "    expect(keys.length).toBe(10);",
-    "=======",
-    "    // 2026-11-23: +2 develop 層",
-    "    expect(keys.length).toBe(12);",
-    ">>>>>>> develop",
-    "  });",
-  ].join("\n");
-
-  it("註解兩邊都留（develop 在前），總數改成實際值", () => {
-    expect(resolveGoldenTest(text, 13)).toEqual({
-      ok: true,
-      text: [
-        "  it(\"x\", () => {",
-        "    // 舊註解",
-        "    // 2026-11-23: +2 develop 層",
-        "    // 2026-11-23: +1 本分支層",
-        "    expect(keys.length).toBe(13);",
-        "  });",
-      ].join("\n"),
-    });
-  });
-
-  it("衝突區塊有其他程式 → 停", () => {
-    expect(resolveGoldenTest(text.replace("    // 2026-11-23: +1 本分支層", "    const y = 1;"), 13).ok).toBe(false);
-  });
-});
-
 // ── 暫存 git repo ─────────────────────────────────────────────────
 
 const ENV = {
@@ -164,12 +130,15 @@ function repo() {
   return { dir, git, write, read };
 }
 
-const golden = (n: number, tag: string) => `${JSON.stringify({ meta: { keyCount: n }, tag }, null, 2)}\n`;
-const goldenTest = (comments: string[], n: number) => ["describe(() => {", ...comments.map((c) => `    // ${c}`), `    expect(keys.length).toBe(${n});`, "});", ""].join("\n");
+// golden 是目錄：G_A 兩邊都改（衝突）；G_GONE 本分支改、develop 刪（modify/delete 衝突）；G_B 只有本分支改（乾淨合併）
+const G_A = `${GOLDEN}/tw-a.json`;
+const G_GONE = `${GOLDEN}/tw-gone.json`;
+const G_B = `${GOLDEN}/tw-b.json`;
+const golden = (n: number, tag: string) => `${JSON.stringify({ count: n, tag }, null, 2)}\n`;
 const j = (o: Record<string, string>) => `${JSON.stringify(o, null, 2)}\n`;
-// 假的重產：golden 寫 keyCount=99；inventory 寫固定內容
+// 假的重產：golden 寫 count=99；inventory 寫固定內容
 const REGEN = {
-  golden: ["node", ["-e", `require("fs").writeFileSync(${JSON.stringify(GOLDEN)}, JSON.stringify({ meta: { keyCount: 99 }, tag: "regen" }, null, 2) + "\\n")`]] as [string, string[]],
+  golden: ["node", ["-e", `require("fs").writeFileSync(${JSON.stringify(G_A)}, JSON.stringify({ count: 99, tag: "regen" }, null, 2) + "\\n")`]] as [string, string[]],
   inventory: ["node", ["-e", `require("fs").writeFileSync(${JSON.stringify(INVENTORY)}, "regen\\n")`]] as [string, string[]],
 };
 
@@ -178,14 +147,14 @@ function conflictedRepo(extra = false) {
   const r = repo();
   r.write({
     [CHANGELOG]: log("### 新增\n\n- 既有 X（#2）\n"),
-    [GOLDEN]: golden(10, "base"), [INVENTORY]: "base\n", [GOLDEN_TEST]: goldenTest(["base"], 10),
+    [G_A]: golden(10, "base"), [G_GONE]: golden(1, "base"), [G_B]: golden(2, "base"), [INVENTORY]: "base\n",
     "src/i18n/locales/en/layers.json": j({ a: "A" }), "src/other.ts": "export const x = 0;\n",
   });
   r.git("add", "-A"); r.git("commit", "-qm", "base");
   r.git("switch", "-qc", "feat");
   r.write({
     [CHANGELOG]: log("### 新增\n\n- 既有 X（#2）\n- 本分支 O（#6）\n"),
-    [GOLDEN]: golden(11, "feat"), [INVENTORY]: "feat\n", [GOLDEN_TEST]: goldenTest(["base", "+1 feat"], 11),
+    [G_A]: golden(11, "feat"), [G_GONE]: golden(1, "feat"), [G_B]: golden(3, "feat"), [INVENTORY]: "feat\n",
     "src/i18n/locales/en/layers.json": j({ a: "A", o: "O" }),
     ...(extra ? { "src/other.ts": "export const x = 1;\n" } : {}),
   });
@@ -193,10 +162,11 @@ function conflictedRepo(extra = false) {
   r.git("switch", "-q", "develop");
   r.write({
     [CHANGELOG]: log("### 新增\n\n- 既有 X（#2）\n- develop D（#4）\n"),
-    [GOLDEN]: golden(12, "dev"), [INVENTORY]: "dev\n", [GOLDEN_TEST]: goldenTest(["base", "+2 dev"], 12),
+    [G_A]: golden(12, "dev"), [INVENTORY]: "dev\n",
     "src/i18n/locales/en/layers.json": j({ a: "A", t: "T" }),
     ...(extra ? { "src/other.ts": "export const x = 2;\n" } : {}),
   });
+  r.git("rm", "-q", "--", G_GONE);
   r.git("commit", "-qam", "dev");
   r.git("switch", "-q", "feat");
   return r;
@@ -229,9 +199,10 @@ describe("runMergeDevelop（暫存 repo）", () => {
     expect(r.read(CHANGELOG)).toContain("- 既有 X（#2）\n- develop D（#4）\n- 本分支 O（#6）\n");
     expect(JSON.parse(r.read("src/i18n/locales/en/layers.json"))).toEqual({ a: "A", t: "T", o: "O" });
     expect(Object.keys(JSON.parse(r.read("src/i18n/locales/en/layers.json")))).toEqual(["a", "t", "o"]);
-    expect(r.read(GOLDEN)).toContain('"regen"');
+    expect(r.read(G_A)).toContain('"regen"');
+    expect(existsSync(join(r.dir, G_GONE)), "develop 已刪的 group 檔要移除").toBe(false);
+    expect(r.read(G_B)).toBe(golden(3, "feat"));
     expect(r.read(INVENTORY)).toBe("regen\n");
-    expect(r.read(GOLDEN_TEST)).toBe(goldenTest(["base", "+2 dev", "+1 feat"], 99));
     expect(res.out).toContain("請檢查後 git commit");
   });
 
@@ -241,13 +212,13 @@ describe("runMergeDevelop（暫存 repo）", () => {
     expect(first.code).toBe(1);
     expect(first.out).toContain("src/other.ts");
     expect(r.read("src/other.ts")).toContain("<<<<<<<");
-    expect(r.git("diff", "--name-only", "--diff-filter=U").trim().split("\n").sort()).toEqual([INVENTORY, GOLDEN, GOLDEN_TEST, "src/other.ts"].sort());
+    expect(r.git("diff", "--name-only", "--diff-filter=U").trim().split("\n").sort()).toEqual([INVENTORY, G_A, G_GONE, "src/other.ts"].sort());
     r.write({ "src/other.ts": "export const x = 3;\n" });
     r.git("add", "src/other.ts");
     const second = run(r.dir);
     expect(second.code, second.out).toBe(0);
     expect(r.git("diff", "--name-only", "--diff-filter=U").trim()).toBe("");
-    expect(r.read(GOLDEN_TEST)).toContain("toBe(99)");
+    expect(r.read(G_A)).toContain('"regen"');
   });
 
   it("CHANGELOG 衝突落在已發布段落 → 停、留給人處理", () => {
@@ -278,7 +249,7 @@ describe("runMergeDevelop（暫存 repo）", () => {
     const res = run(r.dir, true);
     expect(res.code).toBe(0);
     expect(res.out).toContain("src/other.ts：不在白名單");
-    expect(res.out).toContain(`${GOLDEN}：取 develop 版`);
+    expect(res.out).toContain(`${G_A}：取 develop 版`);
     expect(r.git("rev-parse", "HEAD")).toBe(head);
     expect(existsSync(join(r.dir, ".git/MERGE_HEAD"))).toBe(false);
   });

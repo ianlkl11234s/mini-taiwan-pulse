@@ -47,7 +47,10 @@ export function TransientNotice() {
         color: "#E5E7EB",
         fontSize: 13,
         fontFamily: FONT_CJK,
-        whiteSpace: "nowrap",
+        // 窄螢幕（手機 390px）英文提示比中文長，nowrap 會被切掉：限寬並允許換行
+        maxWidth: "calc(100vw - 32px)",
+        textAlign: "center",
+        boxSizing: "border-box",
         pointerEvents: "none",
         boxShadow: "0 6px 24px rgba(0,0,0,0.35)",
       }}

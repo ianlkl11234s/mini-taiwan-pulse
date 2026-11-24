@@ -41,6 +41,7 @@
   "country.IE": "アイルランド",
   "country.VN": "ベトナム",
   "country.TH": "タイ",
+  "country.ID": "インドネシア",
   "country.PH": "フィリピン",
   "country.CN": "中国大陸",
   "country.menuAria": "国を切り替え（現在：{country}）",
@@ -205,5 +206,8 @@
   "addressSearch.attribution.osmShare": "住所の分割ファイルは ODbL で提供する",
   "addressSearch.attribution.panelTitle": "住所検索",
   "addressSearch.attribution.panelToggle": "県市別の住所データ出典とライセンス",
-  "addressSearch.attribution.panelNote": "各県市は一つの出典のみを使い、混在させない。座標は参考値である。"
+  "addressSearch.attribution.panelNote": "各県市は一つの出典のみを使い、混在させない。座標は参考値である。",
+  "mobileSheet.label": "レイヤーと検索",
+  "mobileSheet.collapse": "レイヤーと検索を閉じる",
+  "mobileSheet.expand": "レイヤーと検索を開く"
 }
