@@ -1,12 +1,12 @@
 // ⚠️ 自動產生，請勿手改：PULSE_DATA_ROOT=<pulse-data> npx tsx scripts/countries/gen-countries.ts
 // 正本：pulse-data countries/countries.json（網站與 MCP 共用；陣列順序是語意，判國先比國家順序、再比框順序）
-// source-sha256: bb1440faed3e8734cd36f9477ec53d7d1f1b250d16d3fe97bb999f4775cd32b2
-// payload-sha256: fb5b673d7c586f5474fbe4bc92c5c103f711b5701baccb354b749beaef4847c6
+// source-sha256: d425258397f96cd8c92e981b6d8845dc0f49d36dedd92d23e83f885a09a79a4d
+// payload-sha256: 3abe814f850fa9a4298498a80cb08208d3c327a2e8ce9fa756a35ebd232cceee
 
-export type CountryCode = "TW" | "JP" | "FR" | "GB" | "KR" | "CA" | "IE" | "PH" | "VN" | "TH" | "ID" | "CN";
+export type CountryCode = "TW" | "JP" | "FR" | "GB" | "KR" | "CA" | "IE" | "PH" | "VN" | "TH" | "ID" | "CN" | "US";
 
 /** 國名 i18n 鍵（common.json 的 country.*）；寫成字面值，i18n 的「沒人用的 key」檢查才找得到。 */
-export const COUNTRY_LABEL_KEYS = { TW: "country.TW", JP: "country.JP", FR: "country.FR", GB: "country.GB", KR: "country.KR", CA: "country.CA", IE: "country.IE", PH: "country.PH", VN: "country.VN", TH: "country.TH", ID: "country.ID", CN: "country.CN" } as const;
+export const COUNTRY_LABEL_KEYS = { TW: "country.TW", JP: "country.JP", FR: "country.FR", GB: "country.GB", KR: "country.KR", CA: "country.CA", IE: "country.IE", PH: "country.PH", VN: "country.VN", TH: "country.TH", ID: "country.ID", CN: "country.CN", US: "country.US" } as const;
 
 export interface GeneratedCountry {
   code: CountryCode;
@@ -368,6 +368,32 @@ export const GENERATED_COUNTRIES: readonly GeneratedCountry[] =
       [112.92,22.48,113.99,22.54],
       [113.55,22.22,113.83,22.3],
       [123.38,40.12,124.39,40.41]
+    ]
+  },
+  {
+    "code": "US",
+    "chip": "US",
+    "timeZone": "America/New_York",
+    "timeZones": ["America/New_York","America/Chicago","America/Denver","America/Phoenix","America/Los_Angeles","America/Anchorage","Pacific/Honolulu"],
+    "camera": {"center":[-98.5,39.5],"zoom":3.4,"pitch":0,"bearing":0},
+    "bboxes": [
+      [-124.8,32.53,-66.9,49.39],
+      [-114.82,31.33,-106.6,32.53],
+      [-106.62,31,-93.5,32.53],
+      [-104.6,29.55,-93.5,31],
+      [-101.4,28,-93.5,29.55],
+      [-99.5,26.4,-96.9,28],
+      [-98.3,25.83,-96.9,26.4],
+      [-105.6,29.8,-104.6,31],
+      [-104.4,28.95,-102.75,29.55],
+      [-100.05,27.3,-99.5,28],
+      [-99,26.05,-98.3,26.4],
+      [-93.5,28.8,-78.5,32.53],
+      [-87.7,24.4,-79.8,28.8],
+      [-179.2,51.1,-129.9,71.5],
+      [172.4,51.2,180,53.1],
+      [-160.6,18.85,-154.7,22.3],
+      [-178.4,23,-161.5,28.5]
     ]
   }
 ]

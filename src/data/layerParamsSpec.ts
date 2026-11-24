@@ -117,6 +117,7 @@ import { TH_ADMIN_LEVELS, TH_DATA_SPECS, TH_POP_LEVELS, TH_STATUSES } from "./th
 import { TH_RASTER_SPECS } from "./thWavesLayers";
 import { ID_ADMIN_LEVELS, ID_DATA_SPECS, ID_LEVELS_2 } from "./idDataLayers";
 import { ID_RASTER_SPECS } from "./idWavesLayers";
+import { US_ADMIN_LEVELS, US_DATA_SPECS, US_POP_LEVELS } from "./usDataLayers";
 import { CA_WAVE_SPECS } from "./caWavesLayers";
 import { VN_RASTER_SPECS } from "./vnWavesLayers";
 import { CN_ADMIN_LEVELS, CN_DATA_SPECS, CN_PLANT_SCOPES, CN_PLANT_STATUSES, CN_PLANT_STATUS_DEFAULT, CN_RASTER_SPECS, cnCatOptions } from "./cnDataLayers";
@@ -2492,6 +2493,34 @@ export const LAYER_PARAMS_SPEC = {
   ...Object.fromEntries(ID_RASTER_SPECS.map((spec) => [spec.key, [
     { kind: "slider" as const, name: `${spec.key}Opacity`, labelPrefix: "透明度", digits: 2, default: spec.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05 },
   ]])),
+  // 美國第 0–1 波（2026-11-25）：行政邊界州／郡、人口州／郡／普查區；預設 state（國家全覽 z3 有圖磚）
+  usAdminBoundaries: [
+    opacitySlider("usAdminBoundariesOpacity", 0.85),
+    {
+      kind: "select", category: "data", name: "usAdminBoundariesLevel", label: "行政層級", default: "state",
+      options: US_ADMIN_LEVELS.map((x) => ({ label: x.label, value: x.value })),
+      out: "usAdminBoundariesLevelIdx", encode: US_ADMIN_LEVELS.map((x) => x.value),
+    },
+  ],
+  usPopulation: [
+    {
+      kind: "select", category: "data", name: "usPopulationLevel", label: "行政層級", default: "state",
+      options: US_POP_LEVELS.map((x) => ({ label: x.label, value: x.value })),
+      out: "usPopulationLevelIdx", encode: US_POP_LEVELS.map((x) => x.value),
+    },
+    opacitySlider("usPopulationOpacity", 0.7),
+  ],
+  // 美國規格驅動 9 層：類別多選（順序＝規格 cats＋「其他」＝bitmask；defaultCats 者預設部分勾選）；≥1 萬點加熱區顏色
+  ...Object.fromEntries(US_DATA_SPECS.map((spec) => {
+    const hasPoint = spec.parts.some((p) => p.geom === "point");
+    const pointOnly = spec.parts.every((p) => p.geom === "point");
+    return [spec.key, [
+      categoryMultiSelect(spec.key, phCatOptions(spec), spec.defaultCats ? serializeMultiSelectValues([...spec.defaultCats]) : undefined),
+      ...(spec.heat ? [heatmapPalette(spec.key)] : []),
+      opacitySlider(`${spec.key}Opacity`, spec.opacity ?? (pointOnly ? densePointOpacity(spec.count) : 0.85)),
+      ...(hasPoint ? [scaleSlider(`${spec.key}Scale`, 1)] : []),
+    ]];
+  })),
   // 越南第 0–1 波（2026-11-13）：行政邊界、人口只有 34 省一級（不需層級 select）
   vnAdminBoundaries: [opacitySlider("vnAdminBoundariesOpacity", 0.85)],
   vnPopulation: [opacitySlider("vnPopulationOpacity", 0.7)],

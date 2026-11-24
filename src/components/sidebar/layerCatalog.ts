@@ -505,6 +505,13 @@ export const THEME_SCOPE: Readonly<Record<ThemeScope, readonly string[]>> = {
     "運動休閒",
     "農業",
   ],
+  US: [
+    // 美國（2026-11-25 第 0–1 波；title 沿用台灣主題中文短名，比照印尼）
+    "底圖",
+    "人口社經",
+    "交通",
+    "能源",
+  ],
   GB: [
     // 英國（2026-10-29 英國第 0b 波；title 沿用台灣主題中文短名，與日本同名不衝突）
     "底圖",
@@ -4071,6 +4078,49 @@ const THEME_CATALOG: ThemeDef[] = [
   },
 
   // ───────────────────────────────────────────────────────────────
+  // 🇺🇸 美國（2026-11-25 第 0–1 波：行政邊界、人口、交通、能源；50 州＋DC，屬地另列）
+  // ───────────────────────────────────────────────────────────────
+  {
+    title: "底圖",
+    country: "US",
+    defaultCollapsed: true,
+    groups: [
+      { title: "行政邊界", layers: [fromManifest("usAdminBoundaries")] },
+    ],
+  },
+  {
+    title: "人口社經",
+    country: "US",
+    defaultCollapsed: true,
+    groups: [
+      { title: "人口分布", layers: [fromManifest("usPopulation")] },
+    ],
+  },
+  {
+    title: "交通",
+    country: "US",
+    defaultCollapsed: true,
+    groups: [
+      { title: "場站", layers: [fromManifest("usStations")] },
+      { title: "機場與港口", layers: [fromManifest("usTransportHubs")] },
+      { title: "鐵路", layers: [fromManifest("usRailLines")] },
+      { title: "公路", layers: [fromManifest("usHighways")] },
+    ],
+  },
+  {
+    title: "能源",
+    country: "US",
+    defaultCollapsed: true,
+    groups: [
+      { title: "電廠", layers: [fromManifest("usPowerPlants")] },
+      { title: "電網", layers: [fromManifest("usPowerGrid")] },
+      { title: "再生能源", layers: [fromManifest("usRenewables")] },
+      { title: "石化 · 油氣", layers: [fromManifest("usOilGas"), fromManifest("usStateWells")] },
+      { title: "加油站", layers: [fromManifest("usFuelStations")] },
+    ],
+  },
+
+  // ───────────────────────────────────────────────────────────────
   // 🇻🇳 越南（2026-11-13 第 0–1 波：行政邊界、人口、交通、能源、環境監測站、安江示範；群組比照菲律賓）
   // ───────────────────────────────────────────────────────────────
   {
@@ -4749,6 +4799,13 @@ const THEME_MACRO_GROUPS: Readonly<Record<ThemeScope, Readonly<Record<string, La
     "運動休閒": "publicLife",
     "農業": "environment",
   },
+  US: {
+    // 美國主題 title＝台灣主題中文短名，大分類同台灣對應主題（比照印尼）。
+    "底圖": "baseline",
+    "人口社經": "city",
+    "交通": "city",
+    "能源": "environment",
+  },
   ID: {
     // 印尼主題 title＝台灣主題中文短名，大分類同台灣對應主題（比照泰國）。
     "底圖": "baseline",
@@ -5091,6 +5148,13 @@ const THEME_NAMES: Readonly<Record<ThemeScope, Readonly<Record<string, ThemeName
     "海洋": { zh: "海洋", sub: "Marine" },
     "運動休閒": { zh: "運動休閒", sub: "Sports & Leisure" },
     "農業": { zh: "農業", sub: "Agriculture" },
+  },
+  US: {
+    // 美國主題副標用英文（比照印尼）
+    "底圖": { zh: "底圖", sub: "Base Map" },
+    "人口社經": { zh: "人口社經", sub: "People" },
+    "交通": { zh: "交通", sub: "Transport" },
+    "能源": { zh: "能源", sub: "Energy" },
   },
   ID: {
     // 印尼主題副標用英文（比照泰國）

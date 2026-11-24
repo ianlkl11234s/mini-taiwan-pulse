@@ -5,6 +5,7 @@
  * 被多國共用的東西放中性檔（`data/intlLayerShared.ts`、`components/{featureInfo/intlSpecPanel,legend/intlSpecLegend}.tsx`），
  * 各國都從中性檔 import。
  *
+ * 美國（us，2026-11-25）：檔名前綴 us＋大寫、hooks／useUs…、hosts／unitedStatesHosts。
  * 判定「國家模組」（src 底下，排除測試檔）：
  *   1. 檔名前綴 `<cc>[A-Z]…` 或 hook 的 `use<Cc>[A-Z]…`，cc ∈ kr／jp／gb／ca／ie／ph／vn／th／cn／fr
  *      （例：krDataLayers.ts、caInfraTypes.ts、cnPanels.tsx、useGbWaterLayers.ts）。
@@ -20,19 +21,19 @@ import { readFileSync, readdirSync, statSync } from "node:fs";
 import { basename, dirname, join, relative, resolve } from "node:path";
 
 const SRC = resolve(__dirname, "../..");
-const CC = ["kr", "jp", "gb", "ca", "ie", "ph", "vn", "th", "cn", "fr", "id"] as const;
+const CC = ["kr", "jp", "gb", "ca", "ie", "ph", "vn", "th", "cn", "fr", "id", "us"] as const;
 type Cc = (typeof CC)[number];
 
 const HOST_COUNTRY: Readonly<Record<string, Cc>> = {
   koreaHosts: "kr", japanHosts: "jp", ukHosts: "gb", canadaHosts: "ca", irelandHosts: "ie",
-  philippinesHosts: "ph", vietnamHosts: "vn", thailandHosts: "th", chinaHosts: "cn", franceHosts: "fr", indonesiaHosts: "id",
+  philippinesHosts: "ph", vietnamHosts: "vn", thailandHosts: "th", chinaHosts: "cn", franceHosts: "fr", indonesiaHosts: "id", unitedStatesHosts: "us",
 };
 
 /** 檔案（相對 src）所屬國家；不是國家模組回 null。 */
 export function countryOf(relPath: string): Cc | null {
   const stem = basename(relPath).split(".")[0]!;
   if (relPath.startsWith("layers/hosts/") && HOST_COUNTRY[stem]) return HOST_COUNTRY[stem]!;
-  const m = /^(?:use)?(kr|jp|gb|ca|ie|ph|vn|th|cn|fr|id)(?:[A-Z])/i.exec(stem);
+  const m = /^(?:use)?(kr|jp|gb|ca|ie|ph|vn|th|cn|fr|id|us)(?:[A-Z])/i.exec(stem);
   if (!m) return null;
   // 前綴必須是小寫（kr…）或 use 後的大寫首字（useKr…），避免把 `cache…`、`phase…` 誤判
   const hasUse = stem.startsWith("use");

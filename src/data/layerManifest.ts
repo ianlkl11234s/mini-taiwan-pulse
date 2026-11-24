@@ -50,6 +50,8 @@ import type { ThDataKey, ThRasterKey } from "./thDataKeys";
 import { ID_DATA_SPECS } from "./idDataLayers";
 import { ID_RASTER_SPECS } from "./idWavesLayers";
 import type { IdDataKey, IdRasterKey } from "./idDataKeys";
+import { US_DATA_SPECS } from "./usDataLayers";
+import type { UsDataKey } from "./usDataKeys";
 import type { VnDataKey } from "./vnDataKeys";
 import { VN_RASTER_META, VN_WAVE_ENTRY_META } from "./vnWavesMeta";
 import { CA_WAVE_SPECS } from "./caWavesLayers";
@@ -1488,6 +1490,52 @@ const ID_RASTER_MANIFEST_ENTRIES = Object.fromEntries(ID_RASTER_SPECS.map((spec)
   }];
 })) as Record<IdRasterKey, LayerManifestEntry>;
 
+/** 美國第 1 波 9 層（2026-11-25）：規格在 usDataLayers.ts，本表只放側欄分類、名稱、上游說明。 */
+const US_DATA_ENTRY_META: Record<UsDataKey, { theme: string; group: string; zh: string; alt: string; icon: LucideIcon; dataset: string; description: string; topics: string[]; processing: string; note: string }> = {
+  usStations: { theme: "交通", group: "場站", zh: "大眾運輸站", alt: "Transit Stops", icon: Bus, dataset: "us_stations", topics: ["美國", "交通", "公車站", "地鐵", "Amtrak", "GTFS"],
+    description: "美國大眾運輸站 582,087 處（BTS National Transit Map 各業者 GTFS 彙整＋Amtrak 1,022 站；公車站 z9 起）", processing: "NTM Stops CSV（location_type 0／1）＋NTAD Amtrak Stations；郡面空間判定；PMTiles stops z5–11（z5–8 只留軌道、渡輪、Amtrak）", note: "NTM CC BY 3.0 US／Amtrak 公有領域；未上傳 GTFS 的業者未涵蓋" },
+  usRailLines: { theme: "交通", group: "鐵路", zh: "鐵路網", alt: "Rail Network", icon: TrainTrack, dataset: "us_rail_lines", topics: ["美國", "交通", "鐵路", "FRA", "NARN"],
+    description: "美國鐵路網 235,645 段（FRA North American Rail Network；幹線、支線、調車場、停駛線）", processing: "NTAD NARN Lines 只收 COUNTRY=US、50 州＋DC；州郡取來源欄位；PMTiles rail z3–12（z3–6 只畫幹線）", note: "公有領域；STFIPS 填州縮寫的 57 段丟棄" },
+  usHighways: { theme: "交通", group: "公路", zh: "國家公路系統", alt: "National Highway System", icon: Route, dataset: "us_highways", topics: ["美國", "交通", "公路", "州際公路", "NHS", "FHWA", "AADT"],
+    description: "美國國家公路系統 482,407 段（FHWA NHS 2025-08 版；州際公路、快速道路、主要幹道；含 AADT）", processing: "NTAD NHS GeoJSON；州郡取來源 STFIPS／CTFIPS；PMTiles roads z3–12（z3–5 只畫州際）", note: "公有領域；AADT 為各州回報年份；0／負值視為缺值" },
+  usTransportHubs: { theme: "交通", group: "機場與港口", zh: "機場與港口", alt: "Airports & Ports", icon: Plane, dataset: "us_transport_hubs", topics: ["美國", "交通", "機場", "港口", "FAA", "USACE"],
+    description: "美國營運中航空設施 18,947 處（FAA NASR；商業客運 505）＋USACE 主要港口 145", processing: "NTAD Aviation Facilities（ARPT_STATUS=O）＋USACE Principal Ports 面轉代表點；PMTiles hubs z3–10", note: "公有領域；私用設施預設不開；不輸出電話欄" },
+  usPowerPlants: { theme: "能源", group: "電廠", zh: "電廠", alt: "Power Plants", icon: Factory, dataset: "us_power_plants", topics: ["美國", "能源", "電廠", "EIA-860"],
+    description: "美國運轉中電廠 14,325 座（EIA-860 2025；依最大容量能源分色、容量分級大小）", processing: "EIA-860 2025 Plant＋Generator（Operable）彙總到電廠；郡面空間判定；PMTiles plants z3–10", note: "公有領域；≥1 MW；退役與規劃中機組不含" },
+  usPowerGrid: { theme: "能源", group: "電網", zh: "輸電網", alt: "Transmission Lines", icon: Cable, dataset: "us_power_grid", topics: ["美國", "能源", "輸電線", "變電所", "HIFLD", "OSM"],
+    description: "美國輸電線 94,339 段（HIFLD 存檔 2025-08；依電壓分色）＋變電所 73,586 處（OSM，z7 起）", processing: "SeerAI HIFLD 存檔 GeoParquet＋Overture base/infrastructure class=substation；郡面空間判定；PMTiles lines z3–11（z3–6 只畫 ≥220 kV 與直流）、substations z7–12", note: "輸電線 CC BY 4.0（HIFLD 存檔，不再更新）；變電所 ODbL（OSM，非官方）" },
+  usRenewables: { theme: "能源", group: "再生能源", zh: "風機與大型太陽能", alt: "Wind Turbines & Utility Solar", icon: Wind, dataset: "us_renewables", topics: ["美國", "能源", "風機", "太陽能", "USWTDB", "USPVDB"],
+    description: "美國風機 77,649 座（USWTDB v9.1）＋大型地面型太陽能 6,611 處（USPVDB v4.0，z8 起畫範圍）", processing: "USWTDB CSV、USPVDB GeoJSON；郡面空間判定；PMTiles turbines z4–10／solar_points z3–10／solar z8–13", note: "公有領域；屋頂型太陽能不含" },
+  usOilGas: { theme: "能源", group: "石化 · 油氣", zh: "油氣設施與管線", alt: "Oil & Gas Infrastructure", icon: Flame, dataset: "us_oil_gas", topics: ["美國", "能源", "煉油廠", "天然氣", "管線", "外海", "BOEM", "HIFLD"],
+    description: "美國煉油廠 132、天然氣處理廠 478、LNG 站 8、外海平台 1,303、外海井 56,495、管線 49,165 段", processing: "HIFLD 存檔（EIA 層）＋BOEM／BSEE MMC_Layers 0–2；外海標 offshore 保留；PMTiles facilities z3–10／wells z6–10／pipelines z3–11", note: "逐列：HIFLD 存檔 CC BY 4.0／BOEM 聯邦作品；陸域油氣井見「州油氣井」（18 州）" },
+  usStateWells: { theme: "能源", group: "石化 · 油氣", zh: "州油氣井", alt: "State Oil & Gas Wells", icon: Flame, dataset: "us_state_wells", topics: ["美國", "能源", "油氣井", "州"],
+    description: "美國 18 州主管機關油氣井 2,216,726 口（州子層；其他州未涵蓋）", processing: "各州 ArcGIS 井位服務逐州下載（筆數對帳）；狀態依州原文關鍵字歸類；郡面空間判定、跨州誤落點丟棄；PMTiles wells z6–12", note: "授權未明示（各州）；不收井名與地主名" },
+  usFuelStations: { theme: "能源", group: "加油站", zh: "加油站", alt: "Gas Stations", icon: Fuel, dataset: "us_fuel_stations", topics: ["美國", "能源", "加油站", "Overture"],
+    description: "美國加油站 170,712 處（Overture Places，非官方；z6 起）", processing: "Overture places gas_station／fueling_station／truck_gas_station；郡面空間判定；PMTiles stations z6–12", note: "CDLA-Permissive-2.0；非官方" },
+};
+const US_DATA_MANIFEST_ENTRIES = Object.fromEntries(US_DATA_SPECS.map((spec) => {
+  const m = US_DATA_ENTRY_META[spec.key];
+  const hasPoint = spec.parts.some((x) => x.geom === "point");
+  const layers = [...new Set(spec.parts.map((x) => x.sourceLayer))].join("／");
+  const kinds = ["multiSelect", ...(spec.heat ? ["palette"] : []), "slider", ...(hasPoint ? ["slider"] : [])] as ("multiSelect" | "palette" | "slider")[];
+  return [spec.key, {
+    key: spec.key,
+    country: "US", section: { theme: m.theme, group: m.group },
+    ...layerName({ zh: m.zh, alt: m.alt }),
+    expandable: true,
+    color: spec.color,
+    icon: m.icon,
+    upstream: { status: "verified", datasets: [{ datasetId: m.dataset, confidence: "HIGH" }], processing: m.processing, note: m.note },
+    dataClass: "D",
+    source: { kind: "custom", note: `usePhDataLayer（美國規格）自建 mapbox-pmtiles source；source-layer=${layers}`, staticAssets: [`./world/${spec.file}`] },
+    legend: spec.key,
+    popup: spec.key,
+    params: { count: kinds.length, kinds },
+    description: m.description,
+    topics: m.topics,
+  }];
+})) as Record<UsDataKey, LayerManifestEntry>;
+
 /** 越南 raster 4 層（2026-11-17 第 2、3、6 波）：PNG PMTiles，無 feature 屬性與 popup（同 caHillshade）。WDPCA 站主限定（OWNER_ONLY，圖磚走私有 owner-data）。 */
 const VN_RASTER_MANIFEST_ENTRIES = Object.fromEntries(VN_RASTER_SPECS.map((spec) => {
   const m = VN_RASTER_META[spec.key];
@@ -1646,6 +1694,7 @@ export const LAYER_MANIFEST = {
   ...TH_DATA_MANIFEST_ENTRIES,
   ...ID_DATA_MANIFEST_ENTRIES,
   ...ID_RASTER_MANIFEST_ENTRIES,
+  ...US_DATA_MANIFEST_ENTRIES,
   ...TH_RASTER_MANIFEST_ENTRIES,
   ...VN_RASTER_MANIFEST_ENTRIES,
   ...CA_WAVE_MANIFEST_ENTRIES,
@@ -6098,6 +6147,59 @@ export const LAYER_MANIFEST = {
     params: { count: 2, kinds: ["select", "slider"] },
     description: "印尼農村發展指數 IDM 2024（省、縣市村均值與五級狀態；無村縣市未涵蓋）",
     topics: ["印尼", "農村", "發展指數", "IDM", "Kemendes"],
+  },
+  // ══════════════════════════════════════════════════════════════
+  // 🇺🇸 美國 United States（2026-11-25 第 0–1 波：C001 行政邊界、C023 人口；其餘 9 層由 US_DATA_MANIFEST_ENTRIES 派生）
+  // ══════════════════════════════════════════════════════════════
+  usAdminBoundaries: {
+    key: "usAdminBoundaries",
+    country: "US", section: { theme: "底圖", group: "行政邊界" },
+    ...layerName({ zh: "行政區界", alt: "Administrative Boundaries" }),
+    expandable: true,
+    color: "#9ca3af",
+    icon: Map,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "us_admin_boundaries", confidence: "HIGH" }],
+      processing: "Census Cartographic Boundary 2025（1:500,000）州 51（50 州＋DC）、郡 3,144，排除屬地；PMTiles nation z1–8／state z2–10／county z4–12／state_labels z2–8",
+      note: "公有領域；屬地（PR、GU、VI、AS、MP、UM）另列；康乃狄克州郡級單位為 9 個規劃區",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useUsAdminLayers 自建 mapbox-pmtiles source；source-layer=state／county（select 擇一）",
+      staticAssets: ["./world/us_admin_boundaries.pmtiles"],
+    },
+    legend: "usAdminBoundaries",
+    popup: "usAdminBoundaries",
+    params: { count: 2, kinds: ["slider", "select"] },
+    description: "美國行政區界（51 州、3,144 郡；Census CB 2025）",
+    topics: ["美國", "行政區", "邊界", "州", "郡", "Census"],
+  },
+  usPopulation: {
+    key: "usPopulation",
+    country: "US", section: { theme: "人口社經", group: "人口分布" },
+    ...layerName({ zh: "人口密度", alt: "Population Density", qualifier: "ACS 2020–2024" }),
+    expandable: true,
+    color: "#f59e0b",
+    icon: Users,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "us_population", confidence: "HIGH" }],
+      processing: "ACS 2024 5 年 table-based summary file B01003 依 GEOID 接 CB 2025 州／郡、CB 2024 普查區；密度＝人口 ÷ ALAND；州加總 334,922,499 與全國值一致；PMTiles state z2–9／county z3–11／tract z7–12",
+      note: "公有領域；抽樣估計（含 90% 誤差界）；14 個普查區無 ACS 列、25 個全水域，畫灰「未涵蓋」",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useUsPopulationLayers 自建 mapbox-pmtiles source；source-layer=state／county／tract（select 擇一）",
+      staticAssets: ["./world/us_population.pmtiles"],
+    },
+    legend: "usPopulation",
+    popup: "usPopulation",
+    params: { count: 2, kinds: ["select", "slider"] },
+    description: "美國人口與人口密度（ACS 2020–2024 5 年估計；州、郡、普查區三層級）",
+    topics: ["美國", "人口", "人口密度", "ACS", "Census"],
   },
   // ══════════════════════════════════════════════════════════════
   // 🇨🇳 中國 China（2026-11-13 第 0–1 波，站主限定：C001 行政邊界、C023 人口＋人口網格；其餘 6 層由 CN_DATA_MANIFEST_ENTRIES 派生）

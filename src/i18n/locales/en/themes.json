@@ -430,5 +430,11 @@
   "theme.農地": "Farmland",
   "theme.通訊塔": "Communications Towers",
   "theme.郵局": "Post Offices",
-  "theme.體驗": "Experiences"
+  "theme.體驗": "Experiences",
+  "theme.公路": "Roads",
+  "theme.加油站": "Gas Stations",
+  "theme.機場與港口": "Airports & Ports",
+  "theme.鐵路": "Railways",
+  "theme.電廠": "Power Plants",
+  "theme.電網": "Power Grid"
 }
