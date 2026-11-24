@@ -15,6 +15,10 @@ import {
   parseJmaCoverage, seasonalLabel, snowcapProps, wbgtProps,
 } from "../jmaLiveLoaders";
 import { jmaRainyColorExpr, jmaRainyFilter, jmaRainyRegionForCode } from "../../hooks/useJmaRainySeasonLayer";
+import { loadAllPacks } from "../../countries/packs";
+
+// 全部圖層（含延後載入的國家包，B1 P5）一起驗
+await loadAllPacks();
 
 const ts = (iso: string) => Date.parse(iso) / 1000;
 

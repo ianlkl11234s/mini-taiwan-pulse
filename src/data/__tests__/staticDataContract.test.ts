@@ -17,6 +17,10 @@ import { existsSync, readFileSync, statSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { OVERLAY_REGISTRY } from "../../map/overlayRegistry";
 import { COMPANY_INDUSTRY_MID_OPTIONS } from "../businessRegistryTypes";
+import { loadAllPacks } from "../../countries/packs";
+
+// 全部圖層（含延後載入的國家包，B1 P5）一起驗
+await loadAllPacks();
 
 // ── 已知壞掉、待上游修（ratchet：修好後要從這裡移除，否則測試會提醒）──
 //
