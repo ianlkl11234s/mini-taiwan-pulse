@@ -8,13 +8,13 @@
  * 所以台灣圖層走這裡的輸出與 `timeStore.getDateKey()` 完全相同。
  * 規範見 `docs/TIMELINE_ARCHITECTURE.md`「資料時區宣告」。
  */
-import { LAYER_MANIFEST, type ManifestKey } from "../data/layerManifest";
+import type { ManifestKey } from "../data/layerManifest";
+import { layerDataTimeZoneOf } from "../data/layerLookup";
 import { DEFAULT_TIME_ZONE, zonedDateKey, zonedDayRangeMs } from "./zonedTime";
 
 /** 圖層宣告的資料時區；沒宣告回 Asia/Taipei。 */
 export function layerDataTimeZone(layerKey: ManifestKey): string {
-  const entry = LAYER_MANIFEST[layerKey] as { dataTimeZone?: string } | undefined;
-  return entry?.dataTimeZone ?? DEFAULT_TIME_ZONE;
+  return layerDataTimeZoneOf(layerKey) ?? DEFAULT_TIME_ZONE;
 }
 
 /** 時間軸那一刻（unix 秒）在該圖層資料時區的當地日期 YYYY-MM-DD。 */
