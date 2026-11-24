@@ -279,6 +279,59 @@ thTerrainHillshade,山體陰影 Hillshade,TH,泰國,底圖,custom,verified,th_te
 thTerrainRelief,色別標高 Elevation Tint,TH,泰國,底圖,custom,verified,th_terrain,,,,,,yes,none,,display_only,,,dataset_not_in_warehouse,,,,"泰國色別標高（0–2,565 m 色帶，≤0 m 與海面、鄰國透明）"
 thAdminBoundaries,行政區界 Administrative Boundaries,TH,泰國,底圖,custom,verified,th_admin_boundaries,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"泰國行政區界（國界、府 77、縣 928、區 7,425；OCHA COD-AB，泰文＋英文名）"
 thPopulation,人口密度 Population Density（2025 登記）,TH,泰國,人口社經,custom,verified,th_population,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,泰國 2025 年戶籍人口與人口密度（府、amphoe 兩層級；2021–2025 五年人口見 popup）
+idStations,鐵道站 Railway Stations,ID,印尼,交通,custom,verified,id_stations,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,印尼鐵道站 681 處（OSM 補缺，非官方；KAI 無開放站表）
+idRailLines,鐵道線 Railway Lines,ID,印尼,交通,custom,verified,id_rail_lines,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"印尼鐵道線 14,144 段（OSM，非官方；爪哇、蘇門答臘、南蘇拉威西）"
+idTransportHubs,機場與港口 Airports & Ports,ID,印尼,交通,custom,verified,id_transport_hubs,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,印尼機場 678、港口 396、渡輪碼頭 775（OSM；無名機場 32 處不顯示，不猜名；機場補名取 OurAirports）
+idPowerPlants,電廠 Power Plants,ID,印尼,能源,custom,verified,id_power_plants,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,印尼電廠 559 處（WRI GPPD 2021 版 178＋OSM 補缺 381；依燃料分色、點大小依裝置容量）
+idPowerGrid,輸電線與變電所 Power Lines & Substations,ID,印尼,能源,custom,verified,id_power_grid,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"印尼輸電線 4,627 段（依電壓分級）＋變電所 2,820 處（OpenStreetMap via Overture，非官方）"
+idRenewables,太陽能潛力與風光發電場 Solar Potential & Wind/Solar Farms,ID,印尼,能源,custom,verified,id_renewables,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,BMKG 太陽能潛力分區（2 級，DISPLAY_ONLY）＋OSM 太陽能／風力發電場 204 處
+idFuelStations,加油站 Fuel Stations,ID,印尼,能源,custom,verified,id_fuel_stations,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"印尼加油站 5,975 處（Overture 補缺，非官方 SPBU 名冊；Pertamina、Shell、BP 分色）"
+idPlaceNames,BIG 地名 BIG Place Names,ID,印尼,底圖,custom,verified,id_place_names,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"印尼地名 12,554 筆（BIG Gasetir 2023 已公布批次；含學校、村辦公室等設施型地名）"
+idOuterIslands,外圍小島 Outer Small Islands,ID,印尼,底圖,custom,verified,id_outer_islands,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,印尼外圍小島 111 處（BIG PPKT，Keppres 6/2017）；只畫島點，不畫任何海上主張線
+idFaults,活動斷層 Active Faults,ID,印尼,災害,custom,verified,id_faults,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"印尼斷層 1,415 條（PVMBG 大尺度活動斷層 1,014＋PuSGeN 2024 淺層地殼斷層 401）"
+idMountainRescue,山域搜救事件 Mountain Search & Rescue,ID,印尼,災害,custom,verified,id_mountain_rescue,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,印尼山域搜救事件 55 筆（Basarnas 2022 單年；山林迷路與墜落）；不含案件敘述與姓名
+idDibiHydromet,水文氣象災害次數（縣市） Hydrometeorological Disaster Counts,ID,印尼,災害,custom,verified,id_dibi_hydromet,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,印尼水文氣象災害次數（DIBI 2015–2024，514 縣市；DISPLAY_ONLY）
+idBridges,橋梁 Bridges,ID,印尼,交通,custom,verified,id_bridges,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"印尼橋梁 16,208 點（BNPB 轉存基本地形圖，三比例尺合併去重；只有位置與道路等級）"
+idWaterFacilities,"水壩、堰與閘 Dams, Weirs & Gates",ID,印尼,水資源,custom,verified,id_water_facilities,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"印尼水壩 893、堰 1,793、水閘 213、泄水閘 138、船閘 147（OSM，非官方）"
+idWatersheds,流域分級 Watershed Classification,ID,印尼,水資源,custom,verified,id_watersheds,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"印尼流域分級 42,210 個細流域（KLHK DAS；維持／待復育；z8 起填色）"
+idSubsidence,雅加達地層下陷觀測點 Jakarta Land Subsidence Points,ID,印尼,災害,custom,verified,id_subsidence,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,雅加達地層下陷觀測 502 筆（230 站，2023–2025；依年份篩選，各年速率不可互比）
+idNatureSpots,景點與觀景點 Attractions & Viewpoints,ID,印尼,觀光,custom,verified,id_nature_spots,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"印尼景點與觀景點 4,337 處（OSM，非官方；attraction 為泛稱）"
+idConservationForest,保護與保育林分區（舊版） Protection & Conservation Forest (Legacy),ID,印尼,自然保育,custom,verified,id_conservation_forest,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"印尼保護與保育林分區 15,792 面（WRI／GFW 舊版轉存，STALE；z7 起填色）"
+idCamps,營地與山屋 Campsites & Mountain Huts,ID,印尼,觀光,custom,verified,id_camps,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,印尼營地 586、山屋 118（OSM，非官方）
+idTerrainHillshade,山體陰影 Hillshade,ID,印尼,底圖,custom,verified,id_terrain,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,印尼山體陰影（Copernicus DEM GLO-90，約 90 m，重取樣約 306 m；DSM；DISPLAY_ONLY）
+idTerrainRelief,色別標高 Elevation Tint,ID,印尼,底圖,custom,verified,id_terrain,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"印尼色別標高（0–4,500 m 色帶，≤0 m 與海面透明；DISPLAY_ONLY）"
+idInariskLandslide,崩塌危害指數（InaRISK） Landslide Hazard Index (InaRISK),ID,印尼,災害,custom,verified,id_inarisk_landslide,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,印尼崩塌危害指數（InaRISK，500 m 重取樣，三等分展示色；DISPLAY_ONLY）
+idInariskFlood,淹水危害指數（InaRISK） Flood Hazard Index (InaRISK),ID,印尼,災害,custom,verified,id_inarisk_flood,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,印尼淹水危害指數（InaRISK，500 m 重取樣，三等分展示色，值域從 0.33 起；DISPLAY_ONLY）
+idInariskMulti,多災種危害指數（InaRISK） Multi-hazard Index (InaRISK),ID,印尼,災害,custom,verified,id_inarisk_multi,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,印尼多災種危害指數（InaRISK，5 級分位數相對排名；全國大片紅色是資料本身分布；DISPLAY_ONLY）
+idAdminBoundaries,行政區界 Administrative Boundaries,ID,印尼,底圖,custom,verified,id_admin_boundaries,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,印尼行政區界（國界、38 省、514 縣市；OCHA COD-AB，邊界不代表任何立場）
+idPopulation,人口密度 Population Density（2020 推估）,ID,印尼,人口社經,custom,verified,id_population,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,印尼 2020 年推估人口與人口密度（省、縣市兩層級）
+idRuralDevelopment,農村發展指數 IDM Village Development Index (IDM)（2024）,ID,印尼,人口社經,custom,verified,id_rural_development,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,印尼農村發展指數 IDM 2024（省、縣市村均值與五級狀態；無村縣市未涵蓋）
+idSchools,學校與幼兒園 Schools & Kindergartens,ID,印尼,教育,custom,verified,id_schools,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"印尼學校與幼兒園 63,083 處（OSM，非官方；學校 52,856、幼兒園 6,979、大學 1,980、學院 1,268；z7 起顯示）"
+idHealthFacilities,醫療設施 Health Facilities,ID,印尼,醫療,custom,verified,id_health_facilities,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"印尼醫療設施 17,998 處（OSM，非官方；醫院、診所、藥局、醫師診間、牙醫）"
+idFireStations,消防站 Fire Stations,ID,印尼,執法治安,custom,verified,id_fire_stations,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,印尼消防站 425 處（OSM，非官方）
+idPoliceStations,警察機關 Police Stations,ID,印尼,執法治安,custom,verified,id_police_stations,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"印尼警察機關 3,236 處（OSM，非官方）"
+idPrisonsCourts,監所與法院 Prisons & Courthouses,ID,印尼,執法治安,custom,verified,id_prisons_courts,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,印尼監所與法院 594 處（OSM，非官方）
+idImmigrationOffices,移民署辦公處 Immigration Offices,ID,印尼,執法治安,custom,verified,id_immigration_offices,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,印尼移民署辦公處 218 處（境內有座標；依名稱前綴歸類）
+idTransjakarta,TransJakarta 路線與站位 TransJakarta Routes & Stops,ID,印尼,交通,custom,verified,id_transjakarta,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"雅加達 TransJakarta 路線 694 條形狀與站位 8,149 處（靜態 GTFS，2026-11-20）"
+idSpecialEconomicZones,經濟特區 KEK Special Economic Zones (KEK),ID,印尼,工商登記,custom,verified,id_special_economic_zones,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,印尼經濟特區 KEK 12 處（非完整名冊）
+idPostOffices,郵局 Post Offices,ID,印尼,基礎建設,custom,verified,id_post_offices,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"印尼郵局 1,797 處（OSM，非官方）"
+idMarkets,市場 Marketplaces,ID,印尼,工商登記,custom,verified,id_markets,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"印尼市場 5,754 處（OSM，非官方）"
+idBanks,銀行與 ATM Banks & ATMs,ID,印尼,基礎建設,custom,verified,id_banks,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"印尼銀行 8,984 與 ATM 5,606（OSM，非官方；ATM z8 起）"
+idCulturalFacilities,文化設施 Cultural Facilities,ID,印尼,文化,custom,verified,id_cultural_facilities,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"印尼文化設施 3,755 處（OSM；圖書館、博物館、社區中心、劇場、電影院…）"
+idHeritageSites,歷史與紀念地點 Heritage & Memorial Sites,ID,印尼,文化,custom,verified,id_heritage_sites,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"印尼歷史與紀念地點 4,286 處（OSM historic 標籤；紀念碑、遺址、要塞、古墓…）"
+idCommTowers,通訊塔 Communications Towers,ID,印尼,基礎建設,custom,verified,id_comm_towers,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"印尼通訊塔 1,026 處（OSM，非官方）"
+idPlacesOfWorship,宗教場所 Places of Worship,ID,印尼,宗教,custom,verified,id_places_of_worship,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"印尼宗教場所 82,202 處（Overture，非官方；伊斯蘭、基督教、天主教、印度教、佛教；z7 起顯示）"
+idExperiences,遊樂與露營 Amusement & Camping,ID,印尼,觀光,custom,verified,id_experiences,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"印尼遊樂園、水上樂園、露營地、水族館、動物園共 3,040 處（Overture，非官方）"
+idAccommodation,住宿 Accommodation,ID,印尼,觀光,custom,verified,id_accommodation,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"印尼住宿 67,917 處（Overture，非官方；飯店、旅社、度假村、青旅；z7 起顯示）"
+idWeatherStations,氣象站位（BMKG） Weather Stations (BMKG),ID,印尼,環境氣候,custom,verified,id_weather_stations,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"印尼 BMKG 自動氣象站位 1,315 站（ARG、AWS、AAWS 等；只有站位，沒有觀測值）"
+idFactories,工廠與工場 Factories & Works,ID,印尼,工商登記,custom,verified,id_factories,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"印尼工廠與工場 3,048 處（OSM，非官方）"
+idSportsVenues,運動場地 Sports Venues,ID,印尼,運動休閒,custom,verified,id_sports_venues,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"印尼運動場地 18,785 處（OSM 面；球場、體育場、遊憩地、跑道；z8 起顯示）"
+idParks,公園 Parks,ID,印尼,運動休閒,custom,verified,id_parks,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"印尼公園 9,241 處（OSM 面；z7 起顯示）"
+idCemeteries,墓地範圍 Cemeteries,ID,印尼,基礎建設,custom,verified,id_cemeteries,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"印尼墓地範圍 8,052 處（OSM 面；只有墓區範圍，無個別墓位）"
+idAquaculture,養殖池 Aquaculture Ponds,ID,印尼,農業,custom,verified,id_aquaculture,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"印尼養殖池 4,642 處（OSM 面）"
+idFarmland,農地面（OSM 派生） Farmland (OSM-derived),ID,印尼,農業,custom,verified,id_farmland,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"印尼農地面 95,084 處（OSM 派生：農地、果園、農場院落；z8 起顯示）"
+idVeterinary,獸醫院 Veterinary Clinics,ID,印尼,農業,custom,verified,id_veterinary,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,印尼獸醫院 763 處（Overture，非官方）
+idIkn,新首都 IKN 範圍與規劃 New Capital (IKN) Boundaries & Planning,ID,印尼,底圖,custom,verified,id_ikn,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,印尼新首都 IKN 四個互相重疊的範圍（IKN 範圍、RDTR 4、BWP 北部 1、BWP 六分區）
 vnTerrainHillshade,山體陰影 Hillshade,VN,越南,底圖,custom,verified,vn_terrain,,,,,,yes,none,,display_only,,,dataset_not_in_warehouse,,,,越南山體陰影（Copernicus DEM GLO-90，約 90 m；只保留陸域）
 vnTerrainRelief,色別標高 Elevation Tint,VN,越南,底圖,custom,verified,vn_terrain,,,,,,yes,none,,display_only,,,dataset_not_in_warehouse,,,,"越南色別標高（0–3,147 m 九段色帶，≤0 m 透明）"
 vnLandslideSusceptibility,崩塌潛勢（區域模型圖） Landslide Susceptibility (regional model),VN,越南,災害,custom,verified,vn_landslide_susceptibility,,,,,,yes,none,,display_only,,,dataset_not_in_warehouse,,,,越南崩塌潛勢（低、中、高三級；極低不畫；區域模型圖，只有圖、不能分析）

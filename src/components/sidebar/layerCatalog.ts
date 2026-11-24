@@ -483,6 +483,28 @@ export const THEME_SCOPE: Readonly<Record<ThemeScope, readonly string[]>> = {
     "運動休閒",
     "農業",
   ],
+  ID: [
+    // 印尼（2026-11-23 第 0–4 波；title 沿用台灣主題中文短名，比照泰國）
+    "底圖",
+    "人口社經",
+    "交通",
+    "能源",
+    "災害",
+    "水資源",
+    "自然保育",
+    "觀光",
+    // 第 5–9 波（2026-11-24）
+    "教育",
+    "醫療",
+    "執法治安",
+    "工商登記",
+    "基礎建設",
+    "文化",
+    "宗教",
+    "環境氣候",
+    "運動休閒",
+    "農業",
+  ],
   GB: [
     // 英國（2026-10-29 英國第 0b 波；title 沿用台灣主題中文短名，與日本同名不衝突）
     "底圖",
@@ -3870,6 +3892,185 @@ const THEME_CATALOG: ThemeDef[] = [
   },
 
   // ───────────────────────────────────────────────────────────────
+  // 🇮🇩 印尼（2026-11-23 第 0–4 波：行政邊界、地形、地名、人口、IDM、交通、能源、災害、水資源、保育林、景點；群組比照泰國）
+  // ───────────────────────────────────────────────────────────────
+  {
+    title: "底圖",
+    country: "ID",
+    defaultCollapsed: true,
+    groups: [
+      { title: "行政邊界", layers: [fromManifest("idAdminBoundaries")] },
+      { title: "地形", layers: [fromManifest("idTerrainHillshade"), fromManifest("idTerrainRelief")] },
+      { title: "地名", layers: [fromManifest("idPlaceNames")] },
+      { title: "外圍小島", layers: [fromManifest("idOuterIslands")] },
+      { title: "新首都 IKN", layers: [fromManifest("idIkn")] },
+    ],
+  },
+  {
+    title: "人口社經",
+    country: "ID",
+    defaultCollapsed: true,
+    groups: [
+      { title: "人口分布", layers: [fromManifest("idPopulation")] },
+      { title: "農村發展", layers: [fromManifest("idRuralDevelopment")] },
+    ],
+  },
+  {
+    title: "交通",
+    country: "ID",
+    defaultCollapsed: true,
+    groups: [
+      { title: "場站", layers: [fromManifest("idStations")] },
+      { title: "樞紐節點", layers: [fromManifest("idTransportHubs")] },
+      { title: "路網", layers: [fromManifest("idRailLines")] },
+      { title: "橋梁", layers: [fromManifest("idBridges")] },
+      { title: "公車", layers: [fromManifest("idTransjakarta")] },
+    ],
+  },
+  {
+    title: "能源",
+    country: "ID",
+    defaultCollapsed: true,
+    groups: [
+      { title: "電力 · 廠", layers: [fromManifest("idPowerPlants")] },
+      { title: "電力 · 電網", layers: [fromManifest("idPowerGrid")] },
+      { title: "再生能源", layers: [fromManifest("idRenewables")] },
+      { title: "石化 · 加油站", layers: [fromManifest("idFuelStations")] },
+    ],
+  },
+  {
+    title: "災害",
+    country: "ID",
+    defaultCollapsed: true,
+    groups: [
+      { title: "斷層", layers: [fromManifest("idFaults")] },
+      { title: "InaRISK 危害指數", layers: [fromManifest("idInariskLandslide"), fromManifest("idInariskFlood"), fromManifest("idInariskMulti")] },
+      { title: "水文氣象災害", layers: [fromManifest("idDibiHydromet")] },
+      { title: "地層下陷", layers: [fromManifest("idSubsidence")] },
+      { title: "山域搜救", layers: [fromManifest("idMountainRescue")] },
+    ],
+  },
+  {
+    title: "水資源",
+    country: "ID",
+    defaultCollapsed: true,
+    groups: [
+      { title: "水利設施", layers: [fromManifest("idWaterFacilities")] },
+      { title: "流域", layers: [fromManifest("idWatersheds")] },
+    ],
+  },
+  {
+    title: "自然保育",
+    country: "ID",
+    defaultCollapsed: true,
+    groups: [{ title: "保護與保育林", layers: [fromManifest("idConservationForest")] }],
+  },
+  {
+    title: "觀光",
+    country: "ID",
+    defaultCollapsed: true,
+    groups: [
+      { title: "玩・自然", layers: [fromManifest("idNatureSpots")] },
+      { title: "營地與山屋", layers: [fromManifest("idCamps")] },
+      { title: "體驗", layers: [fromManifest("idExperiences")] },
+      { title: "住宿", layers: [fromManifest("idAccommodation")] },
+    ],
+  },
+
+  {
+    title: "教育",
+    country: "ID",
+    defaultCollapsed: true,
+    groups: [
+      { title: "學校", layers: [fromManifest("idSchools")] },
+    ],
+  },
+  {
+    title: "醫療",
+    country: "ID",
+    defaultCollapsed: true,
+    groups: [
+      { title: "點位", layers: [fromManifest("idHealthFacilities")] },
+    ],
+  },
+  {
+    title: "執法治安",
+    country: "ID",
+    defaultCollapsed: true,
+    groups: [
+      { title: "警政", layers: [fromManifest("idPoliceStations")] },
+      { title: "消防", layers: [fromManifest("idFireStations")] },
+      { title: "監所與法院", layers: [fromManifest("idPrisonsCourts")] },
+      { title: "移民署", layers: [fromManifest("idImmigrationOffices")] },
+    ],
+  },
+  {
+    title: "工商登記",
+    country: "ID",
+    defaultCollapsed: true,
+    groups: [
+      { title: "經濟特區", layers: [fromManifest("idSpecialEconomicZones")] },
+      { title: "工廠", layers: [fromManifest("idFactories")] },
+      { title: "市場", layers: [fromManifest("idMarkets")] },
+    ],
+  },
+  {
+    title: "基礎建設",
+    country: "ID",
+    defaultCollapsed: true,
+    groups: [
+      { title: "郵局", layers: [fromManifest("idPostOffices")] },
+      { title: "金融據點", layers: [fromManifest("idBanks")] },
+      { title: "通訊塔", layers: [fromManifest("idCommTowers")] },
+      { title: "墓區", layers: [fromManifest("idCemeteries")] },
+    ],
+  },
+  {
+    title: "文化",
+    country: "ID",
+    defaultCollapsed: true,
+    groups: [
+      { title: "文化設施", layers: [fromManifest("idCulturalFacilities")] },
+      { title: "古蹟與紀念地", layers: [fromManifest("idHeritageSites")] },
+    ],
+  },
+  {
+    title: "宗教",
+    country: "ID",
+    defaultCollapsed: true,
+    groups: [
+      { title: "點位", layers: [fromManifest("idPlacesOfWorship")] },
+    ],
+  },
+  {
+    title: "環境氣候",
+    country: "ID",
+    defaultCollapsed: true,
+    groups: [
+      { title: "氣象站", layers: [fromManifest("idWeatherStations")] },
+    ],
+  },
+  {
+    title: "運動休閒",
+    country: "ID",
+    defaultCollapsed: true,
+    groups: [
+      { title: "點位", layers: [fromManifest("idSportsVenues")] },
+      { title: "公園", layers: [fromManifest("idParks")] },
+    ],
+  },
+  {
+    title: "農業",
+    country: "ID",
+    defaultCollapsed: true,
+    groups: [
+      { title: "農地", layers: [fromManifest("idFarmland")] },
+      { title: "養殖", layers: [fromManifest("idAquaculture")] },
+      { title: "獸醫", layers: [fromManifest("idVeterinary")] },
+    ],
+  },
+
+  // ───────────────────────────────────────────────────────────────
   // 🇻🇳 越南（2026-11-13 第 0–1 波：行政邊界、人口、交通、能源、環境監測站、安江示範；群組比照菲律賓）
   // ───────────────────────────────────────────────────────────────
   {
@@ -4548,6 +4749,27 @@ const THEME_MACRO_GROUPS: Readonly<Record<ThemeScope, Readonly<Record<string, La
     "運動休閒": "publicLife",
     "農業": "environment",
   },
+  ID: {
+    // 印尼主題 title＝台灣主題中文短名，大分類同台灣對應主題（比照泰國）。
+    "底圖": "baseline",
+    "人口社經": "city",
+    "交通": "city",
+    "能源": "environment",
+    "災害": "safety",
+    "水資源": "environment",
+    "自然保育": "environment",
+    "觀光": "publicLife",
+    "教育": "publicLife",
+    "醫療": "safety",
+    "執法治安": "safety",
+    "工商登記": "city",
+    "基礎建設": "publicLife",
+    "文化": "publicLife",
+    "宗教": "publicLife",
+    "環境氣候": "environment",
+    "運動休閒": "publicLife",
+    "農業": "environment",
+  },
   CN: {
     // 中國主題 title＝台灣主題中文短名，大分類同台灣對應主題（比照菲律賓）。
     "底圖": "baseline",
@@ -4867,6 +5089,27 @@ const THEME_NAMES: Readonly<Record<ThemeScope, Readonly<Record<string, ThemeName
     "宗教": { zh: "宗教", sub: "Religion" },
     "環境氣候": { zh: "環境氣候", sub: "Environment" },
     "海洋": { zh: "海洋", sub: "Marine" },
+    "運動休閒": { zh: "運動休閒", sub: "Sports & Leisure" },
+    "農業": { zh: "農業", sub: "Agriculture" },
+  },
+  ID: {
+    // 印尼主題副標用英文（比照泰國）
+    "底圖": { zh: "底圖", sub: "Base Map" },
+    "人口社經": { zh: "人口社經", sub: "People" },
+    "交通": { zh: "交通", sub: "Transport" },
+    "能源": { zh: "能源", sub: "Energy" },
+    "災害": { zh: "災害", sub: "Hazard" },
+    "水資源": { zh: "水資源", sub: "Water" },
+    "自然保育": { zh: "自然保育", sub: "Conservation" },
+    "觀光": { zh: "觀光", sub: "Tourism" },
+    "教育": { zh: "教育", sub: "Education" },
+    "醫療": { zh: "醫療", sub: "Medical" },
+    "執法治安": { zh: "執法治安", sub: "Law & Order" },
+    "工商登記": { zh: "工商登記", sub: "Business Registry" },
+    "基礎建設": { zh: "基礎建設", sub: "Infrastructure" },
+    "文化": { zh: "文化", sub: "Culture" },
+    "宗教": { zh: "宗教", sub: "Religion" },
+    "環境氣候": { zh: "環境氣候", sub: "Environment" },
     "運動休閒": { zh: "運動休閒", sub: "Sports & Leisure" },
     "農業": { zh: "農業", sub: "Agriculture" },
   },
