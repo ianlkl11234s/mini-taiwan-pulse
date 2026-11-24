@@ -88,10 +88,13 @@ export function ensureCountryPack(cc: CountryCode): Promise<void> {
   if (running) return running;
   status.set(cc, "loading");
   emit();
+  // 效能量測（DevTools Performance／performance.getEntriesByName）：國家包從開始抓到登記完成
+  globalThis.performance?.mark?.(`country-pack:${cc}:start`);
   const p = withLoading(`country-pack:${cc}`, packLoadingLabel(cc), loader())
     .then((mod) => {
       registerPack(mod.default);
       status.set(cc, "ready");
+      globalThis.performance?.mark?.(`country-pack:${cc}:ready`);
     })
     .catch((err: unknown) => {
       status.set(cc, "error");
