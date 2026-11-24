@@ -750,6 +750,7 @@ export function MapchallengeDay23TastePlacesLegend({ isDark }: { isDark: boolean
   const { t, formatNumber } = useLocale();
   const values = useLayerParams("mapchallengeDay23TastePlaces");
   const place = mapchallengeDay23PlaceById(paramStr(values, "mapchallengeDay23TastePlaces", "mapchallengeDay23TastePlacesSign")) ?? MAPCHALLENGE_DAY23_PLACES[0];
+  const sizeScale = paramNum(values, "mapchallengeDay23TastePlaces", "mapchallengeDay23TastePlacesScale");
   const color = mapchallengeDay23TermColor(place, isDark);
   const home = t(MAPCHALLENGE_DAY23_HOME_KEYS[place.value]);
   return <div>
@@ -761,7 +762,7 @@ export function MapchallengeDay23TastePlacesLegend({ isDark }: { isDark: boolean
     </LegendRow>
     <LegendRow swatch={<SwatchDot color={color} />}>{t("legend.mapchallenge.day23.dotRow", { home })}</LegendRow>
     <LegendRow swatch={<SwatchLine color={color} width={mapchallengeDay23ArcWidth(4)} opacity={isDark ? MAPCHALLENGE_DAY23_ARC.opacityDark + 0.3 : MAPCHALLENGE_DAY23_ARC.opacityLight + 0.3} />}>{t("legend.mapchallenge.day23.arcRow")}</LegendRow>
-    <LegendSizeRow title={t("legend.mapchallenge.day23.sizeTitle")} items={MAPCHALLENGE_DAY23_PLACE_SIZE_STEPS.map((n) => ({ r: mapchallengeDay23Radius(n), label: String(n) }))} fill={color} />
+    <LegendSizeRow title={t("legend.mapchallenge.day23.sizeTitle")} items={MAPCHALLENGE_DAY23_PLACE_SIZE_STEPS.map((n) => ({ r: mapchallengeDay23Radius(n, sizeScale), label: String(n) }))} fill={color} />
     <LegendNote>{t("legend.mapchallenge.day23.arcNote")}</LegendNote>
     <LegendNote>{t("legend.mapchallenge.day23.gridNote")}</LegendNote>
     <LegendNote>{t("legend.mapchallenge.day23.placesScope")}</LegendNote>
@@ -773,6 +774,7 @@ export function MapchallengeDay23TasteForeignLegend({ isDark }: { isDark: boolea
   const { t, formatNumber } = useLocale();
   const values = useLayerParams("mapchallengeDay23TasteForeign");
   const group = mapchallengeDay23ForeignById(paramStr(values, "mapchallengeDay23TasteForeign", "mapchallengeDay23TasteForeignGroup")) ?? MAPCHALLENGE_DAY23_FOREIGN[0];
+  const sizeScale = paramNum(values, "mapchallengeDay23TasteForeign", "mapchallengeDay23TasteForeignScale");
   const color = mapchallengeDay23TermColor(group, isDark);
   const dominant = MAPCHALLENGE_DAY23_FOREIGN_DOMINANT[group.value];
   return <div>
@@ -782,7 +784,7 @@ export function MapchallengeDay23TasteForeignLegend({ isDark }: { isDark: boolea
     </LegendRow>
     <LegendNote>{t("legend.mapchallenge.day23.foreignWords", { words: group.words.join("、") })}</LegendNote>
     {dominant && <LegendNote>{t("legend.mapchallenge.day23.foreignDominant", { word: dominant.word, hits: formatNumber(dominant.hits), n: formatNumber(group.stores), pct: Math.round((dominant.hits / group.stores) * 100) })}</LegendNote>}
-    <LegendSizeRow title={t("legend.mapchallenge.day23.sizeTitle")} items={MAPCHALLENGE_DAY23_FOREIGN_SIZE_STEPS.map((n) => ({ r: mapchallengeDay23Radius(n, 1, group.k), label: String(n) }))} fill={color} />
+    <LegendSizeRow title={t("legend.mapchallenge.day23.sizeTitle")} items={MAPCHALLENGE_DAY23_FOREIGN_SIZE_STEPS.map((n) => ({ r: mapchallengeDay23Radius(n, sizeScale, group.k), label: String(n) }))} fill={color} />
     <LegendNote>{t("legend.mapchallenge.day23.foreignSizeNote")}</LegendNote>
     <LegendNote>{t("legend.mapchallenge.day23.gridNote")}</LegendNote>
     <LegendNote>{t("legend.mapchallenge.day23.foreignScope")}</LegendNote>
