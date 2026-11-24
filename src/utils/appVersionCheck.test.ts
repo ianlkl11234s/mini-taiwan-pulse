@@ -84,15 +84,29 @@ describe("startVersionWatcher", () => {
     return { fetchVersion, onUpdate, stop };
   };
 
-  it("定時檢查，偵測到新版後通知一次並停止", async () => {
+  it("定時檢查，偵測到新版後通知；同一版不重複通知，但繼續輪詢", async () => {
     const { fetchVersion, onUpdate } = setup({ version: "2.44.0", build: "new" });
     expect(fetchVersion).not.toHaveBeenCalled();
     t = 1000;
     await vi.advanceTimersByTimeAsync(1000);
     expect(onUpdate).toHaveBeenCalledWith({ version: "2.44.0", build: "new" });
     await vi.advanceTimersByTimeAsync(5000);
-    expect(fetchVersion).toHaveBeenCalledTimes(1);
-    expect(handler).toBeNull();
+    expect(fetchVersion).toHaveBeenCalledTimes(6);
+    expect(onUpdate).toHaveBeenCalledTimes(1);
+    expect(handler).not.toBeNull();
+  });
+
+  it("使用者略過 B 版後又發了 C 版：要再通知（K5）", async () => {
+    let remote: AppVersionInfo = { version: "2.44.0", build: "B" };
+    const fetchVersion = vi.fn(async () => remote);
+    const onUpdate = vi.fn();
+    startVersionWatcher({ local, fetchVersion, onUpdate, doc, now: () => t, intervalMs: 1000, minRecheckMs: 500 });
+    await vi.advanceTimersByTimeAsync(1000);
+    expect(onUpdate).toHaveBeenLastCalledWith({ version: "2.44.0", build: "B" });
+    remote = { version: "2.44.1", build: "C" };
+    await vi.advanceTimersByTimeAsync(1000);
+    expect(onUpdate).toHaveBeenCalledTimes(2);
+    expect(onUpdate).toHaveBeenLastCalledWith({ version: "2.44.1", build: "C" });
   });
 
   it("同版本不通知、繼續輪詢；背景分頁不打", async () => {
