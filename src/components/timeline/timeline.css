@@ -160,6 +160,17 @@
   background: var(--tl-live);
 }
 
+/* 當地時間小字（看外國時）：次要文字；空間不夠時截斷，手機放在時間旁、可換行到下一列 */
+.tl3-local {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font: 500 10px/1 var(--font-cjk);
+  font-variant-numeric: tabular-nums;
+  color: var(--tl-muted);
+  white-space: nowrap;
+}
+
 .tl3-date-dim {
   color: var(--tl-dim);
 }
