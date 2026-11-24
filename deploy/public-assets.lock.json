@@ -3887,6 +3887,13 @@
    "s3_key": "deploy-assets/geo/ookla_fixed_global_20260930.pmtiles"
   },
   {
+   "path": "public/geo/ookla_fixed_global_20260930_t3.pmtiles",
+   "bytes": 10877809,
+   "sha256": "23ee93f66c6354077154b1280ea59c2a49b90741503b78e452cb6ef1d71bfd81",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/geo/ookla_fixed_global_20260930_t3.pmtiles"
+  },
+  {
    "path": "public/geo/ookla_mobile_global.geojson",
    "bytes": 18972022,
    "sha256": "b5009e14cb28f913435d58a5652a402f0567ec6a7433a97a185b704d5475bd0c",
@@ -3900,6 +3907,13 @@
    "sha256": "96e13839135df3545a214312a1173f5bfb835c2a257b1d438cef42efc519e7e4",
    "delivery": "r2",
    "s3_key": "deploy-assets/geo/ookla_mobile_global_20260930.pmtiles"
+  },
+  {
+   "path": "public/geo/ookla_mobile_global_20260930_t3.pmtiles",
+   "bytes": 8679935,
+   "sha256": "38ffee1ea078ec3af0a9cd6e9274e7183b24338b6d57c51a767a233cc58c4cac",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/geo/ookla_mobile_global_20260930_t3.pmtiles"
   },
   {
    "path": "public/geo/ookla_tw_z14.pmtiles",
