@@ -114,7 +114,6 @@ import { CATEGORY_FILTERS, categoryDefs, categoryMaskKey, categoryParamName, cat
 import { krCatOptionIds, type KrLayerSpec } from "./intlLayerShared";
 import { ID_ADMIN_LEVELS, ID_LEVELS_2 } from "./idDataLayers";
 import { ID_RASTER_SPECS } from "./idWavesLayers";
-import { VN_RASTER_SPECS } from "./vnWavesLayers";
 import { PALETTE_IDS, type PaletteId } from "../map/palettes";
 import { defaultHeatmapPalette } from "../map/heatmapPaletteDefaults";
 import { URBAN_HEAT_MODES } from "./urbanHeatTypes";
@@ -2310,13 +2309,6 @@ const STATIC_LAYER_PARAMS_SPEC = {
   ],
   // 印尼 raster 5 層（2026-11-23）：只有透明度（同 thTerrain）
   ...Object.fromEntries(ID_RASTER_SPECS.map((spec) => [spec.key, [
-    { kind: "slider" as const, name: `${spec.key}Opacity`, labelPrefix: "透明度", digits: 2, default: spec.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05 },
-  ]])),
-  // 越南第 0–1 波（2026-11-13）：行政邊界、人口只有 34 省一級（不需層級 select）
-  vnAdminBoundaries: [opacitySlider("vnAdminBoundariesOpacity", 0.85)],
-  vnPopulation: [opacitySlider("vnPopulationOpacity", 0.7)],
-  // 越南 raster 4 層（2026-11-17）：只有透明度（同 caHillshade、菲律賓 raster）
-  ...Object.fromEntries(VN_RASTER_SPECS.map((spec) => [spec.key, [
     { kind: "slider" as const, name: `${spec.key}Opacity`, labelPrefix: "透明度", digits: 2, default: spec.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05 },
   ]])),
   jpStations: [

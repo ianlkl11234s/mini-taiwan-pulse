@@ -1,16 +1,16 @@
 // 越南圖例（2026-11-13 第 0–1 波）：行政邊界、人口密度、規格驅動 10 層（重用菲律賓 PhSpecLegend）。SSOT：data/vnDataLayers.ts。
-import { LegendNote, LegendRow, LegendTitle, SwatchGradient, SwatchLine, SwatchSquare, SwatchSteps, useLegendTheme, LegendRestrictions } from "./legendKit";
+import { LegendNote, LegendRow, LegendTitle, SwatchGradient, SwatchLine, SwatchSquare, SwatchSteps, useLegendTheme, LegendRestrictions } from "../../components/legend/legendKit";
 import { LAYER_MANIFEST, type LayerName } from "../../data/layerManifest";
 import { localizeLayerName } from "../../i18n/layerText";
 import { useLocale } from "../../state/localeStore";
 import { BOUNDARY_GRAY } from "../../map/mapStyleScale";
 import {
   VN_ADMIN_NOTES, VN_DENSITY_LABELS, VN_POPULATION_NOTES, VN_SPEC_BY_KEY, pickL3,
-} from "../../data/vnDataLayers";
-import type { VnDataKey, VnRasterKey } from "../../data/vnDataKeys";
-import { VN_RASTER_BY_KEY } from "../../data/vnWavesLayers";
-import { vnDensityColors } from "../../hooks/useVnLayers";
-import { PhSpecLegend } from "./intlSpecLegend";
+} from "./vnDataLayers";
+import type { VnDataKey, VnRasterKey } from "./keys";
+import { VN_RASTER_BY_KEY } from "./vnWavesLayers";
+import { vnDensityColors } from "./useVnLayers";
+import { PhSpecLegend } from "../../components/legend/intlSpecLegend";
 
 function useLayerTitle(key: string): string {
   const i18n = useLocale();

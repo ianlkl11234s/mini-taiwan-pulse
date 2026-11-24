@@ -105,8 +105,6 @@ import {
   JpTourismHost, JpWaterHost,
 } from "./hosts/japanHosts";
 import { IdAdminHost, IdPopulationHost, IdRuralDevelopmentHost, IdStationsHost, IdRailLinesHost, IdTransportHubsHost, IdPowerPlantsHost, IdPowerGridHost, IdRenewablesHost, IdFuelStationsHost, IdPlaceNamesHost, IdOuterIslandsHost, IdFaultsHost, IdMountainRescueHost, IdDibiHydrometHost, IdBridgesHost, IdWaterFacilitiesHost, IdWatershedsHost, IdSubsidenceHost, IdNatureSpotsHost, IdConservationForestHost, IdCampsHost, IdTerrainHillshadeHost, IdTerrainReliefHost, IdInariskLandslideHost, IdInariskFloodHost, IdInariskMultiHost, IdSchoolsHost, IdHealthFacilitiesHost, IdFireStationsHost, IdPoliceStationsHost, IdPrisonsCourtsHost, IdImmigrationOfficesHost, IdTransjakartaHost, IdSpecialEconomicZonesHost, IdIknHost, IdPostOfficesHost, IdMarketsHost, IdBanksHost, IdCulturalFacilitiesHost, IdHeritageSitesHost, IdCommTowersHost, IdPlacesOfWorshipHost, IdExperiencesHost, IdAccommodationHost, IdWeatherStationsHost, IdFactoriesHost, IdSportsVenuesHost, IdParksHost, IdCemeteriesHost, IdAquacultureHost, IdFarmlandHost, IdVeterinaryHost } from "./hosts/indonesiaHosts";
-import { VnAdminHost, VnPopulationHost, VnStationsHost, VnTransportHubsHost, VnMajorRoadsHost, VnPowerPlantsHost, VnRenewablesHost, VnPowerGridHost, VnFuelStationsHost, VnOilGasHost, VnEnvisoftStationsHost, VnAngiangDemoHost,
-  VnTourAttractionsHost, VnTourNatureHost, VnTourServicesHost, VnNationalTouristAreasHost, VnPlaceNamesHost, VnBicycleRentalHost, VnBridgesHost, VnParkingHost, VnGlideEventsHost, VnDamsHost, VnRiversHost, VnWaterSupplyHost, VnWaterStructuresHost, VnRiverbankErosionHost, VnSchoolsHost, VnSchoolCampusesHost, VnKindergartensHost, VnHealthFacilitiesHost, VnPoliceHost, VnCourtsPrisonsHost, VnPostalServicesHost, VnPublicAmenitiesHost, VnFinancialServicesHost, VnPlacesOfWorshipHost, VnParksHost, VnProtectedAreasOdmHost, VnAngiangAquacultureHost, VnFieldBoundariesHost, VnSoilHost, VnFarmTracksHost, VnCoalMinesHost, VnTerrainHillshadeHost, VnTerrainReliefHost, VnLandslideSusceptibilityHost, VnWdpcaHost } from "./hosts/vietnamHosts";
 
 export interface LayerHookEntry {
   /** hook 名（同名多次呼叫加 `:後綴` 區分）—— 也是 `window.__layerRenderCounts` 的 key */
@@ -368,55 +366,7 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = slottedList<LayerH
   { id: "useIdFarmlandLayer", keys: ["idFarmland"], Host: IdFarmlandHost },
   { id: "useIdVeterinaryLayer", keys: ["idVeterinary"], Host: IdVeterinaryHost },
   countrySlot("TH", 1), // 泰國國家包（src/countries/th/）
-  // 越南（2026-11-13 第 0–1 波：行政邊界、人口、交通 3 層、能源 5 層、環境監測站、安江示範）
-  { id: "useVnAdminLayers", keys: ["vnAdminBoundaries"], Host: VnAdminHost },
-  { id: "useVnPopulationLayers", keys: ["vnPopulation"], Host: VnPopulationHost },
-  { id: "useVnStationsLayer", keys: ["vnStations"], Host: VnStationsHost },
-  { id: "useVnTransportHubsLayer", keys: ["vnTransportHubs"], Host: VnTransportHubsHost },
-  { id: "useVnMajorRoadsLayer", keys: ["vnMajorRoads"], Host: VnMajorRoadsHost },
-  { id: "useVnPowerPlantsLayer", keys: ["vnPowerPlants"], Host: VnPowerPlantsHost },
-  { id: "useVnRenewablesLayer", keys: ["vnRenewables"], Host: VnRenewablesHost },
-  { id: "useVnPowerGridLayer", keys: ["vnPowerGrid"], Host: VnPowerGridHost },
-  { id: "useVnFuelStationsLayer", keys: ["vnFuelStations"], Host: VnFuelStationsHost },
-  { id: "useVnOilGasLayer", keys: ["vnOilGas"], Host: VnOilGasHost },
-  { id: "useVnEnvisoftStationsLayer", keys: ["vnEnvisoftStations"], Host: VnEnvisoftStationsHost },
-  { id: "useVnAngiangDemoLayer", keys: ["vnAngiangDemo"], Host: VnAngiangDemoHost },
-  // 越南觀光波與第 2–7 波＋raster 4 層（2026-11-17）
-  { id: "useVnTourAttractionsLayer", keys: ["vnTourAttractions"], Host: VnTourAttractionsHost },
-  { id: "useVnTourNatureLayer", keys: ["vnTourNature"], Host: VnTourNatureHost },
-  { id: "useVnTourServicesLayer", keys: ["vnTourServices"], Host: VnTourServicesHost },
-  { id: "useVnNationalTouristAreasLayer", keys: ["vnNationalTouristAreas"], Host: VnNationalTouristAreasHost },
-  { id: "useVnPlaceNamesLayer", keys: ["vnPlaceNames"], Host: VnPlaceNamesHost },
-  { id: "useVnBicycleRentalLayer", keys: ["vnBicycleRental"], Host: VnBicycleRentalHost },
-  { id: "useVnBridgesLayer", keys: ["vnBridges"], Host: VnBridgesHost },
-  { id: "useVnParkingLayer", keys: ["vnParking"], Host: VnParkingHost },
-  { id: "useVnGlideEventsLayer", keys: ["vnGlideEvents"], Host: VnGlideEventsHost },
-  { id: "useVnDamsLayer", keys: ["vnDams"], Host: VnDamsHost },
-  { id: "useVnRiversLayer", keys: ["vnRivers"], Host: VnRiversHost },
-  { id: "useVnWaterSupplyLayer", keys: ["vnWaterSupply"], Host: VnWaterSupplyHost },
-  { id: "useVnWaterStructuresLayer", keys: ["vnWaterStructures"], Host: VnWaterStructuresHost },
-  { id: "useVnRiverbankErosionLayer", keys: ["vnRiverbankErosion"], Host: VnRiverbankErosionHost },
-  { id: "useVnSchoolsLayer", keys: ["vnSchools"], Host: VnSchoolsHost },
-  { id: "useVnSchoolCampusesLayer", keys: ["vnSchoolCampuses"], Host: VnSchoolCampusesHost },
-  { id: "useVnKindergartensLayer", keys: ["vnKindergartens"], Host: VnKindergartensHost },
-  { id: "useVnHealthFacilitiesLayer", keys: ["vnHealthFacilities"], Host: VnHealthFacilitiesHost },
-  { id: "useVnPoliceLayer", keys: ["vnPolice"], Host: VnPoliceHost },
-  { id: "useVnCourtsPrisonsLayer", keys: ["vnCourtsPrisons"], Host: VnCourtsPrisonsHost },
-  { id: "useVnPostalServicesLayer", keys: ["vnPostalServices"], Host: VnPostalServicesHost },
-  { id: "useVnPublicAmenitiesLayer", keys: ["vnPublicAmenities"], Host: VnPublicAmenitiesHost },
-  { id: "useVnFinancialServicesLayer", keys: ["vnFinancialServices"], Host: VnFinancialServicesHost },
-  { id: "useVnPlacesOfWorshipLayer", keys: ["vnPlacesOfWorship"], Host: VnPlacesOfWorshipHost },
-  { id: "useVnParksLayer", keys: ["vnParks"], Host: VnParksHost },
-  { id: "useVnProtectedAreasOdmLayer", keys: ["vnProtectedAreasOdm"], Host: VnProtectedAreasOdmHost },
-  { id: "useVnAngiangAquacultureLayer", keys: ["vnAngiangAquaculture"], Host: VnAngiangAquacultureHost },
-  { id: "useVnFieldBoundariesLayer", keys: ["vnFieldBoundaries"], Host: VnFieldBoundariesHost },
-  { id: "useVnSoilLayer", keys: ["vnSoil"], Host: VnSoilHost },
-  { id: "useVnFarmTracksLayer", keys: ["vnFarmTracks"], Host: VnFarmTracksHost },
-  { id: "useVnCoalMinesLayer", keys: ["vnCoalMines"], Host: VnCoalMinesHost },
-  { id: "useVnTerrainHillshadeLayer", keys: ["vnTerrainHillshade"], Host: VnTerrainHillshadeHost },
-  { id: "useVnTerrainReliefLayer", keys: ["vnTerrainRelief"], Host: VnTerrainReliefHost },
-  { id: "useVnLandslideSusceptibilityLayer", keys: ["vnLandslideSusceptibility"], Host: VnLandslideSusceptibilityHost },
-  { id: "useVnWdpcaLayer", keys: ["vnWdpca"], Host: VnWdpcaHost },
+  countrySlot("VN", 1), // 越南國家包（src/countries/vn/）
   countrySlot("PH", 2), // 菲律賓國家包（src/countries/ph/）
   countrySlot("CN", 1), // 中國國家包（src/countries/cn/）
   countrySlot("CA", 2), // 加拿大國家包（src/countries/ca/）

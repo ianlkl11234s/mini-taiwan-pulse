@@ -1,13 +1,13 @@
 import { useEffect } from "react";
 import type { AnyLayer, GeoJSONSource, Map as MapboxMap } from "mapbox-gl";
-import { hookFillPaint, hookLineLayout, hookLinePaint } from "../map/lineFillSpec";
-import { BOUNDARY_GRAY, LABEL, MAP_SEAM, labelHaloPaint } from "../map/mapStyleScale";
-import { paletteRamp, resampleRamp } from "../map/palettes";
-import { paramDefault } from "../data/layerParamsSpec";
-import { VN_ADMIN_COLOR, VN_DENSITY_BREAKS, VN_NOT_COVERED_COLOR, phText } from "../data/vnDataLayers";
-import { useGbPmtilesLayers, type PrivatePmtilesSource, type SourceSpec } from "./intlPmtilesLayers";
-import type { VnRasterSpec } from "../data/vnWavesLayers";
-import { useMapReadyTick } from "./useMapReadyTick";
+import { hookFillPaint, hookLineLayout, hookLinePaint } from "../../map/lineFillSpec";
+import { BOUNDARY_GRAY, LABEL, MAP_SEAM, labelHaloPaint } from "../../map/mapStyleScale";
+import { paletteRamp, resampleRamp } from "../../map/palettes";
+import { paramDefault } from "../../data/layerParamsSpec";
+import { VN_ADMIN_COLOR, VN_DENSITY_BREAKS, VN_NOT_COVERED_COLOR, phText } from "./vnDataLayers";
+import { useGbPmtilesLayers, type PrivatePmtilesSource, type SourceSpec } from "../../hooks/intlPmtilesLayers";
+import type { VnRasterSpec } from "./vnWavesLayers";
+import { useMapReadyTick } from "../../hooks/useMapReadyTick";
 
 /**
  * 越南第 0–1 波（2026-11-13）：行政邊界（34 省面＋省名）與人口密度（34 省）。靜態 PMTiles、不訂閱時間。

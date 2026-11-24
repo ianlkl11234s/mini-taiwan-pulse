@@ -10,8 +10,8 @@
  * - W3-1 崩塌潛勢：ODM GeoServer WMS 沒有 CORS，改由 analytics 預渲染成自有 PNG PMTiles（z5–9，34 省遮罩、極低透明）。
  * GeoJSON 數值欄有字串（'137660'、'5'）：popup 一律 `kind: "num"／"year"` 轉數字。南海兩特區不畫、不歸任何省。
  */
-import type { VnDataKey, VnRasterKey } from "./vnDataKeys";
-import type { L3, PhCat, PhCatGetter, PhField, PhLayerSpec, PhNote, PhPart, PhSizeBands } from "./intlLayerShared";
+import type { VnDataKey, VnRasterKey } from "./keys";
+import type { L3, PhCat, PhCatGetter, PhField, PhLayerSpec, PhNote, PhPart, PhSizeBands } from "../../data/intlLayerShared";
 
 type Spec = PhLayerSpec<VnDataKey>;
 const l3 = (zh: string, en: string, ja: string): L3 => ({ zh, en, ja });

@@ -12,7 +12,6 @@ import type { Locale } from "../i18n/locales";
 import { LAYER_MANIFEST } from "./layerManifest";
 import { onRecordExtended } from "../countries/slots";
 import { LAYER_NOTES_DATA, LAYER_SOURCE_INFO_DATA } from "./layerSourceInfo.data";
-import { VN_DATA_SPECS } from "./vnDataLayers";
 
 /** 原文字串、既有 i18n key（可帶變數），或三語各自的原文。 */
 export type SourceText =
@@ -86,10 +85,6 @@ export function specLayerNotesAll(spec: { popupNotes: ReadonlyArray<L3> }): Sour
 }
 
 const SPEC_NOTES = new Map<string, SourceText[]>();
-{
-  const add = (key: string, notes: SourceText[]) => { if (notes.length) SPEC_NOTES.set(key, notes); };
-  for (const spec of [...VN_DATA_SPECS]) add(spec.key, specLayerNotes(spec));
-}
 // 國家包（B1 P5a）帶來的規格層備註：`layerSpecNotes` 登記簿（key → notes，空的不登記）
 onRecordExtended("layerSpecNotes", (added) => {
   for (const [key, notes] of Object.entries(added)) SPEC_NOTES.set(key, notes as SourceText[]);
@@ -109,8 +104,11 @@ export function getLayerRestrictions(layerKey: string): readonly LayerRestrictio
   return LAYER_SOURCE_INFO[layerKey]?.restrictions ?? [];
 }
 
-/** 越南依來源欄切換署名的層（規格有 `more`：部分 feature 屬另一個來源）。 */
-const VN_SOURCE_SWITCH = VN_DATA_SPECS.filter((spec) => "more" in spec && spec.more).map((spec) => spec.key);
+/**
+ * 越南依來源欄切換署名的層（規格有 `more`：部分 feature 屬另一個來源）。
+ * 越南搬成國家包（B1 P5b）後這裡不能讀規格表，改列 key；layerSourceInfo 測試比對規格表擋漏。
+ */
+export const VN_SOURCE_SWITCH = ["vnTransportHubs", "vnRenewables", "vnOilGas"] as const;
 
 /**
  * 圖層側是否已涵蓋 popup 原本的來源資訊：有機關，且有授權——

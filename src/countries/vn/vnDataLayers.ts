@@ -8,12 +8,12 @@
  * 不畫任何海上界線；Hoàng Sa、Trường Sa 兩特區沒有幾何（使用者 2026-11-10）。
  * 官方來源（NSO、envisoft、安江省開放資料）授權未明示：NĐ 47/2020 第 18 條已由 NĐ 194/2025 廢止、NĐ 278/2025 整部取代（未取得官方原文）。
  */
-import type { VnDataKey } from "./vnDataKeys";
+import type { VnDataKey } from "./keys";
 import { VN_WAVE_SPECS } from "./vnWavesLayers";
-import type { L3, PhCat, PhCatGetter, PhField, PhLayerSpec, PhNote, PhPart, PhSizeBands } from "./intlLayerShared";
+import type { L3, PhCat, PhCatGetter, PhField, PhLayerSpec, PhNote, PhPart, PhSizeBands } from "../../data/intlLayerShared";
 
-export type { L3 } from "./intlLayerShared";
-export { pickL3, phText } from "./intlLayerShared";
+export type { L3 } from "../../data/intlLayerShared";
+export { pickL3, phText } from "../../data/intlLayerShared";
 
 type Expr = unknown[];
 const l3 = (zh: string, en: string, ja: string): L3 => ({ zh, en, ja });

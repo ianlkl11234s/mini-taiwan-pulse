@@ -6,7 +6,7 @@
 import { KR_DATA_KEYS } from "../countries/kr/keys";
 import { IE_DATA_KEYS } from "../countries/ie/keys";
 import { PH_DATA_KEYS } from "../countries/ph/keys";
-import { VN_DATA_KEYS } from "../data/vnDataKeys";
+import { VN_DATA_KEYS } from "../countries/vn/keys";
 import { TH_DATA_KEYS } from "../countries/th/keys";
 import { ID_DATA_KEYS } from "../data/idDataKeys";
 import { CN_DATA_KEYS } from "../countries/cn/keys";

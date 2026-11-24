@@ -333,8 +333,8 @@ export const HOOK_LINE_TIERS: Readonly<Record<string, HookLineTierSpec>> = {
   "thMajorRoads/th-major-rail-line": {"width": "standard", "opacity": "standard"}, // 鐵道 · src/countries/ph/usePhLayers.ts（泰國規格）
   "thPowerGrid/th-power-lines-line": {"width": "keep", "opacity": "standard"}, // 寬依電壓 · src/countries/ph/usePhLayers.ts（泰國規格）
   "thPipelines/th-pipelines-line": {"width": "keep", "opacity": "standard"}, // 依內容物分色、油氣較寬 · src/countries/ph/usePhLayers.ts（泰國規格）
-  "vnAdminBoundaries/vn-admin-province-line": {"width": "emphasis", "opacity": "standard"}, // L-5：34 省比照縣市 · src/hooks/useVnLayers.ts
-  "vnPopulation/vn-population-province-line": {"width": "keep", "opacity": "keep"}, // 分級面底圖色細縫（F-2）· src/hooks/useVnLayers.ts
+  "vnAdminBoundaries/vn-admin-province-line": {"width": "emphasis", "opacity": "standard"}, // L-5：34 省比照縣市 · src/countries/vn/useVnLayers.ts
+  "vnPopulation/vn-population-province-line": {"width": "keep", "opacity": "keep"}, // 分級面底圖色細縫（F-2）· src/countries/vn/useVnLayers.ts
   "vnMajorRoads/vn-major-roads-line": {"width": "keep", "opacity": "standard"}, // 寬依道路等級 · src/countries/ph/usePhLayers.ts（越南規格）
   "vnMajorRoads/vn-major-rail-line": {"width": "standard", "opacity": "standard"}, // 鐵道營運中 · src/countries/ph/usePhLayers.ts（越南規格）
   "vnMajorRoads/vn-major-rail-construction-line": {"width": "standard", "opacity": "standard"}, // 鐵道興建中虛線 · src/countries/ph/usePhLayers.ts（越南規格）
@@ -504,7 +504,7 @@ export const HOOK_FILL_TIERS: Readonly<Record<string, FillTier | "keep">> = {
   "phPopulation/ph-population-barangay-fill": "graded", // 同上 · src/countries/ph/usePhLayers.ts
   "thPopulation/th-population-province-fill": "graded", // 人口密度 6 級 · src/countries/th/useThLayers.ts
   "thPopulation/th-population-amphoe-fill": "graded", // 同上 · src/countries/th/useThLayers.ts
-  "vnPopulation/vn-population-province-fill": "graded", // 人口密度 5 級 · src/hooks/useVnLayers.ts
+  "vnPopulation/vn-population-province-fill": "graded", // 人口密度 5 級 · src/countries/vn/useVnLayers.ts
   "vnAngiangDemo/vn-angiang-clusters-fill": "coverage", // 安江工業群依狀態分色 · src/countries/ph/usePhLayers.ts（越南規格）
   "cnPopulation/cn-population-province-fill": "graded", // 人口密度 6 級＋未涵蓋灰 · src/countries/cn/useCnLayers.ts
   "cnPopulation/cn-population-prefecture-fill": "graded", // 同上（GHS 模型值）· src/countries/cn/useCnLayers.ts

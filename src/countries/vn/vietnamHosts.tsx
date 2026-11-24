@@ -1,14 +1,14 @@
 // 越南 Layer Host（2026-11-13 第 0–1 波）。比照 hosts/philippinesHosts.tsx：一個 key 一個 Host；規格驅動層重用 usePhDataLayer。
 
 import { usePhDataLayer } from "../../hooks/intlPhSpecLayers";
-import { useVnAdminLayers, useVnPopulationLayers, useVnRasterLayer } from "../../hooks/useVnLayers";
+import { useVnAdminLayers, useVnPopulationLayers, useVnRasterLayer } from "./useVnLayers";
 import { useOwnerPmtilesSource, useOwnerRevokeCleanup } from "../../hooks/useOwnerPmtilesAccess";
-import { VN_RASTER_BY_KEY } from "../../data/vnWavesLayers";
+import { VN_RASTER_BY_KEY } from "./vnWavesLayers";
 import { selectedMultiSelectValues } from "../../data/multiSelectMapbox";
-import { VN_SPEC_BY_KEY, VN_STATUS_IDS, vnMoreSpec, vnStatusFilter } from "../../data/vnDataLayers";
-import type { VnDataKey } from "../../data/vnDataKeys";
-import { bumpHostRender, type LayerHostComponent } from "../layerHostDeps";
-import { useKeyOverlayParams } from "../layerParamsAccess";
+import { VN_SPEC_BY_KEY, VN_STATUS_IDS, vnMoreSpec, vnStatusFilter } from "./vnDataLayers";
+import type { VnDataKey } from "./keys";
+import { bumpHostRender, type LayerHostComponent } from "../../layers/layerHostDeps";
+import { useKeyOverlayParams } from "../../layers/layerParamsAccess";
 
 /** 行政邊界：34 省面＋省名。 */
 export const VnAdminHost: LayerHostComponent = ({ deps }) => {

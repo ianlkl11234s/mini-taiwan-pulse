@@ -4,7 +4,7 @@ import type { PhLayerKey } from "./keys";
 import type { LayerParamSpec } from "../../data/layerParamsSpec";
 import { ID_DATA_SPECS } from "../../data/idDataLayers";
 import { categoryMultiSelect, heatmapPalette, opacitySlider, scaleSlider, serializeMultiSelectValues } from "../../data/layerParamsSpec";
-import { VN_DATA_SPECS, VN_STATUSES } from "../../data/vnDataLayers";
+import { VN_DATA_SPECS, VN_STATUSES } from "../vn/vnDataLayers";
 import { densePointOpacity, RASTER } from "../../map/mapStyleScale";
 import { PH_ADMIN_LEVELS, PH_DATA_SPECS, PH_PLANT_STATUS_DEFAULT, PH_PLANT_STATUSES, phCatOptions } from "./phDataLayers";
 import { PH_RASTER_SPECS } from "./phWavesLayers";

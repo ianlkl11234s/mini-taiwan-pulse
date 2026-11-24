@@ -7,7 +7,7 @@ import {
   Activity, Banknote, BedDouble, Bike, Church, CloudRain, Droplet, Droplets, Fish, Gavel, GraduationCap, Hospital, Landmark, Layers, Leaf,
   Mail, MapPinned, Milestone, Mountain, Pickaxe, School, Shield, Sprout, SquareParking, Tag, Toilet, Tractor, TreePalm, Trees, TriangleAlert, Waves,
 } from "lucide-react";
-import type { VnDataKey, VnRasterKey } from "./vnDataKeys";
+import type { VnDataKey, VnRasterKey } from "./keys";
 
 export interface VnEntryMeta { theme: string; group: string; zh: string; alt: string; icon: LucideIcon; dataset: string; description: string; topics: string[]; processing: string; note: string }
 

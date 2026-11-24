@@ -1,15 +1,15 @@
 // 越南圖層 popup（2026-11-13 第 0–1 波）。規格與署名 SSOT 在 data/vnDataLayers.ts；規格驅動層重用菲律賓 makePhPanel。
 // 來源與授權由 panel 自掛 SourceFooter（FOOTER_SELF_MANAGED）；分檔的層依 feature `source` 欄選署名。空值列由 Row 自動隱藏，不寫 0。
 import type { FC } from "react";
-import { Row, SourceFooter, Title } from "./shared";
-import { TrendChart } from "./landSubsidencePanels";
+import { Row, SourceFooter, Title } from "../../components/featureInfo/shared";
+import { TrendChart } from "../../components/featureInfo/landSubsidencePanels";
 import { useLocale } from "../../state/localeStore";
 import { caText } from "../../data/intlLayerShared";
-import { makePhPanel } from "./intlSpecPanel";
+import { makePhPanel } from "../../components/featureInfo/intlSpecPanel";
 import {
   VN_ADMIN_COLOR, VN_ADMIN_SOURCE, VN_DATA_SPECS, VN_FETCHED_AT, VN_POP_YEARS, VN_POPULATION_SOURCE, phText, pickL3, vnMoreSpec, type L3,
-} from "../../data/vnDataLayers";
-import type { VnDataKey } from "../../data/vnDataKeys";
+} from "./vnDataLayers";
+import type { VnDataKey } from "./keys";
 
 type P = { props: Record<string, unknown> };
 

@@ -58,10 +58,8 @@ import { AgriCompanyLegend, AgriPOILegend, CommonRegistrationAddressesLegend, Co
 import { DrinkingWaterProtectionZonesLegend, GroundwaterLegend, IotRiverLegend, IotStructureLegend, JpWaterFloodHazardLegend, JpWaterLegend, LakesPondsLegend, RainGaugeLegend, ReservoirStatusLegend, ReservoirStaticLegend, RiverLevelLegend, RiverRpiStationsLegend, SewageTreatmentPlantsLegend, TaipeiEvacuateLegend, TaipeiPumbLegend, TaipeiSewerLegend, WaterCanalLegend, WaterFacilityLegend, WaterFloodExtremeLegend, WaterMonitorStationLegend, WaterProtectionZoneLegend, WaterQualityStationsLegend } from "./legend/waterLegends";
 import { AnfrWirelessSitesLegend, CoverageLegend, EnergyFuelLegend, EnergyReserveLegend, EnergySpecialtyLegend, FacOffshoreLegend, FacilityFuelLegend, FossilFuelLegend, InternetExchangePointsLegend, LandingStationLegend, NetworkStructuresLegend, OoklaPerformanceGridLegend, OsmCommunicationSitesLegend, PowerGridLegend, PowerPolesLegend, RenewablePoiLegend, RipeAtlasProbesLegend, SubmarineCableLegend, SubstationEhvLegend, SubstationLocalLegend } from "./legend/energyTelecomLegends";
 import { AccessibleParkLegend, AnimalAdoptionLegend, AnimalShelterPressureLegend, AnimalWelfarePointsLegend, BicycleSupportLegend, EducationLegend, GovServiceOfficeLegend, GovernmentLifeLegend, JpMedicalLegend, JpPoliceFacilitiesLegend, JpEvacuationSitesLegend, JpLandslideWarningAreasLegend, JpInlandFloodAreasLegend, JpZoningUseDistrictsLegend, JpNationalForestsLegend, JpWelfareFacilitiesLegend, JpPublicOfficesLegend, JpBusStopsLegend, JpSchoolsLegend, EmergencyHospitalLegend, MedicalIsochroneLegend, MedicalLegend, PoliceIsochroneLegend, PoliceJusticeLegend, PublicLifeCoverageLegend, PublicLifeOsmLegend, PublicToiletLegend, WelfareLegend } from "./legend/civicServiceLegends";
-import { VN_DATA_KEYS, VN_RASTER_KEYS } from "../data/vnDataKeys";
 import { ID_DATA_KEYS, ID_RASTER_KEYS } from "../data/idDataKeys";
 import { IdAdminBoundariesLegend, IdDataLegend, IdPopulationLegend, IdRasterLegend, IdRuralDevelopmentLegend } from "./legend/idLegends";
-import { VnAdminBoundariesLegend, VnDataLegend, VnPopulationLegend, VnRasterLegend } from "./legend/vnLegends";
 import { CountyMigrationFlowsLegend } from "./legend/countyMigrationLegends";
 import { JpGsiHillshadeLegend, JpGsiReliefLegend, HistoricalMapLegend, BuildingsGbaLegend, CanopyGiantsLegend, CanopyHeightLegend, EcoNetworkZonesLegend, JpBuildingHeightLegend, JpCanopyHeightLegend, JpPopulationMeshLegend, NonUrbanZoningLegend, ParksTaipeiLegend, PropertyValueAdminLegend, PropertyValueGridLegend, ProtectedTreesNationalLegend, RealEstateLegend, RiversideTreesTaipeiLegend, StreetTrees3epochLegend, StreetTreesNationalLegend, StreetTreesTaipeiDiffLegend, TreePitsTaipeiLegend, UrbanFormGridLegend, UrbanZoningLegend } from "./legend/urbanFormLegends";
 import { ArtsEventsLegend, CulturalFacilitiesLegend, CulturalMuseumsLegend, FuneralLegend, JpAccommodationDensityLegend, JpAccommodationTypesLegend, JpReligionLegend, LibrarySeatsLegend, PerformingVenuesLegend, ReligionLegend, SportsVenueLegend, TourAttractionsLegend, TourEventsLegend, TourHeritageLegend, TourHotelsLegend } from "./legend/cultureLegends";
@@ -347,16 +345,14 @@ export const LEGEND_REGISTRY: LegendEntry[] = slottedList<LegendEntry>("legends"
   countrySlot("CA", 1), // 加拿大國家包（src/countries/ca/）
   countrySlot("IE", 1), // 愛爾蘭國家包（src/countries/ie/）
   countrySlot("PH", 1), // 菲律賓國家包（src/countries/ph/）
-  { id: "vnAdminBoundaries", render: () => <VnAdminBoundariesLegend /> },
-  { id: "vnPopulation", render: () => <VnPopulationLegend /> },
-  ...VN_DATA_KEYS.map((key) => ({ id: key, render: () => <VnDataLegend layerKey={key} /> })),
+  countrySlot("VN", 1), // 越南國家包（src/countries/vn/）
   countrySlot("TH", 1), // 泰國國家包（src/countries/th/）
   { id: "idAdminBoundaries", render: () => <IdAdminBoundariesLegend /> },
   { id: "idPopulation", render: () => <IdPopulationLegend /> },
   { id: "idRuralDevelopment", render: () => <IdRuralDevelopmentLegend /> },
   ...ID_DATA_KEYS.map((key) => ({ id: key, render: () => <IdDataLegend layerKey={key} /> })),
   ...ID_RASTER_KEYS.map((key) => ({ id: key, render: () => <IdRasterLegend layerKey={key} /> })),
-  ...VN_RASTER_KEYS.map((key) => ({ id: key, render: () => <VnRasterLegend layerKey={key} /> })),
+  countrySlot("VN", 2), // 越南國家包（src/countries/vn/）
   countrySlot("CA", 2), // 加拿大國家包（src/countries/ca/）
   countrySlot("CN", 1), // 中國國家包（src/countries/cn/）
   countrySlot("IE", 2), // 愛爾蘭國家包（src/countries/ie/）
