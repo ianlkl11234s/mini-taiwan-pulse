@@ -1,0 +1,3431 @@
+{
+  "count": 67,
+  "gisLayers": {},
+  "overlays": {},
+  "params": {
+    "statsComparisonAcuteBedTotalPer10000PopulationTownship": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "全部：原始數",
+            "value": "statsHealthHospitalBedTotal"
+          },
+          {
+            "label": "急性：原始數",
+            "value": "statsHealthAcuteBedTotal"
+          },
+          {
+            "label": "加護：原始數",
+            "value": "statsHealthIcuBedTotal"
+          },
+          {
+            "label": "安寧：原始數",
+            "value": "statsHealthHospiceBedTotal"
+          },
+          {
+            "label": "急性病床（每萬人口）",
+            "value": "statsComparisonAcuteBedTotalPer10000PopulationTownship"
+          },
+          {
+            "label": "安寧病床（每萬人口）",
+            "value": "statsComparisonHospiceBedTotalPer10000PopulationTownship"
+          },
+          {
+            "label": "醫院病床總數（每萬人口）",
+            "value": "statsComparisonHospitalBedTotalPer10000PopulationTownship"
+          },
+          {
+            "label": "加護病床（每萬人口）",
+            "value": "statsComparisonIcuBedTotalPer10000PopulationTownship"
+          },
+          {
+            "label": "急性病床（每平方公里）",
+            "value": "statsComparisonAcuteBedTotalPerKm2Township"
+          },
+          {
+            "label": "安寧病床（每平方公里）",
+            "value": "statsComparisonHospiceBedTotalPerKm2Township"
+          },
+          {
+            "label": "醫院病床總數（每平方公里）",
+            "value": "statsComparisonHospitalBedTotalPerKm2Township"
+          },
+          {
+            "label": "加護病床（每平方公里）",
+            "value": "statsComparisonIcuBedTotalPerKm2Township"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonAcuteBedTotalPer10000PopulationTownship"
+      },
+      {
+        "label": "年度",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonAcuteBedTotalPerKm2Township": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "全部：原始數",
+            "value": "statsHealthHospitalBedTotal"
+          },
+          {
+            "label": "急性：原始數",
+            "value": "statsHealthAcuteBedTotal"
+          },
+          {
+            "label": "加護：原始數",
+            "value": "statsHealthIcuBedTotal"
+          },
+          {
+            "label": "安寧：原始數",
+            "value": "statsHealthHospiceBedTotal"
+          },
+          {
+            "label": "急性病床（每萬人口）",
+            "value": "statsComparisonAcuteBedTotalPer10000PopulationTownship"
+          },
+          {
+            "label": "安寧病床（每萬人口）",
+            "value": "statsComparisonHospiceBedTotalPer10000PopulationTownship"
+          },
+          {
+            "label": "醫院病床總數（每萬人口）",
+            "value": "statsComparisonHospitalBedTotalPer10000PopulationTownship"
+          },
+          {
+            "label": "加護病床（每萬人口）",
+            "value": "statsComparisonIcuBedTotalPer10000PopulationTownship"
+          },
+          {
+            "label": "急性病床（每平方公里）",
+            "value": "statsComparisonAcuteBedTotalPerKm2Township"
+          },
+          {
+            "label": "安寧病床（每平方公里）",
+            "value": "statsComparisonHospiceBedTotalPerKm2Township"
+          },
+          {
+            "label": "醫院病床總數（每平方公里）",
+            "value": "statsComparisonHospitalBedTotalPerKm2Township"
+          },
+          {
+            "label": "加護病床（每平方公里）",
+            "value": "statsComparisonIcuBedTotalPerKm2Township"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonAcuteBedTotalPerKm2Township"
+      },
+      {
+        "label": "床位口徑",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonCareWorkerRegistrationCountPer65plus1000County": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "登錄數",
+            "value": "statsHealthCareWorkerRegistration"
+          },
+          {
+            "label": "縣市：照顧服務員登錄數（人口比較）",
+            "value": "statsComparisonCareWorkerRegistrationCountPer65plus1000County"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonCareWorkerRegistrationCountPer65plus1000County"
+      },
+      {
+        "label": "年度",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonGeneralNursingHomeOpenBedsPer65plus1000County": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "開放床數",
+            "value": "statsHealthGeneralNursingHomeOpenBeds"
+          },
+          {
+            "label": "縣市：一般護理之家開放床數（人口比較）",
+            "value": "statsComparisonGeneralNursingHomeOpenBedsPer65plus1000County"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonGeneralNursingHomeOpenBedsPer65plus1000County"
+      },
+      {
+        "label": "年度",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonHealthProfessionalTotalPer10000PopulationTownship": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "醫事人員總計：原始數",
+            "value": "statsHealthHealthProfessionalTotal"
+          },
+          {
+            "label": "西醫師：原始數",
+            "value": "statsHealthWesternPhysicianCount"
+          },
+          {
+            "label": "護理師：原始數",
+            "value": "statsHealthRegisteredNurseCount"
+          },
+          {
+            "label": "醫院醫事人員總計（每萬人口）",
+            "value": "statsComparisonHealthProfessionalTotalPer10000PopulationTownship"
+          },
+          {
+            "label": "醫院護理師（每萬人口）",
+            "value": "statsComparisonRegisteredNurseCountPer10000PopulationTownship"
+          },
+          {
+            "label": "醫院西醫師（每萬人口）",
+            "value": "statsComparisonWesternPhysicianCountPer10000PopulationTownship"
+          },
+          {
+            "label": "醫院醫事人員總計（每平方公里）",
+            "value": "statsComparisonHealthProfessionalTotalPerKm2Township"
+          },
+          {
+            "label": "醫院護理師（每平方公里）",
+            "value": "statsComparisonRegisteredNurseCountPerKm2Township"
+          },
+          {
+            "label": "醫院西醫師（每平方公里）",
+            "value": "statsComparisonWesternPhysicianCountPerKm2Township"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonHealthProfessionalTotalPer10000PopulationTownship"
+      },
+      {
+        "label": "年度",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonHealthProfessionalTotalPerKm2Township": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "醫事人員總計：原始數",
+            "value": "statsHealthHealthProfessionalTotal"
+          },
+          {
+            "label": "西醫師：原始數",
+            "value": "statsHealthWesternPhysicianCount"
+          },
+          {
+            "label": "護理師：原始數",
+            "value": "statsHealthRegisteredNurseCount"
+          },
+          {
+            "label": "醫院醫事人員總計（每萬人口）",
+            "value": "statsComparisonHealthProfessionalTotalPer10000PopulationTownship"
+          },
+          {
+            "label": "醫院護理師（每萬人口）",
+            "value": "statsComparisonRegisteredNurseCountPer10000PopulationTownship"
+          },
+          {
+            "label": "醫院西醫師（每萬人口）",
+            "value": "statsComparisonWesternPhysicianCountPer10000PopulationTownship"
+          },
+          {
+            "label": "醫院醫事人員總計（每平方公里）",
+            "value": "statsComparisonHealthProfessionalTotalPerKm2Township"
+          },
+          {
+            "label": "醫院護理師（每平方公里）",
+            "value": "statsComparisonRegisteredNurseCountPerKm2Township"
+          },
+          {
+            "label": "醫院西醫師（每平方公里）",
+            "value": "statsComparisonWesternPhysicianCountPerKm2Township"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonHealthProfessionalTotalPerKm2Township"
+      },
+      {
+        "label": "年度",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonHospiceBedTotalPer10000PopulationTownship": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "全部：原始數",
+            "value": "statsHealthHospitalBedTotal"
+          },
+          {
+            "label": "急性：原始數",
+            "value": "statsHealthAcuteBedTotal"
+          },
+          {
+            "label": "加護：原始數",
+            "value": "statsHealthIcuBedTotal"
+          },
+          {
+            "label": "安寧：原始數",
+            "value": "statsHealthHospiceBedTotal"
+          },
+          {
+            "label": "急性病床（每萬人口）",
+            "value": "statsComparisonAcuteBedTotalPer10000PopulationTownship"
+          },
+          {
+            "label": "安寧病床（每萬人口）",
+            "value": "statsComparisonHospiceBedTotalPer10000PopulationTownship"
+          },
+          {
+            "label": "醫院病床總數（每萬人口）",
+            "value": "statsComparisonHospitalBedTotalPer10000PopulationTownship"
+          },
+          {
+            "label": "加護病床（每萬人口）",
+            "value": "statsComparisonIcuBedTotalPer10000PopulationTownship"
+          },
+          {
+            "label": "急性病床（每平方公里）",
+            "value": "statsComparisonAcuteBedTotalPerKm2Township"
+          },
+          {
+            "label": "安寧病床（每平方公里）",
+            "value": "statsComparisonHospiceBedTotalPerKm2Township"
+          },
+          {
+            "label": "醫院病床總數（每平方公里）",
+            "value": "statsComparisonHospitalBedTotalPerKm2Township"
+          },
+          {
+            "label": "加護病床（每平方公里）",
+            "value": "statsComparisonIcuBedTotalPerKm2Township"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonHospiceBedTotalPer10000PopulationTownship"
+      },
+      {
+        "label": "年度",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonHospiceBedTotalPerKm2Township": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "全部：原始數",
+            "value": "statsHealthHospitalBedTotal"
+          },
+          {
+            "label": "急性：原始數",
+            "value": "statsHealthAcuteBedTotal"
+          },
+          {
+            "label": "加護：原始數",
+            "value": "statsHealthIcuBedTotal"
+          },
+          {
+            "label": "安寧：原始數",
+            "value": "statsHealthHospiceBedTotal"
+          },
+          {
+            "label": "急性病床（每萬人口）",
+            "value": "statsComparisonAcuteBedTotalPer10000PopulationTownship"
+          },
+          {
+            "label": "安寧病床（每萬人口）",
+            "value": "statsComparisonHospiceBedTotalPer10000PopulationTownship"
+          },
+          {
+            "label": "醫院病床總數（每萬人口）",
+            "value": "statsComparisonHospitalBedTotalPer10000PopulationTownship"
+          },
+          {
+            "label": "加護病床（每萬人口）",
+            "value": "statsComparisonIcuBedTotalPer10000PopulationTownship"
+          },
+          {
+            "label": "急性病床（每平方公里）",
+            "value": "statsComparisonAcuteBedTotalPerKm2Township"
+          },
+          {
+            "label": "安寧病床（每平方公里）",
+            "value": "statsComparisonHospiceBedTotalPerKm2Township"
+          },
+          {
+            "label": "醫院病床總數（每平方公里）",
+            "value": "statsComparisonHospitalBedTotalPerKm2Township"
+          },
+          {
+            "label": "加護病床（每平方公里）",
+            "value": "statsComparisonIcuBedTotalPerKm2Township"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonHospiceBedTotalPerKm2Township"
+      },
+      {
+        "label": "床位口徑",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonHospitalBedTotalPer10000PopulationTownship": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "全部：原始數",
+            "value": "statsHealthHospitalBedTotal"
+          },
+          {
+            "label": "急性：原始數",
+            "value": "statsHealthAcuteBedTotal"
+          },
+          {
+            "label": "加護：原始數",
+            "value": "statsHealthIcuBedTotal"
+          },
+          {
+            "label": "安寧：原始數",
+            "value": "statsHealthHospiceBedTotal"
+          },
+          {
+            "label": "急性病床（每萬人口）",
+            "value": "statsComparisonAcuteBedTotalPer10000PopulationTownship"
+          },
+          {
+            "label": "安寧病床（每萬人口）",
+            "value": "statsComparisonHospiceBedTotalPer10000PopulationTownship"
+          },
+          {
+            "label": "醫院病床總數（每萬人口）",
+            "value": "statsComparisonHospitalBedTotalPer10000PopulationTownship"
+          },
+          {
+            "label": "加護病床（每萬人口）",
+            "value": "statsComparisonIcuBedTotalPer10000PopulationTownship"
+          },
+          {
+            "label": "急性病床（每平方公里）",
+            "value": "statsComparisonAcuteBedTotalPerKm2Township"
+          },
+          {
+            "label": "安寧病床（每平方公里）",
+            "value": "statsComparisonHospiceBedTotalPerKm2Township"
+          },
+          {
+            "label": "醫院病床總數（每平方公里）",
+            "value": "statsComparisonHospitalBedTotalPerKm2Township"
+          },
+          {
+            "label": "加護病床（每平方公里）",
+            "value": "statsComparisonIcuBedTotalPerKm2Township"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonHospitalBedTotalPer10000PopulationTownship"
+      },
+      {
+        "label": "年度",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonHospitalBedTotalPerKm2Township": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "全部：原始數",
+            "value": "statsHealthHospitalBedTotal"
+          },
+          {
+            "label": "急性：原始數",
+            "value": "statsHealthAcuteBedTotal"
+          },
+          {
+            "label": "加護：原始數",
+            "value": "statsHealthIcuBedTotal"
+          },
+          {
+            "label": "安寧：原始數",
+            "value": "statsHealthHospiceBedTotal"
+          },
+          {
+            "label": "急性病床（每萬人口）",
+            "value": "statsComparisonAcuteBedTotalPer10000PopulationTownship"
+          },
+          {
+            "label": "安寧病床（每萬人口）",
+            "value": "statsComparisonHospiceBedTotalPer10000PopulationTownship"
+          },
+          {
+            "label": "醫院病床總數（每萬人口）",
+            "value": "statsComparisonHospitalBedTotalPer10000PopulationTownship"
+          },
+          {
+            "label": "加護病床（每萬人口）",
+            "value": "statsComparisonIcuBedTotalPer10000PopulationTownship"
+          },
+          {
+            "label": "急性病床（每平方公里）",
+            "value": "statsComparisonAcuteBedTotalPerKm2Township"
+          },
+          {
+            "label": "安寧病床（每平方公里）",
+            "value": "statsComparisonHospiceBedTotalPerKm2Township"
+          },
+          {
+            "label": "醫院病床總數（每平方公里）",
+            "value": "statsComparisonHospitalBedTotalPerKm2Township"
+          },
+          {
+            "label": "加護病床（每平方公里）",
+            "value": "statsComparisonIcuBedTotalPerKm2Township"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonHospitalBedTotalPerKm2Township"
+      },
+      {
+        "label": "床位口徑",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonHospitalCountPer10000PopulationTownship": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "原始數",
+            "value": "statsHealthHospitalCount"
+          },
+          {
+            "label": "醫院家數（每萬人口）",
+            "value": "statsComparisonHospitalCountPer10000PopulationTownship"
+          },
+          {
+            "label": "醫院家數（每平方公里）",
+            "value": "statsComparisonHospitalCountPerKm2Township"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonHospitalCountPer10000PopulationTownship"
+      },
+      {
+        "label": "年度",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonHospitalCountPerKm2Township": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "原始數",
+            "value": "statsHealthHospitalCount"
+          },
+          {
+            "label": "醫院家數（每萬人口）",
+            "value": "statsComparisonHospitalCountPer10000PopulationTownship"
+          },
+          {
+            "label": "醫院家數（每平方公里）",
+            "value": "statsComparisonHospitalCountPerKm2Township"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonHospitalCountPerKm2Township"
+      },
+      {
+        "label": "床位口徑",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonIcuBedTotalPer10000PopulationTownship": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "全部：原始數",
+            "value": "statsHealthHospitalBedTotal"
+          },
+          {
+            "label": "急性：原始數",
+            "value": "statsHealthAcuteBedTotal"
+          },
+          {
+            "label": "加護：原始數",
+            "value": "statsHealthIcuBedTotal"
+          },
+          {
+            "label": "安寧：原始數",
+            "value": "statsHealthHospiceBedTotal"
+          },
+          {
+            "label": "急性病床（每萬人口）",
+            "value": "statsComparisonAcuteBedTotalPer10000PopulationTownship"
+          },
+          {
+            "label": "安寧病床（每萬人口）",
+            "value": "statsComparisonHospiceBedTotalPer10000PopulationTownship"
+          },
+          {
+            "label": "醫院病床總數（每萬人口）",
+            "value": "statsComparisonHospitalBedTotalPer10000PopulationTownship"
+          },
+          {
+            "label": "加護病床（每萬人口）",
+            "value": "statsComparisonIcuBedTotalPer10000PopulationTownship"
+          },
+          {
+            "label": "急性病床（每平方公里）",
+            "value": "statsComparisonAcuteBedTotalPerKm2Township"
+          },
+          {
+            "label": "安寧病床（每平方公里）",
+            "value": "statsComparisonHospiceBedTotalPerKm2Township"
+          },
+          {
+            "label": "醫院病床總數（每平方公里）",
+            "value": "statsComparisonHospitalBedTotalPerKm2Township"
+          },
+          {
+            "label": "加護病床（每平方公里）",
+            "value": "statsComparisonIcuBedTotalPerKm2Township"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonIcuBedTotalPer10000PopulationTownship"
+      },
+      {
+        "label": "年度",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonIcuBedTotalPerKm2Township": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "全部：原始數",
+            "value": "statsHealthHospitalBedTotal"
+          },
+          {
+            "label": "急性：原始數",
+            "value": "statsHealthAcuteBedTotal"
+          },
+          {
+            "label": "加護：原始數",
+            "value": "statsHealthIcuBedTotal"
+          },
+          {
+            "label": "安寧：原始數",
+            "value": "statsHealthHospiceBedTotal"
+          },
+          {
+            "label": "急性病床（每萬人口）",
+            "value": "statsComparisonAcuteBedTotalPer10000PopulationTownship"
+          },
+          {
+            "label": "安寧病床（每萬人口）",
+            "value": "statsComparisonHospiceBedTotalPer10000PopulationTownship"
+          },
+          {
+            "label": "醫院病床總數（每萬人口）",
+            "value": "statsComparisonHospitalBedTotalPer10000PopulationTownship"
+          },
+          {
+            "label": "加護病床（每萬人口）",
+            "value": "statsComparisonIcuBedTotalPer10000PopulationTownship"
+          },
+          {
+            "label": "急性病床（每平方公里）",
+            "value": "statsComparisonAcuteBedTotalPerKm2Township"
+          },
+          {
+            "label": "安寧病床（每平方公里）",
+            "value": "statsComparisonHospiceBedTotalPerKm2Township"
+          },
+          {
+            "label": "醫院病床總數（每平方公里）",
+            "value": "statsComparisonHospitalBedTotalPerKm2Township"
+          },
+          {
+            "label": "加護病床（每平方公里）",
+            "value": "statsComparisonIcuBedTotalPerKm2Township"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonIcuBedTotalPerKm2Township"
+      },
+      {
+        "label": "床位口徑",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonPostpartumNursingHomeOpenBedsPerBirths1000County": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "開放護理床數",
+            "value": "statsHealthPostpartumNursingHomeOpenBeds"
+          },
+          {
+            "label": "縣市：產後護理之家開放護理床數（人口比較）",
+            "value": "statsComparisonPostpartumNursingHomeOpenBedsPerBirths1000County"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonPostpartumNursingHomeOpenBedsPerBirths1000County"
+      },
+      {
+        "label": "年度",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonPostpartumNursingHomeOpenInfantBedsPerBirths1000County": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "開放嬰兒床數",
+            "value": "statsHealthPostpartumNursingHomeOpenInfantBeds"
+          },
+          {
+            "label": "縣市：產後護理之家開放嬰兒床數（人口比較）",
+            "value": "statsComparisonPostpartumNursingHomeOpenInfantBedsPerBirths1000County"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonPostpartumNursingHomeOpenInfantBedsPerBirths1000County"
+      },
+      {
+        "label": "年度",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonRegisteredNurseCountPer10000PopulationTownship": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "醫事人員總計：原始數",
+            "value": "statsHealthHealthProfessionalTotal"
+          },
+          {
+            "label": "西醫師：原始數",
+            "value": "statsHealthWesternPhysicianCount"
+          },
+          {
+            "label": "護理師：原始數",
+            "value": "statsHealthRegisteredNurseCount"
+          },
+          {
+            "label": "醫院醫事人員總計（每萬人口）",
+            "value": "statsComparisonHealthProfessionalTotalPer10000PopulationTownship"
+          },
+          {
+            "label": "醫院護理師（每萬人口）",
+            "value": "statsComparisonRegisteredNurseCountPer10000PopulationTownship"
+          },
+          {
+            "label": "醫院西醫師（每萬人口）",
+            "value": "statsComparisonWesternPhysicianCountPer10000PopulationTownship"
+          },
+          {
+            "label": "醫院醫事人員總計（每平方公里）",
+            "value": "statsComparisonHealthProfessionalTotalPerKm2Township"
+          },
+          {
+            "label": "醫院護理師（每平方公里）",
+            "value": "statsComparisonRegisteredNurseCountPerKm2Township"
+          },
+          {
+            "label": "醫院西醫師（每平方公里）",
+            "value": "statsComparisonWesternPhysicianCountPerKm2Township"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonRegisteredNurseCountPer10000PopulationTownship"
+      },
+      {
+        "label": "年度",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonRegisteredNurseCountPerKm2Township": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "醫事人員總計：原始數",
+            "value": "statsHealthHealthProfessionalTotal"
+          },
+          {
+            "label": "西醫師：原始數",
+            "value": "statsHealthWesternPhysicianCount"
+          },
+          {
+            "label": "護理師：原始數",
+            "value": "statsHealthRegisteredNurseCount"
+          },
+          {
+            "label": "醫院醫事人員總計（每萬人口）",
+            "value": "statsComparisonHealthProfessionalTotalPer10000PopulationTownship"
+          },
+          {
+            "label": "醫院護理師（每萬人口）",
+            "value": "statsComparisonRegisteredNurseCountPer10000PopulationTownship"
+          },
+          {
+            "label": "醫院西醫師（每萬人口）",
+            "value": "statsComparisonWesternPhysicianCountPer10000PopulationTownship"
+          },
+          {
+            "label": "醫院醫事人員總計（每平方公里）",
+            "value": "statsComparisonHealthProfessionalTotalPerKm2Township"
+          },
+          {
+            "label": "醫院護理師（每平方公里）",
+            "value": "statsComparisonRegisteredNurseCountPerKm2Township"
+          },
+          {
+            "label": "醫院西醫師（每平方公里）",
+            "value": "statsComparisonWesternPhysicianCountPerKm2Township"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonRegisteredNurseCountPerKm2Township"
+      },
+      {
+        "label": "年度",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonWesternPhysicianCountPer10000PopulationTownship": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "醫事人員總計：原始數",
+            "value": "statsHealthHealthProfessionalTotal"
+          },
+          {
+            "label": "西醫師：原始數",
+            "value": "statsHealthWesternPhysicianCount"
+          },
+          {
+            "label": "護理師：原始數",
+            "value": "statsHealthRegisteredNurseCount"
+          },
+          {
+            "label": "醫院醫事人員總計（每萬人口）",
+            "value": "statsComparisonHealthProfessionalTotalPer10000PopulationTownship"
+          },
+          {
+            "label": "醫院護理師（每萬人口）",
+            "value": "statsComparisonRegisteredNurseCountPer10000PopulationTownship"
+          },
+          {
+            "label": "醫院西醫師（每萬人口）",
+            "value": "statsComparisonWesternPhysicianCountPer10000PopulationTownship"
+          },
+          {
+            "label": "醫院醫事人員總計（每平方公里）",
+            "value": "statsComparisonHealthProfessionalTotalPerKm2Township"
+          },
+          {
+            "label": "醫院護理師（每平方公里）",
+            "value": "statsComparisonRegisteredNurseCountPerKm2Township"
+          },
+          {
+            "label": "醫院西醫師（每平方公里）",
+            "value": "statsComparisonWesternPhysicianCountPerKm2Township"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonWesternPhysicianCountPer10000PopulationTownship"
+      },
+      {
+        "label": "年度",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComparisonWesternPhysicianCountPerKm2Township": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "醫事人員總計：原始數",
+            "value": "statsHealthHealthProfessionalTotal"
+          },
+          {
+            "label": "西醫師：原始數",
+            "value": "statsHealthWesternPhysicianCount"
+          },
+          {
+            "label": "護理師：原始數",
+            "value": "statsHealthRegisteredNurseCount"
+          },
+          {
+            "label": "醫院醫事人員總計（每萬人口）",
+            "value": "statsComparisonHealthProfessionalTotalPer10000PopulationTownship"
+          },
+          {
+            "label": "醫院護理師（每萬人口）",
+            "value": "statsComparisonRegisteredNurseCountPer10000PopulationTownship"
+          },
+          {
+            "label": "醫院西醫師（每萬人口）",
+            "value": "statsComparisonWesternPhysicianCountPer10000PopulationTownship"
+          },
+          {
+            "label": "醫院醫事人員總計（每平方公里）",
+            "value": "statsComparisonHealthProfessionalTotalPerKm2Township"
+          },
+          {
+            "label": "醫院護理師（每平方公里）",
+            "value": "statsComparisonRegisteredNurseCountPerKm2Township"
+          },
+          {
+            "label": "醫院西醫師（每平方公里）",
+            "value": "statsComparisonWesternPhysicianCountPerKm2Township"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsComparisonWesternPhysicianCountPerKm2Township"
+      },
+      {
+        "label": "年度",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsHealthAcuteBedTotal": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "全部：原始數",
+            "value": "statsHealthHospitalBedTotal"
+          },
+          {
+            "label": "急性：原始數",
+            "value": "statsHealthAcuteBedTotal"
+          },
+          {
+            "label": "加護：原始數",
+            "value": "statsHealthIcuBedTotal"
+          },
+          {
+            "label": "安寧：原始數",
+            "value": "statsHealthHospiceBedTotal"
+          },
+          {
+            "label": "急性病床（每萬人口）",
+            "value": "statsComparisonAcuteBedTotalPer10000PopulationTownship"
+          },
+          {
+            "label": "安寧病床（每萬人口）",
+            "value": "statsComparisonHospiceBedTotalPer10000PopulationTownship"
+          },
+          {
+            "label": "醫院病床總數（每萬人口）",
+            "value": "statsComparisonHospitalBedTotalPer10000PopulationTownship"
+          },
+          {
+            "label": "加護病床（每萬人口）",
+            "value": "statsComparisonIcuBedTotalPer10000PopulationTownship"
+          },
+          {
+            "label": "急性病床（每平方公里）",
+            "value": "statsComparisonAcuteBedTotalPerKm2Township"
+          },
+          {
+            "label": "安寧病床（每平方公里）",
+            "value": "statsComparisonHospiceBedTotalPerKm2Township"
+          },
+          {
+            "label": "醫院病床總數（每平方公里）",
+            "value": "statsComparisonHospitalBedTotalPerKm2Township"
+          },
+          {
+            "label": "加護病床（每平方公里）",
+            "value": "statsComparisonIcuBedTotalPerKm2Township"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsHealthAcuteBedTotal"
+      },
+      {
+        "label": "床位口徑",
+        "options": [],
+        "status": "loading",
+        "statusText": "載入中…",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsHealthBirthSexRatio": [
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsHealthBreastScreening2yr": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "乳癌（45–69 歲婦女兩年內）",
+            "value": "statsHealthBreastScreening2yr"
+          },
+          {
+            "label": "子宮頸癌（30–69 歲婦女三年內）",
+            "value": "statsHealthCervicalScreening3yr"
+          },
+          {
+            "label": "大腸癌（50–74 歲兩年內）",
+            "value": "statsHealthColorectalScreening2yr"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsHealthBreastScreening2yr"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsHealthCancerIncidenceAsr": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "新發生數（全癌症）",
+            "value": "statsHealthCancerNewCases"
+          },
+          {
+            "label": "年齡標準化發生率",
+            "value": "statsHealthCancerIncidenceAsr"
+          },
+          {
+            "label": "粗發生率",
+            "value": "statsHealthCancerIncidenceCrude"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsHealthCancerIncidenceAsr"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsHealthCancerIncidenceCrude": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "新發生數（全癌症）",
+            "value": "statsHealthCancerNewCases"
+          },
+          {
+            "label": "年齡標準化發生率",
+            "value": "statsHealthCancerIncidenceAsr"
+          },
+          {
+            "label": "粗發生率",
+            "value": "statsHealthCancerIncidenceCrude"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsHealthCancerIncidenceCrude"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsHealthCancerNewCases": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "新發生數（全癌症）",
+            "value": "statsHealthCancerNewCases"
+          },
+          {
+            "label": "年齡標準化發生率",
+            "value": "statsHealthCancerIncidenceAsr"
+          },
+          {
+            "label": "粗發生率",
+            "value": "statsHealthCancerIncidenceCrude"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsHealthCancerNewCases"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsHealthCareWorkerListedSexSum": [
+      {
+        "label": "機構類型",
+        "options": [],
+        "status": "loading",
+        "statusText": "載入中…",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsHealthCareWorkerRegistration": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "登錄數",
+            "value": "statsHealthCareWorkerRegistration"
+          },
+          {
+            "label": "縣市：照顧服務員登錄數（人口比較）",
+            "value": "statsComparisonCareWorkerRegistrationCountPer65plus1000County"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsHealthCareWorkerRegistration"
+      },
+      {
+        "label": "登錄範圍",
+        "options": [],
+        "status": "loading",
+        "statusText": "載入中…",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsHealthCervicalScreening3yr": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "乳癌（45–69 歲婦女兩年內）",
+            "value": "statsHealthBreastScreening2yr"
+          },
+          {
+            "label": "子宮頸癌（30–69 歲婦女三年內）",
+            "value": "statsHealthCervicalScreening3yr"
+          },
+          {
+            "label": "大腸癌（50–74 歲兩年內）",
+            "value": "statsHealthColorectalScreening2yr"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsHealthCervicalScreening3yr"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsHealthColorectalScreening2yr": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "乳癌（45–69 歲婦女兩年內）",
+            "value": "statsHealthBreastScreening2yr"
+          },
+          {
+            "label": "子宮頸癌（30–69 歲婦女三年內）",
+            "value": "statsHealthCervicalScreening3yr"
+          },
+          {
+            "label": "大腸癌（50–74 歲兩年內）",
+            "value": "statsHealthColorectalScreening2yr"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsHealthColorectalScreening2yr"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsHealthGeneralNursingHomeOpenBeds": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "開放床數",
+            "value": "statsHealthGeneralNursingHomeOpenBeds"
+          },
+          {
+            "label": "縣市：一般護理之家開放床數（人口比較）",
+            "value": "statsComparisonGeneralNursingHomeOpenBedsPer65plus1000County"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsHealthGeneralNursingHomeOpenBeds"
+      },
+      {
+        "label": "原始床位欄位",
+        "options": [],
+        "status": "loading",
+        "statusText": "載入中…",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsHealthHealthProfessionalTotal": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "醫事人員總計：原始數",
+            "value": "statsHealthHealthProfessionalTotal"
+          },
+          {
+            "label": "西醫師：原始數",
+            "value": "statsHealthWesternPhysicianCount"
+          },
+          {
+            "label": "護理師：原始數",
+            "value": "statsHealthRegisteredNurseCount"
+          },
+          {
+            "label": "醫院醫事人員總計（每萬人口）",
+            "value": "statsComparisonHealthProfessionalTotalPer10000PopulationTownship"
+          },
+          {
+            "label": "醫院護理師（每萬人口）",
+            "value": "statsComparisonRegisteredNurseCountPer10000PopulationTownship"
+          },
+          {
+            "label": "醫院西醫師（每萬人口）",
+            "value": "statsComparisonWesternPhysicianCountPer10000PopulationTownship"
+          },
+          {
+            "label": "醫院醫事人員總計（每平方公里）",
+            "value": "statsComparisonHealthProfessionalTotalPerKm2Township"
+          },
+          {
+            "label": "醫院護理師（每平方公里）",
+            "value": "statsComparisonRegisteredNurseCountPerKm2Township"
+          },
+          {
+            "label": "醫院西醫師（每平方公里）",
+            "value": "statsComparisonWesternPhysicianCountPerKm2Township"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsHealthHealthProfessionalTotal"
+      },
+      {
+        "label": "年度",
+        "options": [],
+        "status": "loading",
+        "statusText": "載入中…",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          },
+          {
+            "label": "點密度",
+            "value": "dots"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsHealthHospiceBedTotal": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "全部：原始數",
+            "value": "statsHealthHospitalBedTotal"
+          },
+          {
+            "label": "急性：原始數",
+            "value": "statsHealthAcuteBedTotal"
+          },
+          {
+            "label": "加護：原始數",
+            "value": "statsHealthIcuBedTotal"
+          },
+          {
+            "label": "安寧：原始數",
+            "value": "statsHealthHospiceBedTotal"
+          },
+          {
+            "label": "急性病床（每萬人口）",
+            "value": "statsComparisonAcuteBedTotalPer10000PopulationTownship"
+          },
+          {
+            "label": "安寧病床（每萬人口）",
+            "value": "statsComparisonHospiceBedTotalPer10000PopulationTownship"
+          },
+          {
+            "label": "醫院病床總數（每萬人口）",
+            "value": "statsComparisonHospitalBedTotalPer10000PopulationTownship"
+          },
+          {
+            "label": "加護病床（每萬人口）",
+            "value": "statsComparisonIcuBedTotalPer10000PopulationTownship"
+          },
+          {
+            "label": "急性病床（每平方公里）",
+            "value": "statsComparisonAcuteBedTotalPerKm2Township"
+          },
+          {
+            "label": "安寧病床（每平方公里）",
+            "value": "statsComparisonHospiceBedTotalPerKm2Township"
+          },
+          {
+            "label": "醫院病床總數（每平方公里）",
+            "value": "statsComparisonHospitalBedTotalPerKm2Township"
+          },
+          {
+            "label": "加護病床（每平方公里）",
+            "value": "statsComparisonIcuBedTotalPerKm2Township"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsHealthHospiceBedTotal"
+      },
+      {
+        "label": "床位口徑",
+        "options": [],
+        "status": "loading",
+        "statusText": "載入中…",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsHealthHospitalAlos": [
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsHealthHospitalBedTotal": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "全部：原始數",
+            "value": "statsHealthHospitalBedTotal"
+          },
+          {
+            "label": "急性：原始數",
+            "value": "statsHealthAcuteBedTotal"
+          },
+          {
+            "label": "加護：原始數",
+            "value": "statsHealthIcuBedTotal"
+          },
+          {
+            "label": "安寧：原始數",
+            "value": "statsHealthHospiceBedTotal"
+          },
+          {
+            "label": "急性病床（每萬人口）",
+            "value": "statsComparisonAcuteBedTotalPer10000PopulationTownship"
+          },
+          {
+            "label": "安寧病床（每萬人口）",
+            "value": "statsComparisonHospiceBedTotalPer10000PopulationTownship"
+          },
+          {
+            "label": "醫院病床總數（每萬人口）",
+            "value": "statsComparisonHospitalBedTotalPer10000PopulationTownship"
+          },
+          {
+            "label": "加護病床（每萬人口）",
+            "value": "statsComparisonIcuBedTotalPer10000PopulationTownship"
+          },
+          {
+            "label": "急性病床（每平方公里）",
+            "value": "statsComparisonAcuteBedTotalPerKm2Township"
+          },
+          {
+            "label": "安寧病床（每平方公里）",
+            "value": "statsComparisonHospiceBedTotalPerKm2Township"
+          },
+          {
+            "label": "醫院病床總數（每平方公里）",
+            "value": "statsComparisonHospitalBedTotalPerKm2Township"
+          },
+          {
+            "label": "加護病床（每平方公里）",
+            "value": "statsComparisonIcuBedTotalPerKm2Township"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsHealthHospitalBedTotal"
+      },
+      {
+        "label": "床位口徑",
+        "options": [],
+        "status": "loading",
+        "statusText": "載入中…",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsHealthHospitalCount": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "原始數",
+            "value": "statsHealthHospitalCount"
+          },
+          {
+            "label": "醫院家數（每萬人口）",
+            "value": "statsComparisonHospitalCountPer10000PopulationTownship"
+          },
+          {
+            "label": "醫院家數（每平方公里）",
+            "value": "statsComparisonHospitalCountPerKm2Township"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsHealthHospitalCount"
+      },
+      {
+        "label": "床位口徑",
+        "options": [],
+        "status": "loading",
+        "statusText": "載入中…",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsHealthIcuBedTotal": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "全部：原始數",
+            "value": "statsHealthHospitalBedTotal"
+          },
+          {
+            "label": "急性：原始數",
+            "value": "statsHealthAcuteBedTotal"
+          },
+          {
+            "label": "加護：原始數",
+            "value": "statsHealthIcuBedTotal"
+          },
+          {
+            "label": "安寧：原始數",
+            "value": "statsHealthHospiceBedTotal"
+          },
+          {
+            "label": "急性病床（每萬人口）",
+            "value": "statsComparisonAcuteBedTotalPer10000PopulationTownship"
+          },
+          {
+            "label": "安寧病床（每萬人口）",
+            "value": "statsComparisonHospiceBedTotalPer10000PopulationTownship"
+          },
+          {
+            "label": "醫院病床總數（每萬人口）",
+            "value": "statsComparisonHospitalBedTotalPer10000PopulationTownship"
+          },
+          {
+            "label": "加護病床（每萬人口）",
+            "value": "statsComparisonIcuBedTotalPer10000PopulationTownship"
+          },
+          {
+            "label": "急性病床（每平方公里）",
+            "value": "statsComparisonAcuteBedTotalPerKm2Township"
+          },
+          {
+            "label": "安寧病床（每平方公里）",
+            "value": "statsComparisonHospiceBedTotalPerKm2Township"
+          },
+          {
+            "label": "醫院病床總數（每平方公里）",
+            "value": "statsComparisonHospitalBedTotalPerKm2Township"
+          },
+          {
+            "label": "加護病床（每平方公里）",
+            "value": "statsComparisonIcuBedTotalPerKm2Township"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsHealthIcuBedTotal"
+      },
+      {
+        "label": "床位口徑",
+        "options": [],
+        "status": "loading",
+        "statusText": "載入中…",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsHealthImmunizationCompletion": [
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsHealthLiveBirthsMotherResidence": [
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsHealthLowBirthWeightRate": [
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsHealthMedicalInstitutionBedsPer10000Population": [
+      {
+        "label": "分母",
+        "options": [],
+        "status": "loading",
+        "statusText": "載入中…",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsHealthMentalOutpatientPer1000": [
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsHealthNotifiableCasesCounty": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "鄉鎮・病例數",
+            "value": "statsHealthNotifiableCasesTownship"
+          },
+          {
+            "label": "鄉鎮・每十萬人病例率",
+            "value": "statsHealthNotifiableRatePer100kTownship"
+          },
+          {
+            "label": "縣市・病例數",
+            "value": "statsHealthNotifiableCasesCounty"
+          },
+          {
+            "label": "縣市・每十萬人病例率",
+            "value": "statsHealthNotifiableRatePer100kCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsHealthNotifiableCasesCounty"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsHealthNotifiableCasesTownship": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "鄉鎮・病例數",
+            "value": "statsHealthNotifiableCasesTownship"
+          },
+          {
+            "label": "鄉鎮・每十萬人病例率",
+            "value": "statsHealthNotifiableRatePer100kTownship"
+          },
+          {
+            "label": "縣市・病例數",
+            "value": "statsHealthNotifiableCasesCounty"
+          },
+          {
+            "label": "縣市・每十萬人病例率",
+            "value": "statsHealthNotifiableRatePer100kCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsHealthNotifiableCasesTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsHealthNotifiableRatePer100kCounty": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "鄉鎮・病例數",
+            "value": "statsHealthNotifiableCasesTownship"
+          },
+          {
+            "label": "鄉鎮・每十萬人病例率",
+            "value": "statsHealthNotifiableRatePer100kTownship"
+          },
+          {
+            "label": "縣市・病例數",
+            "value": "statsHealthNotifiableCasesCounty"
+          },
+          {
+            "label": "縣市・每十萬人病例率",
+            "value": "statsHealthNotifiableRatePer100kCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsHealthNotifiableRatePer100kCounty"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsHealthNotifiableRatePer100kTownship": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "鄉鎮・病例數",
+            "value": "statsHealthNotifiableCasesTownship"
+          },
+          {
+            "label": "鄉鎮・每十萬人病例率",
+            "value": "statsHealthNotifiableRatePer100kTownship"
+          },
+          {
+            "label": "縣市・病例數",
+            "value": "statsHealthNotifiableCasesCounty"
+          },
+          {
+            "label": "縣市・每十萬人病例率",
+            "value": "statsHealthNotifiableRatePer100kCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsHealthNotifiableRatePer100kTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsHealthNursingStaffListedAgeSexSum": [
+      {
+        "label": "機構類型",
+        "options": [],
+        "status": "loading",
+        "statusText": "載入中…",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsHealthOutpatientVisitRate": [
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsHealthPostpartumNursingHomeOpenBeds": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "開放護理床數",
+            "value": "statsHealthPostpartumNursingHomeOpenBeds"
+          },
+          {
+            "label": "縣市：產後護理之家開放護理床數（人口比較）",
+            "value": "statsComparisonPostpartumNursingHomeOpenBedsPerBirths1000County"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsHealthPostpartumNursingHomeOpenBeds"
+      },
+      {
+        "label": "原始床位欄位",
+        "options": [],
+        "status": "loading",
+        "statusText": "載入中…",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsHealthPostpartumNursingHomeOpenInfantBeds": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "開放嬰兒床數",
+            "value": "statsHealthPostpartumNursingHomeOpenInfantBeds"
+          },
+          {
+            "label": "縣市：產後護理之家開放嬰兒床數（人口比較）",
+            "value": "statsComparisonPostpartumNursingHomeOpenInfantBedsPerBirths1000County"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsHealthPostpartumNursingHomeOpenInfantBeds"
+      },
+      {
+        "label": "原始床位欄位",
+        "options": [],
+        "status": "loading",
+        "statusText": "載入中…",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsHealthPracticingMedicalPersonnelPer10000Population": [
+      {
+        "label": "分母",
+        "options": [],
+        "status": "loading",
+        "statusText": "載入中…",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsHealthRegisteredNurseCount": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "醫事人員總計：原始數",
+            "value": "statsHealthHealthProfessionalTotal"
+          },
+          {
+            "label": "西醫師：原始數",
+            "value": "statsHealthWesternPhysicianCount"
+          },
+          {
+            "label": "護理師：原始數",
+            "value": "statsHealthRegisteredNurseCount"
+          },
+          {
+            "label": "醫院醫事人員總計（每萬人口）",
+            "value": "statsComparisonHealthProfessionalTotalPer10000PopulationTownship"
+          },
+          {
+            "label": "醫院護理師（每萬人口）",
+            "value": "statsComparisonRegisteredNurseCountPer10000PopulationTownship"
+          },
+          {
+            "label": "醫院西醫師（每萬人口）",
+            "value": "statsComparisonWesternPhysicianCountPer10000PopulationTownship"
+          },
+          {
+            "label": "醫院醫事人員總計（每平方公里）",
+            "value": "statsComparisonHealthProfessionalTotalPerKm2Township"
+          },
+          {
+            "label": "醫院護理師（每平方公里）",
+            "value": "statsComparisonRegisteredNurseCountPerKm2Township"
+          },
+          {
+            "label": "醫院西醫師（每平方公里）",
+            "value": "statsComparisonWesternPhysicianCountPerKm2Township"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsHealthRegisteredNurseCount"
+      },
+      {
+        "label": "年度",
+        "options": [],
+        "status": "loading",
+        "statusText": "載入中…",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          },
+          {
+            "label": "點密度",
+            "value": "dots"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsHealthTbDeathRate": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "死亡數",
+            "value": "statsHealthTbDeaths"
+          },
+          {
+            "label": "死亡率（每十萬人口）",
+            "value": "statsHealthTbDeathRate"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsHealthTbDeathRate"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsHealthTbDeaths": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "死亡數",
+            "value": "statsHealthTbDeaths"
+          },
+          {
+            "label": "死亡率（每十萬人口）",
+            "value": "statsHealthTbDeathRate"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsHealthTbDeaths"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsHealthTbIncidencePer100kTownship": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "縣市・新案數",
+            "value": "statsHealthTbNewCases"
+          },
+          {
+            "label": "縣市・每十萬人口（衍生）",
+            "value": "statsHealthTbNewCasesPer100kHrp"
+          },
+          {
+            "label": "鄉鎮・新案數",
+            "value": "statsHealthTbNewCasesTownship"
+          },
+          {
+            "label": "鄉鎮・發生率（每十萬人口）",
+            "value": "statsHealthTbIncidencePer100kTownship"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsHealthTbIncidencePer100kTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsHealthTbNewCases": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "縣市・新案數",
+            "value": "statsHealthTbNewCases"
+          },
+          {
+            "label": "縣市・每十萬人口（衍生）",
+            "value": "statsHealthTbNewCasesPer100kHrp"
+          },
+          {
+            "label": "鄉鎮・新案數",
+            "value": "statsHealthTbNewCasesTownship"
+          },
+          {
+            "label": "鄉鎮・發生率（每十萬人口）",
+            "value": "statsHealthTbIncidencePer100kTownship"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsHealthTbNewCases"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsHealthTbNewCasesPer100kHrp": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "縣市・新案數",
+            "value": "statsHealthTbNewCases"
+          },
+          {
+            "label": "縣市・每十萬人口（衍生）",
+            "value": "statsHealthTbNewCasesPer100kHrp"
+          },
+          {
+            "label": "鄉鎮・新案數",
+            "value": "statsHealthTbNewCasesTownship"
+          },
+          {
+            "label": "鄉鎮・發生率（每十萬人口）",
+            "value": "statsHealthTbIncidencePer100kTownship"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsHealthTbNewCasesPer100kHrp"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsHealthTbNewCasesTownship": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "縣市・新案數",
+            "value": "statsHealthTbNewCases"
+          },
+          {
+            "label": "縣市・每十萬人口（衍生）",
+            "value": "statsHealthTbNewCasesPer100kHrp"
+          },
+          {
+            "label": "鄉鎮・新案數",
+            "value": "statsHealthTbNewCasesTownship"
+          },
+          {
+            "label": "鄉鎮・發生率（每十萬人口）",
+            "value": "statsHealthTbIncidencePer100kTownship"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsHealthTbNewCasesTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsHealthWesternPhysicianCount": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "醫事人員總計：原始數",
+            "value": "statsHealthHealthProfessionalTotal"
+          },
+          {
+            "label": "西醫師：原始數",
+            "value": "statsHealthWesternPhysicianCount"
+          },
+          {
+            "label": "護理師：原始數",
+            "value": "statsHealthRegisteredNurseCount"
+          },
+          {
+            "label": "醫院醫事人員總計（每萬人口）",
+            "value": "statsComparisonHealthProfessionalTotalPer10000PopulationTownship"
+          },
+          {
+            "label": "醫院護理師（每萬人口）",
+            "value": "statsComparisonRegisteredNurseCountPer10000PopulationTownship"
+          },
+          {
+            "label": "醫院西醫師（每萬人口）",
+            "value": "statsComparisonWesternPhysicianCountPer10000PopulationTownship"
+          },
+          {
+            "label": "醫院醫事人員總計（每平方公里）",
+            "value": "statsComparisonHealthProfessionalTotalPerKm2Township"
+          },
+          {
+            "label": "醫院護理師（每平方公里）",
+            "value": "statsComparisonRegisteredNurseCountPerKm2Township"
+          },
+          {
+            "label": "醫院西醫師（每平方公里）",
+            "value": "statsComparisonWesternPhysicianCountPerKm2Township"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsHealthWesternPhysicianCount"
+      },
+      {
+        "label": "年度",
+        "options": [],
+        "status": "loading",
+        "statusText": "載入中…",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          },
+          {
+            "label": "點密度",
+            "value": "dots"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsMortalityCauseCounty": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "鄉鎮・粗死亡率（5 年平均）",
+            "value": "statsMortalityCauseTownship"
+          },
+          {
+            "label": "鄉鎮・死亡人數（5 年合計）",
+            "value": "statsMortalityDeaths5yrTownship"
+          },
+          {
+            "label": "鄉鎮・粗死亡率（逐年）",
+            "value": "statsMortalityRateTownship"
+          },
+          {
+            "label": "鄉鎮・死亡人數（逐年）",
+            "value": "statsMortalityDeathsTownship"
+          },
+          {
+            "label": "縣市・粗死亡率",
+            "value": "statsMortalityCauseCounty"
+          },
+          {
+            "label": "縣市・死亡人數",
+            "value": "statsMortalityDeathsCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsMortalityCauseCounty"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsMortalityCauseTownship": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "鄉鎮・粗死亡率（5 年平均）",
+            "value": "statsMortalityCauseTownship"
+          },
+          {
+            "label": "鄉鎮・死亡人數（5 年合計）",
+            "value": "statsMortalityDeaths5yrTownship"
+          },
+          {
+            "label": "鄉鎮・粗死亡率（逐年）",
+            "value": "statsMortalityRateTownship"
+          },
+          {
+            "label": "鄉鎮・死亡人數（逐年）",
+            "value": "statsMortalityDeathsTownship"
+          },
+          {
+            "label": "縣市・粗死亡率",
+            "value": "statsMortalityCauseCounty"
+          },
+          {
+            "label": "縣市・死亡人數",
+            "value": "statsMortalityDeathsCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsMortalityCauseTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsMortalityDeaths5yrTownship": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "鄉鎮・粗死亡率（5 年平均）",
+            "value": "statsMortalityCauseTownship"
+          },
+          {
+            "label": "鄉鎮・死亡人數（5 年合計）",
+            "value": "statsMortalityDeaths5yrTownship"
+          },
+          {
+            "label": "鄉鎮・粗死亡率（逐年）",
+            "value": "statsMortalityRateTownship"
+          },
+          {
+            "label": "鄉鎮・死亡人數（逐年）",
+            "value": "statsMortalityDeathsTownship"
+          },
+          {
+            "label": "縣市・粗死亡率",
+            "value": "statsMortalityCauseCounty"
+          },
+          {
+            "label": "縣市・死亡人數",
+            "value": "statsMortalityDeathsCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsMortalityDeaths5yrTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsMortalityDeathsCounty": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "鄉鎮・粗死亡率（5 年平均）",
+            "value": "statsMortalityCauseTownship"
+          },
+          {
+            "label": "鄉鎮・死亡人數（5 年合計）",
+            "value": "statsMortalityDeaths5yrTownship"
+          },
+          {
+            "label": "鄉鎮・粗死亡率（逐年）",
+            "value": "statsMortalityRateTownship"
+          },
+          {
+            "label": "鄉鎮・死亡人數（逐年）",
+            "value": "statsMortalityDeathsTownship"
+          },
+          {
+            "label": "縣市・粗死亡率",
+            "value": "statsMortalityCauseCounty"
+          },
+          {
+            "label": "縣市・死亡人數",
+            "value": "statsMortalityDeathsCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsMortalityDeathsCounty"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsMortalityDeathsTownship": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "鄉鎮・粗死亡率（5 年平均）",
+            "value": "statsMortalityCauseTownship"
+          },
+          {
+            "label": "鄉鎮・死亡人數（5 年合計）",
+            "value": "statsMortalityDeaths5yrTownship"
+          },
+          {
+            "label": "鄉鎮・粗死亡率（逐年）",
+            "value": "statsMortalityRateTownship"
+          },
+          {
+            "label": "鄉鎮・死亡人數（逐年）",
+            "value": "statsMortalityDeathsTownship"
+          },
+          {
+            "label": "縣市・粗死亡率",
+            "value": "statsMortalityCauseCounty"
+          },
+          {
+            "label": "縣市・死亡人數",
+            "value": "statsMortalityDeathsCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsMortalityDeathsTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsMortalityRateTownship": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "鄉鎮・粗死亡率（5 年平均）",
+            "value": "statsMortalityCauseTownship"
+          },
+          {
+            "label": "鄉鎮・死亡人數（5 年合計）",
+            "value": "statsMortalityDeaths5yrTownship"
+          },
+          {
+            "label": "鄉鎮・粗死亡率（逐年）",
+            "value": "statsMortalityRateTownship"
+          },
+          {
+            "label": "鄉鎮・死亡人數（逐年）",
+            "value": "statsMortalityDeathsTownship"
+          },
+          {
+            "label": "縣市・粗死亡率",
+            "value": "statsMortalityCauseCounty"
+          },
+          {
+            "label": "縣市・死亡人數",
+            "value": "statsMortalityDeathsCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsMortalityRateTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsNhiUninsuredShareCounty": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "鄉鎮・未參加健保比",
+            "value": "statsNhiUninsuredShareTownship"
+          },
+          {
+            "label": "縣市・未參加健保比",
+            "value": "statsNhiUninsuredShareCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsNhiUninsuredShareCounty"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsNhiUninsuredShareTownship": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "鄉鎮・未參加健保比",
+            "value": "statsNhiUninsuredShareTownship"
+          },
+          {
+            "label": "縣市・未參加健保比",
+            "value": "statsNhiUninsuredShareCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsNhiUninsuredShareTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ]
+  }
+}

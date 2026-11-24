@@ -1,0 +1,190 @@
+{
+  "count": 16,
+  "gisLayers": {
+    "satellite": {
+      "layers": [
+        "sat-current-point"
+      ],
+      "type": "satellite"
+    }
+  },
+  "overlays": {},
+  "params": {
+    "satellitesBeidou": [
+      {
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 1,
+        "valueText": "1.00"
+      }
+    ],
+    "satellitesFrance": [
+      {
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 1,
+        "valueText": "1.00"
+      }
+    ],
+    "satellitesGaofen": [
+      {
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 1,
+        "valueText": "1.00"
+      }
+    ],
+    "satellitesGermany": [
+      {
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 1,
+        "valueText": "1.00"
+      }
+    ],
+    "satellitesIndia": [
+      {
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 1,
+        "valueText": "1.00"
+      }
+    ],
+    "satellitesIsrael": [
+      {
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 1,
+        "valueText": "1.00"
+      }
+    ],
+    "satellitesItaly": [
+      {
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 1,
+        "valueText": "1.00"
+      }
+    ],
+    "satellitesJapan": [
+      {
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 1,
+        "valueText": "1.00"
+      }
+    ],
+    "satellitesJilin": [
+      {
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 1,
+        "valueText": "1.00"
+      }
+    ],
+    "satellitesKorea": [
+      {
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 1,
+        "valueText": "1.00"
+      }
+    ],
+    "satellitesRussia": [
+      {
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 1,
+        "valueText": "1.00"
+      }
+    ],
+    "satellitesShiyan": [
+      {
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 1,
+        "valueText": "1.00"
+      }
+    ],
+    "satellitesTJS": [
+      {
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 1,
+        "valueText": "1.00"
+      }
+    ],
+    "satellitesTaiwan": [
+      {
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 1,
+        "valueText": "1.00"
+      }
+    ],
+    "satellitesUSA": [
+      {
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 1,
+        "valueText": "1.00"
+      }
+    ],
+    "satellitesYaogan": [
+      {
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 1,
+        "valueText": "1.00"
+      }
+    ]
+  }
+}
