@@ -1,6 +1,6 @@
 // ⚠️ 自動產生，請勿手改：PULSE_DATA_ROOT=<pulse-data> npx tsx scripts/countries/gen-countries.ts
 // 正本：pulse-data countries/countries.json（網站與 MCP 共用；陣列順序是語意，判國先比國家順序、再比框順序）
-// source-sha256: cef3bbfa33c8b255927b52ed548a0214e53592cab35d5c8612386cb3e86d68ea
+// source-sha256: bb1440faed3e8734cd36f9477ec53d7d1f1b250d16d3fe97bb999f4775cd32b2
 // payload-sha256: fb5b673d7c586f5474fbe4bc92c5c103f711b5701baccb354b749beaef4847c6
 
 export type CountryCode = "TW" | "JP" | "FR" | "GB" | "KR" | "CA" | "IE" | "PH" | "VN" | "TH" | "ID" | "CN";
