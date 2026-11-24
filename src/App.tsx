@@ -82,6 +82,7 @@ import { useYoubikeH3 } from "./hooks/useYoubikeH3";
 import { getH3Resolution } from "./map/h3LayerFactory";
 import { DEFAULT_CAMERA, getPresetById } from "./map/cameraPresets";
 import { DEFAULT_COUNTRY, countryDef, type CountryCode } from "./constants/countries";
+import { countryForMapCenter } from "./lib/localClock";
 import { countryStore, resolveInitialCountry, useCountry, useOwnerOnlyCountryGuard } from "./state/countryStore";
 import { countryForLayerKeys } from "./research/explorationNavigation";
 // filterByTimeWindow removed — airspace shows all flights, isFlightActive handles visibility
@@ -1397,6 +1398,20 @@ export default function App() {
 
   // 地圖首次渲染完成（idle 或 4s 保底）— 需在下方 waste lazy setup effect 之前宣告
   const [mapPrepared, setMapPrepared] = useState(false);
+  // 時間軸「當地時間」小字用：地圖中心所在國家，只在 moveend 重算（同值 setState 不重渲）。
+  // 跨時區國家（CA）先用國家預設時區，依位置選時區是多時區時間軸第 4 步。
+  const [centerCountry, setCenterCountry] = useState<CountryCode | undefined>(undefined);
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !mapPrepared) return;
+    const update = () => {
+      const c = map.getCenter();
+      setCenterCountry(countryForMapCenter(c.lng, c.lat));
+    };
+    update();
+    map.on("moveend", update);
+    return () => { map.off("moveend", update); };
+  }, [mapPrepared]);
 
   // 選取圈（useSelectionRing）的主題色走地圖容器上的 CSS 變數，Marker DOM 直接繼承。
   useEffect(() => {
@@ -2902,6 +2917,7 @@ export default function App() {
           {appMode === "realtime" ? (
             <LongTermTimelineGate isDark={isDarkTheme} leftOffset={sidebarWidth + 16} rightReserve={splitActive ? `calc(${navColumnRight} + 296px)` : undefined}>
             <LiveTimelineControls
+              localClockCountry={centerCountry}
               playing={timeline.playing}
               speed={timeline.speed}
               timeMode={timeline.timeMode}
@@ -3063,6 +3079,7 @@ export default function App() {
           >
             {appMode === "realtime" ? (
               <LiveTimelineControls
+                localClockCountry={centerCountry}
                 playing={timeline.playing}
                 speed={timeline.speed}
                 timeMode={timeline.timeMode}
