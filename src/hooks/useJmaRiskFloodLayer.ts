@@ -18,7 +18,7 @@ import {
 } from "../data/jmaTypes";
 import { FLOOD_STATUS_KEY, fetchFloodTargetTimes, pickFloodFrame, type JmaRiskFrame } from "../data/jmaUpstreamLoaders";
 import { setJmaImageryStatus } from "../data/jmaImageryLoader";
-import { timeStore } from "../state/timeStore";
+import { useSideClock } from "../state/sideClock";
 import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 import { isHistoryMode } from "./useTimeStoreTime";
 import { useMapReadyTick } from "./useMapReadyTick";
@@ -50,6 +50,7 @@ interface Options {
 }
 
 export function useJmaRiskFloodLayer({ mapRef, visible, opacity }: Options) {
+  const clock = useSideClock();
   const mapTick = useMapReadyTick(mapRef);
   const framesRef = useRef<JmaRiskFrame[] | null>(null);
   const currentUrlRef = useRef<string | null>(null);
@@ -68,7 +69,7 @@ export function useJmaRiskFloodLayer({ mapRef, visible, opacity }: Options) {
         const frames = await fetchFloodTargetTimes();
         if (disposed) return;
         framesRef.current = frames;
-        runRef.current?.(timeStore.getTime());
+        runRef.current?.(clock.getTime());
       } catch (err) {
         if (disposed) return;
         console.warn("[JMA flood] targetTimes failed", err);
@@ -78,7 +79,7 @@ export function useJmaRiskFloodLayer({ mapRef, visible, opacity }: Options) {
     void load();
     const timer = window.setInterval(() => void load(), REFRESH_MS);
     return () => { disposed = true; window.clearInterval(timer); };
-  }, [visible]);
+  }, [visible, clock]);
 
   // ── layer 生命週期＋選幀 ──
   useEffect(() => {
@@ -129,16 +130,16 @@ export function useJmaRiskFloodLayer({ mapRef, visible, opacity }: Options) {
 
     let disposed = false;
     let retryPending = false;
-    const retry = () => { retryPending = false; if (!disposed) safeRun(timeStore.getTime()); };
+    const retry = () => { retryPending = false; if (!disposed) safeRun(clock.getTime()); };
     const safeRun = (t: number) => {
       try { run(t); } catch {
         if (!disposed && !retryPending) { retryPending = true; map.once("idle", retry); }
       }
     };
-    const onStyleLoad = () => { currentUrlRef.current = null; safeRun(timeStore.getTime()); };
+    const onStyleLoad = () => { currentUrlRef.current = null; safeRun(clock.getTime()); };
 
-    safeRun(timeStore.getTime());
-    const unsubTime = visible ? timeStore.subscribeThrottled(1000, safeRun) : null;
+    safeRun(clock.getTime());
+    const unsubTime = visible ? clock.subscribeThrottled(1000, safeRun) : null;
     map.on("style.load", onStyleLoad);
     return () => {
       disposed = true;
@@ -147,7 +148,7 @@ export function useJmaRiskFloodLayer({ mapRef, visible, opacity }: Options) {
       if (retryPending) map.off("idle", retry);
       if (runRef.current === run) runRef.current = null;
     };
-  }, [mapRef, visible, mapTick]);
+  }, [mapRef, visible, mapTick, clock]);
 
   useEffect(() => {
     const map = mapRef.current;

@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { timeStore } from "../state/timeStore";
+import { useSideClock } from "../state/sideClock";
 import { fetchJmaTimeCoverage, jmaCoverageGate, JMA_LIVE_THRESHOLD_SEC, setJmaLiveStatus } from "../data/jmaLiveLoaders";
 
 /**
@@ -8,6 +8,7 @@ import { fetchJmaTimeCoverage, jmaCoverageGate, JMA_LIVE_THRESHOLD_SEC, setJmaLi
  * 涵蓋期內 0 筆＝真的沒有落雷。last_record_at 給圖例看 collector 是否還活著。
  */
 export function useJmaLightningCoverage(visible: boolean) {
+  const clock = useSideClock();
   useEffect(() => {
     if (!visible) return;
     let cancelled = false;
@@ -29,8 +30,8 @@ export function useJmaLightningCoverage(visible: boolean) {
             : { state: "uncovered", uncovered: gate, mode, loadedAt: Date.now(), coverageFrom: c?.fromIso ?? null, rows: 0 });
         });
     };
-    run(timeStore.getTime());
-    const unsub = timeStore.subscribeThrottled(1000, run);
+    run(clock.getTime());
+    const unsub = clock.subscribeThrottled(1000, run);
     return () => { cancelled = true; unsub(); };
-  }, [visible]);
+  }, [visible, clock]);
 }

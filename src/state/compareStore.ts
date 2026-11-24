@@ -13,6 +13,8 @@
  * - `countries`＝兩國並排（G2-1）：左＝主地圖（目前國家），右＝`rightCountry`（只能是外國）。側別不看 `sides`，
  *   改由圖層的國家決定（`map/compareCountrySides.ts`）；比例尺預設同步（`scaleLocked`），可關。
  *   `rightCamera` 是右圖目前（或要建立時用）的鏡頭：右圖 moveend 寫回，分享網址 `cmpv` 讀它。
+ *   `timeAlign`（G2-4）：`instant`＝同一刻（兩圖同一瞬間，預設）；`local`＝當地同時刻（右圖看右國的同一個當地鐘點，
+ *   右圖的時間由 `state/sideClock.ts` 換算；分享網址 `cmpt=local`）。
  */
 import { useMemo, useSyncExternalStore } from "react";
 import { HISTORICAL_MAP_GROUPS } from "../data/historicalMapSinica";
@@ -25,6 +27,8 @@ export type CompareSide = "left" | "right" | "both";
 /** 比較模式：同地點拉桿／兩國並排；之後新增的比較模式加在這裡（入口選單依序列出） */
 export type CompareMode = "slider" | "countries";
 export const COMPARE_MODES: readonly CompareMode[] = ["slider", "countries"];
+/** 兩國並排的時間對齊：同一刻／當地同時刻（G2-4，站主 2026-11-24） */
+export type CompareTimeAlign = "instant" | "local";
 
 export interface CompareState {
   enabled: boolean;
@@ -39,6 +43,8 @@ export interface CompareState {
   scaleLocked: boolean;
   /** 並排右圖的鏡頭（null＝用該國上次的鏡頭） */
   rightCamera: CountryCamera | null;
+  /** 並排的時間對齊（預設同一刻） */
+  timeAlign: CompareTimeAlign;
 }
 
 /** 判斷側別需要的欄位（元件只訂這幾個，拖把手、右圖平移不重繪） */
@@ -62,7 +68,7 @@ export function clampSplit(value: number): number {
   return Math.min(COMPARE_SPLIT_MAX, Math.max(COMPARE_SPLIT_MIN, value));
 }
 
-const INITIAL: CompareState = { enabled: false, mode: "slider", split: COMPARE_DEFAULT_SPLIT, sides: {}, rightCountry: null, scaleLocked: true, rightCamera: null };
+const INITIAL: CompareState = { enabled: false, mode: "slider", split: COMPARE_DEFAULT_SPLIT, sides: {}, rightCountry: null, scaleLocked: true, rightCamera: null, timeAlign: "instant" };
 let state: CompareState = INITIAL;
 const listeners = new Set<() => void>();
 
@@ -98,6 +104,7 @@ export function compareHydrateFromUrl(url: UrlCompareState): Parameters<typeof c
       ...(url.rightCountry ? { rightCountry: url.rightCountry } : {}),
       ...(url.rightCamera ? { rightCamera: url.rightCamera } : {}),
       scaleLocked: url.scaleLocked !== false,
+      timeAlign: url.timeAlign === "local" ? "local" : "instant",
     };
   }
   return {
@@ -118,8 +125,13 @@ export function markCountriesTipSeen(): void {
 }
 
 /** 兩國並排中（右側國家已定） */
-export function isCountriesCompare(snapshot: CompareSideState = state): boolean {
+export function isCountriesCompare(snapshot: Pick<CompareState, "enabled" | "mode" | "rightCountry"> = state): boolean {
   return snapshot.enabled && snapshot.mode === "countries" && !!snapshot.rightCountry;
+}
+
+/** 並排中、而且選了「當地同時刻」 */
+export function isLocalTimeAlign(snapshot: Pick<CompareState, "enabled" | "mode" | "rightCountry" | "timeAlign"> = state): boolean {
+  return isCountriesCompare(snapshot) && snapshot.timeAlign === "local";
 }
 
 /** 並排中的右側國家（不在並排回 null） */
@@ -189,6 +201,11 @@ export const compareStore = {
     if (state.scaleLocked === scaleLocked) return;
     commit({ ...state, scaleLocked });
   },
+  setTimeAlign(timeAlign: CompareTimeAlign) {
+    if (timeAlign !== "instant" && timeAlign !== "local") return;
+    if (state.timeAlign === timeAlign) return;
+    commit({ ...state, timeAlign });
+  },
   /** 右圖 moveend 寫回（分享網址用） */
   setRightCamera(rightCamera: CountryCamera | null) {
     commit({ ...state, rightCamera });
@@ -209,6 +226,7 @@ export const compareStore = {
   hydrate(next: {
     enabled?: boolean; split?: number; sides?: Readonly<Record<string, CompareSide>>;
     mode?: CompareMode; rightCountry?: CountryCode; scaleLocked?: boolean; rightCamera?: CountryCamera;
+    timeAlign?: CompareTimeAlign;
   }) {
     const sides: Record<string, CompareSide> = {};
     for (const [key, side] of Object.entries(next.sides ?? {})) {
@@ -222,6 +240,7 @@ export const compareStore = {
       sides: { ...state.sides, ...sides },
       ...(next.rightCountry && next.rightCountry !== "TW" ? { rightCountry: next.rightCountry, rightCamera: next.rightCamera ?? null } : {}),
       ...(next.scaleLocked !== undefined ? { scaleLocked: next.scaleLocked } : {}),
+      ...(next.timeAlign === "instant" || next.timeAlign === "local" ? { timeAlign: next.timeAlign } : {}),
     });
   },
   /** 測試用 */

@@ -16,7 +16,7 @@
 import { useEffect } from "react";
 import type { GeoJSONSource, Map as MapboxMap } from "mapbox-gl";
 import { keepLoadingUntilMapIdle } from "../../lib/loadingRegistry";
-import { timeStore } from "../../state/timeStore";
+import { useSideClock } from "../../state/sideClock";
 import { flatMovingCirclePaint } from "../../map/flatMovingLayers";
 import { LINE_OPACITY, lineWidthExpr } from "../../map/mapStyleScale";
 import {
@@ -119,6 +119,8 @@ export function useGbRailReplayLayer(
   isDarkTheme = true,
 ) {
   const mapTick = useMapReadyTick(mapRef, visible);
+  // 掛在並排右圖時讀右側時鐘（當地同時刻＝倫敦同一個牆上鐘點；state/sideClock.ts）
+  const sideClock = useSideClock();
 
   // 站主限定（manifest OWNER_ONLY）：撤權時清掉私人資料快取；圖層由 App lockedKeys 關掉後走下面 !visible 分支移除 source
   useEffect(() => registerOwnerGateReset(["gbRailReplay"], () => clearGbRailReplayCache()), []);
@@ -144,7 +146,7 @@ export function useGbRailReplayLayer(
     let dirty = true; // 參數、選取、換底圖 → 即使時間沒變也重送
     const clock = new GbRailTickClock();
     const smoother = new GbRailSmoother();
-    clock.tick(timeStore.getTime(), performance.now()); // 初值；之後由訂閱更新
+    clock.tick(sideClock.getTime(), performance.now()); // 初值；之後由訂閱更新
     const op = clamp01(opacity);
     const theme = isDarkTheme ? "dark" : "light";
 
@@ -230,7 +232,7 @@ export function useGbRailReplayLayer(
       const c = typeof document !== "undefined" ? document.timeline?.currentTime : null;
       return typeof c === "number" ? c : performance.now();
     };
-    const unsubTime = timeStore.subscribe((t) => {
+    const unsubTime = sideClock.subscribe((t) => {
       const now = frameNow();
       clock.tick(t, now);
       // 每幀 tick（重播）：這一幀若 loop 已先跑過（拿到舊值），由這裡用新值補畫；同值會在 update 內略過
@@ -267,5 +269,5 @@ export function useGbRailReplayLayer(
       map.off("style.load", mount);
       if (raf) cancelAnimationFrame(raf);
     };
-  }, [mapRef, visible, opacity, scale, isDarkTheme, mapTick]);
+  }, [mapRef, visible, opacity, scale, isDarkTheme, mapTick, sideClock]);
 }

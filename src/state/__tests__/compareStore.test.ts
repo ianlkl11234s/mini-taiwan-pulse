@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { compareSideOf, compareStore, isCompareSupported, shownOnLeft, shownOnRight, clampSplit, COMPARE_DEFAULT_SPLIT } from "../compareStore";
+import { compareHydrateFromUrl, compareSideOf, compareStore, isCompareSupported, isLocalTimeAlign, shownOnLeft, shownOnRight, clampSplit, COMPARE_DEFAULT_SPLIT } from "../compareStore";
 import { STATISTICS_RENDER_KEYS } from "../../data/regionalStatisticsRecipes";
 
 const STAT = STATISTICS_RENDER_KEYS[0]!;
@@ -63,5 +63,18 @@ describe("compareStore", () => {
     compareStore.setEnabled(true);
     off();
     expect(calls).toBe(1);
+  });
+
+  it("時間對齊（G2-4）：預設同一刻；切換、網址還原；只有並排中才算當地同時刻", () => {
+    expect(compareStore.getSnapshot().timeAlign).toBe("instant");
+    compareStore.setTimeAlign("local");
+    expect(compareStore.getSnapshot().timeAlign).toBe("local");
+    expect(isLocalTimeAlign()).toBe(false); // 比較沒開
+    compareStore.hydrate(compareHydrateFromUrl({ mode: "countries", rightCountry: "GB" }));
+    expect(compareStore.getSnapshot().timeAlign).toBe("instant");
+    compareStore.hydrate(compareHydrateFromUrl({ mode: "countries", rightCountry: "GB", timeAlign: "local" }));
+    expect(isLocalTimeAlign()).toBe(true);
+    compareStore.setTimeAlign("bogus" as never);
+    expect(compareStore.getSnapshot().timeAlign).toBe("local");
   });
 });

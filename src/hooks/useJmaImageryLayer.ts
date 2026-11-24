@@ -22,7 +22,7 @@ import {
 } from "../data/jmaImageryLoader";
 import { jmaImageryProduct, jmaImageryRasterPaint, type JmaImageryProductId } from "../data/jmaTypes";
 import { createJmaImageryLayer, type JmaImageryLayerHandle } from "../map/jmaImageryLayer";
-import { timeStore } from "../state/timeStore";
+import { useSideClock } from "../state/sideClock";
 import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 import { isHistoryMode } from "./useTimeStoreTime";
 import { useMapReadyTick } from "./useMapReadyTick";
@@ -40,6 +40,7 @@ interface UseJmaImageryLayerOptions {
 }
 
 export function useJmaImageryLayer({ mapRef, visible, opacity, product }: UseJmaImageryLayerOptions) {
+  const clock = useSideClock();
   const mapTick = useMapReadyTick(mapRef);
   const sourceId = `jma-imagery-${product}-src`;
   const layerId = `jma-imagery-${product}-layer`;
@@ -73,8 +74,8 @@ export function useJmaImageryLayer({ mapRef, visible, opacity, product }: UseJma
     let seq = 0;
 
     const load = async (force: boolean) => {
-      const keys = timeStore.getWindowDateKeys();
-      const today = timeStore.getDateKey();
+      const keys = clock.getWindowDateKeys();
+      const today = clock.getDateKey();
       if (!keys.includes(today)) keys.push(today);
       const win = jmaImageryWindowFor(keys, spec, Date.now());
       const key = `${win.sinceIso}|${win.untilIso}`;
@@ -88,7 +89,7 @@ export function useJmaImageryLayer({ mapRef, visible, opacity, product }: UseJma
         framesRef.current = result.get(product) ?? [];
         loadedKey = key;
         inflightKey = null;
-        runRef.current?.(timeStore.getTime());
+        runRef.current?.(clock.getTime());
       } catch (err) {
         if (disposed || mySeq !== seq) return;
         inflightKey = null;
@@ -98,10 +99,10 @@ export function useJmaImageryLayer({ mapRef, visible, opacity, product }: UseJma
     };
 
     void load(false);
-    const unsubDate = timeStore.subscribeDate(() => void load(false));
-    const unsubWindow = timeStore.subscribeWindowDateKeys(() => void load(false));
+    const unsubDate = clock.subscribeDate(() => void load(false));
+    const unsubWindow = clock.subscribeWindowDateKeys(() => void load(false));
     const timer = window.setInterval(() => {
-      if (!isHistoryMode(timeStore.getTime())) void load(true);
+      if (!isHistoryMode(clock.getTime())) void load(true);
     }, LIVE_REFRESH_MS);
     return () => {
       disposed = true;
@@ -109,7 +110,7 @@ export function useJmaImageryLayer({ mapRef, visible, opacity, product }: UseJma
       unsubWindow();
       window.clearInterval(timer);
     };
-  }, [visible, product]);
+  }, [visible, product, clock]);
 
   // ── layer 生命週期＋選幀 ──
   useEffect(() => {
@@ -192,13 +193,13 @@ export function useJmaImageryLayer({ mapRef, visible, opacity, product }: UseJma
 
     let disposed = false;
     let retryPending = false;
-    const retry = () => { retryPending = false; if (!disposed) safeRun(timeStore.getTime()); };
+    const retry = () => { retryPending = false; if (!disposed) safeRun(clock.getTime()); };
     const safeRun = (t: number) => {
       try { run(t); } catch {
         if (!disposed && !retryPending) { retryPending = true; map.once("idle", retry); }
       }
     };
-    const onStyleLoad = () => safeRun(timeStore.getTime());
+    const onStyleLoad = () => safeRun(clock.getTime());
     const confirmShown = () => {
       const f = pendingShownRef.current;
       if (!f || disposed) return;
@@ -224,8 +225,8 @@ export function useJmaImageryLayer({ mapRef, visible, opacity, product }: UseJma
     map.on("error", onMapError);
     map.on("idle", onIdle);
 
-    safeRun(timeStore.getTime());
-    const unsubTime = visible ? timeStore.subscribeThrottled(1000, safeRun) : null;
+    safeRun(clock.getTime());
+    const unsubTime = visible ? clock.subscribeThrottled(1000, safeRun) : null;
     map.on("style.load", onStyleLoad);
     return () => {
       disposed = true;
@@ -237,7 +238,7 @@ export function useJmaImageryLayer({ mapRef, visible, opacity, product }: UseJma
       if (retryPending) map.off("idle", retry);
       if (runRef.current === run) runRef.current = null;
     };
-  }, [mapRef, visible, product, sourceId, layerId, mapTick]);
+  }, [mapRef, visible, product, sourceId, layerId, mapTick, clock]);
 
   // 透明度：隱藏中不寫 paint（hidden raster 寫 paint 會讓 transition 長期為真而持續重繪）
   useEffect(() => {

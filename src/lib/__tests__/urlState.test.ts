@@ -620,6 +620,16 @@ describe("兩國並排 cmp=2（G2-1，選填欄位、不升版）", () => {
     expect(parseUrlState(url.slice(url.indexOf("?"))).compare).toEqual({ mode: "countries", rightCountry: "JP", rightCamera: { center: [139.7, 35.68], zoom: 10, bearing: 0, pitch: 0 } });
   });
 
+  it("當地同時刻（G2-4）：cmpt=local 往返；同一刻不寫；拉桿與未知值不收", () => {
+    const compare = { mode: "countries" as const, rightCountry: "GB" as const, timeAlign: "local" as const };
+    const url = buildUrl({ camera, compare }, "/");
+    expect(url).toContain("cmpt=local");
+    expect(parseUrlState(url.slice(url.indexOf("?"))).compare).toEqual(compare);
+    expect(buildUrl({ camera, compare: { mode: "countries", rightCountry: "GB" } }, "/")).not.toContain("cmpt");
+    expect(parseUrlState(`?${V}&cmp=2&cmpc=gb&cmpt=utc`).compare).toEqual({ mode: "countries", rightCountry: "GB" });
+    expect(parseUrlState(`?${V}&cmp=1&cmpt=local`).compare).toEqual({});
+  });
+
   it("右側不收台灣與未知國碼；鏡頭壞掉整個不收；cmp=1 舊網址不受影響", () => {
     expect(parseUrlState(`?${V}&cmp=2&cmpc=tw&cmpv=121,25,10`).compare).toEqual({ mode: "countries" });
     expect(parseUrlState(`?${V}&cmp=2&cmpc=zz`).compare).toEqual({ mode: "countries" });

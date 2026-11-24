@@ -119,6 +119,11 @@
   row-gap: 4px;
 }
 
+/* 展開時刻度 00–24 七個標籤要讀得開：保留最小寬度（小字自己縮、截斷） */
+.tl3:not(.tl3--collapsed):not(.tl3--mobile) .tl3-axis {
+  min-width: 170px;
+}
+
 .tl3--mobile .tl3-axis {
   order: 10;
   flex-basis: 100%;
@@ -162,6 +167,8 @@
 
 /* 當地時間小字（看外國時）：次要文字；空間不夠時截斷，手機放在時間旁、可換行到下一列 */
 .tl3-local {
+  /* 空間不夠時先縮小字（省略號），不擠刻度列（G2-4：並排兩國時小字較長） */
+  flex: 0 100 auto;
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
