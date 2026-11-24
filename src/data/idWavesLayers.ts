@@ -405,8 +405,9 @@ export const ID_WAVE_SPECS: readonly IdLayerSpec[] = [
     cats: [
       cat("s4", ["4–5 kWh/m²"], "#fde68a", "太陽能潛力 4–5 kWh/m²／日（潛力分區，不是電廠）", "Solar potential 4–5 kWh/m²/day (potential zone, not plants)", "太陽光ポテンシャル 4–5 kWh/m²／日（ポテンシャル区分で発電所ではない）", { parts: ["id-solar-potential-fill"] }),
       cat("s5", ["5–6 kWh/m²"], "#fb923c", "太陽能潛力 5–6 kWh/m²／日（潛力分區，不是電廠）", "Solar potential 5–6 kWh/m²/day (potential zone, not plants)", "太陽光ポテンシャル 5–6 kWh/m²／日（ポテンシャル区分で発電所ではない）", { parts: ["id-solar-potential-fill"] }),
-      cat("solar", ["solar"], "#facc15", "太陽能發電場（OSM，135）", "Solar farm (OSM, 135)", "太陽光発電所（OSM、135）", { parts: ["id-renewables-circle", "id-renewables-fill"], radius: 3.5 }),
-      cat("wind", ["wind"], "#38bdf8", "風力發電場、風機（OSM，69）", "Wind farm / turbine (OSM, 69)", "風力発電所・風車（OSM、69）", { parts: ["id-renewables-circle", "id-renewables-fill"], radius: 3.5 }),
+      // 全國只有 206 處、z7 看不到 → 點加大一級（同外圍小島 4.5）
+      cat("solar", ["solar"], "#facc15", "太陽能發電場（OSM，135）", "Solar farm (OSM, 135)", "太陽光発電所（OSM、135）", { parts: ["id-renewables-circle", "id-renewables-fill"], radius: 4.5 }),
+      cat("wind", ["wind"], "#38bdf8", "風力發電場、風機（OSM，69）", "Wind farm / turbine (OSM, 69)", "風力発電所・風車（OSM、69）", { parts: ["id-renewables-circle", "id-renewables-fill"], radius: 4.5 }),
     ],
     title: { props: ["name", "name_en"], fallback: l3("再生能源", "Renewables", "再生可能エネルギー"), fallbackBy: { prop: "kind", map: { solar_potential: l3("太陽能潛力分區", "Solar potential zone", "太陽光ポテンシャル区分"), wind_turbine: l3("風機", "Wind turbine", "風車"), plant: l3("發電場", "Power plant", "発電所") } } },
     fields: [
