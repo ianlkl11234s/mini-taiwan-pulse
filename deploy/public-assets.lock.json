@@ -10001,8 +10001,8 @@
   },
   {
    "path": "public/world/us_state_wells.pmtiles",
-   "bytes": 43325951,
-   "sha256": "25d1ecfb933a795448b5286340f06ce1808f2917a31cf82fd3b1aa8a2db251d6",
+   "bytes": 166600576,
+   "sha256": "88804934134caa368027e4b2a237a804b6e016d2ab1f1c75678e572580dc6e86",
    "delivery": "r2",
    "s3_key": "deploy-assets/world/us_state_wells.pmtiles"
   },

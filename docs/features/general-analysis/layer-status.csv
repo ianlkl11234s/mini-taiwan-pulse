@@ -1580,7 +1580,7 @@ usPowerPlants,電廠 Power Plants,US,美國,能源,custom,verified,us_power_plan
 usPowerGrid,輸電網 Transmission Lines,US,美國,能源,custom,verified,us_power_grid,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"美國輸電線 94,339 段（HIFLD 存檔 2025-08；依電壓分色）＋變電所 73,586 處（OSM，z7 起）"
 usRenewables,風機與大型太陽能 Wind Turbines & Utility Solar,US,美國,能源,custom,verified,us_renewables,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"美國風機 77,649 座（USWTDB v9.1）＋大型地面型太陽能 6,611 處（USPVDB v4.0，z8 起畫範圍）"
 usOilGas,油氣設施與管線 Oil & Gas Infrastructure,US,美國,能源,custom,verified,us_oil_gas,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"美國煉油廠 132、天然氣處理廠 478、LNG 站 8、外海平台 1,303、外海井 56,495、管線 49,165 段"
-usStateWells,州油氣井 State Oil & Gas Wells,US,美國,能源,custom,verified,us_state_wells,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"美國 12 州主管機關油氣井 337,938 口（州子層；其他州未涵蓋）"
+usStateWells,州油氣井 State Oil & Gas Wells,US,美國,能源,custom,verified,us_state_wells,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"美國 18 州主管機關油氣井 2,216,726 口（州子層；其他州未涵蓋）"
 usFuelStations,加油站 Gas Stations,US,美國,能源,custom,verified,us_fuel_stations,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"美國加油站 170,712 處（Overture Places，非官方；z6 起）"
 ieBathymetry,海床地形 Bathymetry（INFOMAR）,IE,愛爾蘭,底圖,custom,verified,ie_bathymetry,,,,,,yes,none,,display_only,,,dataset_not_in_warehouse,,,,"愛爾蘭海床地形（INFOMAR 測深，約 300 m；0–4,832 m 深度色階＋陰影）"
 ieCoillteRecreation,國有林遊憩點與森林入口 Coillte Recreation Sites & Forest Entrances（Coillte）,IE,愛爾蘭,林業,supabase,verified,ie_coillte_recreation,,,,,,yes,none,,display_only,,,dataset_not_in_warehouse,,,,"站主限定。愛爾蘭國營林業公司 Coillte 遊憩點 153 處與森林入口 12,888 處；授權限私人研究，不公開"

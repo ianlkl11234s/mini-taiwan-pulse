@@ -443,7 +443,7 @@ export const US_DATA_SPECS: readonly UsLayerSpec[] = [
     license: US_LICENSE_PD, fetchedAt: US_FETCHED_AT, loading: loading("美國國家公路系統載入中", "Loading U.S. National Highway System", "米国の国家道路網を読み込み中"),
   },
   {
-    key: "usStateWells", file: "us_state_wells.pmtiles", sourceId: "us-state-wells", srcMinzoom: 6, srcMaxzoom: 12, color: "#d97706", count: 337_938,
+    key: "usStateWells", file: "us_state_wells.pmtiles", sourceId: "us-state-wells", srcMinzoom: 6, srcMaxzoom: 12, color: "#d97706", count: 2_216_726,
     parts: [point("us-state-wells-circle", "wells", 6, propGetter("status_class"), { small: true })],
     cats: WELL_STATUS_CATS, otherColor: "#94a3b8", otherLabel: l3("其他、狀態不明", "Other / unknown status", "その他・状態不明"),
     defaultCats: ["active", "inactive", "permitted"],
@@ -457,11 +457,12 @@ export const US_DATA_SPECS: readonly UsLayerSpec[] = [
       ...COUNTY_FIELDS,
     ],
     legendNotes: [
-      l3("州子層：AK、AR、FL、ID、KY、MO、MT、NV、UT、VA、WA、WY 共 12 州；其他州未涵蓋（不是沒有井）", "State sub-layers: AK, AR, FL, ID, KY, MO, MT, NV, UT, VA, WA, WY (12 states); other states not covered (not \"no wells\")", "州サブレイヤー：AK, AR, FL, ID, KY, MO, MT, NV, UT, VA, WA, WY (12 states)。その他の州は未収録（井戸がないわけではない）"),
+      l3("州子層：AK、AR、CA、FL、ID、IL、KS、KY、MO、MT、NV、OH、OK、PA、UT、VA、WA、WY 共 18 州；其他州未涵蓋（不是沒有井）", "State sub-layers: AK, AR, CA, FL, ID, IL, KS, KY, MO, MT, NV, OH, OK, PA, UT, VA, WA, WY (18 states); other states not covered (not \"no wells\")", "州サブレイヤー：AK, AR, CA, FL, ID, IL, KS, KY, MO, MT, NV, OH, OK, PA, UT, VA, WA, WY (18 states)。その他の州は未収録（井戸がないわけではない）"),
       l3("每州各自來源與日期；狀態依各州原文以關鍵字歸類，原文在彈窗；預設只開使用中、停用、已核准", "Each state has its own source and date; status is grouped from each state's wording (original in popup); by default only active, inactive and permitted are shown", "州ごとに出典・日付が異なる。状態は州の原文からキーワードで分類（原文はポップアップ）。既定は稼働・休止・許可のみ表示"),
+      l3("伊利諾、堪薩斯的狀態是州的井分類（含歷史分類），不一定是現況；奧克拉荷馬有 15,098 口沒有座標未收", "Illinois and Kansas statuses are the state's well classification (partly historical), not necessarily current; 15,098 Oklahoma wells have no coordinates and are omitted", "イリノイ・カンザスの状態は州の井戸分類（履歴を含む）で現況とは限らない。オクラホマの座標なし 15,098 本は未収録"),
       l3("授權未明示（各州服務未載明）；不收井名與地主名", "License not stated by the state services; well and landowner names are omitted", "ライセンス未明示（州のサービスに記載なし）。井戸名・地主名は収録しない"),
     ],
-    popupNotes: [NEAREST], sourceOrg: "State oil and gas regulators (AOGCC, AOGC, FDEP, IDL, KY EEC, MGS, MBOGC, NDOM, UT DOGM, VA DGO, WA DNR, WOGCC…)", sourceUrl: "https://github.com/ianlkl11234s/taipei-gis-analytics/blob/master/docs/topic-research/united_states_opendata/states/state_matrix.csv",
+    popupNotes: [NEAREST], sourceOrg: "State oil and gas regulators (AOGCC, AOGC, CalGEM, FDEP, IDL, ISGS, KGS, KY EEC, MGS, MBOGC, NDOM, ODNR, OCC, PA DEP, UT DOGM, VA DGO, WA DNR, WOGCC)", sourceUrl: "https://github.com/ianlkl11234s/taipei-gis-analytics/blob/master/docs/topic-research/united_states_opendata/states/state_matrix.csv",
     license: l3("授權未明示（各州）", "License not stated (per state)", "ライセンス未明示（州ごと）"), fetchedAt: US_FETCHED_AT,
     loading: loading("美國州油氣井載入中", "Loading U.S. state oil & gas wells", "米国の州別油ガス井を読み込み中"),
   },
