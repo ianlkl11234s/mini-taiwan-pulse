@@ -80,7 +80,7 @@ describe("useJmaTimeDriver 讀本側時鐘", () => {
     expect(h.effectRuns).toBe(1);
 
     compareStore.setTimeAlign("local");
-    expect(h.requested.at(-1)).toBe(T - 3600);
+    expect(h.requested[h.requested.length - 1]).toBe(T - 3600);
     render(); // 重新 render：clock 身分不變，effect 不重跑
     expect(h.effectRuns).toBe(1);
   });
