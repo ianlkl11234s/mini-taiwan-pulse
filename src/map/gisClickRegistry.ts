@@ -212,6 +212,8 @@ export const GIS_LAYERS: GisLayerEntry[] = slottedList<GisLayerEntry>("gisClickL
   { layers: ["coverage-gas-fpcc-line"], type: "gasCoverageFpcc" },
   { layers: ["coverage-gas-taisugar-line"], type: "gasCoverageTaisugar" },
   { layers: ["coverage-ev-island-line"], type: "evIsland" },
+  { layers: ["hazard-lightning-core", "hazard-lightning-halo"], type: "lightningStrike" },
+  { layers: ["hazard-lightning-cwa-core", "hazard-lightning-cwa-halo"], type: "lightningStrike" },
   countrySlot("JP", 1), // 日本國家包（src/countries/jp/）
   { layers: ["hazard-nuclear-core", "hazard-nuclear-halo"], type: "nuclearStation" },
   // 本土地震（useEarthquakeLayer 的 pre/post 兩態，穩定半徑可點；

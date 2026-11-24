@@ -3,8 +3,6 @@
 import type { JpPopupType } from "./popupTypes";
 import type { FC } from "react";
 import type { PanelProps } from "../../components/featureInfo/registry";
-import { RasterProbePanel } from "../../components/featureInfo/airPanels";
-import { LightningStrikePanel } from "../../components/featureInfo/hazardPanels";
 import { HistoricalFlightTrailPanel } from "../../components/featureInfo/historicalFlightPanels";
 import { JpReligionGsiPanel, JpReligionOsmPanel, JpReligionWikidataPanel } from "../../components/featureInfo/religionPanels";
 import { JpBuildingHeightPanel } from "../../components/featureInfo/urbanPanels";
@@ -16,8 +14,6 @@ import { JpDidPanel, JpNationalParksMoePanel, JpNaturalParkAreas2015Panel, JpWil
 
 export const JP_PACK_PANELS = {
   jpHistoricalFlightTrails: HistoricalFlightTrailPanel,
-  lightningStrike: LightningStrikePanel,
-  rasterProbe: RasterProbePanel,
   jpMedicalHospitals: JpMedicalFacilitiesPanel,
   jpMedicalClinics: JpMedicalFacilitiesPanel,
   jpMedicalDental: JpMedicalFacilitiesPanel,

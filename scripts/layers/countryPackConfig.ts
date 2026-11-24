@@ -31,6 +31,8 @@ export interface CountryPackConfig {
   styleIds?: { specsImport: string; specsName: string };
   /** 這國的 overlay 但留在中央 registry（例：jpHeightLifecycle 依視窗管理的樣板，MapView 開站就要） */
   keepOverlays?: string[];
+  /** 這國自己的 popup 類型／圖例 id 前綴（預設 /^<dir>[A-Z0-9]/）；不是這國的 key 又不帶前綴的 id 視為共用，留在中央 */
+  ownIdPrefix?: RegExp;
 }
 
 export const COUNTRY_PACK_CONFIG: Record<string, CountryPackConfig> = {
@@ -191,5 +193,6 @@ export const COUNTRY_PACK_CONFIG: Record<string, CountryPackConfig> = {
     keyType: "JpLayerKey",
     // jpHeightLifecycle 依視窗管理的樣板：MapView 開站就要
     keepOverlays: ["jpBuildingHeight", "jpCanopyHeight"],
+    ownIdPrefix: /^(jp|jma)[A-Z0-9]/,
   },
 };

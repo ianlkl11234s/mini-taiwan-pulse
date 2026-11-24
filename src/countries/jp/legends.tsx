@@ -3,7 +3,7 @@
 import type { LegendEntry } from "../../components/LegendPanel";
 import { JpBusStopsLegend, JpEvacuationSitesLegend, JpInlandFloodAreasLegend, JpLandslideWarningAreasLegend, JpNationalForestsLegend, JpPoliceFacilitiesLegend, JpPublicOfficesLegend, JpSchoolsLegend, JpWelfareFacilitiesLegend, JpZoningUseDistrictsLegend } from "../../components/legend/civicServiceLegends";
 import { JpAccommodationTypesLegend, JpReligionLegend } from "../../components/legend/cultureLegends";
-import { HistoricalFlightTrailsLegend, JpExpresswaysLegend, JpMajorRoadsLegend, JpMunicipalRoadsLegend, JpRailwaysLegend, JpStationsLegend } from "../../components/legend/transportLegends";
+import { JpExpresswaysLegend, JpMajorRoadsLegend, JpMunicipalRoadsLegend, JpRailwaysLegend, JpStationsLegend } from "../../components/legend/transportLegends";
 import { JpBuildingHeightLegend, JpCanopyHeightLegend, JpGsiHillshadeLegend, JpGsiReliefLegend, JpPopulationMeshLegend } from "../../components/legend/urbanFormLegends";
 import { JpWaterFloodHazardLegend, JpWaterLegend } from "../../components/legend/waterLegends";
 import { GibsSnowCoverLegend, JmaAmedasLegend, JmaImageryLegend, JmaKosaLegend, JmaQuakesLegend, JmaRiskFloodLegend, JmaSnowDepthLegend, JmaVolcanoesLegend, JmaWarningsLegend } from "./jmaLegends";
@@ -85,9 +85,6 @@ export const JP_PACK_LEGEND_SLOTS: Readonly<Record<number, readonly LegendEntry[
   { id: "jpPopulationMesh1km", render: ({ overlayParams }) => <JpPopulationMeshLegend modeIdx={overlayParams.jpPopulationMeshModeIdx ?? 0} /> },
   { id: "jpAccommodationCanonical", render: () => <JpAccommodationTypesLegend source="canonical" /> },
   { id: "jpAccommodationOsm", render: () => <JpAccommodationTypesLegend source="osm" /> },
-  ],
-  5: [
-  { id: "historicalFlightTrails", render: () => <HistoricalFlightTrailsLegend /> },
   ],
   6: [
   { id: "jpBuildingHeight", render: () => <JpBuildingHeightLegend /> },

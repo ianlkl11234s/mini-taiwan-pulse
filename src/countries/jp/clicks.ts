@@ -5,8 +5,6 @@ import type { GisLayerEntry } from "../../map/gisClickRegistry";
 /** 插槽序號 → 條目；序號對應中央陣列裡的 countrySlot("JP", n)。 */
 export const JP_PACK_CLICK_SLOTS: Readonly<Record<number, readonly GisLayerEntry[]>> = {
   1: [
-  { layers: ["hazard-lightning-core", "hazard-lightning-halo"], type: "lightningStrike" },
-  { layers: ["hazard-lightning-cwa-core", "hazard-lightning-cwa-halo"], type: "lightningStrike" },
   { layers: ["jma-lightning-core", "jma-lightning-halo"], type: "lightningStrike" },
   ],
   2: [

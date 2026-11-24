@@ -38,7 +38,7 @@ import {
   RoadCongestionPanel, FreewayCongestionPanel,
   ProvincialRoadPanel, HighwayPanel, CyclingRoutePanel,
 } from "./roadPanels";
-import { AqiStationPanel, MicroSensorPanel, TemperatureGridPanel } from "./airPanels";
+import { AqiStationPanel, MicroSensorPanel, TemperatureGridPanel, RasterProbePanel } from "./airPanels";
 import {
   WasteFacilityPanel, WasteDisposalPointPanel, WasteCleaningSquadPanel, WasteStopsStaticPanel,
   WasteTruckPanel,
@@ -116,7 +116,7 @@ import { PowerPlantPanel, OsmSubstationPanel, OsmPowerLinePanel, OsmPowerTowerPa
   GasCoverageAllPanel, GasCoverageCpcPanel, GasCoverageFpccPanel, GasCoverageTaisugarPanel,
   EvIslandPanel,
 } from "./energyPanels";
-import { NuclearStationPanel, EarthquakePanel, EarthquakeReplayStationPanel, EarthquakeReplayTownPanel, MountainRescuePanel } from "./hazardPanels";
+import { LightningStrikePanel, NuclearStationPanel, EarthquakePanel, EarthquakeReplayStationPanel, EarthquakeReplayTownPanel, MountainRescuePanel } from "./hazardPanels";
 import {
   EarthquakeGlobalPanel, TyphoonTrackPanel, TyphoonAgencyForecastPanel, ClimateFieldPanel, WorldTrashDebrisPanel, GlobalEventPanel,
   AisstreamVesselPanel, GfwVesselPresencePanel, GfwHourlyGridPanel, GfwHourlyTrackPanel, GfwFishingEffortPanel, GfwDarkVesselPanel,
@@ -393,6 +393,7 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   gasCoverageFpcc: GasCoverageFpccPanel,
   gasCoverageTaisugar: GasCoverageTaisugarPanel,
   evIsland: EvIslandPanel,
+  lightningStrike: LightningStrikePanel,
   nuclearStation: NuclearStationPanel,
   earthquakes: EarthquakePanel,
   earthquakeReplayStation: EarthquakeReplayStationPanel,
@@ -402,6 +403,7 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   typhoonTrack: TyphoonTrackPanel,
   typhoonAgencyForecast: TyphoonAgencyForecastPanel,
   climateField: ClimateFieldPanel,
+  rasterProbe: RasterProbePanel,
   temperatureGrid: TemperatureGridPanel,
   worldTrashDebris: WorldTrashDebrisPanel,
   coralReefDistribution: CoralReefPanel,
@@ -893,6 +895,7 @@ export const HEADER_LABELS = extensibleRecord("featureHeaderLabels", {
   gasCoverageFpcc: "台塑 30km 可達",
   gasCoverageTaisugar: "台糖 30km 可達",
   evIsland: "充電站 30km 孤島",
+  lightningStrike: "落雷",
   nuclearStation: "核安觀測站",
   earthquakes: "地震",
   earthquakeReplayStation: "地震回放 強震測站",
@@ -902,6 +905,7 @@ export const HEADER_LABELS = extensibleRecord("featureHeaderLabels", {
   typhoonTrack: "颱風軌跡",
   typhoonAgencyForecast: "各國颱風預報",
   climateField: "氣候場讀值",
+  rasterProbe: "圖層讀值",
   temperatureGrid: "溫度網格",
   worldTrashDebris: "垃圾與殘骸觀測 Trash & Debris Observations",
   coralReefDistribution: "珊瑚礁歷史分布 Historical Coral Reefs",

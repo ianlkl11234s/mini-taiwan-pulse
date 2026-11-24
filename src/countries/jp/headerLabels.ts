@@ -16,8 +16,6 @@ export const JP_PACK_HEADER_LABELS = {
   jpWaterQualityStations: "水質測定地点（2024）",
   jpWaterLevelStations: "橫濱水位站 横浜市",
   jpBuildingHeight: "PLATEAU 建物",
-  lightningStrike: "落雷",
-  rasterProbe: "圖層讀值",
   jpMedicalHospitals: "醫院 病院",
   jpMedicalClinics: "診所 診療所",
   jpMedicalDental: "牙科 歯科",

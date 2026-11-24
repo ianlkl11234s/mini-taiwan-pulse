@@ -57,16 +57,17 @@ const PACK_MODULES = import.meta.glob<{ default: import("../types").CountryPack 
 /** 某國國家包自己帶的 key／條目 id（用來從完整順序扣掉沒載入的國家） */
 async function packMembers(cc: CountryCode): Promise<Signature> {
   const pack = (await PACK_MODULES[`../${cc.toLowerCase()}/pack.ts`]!()).default;
-  const ids = <T,>(slots: Readonly<Record<number, readonly T[]>> | undefined, f: (x: T) => string) =>
+  const ids = <T, R = string>(slots: Readonly<Record<number, readonly T[]>> | undefined, f: (x: T) => R) =>
     Object.values(slots ?? {}).flat().map(f);
   const params = Object.keys(pack.records.layerParamsSpec ?? {});
-  const clicks = ids(pack.slots.gisClickLayers as Record<number, { type: string }[]>, (e) => e.type);
+  const clickEntries = ids(pack.slots.gisClickLayers as Record<number, { type: string; layers: string[] }[]>, (e) => e);
   return {
     manifest: Object.keys(pack.records.layerManifest ?? {}),
     params,
     paramNames: params,
-    clicks,
-    clickLayers: clicks,
+    clicks: clickEntries.map((e) => e.type),
+    // 以「type:第一個圖層 id」認條目（共用 type 例 lightningStrike 台灣也在用，不能整個 type 扣掉）
+    clickLayers: clickEntries.map((e) => `${e.type}:${e.layers[0]}`),
     hosts: ids(pack.slots.layerHosts as Record<number, { id: string }[]>, (e) => e.id),
     legends: ids(pack.slots.legends as Record<number, { id: string }[]>, (e) => e.id),
   };
@@ -99,6 +100,29 @@ describe("國家包沒載入時", () => {
 
     expect(r.packs.isCountryPackReady("GB")).toBe(false);
   }, 120_000);
+
+  it("留在靜態的圖層（台灣、整層留在中央的外國圖層）不靠國家包的 popup 與圖例", async () => {
+    // 例：日本搬家時 rasterProbe、lightningStrike（台灣雷擊）、historicalFlightTrails 曾被當成日本的搬走，台灣圖層就點不出 popup、看不到圖例
+    const { readdirSync, readFileSync } = await import("node:fs");
+    const root = new URL("../", import.meta.url);
+    const packPopups = new Set<string>();
+    const packLegends = new Set<string>();
+    for (const dir of readdirSync(root)) {
+      if (!/^[a-z]{2}$/.test(dir)) continue;
+      const read = (f: string) => { try { return readFileSync(new URL(`${dir}/${f}`, root), "utf8"); } catch { return ""; } };
+      for (const m of read("popupTypes.ts").matchAll(/"([A-Za-z0-9_]+)"/g)) packPopups.add(m[1]!);
+      for (const m of read("legends.tsx").matchAll(/\{ id: "([A-Za-z0-9_]+)"/g)) packLegends.add(m[1]!);
+    }
+    const { LAYER_MANIFEST } = await import("../../data/layerManifest");
+    const offending: string[] = [];
+    for (const [key, entry] of Object.entries(LAYER_MANIFEST as Record<string, { popup?: string | readonly string[] | null; legend?: string | null }>)) {
+      const popups = entry.popup === undefined ? [key] : entry.popup === null ? [] : typeof entry.popup === "string" ? [entry.popup] : entry.popup;
+      for (const t of popups) if (packPopups.has(t)) offending.push(`${key} popup ${t}`);
+      const legend = entry.legend === undefined ? key : entry.legend;
+      if (legend !== null && packLegends.has(legend)) offending.push(`${key} legend ${legend}`);
+    }
+    expect(offending).toEqual([]);
+  });
 
   it("嵌入頁的白名單沒有搬進國家包的圖層（embed 不載國家包；之後若要放行，要先在 embed 接 ensureCountryPack）", async () => {
     const { EMBED_ALLOWED } = await import("../../embed/embedWhitelist");
@@ -136,8 +160,19 @@ describe("任意子集、任意載入順序都排回搬家前的位置", () => {
       if (loaded.includes(cc)) continue;
       const m = members[cc]!;
       for (const k of Object.keys(out) as (keyof Signature)[]) {
+        if (k === "clicks") {
+          // type 可重複、也可能和中央條目共用：每個條目只扣一次
+          const left = [...m.clicks];
+          out.clicks = out.clicks.filter((x) => { const i = left.indexOf(x); if (i < 0) return true; left.splice(i, 1); return false; });
+          continue;
+        }
+        if (k === "clickLayers") {
+          const drop = new Set(m.clickLayers);
+          out.clickLayers = out.clickLayers.filter((x) => !drop.has(x.split(",")[0]!));
+          continue;
+        }
         const drop = new Set(m[k]);
-        // paramNames／clickLayers 的字串以「key:」或「type:」開頭
+        // paramNames 的字串以「key:」開頭
         out[k] = out[k].filter((x) => !drop.has(x) && !drop.has(x.split(":")[0]!));
       }
     }

@@ -81,6 +81,4 @@ export type JpPopupType =
   | "jpWorldHeritageCultural"
   | "jpWorldHeritageNatural"
   | "jpWorldNaturalHeritageHistorical"
-  | "jpZoningUseDistricts"
-  | "lightningStrike"
-  | "rasterProbe";
+  | "jpZoningUseDistricts";

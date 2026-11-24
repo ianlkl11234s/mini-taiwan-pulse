@@ -57,6 +57,14 @@ for (const k of KEYS) {
   const l = r.legend === undefined ? k : r.legend;
   if (l !== null) LEGENDS.add(l);
 }
+// 共用的 popup 類型／圖例 id（例：rasterProbe、lightningStrike、historicalFlightTrails 台灣圖層也在用）留在中央：
+// 索引只有外國圖層看不到台灣的使用者，所以只收「就是這國的 key」或「帶這國前綴」的 id。
+const OWN_ID = cfg.ownIdPrefix ?? new RegExp(`^${cfg.dir}[A-Z0-9]`);
+const SHARED_KEPT: string[] = [];
+for (const set of [POPUPS, LEGENDS]) {
+  for (const id of [...set]) if (!KEYS.has(id) && !OWN_ID.test(id)) { set.delete(id); SHARED_KEPT.push(id); }
+}
+if (SHARED_KEPT.length) console.log(`• 共用 id 留在中央：${[...new Set(SHARED_KEPT)].join("、")}`);
 console.log(`${CC}：索引 ${ALL_KEYS.length} 個 key，這輪搬 ${KEYS.size} 個；popup 類型 ${POPUPS.size}、legend id ${LEGENDS.size}`);
 
 // ── 檔案工具 ───────────────────────────────────────────────────────

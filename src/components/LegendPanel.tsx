@@ -46,7 +46,7 @@ import { FreewayTdcsSimLegend } from "./legend/freewayTdcsSimLegends";
 import { MapchallengeFacilityLegend, MapchallengeDay19ComplaintsLegend, MapchallengeDay19PotentialLegend, MapchallengeDay19PenaltiesLegend, MapchallengeDay21OsmRoadsLegend, MapchallengeDay23TasteTermsLegend, MapchallengeDay23TastePlacesLegend, MapchallengeDay23TasteForeignLegend, MapchallengeDay23TasteIntlLegend, MapchallengeDay23TasteVariantsLegend, MapchallengeOverlapLegend, MapchallengePopulationLegend, MapchallengeScaleTcChLegend, MapchallengeSeaViewLegend, MapchallengeSeaViewRunsLegend, MapchallengeDay06CoastLegend, MapchallengeDay06LighthousesLegend, MapchallengeDay06Taipei1932Legend, MapchallengeDay06Temples1921Legend, MapchallengeDay08AccessLegend, MapchallengeDay08ParksLegend, MapchallengeDay08Plan1955Legend, MapchallengeDay08SitesLegend, MapchallengeDay09UrbanRuralLegend, MapchallengeDay17DarkRoadsLegend, MapchallengeDay17DarkSkyLegend, MapchallengeDay17NightFallLegend, MapchallengeDay17LedShareLegend } from "./legend/mapchallengeLegends";
 import { mapchallengeDay21YearAt } from "../data/mapchallengeDay21Types";
 import { TransitAccessGridLegend, TransitAccessPlaybackLegend } from "./legend/transitAccessLegends";
-import { AviationAirspaceLegend, CctvLegend, DroneZonesLegend, FlightsLegend, FreewayCongestionLegend, OsmRoadDriveLegend, ParkingLegend, PortsLegend, RailLegend, RoadCongestionLegend, RoadEventsLegend, SatelliteLegend, TouristShuttleLegend, BusCrowdingSimLegend } from "./legend/transportLegends";
+import { AviationAirspaceLegend, CctvLegend, DroneZonesLegend, FlightsLegend, FreewayCongestionLegend, HistoricalFlightTrailsLegend, OsmRoadDriveLegend, ParkingLegend, PortsLegend, RailLegend, RoadCongestionLegend, RoadEventsLegend, SatelliteLegend, TouristShuttleLegend, BusCrowdingSimLegend } from "./legend/transportLegends";
 import { AspectVectorLegend, BridgeResilienceLegend, BssBridgeLineLegend, BssBridgePointLegend, DisasterAlertLegend, EarthquakeGlobalLegend, EarthquakeLegend, EarthquakeReplayLegend, ErCongestionLegend, FireEventLegend, FireHydrantLegend, FireIsochroneLegend, FireStationLegend, FloodSensorLegend, GlobalEventsLegend, LiquefactionMonitoringLegend, MountainRescueLegend, NewsEventsLegend, NuclearLegend, SlopeVectorLegend, SoilLiquefactionPotentialLegend, TyphoonAgencyForecastLegend, TyphoonTrackLegend, WeakSoilLegend } from "./legend/hazardLegends";
 import { CouncilDistrictsLegend, ElectionEventsLegend, PollingStationsLegend } from "./legend/politicsLegends";
 import { Fire119LiveLegend, PbsRoadEventsLiveLegend } from "./legend/liveIncidentsLegends";
@@ -346,7 +346,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = slottedList<LegendEntry>("legends"
   // EM-16：回放圖層。主站與 /embed 共用本面板，補這兩條就同時補上嵌入版的圖例洞。
   { id: "ships", render: () => <ShipsLegend /> },
   { id: "flights", render: () => <FlightsLegend /> },
-  countrySlot("JP", 5), // 日本國家包（src/countries/jp/）
+  { id: "historicalFlightTrails", render: () => <HistoricalFlightTrailsLegend /> },
   { id: "rail", render: ({ railSystems }) => <RailLegend railSystems={railSystems} /> },
   { id: "wasteTruck", render: () => <WasteTruckLegend /> },
   { id: "railRoutes", render: () => <RailRoutesLegend /> },
