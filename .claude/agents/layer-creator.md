@@ -63,7 +63,7 @@ tools: Read, Write, Edit, Grep, Glob, Bash
 9. **Edit** `src/App.tsx` 接線：import hook、傳 props
 10. **Bash** `npx tsc -b` ＋ `npx vitest run` 驗證（兩個都要綠才算完成）
 11. **Bash** `npx vite-node scripts/preprocess/dump-layer-golden.ts` 後
-    `git diff src/data/__tests__/__fixtures__/layer-golden.json` ——
+    `git diff src/data/__tests__/__fixtures__/layer-golden/` ——
     **只有新 key 那幾行該動**；既有層出現 diff 就是回歸，回去修程式
 
 **條件觸點**（不是每層都要，判斷不了就問用戶）：
