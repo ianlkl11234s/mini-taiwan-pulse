@@ -37,13 +37,19 @@ vi.mock("react", () => ({
 }));
 
 vi.mock("../useMapReadyTick", () => ({ useMapReadyTick: () => 0 }));
-vi.mock("../../data/jpReligionLoader", () => ({
+vi.mock("../../countries/jp/jpReligionLoader", () => ({
   fetchJpReligionWikidata: () => Promise.resolve({ type: "FeatureCollection", features: [] }),
 }));
 
 vi.mock("../../lib/loadingRegistry", () => ({ keepLoadingUntilMapIdle: vi.fn() }));
 
-import { useJpReligionLayers } from "../useJpReligionLayers";
+import { extendRecord } from "../../countries/slots";
+import { JP_PACK_PARAMS } from "../../countries/jp/params";
+
+// 日本已搬成國家包（B1 P5b）：只登記參數規格（這檔 mock 了 react，不能載入整包）
+extendRecord("layerParamsSpec", JP_PACK_PARAMS);
+// hook 在模組載入時讀參數預設值：要等規格登記後才載入
+const { useJpReligionLayers } = await import("../../countries/jp/useJpReligionLayers");
 import { keepLoadingUntilMapIdle } from "../../lib/loadingRegistry";
 
 type CircleLayer = { id: string; type?: string; minzoom?: number; maxzoom?: number; paint: Record<string, unknown> };

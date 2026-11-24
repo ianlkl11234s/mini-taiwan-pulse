@@ -1,3 +1,4 @@
+import type { JpLayerKey } from "../countries/jp/keys";
 import type { IdLayerKey } from "../countries/id/keys";
 import type { VnLayerKey } from "../countries/vn/keys";
 import type { PhLayerKey } from "../countries/ph/keys";
@@ -1173,7 +1174,7 @@ export interface FeatureInfo {
 
 // ── 圖層控制 ──
 
-export interface LayerVisibility extends Record<KrDataKey | IeDataKey | PhDataKey | PhRasterKey | VnDataKey | VnRasterKey | ThDataKey | ThRasterKey | IdDataKey | IdRasterKey | CnDataKey | CnRasterKey | CaWaveKey | ComparisonStatisticsLayerKey | LaborStatisticsLayerKey | EnvironmentStatisticsLayerKey | DemographicsStatisticsLayerKey | AddictionStatisticsLayerKey | LandslideStatisticsLayerKey | AtlasStatisticsLayerKey | GbLayerKey | IeLayerKey | KrLayerKey | CaLayerKey | ThLayerKey | PhLayerKey | VnLayerKey | IdLayerKey, boolean> {
+export interface LayerVisibility extends Record<KrDataKey | IeDataKey | PhDataKey | PhRasterKey | VnDataKey | VnRasterKey | ThDataKey | ThRasterKey | IdDataKey | IdRasterKey | CnDataKey | CnRasterKey | CaWaveKey | ComparisonStatisticsLayerKey | LaborStatisticsLayerKey | EnvironmentStatisticsLayerKey | DemographicsStatisticsLayerKey | AddictionStatisticsLayerKey | LandslideStatisticsLayerKey | AtlasStatisticsLayerKey | GbLayerKey | IeLayerKey | KrLayerKey | CaLayerKey | ThLayerKey | PhLayerKey | VnLayerKey | IdLayerKey | JpLayerKey, boolean> {
   statsWasteRecyclingRate: boolean;
   statsEducationCountyInstitutionCount: boolean;
   statsEducationCountyTeacherCount: boolean;
@@ -1385,10 +1386,6 @@ export interface LayerVisibility extends Record<KrDataKey | IeDataKey | PhDataKe
   accessibleParkFacilities: boolean;
   bicycleSupport: boolean;
   nationalParks: boolean;
-  jpNaturalParkAreas2015: boolean;  // 日本 自然公園地域（KSJ A10 2015，三區分巢狀，無名稱／種別）
-  jpNationalParksMoe: boolean;      // 日本 国立公園（環境省 令和7年4月，35 園 ZONE 7 類）
-  jpWildlifeProtectionMoe: boolean; // 日本 国指定鳥獣保護区（環境省 令和7年4月，347 面）
-  jpDid: boolean;                   // 日本 人口集中地区 DID（KSJ A16 1995–2015 五期，年份換檔）
   visitorCentres: boolean;
   publicLifeOsmCoverage: boolean;
   submarineCables: boolean;
@@ -1786,7 +1783,6 @@ export interface LayerVisibility extends Record<KrDataKey | IeDataKey | PhDataKe
   streetTreesNational: boolean;   // 行道樹全國分佈（PMTiles，210,436 點：台北+台中；樹種/胸徑/樹高/城市四染色模式 + 城市篩選）
   treePitsTaipei: boolean;        // 台北人行道樹穴（PMTiles，56,720 面；pit_type 樹穴/花圃二色 fill + 類型篩選）
   buildingsGba: boolean;          // 全台 3D 建物輪廓（PMTiles buildings_value_taiwan，152 萬棟；h 高度 6 級/來源二色/3D 立體/夜景燈光/估值 五模式 + 高度門檻篩選，CC BY-NC 4.0）
-  jpBuildingHeight: boolean;      // 日本 PLATEAU 建物高度（Tokyo/Shinjuku pilot；height 缺值維持中性平面）
   urbanFormGrid: boolean;         // 都市紋理網格（PMTiles，500m 格，145,119 格；棟數/平均高度/總量體/建蔽率/樹冠覆蓋/灰綠指數 六模式染色，CC BY-NC 4.0）
   propertyValueAdmin: boolean;    // 不動產總市值行政區統計（縣市 19/22／鄉鎮市區 352/368；缺值不當作 0）
   propertyValueGrid: boolean;     // 房地產總市值網格（PMTiles，150m 格，333,847 格；v_mkt 萬元總市值 9 級 inferno 染色 + 3D 立體，全國 204.1 兆，CC BY-NC 4.0）
@@ -1912,7 +1908,6 @@ export interface LayerVisibility extends Record<KrDataKey | IeDataKey | PhDataKe
   mountainHuts: boolean;           // 全台山屋與高山營地 136 點（官方玉山 30 × OSM 126 trust chain；ODbL）
   hikingTrails: boolean;           // 全台步道 2,818 條（A 林業署 + B OSM + C 國家公園）
   canopyHeight: boolean;           // 全台樹冠高度 raster PNG PMTiles（Meta/WRI 2020 10m，z7-12 預烤 Greens 色帶）
-  jpCanopyHeight: boolean;         // 日本 Meta/WRI CHMv2 樹冠高度（Tokyo/Shinjuku pilot；A 通道 nodata mask）
   canopyGiants: boolean;           // 樹冠 45m+ 巨木 7,823 點（GeoJSON；依 dist_access_m 離道路距離分級）
   wasteTruck: boolean;
   wasteSchedule: boolean;
@@ -2066,42 +2061,6 @@ export interface LayerVisibility extends Record<KrDataKey | IeDataKey | PhDataKe
   worldTrashDebris: boolean;    // 全球垃圾殘骸（Outerview，~25k Point，region+id；點密度反映 Mapillary 街景覆蓋，CC-BY-4.0）
   coralReefDistribution: boolean; // 全球暖水珊瑚礁歷史基線（v4.1；DEV 本地研究；非健康／白化）
   allenCoralAtlas: boolean; // Allen Coral Atlas 淺海棲地／礁體地形（私人研究；非健康／物種）
-  jpMedicalHospitals: boolean;
-  jpMedicalClinics: boolean;
-  jpMedicalDental: boolean;
-  jpMedicalMaternity: boolean;
-  jpMedicalPharmacies: boolean;
-  jpCarePlanning: boolean;
-  jpCareHomeVisit: boolean;
-  jpCareDayServices: boolean;
-  jpCareResidential: boolean;
-  jpCareCombined: boolean;
-  jpCareEquipment: boolean;
-  jpMedicalAreasPrimary: boolean;
-  jpMedicalAreasSecondary: boolean;
-  jpMedicalAreasTertiary: boolean;
-  jpWaterLakes: boolean;
-  jpWaterDams: boolean;
-  jpWaterRivers: boolean;
-  jpWaterSupplyFacilities: boolean;
-  jpWaterSupplyAreas: boolean;
-  jpWaterSewerFacilities: boolean;
-  jpWaterGroundwaterSites: boolean;
-  jpWaterNilimDams: boolean;
-  jpWaterAgriculturalPonds: boolean;
-  jpWaterFloodHazard: boolean;
-  jpWaterLocalFacilities: boolean;
-  jpWaterQualityStations: boolean;
-  jpWaterLevelStations: boolean;
-  jpReligionGsi: boolean;       // 日本宗教設施（国土地理院 PMTiles，167,037；多數無名稱）
-  jpReligionOsm: boolean;       // 日本宗教設施（OpenStreetMap GeoJSON，71,040；ODbL）
-  jpReligionWikidata: boolean;  // 日本宗教設施（Wikidata GeoJSON，37,154；CC0）
-  jpAdminPrefecture: boolean;   // 日本都道府県界（PMTiles polygon，47 筆）
-  jpAdminBoundaries: boolean;   // 日本市区町村界（PMTiles polygon，1,905 筆）
-  jpStations: boolean;          // 日本車站（GeoJSON point，9,046 筆）
-  jpAirports: boolean;          // 日本機場（GeoJSON polygon，108 筆）
-  jpRailways: boolean;          // 日本鐵道路線（PMTiles line，21,933 段；事業者種別 5 色）
-  jpHistoricalFlightTrails: boolean;
   osmBridgeCarriers: boolean;
   osmBridgeFootprints: boolean;
   officialBridgesNewTaipei: boolean;
@@ -2111,22 +2070,6 @@ export interface LayerVisibility extends Record<KrDataKey | IeDataKey | PhDataKe
   taipeiRoadTunnels: boolean;
   tainanRoadTunnels: boolean;
   changhuaTrafficSignals: boolean;
-  jpPoliceFacilities: boolean;
-  jpTrafficAccidents2025: boolean; // 日本 2025 人身交通事故 287,020 點（警察庁本票，PMTiles）
-  jpSchools: boolean;           // 日本學校（PMTiles point，56,807 筆；学校分類 13 色）
-  jpEvacuationSites: boolean;   // 日本避難場所（PMTiles point，199,346 筆；指定緊急避難場所＋指定避難所）
-  jpPublicOffices: boolean;     // 日本役所與公民館（PMTiles point，79,532 筆；5 類，集會施設預設隱藏）
-  jpBusStops: boolean;          // 日本公車站（PMTiles point，278,515 筆；2022 年度版）
-  jpLandslideWarningAreas: boolean; // 日本土砂災害警戒區域（PMTiles polygon，1,793,171 面；黃／紅區）
-  jpZoningUseDistricts: boolean; // 日本用途地域（PMTiles polygon，102,244 面；13 類）
-  jpNationalForests: boolean;   // 日本国有林（PMTiles polygon，116,747 面；僅國有林）
-  jpWelfareDisability: boolean; // 日本障礙福祉設施（PMTiles point，75,945 點；與 jpWelfareChild 共用 source）
-  jpWelfareChild: boolean;      // 日本兒童福祉設施（PMTiles point，78,627 點）
-  jpMajorRoads: boolean;        // 日本主要道路（PMTiles line，1,838,441 線段；國道／縣道／高速）
-  jpMunicipalRoads: boolean;    // 日本市町村道（PMTiles line 6 片，z12 起）
-  jpExpressways: boolean;       // 日本高速道路（PMTiles line 1,289＋IC/JCT point 2,384；2025 現況）
-  jpGsiHillshade: boolean;      // 國土地理院 陰影起伏図（外部 XYZ raster）
-  jpGsiRelief: boolean;         // 國土地理院 色別標高図（外部 XYZ raster）
   historicalMapSinica: boolean; // 中研院臺灣百年歷史地圖：古地圖（清末至日治，外部 XYZ raster）
   historicalMapPostwar: boolean; // 同上：戰後地形圖（1950–2003）
   historicalImagery: boolean;   // 同上：歷史航照與衛星影像
@@ -2137,54 +2080,6 @@ export interface LayerVisibility extends Record<KrDataKey | IeDataKey | PhDataKe
   cnAdminBoundaries: boolean;   // 中國行政邊界（站主限定私人 PMTiles，省 31／地級 357；2026-11-13 第 0 波）
   cnPopulation: boolean;   // 中國人口（省 2020 普查、地級 GHS 模型值；站主限定）
   cnPopulationGrid: boolean;   // 中國人口網格（GHS-POP 2025 模型值 raster；站主限定；其餘 6 層走 CnDataKey）
-  jpInlandFloodAreas: boolean;  // 日本內水浸水想定區域（PMTiles polygon，202,357 面；28 市町村、想定最大規模）
-  jmaAmedas: boolean;     // 日本 AMeDAS 即時觀測（public.jma_amedas_current）
-  jmaWarnings: boolean;   // 日本警報・注意報（市町村界 choropleth）
-  jmaQuakes: boolean;     // 日本地震（近 7 天，每事件最新一報）
-  jmaVolcanoes: boolean;  // 日本火山噴火警戒
-  jmaLightning: boolean;  // 日本落雷（氣象廳 LIDEN，get_lightning_day p_source=jma，7 天熱層）
-  jmaWbgt: boolean;       // 日本暑さ指数 WBGT（環境省實況，整點，30 天）
-  jmaSnowcap: boolean;    // 日本山頂初冠雪（44 山，as-of 日期）
-  jmaAutumnLeaves: boolean; // 日本紅葉・黃葉前線（生物季節觀測，as-of 日期）
-  jmaSakura: boolean;     // 日本櫻花前線（生物季節觀測，as-of 日期）
-  jmaRainySeason: boolean; // 日本梅雨入り・明け（12 地方，縣界 choropleth）
-  jmaSnowDepth: boolean;  // 日本解析積雪深（JMA 發布幀 PNG，time-axis raster）
-  jmaRadar: boolean;      // 日本雨雲雷達（ナウキャスト解析，5 分一幀）
-  jmaRasrf: boolean;      // 日本解析雨量（1 小時雨量，30 分一幀）
-  jmaRiskLand: boolean;   // 日本土砂キキクル（30 分一幀）
-  jmaRiskInund: boolean;  // 日本浸水キキクル（30 分一幀）
-  jmaUvIndex: boolean;    // 日本紫外線 UV 指數解析（06–18 JST 每小時）
-  jmaSst: boolean;        // 日本近海日別海面水溫（每日）
-  jmaSeaIce: boolean;     // 鄂霍次克海海冰（每日，12–5 月）
-  jmaHimawari: boolean;   // 向日葵 B13 紅外雲圖（每小時，灰階 JPEG）
-  jmaAnaSnowFirst: boolean; // 日本初雪日（積雪季首次 ≥5 cm 的日序，每日一張）
-  jmaAnaSnowDays: boolean; // 日本積雪日數（積雪季累計，每日一張）
-  jmaAnaRainDays: boolean; // 日本當月雨日數（解析雨量 ≥1 mm/h，每日一張）
-  jmaAnaRiskLandHours: boolean; // 日本當月土砂キキクル警戒以上時數（每日一張）
-  jmaAnaRiskInundHours: boolean; // 日本當月浸水キキクル警戒以上時數（每日一張）
-  gibsSnowCover: boolean; // NASA GIBS 衛星雪覆蓋 NDSI（每日，瀏覽器直連上游）
-  jmaRiskFlood: boolean;  // 洪水キキクル（向量 pbf，瀏覽器直連 JMA，只提供即時）
-  jmaKosa: boolean;       // 黃砂予測（圖片面板，非地圖疊加）
-  jpPopulationMesh1km: boolean; // 日本 1km 人口網格（PMTiles polygon，176,896 格；人口 5 年＋高齡比 4 年）
-  jpAccommodationCanonical: boolean; // 日本旅宿保守去重總覽（canonical）
-  jpAccommodationDensity: boolean; // 旅宿去重實體 450m / 1.5km 密度網格
-  jpAccommodationJta: boolean; // 觀光廳登錄旅宿法定子集
-  jpAccommodationLocal: boolean; // 京都／靜岡／江東地方許可首批
-  jpAccommodationOsm: boolean; // OSM 住宿 coverage（ODbL）
-  jpNaturalParksNational: boolean; // A10 2010 國立公園 historical／非商用
-  jpNaturalParksQuasiNational: boolean; // A10 2010 國定公園 historical／非商用
-  jpNaturalParksPrefectural: boolean; // A10 2010 都道府縣立自然公園 historical／非商用
-  jpNatureConservationArea: boolean; // A11 2015 自然保全地域 historical／HOLD_LICENSE
-  jpPrimitiveNatureEnvironmentArea: boolean; // A11 2015 原生自然環境地域 historical／HOLD_LICENSE
-  jpNatureConservationSpecialDistrict: boolean; // A11 2015 自然保全特別地區 historical／HOLD_LICENSE
-  jpWildlifeProtectionNational: boolean; // 環境省國指定鳥獸保護區 2025-04
-  jpWildlifeSpecialProtectionDistrict: boolean; // 環境省鳥獸特別保護地區 2025-04
-  jpWildlifeSpecialProtectionDesignatedArea: boolean; // 環境省鳥獸特別保護指定地域 2025-04
-  jpWorldHeritageCultural: boolean; // UNESCO 現行文化遺產代表點
-  jpWorldHeritageNatural: boolean; // UNESCO 現行自然遺產代表點
-  jpWorldNaturalHeritageHistorical: boolean; // A28 2011 historical 面（僅 3 處）
-  jpRamsarSites: boolean; // Ramsar 名冊衍生點；預設只顯示 NAME_MATCH
-  jpMarineEbsaCoastal: boolean; // 2015 沿岸 EBSA；非法定保護區
 }
 
 // ── 空氣品質 ──

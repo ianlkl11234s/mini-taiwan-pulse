@@ -1,5 +1,4 @@
 import { countrySlot, slottedList } from "../countries/slots";
-import { JpDidLegend, JpNationalParksMoeLegend, JpNaturalParkAreas2015Legend, JpWildlifeProtectionMoeLegend } from "./legend/jpNatureR2Legends";
 import { COMPARISON_ENABLED_RECIPES } from "../data/comparisonStatisticsRecipes";
 import { JP_MEDICAL_AREA_LEVELS, JP_MEDICAL_CARE_GROUPS, JP_MEDICAL_CATEGORIES } from "../data/jpMedicalTypes";
 import { StatisticsLegend } from "./sidebar/StatisticsDetails";
@@ -38,8 +37,6 @@ import { DisasterResourceSitesLegend, FiringNoticeAreasLegend, NuclearEpzEvacuat
 import { JpTrafficAccidents2025Legend } from "./legend/jpSafetyLegends";
 import { RailRoutesLegend, MetroStationsLegend } from "./legend/railRoutesLegend";
 import { TwCoralBleachingHeatStressLegend, TwMarineHeatwavesLegend } from "./legend/twMarineHeatLegends";
-import { GibsSnowCoverLegend, JmaAmedasLegend, JmaImageryLegend, JmaKosaLegend, JmaRiskFloodLegend, JmaQuakesLegend, JmaSnowDepthLegend, JmaVolcanoesLegend, JmaWarningsLegend } from "./legend/jmaLegends";
-import { JmaAutumnLeavesLegend, JmaLightningLegend, JmaRainySeasonLegend, JmaSakuraLegend, JmaSnowcapLegend, JmaWbgtLegend } from "./legend/jmaPointLegends";
 import { HighwayDisasterHistoryLegend, LandslideAnnualLegend, LandslideDodAreasLegend, LandslideDodImpactLegend } from "./legend/landslideLegends";
 import { ATLAS_LEGENDS } from "./legend/atlasLegends";
 import { AqiLegend, AviationNoiseZonesLegend, DustForecastLegend, H3RampLegend, LightningCwaLegend, LightningLegend, MicroSensorLegend, NoiseCaptureGridLegend, NoiseControlZonesLegend, NoiseEnforcementEventsLegend, OceanCurrentsLegend, OfficialNoiseMonitoringLegend, PollutionPenaltyLegend, PollutionSeverityLegend, SoundCameraLocationsLegend, TemperatureGridLegend, TemperatureWaveLegend, UrbanHeatLegend, WasteFacilityLegend, WasteTruckLegend, WindFieldLegend } from "./legend/environmentWeatherLegends";
@@ -49,18 +46,18 @@ import { FreewayTdcsSimLegend } from "./legend/freewayTdcsSimLegends";
 import { MapchallengeFacilityLegend, MapchallengeDay19ComplaintsLegend, MapchallengeDay19PotentialLegend, MapchallengeDay19PenaltiesLegend, MapchallengeDay21OsmRoadsLegend, MapchallengeDay23TasteTermsLegend, MapchallengeDay23TastePlacesLegend, MapchallengeDay23TasteForeignLegend, MapchallengeDay23TasteIntlLegend, MapchallengeDay23TasteVariantsLegend, MapchallengeOverlapLegend, MapchallengePopulationLegend, MapchallengeScaleTcChLegend, MapchallengeSeaViewLegend, MapchallengeSeaViewRunsLegend, MapchallengeDay06CoastLegend, MapchallengeDay06LighthousesLegend, MapchallengeDay06Taipei1932Legend, MapchallengeDay06Temples1921Legend, MapchallengeDay08AccessLegend, MapchallengeDay08ParksLegend, MapchallengeDay08Plan1955Legend, MapchallengeDay08SitesLegend, MapchallengeDay09UrbanRuralLegend, MapchallengeDay17DarkRoadsLegend, MapchallengeDay17DarkSkyLegend, MapchallengeDay17NightFallLegend, MapchallengeDay17LedShareLegend } from "./legend/mapchallengeLegends";
 import { mapchallengeDay21YearAt } from "../data/mapchallengeDay21Types";
 import { TransitAccessGridLegend, TransitAccessPlaybackLegend } from "./legend/transitAccessLegends";
-import { AviationAirspaceLegend, CctvLegend, DroneZonesLegend, FlightsLegend, FreewayCongestionLegend, HistoricalFlightTrailsLegend, JpRailwaysLegend, JpMajorRoadsLegend, JpMunicipalRoadsLegend, JpExpresswaysLegend, JpStationsLegend, OsmRoadDriveLegend, ParkingLegend, PortsLegend, RailLegend, RoadCongestionLegend, RoadEventsLegend, SatelliteLegend, TouristShuttleLegend, BusCrowdingSimLegend } from "./legend/transportLegends";
+import { AviationAirspaceLegend, CctvLegend, DroneZonesLegend, FlightsLegend, FreewayCongestionLegend, OsmRoadDriveLegend, ParkingLegend, PortsLegend, RailLegend, RoadCongestionLegend, RoadEventsLegend, SatelliteLegend, TouristShuttleLegend, BusCrowdingSimLegend } from "./legend/transportLegends";
 import { AspectVectorLegend, BridgeResilienceLegend, BssBridgeLineLegend, BssBridgePointLegend, DisasterAlertLegend, EarthquakeGlobalLegend, EarthquakeLegend, EarthquakeReplayLegend, ErCongestionLegend, FireEventLegend, FireHydrantLegend, FireIsochroneLegend, FireStationLegend, FloodSensorLegend, GlobalEventsLegend, LiquefactionMonitoringLegend, MountainRescueLegend, NewsEventsLegend, NuclearLegend, SlopeVectorLegend, SoilLiquefactionPotentialLegend, TyphoonAgencyForecastLegend, TyphoonTrackLegend, WeakSoilLegend } from "./legend/hazardLegends";
 import { CouncilDistrictsLegend, ElectionEventsLegend, PollingStationsLegend } from "./legend/politicsLegends";
 import { Fire119LiveLegend, PbsRoadEventsLiveLegend } from "./legend/liveIncidentsLegends";
 import { DengueClustersLegend, NavNoticesLegend, TideSwellAlertsLegend } from "./legend/twLiveLegends";
 import { AgriCompanyLegend, AgriPOILegend, CommonRegistrationAddressesLegend, CompanyAgeStructureLegend, CompanyCapitalGridLegend, CompanyIndustryDistributionLegend, CompanyPointsLegend, CropSuitabilityLegend, FactoryLocationsLegend, ForestryLegend, IndustrialDensityGridLegend, IndustrialParkBoundariesLegend, IndustrialParkComparisonLegend, LivestockFacilityLegend, LivestockFarmLegend, RegulatedFacilitiesLegend, SoilFertilityLegend } from "./legend/agriIndustryLegends";
-import { DrinkingWaterProtectionZonesLegend, GroundwaterLegend, IotRiverLegend, IotStructureLegend, JpWaterFloodHazardLegend, JpWaterLegend, LakesPondsLegend, RainGaugeLegend, ReservoirStatusLegend, ReservoirStaticLegend, RiverLevelLegend, RiverRpiStationsLegend, SewageTreatmentPlantsLegend, TaipeiEvacuateLegend, TaipeiPumbLegend, TaipeiSewerLegend, WaterCanalLegend, WaterFacilityLegend, WaterFloodExtremeLegend, WaterMonitorStationLegend, WaterProtectionZoneLegend, WaterQualityStationsLegend } from "./legend/waterLegends";
+import { DrinkingWaterProtectionZonesLegend, GroundwaterLegend, IotRiverLegend, IotStructureLegend, LakesPondsLegend, RainGaugeLegend, ReservoirStatusLegend, ReservoirStaticLegend, RiverLevelLegend, RiverRpiStationsLegend, SewageTreatmentPlantsLegend, TaipeiEvacuateLegend, TaipeiPumbLegend, TaipeiSewerLegend, WaterCanalLegend, WaterFacilityLegend, WaterFloodExtremeLegend, WaterMonitorStationLegend, WaterProtectionZoneLegend, WaterQualityStationsLegend } from "./legend/waterLegends";
 import { AnfrWirelessSitesLegend, CoverageLegend, EnergyFuelLegend, EnergyReserveLegend, EnergySpecialtyLegend, FacOffshoreLegend, FacilityFuelLegend, FossilFuelLegend, InternetExchangePointsLegend, LandingStationLegend, NetworkStructuresLegend, OoklaPerformanceGridLegend, OsmCommunicationSitesLegend, PowerGridLegend, PowerPolesLegend, RenewablePoiLegend, RipeAtlasProbesLegend, SubmarineCableLegend, SubstationEhvLegend, SubstationLocalLegend } from "./legend/energyTelecomLegends";
-import { AccessibleParkLegend, AnimalAdoptionLegend, AnimalShelterPressureLegend, AnimalWelfarePointsLegend, BicycleSupportLegend, EducationLegend, GovServiceOfficeLegend, GovernmentLifeLegend, JpMedicalLegend, JpPoliceFacilitiesLegend, JpEvacuationSitesLegend, JpLandslideWarningAreasLegend, JpInlandFloodAreasLegend, JpZoningUseDistrictsLegend, JpNationalForestsLegend, JpWelfareFacilitiesLegend, JpPublicOfficesLegend, JpBusStopsLegend, JpSchoolsLegend, EmergencyHospitalLegend, MedicalIsochroneLegend, MedicalLegend, PoliceIsochroneLegend, PoliceJusticeLegend, PublicLifeCoverageLegend, PublicLifeOsmLegend, PublicToiletLegend, WelfareLegend } from "./legend/civicServiceLegends";
+import { AccessibleParkLegend, AnimalAdoptionLegend, AnimalShelterPressureLegend, AnimalWelfarePointsLegend, BicycleSupportLegend, EducationLegend, GovServiceOfficeLegend, GovernmentLifeLegend, JpMedicalLegend, EmergencyHospitalLegend, MedicalIsochroneLegend, MedicalLegend, PoliceIsochroneLegend, PoliceJusticeLegend, PublicLifeCoverageLegend, PublicLifeOsmLegend, PublicToiletLegend, WelfareLegend } from "./legend/civicServiceLegends";
 import { CountyMigrationFlowsLegend } from "./legend/countyMigrationLegends";
-import { JpGsiHillshadeLegend, JpGsiReliefLegend, HistoricalMapLegend, BuildingsGbaLegend, CanopyGiantsLegend, CanopyHeightLegend, EcoNetworkZonesLegend, JpBuildingHeightLegend, JpCanopyHeightLegend, JpPopulationMeshLegend, NonUrbanZoningLegend, ParksTaipeiLegend, PropertyValueAdminLegend, PropertyValueGridLegend, ProtectedTreesNationalLegend, RealEstateLegend, RiversideTreesTaipeiLegend, StreetTrees3epochLegend, StreetTreesNationalLegend, StreetTreesTaipeiDiffLegend, TreePitsTaipeiLegend, UrbanFormGridLegend, UrbanZoningLegend } from "./legend/urbanFormLegends";
-import { ArtsEventsLegend, CulturalFacilitiesLegend, CulturalMuseumsLegend, FuneralLegend, JpAccommodationDensityLegend, JpAccommodationTypesLegend, JpReligionLegend, LibrarySeatsLegend, PerformingVenuesLegend, ReligionLegend, SportsVenueLegend, TourAttractionsLegend, TourEventsLegend, TourHeritageLegend, TourHotelsLegend } from "./legend/cultureLegends";
+import { HistoricalMapLegend, BuildingsGbaLegend, CanopyGiantsLegend, CanopyHeightLegend, EcoNetworkZonesLegend, NonUrbanZoningLegend, ParksTaipeiLegend, PropertyValueAdminLegend, PropertyValueGridLegend, ProtectedTreesNationalLegend, RealEstateLegend, RiversideTreesTaipeiLegend, StreetTrees3epochLegend, StreetTreesNationalLegend, StreetTreesTaipeiDiffLegend, TreePitsTaipeiLegend, UrbanFormGridLegend, UrbanZoningLegend } from "./legend/urbanFormLegends";
+import { ArtsEventsLegend, CulturalFacilitiesLegend, CulturalMuseumsLegend, FuneralLegend, JpAccommodationDensityLegend, LibrarySeatsLegend, PerformingVenuesLegend, ReligionLegend, SportsVenueLegend, TourAttractionsLegend, TourEventsLegend, TourHeritageLegend, TourHotelsLegend } from "./legend/cultureLegends";
 import { DenseSingleColorLegend } from "./legend/legendShared";
 import { useCountryPackVersion } from "../countries/packs";
 
@@ -247,22 +244,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = slottedList<LegendEntry>("legends"
   ...JP_MEDICAL_CATEGORIES.map(({ key }) => ({ id: key, render: () => <JpMedicalLegend layerKey={key} /> })),
   ...JP_MEDICAL_CARE_GROUPS.map(({ key }) => ({ id: key, render: () => <JpMedicalLegend layerKey={key} /> })),
   ...JP_MEDICAL_AREA_LEVELS.map(({ key }) => ({ id: key, render: () => <JpMedicalLegend layerKey={key} /> })),
-  { id: "jpReligion", render: ({ visibility }) => <JpReligionLegend visibility={visibility} /> },
-  { id: "jpStations", render: ({ overlayParams }) => <JpStationsLegend modeIdx={overlayParams.jpStationsColorModeIdx ?? 0} /> },
-  { id: "jpRailways", render: () => <JpRailwaysLegend /> },
-  { id: "jpWaterLakes", render: () => <JpWaterLegend layerKey="jpWaterLakes" /> },
-  { id: "jpWaterDams", render: () => <JpWaterLegend layerKey="jpWaterDams" /> },
-  { id: "jpWaterRivers", render: () => <JpWaterLegend layerKey="jpWaterRivers" /> },
-  { id: "jpWaterSupplyFacilities", render: () => <JpWaterLegend layerKey="jpWaterSupplyFacilities" /> },
-  { id: "jpWaterSupplyAreas", render: () => <JpWaterLegend layerKey="jpWaterSupplyAreas" /> },
-  { id: "jpWaterSewerFacilities", render: () => <JpWaterLegend layerKey="jpWaterSewerFacilities" /> },
-  { id: "jpWaterGroundwaterSites", render: () => <JpWaterLegend layerKey="jpWaterGroundwaterSites" /> },
-  { id: "jpWaterNilimDams", render: () => <JpWaterLegend layerKey="jpWaterNilimDams" /> },
-  { id: "jpWaterAgriculturalPonds", render: () => <JpWaterLegend layerKey="jpWaterAgriculturalPonds" /> },
-  { id: "jpWaterFloodHazard", render: () => <JpWaterFloodHazardLegend /> },
-  { id: "jpWaterLocalFacilities", render: () => <JpWaterLegend layerKey="jpWaterLocalFacilities" /> },
-  { id: "jpWaterQualityStations", render: () => <JpWaterLegend layerKey="jpWaterQualityStations" /> },
-  { id: "jpWaterLevelStations", render: () => <JpWaterLegend layerKey="jpWaterLevelStations" /> },
+  countrySlot("JP", 1), // 日本國家包（src/countries/jp/）
   { id: "osmBridgeCarriers", render: ({ i18n }) => <NetworkStructuresLegend title={i18n.t("legend.registry.bridgeCarriers")} rows={CARRIER_KINDS} line /> },
   { id: "osmBridgeFootprints", render: ({ i18n }) => <NetworkStructuresLegend title={i18n.t("legend.registry.bridgeFootprints")} rows={[{ label: i18n.t("legend.registry.bridgeFootprintsRow"), color: NETWORK_STRUCTURES_COLORS.footprint }]} /> },
   { id: "officialBridgesNewTaipei", render: ({ i18n }) => <NetworkStructuresLegend title={i18n.t("legend.registry.newTaipeiBridges")} rows={[{ label: i18n.t("legend.registry.newTaipeiBridgesRow1"), color: NETWORK_STRUCTURES_COLORS.official }, { label: i18n.t("legend.registry.newTaipeiBridgesRow2"), color: NETWORK_STRUCTURES_COLORS.official }]} /> },
@@ -313,25 +295,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = slottedList<LegendEntry>("legends"
   { id: "transitAccessGrid", render: () => <TransitAccessGridLegend /> },
   { id: "transitAccessPlayback", render: () => <TransitAccessPlaybackLegend /> },
   { id: "bridgeRainThresholds", render: ({ i18n }) => <NetworkStructuresLegend title={i18n.t("legend.registry.bridgeRain")} rows={[{ label: i18n.t("legend.registry.bridgeRainRow1"), color: "#ef4444" }, { label: i18n.t("legend.registry.bridgeRainRow2"), color: "#3b82f6" }, { label: i18n.t("legend.registry.bridgeRainRow3"), color: "#94a3b8" }]} /> },
-  { id: "jpPoliceFacilities", render: () => <JpPoliceFacilitiesLegend /> },
-  { id: "jpEvacuationSites", render: () => <JpEvacuationSitesLegend /> },
-  { id: "jpPublicOffices", render: () => <JpPublicOfficesLegend /> },
-  { id: "jpBusStops", render: () => <JpBusStopsLegend /> },
-  { id: "jpLandslideWarningAreas", render: () => <JpLandslideWarningAreasLegend /> },
-  { id: "jpInlandFloodAreas", render: () => <JpInlandFloodAreasLegend /> },
-  { id: "jpZoningUseDistricts", render: () => <JpZoningUseDistrictsLegend /> },
-  { id: "jpNationalForests", render: () => <JpNationalForestsLegend /> },
-  { id: "jpNaturalParkAreas2015", render: () => <JpNaturalParkAreas2015Legend /> },
-  { id: "jpNationalParksMoe", render: () => <JpNationalParksMoeLegend /> },
-  { id: "jpWildlifeProtectionMoe", render: () => <JpWildlifeProtectionMoeLegend /> },
-  { id: "jpDid", render: () => <JpDidLegend /> },
-  { id: "jpWelfareDisability", render: () => <JpWelfareFacilitiesLegend layerKey="jpWelfareDisability" /> },
-  { id: "jpWelfareChild", render: () => <JpWelfareFacilitiesLegend layerKey="jpWelfareChild" /> },
-  { id: "jpMajorRoads", render: () => <JpMajorRoadsLegend /> },
-  { id: "jpMunicipalRoads", render: () => <JpMunicipalRoadsLegend /> },
-  { id: "jpExpressways", render: () => <JpExpresswaysLegend /> },
-  { id: "jpGsiHillshade", render: () => <JpGsiHillshadeLegend /> },
-  { id: "jpGsiRelief", render: () => <JpGsiReliefLegend /> },
+  countrySlot("JP", 2), // 日本國家包（src/countries/jp/）
   { id: "historicalMapSinica", render: ({ overlayParams }) => <HistoricalMapLegend groupKey="historicalMapSinica" eraIdx={overlayParams.historicalMapSinicaEraIdx} /> },
   { id: "historicalMapPostwar", render: ({ overlayParams }) => <HistoricalMapLegend groupKey="historicalMapPostwar" eraIdx={overlayParams.historicalMapPostwarEraIdx} /> },
   { id: "historicalImagery", render: ({ overlayParams }) => <HistoricalMapLegend groupKey="historicalImagery" eraIdx={overlayParams.historicalImageryEraIdx} /> },
@@ -353,39 +317,10 @@ export const LEGEND_REGISTRY: LegendEntry[] = slottedList<LegendEntry>("legends"
   countrySlot("CA", 3), // 加拿大國家包（src/countries/ca/）
   countrySlot("KR", 2), // 南韓國家包（src/countries/kr/）
   countrySlot("GB", 2), // 英國國家包（src/countries/gb/）
-  { id: "jmaAmedas", render: () => <JmaAmedasLegend /> },
-  { id: "jmaWarnings", render: () => <JmaWarningsLegend /> },
-  { id: "jmaQuakes", render: () => <JmaQuakesLegend /> },
-  { id: "jmaVolcanoes", render: () => <JmaVolcanoesLegend /> },
-  { id: "jmaLightning", render: () => <JmaLightningLegend /> },
-  { id: "jmaWbgt", render: () => <JmaWbgtLegend /> },
-  { id: "jmaSnowcap", render: () => <JmaSnowcapLegend /> },
-  { id: "jmaAutumnLeaves", render: () => <JmaAutumnLeavesLegend /> },
-  { id: "jmaSakura", render: () => <JmaSakuraLegend /> },
-  { id: "jmaRainySeason", render: () => <JmaRainySeasonLegend /> },
-  { id: "jmaSnowDepth", render: () => <JmaSnowDepthLegend /> },
-  { id: "jmaRadar", render: () => <JmaImageryLegend layerKey="jmaRadar" /> },
-  { id: "jmaRasrf", render: () => <JmaImageryLegend layerKey="jmaRasrf" /> },
-  { id: "jmaRiskLand", render: () => <JmaImageryLegend layerKey="jmaRiskLand" /> },
-  { id: "jmaRiskInund", render: () => <JmaImageryLegend layerKey="jmaRiskInund" /> },
-  { id: "jmaUvIndex", render: () => <JmaImageryLegend layerKey="jmaUvIndex" /> },
-  { id: "jmaSst", render: () => <JmaImageryLegend layerKey="jmaSst" /> },
+  countrySlot("JP", 3), // 日本國家包（src/countries/jp/）
   { id: "twMarineHeatwaves", render: () => <TwMarineHeatwavesLegend /> },
   { id: "twCoralBleachingHeatStress", render: () => <TwCoralBleachingHeatStressLegend /> },
-  { id: "jmaSeaIce", render: () => <JmaImageryLegend layerKey="jmaSeaIce" /> },
-  { id: "jmaHimawari", render: () => <JmaImageryLegend layerKey="jmaHimawari" /> },
-  { id: "jmaAnaSnowFirst", render: () => <JmaImageryLegend layerKey="jmaAnaSnowFirst" /> },
-  { id: "jmaAnaSnowDays", render: () => <JmaImageryLegend layerKey="jmaAnaSnowDays" /> },
-  { id: "jmaAnaRainDays", render: () => <JmaImageryLegend layerKey="jmaAnaRainDays" /> },
-  { id: "jmaAnaRiskLandHours", render: () => <JmaImageryLegend layerKey="jmaAnaRiskLandHours" /> },
-  { id: "jmaAnaRiskInundHours", render: () => <JmaImageryLegend layerKey="jmaAnaRiskInundHours" /> },
-  { id: "gibsSnowCover", render: () => <GibsSnowCoverLegend /> },
-  { id: "jmaRiskFlood", render: () => <JmaRiskFloodLegend /> },
-  { id: "jmaKosa", render: () => <JmaKosaLegend /> },
-  { id: "jpSchools", render: () => <JpSchoolsLegend /> },
-  { id: "jpPopulationMesh1km", render: ({ overlayParams }) => <JpPopulationMeshLegend modeIdx={overlayParams.jpPopulationMeshModeIdx ?? 0} /> },
-  { id: "jpAccommodationCanonical", render: () => <JpAccommodationTypesLegend source="canonical" /> },
-  { id: "jpAccommodationOsm", render: () => <JpAccommodationTypesLegend source="osm" /> },
+  countrySlot("JP", 4), // 日本國家包（src/countries/jp/）
   { id: "jpAccommodationDensity", render: ({ overlayParams, isDark }) => <JpAccommodationDensityLegend scaleIdx={overlayParams.jpAccommodationDensityScaleIdx ?? 0}  isDark={isDark} /> },
   { id: "typhoonTracks", render: () => <TyphoonTrackLegend /> },
   { id: "typhoonAgencyForecasts", render: () => <TyphoonAgencyForecastLegend /> },
@@ -411,7 +346,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = slottedList<LegendEntry>("legends"
   // EM-16：回放圖層。主站與 /embed 共用本面板，補這兩條就同時補上嵌入版的圖例洞。
   { id: "ships", render: () => <ShipsLegend /> },
   { id: "flights", render: () => <FlightsLegend /> },
-  { id: "historicalFlightTrails", render: () => <HistoricalFlightTrailsLegend /> },
+  countrySlot("JP", 5), // 日本國家包（src/countries/jp/）
   { id: "rail", render: ({ railSystems }) => <RailLegend railSystems={railSystems} /> },
   { id: "wasteTruck", render: () => <WasteTruckLegend /> },
   { id: "railRoutes", render: () => <RailRoutesLegend /> },
@@ -485,14 +420,14 @@ export const LEGEND_REGISTRY: LegendEntry[] = slottedList<LegendEntry>("legends"
   { id: "streetTreesNational", render: ({ overlayParams }) => <StreetTreesNationalLegend colorModeIdx={overlayParams.streetTreesNationalColorModeIdx ?? 0} /> },
   { id: "treePitsTaipei", render: () => <TreePitsTaipeiLegend /> },
   { id: "buildingsGba", render: ({ overlayParams }) => <BuildingsGbaLegend modeIdx={overlayParams.buildingsGbaModeIdx ?? 0} /> },
-  { id: "jpBuildingHeight", render: () => <JpBuildingHeightLegend /> },
+  countrySlot("JP", 6), // 日本國家包（src/countries/jp/）
   { id: "urbanFormGrid", render: ({ overlayParams }) => <UrbanFormGridLegend modeIdx={overlayParams.urbanFormGridModeIdx ?? 5} /> },
   { id: "propertyValueAdmin", render: ({ overlayParams }) => <PropertyValueAdminLegend levelIdx={overlayParams.propertyValueAdminLevelIdx ?? 0} /> },
   { id: "propertyValueGrid", render: ({ overlayParams }) => <PropertyValueGridLegend scaleIdx={overlayParams.propertyValueGridScaleIdx ?? 0} modeIdx={overlayParams.propertyValueGridModeIdx ?? 0} extruded={(overlayParams.propertyValueGridExtruded ?? 0) === 1} /> },
   { id: "urbanZoning", render: () => <UrbanZoningLegend /> },
   { id: "nonUrbanZoning", render: () => <NonUrbanZoningLegend /> },
   { id: "canopyHeight", render: () => <CanopyHeightLegend /> },
-  { id: "jpCanopyHeight", render: () => <JpCanopyHeightLegend /> },
+  countrySlot("JP", 7), // 日本國家包（src/countries/jp/）
   { id: "canopyGiants", render: () => <CanopyGiantsLegend /> },
   { id: "sportsSchool", render: ({ visibility }) => <SportsVenueLegend visibility={visibility} /> },
   { id: "culturalFacilities", render: () => <CulturalFacilitiesLegend /> },

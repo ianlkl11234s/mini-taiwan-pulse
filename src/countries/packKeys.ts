@@ -14,6 +14,7 @@ import type { ThLayerKey } from "./th/keys";
 import type { PhLayerKey } from "./ph/keys";
 import type { VnLayerKey } from "./vn/keys";
 import type { IdLayerKey } from "./id/keys";
+import type { JpLayerKey } from "./jp/keys";
 export type PackLayerKey =
   | never
   | CnLayerKey
@@ -24,7 +25,8 @@ export type PackLayerKey =
   | ThLayerKey
   | PhLayerKey
   | VnLayerKey
-  | IdLayerKey;
+  | IdLayerKey
+  | JpLayerKey;
 
 import type { CnPopupType } from "./cn/popupTypes";
 import type { GbPopupType } from "./gb/popupTypes";
@@ -35,6 +37,7 @@ import type { ThPopupType } from "./th/popupTypes";
 import type { PhPopupType } from "./ph/popupTypes";
 import type { VnPopupType } from "./vn/popupTypes";
 import type { IdPopupType } from "./id/popupTypes";
+import type { JpPopupType } from "./jp/popupTypes";
 export type PackPopupType =
   | never
   | CnPopupType
@@ -45,4 +48,5 @@ export type PackPopupType =
   | ThPopupType
   | PhPopupType
   | VnPopupType
-  | IdPopupType;
+  | IdPopupType
+  | JpPopupType;

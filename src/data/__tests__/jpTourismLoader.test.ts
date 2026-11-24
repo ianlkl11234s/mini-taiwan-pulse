@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { JP_TOURISM_DATASETS } from "../jpTourismLoader";
+import { JP_TOURISM_DATASETS } from "../../countries/jp/jpTourismLoader";
 import {
   JP_ACCOMMODATION_CATEGORY_COLOR_EXPRESSION,
   JP_ACCOMMODATION_DENSITY_ATTRIBUTION,

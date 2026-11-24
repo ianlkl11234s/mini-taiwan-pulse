@@ -67,21 +67,7 @@ import { TransitAccessGridHost, TransitAccessPlaybackHost } from "./hosts/transi
 import {
   NuscGammaRadiationHost, WaterEffluentLiveHost, CemsStackLiveHost, CwaUvDailyHost,
 } from "./hosts/environmentHosts";
-import {
-  JmaAmedasHost, JmaQuakesHost, JmaSnowDepthHost, JmaVolcanoesHost, JmaWarningsHost,
-  JmaRadarHost, JmaRasrfHost, JmaRiskLandHost, JmaRiskInundHost, JmaUvIndexHost, JmaSstHost, JmaSeaIceHost, JmaHimawariHost,
-  JmaAnaSnowFirstHost, JmaAnaSnowDaysHost, JmaAnaRainDaysHost, JmaAnaRiskLandHoursHost, JmaAnaRiskInundHoursHost,
-  GibsSnowCoverHost, JmaRiskFloodHost,
-} from "./hosts/jmaHosts";
-import {
-  JmaLightningHost, JmaWbgtHost, JmaSnowcapHost, JmaAutumnLeavesHost, JmaSakuraHost, JmaRainySeasonHost,
-} from "./hosts/jmaPointHosts";
-import {
-  EarthquakesGlobalHost, TyphoonTracksHost, TyphoonAgencyForecastsHost, WorldTrashDebrisHost, JpReligionHost,
-  GlobalEventsHost,
-  WindFieldHost, OceanCurrentsHost, DustForecastHost,
-  DisasterAlertHost, PlaActivityHost, VesselWatchHost,
-} from "./hosts/climateHosts";
+import { EarthquakesGlobalHost, TyphoonTracksHost, TyphoonAgencyForecastsHost, WorldTrashDebrisHost, GlobalEventsHost, WindFieldHost, OceanCurrentsHost, DustForecastHost, DisasterAlertHost, PlaActivityHost, VesselWatchHost } from "./hosts/climateHosts";
 import { GlobalMaritimeHost, GfwDarkVesselsHost, GfwFishingEffortHost, GfwHourlyGridHost, GfwHourlyTracksHost } from "./hosts/globalMaritimeHosts";
 import {
   SatellitesHost, RoadEventsHost, FireEventsHost, FireLatestHost,
@@ -97,13 +83,6 @@ import {
   SocioeconomicHost, SpatialEconomyHost, YoubikeHost,
 } from "./hosts/gridHosts";
 import { AnimalAdoptionHost, AnimalShelterPressureHost, AnimalWelfarePointsHost } from "./hosts/animalWelfareHosts";
-import {
-  JpMedicalHost, JpAdminHost, JpStationsHost, JpAirportsHost, JpRailwaysHost, JpSchoolsHost, JpPoliceFacilitiesHost,
-  JpEvacuationSitesHost, JpPublicOfficesHost, JpBusStopsHost, JpLandslideWarningAreasHost, JpInlandFloodAreasHost, JpZoningUseDistrictsHost, JpNationalForestsHost,
-  JpWelfareFacilitiesHost, JpMajorRoadsHost, JpMunicipalRoadsHost, JpExpresswaysHost, JpGsiTerrainHost,
-  JpPopulationMeshHost,
-  JpTourismHost, JpWaterHost,
-} from "./hosts/japanHosts";
 
 export interface LayerHookEntry {
   /** hook 名（同名多次呼叫加 `:後綴` 區分）—— 也是 `window.__layerRenderCounts` 的 key */
@@ -116,12 +95,7 @@ export interface LayerHookEntry {
 /** ⚠️ 有序陣列。順序 = 凍結的 App.tsx 呼叫順序（見檔頭），嚴禁重排。 */
 export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = slottedList<LayerHookEntry>("layerHosts", [
   { id: "useHistoricalFlightTrailsLayer", keys: ["historicalFlightTrails", "jpHistoricalFlightTrails"], Host: HistoricalFlightTrailsHost },
-  { id: "useJpWaterLayers", keys: ["jpWaterDams", "jpWaterLakes", "jpWaterRivers", "jpWaterSupplyFacilities", "jpWaterSupplyAreas", "jpWaterSewerFacilities", "jpWaterGroundwaterSites", "jpWaterNilimDams", "jpWaterAgriculturalPonds", "jpWaterFloodHazard", "jpWaterLocalFacilities", "jpWaterQualityStations", "jpWaterLevelStations"], Host: JpWaterHost },
-  { id: "useJpMedicalLayers", keys: [
-    "jpMedicalHospitals", "jpMedicalClinics", "jpMedicalDental", "jpMedicalMaternity", "jpMedicalPharmacies",
-    "jpCarePlanning", "jpCareHomeVisit", "jpCareDayServices", "jpCareResidential", "jpCareCombined", "jpCareEquipment",
-    "jpMedicalAreasPrimary", "jpMedicalAreasSecondary", "jpMedicalAreasTertiary",
-  ], Host: JpMedicalHost },
+  countrySlot("JP", 1), // 日本國家包（src/countries/jp/）
   { id: "useCoralReefDistributionLayer", keys: ["coralReefDistribution"], Host: CoralReefDistributionHost },
   { id: "useAllenCoralAtlasLayer", keys: ["allenCoralAtlas"], Host: AllenCoralAtlasHost },
   // ── 房地產（App.tsx 原 L719 / L732）──
@@ -276,35 +250,9 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = slottedList<LayerH
   { id: "useTyphoonAgencyForecastsLayer", keys: ["typhoonAgencyForecasts"], Host: TyphoonAgencyForecastsHost },
   { id: "useWorldTrashDebrisLayer", keys: ["worldTrashDebris"], Host: WorldTrashDebrisHost },
   { id: "useGlobalEventsLayer", keys: ["globalEvents"], Host: GlobalEventsHost },
-  {
-    id: "useJpReligionLayers",
-    keys: ["jpReligionGsi", "jpReligionOsm", "jpReligionWikidata"],
-    Host: JpReligionHost,
-  },
-  {
-    id: "useJpAdminLayers",
-    keys: ["jpAdminPrefecture", "jpAdminBoundaries"],
-    Host: JpAdminHost,
-  },
-  { id: "useJpStationsLayer", keys: ["jpStations"], Host: JpStationsHost },
-  { id: "useJpAirportsLayer", keys: ["jpAirports"], Host: JpAirportsHost },
-  { id: "useJpRailwaysLayer", keys: ["jpRailways"], Host: JpRailwaysHost },
-  { id: "useJpPoliceFacilitiesLayer", keys: ["jpPoliceFacilities"], Host: JpPoliceFacilitiesHost },
-  { id: "useJpSchoolsLayer", keys: ["jpSchools"], Host: JpSchoolsHost },
-  { id: "useJpEvacuationSitesLayer", keys: ["jpEvacuationSites"], Host: JpEvacuationSitesHost },
-  { id: "useJpPublicOfficesLayer", keys: ["jpPublicOffices"], Host: JpPublicOfficesHost },
-  { id: "useJpBusStopsLayer", keys: ["jpBusStops"], Host: JpBusStopsHost },
-  { id: "useJpLandslideWarningAreasLayer", keys: ["jpLandslideWarningAreas"], Host: JpLandslideWarningAreasHost },
-  { id: "useJpInlandFloodAreasLayer", keys: ["jpInlandFloodAreas"], Host: JpInlandFloodAreasHost },
-  { id: "useJpZoningUseDistrictsLayer", keys: ["jpZoningUseDistricts"], Host: JpZoningUseDistrictsHost },
-  { id: "useJpNationalForestsLayer", keys: ["jpNationalForests"], Host: JpNationalForestsHost },
-  { id: "useJpWelfareFacilitiesLayer", keys: ["jpWelfareDisability", "jpWelfareChild"], Host: JpWelfareFacilitiesHost },
-  { id: "useJpMajorRoadsLayer", keys: ["jpMajorRoads"], Host: JpMajorRoadsHost },
-  { id: "useJpMunicipalRoadsLayer", keys: ["jpMunicipalRoads"], Host: JpMunicipalRoadsHost },
-  { id: "useJpExpresswaysLayer", keys: ["jpExpressways"], Host: JpExpresswaysHost },
+  countrySlot("JP", 2), // 日本國家包（src/countries/jp/）
   { id: "useHistoricalMapSinicaLayer", keys: ["historicalMapSinica", "historicalMapPostwar", "historicalImagery", "historicalBoundaries", "historicalLandUse", "historicalThematic"], Host: HistoricalMapSinicaHost },
-  { id: "useJpGsiTerrainLayers", keys: ["jpGsiHillshade", "jpGsiRelief"], Host: JpGsiTerrainHost },
-  { id: "useJpPopulationMeshLayer", keys: ["jpPopulationMesh1km"], Host: JpPopulationMeshHost },
+  countrySlot("JP", 3), // 日本國家包（src/countries/jp/）
   countrySlot("GB", 1), // 英國國家包（src/countries/gb/）
   countrySlot("KR", 1), // 南韓國家包（src/countries/kr/）
   countrySlot("CA", 1), // 加拿大國家包（src/countries/ca/）
@@ -317,45 +265,7 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = slottedList<LayerH
   countrySlot("CN", 1), // 中國國家包（src/countries/cn/）
   countrySlot("CA", 2), // 加拿大國家包（src/countries/ca/）
   countrySlot("GB", 2), // 英國國家包（src/countries/gb/）
-  // 日本氣象廳即時 4 層（gis-platform migration 435）：當下快照
-  { id: "useJmaLiveLayer:jmaAmedas", keys: ["jmaAmedas"], Host: JmaAmedasHost },
-  { id: "useJmaWarningsLayer", keys: ["jmaWarnings"], Host: JmaWarningsHost },
-  { id: "useJmaLiveLayer:jmaQuakes", keys: ["jmaQuakes"], Host: JmaQuakesHost },
-  { id: "useJmaLiveLayer:jmaVolcanoes", keys: ["jmaVolcanoes"], Host: JmaVolcanoesHost },
-  { id: "useLightningLayer:jma", keys: ["jmaLightning"], Host: JmaLightningHost },
-  { id: "useJmaLiveLayer:jmaWbgt", keys: ["jmaWbgt"], Host: JmaWbgtHost },
-  { id: "useJmaLiveLayer:jmaSnowcap", keys: ["jmaSnowcap"], Host: JmaSnowcapHost },
-  { id: "useJmaLiveLayer:jmaAutumnLeaves", keys: ["jmaAutumnLeaves"], Host: JmaAutumnLeavesHost },
-  { id: "useJmaLiveLayer:jmaSakura", keys: ["jmaSakura"], Host: JmaSakuraHost },
-  { id: "useJmaRainySeasonLayer", keys: ["jmaRainySeason"], Host: JmaRainySeasonHost },
-  { id: "useJmaImageryLayer:jmaSnowDepth", keys: ["jmaSnowDepth"], Host: JmaSnowDepthHost },
-  { id: "useJmaImageryLayer:jmaRadar", keys: ["jmaRadar"], Host: JmaRadarHost },
-  { id: "useJmaImageryLayer:jmaRasrf", keys: ["jmaRasrf"], Host: JmaRasrfHost },
-  { id: "useJmaImageryLayer:jmaRiskLand", keys: ["jmaRiskLand"], Host: JmaRiskLandHost },
-  { id: "useJmaImageryLayer:jmaRiskInund", keys: ["jmaRiskInund"], Host: JmaRiskInundHost },
-  { id: "useJmaImageryLayer:jmaUvIndex", keys: ["jmaUvIndex"], Host: JmaUvIndexHost },
-  { id: "useJmaImageryLayer:jmaSst", keys: ["jmaSst"], Host: JmaSstHost },
-  { id: "useJmaImageryLayer:jmaSeaIce", keys: ["jmaSeaIce"], Host: JmaSeaIceHost },
-  { id: "useJmaImageryLayer:jmaHimawari", keys: ["jmaHimawari"], Host: JmaHimawariHost },
-  { id: "useJmaImageryLayer:jmaAnaSnowFirst", keys: ["jmaAnaSnowFirst"], Host: JmaAnaSnowFirstHost },
-  { id: "useJmaImageryLayer:jmaAnaSnowDays", keys: ["jmaAnaSnowDays"], Host: JmaAnaSnowDaysHost },
-  { id: "useJmaImageryLayer:jmaAnaRainDays", keys: ["jmaAnaRainDays"], Host: JmaAnaRainDaysHost },
-  { id: "useJmaImageryLayer:jmaAnaRiskLandHours", keys: ["jmaAnaRiskLandHours"], Host: JmaAnaRiskLandHoursHost },
-  { id: "useJmaImageryLayer:jmaAnaRiskInundHours", keys: ["jmaAnaRiskInundHours"], Host: JmaAnaRiskInundHoursHost },
-  { id: "useGibsSnowCoverLayer", keys: ["gibsSnowCover"], Host: GibsSnowCoverHost },
-  { id: "useJmaRiskFloodLayer", keys: ["jmaRiskFlood"], Host: JmaRiskFloodHost },
-  {
-    id: "useJpTourismLayers",
-    keys: [
-      "jpAccommodationCanonical", "jpAccommodationJta", "jpAccommodationLocal", "jpAccommodationOsm",
-      "jpNaturalParksNational", "jpNaturalParksQuasiNational", "jpNaturalParksPrefectural",
-      "jpNatureConservationArea", "jpPrimitiveNatureEnvironmentArea", "jpNatureConservationSpecialDistrict",
-      "jpWildlifeProtectionNational", "jpWildlifeSpecialProtectionDistrict", "jpWildlifeSpecialProtectionDesignatedArea",
-      "jpWorldHeritageCultural", "jpWorldHeritageNatural", "jpWorldNaturalHeritageHistorical",
-      "jpRamsarSites", "jpMarineEbsaCoastal",
-    ],
-    Host: JpTourismHost,
-  },
+  countrySlot("JP", 4), // 日本國家包（src/countries/jp/）
   { id: "useClimateParticleLineLayer:wind", keys: ["windField"], Host: WindFieldHost },
   { id: "useClimateParticleLineLayer:ocean", keys: ["oceanCurrents"], Host: OceanCurrentsHost },
   { id: "useDustForecastLayer", keys: ["dustForecast"], Host: DustForecastHost },

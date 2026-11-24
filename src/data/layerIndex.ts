@@ -28,7 +28,7 @@ export interface LayerIndexRow {
   color: string;
   icon: string;
   gated?: true;
-  expandable?: true;
+  expandable?: boolean;
   /** 省略＝與 key 同名；null＝沒有 */
   popup?: string | readonly string[] | null;
   /** 省略＝與 key 同名；null＝沒有 */

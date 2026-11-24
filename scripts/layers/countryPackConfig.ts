@@ -173,4 +173,23 @@ export const COUNTRY_PACK_CONFIG: Record<string, CountryPackConfig> = {
     rename: { "src/data/idDataKeys.ts": "keys.ts" },
     keyType: "IdLayerKey",
   },
+  JP: {
+    dir: "jp",
+    nameZh: "日本",
+    // 留在靜態的：中央的圖例／popup／App／點擊查詢／高度生命週期／GIBS 雪覆蓋（JP key 但掛在中央 hook）還直接用的型別與 loader
+    dedicated: [
+      /^src\/data\/(?!(?:jmaImageryLoader|jmaTypes|jmaUpstreamLoaders|jpBusStopTypes|jpEvacuationSiteTypes|jpHeightCatalog|jpHeightFeatureMetadata|jpHeightTypes|jpInlandFloodTypes|jpLandslideWarningTypes|jpMedicalLoader|jpMedicalTypes|jpNationalForestTypes|jpPoliceFacilityTypes|jpPopulationMeshModes|jpPublicOfficeTypes|jpRailwayTypes|jpReligionTypes|jpRoadTypes|jpSchoolTypes|jpStationTypes|jpTourismTypes|jpWaterLoader|jpWaterTypes|jpWelfareFacilityTypes|jpZoningUseDistrictTypes|jpTrafficAccidentsTypes|jmaPointTypes)\.ts$)(jp|jma)[A-Z][A-Za-z0-9]*\.ts$/,
+      /^src\/hooks\/(?!(?:useJpWaterPrivateAccess)\.ts$)use(Jp|Jma)[A-Z][A-Za-z0-9]*\.ts$/,
+      /^src\/components\/legend\/(?!jpSafety)(jp|jma)[A-Z][A-Za-z0-9]*\.tsx$/,
+      /^src\/components\/featureInfo\/(?!jpSafety|jpAccommodationDensityPanel)(jp[A-Z][A-Za-z0-9]*|jma[A-Za-z0-9]*|japanPanels)\.tsx$/,
+      /^src\/layers\/hosts\/(japan|jma|jmaPoint)Hosts\.tsx$/,
+    ],
+    // 寫在中央 climateHosts 的日本宗教 Host（含 3D 的 climateHosts 不能被國家包靜態帶進來）
+    moveNamed: [{ file: "src/layers/hosts/climateHosts.tsx", names: ["JpReligionHost"], to: "jpReligionHost.tsx" }],
+    // 日本交通事故（overlay 和台灣 G36 圖層寫在同一個展開陣列裡）、住宿密度（overlay 由中央 helper 產生）留在中央：整層留在靜態，嵌入頁照常可用
+    excludeKeys: /^(jpTrafficAccidents2025|jpAccommodationDensity)$/,
+    keyType: "JpLayerKey",
+    // jpHeightLifecycle 依視窗管理的樣板：MapView 開站就要
+    keepOverlays: ["jpBuildingHeight", "jpCanopyHeight"],
+  },
 };

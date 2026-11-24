@@ -27,6 +27,7 @@ const PACK_LOADERS: Partial<Record<CountryCode, () => Promise<{ default: Country
   PH: () => import("./ph/pack"),
   VN: () => import("./vn/pack"),
   ID: () => import("./id/pack"),
+  JP: () => import("./jp/pack"),
   // <codemod:pack-loaders>
 };
 

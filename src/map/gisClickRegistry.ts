@@ -212,9 +212,7 @@ export const GIS_LAYERS: GisLayerEntry[] = slottedList<GisLayerEntry>("gisClickL
   { layers: ["coverage-gas-fpcc-line"], type: "gasCoverageFpcc" },
   { layers: ["coverage-gas-taisugar-line"], type: "gasCoverageTaisugar" },
   { layers: ["coverage-ev-island-line"], type: "evIsland" },
-  { layers: ["hazard-lightning-core", "hazard-lightning-halo"], type: "lightningStrike" },
-  { layers: ["hazard-lightning-cwa-core", "hazard-lightning-cwa-halo"], type: "lightningStrike" },
-  { layers: ["jma-lightning-core", "jma-lightning-halo"], type: "lightningStrike" },
+  countrySlot("JP", 1), // 日本國家包（src/countries/jp/）
   { layers: ["hazard-nuclear-core", "hazard-nuclear-halo"], type: "nuclearStation" },
   // 本土地震（useEarthquakeLayer 的 pre/post 兩態，穩定半徑可點；
   // ripple 動畫圈半徑會瞬時放大到 60~80px+ 且持續變動，納入點擊會蓋過其他層的既有命中範圍，故不收）
@@ -236,78 +234,10 @@ export const GIS_LAYERS: GisLayerEntry[] = slottedList<GisLayerEntry>("gisClickL
   { layers: ["world-trash-debris-circle"], type: "worldTrashDebris" },
   // 大面積 polygon 排在點層後，避免吃掉同位置的事件／船舶 popup。
   { layers: ["coral-reef-distribution-fill", "coral-reef-distribution-line"], type: "coralReefDistribution" },
-  // 日本 Japan：車站點層排在所有面層之前（first-hit-wins）。
-  // 日本氣象廳即時點層（火山／AMeDAS 小點排在地震大泡泡之前）
-  { layers: ["jma-volcanoes-circle"], type: "jmaVolcanoes" },
-  { layers: ["jma-snowcap-circle"], type: "jmaSnowcap" },
-  { layers: ["jma-sakura-circle"], type: "jmaSakura" },
-  { layers: ["jma-autumn-leaves-circle"], type: "jmaAutumnLeaves" },
-  { layers: ["jma-wbgt-circle"], type: "jmaWbgt" },
-  { layers: ["jma-amedas-circle"], type: "jmaAmedas" },
-  { layers: ["jma-quakes-circle"], type: "jmaQuakes" },
-  { layers: ["jp-medical-facilities-hospital"], type: "jpMedicalHospitals" },
-  { layers: ["jp-medical-facilities-clinic"], type: "jpMedicalClinics" },
-  { layers: ["jp-medical-facilities-dental"], type: "jpMedicalDental" },
-  { layers: ["jp-medical-facilities-maternity"], type: "jpMedicalMaternity" },
-  { layers: ["jp-medical-facilities-pharmacy"], type: "jpMedicalPharmacies" },
-  { layers: ["jp-medical-care-jpCarePlanning"], type: "jpCarePlanning" },
-  { layers: ["jp-medical-care-jpCareHomeVisit"], type: "jpCareHomeVisit" },
-  { layers: ["jp-medical-care-jpCareDayServices"], type: "jpCareDayServices" },
-  { layers: ["jp-medical-care-jpCareResidential"], type: "jpCareResidential" },
-  { layers: ["jp-medical-care-jpCareCombined"], type: "jpCareCombined" },
-  { layers: ["jp-medical-care-jpCareEquipment"], type: "jpCareEquipment" },
-  { layers: ["jp-stations-circle"], type: "jpStations" },
-  { layers: ["jp-tourism-jp-accommodation-canonical-circle"], type: "jpAccommodationCanonical" },
-  { layers: ["jp-tourism-jp-accommodation-jta-circle"], type: "jpAccommodationJta" },
-  { layers: ["jp-tourism-jp-accommodation-local-circle"], type: "jpAccommodationLocal" },
-  { layers: ["jp-tourism-jp-accommodation-osm-circle"], type: "jpAccommodationOsm" },
-  { layers: ["jp-tourism-jp-world-heritage-cultural-circle"], type: "jpWorldHeritageCultural" },
-  { layers: ["jp-tourism-jp-world-heritage-natural-circle"], type: "jpWorldHeritageNatural" },
-  { layers: ["jp-tourism-jp-ramsar-sites-circle"], type: "jpRamsarSites" },
-  // raw 三源之間優先命中內容最完整者，避免 GSI 無名記號點搶走 popup。
-  { layers: ["jp-religion-wikidata-circle"], type: "jpReligionWikidata" },
-  { layers: ["jp-religion-osm-circle"], type: "jpReligionOsm" },
-  { layers: ["jp-religion-gsi-circle"], type: "jpReligionGsi" },
-  // 學校 56,807 點排在宗教三源之後：三源同為點層互不遮蔽，此處僅維持「點層群組」的末位。
-  { layers: ["jp-police-facilities-circle"], type: "jpPoliceFacilities" },
-  { layers: ["jp-schools-circle"], type: "jpSchools" },
-  { layers: ["jp-evacuation-sites-circle"], type: "jpEvacuationSites" },
-  { layers: ["jp-public-offices-circle"], type: "jpPublicOffices" },
-  { layers: ["jp-bus-stops-circle"], type: "jpBusStops" },
-  { layers: ["jp-landslide-warning-areas-fill"], type: "jpLandslideWarningAreas" },
-  { layers: ["jp-inland-flood-areas-fill"], type: "jpInlandFloodAreas" },
-  { layers: ["jp-zoning-use-districts-fill"], type: "jpZoningUseDistricts" },
-  { layers: ["jp-national-forests-fill"], type: "jpNationalForests" },
-  { layers: ["jp-natural-park-areas-2015-fill"], type: "jpNaturalParkAreas2015" },
-  { layers: ["jp-national-parks-moe-fill"], type: "jpNationalParksMoe" },
-  { layers: ["jp-wildlife-protection-moe-fill"], type: "jpWildlifeProtectionMoe" },
-  { layers: ["jp-did-fill"], type: "jpDid" },
-  { layers: ["jp-welfare-disability-circle"], type: "jpWelfareDisability" },
-  { layers: ["jp-welfare-child-circle"], type: "jpWelfareChild" },
-  { layers: ["jp-expressway-junctions-circle", "jp-expressways-line"], type: "jpExpressways" },
-  { layers: ["jp-major-roads-line", "jp-major-roads-z5-line"], type: "jpMajorRoads" },
-  { layers: ["jp-municipal-roads-hokkaido_tohoku-line", "jp-municipal-roads-kanto-line", "jp-municipal-roads-chubu-line", "jp-municipal-roads-kinki-line", "jp-municipal-roads-chugoku_shikoku-line", "jp-municipal-roads-kyushu_okinawa-line"], type: "jpMunicipalRoads" },
-  { layers: ["jp-water-jpWaterDams"], type: "jpWaterDams" },
-  { layers: ["jp-water-jpWaterSupplyFacilities"], type: "jpWaterSupplyFacilities" },
-  { layers: ["jp-water-jpWaterSewerFacilities"], type: "jpWaterSewerFacilities" },
-  { layers: ["jp-water-jpWaterGroundwaterSites"], type: "jpWaterGroundwaterSites" },
-  { layers: ["jp-water-jpWaterNilimDams"], type: "jpWaterNilimDams" },
-  { layers: ["jp-water-jpWaterAgriculturalPonds"], type: "jpWaterAgriculturalPonds" },
-  { layers: ["jp-water-jpWaterLocalFacilities"], type: "jpWaterLocalFacilities" },
-  { layers: ["jp-water-jpWaterQualityStations"], type: "jpWaterQualityStations" },
-  { layers: ["jp-water-jpWaterLevelStations"], type: "jpWaterLevelStations" },
+  countrySlot("JP", 2), // 日本國家包（src/countries/jp/）
   // 土壤液化監測站（owner-only 11 點）：點層，排在面層之前。
   { layers: ["soil-liquefaction-monitoring-sites-circle"], type: "liquefactionMonitoringSites" },
-  // 日本 Japan 線層：鐵道線是細目標，排在所有點層之後、所有面層之前
-  // （面層若搶先會吃掉線上的點擊）。
-  { layers: ["jp-railways-line"], type: "jpRailways" },
-  { layers: ["jp-water-jpWaterRivers"], type: "jpWaterRivers" },
-  { layers: ["jma-warnings-fill"], type: "jmaWarnings" },
-  { layers: ["jma-rainy-season-fill"], type: "jmaRainySeason" },
-  { layers: ["jp-medical-areas-1-fill"], type: "jpMedicalAreasPrimary" },
-  { layers: ["jp-medical-areas-2-fill"], type: "jpMedicalAreasSecondary" },
-  { layers: ["jp-medical-areas-3-fill"], type: "jpMedicalAreasTertiary" },
-  { layers: ["jp-water-jpWaterLakes"], type: "jpWaterLakes" },
+  countrySlot("JP", 3), // 日本國家包（src/countries/jp/）
   // 檢測點優先於承載線；橋梁輪廓是面，排在細線之後，避免先吃掉同位置點擊。
   { layers: ["tainan-bridge-inspections-circle"], type: "tainanBridgeInspections" },
   { layers: ["changhua-traffic-signals-circle"], type: "changhuaTrafficSignals" },
@@ -327,29 +257,12 @@ export const GIS_LAYERS: GisLayerEntry[] = slottedList<GisLayerEntry>("gisClickL
   { layers: ["osm-bridge-footprints-fill", "osm-bridge-footprints-outline"], type: "osmBridgeFootprints" },
   // Allen 覆蓋面排在日本點與線之後，避免攔截細目標的 popup。
   { layers: ["allen-coral-atlas-benthic-fill", "allen-coral-atlas-geomorphic-fill"], type: "allenCoralAtlas" },
-  // 日本 Japan 面層：小面 → 大面，排在**所有點層之後**（車站 / 宗教三源 / 學校 / 鐵道線）。
-  // ⚠️ 縣界 fill 覆蓋全日本且 tab 開啟時預設開，若排在點層之前會吃掉所有點擊
-  // → 車站與宗教點永遠開不出 popup。機場 footprint 也是面，同理排點層後。
-  { layers: ["jp-airports-circle", "jp-airports-fill"], type: "jpAirports" },
-  { layers: ["jp-tourism-jp-natural-parks-national-fill"], type: "jpNaturalParksNational" },
-  { layers: ["jp-tourism-jp-natural-parks-quasi-national-fill"], type: "jpNaturalParksQuasiNational" },
-  { layers: ["jp-tourism-jp-natural-parks-prefectural-fill"], type: "jpNaturalParksPrefectural" },
-  { layers: ["jp-tourism-jp-nature-conservation-area-fill"], type: "jpNatureConservationArea" },
-  { layers: ["jp-tourism-jp-primitive-nature-environment-area-fill"], type: "jpPrimitiveNatureEnvironmentArea" },
-  { layers: ["jp-tourism-jp-nature-conservation-special-district-fill"], type: "jpNatureConservationSpecialDistrict" },
-  { layers: ["jp-tourism-jp-wildlife-protection-national-fill"], type: "jpWildlifeProtectionNational" },
-  { layers: ["jp-tourism-jp-wildlife-special-protection-district-fill"], type: "jpWildlifeSpecialProtectionDistrict" },
-  { layers: ["jp-tourism-jp-wildlife-special-protection-designated-area-fill"], type: "jpWildlifeSpecialProtectionDesignatedArea" },
-  { layers: ["jp-tourism-jp-world-natural-heritage-historical-fill"], type: "jpWorldNaturalHeritageHistorical" },
-  { layers: ["jp-tourism-jp-marine-ebsa-coastal-fill"], type: "jpMarineEbsaCoastal" },
+  countrySlot("JP", 4), // 日本國家包（src/countries/jp/）
   // 450m 旅宿密度格比人口 1km 網格更細，必須先命中；1.5km 密度格則排在人口網格後。
   { layers: ["jp-accommodation-density-450-fill", "jp-accommodation-density-450-outline"], type: "jpAccommodationDensity" },
-  // 人口網格 1km 格小於 1.5km 旅宿密度格、市区町村與都道府県，依「小面 → 大面」排序。
-  // ⚠️ 縣界 tab 開啟時預設開且與網格同樣無縫鋪滿全日本；若人口網格排在行政區界後，
-  // first-hit-wins 會由縣界吃掉每一次點擊。
-  { layers: ["jp-population-mesh-fill"], type: "jpPopulationMesh1km" },
+  countrySlot("JP", 5), // 日本國家包（src/countries/jp/）
   { layers: ["jp-accommodation-density-1500-fill", "jp-accommodation-density-1500-outline"], type: "jpAccommodationDensity" },
-  { layers: ["jp-admin-municipality-fill"], type: "jpAdminBoundaries" },
+  countrySlot("JP", 6), // 日本國家包（src/countries/jp/）
   countrySlot("GB", 1), // 英國國家包（src/countries/gb/）
   countrySlot("KR", 1), // 南韓國家包（src/countries/kr/）
   countrySlot("CA", 1), // 加拿大國家包（src/countries/ca/）
@@ -362,7 +275,7 @@ export const GIS_LAYERS: GisLayerEntry[] = slottedList<GisLayerEntry>("gisClickL
   countrySlot("ID", 1), // 印尼國家包（src/countries/id/）
   countrySlot("VN", 2), // 越南國家包（src/countries/vn/）
   countrySlot("CN", 1), // 中國國家包（src/countries/cn/）
-  { layers: ["jp-admin-prefecture-fill"], type: "jpAdminPrefecture" },
+  countrySlot("JP", 7), // 日本國家包（src/countries/jp/）
   { layers: ["typhoon-agency-forecasts-points", "typhoon-agency-forecasts-line"], type: "typhoonAgencyForecast" },
   { layers: ["typhoon-tracks-current-ring", "typhoon-tracks-current-dot", "typhoon-tracks-points", "typhoon-tracks-radii-fill"], type: "typhoonTrack" },
   { layers: ["port-centroids-point-core", "port-centroids-point-glow"], type: "port" },
@@ -412,7 +325,7 @@ export const GIS_LAYERS: GisLayerEntry[] = slottedList<GisLayerEntry>("gisClickL
   { layers: ["street-trees-national-circle"], type: "streetTreesNational" },
   { layers: ["tree-pits-taipei-fill", "tree-pits-taipei-line"], type: "treePitsTaipei" },
   { layers: ["buildings-gba-fill", "buildings-gba-extrusion"], type: "buildingsGba" },
-  { layers: ["jp-building-height-grid-fill", "jp-building-height-fill", "jp-building-height-extrusion"], type: "jpBuildingHeight" },
+  countrySlot("JP", 8), // 日本國家包（src/countries/jp/）
   // 網格背景層：細（總市值 150m/450m/1.5km）排前、粗（500m 都市紋理）排後 —— first-hit-wins。
   // 三個尺度的 layer id 都收（同時只有一個 visible，隱形的不會被 query 命中）；
   // 每尺度兩個 sublayer 都收（3D 模式看到的是 extrusion 側面，點它才要能開 popup，同 buildingsGba）
@@ -932,9 +845,7 @@ export const GIS_LAYERS: GisLayerEntry[] = slottedList<GisLayerEntry>("gisClickL
   //    → 放在整個陣列的**真正最末**，不搶任何點 / 線 / 面層的命中。
   //    只收 `-fill`：`-outline` 是同一批幾何的邊框，收了只是重複命中同一 feature。
   { layers: ["agri-ftw-fields-fill"], type: "agricultureField" },
-  // Transparent supply areas are intentionally the final click candidate across the map,
-  // so a coverage polygon never intercepts any detailed point, line, or other fill.
-  { layers: ["jp-water-jpWaterSupplyAreas"], type: "jpWaterSupplyAreas" },
+  countrySlot("JP", 9), // 日本國家包（src/countries/jp/）
 ], applyRepPointClickAliases);
 
 /**

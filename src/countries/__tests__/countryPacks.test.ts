@@ -100,11 +100,16 @@ describe("國家包沒載入時", () => {
     expect(r.packs.isCountryPackReady("GB")).toBe(false);
   }, 120_000);
 
-  it("嵌入頁的白名單沒有國家包的圖層（embed 不載國家包；之後若要放行，要先在 embed 接 ensureCountryPack）", async () => {
+  it("嵌入頁的白名單沒有搬進國家包的圖層（embed 不載國家包；之後若要放行，要先在 embed 接 ensureCountryPack）", async () => {
     const { EMBED_ALLOWED } = await import("../../embed/embedWhitelist");
-    const { layerCountryOf } = await import("../../data/layerLookup");
-    const { hasCountryPack } = await import("../packs");
-    const offending = [...EMBED_ALLOWED].filter((k) => { const cc = layerCountryOf(k); return cc && hasCountryPack(cc); });
+    const { LAYER_MANIFEST } = await import("../../data/layerManifest");
+    const { LEGEND_REGISTRY } = await import("../../components/LegendPanel") as unknown as { LEGEND_REGISTRY: readonly { id: string }[] };
+    // 有國家包的國家也可能有整層留在靜態的圖層（例：日本住宿密度、交通事故）：只要 manifest 與圖例在靜態登記簿就可嵌入
+    const legends = new Set(LEGEND_REGISTRY.map((e) => e.id));
+    const offending = [...EMBED_ALLOWED].filter((k) => {
+      const entry = (LAYER_MANIFEST as Record<string, { legend?: string | null } | undefined>)[k];
+      return !entry || (entry.legend != null && !legends.has(entry.legend));
+    });
     expect(offending).toEqual([]);
   });
 });

@@ -286,22 +286,22 @@ export const HOOK_POINT_TIERS: Partial<Record<keyof LayerVisibility, PointTierOr
   groundwaterWells: "M", // 水井點位 Wells · src/hooks/useGroundwaterWellsLayer.ts
   iotWraRiver: "B", // 資料驅動半徑，2026-09-29 拍板 · IoT 河川 IoT River · src/hooks/useIotWraRiverLayer.ts
   iotWraStructure: "B", // 資料驅動半徑，2026-09-29 拍板 · IoT 水工結構 IoT Structure · src/hooks/useIotWraStructureLayer.ts
-  jpAirports: "M", // 機場 空港 · src/hooks/useJpAirportsLayer.ts
-  jpCareCombined: "M", // 複合服務 訪問・通い・宿泊の組合せ · src/hooks/useJpMedicalLayers.ts
-  jpCareDayServices: "M", // 日間服務 施設に通う · src/hooks/useJpMedicalLayers.ts
-  jpCareEquipment: "M", // 福祉用具 福祉用具 · src/hooks/useJpMedicalLayers.ts
-  jpCareHomeVisit: "M", // 到宅服務 自宅に訪問 · src/hooks/useJpMedicalLayers.ts
-  jpCarePlanning: "M", // 照護諮詢／計畫 介護の相談・ケアプラン · src/hooks/useJpMedicalLayers.ts
-  jpCareResidential: "M", // 住宿／短期入住 施設で生活・宿泊 · src/hooks/useJpMedicalLayers.ts
-  jpMedicalAreasPrimary: "M", // 一次醫療圈 一次医療圏 · 2020 · src/hooks/useJpMedicalLayers.ts
-  jpMedicalAreasSecondary: "M", // 二次醫療圈 二次医療圏 · 2020 · src/hooks/useJpMedicalLayers.ts
-  jpMedicalAreasTertiary: "M", // 三次醫療圈 三次医療圏 · 2020 · src/hooks/useJpMedicalLayers.ts
-  jpMedicalClinics: "M", // 診所 診療所 · src/hooks/useJpMedicalLayers.ts
-  jpMedicalDental: "M", // 牙科 歯科 · src/hooks/useJpMedicalLayers.ts
-  jpMedicalHospitals: "M", // 醫院 病院 · src/hooks/useJpMedicalLayers.ts
-  jpMedicalMaternity: "M", // 助產所 助産所 · src/hooks/useJpMedicalLayers.ts
-  jpMedicalPharmacies: "M", // 藥局 薬局 · src/hooks/useJpMedicalLayers.ts
-  jpPoliceFacilities: "M", // 警察設施 警察施設 · src/hooks/useJpPoliceFacilitiesLayer.ts
+  jpAirports: "M", // 機場 空港 · src/countries/jp/useJpAirportsLayer.ts
+  jpCareCombined: "M", // 複合服務 訪問・通い・宿泊の組合せ · src/countries/jp/useJpMedicalLayers.ts
+  jpCareDayServices: "M", // 日間服務 施設に通う · src/countries/jp/useJpMedicalLayers.ts
+  jpCareEquipment: "M", // 福祉用具 福祉用具 · src/countries/jp/useJpMedicalLayers.ts
+  jpCareHomeVisit: "M", // 到宅服務 自宅に訪問 · src/countries/jp/useJpMedicalLayers.ts
+  jpCarePlanning: "M", // 照護諮詢／計畫 介護の相談・ケアプラン · src/countries/jp/useJpMedicalLayers.ts
+  jpCareResidential: "M", // 住宿／短期入住 施設で生活・宿泊 · src/countries/jp/useJpMedicalLayers.ts
+  jpMedicalAreasPrimary: "M", // 一次醫療圈 一次医療圏 · 2020 · src/countries/jp/useJpMedicalLayers.ts
+  jpMedicalAreasSecondary: "M", // 二次醫療圈 二次医療圏 · 2020 · src/countries/jp/useJpMedicalLayers.ts
+  jpMedicalAreasTertiary: "M", // 三次醫療圈 三次医療圏 · 2020 · src/countries/jp/useJpMedicalLayers.ts
+  jpMedicalClinics: "M", // 診所 診療所 · src/countries/jp/useJpMedicalLayers.ts
+  jpMedicalDental: "M", // 牙科 歯科 · src/countries/jp/useJpMedicalLayers.ts
+  jpMedicalHospitals: "M", // 醫院 病院 · src/countries/jp/useJpMedicalLayers.ts
+  jpMedicalMaternity: "M", // 助產所 助産所 · src/countries/jp/useJpMedicalLayers.ts
+  jpMedicalPharmacies: "M", // 藥局 薬局 · src/countries/jp/useJpMedicalLayers.ts
+  jpPoliceFacilities: "M", // 警察設施 警察施設 · src/countries/jp/useJpPoliceFacilitiesLayer.ts
   gbHydroStations: "M", // 英國水文測站 Hydrometric Stations · src/countries/gb/useGbWaterLayers.ts
   gbBathingWaters: "M", // 英國浴場 Bathing Waters · src/countries/gb/useGbWaterLayers.ts
   gbTransportHubs: "M", // 英國交通樞紐 Transport Hubs（渡輪棧橋 S） · src/countries/gb/useGbTransportLayers.ts
@@ -376,48 +376,48 @@ export const HOOK_POINT_TIERS: Partial<Record<keyof LayerVisibility, PointTierOr
   gbWastePermits: "S", // 英國廢棄物處理許可（8,711 點，z5 起） · src/countries/gb/useGbEnvPlanningLayers.ts
   gbPollutionInventory: "M", // 蘇格蘭污染排放申報（比照台灣 pollutionFacility） · src/countries/gb/useGbEnvPlanningLayers.ts
   gbTrafficCountsAadf: "B", // 半徑＝年平均日交通量 5 級 · src/countries/gb/useGbTransportLayers.ts
-  jpEvacuationSites: "S", // 避難場所 指定緊急避難場所・指定避難所（199k 點，>100k 比照 busStationsCity） · src/hooks/useJpEvacuationSitesLayer.ts
-  jpPublicOffices: "M", // 役所與公民館 市町村役場・公民館 · src/hooks/useJpPublicOfficesLayer.ts
-  jpWelfareDisability: "M", // 障礙福祉設施 障害者福祉施設（76k 點） · src/hooks/useJpWelfareFacilitiesLayer.ts
-  jpWelfareChild: "M", // 兒童福祉設施 児童福祉施設（79k 點） · src/hooks/useJpWelfareFacilitiesLayer.ts
-  jpExpressways: "M", // 高速道路 IC／JCT · src/hooks/useJpExpresswaysLayer.ts
-  jpBusStops: "S", // 公車站 バス停（278k 點） · src/hooks/useJpBusStopsLayer.ts
-  jpReligionGsi: "M", // 宗教設施 宗教施設（国土地理院） · src/hooks/useJpReligionLayers.ts
-  jpReligionOsm: "M", // 宗教設施 宗教施設（OpenStreetMap） · src/hooks/useJpReligionLayers.ts
-  jpReligionWikidata: "M", // 宗教設施 宗教施設（Wikidata） · src/hooks/useJpReligionLayers.ts
-  jpSchools: "M", // 學校 学校 · src/hooks/useJpSchoolsLayer.ts
-  jpStations: "M", // 車站 駅 · src/hooks/useJpStationsLayer.ts
-  jpAccommodationCanonical: "M", // 旅宿去重總覽 宿泊施設の統合一覧 · src/hooks/useJpTourismLayers.ts
-  jpAccommodationJta: "M", // 觀光廳登錄飯店／旅館 観光庁登録ホテル・旅館 · src/hooks/useJpTourismLayers.ts
-  jpAccommodationLocal: "M", // 地方旅館業許可 地方自治体の旅館業許可 · src/hooks/useJpTourismLayers.ts
-  jpAccommodationOsm: "M", // OpenStreetMap 住宿涵蓋 OpenStreetMap 宿泊施設カバレッジ · src/hooks/useJpTourismLayers.ts
-  jpMarineEbsaCoastal: "M", // 沿岸生態重要海域 沿岸EBSA（2015） · src/hooks/useJpTourismLayers.ts
-  jpNaturalParksNational: "M", // 國立公園 国立公園（A10 2010） · src/hooks/useJpTourismLayers.ts
-  jpNaturalParksPrefectural: "M", // 都道府縣立自然公園 都道府県立自然公園（A10 2010） · src/hooks/useJpTourismLayers.ts
-  jpNaturalParksQuasiNational: "M", // 國定公園 国定公園（A10 2010） · src/hooks/useJpTourismLayers.ts
-  jpNatureConservationArea: "M", // 自然保育地域 自然保全地域（A11 2015） · src/hooks/useJpTourismLayers.ts
-  jpNatureConservationSpecialDistrict: "M", // 自然保育特別地區 自然保全特別地区（A11 2015） · src/hooks/useJpTourismLayers.ts
-  jpPrimitiveNatureEnvironmentArea: "M", // 原生自然環境地域 原生自然環境保全地域（A11 2015） · src/hooks/useJpTourismLayers.ts
-  jpRamsarSites: "M", // 拉姆薩濕地名冊衍生點 ラムサール条約湿地名簿の派生点 · src/hooks/useJpTourismLayers.ts
-  jpWildlifeProtectionNational: "M", // 國家指定鳥獸保護區 国指定鳥獣保護区 · src/hooks/useJpTourismLayers.ts
-  jpWildlifeSpecialProtectionDesignatedArea: "M", // 鳥獸特別保護指定區域 特別保護指定区域 · src/hooks/useJpTourismLayers.ts
-  jpWildlifeSpecialProtectionDistrict: "M", // 鳥獸特別保護地區 鳥獣保護区特別保護地区 · src/hooks/useJpTourismLayers.ts
-  jpWorldHeritageCultural: "M", // UNESCO 文化遺產代表點 UNESCO 文化遺産代表点 · src/hooks/useJpTourismLayers.ts
-  jpWorldHeritageNatural: "M", // UNESCO 自然遺產代表點 UNESCO 自然遺産代表点 · src/hooks/useJpTourismLayers.ts
-  jpWorldNaturalHeritageHistorical: "M", // 世界自然遺產歷史範圍 世界自然遺産の歴史的範囲（A28 2011） · src/hooks/useJpTourismLayers.ts
-  jpWaterAgriculturalPonds: "M", // 農業蓄水池（2026-03） · src/hooks/useJpWaterLayers.ts
-  jpWaterDams: "M", // 水壩 ダム（2014） · src/hooks/useJpWaterLayers.ts
-  jpWaterFloodHazard: "M", // 洪水浸水想定（最大規模） · src/hooks/useJpWaterLayers.ts
-  jpWaterGroundwaterSites: "M", // 地下水等觀測點（24縣） · src/hooks/useJpWaterLayers.ts
-  jpWaterLakes: "M", // 湖沼 湖沼（W09・2005） · src/hooks/useJpWaterLayers.ts
-  jpWaterLevelStations: "M", // 橫濱水位站 横浜市 · src/hooks/useJpWaterLayers.ts
-  jpWaterLocalFacilities: "M", // 高松供排水相關設施 高松市 · src/hooks/useJpWaterLayers.ts
-  jpWaterNilimDams: "M", // NILIM 水壩位置（46縣） · src/hooks/useJpWaterLayers.ts
-  jpWaterQualityStations: "M", // 水質測定地点 水質測定地点（2024） · src/hooks/useJpWaterLayers.ts
-  jpWaterRivers: "M", // 河川流路 河川（2006–2009） · src/hooks/useJpWaterLayers.ts
-  jpWaterSewerFacilities: "M", // 下水道設施（2012） · src/hooks/useJpWaterLayers.ts
-  jpWaterSupplyAreas: "M", // 給水區域 給水区域（2010） · src/hooks/useJpWaterLayers.ts
-  jpWaterSupplyFacilities: "M", // 上水道相關設施（2010） · src/hooks/useJpWaterLayers.ts
+  jpEvacuationSites: "S", // 避難場所 指定緊急避難場所・指定避難所（199k 點，>100k 比照 busStationsCity） · src/countries/jp/useJpEvacuationSitesLayer.ts
+  jpPublicOffices: "M", // 役所與公民館 市町村役場・公民館 · src/countries/jp/useJpPublicOfficesLayer.ts
+  jpWelfareDisability: "M", // 障礙福祉設施 障害者福祉施設（76k 點） · src/countries/jp/useJpWelfareFacilitiesLayer.ts
+  jpWelfareChild: "M", // 兒童福祉設施 児童福祉施設（79k 點） · src/countries/jp/useJpWelfareFacilitiesLayer.ts
+  jpExpressways: "M", // 高速道路 IC／JCT · src/countries/jp/useJpExpresswaysLayer.ts
+  jpBusStops: "S", // 公車站 バス停（278k 點） · src/countries/jp/useJpBusStopsLayer.ts
+  jpReligionGsi: "M", // 宗教設施 宗教施設（国土地理院） · src/countries/jp/useJpReligionLayers.ts
+  jpReligionOsm: "M", // 宗教設施 宗教施設（OpenStreetMap） · src/countries/jp/useJpReligionLayers.ts
+  jpReligionWikidata: "M", // 宗教設施 宗教施設（Wikidata） · src/countries/jp/useJpReligionLayers.ts
+  jpSchools: "M", // 學校 学校 · src/countries/jp/useJpSchoolsLayer.ts
+  jpStations: "M", // 車站 駅 · src/countries/jp/useJpStationsLayer.ts
+  jpAccommodationCanonical: "M", // 旅宿去重總覽 宿泊施設の統合一覧 · src/countries/jp/useJpTourismLayers.ts
+  jpAccommodationJta: "M", // 觀光廳登錄飯店／旅館 観光庁登録ホテル・旅館 · src/countries/jp/useJpTourismLayers.ts
+  jpAccommodationLocal: "M", // 地方旅館業許可 地方自治体の旅館業許可 · src/countries/jp/useJpTourismLayers.ts
+  jpAccommodationOsm: "M", // OpenStreetMap 住宿涵蓋 OpenStreetMap 宿泊施設カバレッジ · src/countries/jp/useJpTourismLayers.ts
+  jpMarineEbsaCoastal: "M", // 沿岸生態重要海域 沿岸EBSA（2015） · src/countries/jp/useJpTourismLayers.ts
+  jpNaturalParksNational: "M", // 國立公園 国立公園（A10 2010） · src/countries/jp/useJpTourismLayers.ts
+  jpNaturalParksPrefectural: "M", // 都道府縣立自然公園 都道府県立自然公園（A10 2010） · src/countries/jp/useJpTourismLayers.ts
+  jpNaturalParksQuasiNational: "M", // 國定公園 国定公園（A10 2010） · src/countries/jp/useJpTourismLayers.ts
+  jpNatureConservationArea: "M", // 自然保育地域 自然保全地域（A11 2015） · src/countries/jp/useJpTourismLayers.ts
+  jpNatureConservationSpecialDistrict: "M", // 自然保育特別地區 自然保全特別地区（A11 2015） · src/countries/jp/useJpTourismLayers.ts
+  jpPrimitiveNatureEnvironmentArea: "M", // 原生自然環境地域 原生自然環境保全地域（A11 2015） · src/countries/jp/useJpTourismLayers.ts
+  jpRamsarSites: "M", // 拉姆薩濕地名冊衍生點 ラムサール条約湿地名簿の派生点 · src/countries/jp/useJpTourismLayers.ts
+  jpWildlifeProtectionNational: "M", // 國家指定鳥獸保護區 国指定鳥獣保護区 · src/countries/jp/useJpTourismLayers.ts
+  jpWildlifeSpecialProtectionDesignatedArea: "M", // 鳥獸特別保護指定區域 特別保護指定区域 · src/countries/jp/useJpTourismLayers.ts
+  jpWildlifeSpecialProtectionDistrict: "M", // 鳥獸特別保護地區 鳥獣保護区特別保護地区 · src/countries/jp/useJpTourismLayers.ts
+  jpWorldHeritageCultural: "M", // UNESCO 文化遺產代表點 UNESCO 文化遺産代表点 · src/countries/jp/useJpTourismLayers.ts
+  jpWorldHeritageNatural: "M", // UNESCO 自然遺產代表點 UNESCO 自然遺産代表点 · src/countries/jp/useJpTourismLayers.ts
+  jpWorldNaturalHeritageHistorical: "M", // 世界自然遺產歷史範圍 世界自然遺産の歴史的範囲（A28 2011） · src/countries/jp/useJpTourismLayers.ts
+  jpWaterAgriculturalPonds: "M", // 農業蓄水池（2026-03） · src/countries/jp/useJpWaterLayers.ts
+  jpWaterDams: "M", // 水壩 ダム（2014） · src/countries/jp/useJpWaterLayers.ts
+  jpWaterFloodHazard: "M", // 洪水浸水想定（最大規模） · src/countries/jp/useJpWaterLayers.ts
+  jpWaterGroundwaterSites: "M", // 地下水等觀測點（24縣） · src/countries/jp/useJpWaterLayers.ts
+  jpWaterLakes: "M", // 湖沼 湖沼（W09・2005） · src/countries/jp/useJpWaterLayers.ts
+  jpWaterLevelStations: "M", // 橫濱水位站 横浜市 · src/countries/jp/useJpWaterLayers.ts
+  jpWaterLocalFacilities: "M", // 高松供排水相關設施 高松市 · src/countries/jp/useJpWaterLayers.ts
+  jpWaterNilimDams: "M", // NILIM 水壩位置（46縣） · src/countries/jp/useJpWaterLayers.ts
+  jpWaterQualityStations: "M", // 水質測定地点 水質測定地点（2024） · src/countries/jp/useJpWaterLayers.ts
+  jpWaterRivers: "M", // 河川流路 河川（2006–2009） · src/countries/jp/useJpWaterLayers.ts
+  jpWaterSewerFacilities: "M", // 下水道設施（2012） · src/countries/jp/useJpWaterLayers.ts
+  jpWaterSupplyAreas: "M", // 給水區域 給水区域（2010） · src/countries/jp/useJpWaterLayers.ts
+  jpWaterSupplyFacilities: "M", // 上水道相關設施（2010） · src/countries/jp/useJpWaterLayers.ts
   marineObservationCwa: "M", // CWA 海洋觀測站 CWA Marine · src/hooks/useMarineObservationLayer.ts
   marineObservationIsohe: "M", // ISOHE 港區海氣象 ISOHE Port · src/hooks/useMarineObservationLayer.ts
   aqiMicroSensors: "B", // LASS 微型感測 Micro Sensor · src/hooks/useMicroSensorsLayer.ts

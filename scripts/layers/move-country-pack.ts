@@ -402,6 +402,8 @@ interface ListOptions {
   nested?: boolean;
   /** 符合但留在中央的條目（例：由 jpHeightLifecycle 管的 overlay 樣板） */
   keep?: (el: ts.Expression) => boolean;
+  /** false＝展開元素（...X）一律不搬 */
+  spreads?: boolean;
 }
 
 function unwrapExpr(e: ts.Expression): ts.Expression {
@@ -459,7 +461,7 @@ function moveListEntries(fileRel: string, varName: string, match: (el: ts.Expres
     for (const el of list) {
       const inner = ts.isSpreadElement(el) ? el.expression : null;
       const nestedArray = inner && opts.nested && ts.isArrayLiteralExpression(unwrapExpr(inner));
-      const hit = !opts.keep?.(el) && (inner ? !nestedArray && spreadIsCountry(sf, inner) : match(el, sf));
+      const hit = !opts.keep?.(el) && (inner ? !nestedArray && opts.spreads !== false && spreadIsCountry(sf, inner) : match(el, sf));
       if (hit) run.push(el);
       else if (!ts.isOmittedExpression(el)) flush();
     }
@@ -479,6 +481,7 @@ function moveListEntries(fileRel: string, varName: string, match: (el: ts.Expres
 }
 
 function objField(el: ts.Expression, field: string): ts.Expression | undefined {
+  el = unwrapExpr(el); // `{ … } satisfies OverlayConfig`
   if (!ts.isObjectLiteralExpression(el)) return undefined;
   for (const p of el.properties) if (ts.isPropertyAssignment(p) && propName(p) === field) return p.initializer;
   return undefined;
@@ -723,7 +726,8 @@ const sOverlays = section("overlays.ts", `${CC}_PACK_OVERLAY_SLOTS`, "slots", "R
   ['import type { OverlayConfig } from "../../types";']);
 const keepOverlay = (el: ts.Expression) => { const id = strOf(objField(el, "id")); return id !== null && !!cfg.keepOverlays?.includes(id); };
 moveListEntries("src/map/overlayRegistry.ts", "OVERLAY_REGISTRY", (el) => { const id = strOf(objField(el, "id")); return id !== null && KEYS.has(id); }, sOverlays,
-  { marker: "overlaySlot", nested: true, keep: keepOverlay });
+  // overlay 的展開（...G36_SAFETY_OVERLAYS 等）多半混了台灣圖層：不整包搬，留在中央
+  { marker: "overlaySlot", nested: true, keep: keepOverlay, spreads: false });
 
 const nonEmpty = [...sections.values()].filter((s) => s.exportName && (s.body.length || s.slotBodies.size));
 if (nonEmpty.length === 0 && moves.size === 0 && !(cfg.moveNamed?.length)) {

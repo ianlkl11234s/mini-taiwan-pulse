@@ -63,7 +63,8 @@ function row(key: string, entry: LayerManifestEntry, iconName: string, draw: num
   };
   // 站主限定的唯一來源是 topics 的 OWNER_ONLY（layerCatalog.GATED_LAYERS 同口徑），不是 entry.gated
   if (entry.topics.includes("OWNER_ONLY")) out.gated = true;
-  if (entry.expandable) out.expandable = true;
+  // 明寫 false 的也保留（側欄列照抄，和靜態 manifest 一致）
+  if (entry.expandable !== undefined) out.expandable = entry.expandable;
   // 與 key 同名就省略（讀時補回 key）；null＝有意識地沒有
   if (entry.popup !== key) out.popup = entry.popup as Json;
   if (entry.legend !== key) out.legend = entry.legend;

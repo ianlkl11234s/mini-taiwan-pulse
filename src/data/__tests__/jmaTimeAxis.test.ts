@@ -13,8 +13,8 @@ import {
 import {
   amedasProps, buildJmaRainySnapshot, buildPhenologyFC, daysPastNormal, jmaCoverageGate, jmaTimeRequest,
   parseJmaCoverage, seasonalLabel, snowcapProps, wbgtProps,
-} from "../jmaLiveLoaders";
-import { jmaRainyColorExpr, jmaRainyFilter, jmaRainyRegionForCode } from "../../hooks/useJmaRainySeasonLayer";
+} from "../../countries/jp/jmaLiveLoaders";
+import { jmaRainyColorExpr, jmaRainyFilter, jmaRainyRegionForCode } from "../../countries/jp/useJmaRainySeasonLayer";
 import { loadAllPacks } from "../../countries/packs";
 
 // 全部圖層（含延後載入的國家包，B1 P5）一起驗

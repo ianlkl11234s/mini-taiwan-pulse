@@ -7,8 +7,8 @@ import { describe, expect, it } from "vitest";
 import { validate } from "mapbox-gl/dist/style-spec/index.cjs";
 import { OVERLAY_REGISTRY } from "../../map/overlayRegistry";
 import { JMA_AMEDAS_MODES, jmaVolcanoLevel, jmaWarningLevel, normalizeJmaIntensity } from "../jmaTypes";
-import { amedasProps, buildJmaWarningsSnapshot, designatedCityName, filterJmaWarningsByKind, jmaWarningAreaKinds, jmaWarningKindStats, quakeProps, rowsToPointFC } from "../jmaLiveLoaders";
-import { jmaWarningsColorExpr, jmaWarningsFilter } from "../../hooks/useJmaWarningsLayer";
+import { amedasProps, buildJmaWarningsSnapshot, designatedCityName, filterJmaWarningsByKind, jmaWarningAreaKinds, jmaWarningKindStats, quakeProps, rowsToPointFC } from "../../countries/jp/jmaLiveLoaders";
+import { jmaWarningsColorExpr, jmaWarningsFilter } from "../../countries/jp/useJmaWarningsLayer";
 import { loadAllPacks } from "../../countries/packs";
 
 // 全部圖層（含延後載入的國家包，B1 P5）一起驗

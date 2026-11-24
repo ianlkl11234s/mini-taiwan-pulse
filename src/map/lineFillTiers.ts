@@ -195,8 +195,8 @@ export const HOOK_LINE_TIERS: Readonly<Record<string, HookLineTierSpec>> = {
   "gfwHourlyTracks/gfw-hourly-tracks-line": {"width": "standard", "opacity": "reference"}, // src/hooks/useGfwHourlyTracksLayer.ts
   "globalEvents/global-events-relations-line": {"width": "thin", "opacity": "keep"}, // src/hooks/useGlobalEventsLayer.ts
   "globalEvents/global-events-story-links-line": {"width": "standard", "opacity": "keep"}, // 可能同一件事虛線 · src/hooks/useGlobalEventsLayer.ts
-  "jpAdminBoundaries/jp-admin-municipality-line": {"width": "standard", "opacity": "reference"}, // src/hooks/useJpAdminLayers.ts
-  "jpAdminPrefecture/jp-admin-prefecture-line": {"width": "standard", "opacity": "reference"}, // src/hooks/useJpAdminLayers.ts
+  "jpAdminBoundaries/jp-admin-municipality-line": {"width": "standard", "opacity": "reference"}, // src/countries/jp/useJpAdminLayers.ts
+  "jpAdminPrefecture/jp-admin-prefecture-line": {"width": "standard", "opacity": "reference"}, // src/countries/jp/useJpAdminLayers.ts
   "gbAdminBoundaries/gb-admin-lad-line": {"width": "emphasis", "opacity": "standard"}, // L-5 行政界：LAD 比照縣市 · src/countries/gb/useGbAdminLayers.ts
   "krAdminBoundaries/kr-admin-sido-line": {"width": "emphasis", "opacity": "standard"}, // L-5 行政界：시·도比照縣市 · src/countries/kr/useKrAdminLayers.ts
   "krAdminBoundaries/kr-admin-sgg-line": {"width": "standard", "opacity": "standard"}, // L-5：시군구比照鄉鎮市區 · src/countries/kr/useKrAdminLayers.ts
@@ -255,45 +255,45 @@ export const HOOK_LINE_TIERS: Readonly<Record<string, HookLineTierSpec>> = {
   "gbMajorRoads/gb-major-roads-line": {"width": "keep", "opacity": "standard"}, // 寬依 road_class 對 L-1 三階（高速強調／A 標準／B 細，L-5）· src/countries/gb/useGbTransportLayers.ts
   "gbBridgesTunnels/gb-bridges-tunnels-bridge-line": {"width": "keep", "opacity": "standard"}, // 寬依 road_class（同主要路網 L-5）· src/countries/gb/useGbOsmLayers.ts
   "gbBridgesTunnels/gb-bridges-tunnels-tunnel-line": {"width": "keep", "opacity": "standard"}, // 隧道虛線，寬依 road_class · src/countries/gb/useGbOsmLayers.ts
-  "jpAirports/jp-airports-line": {"width": "standard", "opacity": "reference"}, // src/hooks/useJpAirportsLayer.ts
-  "jpCareCombined/jp-medical-care-aggregate-outline": {"width": "keep", "opacity": "keep", "outline": "graded"}, // src/hooks/useJpMedicalLayers.ts
-  "jpCareDayServices/jp-medical-care-aggregate-outline": {"width": "keep", "opacity": "keep", "outline": "graded"}, // src/hooks/useJpMedicalLayers.ts
-  "jpCareEquipment/jp-medical-care-aggregate-outline": {"width": "keep", "opacity": "keep", "outline": "graded"}, // src/hooks/useJpMedicalLayers.ts
-  "jpCareHomeVisit/jp-medical-care-aggregate-outline": {"width": "keep", "opacity": "keep", "outline": "graded"}, // src/hooks/useJpMedicalLayers.ts
-  "jpCarePlanning/jp-medical-care-aggregate-outline": {"width": "keep", "opacity": "keep", "outline": "graded"}, // src/hooks/useJpMedicalLayers.ts
-  "jpCareResidential/jp-medical-care-aggregate-outline": {"width": "keep", "opacity": "keep", "outline": "graded"}, // src/hooks/useJpMedicalLayers.ts
-  "jpMarineEbsaCoastal/jp-tourism-jp-marine-ebsa-coastal-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/hooks/useJpTourismLayers.ts
-  "jpMedicalAreasPrimary/jp-medical-areas-1-outline": {"width": "keep", "opacity": "keep", "outline": "background"}, // src/hooks/useJpMedicalLayers.ts
-  "jpMedicalAreasSecondary/jp-medical-areas-2-outline": {"width": "keep", "opacity": "keep", "outline": "background"}, // src/hooks/useJpMedicalLayers.ts
-  "jpMedicalAreasTertiary/jp-medical-areas-3-outline": {"width": "keep", "opacity": "keep", "outline": "background"}, // src/hooks/useJpMedicalLayers.ts
-  "jpMedicalClinics/jp-medical-facilities-aggregate-outline": {"width": "keep", "opacity": "keep", "outline": "graded"}, // src/hooks/useJpMedicalLayers.ts
-  "jpMedicalDental/jp-medical-facilities-aggregate-outline": {"width": "keep", "opacity": "keep", "outline": "graded"}, // src/hooks/useJpMedicalLayers.ts
-  "jpMedicalHospitals/jp-medical-facilities-aggregate-outline": {"width": "keep", "opacity": "keep", "outline": "graded"}, // src/hooks/useJpMedicalLayers.ts
-  "jpMedicalMaternity/jp-medical-facilities-aggregate-outline": {"width": "keep", "opacity": "keep", "outline": "graded"}, // src/hooks/useJpMedicalLayers.ts
-  "jpMedicalPharmacies/jp-medical-facilities-aggregate-outline": {"width": "keep", "opacity": "keep", "outline": "graded"}, // src/hooks/useJpMedicalLayers.ts
-  "jpNaturalParksNational/jp-tourism-jp-natural-parks-national-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/hooks/useJpTourismLayers.ts
-  "jpNaturalParksPrefectural/jp-tourism-jp-natural-parks-prefectural-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/hooks/useJpTourismLayers.ts
-  "jpNaturalParksQuasiNational/jp-tourism-jp-natural-parks-quasi-national-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/hooks/useJpTourismLayers.ts
-  "jpNatureConservationArea/jp-tourism-jp-nature-conservation-area-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/hooks/useJpTourismLayers.ts
-  "jpNatureConservationSpecialDistrict/jp-tourism-jp-nature-conservation-special-district-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/hooks/useJpTourismLayers.ts
-  "jpPrimitiveNatureEnvironmentArea/jp-tourism-jp-primitive-nature-environment-area-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/hooks/useJpTourismLayers.ts
-  "jpRailways/jp-railways-line": {"width": "emphasis", "opacity": "standard"}, // src/hooks/useJpRailwaysLayer.ts
-  "jpExpressways/jp-expressways-line": {"width": "emphasis", "opacity": "standard"}, // src/hooks/useJpExpresswaysLayer.ts
-  "jpMajorRoads/jp-major-roads-line": {"width": "standard", "opacity": "standard"}, // 線寬依 road_class_code 資料編碼（L-5 三階）· src/hooks/useJpMajorRoadsLayer.ts
-  "jpMajorRoads/jp-major-roads-z5-line": {"width": "standard", "opacity": "standard"}, // 線寬依 road_class_code 資料編碼（L-5 三階）· src/hooks/useJpMajorRoadsLayer.ts
-  "jpMunicipalRoads/jp-municipal-roads-hokkaido_tohoku-line": {"width": "thin", "opacity": "standard"}, // 市町村道 6 片同一樣式（L-1 最細階＋淡色）· src/hooks/useJpMunicipalRoadsLayer.ts
-  "jpMunicipalRoads/jp-municipal-roads-kanto-line": {"width": "thin", "opacity": "standard"}, // 市町村道 6 片同一樣式（L-1 最細階＋淡色）· src/hooks/useJpMunicipalRoadsLayer.ts
-  "jpMunicipalRoads/jp-municipal-roads-chubu-line": {"width": "thin", "opacity": "standard"}, // 市町村道 6 片同一樣式（L-1 最細階＋淡色）· src/hooks/useJpMunicipalRoadsLayer.ts
-  "jpMunicipalRoads/jp-municipal-roads-kinki-line": {"width": "thin", "opacity": "standard"}, // 市町村道 6 片同一樣式（L-1 最細階＋淡色）· src/hooks/useJpMunicipalRoadsLayer.ts
-  "jpMunicipalRoads/jp-municipal-roads-chugoku_shikoku-line": {"width": "thin", "opacity": "standard"}, // 市町村道 6 片同一樣式（L-1 最細階＋淡色）· src/hooks/useJpMunicipalRoadsLayer.ts
-  "jpMunicipalRoads/jp-municipal-roads-kyushu_okinawa-line": {"width": "thin", "opacity": "standard"}, // 市町村道 6 片同一樣式（L-1 最細階＋淡色）· src/hooks/useJpMunicipalRoadsLayer.ts
-  "jpWaterLakes/jp-water-jpWaterLakes-outline": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/hooks/useJpWaterLayers.ts
-  "jpWaterSupplyAreas/jp-water-jpWaterSupplyAreas-outline": {"width": "keep", "opacity": "keep", "outline": "background"}, // src/hooks/useJpWaterLayers.ts
-  "jpWaterRivers/jp-water-jpWaterRivers": {"width": "standard", "opacity": "standard"}, // src/hooks/useJpWaterLayers.ts
-  "jpWildlifeProtectionNational/jp-tourism-jp-wildlife-protection-national-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/hooks/useJpTourismLayers.ts
-  "jpWildlifeSpecialProtectionDesignatedArea/jp-tourism-jp-wildlife-special-protection-designated-area-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/hooks/useJpTourismLayers.ts
-  "jpWildlifeSpecialProtectionDistrict/jp-tourism-jp-wildlife-special-protection-district-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/hooks/useJpTourismLayers.ts
-  "jpWorldNaturalHeritageHistorical/jp-tourism-jp-world-natural-heritage-historical-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/hooks/useJpTourismLayers.ts
+  "jpAirports/jp-airports-line": {"width": "standard", "opacity": "reference"}, // src/countries/jp/useJpAirportsLayer.ts
+  "jpCareCombined/jp-medical-care-aggregate-outline": {"width": "keep", "opacity": "keep", "outline": "graded"}, // src/countries/jp/useJpMedicalLayers.ts
+  "jpCareDayServices/jp-medical-care-aggregate-outline": {"width": "keep", "opacity": "keep", "outline": "graded"}, // src/countries/jp/useJpMedicalLayers.ts
+  "jpCareEquipment/jp-medical-care-aggregate-outline": {"width": "keep", "opacity": "keep", "outline": "graded"}, // src/countries/jp/useJpMedicalLayers.ts
+  "jpCareHomeVisit/jp-medical-care-aggregate-outline": {"width": "keep", "opacity": "keep", "outline": "graded"}, // src/countries/jp/useJpMedicalLayers.ts
+  "jpCarePlanning/jp-medical-care-aggregate-outline": {"width": "keep", "opacity": "keep", "outline": "graded"}, // src/countries/jp/useJpMedicalLayers.ts
+  "jpCareResidential/jp-medical-care-aggregate-outline": {"width": "keep", "opacity": "keep", "outline": "graded"}, // src/countries/jp/useJpMedicalLayers.ts
+  "jpMarineEbsaCoastal/jp-tourism-jp-marine-ebsa-coastal-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/countries/jp/useJpTourismLayers.ts
+  "jpMedicalAreasPrimary/jp-medical-areas-1-outline": {"width": "keep", "opacity": "keep", "outline": "background"}, // src/countries/jp/useJpMedicalLayers.ts
+  "jpMedicalAreasSecondary/jp-medical-areas-2-outline": {"width": "keep", "opacity": "keep", "outline": "background"}, // src/countries/jp/useJpMedicalLayers.ts
+  "jpMedicalAreasTertiary/jp-medical-areas-3-outline": {"width": "keep", "opacity": "keep", "outline": "background"}, // src/countries/jp/useJpMedicalLayers.ts
+  "jpMedicalClinics/jp-medical-facilities-aggregate-outline": {"width": "keep", "opacity": "keep", "outline": "graded"}, // src/countries/jp/useJpMedicalLayers.ts
+  "jpMedicalDental/jp-medical-facilities-aggregate-outline": {"width": "keep", "opacity": "keep", "outline": "graded"}, // src/countries/jp/useJpMedicalLayers.ts
+  "jpMedicalHospitals/jp-medical-facilities-aggregate-outline": {"width": "keep", "opacity": "keep", "outline": "graded"}, // src/countries/jp/useJpMedicalLayers.ts
+  "jpMedicalMaternity/jp-medical-facilities-aggregate-outline": {"width": "keep", "opacity": "keep", "outline": "graded"}, // src/countries/jp/useJpMedicalLayers.ts
+  "jpMedicalPharmacies/jp-medical-facilities-aggregate-outline": {"width": "keep", "opacity": "keep", "outline": "graded"}, // src/countries/jp/useJpMedicalLayers.ts
+  "jpNaturalParksNational/jp-tourism-jp-natural-parks-national-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/countries/jp/useJpTourismLayers.ts
+  "jpNaturalParksPrefectural/jp-tourism-jp-natural-parks-prefectural-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/countries/jp/useJpTourismLayers.ts
+  "jpNaturalParksQuasiNational/jp-tourism-jp-natural-parks-quasi-national-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/countries/jp/useJpTourismLayers.ts
+  "jpNatureConservationArea/jp-tourism-jp-nature-conservation-area-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/countries/jp/useJpTourismLayers.ts
+  "jpNatureConservationSpecialDistrict/jp-tourism-jp-nature-conservation-special-district-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/countries/jp/useJpTourismLayers.ts
+  "jpPrimitiveNatureEnvironmentArea/jp-tourism-jp-primitive-nature-environment-area-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/countries/jp/useJpTourismLayers.ts
+  "jpRailways/jp-railways-line": {"width": "emphasis", "opacity": "standard"}, // src/countries/jp/useJpRailwaysLayer.ts
+  "jpExpressways/jp-expressways-line": {"width": "emphasis", "opacity": "standard"}, // src/countries/jp/useJpExpresswaysLayer.ts
+  "jpMajorRoads/jp-major-roads-line": {"width": "standard", "opacity": "standard"}, // 線寬依 road_class_code 資料編碼（L-5 三階）· src/countries/jp/useJpMajorRoadsLayer.ts
+  "jpMajorRoads/jp-major-roads-z5-line": {"width": "standard", "opacity": "standard"}, // 線寬依 road_class_code 資料編碼（L-5 三階）· src/countries/jp/useJpMajorRoadsLayer.ts
+  "jpMunicipalRoads/jp-municipal-roads-hokkaido_tohoku-line": {"width": "thin", "opacity": "standard"}, // 市町村道 6 片同一樣式（L-1 最細階＋淡色）· src/countries/jp/useJpMunicipalRoadsLayer.ts
+  "jpMunicipalRoads/jp-municipal-roads-kanto-line": {"width": "thin", "opacity": "standard"}, // 市町村道 6 片同一樣式（L-1 最細階＋淡色）· src/countries/jp/useJpMunicipalRoadsLayer.ts
+  "jpMunicipalRoads/jp-municipal-roads-chubu-line": {"width": "thin", "opacity": "standard"}, // 市町村道 6 片同一樣式（L-1 最細階＋淡色）· src/countries/jp/useJpMunicipalRoadsLayer.ts
+  "jpMunicipalRoads/jp-municipal-roads-kinki-line": {"width": "thin", "opacity": "standard"}, // 市町村道 6 片同一樣式（L-1 最細階＋淡色）· src/countries/jp/useJpMunicipalRoadsLayer.ts
+  "jpMunicipalRoads/jp-municipal-roads-chugoku_shikoku-line": {"width": "thin", "opacity": "standard"}, // 市町村道 6 片同一樣式（L-1 最細階＋淡色）· src/countries/jp/useJpMunicipalRoadsLayer.ts
+  "jpMunicipalRoads/jp-municipal-roads-kyushu_okinawa-line": {"width": "thin", "opacity": "standard"}, // 市町村道 6 片同一樣式（L-1 最細階＋淡色）· src/countries/jp/useJpMunicipalRoadsLayer.ts
+  "jpWaterLakes/jp-water-jpWaterLakes-outline": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/countries/jp/useJpWaterLayers.ts
+  "jpWaterSupplyAreas/jp-water-jpWaterSupplyAreas-outline": {"width": "keep", "opacity": "keep", "outline": "background"}, // src/countries/jp/useJpWaterLayers.ts
+  "jpWaterRivers/jp-water-jpWaterRivers": {"width": "standard", "opacity": "standard"}, // src/countries/jp/useJpWaterLayers.ts
+  "jpWildlifeProtectionNational/jp-tourism-jp-wildlife-protection-national-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/countries/jp/useJpTourismLayers.ts
+  "jpWildlifeSpecialProtectionDesignatedArea/jp-tourism-jp-wildlife-special-protection-designated-area-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/countries/jp/useJpTourismLayers.ts
+  "jpWildlifeSpecialProtectionDistrict/jp-tourism-jp-wildlife-special-protection-district-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/countries/jp/useJpTourismLayers.ts
+  "jpWorldNaturalHeritageHistorical/jp-tourism-jp-world-natural-heritage-historical-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/countries/jp/useJpTourismLayers.ts
   "lifelineAlerts/lifelineAlerts-line": {"width": "standard", "opacity": "standard"}, // src/hooks/useDisasterAlertLayer.ts
   "plaActivity/pla-activity-line": {"width": "keep", "opacity": "keep"}, // src/hooks/usePlaActivityLayer.ts
   "propertyValueAdmin/property-value-admin-county-line": {"width": "keep", "opacity": "keep", "outline": "graded"}, // src/hooks/usePropertyValueAdminLayer.ts
@@ -397,16 +397,16 @@ export const HOOK_FILL_TIERS: Readonly<Record<string, FillTier | "keep">> = {
   "gfwHourlyGrid/gfw-hourly-grid-pmtiles-preload-fill": "keep", // src/hooks/useGfwHourlyGridLayer.ts
   "h3Population/h3-population-fill": "graded", // src/map/h3LayerFactory.ts
   "indicators/h3-indicators-fill": "graded", // src/map/demographicsLayerFactory.ts
-  "jpAdminBoundaries/jp-admin-municipality-fill": "background", // src/hooks/useJpAdminLayers.ts
-  "jpAdminPrefecture/jp-admin-prefecture-fill": "background", // src/hooks/useJpAdminLayers.ts
-  "jpAirports/jp-airports-fill": "coverage", // src/hooks/useJpAirportsLayer.ts
-  "jpCareCombined/jp-medical-care-aggregate-fill": "graded", // src/hooks/useJpMedicalLayers.ts
-  "jpCareDayServices/jp-medical-care-aggregate-fill": "graded", // src/hooks/useJpMedicalLayers.ts
-  "jpCareEquipment/jp-medical-care-aggregate-fill": "graded", // src/hooks/useJpMedicalLayers.ts
-  "jpCareHomeVisit/jp-medical-care-aggregate-fill": "graded", // src/hooks/useJpMedicalLayers.ts
-  "jpCarePlanning/jp-medical-care-aggregate-fill": "graded", // src/hooks/useJpMedicalLayers.ts
-  "jpCareResidential/jp-medical-care-aggregate-fill": "graded", // src/hooks/useJpMedicalLayers.ts
-  "jpNationalForests/jp-national-forests-fill": "coverage", // src/hooks/useJpNationalForestsLayer.ts
+  "jpAdminBoundaries/jp-admin-municipality-fill": "background", // src/countries/jp/useJpAdminLayers.ts
+  "jpAdminPrefecture/jp-admin-prefecture-fill": "background", // src/countries/jp/useJpAdminLayers.ts
+  "jpAirports/jp-airports-fill": "coverage", // src/countries/jp/useJpAirportsLayer.ts
+  "jpCareCombined/jp-medical-care-aggregate-fill": "graded", // src/countries/jp/useJpMedicalLayers.ts
+  "jpCareDayServices/jp-medical-care-aggregate-fill": "graded", // src/countries/jp/useJpMedicalLayers.ts
+  "jpCareEquipment/jp-medical-care-aggregate-fill": "graded", // src/countries/jp/useJpMedicalLayers.ts
+  "jpCareHomeVisit/jp-medical-care-aggregate-fill": "graded", // src/countries/jp/useJpMedicalLayers.ts
+  "jpCarePlanning/jp-medical-care-aggregate-fill": "graded", // src/countries/jp/useJpMedicalLayers.ts
+  "jpCareResidential/jp-medical-care-aggregate-fill": "graded", // src/countries/jp/useJpMedicalLayers.ts
+  "jpNationalForests/jp-national-forests-fill": "coverage", // src/countries/jp/useJpNationalForestsLayer.ts
   "krPorts/kr-ports-fill": "coverage", // 港灣區面 · src/countries/kr/useKrTransportLayers.ts
   "krNationalParks/kr-national-parks-fill": "coverage", // 國立公園面 · src/countries/kr/useKrDataLayers.ts
   "krMarineProtectedAreas/kr-marine-protected-areas-fill": "coverage", // 海洋保護區面 · src/countries/kr/useKrDataLayers.ts
@@ -442,31 +442,31 @@ export const HOOK_FILL_TIERS: Readonly<Record<string, FillTier | "keep">> = {
   "gbOilGasFields/gb-oil-gas-fields-fill": "keep", // 透明度：生產中深、其他淡化（資料編碼）· src/countries/gb/useGbEnergyLayers.ts
   "gbTreeProtection/gb-tpo-fill": "coverage", // src/countries/gb/useGbNatureLayers.ts
   "gbLondonChargingZones/gb-london-charging-zones-fill": "coverage", // src/countries/gb/useGbTransportLayers.ts
-  "jpInlandFloodAreas/jp-inland-flood-areas-fill": "graded", // src/hooks/useJpInlandFloodAreasLayer.ts
-  "jpLandslideWarningAreas/jp-landslide-warning-areas-fill": "coverage", // src/hooks/useJpLandslideWarningAreasLayer.ts
-  "jpMarineEbsaCoastal/jp-tourism-jp-marine-ebsa-coastal-fill": "coverage", // src/hooks/useJpTourismLayers.ts
-  "jpMedicalAreasPrimary/jp-medical-areas-1-fill": "background", // src/hooks/useJpMedicalLayers.ts
-  "jpMedicalAreasSecondary/jp-medical-areas-2-fill": "background", // src/hooks/useJpMedicalLayers.ts
-  "jpMedicalAreasTertiary/jp-medical-areas-3-fill": "background", // src/hooks/useJpMedicalLayers.ts
-  "jpMedicalClinics/jp-medical-facilities-aggregate-fill": "graded", // src/hooks/useJpMedicalLayers.ts
-  "jpMedicalDental/jp-medical-facilities-aggregate-fill": "graded", // src/hooks/useJpMedicalLayers.ts
-  "jpMedicalHospitals/jp-medical-facilities-aggregate-fill": "graded", // src/hooks/useJpMedicalLayers.ts
-  "jpMedicalMaternity/jp-medical-facilities-aggregate-fill": "graded", // src/hooks/useJpMedicalLayers.ts
-  "jpMedicalPharmacies/jp-medical-facilities-aggregate-fill": "graded", // src/hooks/useJpMedicalLayers.ts
-  "jpNaturalParksNational/jp-tourism-jp-natural-parks-national-fill": "coverage", // src/hooks/useJpTourismLayers.ts
-  "jpNaturalParksPrefectural/jp-tourism-jp-natural-parks-prefectural-fill": "coverage", // src/hooks/useJpTourismLayers.ts
-  "jpNaturalParksQuasiNational/jp-tourism-jp-natural-parks-quasi-national-fill": "coverage", // src/hooks/useJpTourismLayers.ts
-  "jpNatureConservationArea/jp-tourism-jp-nature-conservation-area-fill": "coverage", // src/hooks/useJpTourismLayers.ts
-  "jpNatureConservationSpecialDistrict/jp-tourism-jp-nature-conservation-special-district-fill": "coverage", // src/hooks/useJpTourismLayers.ts
-  "jpPopulationMesh1km/jp-population-mesh-fill": "coverage", // src/hooks/useJpPopulationMeshLayer.ts
-  "jpPrimitiveNatureEnvironmentArea/jp-tourism-jp-primitive-nature-environment-area-fill": "coverage", // src/hooks/useJpTourismLayers.ts
-  "jpZoningUseDistricts/jp-zoning-use-districts-fill": "coverage", // src/hooks/useJpZoningUseDistrictsLayer.ts
-  "jpWaterLakes/jp-water-jpWaterLakes": "coverage", // src/hooks/useJpWaterLayers.ts
-  "jpWaterSupplyAreas/jp-water-jpWaterSupplyAreas": "background", // src/hooks/useJpWaterLayers.ts
-  "jpWildlifeProtectionNational/jp-tourism-jp-wildlife-protection-national-fill": "coverage", // src/hooks/useJpTourismLayers.ts
-  "jpWildlifeSpecialProtectionDesignatedArea/jp-tourism-jp-wildlife-special-protection-designated-area-fill": "coverage", // src/hooks/useJpTourismLayers.ts
-  "jpWildlifeSpecialProtectionDistrict/jp-tourism-jp-wildlife-special-protection-district-fill": "coverage", // src/hooks/useJpTourismLayers.ts
-  "jpWorldNaturalHeritageHistorical/jp-tourism-jp-world-natural-heritage-historical-fill": "coverage", // src/hooks/useJpTourismLayers.ts
+  "jpInlandFloodAreas/jp-inland-flood-areas-fill": "graded", // src/countries/jp/useJpInlandFloodAreasLayer.ts
+  "jpLandslideWarningAreas/jp-landslide-warning-areas-fill": "coverage", // src/countries/jp/useJpLandslideWarningAreasLayer.ts
+  "jpMarineEbsaCoastal/jp-tourism-jp-marine-ebsa-coastal-fill": "coverage", // src/countries/jp/useJpTourismLayers.ts
+  "jpMedicalAreasPrimary/jp-medical-areas-1-fill": "background", // src/countries/jp/useJpMedicalLayers.ts
+  "jpMedicalAreasSecondary/jp-medical-areas-2-fill": "background", // src/countries/jp/useJpMedicalLayers.ts
+  "jpMedicalAreasTertiary/jp-medical-areas-3-fill": "background", // src/countries/jp/useJpMedicalLayers.ts
+  "jpMedicalClinics/jp-medical-facilities-aggregate-fill": "graded", // src/countries/jp/useJpMedicalLayers.ts
+  "jpMedicalDental/jp-medical-facilities-aggregate-fill": "graded", // src/countries/jp/useJpMedicalLayers.ts
+  "jpMedicalHospitals/jp-medical-facilities-aggregate-fill": "graded", // src/countries/jp/useJpMedicalLayers.ts
+  "jpMedicalMaternity/jp-medical-facilities-aggregate-fill": "graded", // src/countries/jp/useJpMedicalLayers.ts
+  "jpMedicalPharmacies/jp-medical-facilities-aggregate-fill": "graded", // src/countries/jp/useJpMedicalLayers.ts
+  "jpNaturalParksNational/jp-tourism-jp-natural-parks-national-fill": "coverage", // src/countries/jp/useJpTourismLayers.ts
+  "jpNaturalParksPrefectural/jp-tourism-jp-natural-parks-prefectural-fill": "coverage", // src/countries/jp/useJpTourismLayers.ts
+  "jpNaturalParksQuasiNational/jp-tourism-jp-natural-parks-quasi-national-fill": "coverage", // src/countries/jp/useJpTourismLayers.ts
+  "jpNatureConservationArea/jp-tourism-jp-nature-conservation-area-fill": "coverage", // src/countries/jp/useJpTourismLayers.ts
+  "jpNatureConservationSpecialDistrict/jp-tourism-jp-nature-conservation-special-district-fill": "coverage", // src/countries/jp/useJpTourismLayers.ts
+  "jpPopulationMesh1km/jp-population-mesh-fill": "coverage", // src/countries/jp/useJpPopulationMeshLayer.ts
+  "jpPrimitiveNatureEnvironmentArea/jp-tourism-jp-primitive-nature-environment-area-fill": "coverage", // src/countries/jp/useJpTourismLayers.ts
+  "jpZoningUseDistricts/jp-zoning-use-districts-fill": "coverage", // src/countries/jp/useJpZoningUseDistrictsLayer.ts
+  "jpWaterLakes/jp-water-jpWaterLakes": "coverage", // src/countries/jp/useJpWaterLayers.ts
+  "jpWaterSupplyAreas/jp-water-jpWaterSupplyAreas": "background", // src/countries/jp/useJpWaterLayers.ts
+  "jpWildlifeProtectionNational/jp-tourism-jp-wildlife-protection-national-fill": "coverage", // src/countries/jp/useJpTourismLayers.ts
+  "jpWildlifeSpecialProtectionDesignatedArea/jp-tourism-jp-wildlife-special-protection-designated-area-fill": "coverage", // src/countries/jp/useJpTourismLayers.ts
+  "jpWildlifeSpecialProtectionDistrict/jp-tourism-jp-wildlife-special-protection-district-fill": "coverage", // src/countries/jp/useJpTourismLayers.ts
+  "jpWorldNaturalHeritageHistorical/jp-tourism-jp-world-natural-heritage-historical-fill": "coverage", // src/countries/jp/useJpTourismLayers.ts
   "lifelineAlerts/lifelineAlerts-fill": "keep", // src/hooks/useDisasterAlertLayer.ts
   "medDesert/medical-isochrone-fill": "graded", // src/map/medicalIsochroneLayerFactory.ts
   "medIsochrone/medical-isochrone-fill": "graded", // src/map/medicalIsochroneLayerFactory.ts

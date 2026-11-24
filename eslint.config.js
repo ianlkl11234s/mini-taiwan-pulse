@@ -155,7 +155,7 @@ export default [
     rules: { "pulse/owner-only-no-external-source": ["error", { allowImportMeta: ["env.DEV"] }] },
   },
   {
-    files: ["src/hooks/useJpWaterLayers.ts"],
+    files: ["src/countries/jp/useJpWaterLayers.ts"],
     // 淹水圖層的國土地理院公開 raster 圖磚與兩個授權說明連結（逐一列出完整網址）
     rules: {
       "pulse/owner-only-no-external-source": [
