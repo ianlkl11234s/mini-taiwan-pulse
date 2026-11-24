@@ -2,7 +2,7 @@ import type { AnyLayer, Map as MapboxMap } from "mapbox-gl";
 import { hookLineLayout, hookLinePaint } from "../map/lineFillSpec";
 import { LINE_WIDTH, densePointsFromZoom, heatmapMaxzoom, pointRadius, pointStrokePaint } from "../map/mapStyleScale";
 import { paramDefault } from "../data/layerParamsSpec";
-import { krGroupFilter, krStringProp } from "../data/krDataLayers";
+import { krGroupFilter, krStringProp } from "../data/intlLayerShared";
 import { useHeatmapStyleSignature } from "../state/layerPalette";
 import {
   CA_AIRPORT_CLASSES, CA_AIRPORT_MAJOR_IDS, CA_AIRPORTS_SOURCE, CA_FALLBACK_COLOR, CA_HUB_MINOR_FROM_ZOOM, CA_PORT_MAJOR_IDS, CA_PORT_TYPES,

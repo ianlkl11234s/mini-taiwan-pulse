@@ -7,7 +7,7 @@
  * 本檔只 import 型別（thDataLayers 會 spread 本檔）。
  */
 import type { ThLayerSpec } from "./thDataLayers";
-import type { L3, PhCat, PhCatGetter, PhField, PhNote, PhPart } from "./phDataLayers";
+import type { L3, PhCat, PhCatGetter, PhField, PhNote, PhPart } from "./intlLayerShared";
 
 const l3 = (zh: string, en: string, ja: string): L3 => ({ zh, en, ja });
 const str = (v: unknown) => (v == null ? "" : String(v));

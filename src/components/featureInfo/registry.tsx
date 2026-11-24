@@ -81,7 +81,8 @@ import { KR_DATA_PANELS, KrAdminBoundariesPanel, KrBusStopsPanel, KrRailStations
 import { KrEcologyNaturalnessPanel, KrWasteDisposalRulesPanel } from "./krEcoWastePanels";
 import { CaAdminBoundariesPanel, CaTransitStopsPanel, CaAirportsPortsPanel, CaMajorRoadsPanel, CaRailwaysPanel, CaPowerPlantsPanel, CaWindTurbinesPanel, CaPowerGridPanel, CaOilGasPanel, CaPopulationCentresPanel, CaFederalDistrictsPanel, CaPostalFsaPanel, CaIndigenousLandsPanel, CaDeprivationPanel, CaRentsPanel, CaPlaceNamesPanel } from "./caPanels";
 import { IE_DATA_PANELS, IeAdminBoundariesPanel, makeIePanel } from "./iePanels";
-import { PH_DATA_PANELS, PhAdminBoundariesPanel, PhOpenaqAirPanel, PhPopulationPanel, makePhPanel } from "./phPanels";
+import { PH_DATA_PANELS, PhAdminBoundariesPanel, PhOpenaqAirPanel, PhPopulationPanel } from "./phPanels";
+import { makePhPanel } from "./intlSpecPanel";
 import { CN_DATA_PANELS, CnAdminBoundariesPanel, CnPopulationPanel } from "./cnPanels";
 import { CN_DATA_SPECS } from "../../data/cnDataLayers";
 import type { CnDataKey } from "../../data/cnDataKeys";
