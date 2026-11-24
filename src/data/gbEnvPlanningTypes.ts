@@ -19,9 +19,8 @@
 import { URBAN_ZONING_CATEGORIES } from "./urbanZoningTypes";
 import { NON_URBAN_ZONING_CODES } from "./nonUrbanZoningTypes";
 import { WASTE_FACILITY_COLORS } from "./wasteFacilityColors";
-import { NOISE_CAPTURE_COLOR_EXPR } from "./noiseTypes";
+import { noiseColorAt } from "./intlLayerShared";
 import { FACILITY_STATUS_PAINT_COLORS } from "../map/layerPaintColors";
-import { resampleRamp } from "../map/palettes";
 
 export const GB_ENV_FETCHED_AT = "2026-10-29";
 export const GB_ENV_OGL_V3 = "Open Government Licence v3.0";
@@ -207,12 +206,6 @@ export function gbNoiseSourceView(idx: number): GbNoiseSource {
   return GB_NOISE_SOURCE_VIEWS[Math.trunc(idx)] ?? "road";
 }
 
-/** 台灣 NoiseCapture dB 色階（45–85 dB 每 10 dB 一停點）重取樣到每 2.5 dB，取各 Lden 帶中點 dB 的色。 */
-const NOISE_RAMP = (NOISE_CAPTURE_COLOR_EXPR.slice(3) as unknown[]).filter((_, i) => i % 2 === 1) as string[];
-const NOISE_RAMP_MIN_DB = Number(NOISE_CAPTURE_COLOR_EXPR[3]);
-const NOISE_RAMP_STEP = 2.5;
-const NOISE_FINE = resampleRamp(NOISE_RAMP, (NOISE_RAMP.length - 1) * (10 / NOISE_RAMP_STEP) + 1);
-export const noiseColorAt = (db: number) => NOISE_FINE[Math.round((db - NOISE_RAMP_MIN_DB) / NOISE_RAMP_STEP)]!;
 /** band_min_db 五帶（Lden dB(A)）：label 為圖例文字。 */
 export const GB_NOISE_BANDS: readonly { min: number; label: string; color: string }[] = [
   { min: 55, label: "55–59.9", color: noiseColorAt(57.5) },

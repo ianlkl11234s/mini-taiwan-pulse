@@ -10,7 +10,7 @@ import {
 import type { VnDataKey, VnRasterKey } from "../../data/vnDataKeys";
 import { VN_RASTER_BY_KEY } from "../../data/vnWavesLayers";
 import { vnDensityColors } from "../../hooks/useVnLayers";
-import { PhSpecLegend } from "./phLegends";
+import { PhSpecLegend } from "./intlSpecLegend";
 
 function useLayerTitle(key: string): string {
   const i18n = useLocale();

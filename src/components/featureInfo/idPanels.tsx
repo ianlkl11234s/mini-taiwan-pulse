@@ -3,8 +3,8 @@
 import type { FC } from "react";
 import { Row, SourceFooter, Title } from "./shared";
 import { useLocale } from "../../state/localeStore";
-import { caText } from "../../data/caInfraTypes";
-import { makePhPanel } from "./phPanels";
+import { caText } from "../../data/intlLayerShared";
+import { makePhPanel } from "./intlSpecPanel";
 import {
   ID_ADMIN_COLOR, ID_ADMIN_LEVEL_LABELS, ID_BOUNDARY_NOTE, ID_DATA_SPECS, ID_FETCHED_AT, ID_IDM_STATUS_KEYS, ID_NOT_COVERED_COLOR, phText, pickL3, type L3, type IdAdminLevel,
 } from "../../data/idDataLayers";

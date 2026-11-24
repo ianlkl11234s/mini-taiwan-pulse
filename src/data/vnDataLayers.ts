@@ -10,10 +10,10 @@
  */
 import type { VnDataKey } from "./vnDataKeys";
 import { VN_WAVE_SPECS } from "./vnWavesLayers";
-import type { L3, PhCat, PhCatGetter, PhField, PhLayerSpec, PhNote, PhPart, PhSizeBands } from "./phDataLayers";
+import type { L3, PhCat, PhCatGetter, PhField, PhLayerSpec, PhNote, PhPart, PhSizeBands } from "./intlLayerShared";
 
-export type { L3 } from "./phDataLayers";
-export { pickL3, phText } from "./phDataLayers";
+export type { L3 } from "./intlLayerShared";
+export { pickL3, phText } from "./intlLayerShared";
 
 type Expr = unknown[];
 const l3 = (zh: string, en: string, ja: string): L3 => ({ zh, en, ja });

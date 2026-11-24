@@ -6,14 +6,14 @@
  * 不畫任何海域主張線；陸界照 COD-AB 原樣，不代表任何立場。授權空白來源照常上線（使用者 2026-11-23），來源與授權放圖層「說明・來源」。
  * `idProtectedAreas`（WDPA，非商用、禁再散布）等授權確認前不接。
  */
-import type { L3 } from "./phDataLayers";
+import type { L3 } from "./intlLayerShared";
 import type { IdDataKey } from "./idDataKeys";
 import type { LayerSourceInfo } from "./layerSourceInfo";
 import { ID_WAVE5_SPECS } from "./idWaves5Layers";
 import { ID_FETCHED_AT, ID_RASTER_SPECS, ID_WAVE_SPECS, type IdLayerSpec } from "./idWavesLayers";
 
-export type { L3 } from "./phDataLayers";
-export { pickL3, phText } from "./phDataLayers";
+export type { L3 } from "./intlLayerShared";
+export { pickL3, phText } from "./intlLayerShared";
 export type { IdLayerSpec } from "./idWavesLayers";
 export { ID_FETCHED_AT };
 
