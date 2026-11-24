@@ -158,7 +158,7 @@ export function setupTerrain(map: mapboxgl.Map) {
  * 而且地圖要等 DEM 回來才算 idle，會拖慢開站畫面收起。傾斜後掛上就不再拿掉，
  * 避免來回切換造成地面跳動；切底圖（style.load）會清掉 terrain，由這裡重新判斷。
  */
-function ensureTerrainIfTilted(map: mapboxgl.Map) {
+export function ensureTerrainIfTilted(map: mapboxgl.Map) {
   if (map.getPitch() <= 0 || map.getTerrain()) return;
   try {
     setupTerrain(map);

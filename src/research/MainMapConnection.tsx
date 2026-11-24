@@ -20,6 +20,7 @@ import type { MapBridge } from "../chat/types";
 import { layerVisibilityStore } from "../state/layerVisibilityStore";
 import { layerParamsStore } from "../state/layerParamsStore";
 import { countryStore } from "../state/countryStore";
+import { shownOnLeft } from "../state/compareStore";
 import { ResearchConnection } from "./ResearchConnection";
 import { StudyController } from "./StudyController";
 import { visibleResultIds, type BridgeConnectionContext, type ResultCollection, type Scene, type StudyState, type BrowserQuery } from "./bridgeClient";
@@ -486,7 +487,8 @@ export function MainMapConnection(props: Props) {
           const liveVisible = live.bridge.getVisibleLayerKeys();
           // Custom-drawn layers report data_not_loaded until their fetch lands; re-poll (250 ms, <= 6 s, within the total budget) so one read can return real numbers.
           const visibleSummary = await summarizeWhenLoaded(
-            () => summarizeVisibleLayers(liveMap as unknown as VisibleSummaryMap, liveVisible, { labelFor: key => live.labels[key] ?? key }),
+            // 兩國並排：右國圖層畫在右圖、Agent 只看左圖（G2-3 另做），摘要不列
+            () => summarizeVisibleLayers(liveMap as unknown as VisibleSummaryMap, liveVisible.filter(key => shownOnLeft(key, true)), { labelFor: key => live.labels[key] ?? key }),
             Math.max(0, Math.min(SUMMARY_WAIT_CAP, MAP_CONTEXT_TOTAL_BUDGET_MS - (Date.now() - contextStarted))),
             undefined,
             () => epoch === connectionEpoch.current,
@@ -496,7 +498,7 @@ export function MainMapConnection(props: Props) {
           result = { observedAt: new Date().toISOString(), country: countryStore.getSnapshot(), tilesSettled: liveMap.isStyleLoaded(), camera: live.bridge.getCamera(), viewport: resolveViewportContext(liveMap), time: live.timeline?.getContext() ?? null, following: followingRef.current, selection: live.selection ?? null, selectionSource: live.selection ? "feature" : null, visibleLayerKeys: liveVisible.slice(0, 100), totalVisible: liveVisible.length, truncated: liveVisible.length > 100, loading: loadingRegistry.snapshot().slice(0, 20).map(task => task.label), totalLoading: loadingRegistry.snapshot().length, loadingTruncated: loadingRegistry.snapshot().length > 20, dataReadiness: "not_inferred_from_visibility", resultPresentation: readAnalysisResultPresentation(liveMap, presentedAnalysisRef.current, resultCollectionRef.current),
             framingCheck: readFramingCheck(liveMap),
             // AG-1: rendered-viewport digest; counts drawn features only (SPEC-prod-connect §2.7).
-            bounds: viewportBounds(liveMap), visibleSummary };
+            bounds: viewportBounds(liveMap as unknown as VisibleSummaryMap), visibleSummary };
           break;
         }
         case "search_layers": result = discoverLayers(String(request.args.query ?? ""), Number(request.args.offset ?? 0), Number(request.args.limit ?? 20), discoveryContext); break;

@@ -16,6 +16,10 @@ import { PUBLIC_LIFE_COLORS } from "../data/publicLifePalette";
 import { useAnalysisLegend } from "../research/analysisLegendStore";
 import { AnalysisLegendSection } from "../research/AnalysisLegendSection";
 import { legendKeys } from "../data/legendGroups";
+import { activeRightCountry, useCompareSelector } from "../state/compareStore";
+import { useCountry } from "../state/countryStore";
+import { isRightSideKey } from "../map/compareCountrySides";
+import { countryDef, type CountryCode } from "../constants/countries";
 import { AGRI_ENABLED_STATISTICS_RECIPES } from "../data/agriStatisticsRecipes";
 import { SOCIAL_ENABLED_STATISTICS_RECIPES } from "../data/socialStatisticsRecipes";
 import { LABOR_ENABLED_STATISTICS_RECIPES } from "../data/laborStatisticsRecipes";
@@ -830,7 +834,28 @@ export const LegendPanel = memo(function LegendPanel({
   useEffect(() => { if (hasAnalysisLegend) setExpanded(true); }, [hasAnalysisLegend]);
 
   const active = LEGEND_REGISTRY.filter((e) => legendKeys(e.id).some((k) => visibility[k]));
+  // 兩國並排（G2-1）：同一個面板分「左・國家」「右・國家」兩段（圖例跟著圖層畫在哪一側；embed 沒有並排）
+  const rightCountry = useCompareSelector(activeRightCountry);
+  const leftCountry = useCountry();
+  const splitSides = !embedded && rightCountry !== null;
+  const isRightEntry = (entry: LegendEntry) => splitSides && legendKeys(entry.id).some((k) => visibility[k] && isRightSideKey(k, rightCountry));
+  const rightActive = splitSides ? active.filter(isRightEntry) : [];
+  const leftActive = splitSides ? active.filter((entry) => !isRightEntry(entry)) : active;
   if (active.length === 0 && !hasAnalysisLegend) return null;
+  const renderEntry = (entry: LegendEntry) => (
+    // LG-14：面圖層的色票畫「目前透明度 × 底圖陸地色」的合成色（查不到透明度的圖層維持原色票）。
+    <LegendFillOpacityCtx.Provider key={entry.id} value={legendFillOpacity(legendKeys(entry.id), visibility, isDarkTheme, overlayParams) ?? null}>
+      {/* C-4：點／線色票換成地圖上提亮後的顏色 */}
+      <LegendLiftCtx.Provider value={legendLiftMap(legendKeys(entry.id), visibility, isDarkTheme)}>
+        {entry.render({ visibility, overlayParams, isDark: isDarkTheme, railSystems, embedded, i18n })}
+      </LegendLiftCtx.Provider>
+    </LegendFillOpacityCtx.Provider>
+  );
+  const sideHeading = (side: "compare.sideLeft" | "compare.sideRight", country: CountryCode) => (
+    <div style={{ fontSize: FONT_SIZE.xs, fontWeight: 600, color: c.headerText, borderBottom: `1px solid ${c.panelBorder}`, paddingBottom: 2 }}>
+      {i18n.t("compare.legendSide", { side: i18n.t(side), country: i18n.t(countryDef(country).labelKey) })}
+    </div>
+  );
 
   return (
     <LegendThemeCtx.Provider value={legendPalette}>
@@ -883,15 +908,10 @@ export const LegendPanel = memo(function LegendPanel({
       {expanded && (
         <div className="layer-sidebar-scroll" style={{ padding: "0 10px 8px", display: "flex", flexDirection: "column", gap: 10, minHeight: 0, overflowY: "auto" }}>
           <AnalysisLegendSection entries={analysisLegend.entries} compact={analysisLegend.compact} isDark={isDarkTheme} />
-          {active.map((entry) => (
-            // LG-14：面圖層的色票畫「目前透明度 × 底圖陸地色」的合成色（查不到透明度的圖層維持原色票）。
-            <LegendFillOpacityCtx.Provider key={entry.id} value={legendFillOpacity(legendKeys(entry.id), visibility, isDarkTheme, overlayParams) ?? null}>
-              {/* C-4：點／線色票換成地圖上提亮後的顏色 */}
-              <LegendLiftCtx.Provider value={legendLiftMap(legendKeys(entry.id), visibility, isDarkTheme)}>
-                {entry.render({ visibility, overlayParams, isDark: isDarkTheme, railSystems, embedded, i18n })}
-              </LegendLiftCtx.Provider>
-            </LegendFillOpacityCtx.Provider>
-          ))}
+          {splitSides && leftActive.length > 0 && sideHeading("compare.sideLeft", leftCountry)}
+          {leftActive.map(renderEntry)}
+          {rightActive.length > 0 && rightCountry && sideHeading("compare.sideRight", rightCountry)}
+          {rightActive.map(renderEntry)}
         </div>
       )}
     </div>

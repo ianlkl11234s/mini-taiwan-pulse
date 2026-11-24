@@ -143,3 +143,39 @@ describe("visibleSummary (AG-1)", () => {
     expect(new TextEncoder().encode(JSON.stringify(wire)).byteLength).toBeLessThan(256 * 1024);
   });
 });
+
+describe("visibleSummary：右側被蓋住時只算露出的左邊（兩國並排 G2-1）", () => {
+  // 1000×600 畫布，x 每 px 0.001°、y 每 px 0.001°（往下緯度變小）
+  const padded = (right: number, features: Record<string, VisibleSummaryFeature[]>) => {
+    const geometries: unknown[] = [];
+    const map: VisibleSummaryMap & { geometries: unknown[] } = {
+      geometries,
+      getBounds: () => ({ getWest: () => 121, getSouth: () => 24.4, getEast: () => 122, getNorth: () => 25 }),
+      getStyle: () => ({ layers: [{ id: "rain-dots", type: "circle", source: "rain-src" }] }),
+      getLayer: () => ({}),
+      queryRenderedFeatures: ((...args: unknown[]) => {
+        geometries.push(args.length === 2 ? args[0] : null);
+        const opts = (args.length === 2 ? args[1] : args[0]) as { layers: string[] };
+        return opts.layers.flatMap(id => features[id] ?? []);
+      }) as VisibleSummaryMap["queryRenderedFeatures"],
+      getPadding: () => ({ right }),
+      getContainer: () => ({ clientWidth: 1000, clientHeight: 600 }),
+      unproject: ([x, y]) => ({ lng: 121 + x * 0.001, lat: 25 - y * 0.001 }),
+    };
+    return map;
+  };
+
+  it("右 padding 半寬：bounds 只到左半、查詢帶左半的框", () => {
+    const map = padded(500, { "rain-dots": [point(1, {})] });
+    expect(viewportBounds(map)).toEqual([121, 24.4, 121.5, 25]);
+    summarizeVisibleLayers(map, ["rain"], options());
+    expect(map.geometries).toEqual([[[0, 0], [500, 600]]]);
+  });
+
+  it("沒有右 padding：照舊用整張畫布", () => {
+    const map = padded(0, {});
+    expect(viewportBounds(map)).toEqual([121, 24.4, 122, 25]);
+    summarizeVisibleLayers(map, ["rain"], options());
+    expect(map.geometries).toEqual([null]);
+  });
+});

@@ -21,8 +21,10 @@ export interface LayerHintSection {
 }
 
 export interface CompareTipSection {
-  /** 開著、但比較模式不支援（只畫在左側）的圖層數 */
+  /** 開著、但比較模式不支援（只畫在左側）的圖層數；並排時是右國圖層中只能畫在主地圖的數量 */
   unsupported: number;
+  /** 兩國並排（文案改講國家側別與比例尺） */
+  countries?: boolean;
   onDismiss: () => void;
 }
 
@@ -38,7 +40,8 @@ export interface LabelsTipSection {
  *
  * @param target 視野所在、要提示切換過去的國家；null＝不顯示第一段
  * 3. 「現代地名可以關」（古地圖開著、底圖地名還開著時）：附「關閉地名」按鈕，與工具列底圖選單的「顯示地名」是同一個開關。
- * 4. 「左右比較」（比較模式剛開時）：把手與「顯示在」怎麼用，並列出幾個開著的圖層只在左側（DESIGN §4）。
+ * 4. 「左右比較」（比較模式剛開時）：把手與「顯示在」怎麼用，並列出幾個開著的圖層只在左側（DESIGN §4）；
+ *    兩國並排改講側別由國家決定、比例尺同步、同一刻，並列出右國有幾層只能畫在左圖（G2-1）。
  *
  * @param current 目前國家主體（「保持〇〇」）
  * @param layers 第二段；null 或沒有列＝不顯示
@@ -119,10 +122,10 @@ export function CountryViewportHint({
         <div className="country-hint__section">
           <div className="country-hint__head">
             <Columns2 size={13} aria-hidden="true" className="country-hint__icon" />
-            <p className="country-hint__title">{t("compare.hintTitle")}</p>
+            <p className="country-hint__title">{t(compareTip.countries ? "compare.countriesHintTitle" : "compare.hintTitle")}</p>
           </div>
-          <p className="country-hint__detail">{t("compare.hintBody")}</p>
-          {compareTip.unsupported > 0 && <p className="country-hint__detail">{t("compare.hintUnsupported", { count: String(compareTip.unsupported) })}</p>}
+          <p className="country-hint__detail">{t(compareTip.countries ? "compare.countriesHintBody" : "compare.hintBody")}</p>
+          {compareTip.unsupported > 0 && <p className="country-hint__detail">{t(compareTip.countries ? "compare.countriesHintUnsupported" : "compare.hintUnsupported", { count: String(compareTip.unsupported) })}</p>}
           <div className="country-hint__actions">
             <button type="button" className="country-hint__btn" onClick={compareTip.onDismiss}>{t("compare.hintDismiss")}</button>
           </div>
