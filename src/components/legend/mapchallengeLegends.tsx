@@ -13,7 +13,7 @@ import {
 } from "../../data/mapchallengeDay21Types";
 import { MAPCHALLENGE_DAY21_WIDTH } from "../../data/mapchallengeDay21Style";
 import {
-  MAPCHALLENGE_DAY23_BASE_STORES, MAPCHALLENGE_DAY23_DATA_DATE, MAPCHALLENGE_DAY23_TERMS, MAPCHALLENGE_DAY23_VARIANT_GROUPS,
+  MAPCHALLENGE_DAY23_BASE_STORES, MAPCHALLENGE_DAY23_TERMS, MAPCHALLENGE_DAY23_VARIANT_GROUPS,
   mapchallengeDay23GroupById, mapchallengeDay23Radius, mapchallengeDay23TermById, mapchallengeDay23TermColor,
   MAPCHALLENGE_DAY23_ARC, MAPCHALLENGE_DAY23_FOREIGN, MAPCHALLENGE_DAY23_FOREIGN_DOMINANT, MAPCHALLENGE_DAY23_ORIGIN, MAPCHALLENGE_DAY23_PLACES,
   mapchallengeDay23ArcWidth, mapchallengeDay23ForeignById, mapchallengeDay23PlaceById,
@@ -717,7 +717,7 @@ export function MapchallengeDay23TasteTermsLegend({ isDark }: { isDark: boolean 
     <LegendSizeRow title={t("legend.mapchallenge.day23.sizeTitle")} items={MAPCHALLENGE_DAY23_SIZE_STEPS.map((n) => ({ r: mapchallengeDay23Radius(n), label: String(n) }))} fill={color} />
     <LegendNote>{t("legend.mapchallenge.day23.gridNote")}</LegendNote>
     <LegendNote>{t("legend.mapchallenge.day23.scope")}</LegendNote>
-    <LegendNote>{t("legend.mapchallenge.day23.base", { date: MAPCHALLENGE_DAY23_DATA_DATE, n: formatNumber(MAPCHALLENGE_DAY23_BASE_STORES) })}</LegendNote>
+    <LegendNote>{t("legend.mapchallenge.day23.base", { n: formatNumber(MAPCHALLENGE_DAY23_BASE_STORES) })}</LegendNote>
   </div>;
 }
 
@@ -735,7 +735,7 @@ export function MapchallengeDay23TasteVariantsLegend({ isDark }: { isDark: boole
     <LegendNote>{t("legend.mapchallenge.day23.variantsNote")}</LegendNote>
     <LegendNote>{t("legend.mapchallenge.day23.gridNote")}</LegendNote>
     <LegendNote>{t("legend.mapchallenge.day23.scope")}</LegendNote>
-    <LegendNote>{t("legend.mapchallenge.day23.base", { date: MAPCHALLENGE_DAY23_DATA_DATE, n: formatNumber(MAPCHALLENGE_DAY23_BASE_STORES) })}</LegendNote>
+    <LegendNote>{t("legend.mapchallenge.day23.base", { n: formatNumber(MAPCHALLENGE_DAY23_BASE_STORES) })}</LegendNote>
   </div>;
 }
 
@@ -758,7 +758,7 @@ export function MapchallengeDay23TastePlacesLegend({ isDark }: { isDark: boolean
     <LegendNote>{t("legend.mapchallenge.day23.arcNote")}</LegendNote>
     <LegendNote>{t("legend.mapchallenge.day23.gridNote")}</LegendNote>
     <LegendNote>{t("legend.mapchallenge.day23.placesScope")}</LegendNote>
-    <LegendNote>{t("legend.mapchallenge.day23.base", { date: MAPCHALLENGE_DAY23_DATA_DATE, n: formatNumber(MAPCHALLENGE_DAY23_BASE_STORES) })}</LegendNote>
+    <LegendNote>{t("legend.mapchallenge.day23.base", { n: formatNumber(MAPCHALLENGE_DAY23_BASE_STORES) })}</LegendNote>
   </div>;
 }
 
@@ -779,7 +779,7 @@ export function MapchallengeDay23TasteForeignLegend({ isDark }: { isDark: boolea
     <LegendNote>{t("legend.mapchallenge.day23.foreignSizeNote")}</LegendNote>
     <LegendNote>{t("legend.mapchallenge.day23.gridNote")}</LegendNote>
     <LegendNote>{t("legend.mapchallenge.day23.foreignScope")}</LegendNote>
-    <LegendNote>{t("legend.mapchallenge.day23.base", { date: MAPCHALLENGE_DAY23_DATA_DATE, n: formatNumber(MAPCHALLENGE_DAY23_BASE_STORES) })}</LegendNote>
+    <LegendNote>{t("legend.mapchallenge.day23.base", { n: formatNumber(MAPCHALLENGE_DAY23_BASE_STORES) })}</LegendNote>
   </div>;
 }
 
@@ -833,7 +833,7 @@ export function MapchallengeDay23TasteIntlLegend({ layerKey, isDark }: { layerKe
     <LegendNote>{t("legend.mapchallenge.day23.intl.gridNote")}</LegendNote>
     <LegendNote>{t("legend.mapchallenge.day23.intl.scope")}</LegendNote>
     <LegendNote>{t(MAPCHALLENGE_DAY23_INTL_KEYS.limits[country.cc])}</LegendNote>
-    <LegendNote>{t(MAPCHALLENGE_DAY23_INTL_KEYS.base[country.cc], { n: formatNumber(country.baseStores), xy: formatNumber(country.baseWithXy), date: country.dataDate })}</LegendNote>
+    <LegendNote>{t(MAPCHALLENGE_DAY23_INTL_KEYS.base[country.cc], { n: formatNumber(country.baseStores), xy: formatNumber(country.baseWithXy) })}</LegendNote>
     <LegendNote>{t(MAPCHALLENGE_DAY23_INTL_KEYS.source[country.cc])}</LegendNote>
   </div>;
 }
