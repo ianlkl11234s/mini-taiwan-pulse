@@ -8,6 +8,10 @@ import { describe, expect, it } from "vitest";
 import { buildParamControls, type MultiSelectConfig } from "../../state/layerParamsControls";
 import type { MessageKey } from "../keys";
 import type { Locale } from "../locales";
+import { loadAllPacks } from "../../countries/packs";
+
+// 全部圖層（含延後載入的國家包，B1 P5a）一起驗
+await loadAllPacks();
 
 function localeI18n(active: Locale) {
   const file = path.resolve(__dirname, "../locales", active, "params.json");
