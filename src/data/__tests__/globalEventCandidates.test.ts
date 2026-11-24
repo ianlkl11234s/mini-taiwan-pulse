@@ -128,3 +128,26 @@ describe("Global situation candidates are retained independently of Qwen importa
     expect(selectGlobalSituationEntries([], [row], Date.parse("2026-09-01T12:00:00Z") / 1000)[0]?.mapSuppressed).toBe(true);
   });
 });
+
+describe("AI 未判讀（不會再判）的候選有獨立狀態", () => {
+  const pending = { assessment_status: "pending", decision: null, title_zh_tw: null };
+  it("優先採用 RPC 的 assessment_note（migration 566 之後）", () => {
+    expect(parseGlobalEventCandidate(observation({ ...pending, assessment_note: "provider_rejected" })).aiUnassessed).toBe("provider_rejected");
+    expect(parseGlobalEventCandidate(observation({ ...pending, assessment_note: "model_failed" })).aiUnassessed).toBe("model_failed");
+  });
+  it("沒有 assessment_note 時逐字比對 collector 的固定理由句（含 11-24 13:09 舊句）", () => {
+    const cases: [string, string][] = [
+      ["AI 未判讀：這則新聞沒有通過 AI 服務的自動內容審查，所以沒有 AI 判讀，之後也不會再判；不代表不重要。", "provider_rejected"],
+      ["AI 未判讀：多次嘗試都沒有取得有效的 AI 判讀，之後不會再判；不代表不重要。", "model_failed"],
+      ["AI 供應商內容審查拒絕判讀（Alibaba data_inspection_failed）；本筆未經 AI 判讀，不代表不相關或不重要。", "provider_rejected"],
+    ];
+    for (const [reason_zh_tw, expected] of cases) {
+      expect(parseGlobalEventCandidate(observation({ ...pending, reason_zh_tw })).aiUnassessed).toBe(expected);
+    }
+  });
+  it("一般待判、已判讀、未知代碼都不是 AI 未判讀", () => {
+    expect(parseGlobalEventCandidate(observation(pending)).aiUnassessed).toBeNull();
+    expect(parseGlobalEventCandidate(observation({ reason_zh_tw: "AI 未判讀：多次嘗試都沒有取得有效的 AI 判讀，之後不會再判；不代表不重要。" })).aiUnassessed).toBeNull();
+    expect(parseGlobalEventCandidate(observation({ ...pending, assessment_note: "something_else", reason_zh_tw: "依據來源判斷" })).aiUnassessed).toBeNull();
+  });
+});

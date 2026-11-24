@@ -3,11 +3,11 @@ import { useMemberGate } from "../lib/auth";
 import { useLocale } from "../state/localeStore";
 import type { PlaceSearchIndex } from "../lib/placeSearch";
 import {
-  buildAddressGazetteer, looksLikeAddress, resolveShardTargets, searchShard,
+  buildAddressGazetteer, looksLikeAddress, rankAddressHits, resolveShardTargets, searchShard,
   type AddressGazetteer, type AddressHit, type AddressManifest,
 } from "../lib/addressSearch";
 import { loadAddressManifest, loadAddressRoads, loadAddressShard } from "../data/addressIndexLoader";
-import { clearOwnerAddressCache, loadOwnerAddressCounty } from "../data/addressOwnerLoader";
+import { loadOwnerAddressCounty } from "../data/addressOwnerLoader";
 
 export type AddressSearchState =
   | { status: "idle" }
@@ -57,8 +57,7 @@ export async function runAddressSearch(
     return hits;
   }));
   // 完整門牌命中優先於路段與「以此開頭」的建議
-  const hits = perTarget.flat().sort((a, b) => Number(b.kind === "address") - Number(a.kind === "address"));
-  return { hits: hits.slice(0, LIMIT), manifest };
+  return { hits: rankAddressHits(perTarget.flat(), LIMIT), manifest };
 }
 
 /** Locations 搜尋：輸入像門牌時才查門牌分片（懶載入）；站主登入時另查站主版。 */
@@ -71,10 +70,7 @@ export function useAddressSearch(query: string, placeIndex: PlaceSearchIndex | n
     [placeIndex],
   );
 
-  // 撤權（登出、換成非站主）時清掉站主分片快取，舊結果也一起丟掉（下一個 effect 會重查）
-  useEffect(() => {
-    if (!isOwner) clearOwnerAddressCache();
-  }, [isOwner]);
+  // 撤權清快取與私人標記由常駐的 App 負責（搜尋面板會卸載，見 App 的 placeMarkerSlot）
 
   useEffect(() => {
     const q = query.trim();

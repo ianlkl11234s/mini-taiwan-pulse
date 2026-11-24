@@ -9,8 +9,9 @@
  * 地名不畫文字標籤：PMTiles vector source 上的 symbol placement 會讓整張地圖 render 中止（見 useCaTerrainLayers），比照加拿大地名畫點、名稱放 popup。
  */
 import type { PhDataKey, PhRasterKey } from "./phDataKeys";
-import type { L3 } from "./krDataLayers";
-import type { PhCat, PhCatGetter, PhField, PhLayerSpec, PhSizeBands } from "./phDataLayers";
+import type { L3 } from "./intlLayerShared";
+import type { PhCat, PhCatGetter, PhField, PhLayerSpec as IntlPhLayerSpec, PhSizeBands } from "./intlLayerShared";
+type PhLayerSpec<K extends string = PhDataKey> = IntlPhLayerSpec<K>;
 
 type Expr = unknown[];
 const l3 = (zh: string, en: string, ja: string): L3 => ({ zh, en, ja });

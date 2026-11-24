@@ -10,7 +10,7 @@ import {
   GB_BUILT_UP_COLOR, GB_GREENSPACE_CATEGORIES, GB_OS_ATTRIBUTION, gbGreenspaceColorExpr, type GbGreenspaceKey,
 } from "../data/gbOpenSpaceTypes";
 import { useMapReadyTick } from "./useMapReadyTick";
-import { gbAllOf, gbMaskFilter, useGbRepPointLayers, type GbDisplayMode, type SourceSpec } from "./useGbWaterLayers";
+import { gbAllOf, gbMaskFilter, useGbRepPointLayers, type GbDisplayMode, type SourceSpec } from "./intlPmtilesLayers";
 
 /**
  * 英國建成區（C023 OS Open Built Up Areas）與綠地四層（C044 公園／C043 運動場、高爾夫球場／C052 墓園，OS Open Greenspace）。

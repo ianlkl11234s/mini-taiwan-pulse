@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { parseGlobalEventPoint } from "../globalEventsLoader";
-import { filterGlobalEvents, dedupeGlobalEventPlaces, globalEventAssociationArc, globalEventRelations, globalEventStoryLinks, layoutGlobalEventPoints, recentGlobalEventWindow, selectGlobalEventsOverview } from "../globalEventsPresentation";
+import { filterGlobalEvents, dedupeGlobalEventPlaces, globalEventAssociationArc, globalEventRelations, globalEventStoryLinks, layoutGlobalEventPoints, recentGlobalEventWindow, selectGlobalEventsOverview, summarizeGlobalEventCounts, firstPointFeatureByEvent } from "../globalEventsPresentation";
 
 const point = (event = "e1", country = "TW", coordinates: [number, number] = [121, 25]) => parseGlobalEventPoint({
   event_id: event, version_id: `${event}-v1`, event_place_id: `${event}-${country}`, display_place_id: `${event}-${country}`,
@@ -224,6 +224,24 @@ describe("Global Events possibly-same-story links", () => {
     expect(links.neighbours.size).toBe(0);
   });
 
+  it("review L8：整數規模（規模5、6級）的地震也要辨識出規模差異，不因摘要相似而連成同一件事", () => {
+    const summaryZhTw = "日本西南部發生地震，當局呼籲民眾保持警戒並注意餘震，目前沒有海嘯威脅。";
+    const links = globalEventStoryLinks([
+      { ...story("a", "日本西南發生規模5強震，民眾奔逃", "JA", [131, 32]), summaryZhTw },
+      { ...story("b", "立山附近規模6地震，當局評估損害", "JA", [137, 36.5]), summaryZhTw },
+    ]);
+    expect(links.neighbours.size).toBe(0);
+  });
+
+  it("review L8：同一整數規模與 5.0 寫法一致時仍可連結", () => {
+    const summaryZhTw = "日本西南部發生地震，當局呼籲民眾保持警戒並注意餘震，目前沒有海嘯威脅。";
+    const links = globalEventStoryLinks([
+      { ...story("a", "日本西南發生規模5地震，民眾奔逃", "JA", [131, 32]), summaryZhTw },
+      { ...story("b", "日本西南規模5.0地震，民眾奔逃", "JA", [131.1, 32]), summaryZhTw },
+    ]);
+    expect(links.neighbours.size).toBe(2);
+  });
+
   it("draws at most a few lines per event but lists and highlights every related report", () => {
     const rows = Array.from({ length: 8 }, (_, i) => story(`e${i}`, "印尼工廠大火釀3死36失蹤", "ID", [100 + i, -5]));
     const links = globalEventStoryLinks(rows);
@@ -247,5 +265,35 @@ describe("Global Events possibly-same-story links", () => {
     const without = globalEventStoryLinks([story("a", "歐盟官員訪問基輔", "UP", [30, 50]), story("b", "布魯塞爾討論制裁方案", "BE", [4, 50])]);
     expect(without.entityLinks.size).toBe(0);
     expect(without.neighbours.size).toBe(0);
+  });
+});
+
+describe("圖例件數口徑（review L6／L7）", () => {
+  const located = (id: string, over: object = {}) => ({ ...point(id), ...over });
+  const unlocatedRec = (id: string, over: object = {}) => ({ ...point(id), coordinates: null, ...over });
+
+  it("L6：生命週期已撤回而藏起（有座標）的事件不算「無法定位」", () => {
+    const r = summarizeGlobalEventCounts([located("a"), located("b", { mapSuppressed: true }), unlocatedRec("c")], 0);
+    expect(r).toMatchObject({ mapped: 1, unlocated: 1 });
+  });
+
+  it("L7：隱藏雜訊時只扣掉地圖上的雜訊，未定位的雜訊仍算未定位", () => {
+    const r = summarizeGlobalEventCounts([
+      located("a", { decision: "drop_noise" }), unlocatedRec("b", { decision: "drop_noise" }), located("c"),
+    ], 1);
+    expect(r).toMatchObject({ mapped: 1, unlocated: 1 });
+  });
+
+  it("沒隱藏雜訊時雜訊照算", () => {
+    expect(summarizeGlobalEventCounts([located("a", { decision: "drop_noise" })], 0).mapped).toBe(1);
+  });
+});
+
+describe("同一事件多個地點的取點（review L9）", () => {
+  it("導覽與 popup 查詢都取第一個地點，後面的地點不覆蓋", () => {
+    const layout = layoutGlobalEventPoints([point("e1", "JP", [140, 35]), point("e1", "TW", [121, 25])]);
+    const fed = firstPointFeatureByEvent(layout.points.features);
+    expect(fed.get("e1")?.coords).toEqual([140, 35]);
+    expect(fed.get("e1")?.properties.country_code ?? fed.get("e1")?.properties.original_lng).toBeDefined();
   });
 });

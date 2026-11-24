@@ -10,11 +10,15 @@
  * 本檔不 import energyLoader 等重相依（layerParamsSpec 會讀本檔）；燃料色抄自 `energyLoader.FUEL_COLORS`。
  */
 import type { PhDataKey } from "./phDataKeys";
-import type { L3 } from "./krDataLayers";
+import {
+  PH_CAT_OTHER_ID,
+  type L3, type PhCat, type PhCatGetter, type PhField, type PhLayerSpec as IntlPhLayerSpec, type PhSizeBands,
+} from "./intlLayerShared";
 import { PH_WAVE_SPECS } from "./phWavesLayers";
 
-export type { L3 } from "./krDataLayers";
-export { pickL3 } from "./krDataLayers";
+export { pickL3, phCatOf, phCatOptionIds, phFileSpecs, phText, PH_CAT_OTHER_ID } from "./intlLayerShared";
+export type { L3, PhCat, PhCatGetter, PhField, PhNote, PhPart, PhSizeBands } from "./intlLayerShared";
+export type PhLayerSpec<K extends string = PhDataKey> = IntlPhLayerSpec<K>;
 
 type Expr = unknown[];
 const l3 = (zh: string, en: string, ja: string): L3 => ({ zh, en, ja });
@@ -89,91 +93,6 @@ export const PH_URBAN_CLASS: Record<string, L3> = {
 };
 
 // ═════════════════════════ 規格驅動 8 層 ═════════════════════════
-
-export interface PhCat { id: string; values: readonly string[]; color: string; label: L3; /** 屬於哪些子圖層；省略＝全部 */ parts?: readonly string[]; /** 依類別的點半徑（px，乘大小滑桿） */ radius?: number }
-export interface PhField { prop: string; label: L3; kind?: "text" | "num" | "code" | "year"; unit?: string | L3; digits?: number; map?: Readonly<Record<string, L3>>; /** 與此欄同值時不顯示（例：name_en 與 name 相同） */ unlessSameAs?: string }
-/** label：數值級距寫字串（等寬數字），文字分級寫 L3（隨語系、一般字型）。 */
-export interface PhSizeBands { prop: string; title: L3; bands: readonly { min: number; radius: number; label: string | L3 }[] }
-/** 類別取值：Mapbox 表達式（回傳字串）與同義的 JS 版（popup 配色用）。 */
-export interface PhCatGetter { expr: Expr; js: (p: Record<string, unknown>) => string }
-export interface PhPart {
-  /** layer id（literal；gisClickRegistry 以此比對） */
-  id: string;
-  sourceLayer: string;
-  /** fill＝面（越南安江工業群；2026-11-13 起） */
-  geom: "point" | "line" | "fill";
-  minzoom: number;
-  cat: PhCatGetter;
-  /** 固定 filter（例：只畫電纜、排除卡拉延群島的點） */
-  filter?: Expr;
-  dashed?: boolean;
-  /** 點：依數值分級的半徑（覆蓋類別半徑） */
-  size?: PhSizeBands;
-  /** 線寬（z10／z14 兩段，依類別） */
-  lineWidth?: Readonly<Record<string, readonly [number, number]>>;
-  /** 點描邊編碼：符合條件者白框 2px（例：Climate TRACE 補缺） */
-  ring?: { when: Expr; js: (p: Record<string, unknown>) => boolean; label: L3 };
-  /** 點用小號半徑（S；密集點、附屬設施） */
-  small?: boolean;
-  /** 點：符合條件者畫空心（只畫類別色外框；例：OSM 補缺、DOT 近似座標、里程牌）。`when` 省略＝整個子圖層空心 */
-  hollow?: { when?: Expr; js?: (p: Record<string, unknown>) => boolean; label: L3 };
-  /** 面：填色透明度倍率（0＝空心面，只留點擊熱區；外框另用 line 子圖層畫） */
-  fillOpacity?: number;
-  /**
-   * 面：小面拉遠只剩次像素時，在 `maxzoom` 以下加同色模糊外框光暈（layer id `<id>-halo`，不接點擊），標出位置；
-   * 放大到 `maxzoom` 起只畫面（比照 gbCoastalErosionRisk 低縮放加寬外框）。例：新斯科細亞養殖租約。
-   */
-  lowZoomHalo?: { maxzoom: number };
-}
-/** 規格文字取語系：字串原樣，L3 依 locale 取（`locale` 省略＝中文，給地圖署名、loading 等不隨語系的地方）。 */
-export function phText(v: string | L3, locale = "zh"): string {
-  return typeof v === "string" ? v : locale === "ja" ? v.ja : locale === "en" ? v.en : v.zh;
-}
-export interface PhNote { text: L3; /** 只在符合條件的 feature 顯示 */ when?: (p: Record<string, unknown>) => boolean }
-/** `K`：圖層 key 型別（越南等他國重用本引擎時放寬，2026-11-13）。 */
-export interface PhLayerSpec<K extends string = PhDataKey> {
-  key: K;
-  file: string;
-  sourceId: string;
-  srcMinzoom: number;
-  srcMaxzoom: number;
-  color: string;
-  count: number;
-  parts: readonly PhPart[];
-  cats: readonly PhCat[];
-  otherColor?: string;
-  otherLabel?: L3;
-  /** 圖例標題後綴（例：C090「補助安裝地點，非全國光電」） */
-  legendTitleNote?: L3;
-  /** 虛線子圖層的圖例文字（省略＝「地下、海底電纜」；null＝虛線已有自己的分類列，不另列） */
-  dashLabel?: L3 | null;
-  sizeLegend?: readonly PhSizeBands[];
-  title: { props: readonly string[]; fallback: L3; fallbackBy?: { prop: string; map: Readonly<Record<string, L3>> } };
-  fields: readonly PhField[];
-  legendNotes: readonly L3[];
-  popupNotes: readonly PhNote[];
-  /** 低縮放熱區（≥1 萬點，map-layers §3.8 V-1／P-4） */
-  heat?: { intensity: number };
-  /** 來源與授權：純字串＝各語系共用（原文名稱）；含中文說明時寫 L3，英／日介面才不會混中文（2026-11-18） */
-  sourceOrg: string | L3;
-  sourceUrl: string;
-  license: string | L3;
-  fetchedAt: string;
-  loading: L3;
-  /** 預設透明度（省略＝全點層依密度、其餘 0.85） */
-  opacity?: number;
-  /** 同一層分多支 PMTiles（範圍可重疊，例：NOAH 依緯度切北中南三檔）；各檔 tile layer 與屬性相同，子圖層 id 加 `-<suffix>` */
-  /** 額外檔案；partIds 依 parts 順序寫死字面 id（gisClickRegistry 測試靠字面比對）。 */
-  extraFiles?: readonly { suffix: string; file: string; partIds: readonly string[] }[];
-}
-
-/** `extraFiles` 展開成多份規格（第一份＝原檔、原 id）；host 依序各畫一次（hook 數固定）。 */
-export function phFileSpecs<K extends string>(spec: PhLayerSpec<K>): PhLayerSpec<K>[] {
-  return [spec, ...(spec.extraFiles ?? []).map((f) => ({
-    ...spec, file: f.file, sourceId: `${spec.sourceId}-${f.suffix}`, extraFiles: undefined,
-    parts: spec.parts.map((p, i) => ({ ...p, id: f.partIds[i] ?? `${p.id}-${f.suffix}` })),
-  }))];
-}
 
 const str = (v: unknown) => (v == null ? "" : String(v));
 const propGetter = (prop: string): PhCatGetter => ({ expr: ["to-string", ["coalesce", ["get", prop], ""]], js: (p) => str(p[prop]) });
@@ -721,21 +640,7 @@ export const PH_DATA_SPECS: readonly PhLayerSpec[] = [
 
 export const PH_SPEC_BY_KEY: Readonly<Record<PhDataKey, PhLayerSpec>> = Object.fromEntries(PH_DATA_SPECS.map((s) => [s.key, s])) as Record<PhDataKey, PhLayerSpec>;
 
-/** 多選「其他」選項的固定 id（有 `otherLabel` 的層才有）。 */
-export const PH_CAT_OTHER_ID = "other_brand";
-/** 類別多選選項 id（宣告順序＝bitmask；有 `otherLabel` 者最後加「其他」）。 */
-export const phCatOptionIds = (spec: Pick<PhLayerSpec<string>, "cats" | "otherLabel">): string[] =>
-  [...spec.cats.map((c) => c.id), ...(spec.otherLabel ? [PH_CAT_OTHER_ID] : [])];
 /** 類別多選選項（zh 標籤；layerParamsSpec 用）。 */
 export const phCatOptions = (spec: PhLayerSpec<string>): { value: string; label: string }[] =>
   [...spec.cats.map((c) => ({ value: c.id, label: c.label.zh })), ...(spec.otherLabel ? [{ value: PH_CAT_OTHER_ID, label: spec.otherLabel.zh }] : [])];
 
-/** feature 屬於哪個類別（popup 配色）；不屬於任何已列類別回 undefined。 */
-export function phCatOf(spec: PhLayerSpec<string>, props: Record<string, unknown>): PhCat | undefined {
-  for (const part of spec.parts) {
-    const v = part.cat.js(props);
-    const hit = spec.cats.find((c) => (!c.parts || c.parts.includes(part.id)) && c.values.includes(v));
-    if (hit) return hit;
-  }
-  return undefined;
-}

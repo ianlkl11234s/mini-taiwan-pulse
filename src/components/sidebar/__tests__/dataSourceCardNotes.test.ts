@@ -41,3 +41,25 @@ describe("DataSourceCard 顯示從 popup 搬來的圖層說明", () => {
     expect(render("allenCoralAtlas")).toContain("Allen Coral Atlas");
   });
 });
+
+describe("DataSourceCard 目錄已有機關＋授權時仍保留來源表的日期與連結（review L4／L5）", () => {
+  beforeEach(() => { catalog.entries = []; });
+
+  it("L4：只有資料日期（無備註／署名／限制）也要顯示日期", () => {
+    expect(LAYER_SOURCE_INFO.caAdminBoundaries?.asOf).toBe("2026-11-04");
+    catalog.entries = [{ datasetId: "x", title: "Boundaries", providerAgency: "Statistics Canada", license: "OGL-Canada" } as unknown as DataCatalogEntry];
+    expect(render("caAdminBoundaries")).toContain("2026-11-04");
+  });
+
+  it("L5：目錄沒有連結時，補上來源表的原始連結（不依賴機關／授權欄）", () => {
+    catalog.entries = [{ datasetId: "x", title: "指定緊急避難場所", providerAgency: "国土地理院", license: "PDL1.0" } as unknown as DataCatalogEntry];
+    expect(render("jpEvacuationSites")).toContain("https://hinanmap.gsi.go.jp/");
+  });
+
+  it("L5：目錄已有連結時不重複補來源表連結", () => {
+    catalog.entries = [{ datasetId: "x", title: "指定緊急避難場所", providerAgency: "国土地理院", license: "PDL1.0", sourceUrl: "https://example.test/api" } as unknown as DataCatalogEntry];
+    const html = render("jpEvacuationSites");
+    expect(html).toContain("https://example.test/api");
+    expect(html).not.toContain("https://hinanmap.gsi.go.jp/");
+  });
+});

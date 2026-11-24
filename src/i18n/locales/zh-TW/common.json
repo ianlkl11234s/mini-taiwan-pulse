@@ -45,6 +45,11 @@
   "country.PH": "菲律賓",
   "country.CN": "中國大陸",
   "country.menuAria": "切換國家（目前：{country}）",
+  "country.pinnedAria": "釘選的國家",
+  "country.pinnedChipAria": "切換到{country}（回到上次看的位置）",
+  "country.pin": "釘選{country}",
+  "country.unpin": "取消釘選{country}",
+  "country.pinFull": "最多釘選 {max} 國，先取消一國",
   "statistics.uncovered": "{country}目前沒有統計資料",
   "statistics.backToTaiwan": "切回台灣",
   "countryHint.aria": "視野國家提示",
@@ -201,5 +206,8 @@
   "addressSearch.attribution.osmShare": "門牌分片以 ODbL 提供",
   "addressSearch.attribution.panelTitle": "地址搜尋（門牌）",
   "addressSearch.attribution.panelToggle": "各縣市門牌來源與授權",
-  "addressSearch.attribution.panelNote": "每個縣市只用一種來源，不混用；座標僅供參考。"
+  "addressSearch.attribution.panelNote": "每個縣市只用一種來源，不混用；座標僅供參考。",
+  "mobileSheet.label": "圖層與搜尋",
+  "mobileSheet.collapse": "收起圖層與搜尋",
+  "mobileSheet.expand": "展開圖層與搜尋"
 }

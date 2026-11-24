@@ -6,7 +6,7 @@ import {
   GB_CULTURE_MINZOOM, GB_CULTURE_TILE_ZOOM, GB_LIBRARIES_NI_ATTRIBUTION, GB_VISITOR_KINDS,
 } from "../data/gbCultureTypes";
 import { GB_OSM_ATTRIBUTION } from "../data/gbCivicTypes";
-import { gbAllOf, gbMaskFilter, useGbPmtilesLayers, type SourceSpec } from "./useGbWaterLayers";
+import { gbAllOf, gbMaskFilter, useGbPmtilesLayers, type SourceSpec } from "./intlPmtilesLayers";
 
 /**
  * 英國第 8 波文化與觀光 3 層：文化設施（官方實心、OSM 補缺同色空心）、藝文場館、

@@ -11,7 +11,7 @@ import { PMTILES_SOURCE_TYPE } from "../map/pmtilesConstants";
 import { registerPmtilesSourceTypeOnce } from "../map/pmtilesSourceType";
 import { hookFillOpacity, hookFillPaint } from "../map/lineFillSpec";
 import { paramDefault } from "../data/layerParamsSpec";
-import { gbHeatmapBuild, useGbPmtilesLayers, type SourceSpec } from "./useGbWaterLayers";
+import { gbHeatmapBuild, useGbPmtilesLayers, type SourceSpec } from "./intlPmtilesLayers";
 import { repPointHeatIntensity, repPointLayer, repPointThinnedWeight } from "../data/repPointLayers";
 import { heatmapMaxzoom } from "../map/mapStyleScale";
 import { useHeatmapStyleSignature } from "../state/layerPalette";

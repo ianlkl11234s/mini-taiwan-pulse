@@ -9,7 +9,7 @@ import {
   GB_STRUCTURES, GB_WORSHIP_KINDS, gbOsmKindColor, type GbOsmKindDef,
 } from "../data/gbOsmTypes";
 import { gbMajorRoadsWidthExpr } from "./useGbTransportLayers";
-import { gbHeatmapBuild, gbMaskFilter, gbWithFilter, useGbPmtilesLayers, type SourceSpec } from "./useGbWaterLayers";
+import { gbHeatmapBuild, gbMaskFilter, gbWithFilter, useGbPmtilesLayers, type SourceSpec } from "./intlPmtilesLayers";
 
 /**
  * 英國第 13 波 OSM 4 層（2026-11-13 快照）：主要道路橋梁與隧道（線，橋實線、隧道虛線，寬依道路等級）、

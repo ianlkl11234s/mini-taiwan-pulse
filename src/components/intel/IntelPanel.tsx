@@ -16,6 +16,7 @@ import { IntelCard, intelCardId, type IntelCardEvent } from "./IntelCard";
 import { GlobalSituationFeed, GLOBAL_FEED_LOAD_FAILED, selectGlobalFeedCards } from "./GlobalSituationFeed";
 import { AlertSummaryBar } from "./alerts/AlertSummaryBar";
 import { FeedTabs, type FeedTab } from "./alerts/FeedTabs";
+import { feedCounts } from "./alerts/feedCounts";
 import { AlertCard } from "./alerts/AlertCard";
 import {
   fetchSourceHealth,
@@ -134,6 +135,8 @@ export function IntelPanel({
   const [pickedGroups, setPickedGroups] = useState<AlertGroupShort[]>([]);
   const [severityMin, setSeverityMin] = useState<1 | 2 | 3 | 4>(1);
   const [activeAlerts, setActiveAlerts] = useState<ActiveAlert[]>([]);
+  // 清單還沒回來前，分頁角標與摘要先用全國摘要數字，避免閃一下 0
+  const [activeAlertsReady, setActiveAlertsReady] = useState(false);
   const [alertSelectedId, setAlertSelectedId] = useState<string | null>(null);
   const [alertExpandedId, setAlertExpandedId] = useState<string | null>(null);
   const [staleOpen, setStaleOpen] = useState(false);
@@ -211,7 +214,8 @@ export function IntelPanel({
 
   // active alerts list — re-fetch when tab / filter change
   const groupKey = pickedGroups.length === 1 ? pickedGroups[0]! : null;
-  const needsAlertList = feedTab === "all" || feedTab === "alerts";
+  // 三處數字（標頭／分頁角標／警報摘要）共用同一份清單，所以不管在哪個分頁都要載入（IN-1）
+  const needsAlertList = true;
   useEffect(() => {
     if (!open || !needsAlertList) return;
     let alive = true;
@@ -221,6 +225,7 @@ export function IntelPanel({
         ? rows.filter((r) => pickedGroups.includes(r.group))
         : rows;
       setActiveAlerts(filtered);
+      setActiveAlertsReady(true);
     });
     return () => { alive = false; };
   }, [open, needsAlertList, groupKey, severityMin, pickedGroups]);
@@ -402,6 +407,18 @@ export function IntelPanel({
   );
   const alertRows = historyMode ? historyRows : freshAlerts;
 
+  // 三處數字同一口徑（見 alerts/feedCounts.ts）：警報＝套嚴重度／群組篩選後的清單，清單載入前才退回全國摘要
+  const alertsListed = historyMode ? historyRows : activeAlertsReady ? activeAlerts : null;
+  const alertsTotal = alertsListed ? alertsListed.length : alertTally.total;
+  const alertsSevere = alertsListed ? alertsListed.filter((a) => a.severity >= 3).length : alertTally.severe;
+  const counts = feedCounts({
+    news: flatEvents.length,
+    alerts: alertsTotal,
+    alertsInAll: alertsListed ? alertRows.length : alertTally.total,
+    globalEvents: globalCards.length,
+    globalInAll: globalCardsInAll.length,
+  });
+
   const staleLabels = useMemo(() => {
     const seen = new Set<string>();
     for (const a of staleAlerts) {
@@ -483,7 +500,7 @@ export function IntelPanel({
     >
       <IntelHeader
         showFeedStatus={!isGlobalEventsTab}
-        totalCount={flatEvents.length}
+        totalCount={counts[feedTab]}
         lastUpdateTs={now}
         countdownSec={countdownSec}
         sourceHealth={sourceHealth}
@@ -492,6 +509,8 @@ export function IntelPanel({
 
       {!isGlobalEventsTab && <AlertSummaryBar
         tally={alertTally}
+        total={alertsTotal}
+        severe={alertsSevere}
         status={alertSummaryQuery.status}
         lastSuccessAt={alertSummaryQuery.lastSuccessAt}
         expanded={alertsExpanded}
@@ -504,15 +523,11 @@ export function IntelPanel({
         tab={feedTab}
         onTab={(t) => setFeedTab(t)}
         newsCount={flatEvents.length}
-        alertCount={historyMode ? historyRows.length : alertTally.total}
-        alertCountInAll={alertRows.length}
+        alertCount={alertsTotal}
+        alertCountInAll={alertsListed ? alertRows.length : alertTally.total}
         globalCount={globalCards.length}
         globalCountInAll={globalCardsInAll.length}
-        alertSevere={
-          historyMode
-            ? historyRows.filter((a) => a.severity >= 3).length
-            : alertTally.severe
-        }
+        alertSevere={alertsSevere}
       />
 
       {feedTab === "news" ? (

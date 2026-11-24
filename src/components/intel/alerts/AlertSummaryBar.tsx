@@ -20,15 +20,20 @@ interface Props {
   onToggle: () => void;
   activeGroups: AlertGroupShort[];
   onPickGroup: (g: AlertGroupShort) => void;
+  /** 套用目前嚴重度／群組篩選後的則數與嚴重數（與警報分頁角標同口徑）；沒給就用全國摘要（載入中） */
+  total?: number;
+  severe?: number;
 }
 
 export function AlertSummaryBar({
-  tally, status, lastSuccessAt, expanded, onToggle, activeGroups, onPickGroup,
+  tally, status, lastSuccessAt, expanded, onToggle, activeGroups, onPickGroup, total: totalOverride, severe: severeOverride,
 }: Props) {
   const palette = useIntelTheme();
   const i18n = useLocale();
   const { t } = i18n;
-  const { total, severe, byGroup } = tally;
+  const { byGroup } = tally;
+  const total = totalOverride ?? tally.total;
+  const severe = severeOverride ?? tally.severe;
 
   if (status !== "ready") {
     const label = status === "denied" ? t("alerts.summary.denied") : status === "error" ? t("alerts.summary.error") : t("alerts.summary.loading");
@@ -56,7 +61,7 @@ export function AlertSummaryBar({
         }}
       >
         <IntelIcon d={MICON.check!} size={12} color={palette.statusLive} />
-        <span>{t("alerts.allClear")}</span>
+        <span>{tally.total > 0 ? t("alerts.noneInFilter") : t("alerts.allClear")}</span>
       </div>
     );
   }

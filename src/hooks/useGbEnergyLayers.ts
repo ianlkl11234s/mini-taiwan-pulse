@@ -7,7 +7,7 @@ import {
   GB_FUEL_GROUPS, GB_FUEL_STATION_COLOR, GB_NSTA_ATTRIBUTION, GB_OSM_ATTRIBUTION, GB_TECH_GROUPS, GB_VOLTAGE_CLASSES, gbStatusView,
 } from "../data/gbEnergyTypes";
 import { useHeatmapStyleSignature } from "../state/layerPalette";
-import { gbMaskFilter, gbWithFilter, useGbPmtilesLayers, useGbRepPointLayers, type GbDisplayMode, type SourceSpec } from "./useGbWaterLayers";
+import { gbMaskFilter, gbWithFilter, useGbPmtilesLayers, useGbRepPointLayers, type GbDisplayMode, type SourceSpec } from "./intlPmtilesLayers";
 
 /**
  * 英國第 6 波能源 6 層：電廠（點）、再生能源（點）、電網線＋變電所（同一個 PMTiles，兩個 key 各自呼叫

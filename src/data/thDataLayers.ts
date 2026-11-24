@@ -12,10 +12,10 @@ import type { ThDataKey } from "./thDataKeys";
 import { TH_WAVE_SPECS } from "./thWavesLayers";
 import { TH_WAVE5_SPECS } from "./thWaves5Layers";
 import { TH_WAVE8_SPECS } from "./thWaves8Layers";
-import type { L3, PhCat, PhCatGetter, PhField, PhLayerSpec, PhNote, PhSizeBands } from "./phDataLayers";
+import type { L3, PhCat, PhCatGetter, PhField, PhLayerSpec, PhNote, PhSizeBands } from "./intlLayerShared";
 
-export type { L3 } from "./phDataLayers";
-export { pickL3, phText } from "./phDataLayers";
+export type { L3 } from "./intlLayerShared";
+export { pickL3, phText } from "./intlLayerShared";
 
 type Expr = unknown[];
 const l3 = (zh: string, en: string, ja: string): L3 => ({ zh, en, ja });
