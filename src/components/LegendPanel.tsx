@@ -1,4 +1,4 @@
-import { slottedList } from "../countries/slots";
+import { countrySlot, slottedList } from "../countries/slots";
 import { JpDidLegend, JpNationalParksMoeLegend, JpNaturalParkAreas2015Legend, JpWildlifeProtectionMoeLegend } from "./legend/jpNatureR2Legends";
 import { COMPARISON_ENABLED_RECIPES } from "../data/comparisonStatisticsRecipes";
 import { KR_DATA_KEYS } from "../data/krDataKeys";
@@ -85,8 +85,6 @@ import { IdAdminBoundariesLegend, IdDataLegend, IdPopulationLegend, IdRasterLege
 import { CA_WAVE_KEYS } from "../data/caWavesKeys";
 import { CA_WAVE_SPEC_BY_KEY } from "../data/caWavesLayers";
 import { VnAdminBoundariesLegend, VnDataLegend, VnPopulationLegend, VnRasterLegend } from "./legend/vnLegends";
-import { CN_DATA_KEYS, CN_RASTER_KEYS } from "../data/cnDataKeys";
-import { CnAdminBoundariesLegend, CnDataLegend, CnPopulationGridLegend, CnPopulationLegend, CnRasterLegend } from "./legend/cnLegends";
 import { CaClimateStationsLegend, CaAqhiStationsLegend, CaRadiationStationsLegend, CaNpriFacilitiesLegend, CaWastewaterSystemsLegend, CaEarthquakesLegend, CaEarthquakesLiveLegend, CaPopulationGridLegend } from "./legend/caEnvLegends";
 import { CountyMigrationFlowsLegend } from "./legend/countyMigrationLegends";
 import { KrAdminBoundariesLegend, GbAdminBoundariesLegend, GbBuiltUpAreasLegend, GbGreenspaceLegend, GbMaritimeLimitsLegend, GbSmallAreaBoundariesLegend, JpGsiHillshadeLegend, JpGsiReliefLegend, HistoricalMapLegend, BuildingsGbaLegend, CanopyGiantsLegend, CanopyHeightLegend, EcoNetworkZonesLegend, JpBuildingHeightLegend, JpCanopyHeightLegend, JpPopulationMeshLegend, NonUrbanZoningLegend, ParksTaipeiLegend, PropertyValueAdminLegend, PropertyValueGridLegend, ProtectedTreesNationalLegend, RealEstateLegend, RiversideTreesTaipeiLegend, StreetTrees3epochLegend, StreetTreesNationalLegend, StreetTreesTaipeiDiffLegend, TreePitsTaipeiLegend, UrbanFormGridLegend, UrbanZoningLegend } from "./legend/urbanFormLegends";
@@ -403,12 +401,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = slottedList<LegendEntry>("legends"
   ...VN_RASTER_KEYS.map((key) => ({ id: key, render: () => <VnRasterLegend layerKey={key} /> })),
   // 加拿大第 3–8 波（2026-11-17）：規格驅動 36 層，重用菲律賓 PhSpecLegend
   ...CA_WAVE_KEYS.map((key) => ({ id: key, render: () => <PhSpecLegend spec={CA_WAVE_SPEC_BY_KEY[key]} /> })),
-  // 中國第 0–1 波（站主限定）
-  { id: "cnAdminBoundaries", render: () => <CnAdminBoundariesLegend /> },
-  { id: "cnPopulation", render: () => <CnPopulationLegend /> },
-  { id: "cnPopulationGrid", render: () => <CnPopulationGridLegend /> },
-  ...CN_DATA_KEYS.map((key) => ({ id: key, render: () => <CnDataLegend layerKey={key} /> })),
-  ...CN_RASTER_KEYS.map((key) => ({ id: key, render: () => <CnRasterLegend layerKey={key} /> })),
+  countrySlot("CN", 1), // 中國國家包（src/countries/cn/）
   { id: "ieCoillteRecreation", render: () => <IeSpecLegend layerKey="ieCoillteRecreation" spec={IE_COILLTE_RECREATION}><DenseHeatmapLegendRow layers={["ieCoillteRecreation"]} /></IeSpecLegend> },
   { id: "ieCoillteForestRoads", render: () => <IeSpecLegend layerKey="ieCoillteForestRoads" spec={IE_COILLTE_FOREST_ROADS} /> },
   { id: "ieBathymetry", render: () => <IeBathymetryLegend /> },

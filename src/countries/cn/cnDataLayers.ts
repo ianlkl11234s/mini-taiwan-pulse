@@ -7,12 +7,12 @@
  * 資料、處理、授權原句見 taipei-gis-analytics `docs/topic-research/china_opendata/waves/w01/FRONTEND_SPEC.md` 與各 `_manifest.json`（2026-11-13 讀）。
  * 爭議地區依實際管轄：金門、馬祖、澎湖、東沙、太平島、烏坵、大膽二膽屬台灣，台港澳不在任何中國圖層；不畫九段線或任何海域主張線。
  */
-import type { CnDataKey, CnRasterKey } from "./cnDataKeys";
+import type { CnDataKey, CnRasterKey } from "./keys";
 import { CN_PREFECTURE_NAMES } from "./cnPrefectureNames";
-import type { L3, PhCat, PhCatGetter, PhField, PhLayerSpec, PhNote, PhPart, PhSizeBands } from "./intlLayerShared";
+import type { L3, PhCat, PhCatGetter, PhField, PhLayerSpec, PhNote, PhPart, PhSizeBands } from "../../data/intlLayerShared";
 
-export type { L3 } from "./intlLayerShared";
-export { pickL3 } from "./intlLayerShared";
+export type { L3 } from "../../data/intlLayerShared";
+export { pickL3 } from "../../data/intlLayerShared";
 
 type Expr = unknown[];
 const l3 = (zh: string, en: string, ja: string): L3 => ({ zh, en, ja });

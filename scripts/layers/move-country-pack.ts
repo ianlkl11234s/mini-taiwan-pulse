@@ -104,6 +104,7 @@ function moveDedicatedFiles(): Map<string, string> {
   // 先改寫所有檔案的 import（以搬家前的位置解析），再 git mv
   const newLoc = (abs: string) => moves.get(abs) ?? abs;
   for (const file of CODE_FILES()) {
+    if (/scripts\/layers\/(move-country-pack|countryPackConfig)\.ts$/.test(file)) continue;
     const text = readFileSync(file, "utf8");
     let changed = false;
     const next = text.replace(SPEC_RE, (whole, pre: string, q: string, spec: string) => {
@@ -117,7 +118,11 @@ function moveDedicatedFiles(): Map<string, string> {
       changed = true;
       return `${pre}${q}${ns}${q}`;
     });
-    if (changed) writeFileSync(file, next);
+    // 註解、測試裡寫死的 repo 路徑（例：pointTiers 的「· src/countries/cn/useCnLayers.ts」、測試讀檔路徑）一起改
+    let next2 = next;
+    for (const [a, b] of moves) next2 = next2.split(relRoot(a)).join(relRoot(b));
+    if (next2 !== next) changed = true;
+    if (changed) writeFileSync(file, next2);
   }
   mkdirSync(PACK_ABS, { recursive: true });
   for (const [a, b] of moves) execFileSync("git", ["mv", a, b], { cwd: ROOT });
@@ -463,8 +468,10 @@ function moveNamed(): void {
 
 // ── 產生 import 敘述 ───────────────────────────────────────────────
 function renderImports(targetAbs: string, imps: Iterable<ImportBinding & { fromAbs: string }>, extra: string[] = []): string {
+  const extraNames = new Set(extra.flatMap((l) => (l.match(/\{([^}]*)\}/)?.[1] ?? "").split(",").map((x) => x.replace(/^\s*type\s+/, "").trim()).filter(Boolean)));
   const byTarget = new Map<string, { named: Map<string, string>; def?: string; ns?: string }>();
   for (const i of imps) {
+    if (extraNames.has(i.local)) continue;
     const key = i.target ? specFrom(targetAbs, i.target) : i.spec;
     if (i.target && i.target === targetAbs) continue;
     const g = byTarget.get(key) ?? { named: new Map() };
@@ -610,34 +617,34 @@ const popupTypeImport = `import type { ${Cc}PopupType } from "./popupTypes";`;
 const inKeys = (n: string) => KEYS.has(n);
 const inPopups = (n: string) => POPUPS.has(n);
 
-const sManifest = section("manifest.ts", `${CC}_MANIFEST`, "record", `satisfies ${allMoved ? "" : "Partial<"}Record<${KEY_T}, LayerManifestEntry>${allMoved ? "" : ">"}`,
+const sManifest = section("manifest.ts", `${CC}_PACK_MANIFEST`, "record", `satisfies ${allMoved ? "" : "Partial<"}Record<${KEY_T}, LayerManifestEntry>${allMoved ? "" : ">"}`,
   [keyTypeImport, 'import type { LayerManifestEntry } from "../../data/layerManifest";']);
 moveRecordEntries("src/data/layerManifest.ts", "STATIC_LAYER_MANIFEST", inKeys, sManifest);
-const sParams = section("params.ts", `${CC}_PARAMS`, "record", `satisfies Partial<Record<${KEY_T}, LayerParamSpec[]>>`,
+const sParams = section("params.ts", `${CC}_PACK_PARAMS`, "record", `satisfies Partial<Record<${KEY_T}, LayerParamSpec[]>>`,
   [keyTypeImport, 'import type { LayerParamSpec } from "../../data/layerParamsSpec";']);
 moveRecordEntries("src/data/layerParamsSpec.ts", "STATIC_LAYER_PARAMS_SPEC", inKeys, sParams);
-const sSource = section("sourceInfo.ts", `${CC}_SOURCE_INFO`, "record", `satisfies Partial<Record<${KEY_T}, LayerSourceInfo>>`,
+const sSource = section("sourceInfo.ts", `${CC}_PACK_SOURCE_INFO`, "record", `satisfies Partial<Record<${KEY_T}, LayerSourceInfo>>`,
   [keyTypeImport, 'import type { LayerSourceInfo } from "../../data/layerSourceInfo";']);
 moveRecordEntries("src/data/layerSourceInfo.data.ts", "LAYER_SOURCE_INFO_DATA", inKeys, sSource, false);
-const sNotes = section("notes.ts", `${CC}_NOTES`, "record", `satisfies Partial<Record<${KEY_T}, SourceText[]>>`,
+const sNotes = section("notes.ts", `${CC}_PACK_NOTES`, "record", `satisfies Partial<Record<${KEY_T}, SourceText[]>>`,
   [keyTypeImport, 'import type { SourceText } from "../../data/layerSourceInfo";']);
 moveRecordEntries("src/data/layerSourceInfo.data.ts", "LAYER_NOTES_DATA", inKeys, sNotes, false);
-const sPanels = section("panels.tsx", `${CC}_PANELS`, "record", `satisfies Partial<Record<${Cc}PopupType, FC<PanelProps>>>`,
+const sPanels = section("panels.tsx", `${CC}_PACK_PANELS`, "record", `satisfies Partial<Record<${Cc}PopupType, FC<PanelProps>>>`,
   [popupTypeImport, 'import type { FC } from "react";', 'import type { PanelProps } from "../../components/featureInfo/registry";']);
 moveRecordEntries("src/components/featureInfo/registry.tsx", "PANEL_REGISTRY", inPopups, sPanels);
-const sLabels = section("headerLabels.ts", `${CC}_HEADER_LABELS`, "record", `satisfies Record<${Cc}PopupType, string>`, [popupTypeImport]);
+const sLabels = section("headerLabels.ts", `${CC}_PACK_HEADER_LABELS`, "record", `satisfies Record<${Cc}PopupType, string>`, [popupTypeImport]);
 moveRecordEntries("src/components/featureInfo/registry.tsx", "HEADER_LABELS", inPopups, sLabels);
-const sHosts = section("hosts.tsx", `${CC}_HOST_SLOTS`, "slots", "Readonly<Record<number, readonly LayerHookEntry[]>>",
+const sHosts = section("hosts.tsx", `${CC}_PACK_HOST_SLOTS`, "slots", "Readonly<Record<number, readonly LayerHookEntry[]>>",
   ['import type { LayerHookEntry } from "../../layers/layerHookRegistry";']);
 moveListEntries("src/layers/layerHookRegistry.tsx", "LAYER_HOOK_REGISTRY", (el, sf) => {
   const keys = objField(el, "keys");
   if (!keys || !ts.isArrayLiteralExpression(keys) || keys.elements.length === 0) return false;
   return keys.elements.every((k) => { const s = strOf(k as ts.Expression); return s !== null && KEYS.has(s); }) && !!sf;
 }, sHosts);
-const sClicks = section("clicks.ts", `${CC}_CLICK_SLOTS`, "slots", "Readonly<Record<number, readonly GisLayerEntry[]>>",
+const sClicks = section("clicks.ts", `${CC}_PACK_CLICK_SLOTS`, "slots", "Readonly<Record<number, readonly GisLayerEntry[]>>",
   ['import type { GisLayerEntry } from "../../map/gisClickRegistry";']);
 moveListEntries("src/map/gisClickRegistry.ts", "GIS_LAYERS", (el) => { const t = strOf(objField(el, "type")); return t !== null && POPUPS.has(t); }, sClicks);
-const sLegends = section("legends.tsx", `${CC}_LEGEND_SLOTS`, "slots", "Readonly<Record<number, readonly LegendEntry[]>>",
+const sLegends = section("legends.tsx", `${CC}_PACK_LEGEND_SLOTS`, "slots", "Readonly<Record<number, readonly LegendEntry[]>>",
   ['import type { LegendEntry } from "../../components/LegendPanel";']);
 moveListEntries("src/components/LegendPanel.tsx", "LEGEND_REGISTRY", (el) => { const id = strOf(objField(el, "id")); return id !== null && LEGENDS.has(id); }, sLegends);
 
@@ -677,7 +684,7 @@ if (cfg.specNotes) {
 import type { SourceText } from "../../data/layerSourceInfo";
 import { ${cfg.specNotes.specsName} } from "${cfg.specNotes.specsImport}";
 
-export const ${CC}_SPEC_NOTES: Record<string, SourceText[]> = Object.fromEntries(
+export const ${CC}_PACK_SPEC_NOTES: Record<string, SourceText[]> = Object.fromEntries(
   ${cfg.specNotes.specsName}.map((spec) => [spec.key, specLayerNotes(spec)] as const).filter(([, notes]) => notes.length > 0),
 );
 `);
@@ -686,13 +693,13 @@ export const ${CC}_SPEC_NOTES: Record<string, SourceText[]> = Object.fromEntries
 }
 // pack.ts：依實際存在的區段檔接線
 const REC: Array<[string, string, string]> = [
-  ["layerManifest", "manifest", `${CC}_MANIFEST`], ["layerParamsSpec", "params", `${CC}_PARAMS`],
-  ["layerSourceInfo", "sourceInfo", `${CC}_SOURCE_INFO`], ["layerNotes", "notes", `${CC}_NOTES`],
-  ["layerSpecNotes", "specNotes", `${CC}_SPEC_NOTES`], ["featurePanels", "panels", `${CC}_PANELS`],
-  ["featureHeaderLabels", "headerLabels", `${CC}_HEADER_LABELS`],
+  ["layerManifest", "manifest", `${CC}_PACK_MANIFEST`], ["layerParamsSpec", "params", `${CC}_PACK_PARAMS`],
+  ["layerSourceInfo", "sourceInfo", `${CC}_PACK_SOURCE_INFO`], ["layerNotes", "notes", `${CC}_PACK_NOTES`],
+  ["layerSpecNotes", "specNotes", `${CC}_PACK_SPEC_NOTES`], ["featurePanels", "panels", `${CC}_PACK_PANELS`],
+  ["featureHeaderLabels", "headerLabels", `${CC}_PACK_HEADER_LABELS`],
 ];
 const LIST: Array<[string, string, string]> = [
-  ["legends", "legends", `${CC}_LEGEND_SLOTS`], ["gisClickLayers", "clicks", `${CC}_CLICK_SLOTS`], ["layerHosts", "hosts", `${CC}_HOST_SLOTS`],
+  ["legends", "legends", `${CC}_PACK_LEGEND_SLOTS`], ["gisClickLayers", "clicks", `${CC}_PACK_CLICK_SLOTS`], ["layerHosts", "hosts", `${CC}_PACK_HOST_SLOTS`],
 ];
 const exists = (f: string) => existsSync(join(PACK_ABS, `${f}.ts`)) || existsSync(join(PACK_ABS, `${f}.tsx`));
 const recs = REC.filter(([, f]) => exists(f));

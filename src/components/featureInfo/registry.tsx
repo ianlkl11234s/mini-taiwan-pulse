@@ -85,9 +85,6 @@ import { CaAdminBoundariesPanel, CaTransitStopsPanel, CaAirportsPortsPanel, CaMa
 import { IE_DATA_PANELS, IeAdminBoundariesPanel, makeIePanel } from "./iePanels";
 import { PH_DATA_PANELS, PhAdminBoundariesPanel, PhOpenaqAirPanel, PhPopulationPanel } from "./phPanels";
 import { makePhPanel } from "./intlSpecPanel";
-import { CN_DATA_PANELS, CnAdminBoundariesPanel, CnPopulationPanel } from "./cnPanels";
-import { CN_DATA_SPECS } from "../../data/cnDataLayers";
-import type { CnDataKey } from "../../data/cnDataKeys";
 import { PH_DATA_SPECS } from "../../data/phDataLayers";
 import type { PhDataKey } from "../../data/phDataKeys";
 import { VN_DATA_PANELS, VnAdminBoundariesPanel, VnPopulationPanel } from "./vnPanels";
@@ -105,7 +102,6 @@ import { IE_COILLTE_FOREST_ROADS, IE_COILLTE_RECREATION } from "../../data/ieCoi
 import { IE_DATA_SPECS } from "../../data/ieDataLayers";
 import type { IeDataKey } from "../../data/ieDataKeys";
 const IE_HEADER_LABELS = Object.fromEntries(IE_DATA_SPECS.map((s) => [s.key, `${s.title.fallback.zh} ${s.title.fallback.en}`])) as Record<IeDataKey, string>;
-const CN_HEADER_LABELS = Object.fromEntries(CN_DATA_SPECS.map((s) => [s.key, `${s.title.fallback.zh} ${s.title.fallback.en}`])) as Record<CnDataKey, string>;
 const PH_HEADER_LABELS = Object.fromEntries(PH_DATA_SPECS.map((s) => [s.key, `${s.title.fallback.zh} ${s.title.fallback.en}`])) as Record<PhDataKey, string>;
 /** 加拿大第 3–8 波（2026-11-17）：規格驅動，popup 重用 makePhPanel（自掛 SourceFooter）。 */
 const CA_WAVE_PANELS = Object.fromEntries(CA_WAVE_SPECS.map((s) => [s.key, makePhPanel(s)])) as Record<CaWaveKey, ReturnType<typeof makePhPanel>>;
@@ -532,9 +528,6 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   idRuralDevelopment: IdRuralDevelopmentPanel,
   ...ID_DATA_PANELS,
   ...CA_WAVE_PANELS,
-  cnAdminBoundaries: CnAdminBoundariesPanel,
-  cnPopulation: CnPopulationPanel,
-  ...CN_DATA_PANELS,
   ieCoillteRecreation: makeIePanel(IE_COILLTE_RECREATION),
   ieCoillteForestRoads: makeIePanel(IE_COILLTE_FOREST_ROADS),
   caTransitStops: CaTransitStopsPanel,
@@ -1264,9 +1257,6 @@ export const HEADER_LABELS = extensibleRecord("featureHeaderLabels", {
   idRuralDevelopment: "農村發展指數 Village Development Index",
   ...ID_HEADER_LABELS,
   ...CA_WAVE_HEADER_LABELS,
-  cnAdminBoundaries: "行政邊界 Administrative Boundaries",
-  cnPopulation: "人口密度 Population Density",
-  ...CN_HEADER_LABELS,
   ieCoillteRecreation: "Coillte 國有林遊憩點 Coillte Recreation",
   ieCoillteForestRoads: "Coillte 林道與步道 Coillte Forest Roads",
   caTransitStops: "公共運輸站點 Transit Stops",

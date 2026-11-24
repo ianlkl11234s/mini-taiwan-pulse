@@ -1,4 +1,4 @@
-import { slottedList } from "../countries/slots";
+import { countrySlot, slottedList } from "../countries/slots";
 import { STATISTICS_RENDER_KEYS } from '../data/regionalStatisticsRecipes';
 import { PRESENTATION_KEYS } from '../state/statisticsPresentationStore';
 import { repPointClickLayerIds } from './repPointOverlays';
@@ -880,28 +880,7 @@ export const GIS_LAYERS: GisLayerEntry[] = slottedList<GisLayerEntry>("gisClickL
   { layers: ["id-admin-kabkota-fill", "id-admin-province-fill", "id-admin-country-fill"], type: "idAdminBoundaries" },
   { layers: ["vn-population-province-fill"], type: "vnPopulation" },
   { layers: ["vn-admin-province-fill"], type: "vnAdminBoundaries" },
-  // 中國（2026-11-13 第 0–1 波，站主限定）：點、線在前，人口面、行政界最後；人口網格是 raster，不可點
-  { layers: ["cn-airports-circle", "cn-ports-circle"], type: "cnTransportHubs" },
-  { layers: ["cn-power-plants-circle"], type: "cnPowerPlants" },
-  { layers: ["cn-lng-terminals-circle", "cn-pipelines-line", "cn-pipelines-planned-line"], type: "cnPipelines" },
-  { layers: ["cn-power-substations-circle", "cn-power-lines-line"], type: "cnPowerGrid" },
-  { layers: ["cn-bus-stops-circle"], type: "cnBusStops" },
-  { layers: ["cn-major-rail-line", "cn-major-roads-line"], type: "cnMajorRoads" },
-  // 中國第 2–5 波（2026-11-16）：點、線在前，面在後；地形、養殖、土壤是 raster，不可點
-  { layers: ["cn-nuclear-plants-circle", "cn-nuclear-reactors-circle"], type: "cnNuclearPlants" },
-  { layers: ["cn-medical-circle"], type: "cnMedical" },
-  { layers: ["cn-schools-circle"], type: "cnSchools" },
-  { layers: ["cn-bridges-tunnels-circle"], type: "cnBridgesTunnels" },
-  { layers: ["cn-place-names-circle"], type: "cnPlaceNames" },
-  { layers: ["cn-dams-circle", "cn-reservoirs-fill"], type: "cnDams" },
-  { layers: ["cn-wdpa-circle", "cn-wdpa-fill"], type: "cnWdpa" },
-  { layers: ["cn-active-faults-line"], type: "cnActiveFaults" },
-  { layers: ["cn-rivers-line"], type: "cnRivers" },
-  { layers: ["cn-nature-reserves-fill"], type: "cnNatureReserves" },
-  { layers: ["cn-ethnic-autonomy-fill"], type: "cnEthnicAutonomy" },
-  { layers: ["cn-eez-fill"], type: "cnEez" },
-  { layers: ["cn-population-prefecture-fill", "cn-population-province-fill"], type: "cnPopulation" },
-  { layers: ["cn-admin-prefecture-fill", "cn-admin-province-fill"], type: "cnAdminBoundaries" },
+  countrySlot("CN", 1), // 中國國家包（src/countries/cn/）
   { layers: ["jp-admin-prefecture-fill"], type: "jpAdminPrefecture" },
   { layers: ["typhoon-agency-forecasts-points", "typhoon-agency-forecasts-line"], type: "typhoonAgencyForecast" },
   { layers: ["typhoon-tracks-current-ring", "typhoon-tracks-current-dot", "typhoon-tracks-points", "typhoon-tracks-radii-fill"], type: "typhoonTrack" },

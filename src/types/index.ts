@@ -5,7 +5,7 @@ import type { PhDataKey, PhRasterKey } from '../data/phDataKeys';
 import type { VnDataKey, VnRasterKey } from '../data/vnDataKeys';
 import type { ThDataKey, ThRasterKey } from '../data/thDataKeys';
 import type { IdDataKey, IdRasterKey } from '../data/idDataKeys';
-import type { CnDataKey, CnRasterKey } from '../data/cnDataKeys';
+import type { CnDataKey, CnRasterKey } from '../countries/cn/keys';
 import type { CaWaveKey } from '../data/caWavesKeys';
 import type { LaborStatisticsLayerKey } from '../data/laborStatisticsRecipes';
 import type { EnvironmentStatisticsLayerKey } from '../data/environmentStatisticsRecipes';

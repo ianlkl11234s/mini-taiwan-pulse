@@ -1,4 +1,4 @@
-import { slottedList } from "../countries/slots";
+import { countrySlot, slottedList } from "../countries/slots";
 import { CoralReefDistributionHost } from "./hosts/coralReefHost";
 import { HistoricalFlightTrailsHost } from "./hosts/historicalFlightHosts";
 import { AllenCoralAtlasHost } from "./hosts/allenCoralHost";
@@ -120,9 +120,6 @@ import { VnAdminHost, VnPopulationHost, VnStationsHost, VnTransportHubsHost, VnM
   VnTourAttractionsHost, VnTourNatureHost, VnTourServicesHost, VnNationalTouristAreasHost, VnPlaceNamesHost, VnBicycleRentalHost, VnBridgesHost, VnParkingHost, VnGlideEventsHost, VnDamsHost, VnRiversHost, VnWaterSupplyHost, VnWaterStructuresHost, VnRiverbankErosionHost, VnSchoolsHost, VnSchoolCampusesHost, VnKindergartensHost, VnHealthFacilitiesHost, VnPoliceHost, VnCourtsPrisonsHost, VnPostalServicesHost, VnPublicAmenitiesHost, VnFinancialServicesHost, VnPlacesOfWorshipHost, VnParksHost, VnProtectedAreasOdmHost, VnAngiangAquacultureHost, VnFieldBoundariesHost, VnSoilHost, VnFarmTracksHost, VnCoalMinesHost, VnTerrainHillshadeHost, VnTerrainReliefHost, VnLandslideSusceptibilityHost, VnWdpcaHost } from "./hosts/vietnamHosts";
 import { PhAdminHost, PhPopulationHost, PhOpenaqAirHost, PhTransportHubsHost, PhStationsHost, PhMajorRoadsHost, PhPowerPlantsHost, PhPowerGridHost, PhRenewablesHost, PhFuelStationsHost, PhPipelinesHost, PhBusStopsHost, PhUrbanRailHost, PhExpresswaysHost,
   PhTouristAttractionsHost, PhCoastIslandsHost, PhNatureSpotsHost, PhTourismServicesHost, PhTourismDevelopmentAreasHost, PhPlaceNamesHost, PhPovertyHost, PhEarthquakesHost, PhNoahFlood100yrHost, PhNoahLandslideHost, PhWaterPermitsHost, PhLakesHost, PhDamsHost, PhBridgesHost, PhParkingHost, PhKmPostsHost, PhEcozonesHost, PhReclamationHost, PhSchoolsHost, PhSchoolCampusesHost, PhHealthFacilitiesHost, PhFireStationsHost, PhNcrSafeOpenSpacesHost, PhPoliceStationsHost, PhJailsHost, PhTreesHost, PhTrailsHost, PhKbaHost, PhWetlandsHost, PhForestryProgramsHost, PhCoastalResourcesHost, PhMarineStationsHost, PhWdpcaHost, PhWasteFacilitiesHost, PhPollutionSourcesHost, PhArtsVenuesHost, PhPostOfficesHost, PhPublicFacilitiesHost, PhFinancialServicesHost, PhPlacesOfWorshipHost, PhSportsVenuesHost, PhParksHost, PhCemeteriesHost, PhFishPortsHost, PhAquacultureHost, PhTerrainHillshadeHost, PhTerrainReliefHost, PhBuiltSurfaceHost, PhForestLossHost } from "./hosts/philippinesHosts";
-import { CnAdminHost, CnPopulationHost, CnPopulationGridHost, CnBusStopsHost, CnTransportHubsHost, CnMajorRoadsHost, CnPowerPlantsHost, CnPowerGridHost, CnPipelinesHost,
-  CnEezHost, CnPlaceNamesHost, CnEthnicAutonomyHost, CnDamsHost, CnRiversHost, CnActiveFaultsHost, CnNatureReservesHost, CnWdpaHost, CnBridgesTunnelsHost, CnSchoolsHost, CnMedicalHost, CnNuclearPlantsHost, CnTerrainHost, CnAquacultureHost, CnSoilHost,
-} from "./hosts/chinaHosts";
 import { GbAdminHost, GbFuelStationsHost, GbOilGasFieldsHost, GbPowerLinesHost, GbPowerPlantsHost, GbRenewablesHost, GbSubstationsHost, GbBathingWatersHost, GbCoastalErosionHost, GbFloodDefencesHost, GbForestRecreationHost, GbHydroStationsHost, GbMarineProtectedAreasHost, GbOpenAccessLandHost, GbProtectedAreasHost, GbTrailsHost, GbTreeProtectionHost, GbWoodlandHost, GbLondonBikePointsHost, GbLondonChargingZonesHost, GbLondonJamCamsHost, GbLondonRailHost, GbMaritimeLimitsHost, GbRailReplayHost, GbOpenSpaceHost, GbRiversHost, GbTransportHubsHost } from "./hosts/ukHosts";
 
 export interface LayerHookEntry {
@@ -708,32 +705,7 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = slottedList<LayerH
   { id: "usePhTerrainReliefLayer", keys: ["phTerrainRelief"], Host: PhTerrainReliefHost },
   { id: "usePhBuiltSurfaceLayer", keys: ["phBuiltSurface"], Host: PhBuiltSurfaceHost },
   { id: "usePhForestLossLayer", keys: ["phForestLoss"], Host: PhForestLossHost },
-  // 中國（2026-11-13 第 0–1 波，站主限定私人圖磚：行政邊界、人口、人口網格、交通 3 層、能源 3 層）
-  { id: "useCnAdminLayers", keys: ["cnAdminBoundaries"], Host: CnAdminHost },
-  { id: "useCnPopulationLayers", keys: ["cnPopulation"], Host: CnPopulationHost },
-  { id: "useCnPopulationGridLayer", keys: ["cnPopulationGrid"], Host: CnPopulationGridHost },
-  { id: "useCnBusStopsLayer", keys: ["cnBusStops"], Host: CnBusStopsHost },
-  { id: "useCnTransportHubsLayer", keys: ["cnTransportHubs"], Host: CnTransportHubsHost },
-  { id: "useCnMajorRoadsLayer", keys: ["cnMajorRoads"], Host: CnMajorRoadsHost },
-  { id: "useCnPowerPlantsLayer", keys: ["cnPowerPlants"], Host: CnPowerPlantsHost },
-  { id: "useCnPowerGridLayer", keys: ["cnPowerGrid"], Host: CnPowerGridHost },
-  { id: "useCnPipelinesLayer", keys: ["cnPipelines"], Host: CnPipelinesHost },
-  // 中國第 2–5 波（2026-11-16，站主限定）：向量 12 層＋raster 3 層
-  { id: "useCnEezLayer", keys: ["cnEez"], Host: CnEezHost },
-  { id: "useCnPlaceNamesLayer", keys: ["cnPlaceNames"], Host: CnPlaceNamesHost },
-  { id: "useCnEthnicAutonomyLayer", keys: ["cnEthnicAutonomy"], Host: CnEthnicAutonomyHost },
-  { id: "useCnDamsLayer", keys: ["cnDams"], Host: CnDamsHost },
-  { id: "useCnRiversLayer", keys: ["cnRivers"], Host: CnRiversHost },
-  { id: "useCnActiveFaultsLayer", keys: ["cnActiveFaults"], Host: CnActiveFaultsHost },
-  { id: "useCnNatureReservesLayer", keys: ["cnNatureReserves"], Host: CnNatureReservesHost },
-  { id: "useCnWdpaLayer", keys: ["cnWdpa"], Host: CnWdpaHost },
-  { id: "useCnBridgesTunnelsLayer", keys: ["cnBridgesTunnels"], Host: CnBridgesTunnelsHost },
-  { id: "useCnSchoolsLayer", keys: ["cnSchools"], Host: CnSchoolsHost },
-  { id: "useCnMedicalLayer", keys: ["cnMedical"], Host: CnMedicalHost },
-  { id: "useCnNuclearPlantsLayer", keys: ["cnNuclearPlants"], Host: CnNuclearPlantsHost },
-  { id: "useCnTerrainLayer", keys: ["cnTerrain"], Host: CnTerrainHost },
-  { id: "useCnAquacultureLayer", keys: ["cnAquaculture"], Host: CnAquacultureHost },
-  { id: "useCnSoilLayer", keys: ["cnSoil"], Host: CnSoilHost },
+  countrySlot("CN", 1), // 中國國家包（src/countries/cn/）
   { id: "useCaTransitStopsLayer", keys: ["caTransitStops"], Host: CaTransitStopsHost },
   { id: "useCaAirportsPortsLayer", keys: ["caAirportsPorts"], Host: CaAirportsPortsHost },
   { id: "useCaMajorRoadsLayer", keys: ["caMajorRoads"], Host: CaMajorRoadsHost },

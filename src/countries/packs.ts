@@ -18,6 +18,7 @@ import type { CountryPack, PackListName, PackRecordName } from "./types";
 
 /** 有國家包的國家 → 動態 import。沒列的國家（TW、其他還沒搬的國家）登記一直都在，不用等。 */
 const PACK_LOADERS: Partial<Record<CountryCode, () => Promise<{ default: CountryPack }>>> = {
+  CN: () => import("./cn/pack"),
   // <codemod:pack-loaders>
 };
 

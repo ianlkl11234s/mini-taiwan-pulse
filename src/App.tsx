@@ -6,7 +6,7 @@ import { recordSelectionClick, selectionRingAccent, SELECTION_RING_ACCENT_VAR } 
 import { createTimelineControl, type ShipDateAvailability, type TimelineActions, type TimelineSnapshot } from "./research/timelineControl";
 import { useAllenCoralPrivateAccess } from "./hooks/useAllenCoralPrivateAccess";
 import { OWNER_PMTILES_ACCESS_DENIED_EVENT } from "./hooks/useOwnerPmtilesAccess";
-import { CN_ACCESS_DENIED_EVENT, CN_ALL_LAYER_KEYS } from "./data/cnDataKeys";
+import { CN_ACCESS_DENIED_EVENT, CN_ALL_LAYER_KEYS } from "./countries/cn/keys";
 import { JP_WATER_ACCESS_DENIED_EVENT, useJpWaterPrivateAccess } from "./hooks/useJpWaterPrivateAccess";
 import { isJpWaterPrivateLayer, JP_WATER_PRIVATE_LAYER_KEYS } from "./data/jpWaterTypes";
 import { useSoilLiquefactionPrivateAccess } from "./hooks/useSoilLiquefactionPrivateAccess";

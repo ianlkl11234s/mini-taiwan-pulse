@@ -1,12 +1,12 @@
 // 中國 Layer Host（2026-11-13 第 0–1 波，站主限定）。比照 hosts/philippinesHosts.tsx：一個 key 一個 Host；
 // 私人圖磚的存取判斷在 hook 內（useCnPrivateAccess），沒有權限就不掛 source。
 
-import { cnPlantScopeFilter, cnPlantStatusFilter, useCnAdminLayers, useCnDataLayer, useCnPopulationGridLayer, useCnPopulationLayers, useCnRasterLayer } from "../../hooks/useCnLayers";
-import { CN_RASTER_SPEC_BY_KEY, CN_SPEC_BY_KEY } from "../../data/cnDataLayers";
-import type { CnDataKey, CnRasterKey } from "../../data/cnDataKeys";
+import { cnPlantScopeFilter, cnPlantStatusFilter, useCnAdminLayers, useCnDataLayer, useCnPopulationGridLayer, useCnPopulationLayers, useCnRasterLayer } from "./useCnLayers";
+import { CN_RASTER_SPEC_BY_KEY, CN_SPEC_BY_KEY } from "./cnDataLayers";
+import type { CnDataKey, CnRasterKey } from "./keys";
 import { gbAllOf } from "../../hooks/intlPmtilesLayers";
-import { bumpHostRender, type LayerHostComponent } from "../layerHostDeps";
-import { useKeyOverlayParams } from "../layerParamsAccess";
+import { bumpHostRender, type LayerHostComponent } from "../../layers/layerHostDeps";
+import { useKeyOverlayParams } from "../../layers/layerParamsAccess";
 
 /** 行政邊界：省級、地級兩層級（同一個私人 PMTiles，select 切換）。 */
 export const CnAdminHost: LayerHostComponent = ({ deps }) => {

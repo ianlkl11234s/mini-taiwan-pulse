@@ -1,0 +1,22 @@
+// ⚠️ 自動產生（move-country-pack.ts，依索引的 popup 欄位）：這國搬進國家包的 popup 類型，HEADER_LABELS 的完整性型別用。
+export type CnPopupType =
+  | "cnActiveFaults"
+  | "cnAdminBoundaries"
+  | "cnBridgesTunnels"
+  | "cnBusStops"
+  | "cnDams"
+  | "cnEez"
+  | "cnEthnicAutonomy"
+  | "cnMajorRoads"
+  | "cnMedical"
+  | "cnNatureReserves"
+  | "cnNuclearPlants"
+  | "cnPipelines"
+  | "cnPlaceNames"
+  | "cnPopulation"
+  | "cnPowerGrid"
+  | "cnPowerPlants"
+  | "cnRivers"
+  | "cnSchools"
+  | "cnTransportHubs"
+  | "cnWdpa";

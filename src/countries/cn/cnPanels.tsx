@@ -1,15 +1,15 @@
 // 中國圖層 popup（2026-11-13 第 0–1 波，站主限定）。規格與署名 SSOT 在 data/cnDataLayers.ts；規格驅動層沿用菲律賓 makePhPanel。
 // 來源與授權由 panel 自掛 SourceFooter（FOOTER_SELF_MANAGED）。空值列由 Row 自動隱藏，不寫 0。
 import type { FC } from "react";
-import { Row, SourceFooter, Title } from "./shared";
+import { Row, SourceFooter, Title } from "../../components/featureInfo/shared";
 import { useLocale } from "../../state/localeStore";
 import { caText } from "../../data/intlLayerShared";
 import {
   CN_ADMIN_COLOR, CN_ADMIN_SOURCE, CN_DATA_SPECS, CN_FETCHED_AT, CN_NOT_COVERED_COLOR, CN_POPULATION_SOURCE, CN_UNIT_TYPE,
   asPhSpec, pickL3, type L3,
-} from "../../data/cnDataLayers";
-import type { CnDataKey } from "../../data/cnDataKeys";
-import { makePhPanel } from "./intlSpecPanel";
+} from "./cnDataLayers";
+import type { CnDataKey } from "./keys";
+import { makePhPanel } from "../../components/featureInfo/intlSpecPanel";
 
 type P = { props: Record<string, unknown> };
 const LEVEL: Record<string, L3> = { province: { zh: "省級", en: "Province-level", ja: "省級" }, prefecture: { zh: "地級", en: "Prefecture-level", ja: "地級" } };

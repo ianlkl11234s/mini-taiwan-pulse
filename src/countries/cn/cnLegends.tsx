@@ -1,7 +1,7 @@
 // 中國圖例（2026-11-13 第 0–1 波、11-16 第 2–5 波，站主限定）：行政邊界、人口密度（未涵蓋＝灰）、人口網格（模型值）、規格驅動 6 層。SSOT：data/cnDataLayers.ts。
 import type { ReactNode } from "react";
-import { LegendNote, LegendRow, LegendSizeRow, LegendTitle, SwatchDot, SwatchLine, SwatchSquare, useLegendTheme, LegendRestrictions } from "./legendKit";
-import { DenseHeatmapLegendRow } from "./legendShared";
+import { LegendNote, LegendRow, LegendSizeRow, LegendTitle, SwatchDot, SwatchLine, SwatchSquare, useLegendTheme, LegendRestrictions } from "../../components/legend/legendKit";
+import { DenseHeatmapLegendRow } from "../../components/legend/legendShared";
 import { LAYER_MANIFEST, type LayerName } from "../../data/layerManifest";
 import { localizeLayerName } from "../../i18n/layerText";
 import { useLocale } from "../../state/localeStore";
@@ -9,10 +9,10 @@ import { BOUNDARY_GRAY, LINE_WIDTH } from "../../map/mapStyleScale";
 import {
   CN_ADMIN_NOTES, CN_DENSITY_LABELS, CN_GRID_LEGEND, CN_GRID_NOTES, CN_NOT_COVERED_COLOR, CN_POPULATION_NOTES,
   CN_RASTER_SPEC_BY_KEY, CN_SPEC_BY_KEY, pickL3, type CnLayerSpec,
-} from "../../data/cnDataLayers";
+} from "./cnDataLayers";
 import { type PhCat } from "../../data/intlLayerShared";
-import type { CnDataKey, CnRasterKey } from "../../data/cnDataKeys";
-import { cnDensityColors } from "../../hooks/useCnLayers";
+import type { CnDataKey, CnRasterKey } from "./keys";
+import { cnDensityColors } from "./useCnLayers";
 
 function useLayerTitle(key: string): string {
   const i18n = useLocale();

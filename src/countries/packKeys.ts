@@ -5,8 +5,12 @@
  * codemod（scripts/layers/move-country-pack.ts）搬新國家時會在這裡加一行。
  */
 
+import type { CnLayerKey } from "./cn/keys";
 export type PackLayerKey =
-  | never;
+  | never
+  | CnLayerKey;
 
+import type { CnPopupType } from "./cn/popupTypes";
 export type PackPopupType =
-  | never;
+  | never
+  | CnPopupType;

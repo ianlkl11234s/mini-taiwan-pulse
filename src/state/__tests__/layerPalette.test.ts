@@ -17,6 +17,10 @@ import type { LayerVisibility } from "../../types";
 import { applyLayerControl, describeLayerControls } from "../../research/layerControls";
 import { captureSceneParams, resolveSceneRestore } from "../../lib/memberSceneAdapter";
 import type { MemberSceneSnapshot } from "../../lib/memberSchema";
+import { loadAllPacks } from "../../countries/packs";
+
+// 全部圖層（含延後載入的國家包，B1 P5a）一起驗
+await loadAllPacks();
 
 afterEach(() => layerParamsStore.reset());
 
