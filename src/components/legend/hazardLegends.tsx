@@ -1,6 +1,7 @@
 // Legend sub-components (hazardLegends) — moved verbatim out of LegendPanel.tsx; registry wiring stays in LegendPanel.tsx (LEGEND_REGISTRY).
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { timeStore } from "../../state/timeStore";
+import { summarizeGlobalEventCounts } from "../../data/globalEventsPresentation";
 import { activeAgencyVersions, fetchTyphoonAgencyForecasts, groupAgencyTracks, subscribeTyphoonAgencyForecastsRefresh, type AgencyForecastTrack } from "../../data/typhoonAgencyForecastsLoader";
 import { TYPHOON_AGENCIES, TYPHOON_AGENCY_COLORS, TYPHOON_AGENCY_LABELS, TYPHOON_GALE_COLOR, TYPHOON_STORM_COLOR } from "../../data/typhoonTypes";
 import { useLocale } from "../../state/localeStore";
@@ -621,22 +622,12 @@ function GlobalEventsStatus() {
   const i18n = useLocale();
   const view = useSyncExternalStore(globalEventsViewStore.subscribe, globalEventsViewStore.getSnapshot, globalEventsViewStore.getSnapshot);
   if (view.status === "idle") return null;
-  const mapped = new Set<string>();
-  const unlocated = new Set<string>();
-  let latest = -Infinity;
   const noiseHidden = view.noiseHidden ?? 0;
-  for (const entry of view.entries) {
-    // 藏起來的雜訊只從「地圖上」扣掉；未定位的雜訊本來就只在 INTEL 列表，照算。
-    if (noiseHidden > 0 && entry.decision === "drop_noise" && entry.coordinates && !entry.mapSuppressed) continue;
-    (entry.coordinates && !entry.mapSuppressed ? mapped : unlocated).add(entry.eventId);
-    const available = Date.parse(entry.availableAt ?? entry.publishedAt ?? "");
-    if (Number.isFinite(available) && available > latest) latest = available;
-  }
-  for (const id of mapped) unlocated.delete(id);
+  const { mapped, unlocated, latest } = summarizeGlobalEventCounts(view.entries, noiseHidden);
   return (
     <LegendNote style={{ marginTop: 4, color: t.textDim }}>
       {view.status === "loading" && view.entries.length === 0 ? null
-        : i18n.t("legend.hazard.globalStatus", { mapped: mapped.size, unlocated: unlocated.size })}
+        : i18n.t("legend.hazard.globalStatus", { mapped, unlocated })}
       {Number.isFinite(latest) ? <><br />{i18n.t("legend.hazard.globalLatest", {
         time: i18n.formatDateTime(new Date(latest), { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false }),
         hours: Math.max(0, Math.round((Date.now() - latest) / 3_600_000)),

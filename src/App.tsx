@@ -92,6 +92,8 @@ import { DataSourcePanel } from "./components/sidebar/DataSourcePanel";
 import { LayerSidebar } from "./components/LayerSidebar";
 import { IconRailSidebar } from "./components/IconRailSidebar";
 import { showPlaceSearchResult } from "./map/placeSearchMarker";
+import { createPlaceMarkerSlot } from "./map/placeMarkerSlot";
+import { clearOwnerAddressCache } from "./data/addressOwnerLoader";
 import type { PlaceSearchHit } from "./lib/placeSearch";
 import { IntelPanel } from "./components/intel/IntelPanel";
 import { MonitorPanel } from "./components/intel/monitor/MonitorPanel";
@@ -2006,12 +2008,18 @@ export default function App() {
   }, [timelineSeek, timelineSetSpeed, timelinePlay, setLayerVisibility]);
 
   // 側欄地點搜尋：飛過去＋暫時標記；null＝移除標記（再搜尋或關閉 Locations 面板）
-  const placeMarkerCleanupRef = useRef<(() => void) | null>(null);
-  const handlePlacePick = useCallback((place: PlaceSearchHit | null) => {
-    placeMarkerCleanupRef.current?.();
-    placeMarkerCleanupRef.current = null;
-    if (place && mapRef.current) placeMarkerCleanupRef.current = showPlaceSearchResult(mapRef.current, place, isDarkThemeRef.current);
-  }, []);
+  const placeMarkerSlot = useMemo(
+    () => createPlaceMarkerSlot((place) => (mapRef.current ? showPlaceSearchResult(mapRef.current, place, isDarkThemeRef.current) : null)),
+    [],
+  );
+  const handlePlacePick = useCallback((place: PlaceSearchHit | null) => placeMarkerSlot.set(place), [placeMarkerSlot]);
+  // 站主版私人地址：撤權（登出、失去站主權限）時清掉快取與已選的私人標記。
+  // 放在常駐的 App：搜尋面板選完就卸載，hook 內的 effect 已不在了（review L1）。
+  useEffect(() => {
+    if (isOwner) return;
+    clearOwnerAddressCache();
+    placeMarkerSlot.revokePrivate();
+  }, [isOwner, placeMarkerSlot]);
 
   // EM-03 深連結：套用網址指定的圖層與日期。**只跑一次**（deps 空陣列）——
   // 相機走 preset 那條路，這裡只處理 setter 型的狀態。
