@@ -10,7 +10,8 @@
  *   也不可靠（「畜牧 Livestock」、雨量站在「點位」）。`topics` 的「即時」是唯一同時涵蓋
  *   運具、雨量、河川水位、雷達、警示的既有欄位；已知缺口：垃圾車班表三層只在子群名寫「即時」。
  */
-import { LAYER_MANIFEST, type ManifestKey } from "./layerManifest";
+import type { ManifestKey } from "./layerManifest";
+import { allLayerKeys, getLayerEntry, layerIsLive, layerLongTermKindOf } from "./layerLookup";
 import type { LongTermKind, LongTermSpec } from "./layerLongTerm";
 
 /** 時間條已實作的類別（其餘類別先不接，元件依 kind 分派時留好擴充點）。 */
@@ -19,27 +20,24 @@ export const LONG_TERM_BAR_KINDS: ReadonlySet<LongTermKind> = new Set<LongTermKi
 /** 已接上時間條資料的圖層（各層的讀檔與地圖接線另寫；見 components/longTermBar/adapters）。 */
 export const LONG_TERM_BAR_ADAPTERS: ReadonlySet<ManifestKey> = new Set<ManifestKey>(["fireEvents"]);
 
-type Entry = { topics: readonly string[]; longTerm?: LongTermSpec };
-const entryOf = (key: string): Entry | undefined => (LAYER_MANIFEST as unknown as Record<string, Entry>)[key];
-
+/** 完整規格（細節分層等）只在 manifest；外國圖層 P5 後要等國家包。索引只提供類別與旗標。 */
 export function longTermSpecOf(key: string): LongTermSpec | null {
-  return entryOf(key)?.longTerm ?? null;
+  return getLayerEntry(key)?.longTerm ?? null;
 }
 
 /** 這層有長期時間條可用（類別已實作且資料已接線）。 */
 export function hasLongTermBar(key: string): boolean {
-  const spec = longTermSpecOf(key);
-  return !!spec && LONG_TERM_BAR_KINDS.has(spec.kind) && LONG_TERM_BAR_ADAPTERS.has(key as ManifestKey);
+  const kind = layerLongTermKindOf(key);
+  return !!kind && LONG_TERM_BAR_KINDS.has(kind as LongTermKind) && LONG_TERM_BAR_ADAPTERS.has(key as ManifestKey);
 }
 
 /** 依即時時間軸運作的圖層（判斷依據見檔頭）。 */
 export function isLiveTimelineLayer(key: string): boolean {
-  const e = entryOf(key);
-  return !!e && !e.longTerm && e.topics.includes("即時");
+  return layerIsLive(key);
 }
 
 /** 有時間條的長期圖層清單（manifest 順序）。 */
-export const LONG_TERM_BAR_KEYS: readonly ManifestKey[] = (Object.keys(LAYER_MANIFEST) as ManifestKey[]).filter(hasLongTermBar);
+export const LONG_TERM_BAR_KEYS: readonly ManifestKey[] = (allLayerKeys() as ManifestKey[]).filter(hasLongTermBar);
 
 /** 即時圖層清單（manifest 順序）。 */
-export const LIVE_TIMELINE_KEYS: readonly ManifestKey[] = (Object.keys(LAYER_MANIFEST) as ManifestKey[]).filter(isLiveTimelineLayer);
+export const LIVE_TIMELINE_KEYS: readonly ManifestKey[] = (allLayerKeys() as ManifestKey[]).filter(isLiveTimelineLayer);

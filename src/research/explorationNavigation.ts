@@ -1,6 +1,6 @@
 import { STATISTICS_TAB_CHOROPLETH_LAYER_KEYS, THEMES } from "../components/sidebar/layerCatalog";
-import { LAYER_MANIFEST, type LayerManifestEntry, type ManifestKey } from "../data/layerManifest";
-import { isCountryCode, type CountryCode } from "../constants/countries";
+import { allLayerKeys, layerCountryOf } from "../data/layerLookup";
+import type { CountryCode } from "../constants/countries";
 
 export type ExplorationPanel = "layers" | "statistics" | "world" | "simulation";
 
@@ -44,12 +44,9 @@ const simulationKeys = keysForThemes(THEMES.filter(theme => theme.country === "S
  * 只收 THEMES 裡實際上架的圖層。
  */
 const countryByKey = new Map<string, CountryCode>();
-for (const theme of THEMES) {
-  for (const group of theme.groups) for (const layer of group.layers) {
-    const entry: LayerManifestEntry | undefined = LAYER_MANIFEST[layer.key as ManifestKey];
-    const country = entry?.country;
-    if (isCountryCode(country) && !countryByKey.has(layer.key)) countryByKey.set(layer.key, country);
-  }
+for (const key of allLayerKeys()) {
+  const country = layerCountryOf(key);
+  if (country) countryByKey.set(key, country);
 }
 
 /** 第一個屬於國家主題樹的圖層所屬國（世界、統計以外）；都不是回 undefined。 */

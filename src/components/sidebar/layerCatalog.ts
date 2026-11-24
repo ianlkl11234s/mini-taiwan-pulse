@@ -33,9 +33,10 @@ import { GB_STATISTICS_DATA_THEME_TITLES, GB_STATISTICS_TAB_THEME_TITLES, KR_STA
 // ── Color Config ──
 
 import {
-  LAYER_MANIFEST, manifestColors,
+  LAYER_MANIFEST,
   type ManifestKey, type LayerManifestEntry, type LayerName, type LayerCountry,
 } from "../../data/layerManifest";
+import { layerColorTable, layerGatedKeys } from "../../data/layerLookup";
 
 /**
  * 手寫色票殘量 —— **AR-22 Phase 2 完成後為空**（348/348 全部由 layerManifest 派生）。
@@ -70,7 +71,7 @@ const HANDWRITTEN_LAYER_COLORS: Omit<Record<keyof LayerVisibility, string>, Mani
  */
 export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   ...HANDWRITTEN_LAYER_COLORS,
-  ...manifestColors(),
+  ...layerColorTable(),
 };
 
 // ── Transport Labels ──
@@ -5102,9 +5103,7 @@ export function layerDisplayName(key: string, fallback?: string): LayerName {
 //      embedWhitelist／urlState／layerGates 的測試照舊以本 Set 為錨。
 //    - 新增站主限定圖層：在 manifest topics 加 "OWNER_ONLY"，同步更新上述釘死清單與 gis-platform gated_layers。
 export const GATED_LAYERS: ReadonlySet<keyof LayerVisibility> = new Set<keyof LayerVisibility>(
-  (Object.values(LAYER_MANIFEST) as LayerManifestEntry[])
-    .filter((entry) => entry.topics.includes("OWNER_ONLY"))
-    .map((entry) => entry.key as keyof LayerVisibility),
+  layerGatedKeys() as (keyof LayerVisibility)[],
 );
 
 /**
