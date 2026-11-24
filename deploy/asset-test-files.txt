@@ -104,9 +104,15 @@ public/geo/disaster_resource_sites.geojson
 public/geo/emergency_hospitals.geojson
 public/geo/etc_gantry.geojson
 public/geo/fireworks_sites_7070_v2.pmtiles
+public/geo/freeway_eco_friendly_facilities_20261124.pmtiles
 public/geo/freeway_eco_sensitive_sections.geojson
+public/geo/freeway_eco_survey_fauna_20261124.pmtiles
+public/geo/freeway_eco_survey_flora_20261124.pmtiles
 public/geo/freeway_hundred_meter_stakes_95016.pmtiles
 public/geo/freeway_interchanges.geojson
+public/geo/freeway_roadkill_records_20261124.pmtiles
+public/geo/freeway_roadside_devices_20261124.pmtiles
+public/geo/freeway_special_sections_20261124.pmtiles
 public/geo/freeway_traffic_signs_v2.pmtiles
 public/geo/historical_water_1944_taipei.geojson
 public/geo/internet_exchange_points.geojson
