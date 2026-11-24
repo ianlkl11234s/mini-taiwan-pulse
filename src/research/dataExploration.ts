@@ -1,6 +1,6 @@
 import { describeRegisteredLayer } from "./registeredLayerReader";
 import { LAYER_MANIFEST, type ManifestKey } from "../data/layerManifest";
-import { LAYER_SEARCH_INDEX } from "../lib/layerSearch";
+import { getLayerSearchIndex } from "../lib/layerSearch";
 import { RESEARCH_QUERY_EXECUTOR, describeDataset } from "./researchDatasets";
 import { searchScore } from "./researchSearch";
 import type { DiscoveryContext } from "./discovery";
@@ -39,7 +39,7 @@ export async function exploreData(args: { query: string; offset?: number; limit?
   const { query, offset = 0, limit = 5, probe = false } = args;
   if (typeof query !== "string" || query.length > 200 || !Number.isInteger(offset) || offset < 0 || offset > 10000 || !Number.isInteger(limit) || limit < 1 || limit > 10 || typeof probe !== "boolean") throw new Error("INVALID_INPUT");
   const descriptors = RESEARCH_QUERY_EXECUTOR.descriptors();
-  const scored = LAYER_SEARCH_INDEX.map(item => ({ item, score: searchScore(query, `${item.key} ${item.label} ${item.description} ${item.topics.join(" ")} ${item.aliases.join(" ")}`) }))
+  const scored = getLayerSearchIndex().map(item => ({ item, score: searchScore(query, `${item.key} ${item.label} ${item.description} ${item.topics.join(" ")} ${item.aliases.join(" ")}`) }))
     .filter(item => item.score > 0).sort((a, b) => b.score - a.score || a.item.key.localeCompare(b.item.key));
   // Group physical sources so six display variants cannot crowd out independent data.
   const grouped = new Map<string, { keys: ManifestKey[]; score: number }>();
