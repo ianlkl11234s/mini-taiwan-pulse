@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import { useIeAdminLayers } from "../../hooks/useIeAdminLayers";
 import { useIeBathymetryLayer } from "../../hooks/useIeBathymetryLayer";
-import { useKrDataLayer } from "../../hooks/useKrDataLayers";
+import { useKrDataLayer } from "../../hooks/intlKrSpecLayers";
 import { useIeCoillteForestRoadsLayer, useIeCoillteLayer } from "../../hooks/useIeCoillteLayers";
 import { IE_SPEC_BY_KEY, ieFloodScenarioFileAt, ieGwFloodFileAt, ieNoiseMetricFileAt } from "../../data/ieDataLayers";
 import { asKrSpec } from "../../data/intlSpecBridge";

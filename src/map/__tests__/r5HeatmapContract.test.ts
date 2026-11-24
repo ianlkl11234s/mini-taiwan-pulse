@@ -168,24 +168,24 @@ const HOOK_DENSE: readonly (readonly [string, string, number])[] = [
   ["gbPlacesOfWorship", "useGbOsmLayers.ts", 42_113],
   // 綠地三層：細節是面（z9／z10 起）或代表點（§3.8 V-5 點／面切換），熱區用 representative_point 檔；
   // 熱區由 useGbWaterLayers 的共用 useGbRepPointLayers 建（2026-10-31）；運動場地不含高爾夫球場（獨立圖層 gbGolfCourses，< 1 萬點不畫熱區）
-  ["gbGreenspace", "useGbWaterLayers.ts", 80_918],
-  ["gbSportsFacilities", "useGbWaterLayers.ts", 51_872],
-  ["gbCemeteries", "useGbWaterLayers.ts", 30_208],
+  ["gbGreenspace", "intlPmtilesLayers.ts", 80_918],
+  ["gbSportsFacilities", "intlPmtilesLayers.ts", 51_872],
+  ["gbCemeteries", "intlPmtilesLayers.ts", 30_208],
   // 規劃限制區、樹木保護（§3.8 2026-10-31，#784）：低縮放熱區用代表點檔，熱區與點由共用 useGbRepPointLayers 建（count 同 hook 傳入值）
-  ["gbPlanningConstraints", "useGbWaterLayers.ts", 18_727],
-  ["gbTreeProtection", "useGbWaterLayers.ts", 502_408],
+  ["gbPlanningConstraints", "intlPmtilesLayers.ts", 18_727],
+  ["gbTreeProtection", "intlPmtilesLayers.ts", 502_408],
   // 森林遊憩設施：gb_forest_recreation_v2（z5 起重切）z<10 熱區、z10 起點；出點縮放寫成常數 GB_RECREATION_MINZOOM（另測與 densePointsFromZoom 一致）
   ["gbForestRecreation", "useGbNatureLayers.ts", 24_487],
   // 南韓（2026-10-31 V-1 全國視角可見性）：橋梁／停車場 z10 起畫點（使用者拍板）；其餘為使用者點名 <1 萬或既有 minzoom 較高者
   ["krBusStops", "useKrTransportLayers.ts", 227_059],
   ["krFuelStations", "useKrEnergyLayers.ts", 7_106],
-  ["krPublicBicycleStations", "useKrDataLayers.ts", 4_236],
-  ["krCoastalErosionFacilities", "useKrDataLayers.ts", 1_982],
-  ["krBridges", "useKrDataLayers.ts", 35_575],
-  ["krParkingLots", "useKrDataLayers.ts", 17_699],
-  ["krSpeedCameras", "useKrDataLayers.ts", 43_743],
-  ["krChildProtectionZones", "useKrDataLayers.ts", 14_639],
-  ["krStreetTrees", "useKrDataLayers.ts", 1_043_931], // 低縮放熱區用 kr_street_trees_density 格網（weight＝count），z13 起單棵
+  ["krPublicBicycleStations", "intlKrSpecLayers.ts", 4_236],
+  ["krCoastalErosionFacilities", "intlKrSpecLayers.ts", 1_982],
+  ["krBridges", "intlKrSpecLayers.ts", 35_575],
+  ["krParkingLots", "intlKrSpecLayers.ts", 17_699],
+  ["krSpeedCameras", "intlKrSpecLayers.ts", 43_743],
+  ["krChildProtectionZones", "intlKrSpecLayers.ts", 14_639],
+  ["krStreetTrees", "intlKrSpecLayers.ts", 1_043_931], // 低縮放熱區用 kr_street_trees_density 格網（weight＝count），z13 起單棵
   // 加拿大（2026-11-04 第 0＋1 波）：公共運輸站點低縮放用 ca_transit_stops_grid 格網（weight＝count），z12 起單點；油氣井與 ODI 設施 z10 起畫點
   ["caTransitStops", "useCaTransportLayers.ts", 133_029],
   ["caOilGas", "useCaEnergyLayers.ts", 96_466],
@@ -221,7 +221,7 @@ describe("R5 hook 密集點全面套用", () => {
   });
 
   it("規劃限制區、樹木保護：代表點層的熱區／點透明度由 useGbRepPointLayers 依點數換算", () => {
-    const src = fs.readFileSync(path.resolve(__dirname, "../../hooks/useGbWaterLayers.ts"), "utf8");
+    const src = fs.readFileSync(path.resolve(__dirname, "../../hooks/intlPmtilesLayers.ts"), "utf8");
     expect(src).toContain("densePointOpacity(spec.count) * rel");
   });
 });

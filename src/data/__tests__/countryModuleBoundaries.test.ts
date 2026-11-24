@@ -95,48 +95,20 @@ function crossCountryEdges(): string[] {
 }
 
 /**
- * 暫時切不掉的邊（只能減不能增）。
- * 原因：各國 hook 共用英國水文檔 `useGbWaterLayers.ts` 裡的通用 PMTiles／熱區建構器（useGbPmtilesLayers、gbMaskFilter 等，
- * 名稱叫 Gb 但實際是 20 個檔共用的 helper），菲律賓 hook `usePhLayers.ts` 裡的規格驅動 hook 被中、泰、越、加重用；
- * 搬家要動約 20 個 hook／host 檔，超過 P2 停損（設計 §7 停損點 1），留給 P5 與各國包一起搬。
- * 解法方向：把 helper 搬進中性的 `hooks/intlPmtilesLayers.ts`、`hooks/intlSpecDataLayer.ts`，再逐筆刪除下列項目。
+ * 暫時切不掉的邊（只能減不能增）。目前為 0：各國 hook 共用的建構器已搬到 hooks/intlPmtilesLayers.ts、
+ * 規格驅動引擎搬到 hooks/intlPhSpecLayers.ts、hooks/intlKrSpecLayers.ts（B1 P2b）。
+ * 之後若真的切不掉，寫在這裡並註明原因。
  */
-const KNOWN_EXEMPTIONS: readonly string[] = [
-  "hooks/useCaAreaLayers.ts -> hooks/useGbWaterLayers.ts",
-  "hooks/useCaEnergyLayers.ts -> hooks/useGbWaterLayers.ts",
-  "hooks/useCaEnvLayers.ts -> hooks/useGbWaterLayers.ts",
-  "hooks/useCaTerrainLayers.ts -> hooks/useGbWaterLayers.ts",
-  "hooks/useCaTransportLayers.ts -> hooks/useGbWaterLayers.ts",
-  "hooks/useCnLayers.ts -> hooks/useGbWaterLayers.ts",
-  "hooks/useCnLayers.ts -> hooks/usePhLayers.ts",
-  "hooks/useIdLayers.ts -> hooks/useGbWaterLayers.ts",
-  "hooks/useIeBathymetryLayer.ts -> hooks/useGbWaterLayers.ts",
-  "hooks/useJpInlandFloodAreasLayer.ts -> hooks/useGbWaterLayers.ts",
-  "hooks/useJpLandslideWarningAreasLayer.ts -> hooks/useGbWaterLayers.ts",
-  "hooks/useJpNationalForestsLayer.ts -> hooks/useGbWaterLayers.ts",
-  "hooks/useJpTourismLayers.ts -> hooks/useGbWaterLayers.ts",
-  "hooks/useJpZoningUseDistrictsLayer.ts -> hooks/useGbWaterLayers.ts",
-  "hooks/useKrDataLayers.ts -> hooks/useGbWaterLayers.ts",
-  "hooks/useKrEcoWasteLayers.ts -> hooks/useGbWaterLayers.ts",
-  "hooks/useKrEnergyLayers.ts -> hooks/useGbWaterLayers.ts",
-  "hooks/useKrTransportLayers.ts -> hooks/useGbWaterLayers.ts",
-  "hooks/usePhLayers.ts -> hooks/useGbWaterLayers.ts",
-  "hooks/useThLayers.ts -> hooks/useGbWaterLayers.ts",
-  "hooks/useVnLayers.ts -> hooks/useGbWaterLayers.ts",
-  "layers/hosts/canadaHosts.tsx -> hooks/useGbWaterLayers.ts",
-  "layers/hosts/canadaHosts.tsx -> hooks/usePhLayers.ts",
-  "layers/hosts/chinaHosts.tsx -> hooks/useGbWaterLayers.ts",
-  "layers/hosts/indonesiaHosts.tsx -> hooks/usePhLayers.ts",
-  "layers/hosts/irelandHosts.tsx -> hooks/useKrDataLayers.ts",
-  "layers/hosts/thailandHosts.tsx -> hooks/usePhLayers.ts",
-  "layers/hosts/vietnamHosts.tsx -> hooks/usePhLayers.ts",
-];
+const KNOWN_EXEMPTIONS: readonly string[] = [];
 
 /** 中性共用檔：自己不能 import 任何國家模組（否則不算中性）。 */
 const NEUTRAL_FILES: readonly string[] = [
   "data/intlLayerShared.ts",
   "components/featureInfo/intlSpecPanel.tsx",
   "components/legend/intlSpecLegend.tsx",
+  "hooks/intlPmtilesLayers.ts",
+  "hooks/intlPhSpecLayers.ts",
+  "hooks/intlKrSpecLayers.ts",
   "data/atlasStatisticsRecipes.ts", // 外國配方只經由 atlasCountryFamilies（登記處）進來
 ];
 

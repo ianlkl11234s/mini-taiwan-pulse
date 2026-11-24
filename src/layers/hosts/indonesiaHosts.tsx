@@ -1,6 +1,6 @@
 // 印尼 Layer Host（2026-11-23 第 0–4 波）。比照 hosts/thailandHosts.tsx：一個 key 一個 Host；規格驅動層重用 usePhDataLayer。
 
-import { usePhDataLayer } from "../../hooks/usePhLayers";
+import { usePhDataLayer } from "../../hooks/intlPhSpecLayers";
 import { useIdAdminLayers, useIdPopulationLayers, useIdRasterLayer, useIdRuralDevelopmentLayers } from "../../hooks/useIdLayers";
 import { ID_RASTER_BY_KEY } from "../../data/idWavesLayers";
 import { ID_SPEC_BY_KEY } from "../../data/idDataLayers";

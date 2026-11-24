@@ -11,7 +11,7 @@ import {
   CA_SUBSTATION_COLOR, CA_SUBSTATIONS_FROM_ZOOM, CA_WIND_COLOR, CA_WIND_SOURCE, type CaOilGasPart,
 } from "../data/caInfraTypes";
 import { caCatColor, caCatFilter } from "./useCaTransportLayers";
-import { gbHeatmapBuild, useGbPmtilesLayers, type LayerBuild, type SourceSpec } from "./useGbWaterLayers";
+import { gbHeatmapBuild, useGbPmtilesLayers, type LayerBuild, type SourceSpec } from "./intlPmtilesLayers";
 
 /**
  * 加拿大第 1 波能源 4 層（C086 電廠、C088 風機、C087 電網、C090 油氣）＋人口中心（C022）。靜態 PMTiles、不訂閱時間。

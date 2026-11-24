@@ -8,7 +8,7 @@ import {
   KR_CAPACITY_BANDS, KR_FALLBACK_COLOR, KR_FUEL_GROUPS, KR_FUEL_STATIONS_ATTRIBUTION, KR_FUEL_TYPES, KR_OIL_GAS_TYPES, KR_OSM_ATTRIBUTION,
   KR_PIPELINE_COLORS, KR_PLANT_FUELS, KR_RENEWABLE_FUELS, KR_TOWERS_COLOR, KR_TOWERS_MINZOOM, KR_VOLTAGE_CLASSES,
 } from "../data/krInfraTypes";
-import { gbHeatmapBuild, useGbPmtilesLayers, type SourceSpec } from "./useGbWaterLayers";
+import { gbHeatmapBuild, useGbPmtilesLayers, type SourceSpec } from "./intlPmtilesLayers";
 
 /**
  * 南韓第 1 波能源：燃料站（點，4 類）、電廠（點）、再生能源（點）、電網線／變電所／鐵塔（同一個 PMTiles，三個 key 各自呼叫

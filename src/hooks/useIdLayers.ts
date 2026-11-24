@@ -8,7 +8,7 @@ import {
   phText, type IdAdminLevel, type IdLevel2,
 } from "../data/idDataLayers";
 import type { IdRasterSpec } from "../data/idWavesLayers";
-import { useGbPmtilesLayers, type SourceSpec } from "./useGbWaterLayers";
+import { useGbPmtilesLayers, type SourceSpec } from "./intlPmtilesLayers";
 
 /**
  * 印尼第 0–3 波（2026-11-23）：行政邊界（國界／省／縣市）、人口、農村發展指數 IDM（省／縣市兩層級 select）與 5 張 raster。靜態 PMTiles、不訂閱時間。

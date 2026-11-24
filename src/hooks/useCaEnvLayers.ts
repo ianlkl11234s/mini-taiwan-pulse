@@ -10,7 +10,7 @@ import {
   CA_RADIATION_COLOR, CA_RADIATION_SOURCE, CA_WSER_BANDS, CA_WSER_SOURCE, CA_WSER_STATUSES,
 } from "../data/caEnvTypes";
 import { caCatColor, caCatFilter } from "./useCaTransportLayers";
-import { gbHeatmapBuild, useGbPmtilesLayers, type LayerBuild, type SourceSpec } from "./useGbWaterLayers";
+import { gbHeatmapBuild, useGbPmtilesLayers, type LayerBuild, type SourceSpec } from "./intlPmtilesLayers";
 
 /**
  * 加拿大第 3 波（C095 氣象站、C096 AQHI、C076 輻射監測站、C099 NPRI、C098 WSER、C070 歷史地震）＋ GHSL 人口網格。

@@ -17,7 +17,7 @@ import { paramDefault } from "../data/layerParamsSpec";
 import { hookCategoryFilter } from "../data/categoryFilters";
 import { hookFillOpacity, hookFillPaint, hookLineLayout, hookLineOpacity, hookLinePaint } from "../map/lineFillSpec";
 import { repPointLayer, repPointModeFromIdx, type RepPointDisplayMode } from "../data/repPointLayers";
-import { repPointSpecFor, useGbRepPointLayers } from "./useGbWaterLayers";
+import { repPointSpecFor, useGbRepPointLayers } from "./intlPmtilesLayers";
 import { useMapReadyTick } from "./useMapReadyTick";
 import { syncGeoRepPoint } from "./useJpWaterLayers";
 

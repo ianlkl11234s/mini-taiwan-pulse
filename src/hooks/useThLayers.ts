@@ -4,7 +4,7 @@ import { BOUNDARY_GRAY, MAP_SEAM } from "../map/mapStyleScale";
 import { paletteRamp, resampleRamp } from "../map/palettes";
 import { paramDefault } from "../data/layerParamsSpec";
 import { phText, TH_ADMIN_COLOR, TH_ADMIN_LEVELS, TH_DENSITY_BREAKS_BY_LEVEL, TH_NOT_COVERED_COLOR, TH_POP_LEVELS, type ThAdminLevel, type ThPopLevel } from "../data/thDataLayers";
-import { useGbPmtilesLayers, type SourceSpec } from "./useGbWaterLayers";
+import { useGbPmtilesLayers, type SourceSpec } from "./intlPmtilesLayers";
 import type { ThRasterSpec } from "../data/thWavesLayers";
 
 /**

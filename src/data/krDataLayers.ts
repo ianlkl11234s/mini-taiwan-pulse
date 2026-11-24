@@ -7,9 +7,9 @@
  * 色票沿用台灣同語意圖層與英國第 3 波（水系藍／青、堤防琥珀、海洋保護區綠…），分類色之間以明度與色相區分。
  */
 import type { KrDataKey } from "./krDataKeys";
-import { KR_CAT_OTHER_ID, krGroupFilter, krStringProp, type KrLayerSpec as IntlKrLayerSpec, type L3 } from "./intlLayerShared";
+import { KR_CAT_OTHER_ID, type KrLayerSpec as IntlKrLayerSpec, type L3 } from "./intlLayerShared";
 
-export { krRampColors, pickL3, krGroupFilter, krStringProp, KR_CAT_OTHER_ID } from "./intlLayerShared";
+export { krRampColors, pickL3, krGroupFilter, krStringProp, krSpecCatFilter, KR_CONGESTION_BREAKS, KR_CAT_OTHER_ID } from "./intlLayerShared";
 export type { KrFilterGroup } from "./intlLayerShared";
 export type { KrCat, KrField, KrFieldKind, L3 } from "./intlLayerShared";
 export type KrLayerSpec<K extends string = KrDataKey> = IntlKrLayerSpec<K>;
@@ -1004,7 +1004,6 @@ export const KR_SPEC_BY_KEY: Readonly<Record<KrDataKey, KrLayerSpec>> = Object.f
 export const KR_UNNAMED = UNNAMED;
 
 /** X003 擁擠度分級：以 `peak_wkd` 數值判斷（hook 用 step 表達式，圖例用同一組門檻）。 */
-export const KR_CONGESTION_BREAKS = [34, 80, 130] as const;
 
 // ─────────────────────────── V-4 類別篩選（分類多選）與 V-1 縮放區間共用 ───────────────────────────
 
@@ -1014,11 +1013,3 @@ export const KR_CONGESTION_BREAKS = [34, 80, 130] as const;
 export const krCatOptionIds = (spec: Pick<KrLayerSpec, "cats" | "otherLabel">): string[] =>
   spec.cats ? [...spec.cats.map((c) => c.id), ...(spec.otherLabel ? [KR_CAT_OTHER_ID] : [])] : [];
 
-/** 規格的分類篩選 filter（subway 以平日尖峰擁擠度分級當類別）。 */
-export function krSpecCatFilter(spec: KrLayerSpec, mask: number | undefined): unknown[] | null {
-  if (!spec.cats) return null;
-  const getter = spec.key === "krSeoulSubwayCongestion"
-    ? ["case", ["has", "peak_wkd"], ["step", ["to-number", ["get", "peak_wkd"], 0], "<34", KR_CONGESTION_BREAKS[0], "34-80", KR_CONGESTION_BREAKS[1], "80-130", KR_CONGESTION_BREAKS[2], ">=130"], ""]
-    : spec.derivedCat ? spec.derivedCat.expr : krStringProp(spec.catProp!);
-  return krGroupFilter(getter, spec.cats, !!spec.otherLabel, mask);
-}

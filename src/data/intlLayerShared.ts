@@ -101,6 +101,18 @@ export function krGroupFilter(getter: unknown, groups: readonly KrFilterGroup[],
 export const krStringProp = (prop: string): unknown[] => ["to-string", ["coalesce", ["get", prop], ""]];
 
 
+/** 首爾地鐵擁擠度分級斷點。 */
+export const KR_CONGESTION_BREAKS = [34, 80, 130] as const;
+
+/** 規格的分類篩選 filter（subway 以平日尖峰擁擠度分級當類別）。 */
+export function krSpecCatFilter(spec: KrLayerSpec, mask: number | undefined): unknown[] | null {
+  if (!spec.cats) return null;
+  const getter = spec.key === "krSeoulSubwayCongestion"
+    ? ["case", ["has", "peak_wkd"], ["step", ["to-number", ["get", "peak_wkd"], 0], "<34", KR_CONGESTION_BREAKS[0], "34-80", KR_CONGESTION_BREAKS[1], "80-130", KR_CONGESTION_BREAKS[2], ">=130"], ""]
+    : spec.derivedCat ? spec.derivedCat.expr : krStringProp(spec.catProp!);
+  return krGroupFilter(getter, spec.cats, !!spec.otherLabel, mask);
+}
+
 // ───────────── 菲律賓規格引擎（中國、泰國、越南、加拿大 waves 重用） ─────────────
 type Expr = unknown[];
 
