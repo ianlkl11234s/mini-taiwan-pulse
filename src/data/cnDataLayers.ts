@@ -9,10 +9,10 @@
  */
 import type { CnDataKey, CnRasterKey } from "./cnDataKeys";
 import { CN_PREFECTURE_NAMES } from "./cnPrefectureNames";
-import type { L3, PhCat, PhCatGetter, PhField, PhLayerSpec, PhNote, PhPart, PhSizeBands } from "./phDataLayers";
+import type { L3, PhCat, PhCatGetter, PhField, PhLayerSpec, PhNote, PhPart, PhSizeBands } from "./intlLayerShared";
 
-export type { L3 } from "./krDataLayers";
-export { pickL3 } from "./krDataLayers";
+export type { L3 } from "./intlLayerShared";
+export { pickL3 } from "./intlLayerShared";
 
 type Expr = unknown[];
 const l3 = (zh: string, en: string, ja: string): L3 => ({ zh, en, ja });

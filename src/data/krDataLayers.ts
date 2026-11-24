@@ -7,61 +7,14 @@
  * 色票沿用台灣同語意圖層與英國第 3 波（水系藍／青、堤防琥珀、海洋保護區綠…），分類色之間以明度與色相區分。
  */
 import type { KrDataKey } from "./krDataKeys";
-import { selectedMultiSelectValues } from "./multiSelectMapbox";
-import { paletteRamp, resampleRamp } from "../map/palettes";
+import { KR_CAT_OTHER_ID, krGroupFilter, krStringProp, type KrLayerSpec as IntlKrLayerSpec, type L3 } from "./intlLayerShared";
 
-export interface L3 { zh: string; en: string; ja: string }
+export { krRampColors, pickL3, krGroupFilter, krStringProp, KR_CAT_OTHER_ID } from "./intlLayerShared";
+export type { KrFilterGroup } from "./intlLayerShared";
+export type { KrCat, KrField, KrFieldKind, L3 } from "./intlLayerShared";
+export type KrLayerSpec<K extends string = KrDataKey> = IntlKrLayerSpec<K>;
+
 const l3 = (zh: string, en: string, ja: string): L3 => ({ zh, en, ja });
-
-export interface KrCat { id: string; values: readonly string[]; color: string; label: L3; faded?: boolean }
-/** `permit`：許可期間（`lcns_bgng_`～本欄，YYYYMMDD）＋快照日判斷的許可狀態。 */
-export type KrFieldKind = "text" | "num" | "year" | "measure" | "peak" | "code" | "permit";
-export interface KrField { prop: string; label: L3; kind?: KrFieldKind; unit?: string; digits?: number; map?: Readonly<Record<string, L3>> }
-export interface KrLayerSpec {
-  key: KrDataKey;
-  file: string;
-  sourceLayer: string;
-  geom: "point" | "line" | "polygon";
-  /** 主 layer id（literal；gisClickRegistry 以此比對）。polygon 另有 `${id}` fill 與 outline。 */
-  layerId: string;
-  outlineId?: string;
-  /** 鋪滿國土的面（如通學區）：此縮放以下只畫細外框、不填色（全國視角不糊成一片），此縮放起才加填色。 */
-  fillFromZoom?: number;
-  /** 站主限定：圖磚只走私人 owner-data（同源 Range API，`OWNER_DATA_ASSETS` 的 key），不進公開 CDN；沒有站主存取權就不掛 source。 */
-  ownerAsset?: "kr-seoul-zoning";
-  srcMinzoom: number;
-  srcMaxzoom: number;
-  minzoom: number;
-  /** V-1／P-4：拉遠改熱區（點在 `densePointsFromZoom(count, minzoom)` 起畫、之下為熱區）；intensity 依資料密度目視校正。 */
-  /**
-   * 序列分級面（第 6 波人口網格）：`prop` 依固定斷點 `breaks` 分 `breaks.length + 1` 級，色取色盤庫 `palette`
-   * （暗／淡兩版，`paletteRamp`）重新取樣；不設外框。圖例逐級列出 `labels`。
-   */
-  ramp?: { prop: string; palette: "YlOrBr"; breaks: readonly number[]; labels: readonly string[]; unit: L3 };
-  heat?: {
-    intensity: number;
-    /** 低縮放另用「格網計數」檔畫熱區（weight 吃 `count`；source maxzoom 以上自動 overzoom），點檔 `file` 從 `minzoom` 起接手。 */
-    density?: { file: string; sourceLayer: string; srcMinzoom: number; srcMaxzoom: number; attribution: string };
-  };
-  color: string;
-  tier?: "S" | "M";
-  count: number;
-  catProp?: string;
-  /** 衍生分類（第 10 波漁場：許可到期另成一類）：`expr` 回傳分類值字串（hook 上色、類別多選共用），`of` 是 popup 標題色用的同一判斷。 */
-  derivedCat?: { expr: unknown[]; of: (props: Record<string, unknown>) => string };
-  cats?: readonly KrCat[];
-  otherColor?: string;
-  otherLabel?: L3;
-  title: { props: readonly string[]; fallback: L3 };
-  fields: readonly KrField[];
-  legendNotes: readonly L3[];
-  popupNotes: readonly L3[];
-  sourceOrg: string;
-  sourceUrl: string;
-  license: string;
-  fetchedAt: string;
-  loading: L3;
-}
 
 export const KR_FETCHED_AT = "2026-10-31";
 export const KR_PLATFORM_LICENSE = "이용허락범위 제한 없음（data.go.kr 平台標籤）";
@@ -1053,46 +1006,13 @@ export const KR_UNNAMED = UNNAMED;
 /** X003 擁擠度分級：以 `peak_wkd` 數值判斷（hook 用 step 表達式，圖例用同一組門檻）。 */
 export const KR_CONGESTION_BREAKS = [34, 80, 130] as const;
 
-/** 序列分級面的色階（色盤庫暗／淡版重新取樣成「斷點數＋1」級；圖例與 hook 共用）。 */
-export function krRampColors(spec: Pick<KrLayerSpec, "ramp">, isDark: boolean): string[] {
-  const r = spec.ramp!;
-  return resampleRamp(paletteRamp(r.palette, isDark)!, r.breaks.length + 1);
-}
-
-export function pickL3(text: L3, locale: string): string {
-  return locale === "ja" ? text.ja : locale === "en" ? text.en : text.zh;
-}
-
 // ─────────────────────────── V-4 類別篩選（分類多選）與 V-1 縮放區間共用 ───────────────────────────
 
 
-/** 多選「其他」選項的固定 id（圖例有「其他」列的層才有）。 */
-export const KR_CAT_OTHER_ID = "other";
-export interface KrFilterGroup { id: string; values: readonly string[] }
 
 /** 規格的多選選項 id（宣告順序；有 `otherLabel` 者最後加「其他」）。 */
 export const krCatOptionIds = (spec: Pick<KrLayerSpec, "cats" | "otherLabel">): string[] =>
   spec.cats ? [...spec.cats.map((c) => c.id), ...(spec.otherLabel ? [KR_CAT_OTHER_ID] : [])] : [];
-
-/**
- * 分類多選 → Mapbox filter。`getter` 是回傳字串的表達式（屬性值轉字串；subway 用擁擠度分級表達式）。
- * 全選／未傳 → null（不篩、含缺值 feature）；全關 → 永假 sentinel；選了「其他」→ 補上「不屬於任何已列類別」。
- */
-export function krGroupFilter(getter: unknown, groups: readonly KrFilterGroup[], withOther: boolean, mask: number | undefined): unknown[] | null {
-  if (mask === undefined || !Number.isFinite(mask)) return null;
-  const ids = [...groups.map((g) => g.id), ...(withOther ? [KR_CAT_OTHER_ID] : [])];
-  const selected = selectedMultiSelectValues(mask, ids);
-  if (selected.length === ids.length) return null;
-  if (selected.length === 0) return ["==", getter, "__multi_select_none__"];
-  const chosen = groups.filter((g) => selected.includes(g.id)).flatMap((g) => [...g.values]);
-  const hit = ["in", getter, ["literal", chosen]];
-  if (!selected.includes(KR_CAT_OTHER_ID)) return hit;
-  const other = ["!", ["in", getter, ["literal", groups.flatMap((g) => [...g.values])]]];
-  return chosen.length ? ["any", hit, other] : other;
-}
-
-/** 屬性值（含數值型）統一轉字串，缺值＝""。 */
-export const krStringProp = (prop: string): unknown[] => ["to-string", ["coalesce", ["get", prop], ""]];
 
 /** 規格的分類篩選 filter（subway 以平日尖峰擁擠度分級當類別）。 */
 export function krSpecCatFilter(spec: KrLayerSpec, mask: number | undefined): unknown[] | null {

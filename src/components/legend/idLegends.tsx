@@ -11,7 +11,7 @@ import {
 import type { IdDataKey, IdRasterKey } from "../../data/idDataKeys";
 import { ID_RASTER_BY_KEY } from "../../data/idWavesLayers";
 import { idDensityColors, idIdmColors } from "../../hooks/useIdLayers";
-import { PhSpecLegend } from "./phLegends";
+import { PhSpecLegend } from "./intlSpecLegend";
 
 function useLayerTitle(key: string): string {
   const i18n = useLocale();
