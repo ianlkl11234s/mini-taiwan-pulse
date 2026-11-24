@@ -107,7 +107,8 @@ describe("Layer UX policy baseline", () => {
     // 2026-11-16：+3 中國第 2–5 波 raster（cnTerrain、cnAquaculture、cnSoil；已上色 PNG，無 feature 屬性；站主限定）。
     // 2026-11-22：+2 泰國 raster（山體陰影、色別標高；PNG PMTiles，無 feature 屬性）。
     // 2026-11-23：+2 泰國土壤 pH、有機碳 raster（PNG PMTiles，無 feature 屬性）。
-    expect(missing).toHaveLength(78); // 2026-10-17：-2 移除無 consumer 的 wasteRoute / wasteStop（原 50）
+    // 2026-11-24：+5 印尼 raster（山體陰影、色別標高、InaRISK 三張；PNG PMTiles，無 feature 屬性）。
+    expect(missing).toHaveLength(83); // 2026-10-17：-2 移除無 consumer 的 wasteRoute / wasteStop（原 50）
   });
 
   it("已確認的點位缺口確實沒有大小控件，補齊時必須同步縮小基線", () => {
