@@ -117,7 +117,7 @@ export function TimelineControls({
   const isLive = timeMode === "live";
   const isFuture = currentTime > Date.now() / 1000;
   // currentTime 是 LiveTimelineControls 以 useUiTime（timeStore 訂閱）傳入的 prop，不進任何 hook deps
-  const clocks = (localClocks ?? []).flatMap(({ country, alignedFrom }): { country: typeof country; clock: LocalClock; taipei: string | null }[] => {
+  const clocks = (localClocks ?? []).flatMap(({ country, alignedFrom }): { country: typeof country; clock: LocalClock; taipei: { short: string; full: string } | null }[] => {
     const at = alignedFrom ? alignLocalInstant(currentTime, countryClockTimeZone(alignedFrom), countryClockTimeZone(country)) : currentTime;
     // 當地同時刻、而且和時間軸差了時間＝一律顯示（和台北同位移的國家也標：那一側已經不是時間軸上的時刻）
     const aligned = at !== currentTime;
@@ -125,8 +125,10 @@ export function TimelineControls({
     if (!clock) return [];
     if (!aligned) return [{ country, clock, taipei: null }];
     const dayDiff = zonedDateKey(at * 1000, DEFAULT_TIME_ZONE).localeCompare(zonedDateKey(currentTime * 1000, DEFAULT_TIME_ZONE));
-    const taipei = `${formatClock(at)}${dayDiff === 0 ? "" : ` ${t(dayDiff < 0 ? "timeline.localPrevDay" : "timeline.localNextDay")}`}`;
-    return [{ country, clock, taipei }];
+    // 小字用短寫（00:04+1），完整句（台北 00:04 隔天）放 hover 提示，免得把刻度列擠扁
+    const short = `${formatClock(at)}${dayDiff === 0 ? "" : dayDiff < 0 ? "-1" : "+1"}`;
+    const full = `${formatClock(at)}${dayDiff === 0 ? "" : ` ${t(dayDiff < 0 ? "timeline.localPrevDay" : "timeline.localNextDay")}`}`;
+    return [{ country, clock, taipei: { short, full } }];
   });
   const gridWindow = useSyncExternalStore(
     subscribeGfwHourlyGridDataWindow,
@@ -246,8 +248,12 @@ export function TimelineControls({
               {timeLabel.slice(timeLabel.lastIndexOf(":") + 1)}
             </span>
             {expanded && clocks.map(({ country, clock, taipei }) => taipei !== null ? (
-              <span key={country} className="tl3-local" title={t("timeline.localClockAlignedTitle")}>
-                {t(clock.utc ? "timeline.localClockAlignedUtc" : "timeline.localClockAligned", { country: t(countryDef(country).labelKey), time: clock.time, taipei })}
+              <span
+                key={country}
+                className="tl3-local"
+                title={`${t(clock.utc ? "timeline.localClockAlignedUtcFull" : "timeline.localClockAlignedFull", { country: t(countryDef(country).labelKey), time: clock.time, taipei: taipei.full })}\n${t("timeline.localClockAlignedTitle")}`}
+              >
+                {t(clock.utc ? "timeline.localClockAlignedUtc" : "timeline.localClockAligned", { country: t(countryDef(country).labelKey), time: clock.time, taipei: taipei.short })}
               </span>
             ) : (
               <span key={country} className="tl3-local" title={t(clock.utc ? "timeline.localClockUtcTitle" : "timeline.localClockTitle")}>
