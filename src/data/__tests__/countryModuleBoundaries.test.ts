@@ -9,7 +9,7 @@
  *   1. 檔名前綴 `<cc>[A-Z]…` 或 hook 的 `use<Cc>[A-Z]…`，cc ∈ kr／jp／gb／ca／ie／ph／vn／th／cn／fr
  *      （例：krDataLayers.ts、caInfraTypes.ts、cnPanels.tsx、useGbWaterLayers.ts）。
  *   2. `layers/hosts/<國名>Hosts.tsx`（koreaHosts→kr、japanHosts→jp、ukHosts→gb、canadaHosts→ca、irelandHosts→ie、
- *      philippinesHosts→ph、vietnamHosts→vn、thailandHosts→th、chinaHosts→cn、franceHosts→fr）。
+ *      philippinesHosts→ph、vietnamHosts→vn、thailandHosts→th、chinaHosts→cn、franceHosts→fr、indonesiaHosts→id）。
  * 其餘（含 `intl*` 中性檔、`atlas*`、`layerManifest` 等組裝層）不是國家模組，可以 import 任何國家模組。
  * 型別 import（`import type`）一樣算，因為之後要拆的是檔案依賴，不只是執行期依賴。
  *
@@ -20,19 +20,19 @@ import { readFileSync, readdirSync, statSync } from "node:fs";
 import { basename, dirname, join, relative, resolve } from "node:path";
 
 const SRC = resolve(__dirname, "../..");
-const CC = ["kr", "jp", "gb", "ca", "ie", "ph", "vn", "th", "cn", "fr"] as const;
+const CC = ["kr", "jp", "gb", "ca", "ie", "ph", "vn", "th", "cn", "fr", "id"] as const;
 type Cc = (typeof CC)[number];
 
 const HOST_COUNTRY: Readonly<Record<string, Cc>> = {
   koreaHosts: "kr", japanHosts: "jp", ukHosts: "gb", canadaHosts: "ca", irelandHosts: "ie",
-  philippinesHosts: "ph", vietnamHosts: "vn", thailandHosts: "th", chinaHosts: "cn", franceHosts: "fr",
+  philippinesHosts: "ph", vietnamHosts: "vn", thailandHosts: "th", chinaHosts: "cn", franceHosts: "fr", indonesiaHosts: "id",
 };
 
 /** 檔案（相對 src）所屬國家；不是國家模組回 null。 */
 export function countryOf(relPath: string): Cc | null {
   const stem = basename(relPath).split(".")[0]!;
   if (relPath.startsWith("layers/hosts/") && HOST_COUNTRY[stem]) return HOST_COUNTRY[stem]!;
-  const m = /^(?:use)?(kr|jp|gb|ca|ie|ph|vn|th|cn|fr)(?:[A-Z])/i.exec(stem);
+  const m = /^(?:use)?(kr|jp|gb|ca|ie|ph|vn|th|cn|fr|id)(?:[A-Z])/i.exec(stem);
   if (!m) return null;
   // 前綴必須是小寫（kr…）或 use 後的大寫首字（useKr…），避免把 `cache…`、`phase…` 誤判
   const hasUse = stem.startsWith("use");
@@ -109,6 +109,7 @@ const KNOWN_EXEMPTIONS: readonly string[] = [
   "hooks/useCaTransportLayers.ts -> hooks/useGbWaterLayers.ts",
   "hooks/useCnLayers.ts -> hooks/useGbWaterLayers.ts",
   "hooks/useCnLayers.ts -> hooks/usePhLayers.ts",
+  "hooks/useIdLayers.ts -> hooks/useGbWaterLayers.ts",
   "hooks/useIeBathymetryLayer.ts -> hooks/useGbWaterLayers.ts",
   "hooks/useJpInlandFloodAreasLayer.ts -> hooks/useGbWaterLayers.ts",
   "hooks/useJpLandslideWarningAreasLayer.ts -> hooks/useGbWaterLayers.ts",
@@ -125,6 +126,7 @@ const KNOWN_EXEMPTIONS: readonly string[] = [
   "layers/hosts/canadaHosts.tsx -> hooks/useGbWaterLayers.ts",
   "layers/hosts/canadaHosts.tsx -> hooks/usePhLayers.ts",
   "layers/hosts/chinaHosts.tsx -> hooks/useGbWaterLayers.ts",
+  "layers/hosts/indonesiaHosts.tsx -> hooks/usePhLayers.ts",
   "layers/hosts/irelandHosts.tsx -> hooks/useKrDataLayers.ts",
   "layers/hosts/thailandHosts.tsx -> hooks/usePhLayers.ts",
   "layers/hosts/vietnamHosts.tsx -> hooks/usePhLayers.ts",
@@ -149,6 +151,12 @@ describe("countryModuleBoundaries", () => {
     // 不是國家模組
     expect(countryOf("data/canopyGiantsTypes.ts")).toBeNull();
     expect(countryOf("data/intlLayerShared.ts")).toBeNull();
+    expect(countryOf("data/idDataLayers.ts")).toBe("id");
+    expect(countryOf("hooks/useIdLayers.ts")).toBe("id");
+    expect(countryOf("layers/hosts/indonesiaHosts.tsx")).toBe("id");
+    expect(countryOf("hooks/useIdleTimer.ts")).toBeNull();
+    expect(countryOf("data/identityTypes.ts")).toBeNull();
+    expect(countryOf("data/idle.ts")).toBeNull();
     expect(countryOf("data/phaseTypes.ts")).toBeNull();
     expect(countryOf("data/frequencyTypes.ts")).toBeNull();
     expect(countryOf("hooks/useCategoryFilter.ts")).toBeNull();
