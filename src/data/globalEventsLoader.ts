@@ -244,7 +244,7 @@ const MAP_RPC = "get_global_event_candidates_map_window";
 let mapRpcUnavailable = false;
 export function resetGlobalEventMapRpcProbe(): void { mapRpcUnavailable = false; }
 function isMissingFunction(error: { code?: string; message?: string } | null): boolean {
-  return !!error && (error.code === "PGRST202" || error.code === "42883" || /could not find the function|does not exist/i.test(error.message ?? ""));
+  return !!error && error.code === "PGRST202";
 }
 function abortIfNeeded(signal?: AbortSignal): void {
   if (signal?.aborted) throw signal.reason ?? new DOMException("The operation was aborted.", "AbortError");

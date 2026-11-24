@@ -60,6 +60,13 @@ describe("Global Events 地圖用精簡候選視窗（gis-platform 567）", () =
       "get_global_event_candidates_map_window", "get_global_event_candidates_window", "get_global_event_candidates_window"]);
   });
 
+  it("567 已套用但函式內部出錯（例如欄位不存在 42703）不當成「未套用」", async () => {
+    rpc.mockReturnValue(query({ data: null, error: { code: "42703", message: "column \"x\" does not exist" } }));
+    await expect(fetchGlobalEventCandidatesWindow("2026-11-16T16:00:00Z", "2026-11-23T16:00:00Z", new AbortController().signal))
+      .rejects.toThrow(/does not exist/);
+    expect(rpc).toHaveBeenCalledTimes(1);
+  });
+
   it("新 RPC 其他錯誤照實丟出，不默默改走舊 RPC", async () => {
     rpc.mockReturnValue(query({ data: null, error: { code: "57014", message: "canceling statement due to statement timeout" } }));
     await expect(fetchGlobalEventCandidatesWindow("2026-11-16T16:00:00Z", "2026-11-23T16:00:00Z", new AbortController().signal))
