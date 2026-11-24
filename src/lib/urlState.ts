@@ -53,6 +53,8 @@ export interface UrlState {
    * `cmp=1` 開比較；`cmpx=` 把手位置（0.05–0.95，預設 0.5 不寫）；`cmpl=`／`cmpr=` 只在左側／只在右側的圖層（兩側＝預設不寫）；
    * `cmpdl=`／`cmpdr=` 比較中統計層左／右側的期別與細項：`<layerKey>:<控制項後綴>=<值>;…`，多層以 `,` 分隔
    * （後綴＝統計連動選單的 name 去掉 layerKey，例 `Period`、`DimSex`）。這裡只驗格式；圖層是否支援、值是否還存在由主站套用時驗。
+   * 兩國並排（G2-1）：`cmp=2`；`cmpc=<國碼小寫>` 右側國家（台灣不收）；`cmpv=<lng>,<lat>,<zoom>[,<bearing>,<pitch>]` 右圖鏡頭；
+   * `cmpsl=0` 關掉比例尺同步（預設開不寫）。並排不寫 `cmpx`／`cmpl`／`cmpr`（側別由圖層國家推出）。
    */
   compare?: UrlCompareState;
   /**
@@ -105,6 +107,14 @@ export interface UrlState {
 }
 
 export interface UrlCompareState {
+  /** 缺省＝同地點拉桿（`cmp=1`）；`countries`＝兩國並排（`cmp=2`） */
+  mode?: "countries";
+  /** 並排的右側國家（`cmpc`） */
+  rightCountry?: CountryCode;
+  /** 並排右圖鏡頭（`cmpv`） */
+  rightCamera?: UrlCamera;
+  /** `false`＝關掉比例尺同步（`cmpsl=0`）；缺省＝開 */
+  scaleLocked?: false;
   split?: number;
   left?: string[];
   right?: string[];
@@ -263,8 +273,38 @@ function parseCompareSelection(raw: string | null): Record<string, Record<string
   return Object.keys(out).length ? out : undefined;
 }
 
-/** `cmp*`：沒有 `cmp=1` 時其他比較參數一律不採用（只記開著的比較） */
+/** `cmpv=<lng>,<lat>,<zoom>[,<bearing>,<pitch>]`；經緯度與 zoom 缺一或越界就整個不收 */
+function parseCompareCamera(raw: string | null): UrlCamera | undefined {
+  if (!raw) return undefined;
+  const [lngRaw, latRaw, zoomRaw, bearingRaw, pitchRaw] = raw.split(",");
+  const lng = inRange(finiteNum(lngRaw ?? null), -180, 180);
+  const lat = inRange(finiteNum(latRaw ?? null), -90, 90);
+  const zoom = inRange(finiteNum(zoomRaw ?? null), 0, 22);
+  if (lng == null || lat == null || zoom == null) return undefined;
+  return {
+    center: [lng, lat],
+    zoom,
+    bearing: normalizeBearing(finiteNum(bearingRaw ?? null)) ?? 0,
+    pitch: inRange(finiteNum(pitchRaw ?? null), 0, 85) ?? 0,
+  };
+}
+
+/** 兩國並排（`cmp=2`）：右側國家必須是外國；國家不合法＝仍開並排，由主站挑預設的右側國家 */
+function parseCountriesCompare(q: URLSearchParams): UrlCompareState {
+  const compare: UrlCompareState = { mode: "countries" };
+  const country = q.get("cmpc");
+  if (country && /^[a-z]{2}$/.test(country) && isCountryCode(country.toUpperCase()) && country.toUpperCase() !== DEFAULT_COUNTRY) {
+    compare.rightCountry = country.toUpperCase() as CountryCode;
+    const camera = parseCompareCamera(q.get("cmpv"));
+    if (camera) compare.rightCamera = camera;
+  }
+  if (q.get("cmpsl") === "0") compare.scaleLocked = false;
+  return compare;
+}
+
+/** `cmp*`：沒有 `cmp=1`（拉桿）或 `cmp=2`（並排）時其他比較參數一律不採用（只記開著的比較） */
 function parseCompare(q: URLSearchParams): UrlCompareState | undefined {
+  if (q.get("cmp") === "2") return parseCountriesCompare(q);
   if (q.get("cmp") !== "1") return undefined;
   const compare: UrlCompareState = {};
   const split = inRange(finiteNum(q.get("cmpx")), 0.05, 0.95);
@@ -405,7 +445,20 @@ export function buildUrl(state: UrlState, base: string): string {
     const entries = Object.entries(state.presentation).filter(([key, mode]) => PRESENTATION_ENTRY_RE.test(`${key}:${mode}`)).sort(([a], [b]) => a.localeCompare(b));
     if (entries.length) q.set("pm", entries.map(([key, mode]) => `${key}:${mode}`).join(","));
   }
-  if (state.compare) {
+  if (state.compare?.mode === "countries") {
+    const { rightCountry, rightCamera, scaleLocked } = state.compare;
+    q.set("cmp", "2");
+    if (rightCountry && rightCountry !== DEFAULT_COUNTRY) {
+      q.set("cmpc", rightCountry.toLowerCase());
+      if (rightCamera) {
+        const { center, zoom, bearing, pitch } = rightCamera;
+        const parts = [round(center[0], 4), round(center[1], 4), round(zoom, 2)];
+        if (bearing || pitch) parts.push(round(bearing, 1), round(pitch, 1));
+        q.set("cmpv", parts.join(","));
+      }
+    }
+    if (scaleLocked === false) q.set("cmpsl", "0");
+  } else if (state.compare) {
     const { split, left, right, leftSelection, rightSelection } = state.compare;
     q.set("cmp", "1");
     if (split != null && Number.isFinite(split) && Math.abs(split - 0.5) > 0.004) q.set("cmpx", String(round(Math.min(0.95, Math.max(0.05, split)), 2)));

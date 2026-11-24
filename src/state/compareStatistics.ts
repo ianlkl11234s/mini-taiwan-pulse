@@ -16,7 +16,7 @@ import { statisticsCircleData } from "../map/statisticsCircles";
 import { dataDotUnit } from "../map/statisticsDots";
 import { regionalStatisticsStore } from "./regionalStatisticsStore";
 import { layerVisibilityStore } from "./layerVisibilityStore";
-import { compareSideOf, compareStore, type CompareSide, type CompareState } from "./compareStore";
+import { compareSideOf, compareStore, type CompareSide, type CompareSideState } from "./compareStore";
 import { STATISTICS_RIGHT_PROVIDER, statisticsRightStoreKey } from "./statisticsLinkedSelect";
 import { linkedSelectSnapshot, linkedSelectSpecs, restoreLinkedSelects } from "./linkedSelect";
 import { STATISTICS_LINKED_PROVIDER } from "../data/statisticsParamsSpec";
@@ -29,12 +29,12 @@ export function hasRightSelection(key: string): boolean {
 }
 
 /** 右圖讀哪一份：兩側且右側選過＝`key::R`，否則＝左側那份 */
-export function rightReadKey(key: string, snapshot: CompareState = compareStore.getSnapshot()): string {
+export function rightReadKey(key: string, snapshot: CompareSideState = compareStore.getSnapshot()): string {
   return compareSideOf(key, snapshot) === "both" && hasRightSelection(key) ? statisticsRightStoreKey(key) : key;
 }
 
 /** 比較中、兩側都畫、而且右側選了不同的期別／細項 */
-export function compareSplitActive(key: string, snapshot: CompareState = compareStore.getSnapshot()): boolean {
+export function compareSplitActive(key: string, snapshot: CompareSideState = compareStore.getSnapshot()): boolean {
   return snapshot.enabled && isStatisticsRenderLayer(key) && compareSideOf(key, snapshot) === "both" && hasRightSelection(key);
 }
 

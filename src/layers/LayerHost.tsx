@@ -58,6 +58,13 @@
 //   - 迭代整包（Object.keys / spread / `in` 以外的列舉）→ 退化成訂閱全部 key。
 //   - 條件讀取（`appMode === "historical" && v.fireEvents`）：條件成立時 Host 必因
 //     deps 變動重渲，屆時讀到即追蹤。
+//
+// ── 兩國並排（G2-1，2026-11-24）─────────────────────────────────────
+// 右側國家的圖層畫在右圖：App 的主圖 `<LayerHosts>` 照舊掛全部 Host，但右國圖層的 key 在視圖裡
+// **讀成 false**（遮罩，不卸載）——外國 hook 的 cleanup 大多不移除圖層，卸載會把圖層留在主地圖上。
+// 右圖另掛一份 `<LayerHosts role="right" rightCountry=…>`，只放「所有 key 都屬右國」的 Host
+// （`map/compareCountrySides.ts`；混了左右的 Host 不存在，測試釘住），deps.mapRef 指向右圖，
+// 視圖反過來只放行右國 key。兩份 Host 是同一支 hook 的兩個實例，各自只在自己那側為 true。
 
 import { memo, useEffect, useMemo, useRef, useState } from "react";
 import { LAYER_HOOK_REGISTRY } from "./layerHookRegistry";
@@ -65,6 +72,9 @@ import {
   bumpHostRender, type AppLayerHostDeps, type LayerHostComponent, type LayerHostDeps,
 } from "./layerHostDeps";
 import { layerVisibilityStore } from "../state/layerVisibilityStore";
+import { activeRightCountry, useCompareSelector } from "../state/compareStore";
+import { isRightSideKey } from "../map/compareCountrySides";
+import type { CountryCode } from "../constants/countries";
 import type { LayerVisibility } from "../types";
 
 type VisRecord = Record<string, boolean>;
@@ -82,28 +92,35 @@ function trackedChanged(t: VisTracker, prev: VisRecord, next: VisRecord): boolea
   return false;
 }
 
-/** 追蹤式視圖：讀值取 store 當下快照，並把讀到的 key 記進 tracker。 */
-function createVisibilityView(t: VisTracker): LayerVisibility {
+/** 這一側不畫的 key（讀成 false）；null＝全部照開關 */
+type HiddenKey = ((key: string) => boolean) | null;
+
+/** 追蹤式視圖：讀值取 store 當下快照，並把讀到的 key 記進 tracker。`hidden` 的 key 一律讀成 false（並排遮罩）。 */
+function createVisibilityView(t: VisTracker, hidden: HiddenKey): LayerVisibility {
   const live = () => layerVisibilityStore.getAll() as unknown as VisRecord;
+  const read = (k: string | symbol): unknown => {
+    const value = (live() as Record<string | symbol, unknown>)[k];
+    return value === true && typeof k === "string" && hidden?.(k) ? false : value;
+  };
   const track = (k: string | symbol) => {
     if (typeof k === "string" && k in live()) t.keys.add(k);
   };
   return new Proxy({} as LayerVisibility, {
-    get(_target, k) { track(k); return (live() as Record<string | symbol, unknown>)[k]; },
+    get(_target, k) { track(k); return read(k); },
     has(_target, k) { track(k); return k in live(); },
     ownKeys() { t.all = true; return Reflect.ownKeys(live()); },
     getOwnPropertyDescriptor(_target, k) {
       track(k);
       const d = Reflect.getOwnPropertyDescriptor(live(), k);
       // target 是空物件：回報的屬性必須 configurable，否則違反 Proxy invariant
-      return d ? { ...d, configurable: true } : undefined;
+      return d ? { ...d, value: read(k), configurable: true } : undefined;
     },
     set() { return false; },
     deleteProperty() { return false; },
   });
 }
 
-function HostSlot({ Host, deps }: { Host: LayerHostComponent; deps: AppLayerHostDeps }) {
+function HostSlot({ Host, deps, hidden }: { Host: LayerHostComponent; deps: AppLayerHostDeps; hidden: HiddenKey }) {
   const trackerRef = useRef<VisTracker | null>(null);
   trackerRef.current ??= { keys: new Set(), all: false };
   const tracker = trackerRef.current;
@@ -125,8 +142,8 @@ function HostSlot({ Host, deps }: { Host: LayerHostComponent; deps: AppLayerHost
     return layerVisibilityStore.subscribe(check);
   }, [tracker]);
 
-  // version 是刻意的 deps：追蹤到的 key 變動 → 視圖換身分
-  const view = useMemo(() => createVisibilityView(tracker), [tracker, version]);
+  // version 是刻意的 deps：追蹤到的 key 變動 → 視圖換身分；遮罩換了（並排開關、換右國）也換
+  const view = useMemo(() => createVisibilityView(tracker, hidden), [tracker, version, hidden]);
   const hostDeps = useMemo<LayerHostDeps>(() => ({ ...deps, layerVisibility: view }), [deps, view]);
   // ⚠️ 直接呼叫而非 `<Host deps={hostDeps} />`：視圖若成為任何元件的 prop，React 19 dev
   // 的 Performance Track（logComponentRender → addObjectDiffToProperties）會在 commit
@@ -136,7 +153,16 @@ function HostSlot({ Host, deps }: { Host: LayerHostComponent; deps: AppLayerHost
   return <>{(Host as (props: { deps: LayerHostDeps }) => React.ReactNode)({ deps: hostDeps })}</>;
 }
 
-function sameDeps(prev: { deps: AppLayerHostDeps }, next: { deps: AppLayerHostDeps }): boolean {
+interface LayerHostsProps {
+  deps: AppLayerHostDeps;
+  /** `main`＝主地圖（預設，掛全部 Host）；`right`＝並排右圖（只掛右國 Host） */
+  role?: "main" | "right";
+  /** role="right" 時的右側國家 */
+  rightCountry?: CountryCode;
+}
+
+function sameDeps(prev: LayerHostsProps, next: LayerHostsProps): boolean {
+  if (prev.role !== next.role || prev.rightCountry !== next.rightCountry) return false;
   const a = prev.deps as unknown as Record<string, unknown>;
   const b = next.deps as unknown as Record<string, unknown>;
   const keys = Object.keys(b);
@@ -145,12 +171,25 @@ function sameDeps(prev: { deps: AppLayerHostDeps }, next: { deps: AppLayerHostDe
   return true;
 }
 
-export const LayerHosts = memo(function LayerHosts({ deps }: { deps: AppLayerHostDeps }) {
-  bumpHostRender("LayerHosts");
+/** 右圖只掛「所有 key 都屬右國」的 Host（沒有 key 的基礎設施 Host 只在主地圖） */
+export function rightSideHostEntries(rightCountry: CountryCode) {
+  return LAYER_HOOK_REGISTRY.filter(({ keys }) => keys.length > 0 && keys.every((key) => isRightSideKey(key, rightCountry)));
+}
+
+export const LayerHosts = memo(function LayerHosts({ deps, role = "main", rightCountry }: LayerHostsProps) {
+  bumpHostRender(role === "right" ? "LayerHosts:right" : "LayerHosts");
+  // 主地圖：並排中右國圖層讀成 false；右圖：只放行右國圖層
+  const activeRight = useCompareSelector(activeRightCountry);
+  const maskCountry = role === "right" ? rightCountry ?? null : activeRight;
+  const hidden = useMemo<HiddenKey>(() => {
+    if (!maskCountry) return role === "right" ? () => true : null;
+    return role === "right" ? (key) => !isRightSideKey(key, maskCountry) : (key) => isRightSideKey(key, maskCountry);
+  }, [role, maskCountry]);
+  const entries = useMemo(() => (role === "right" ? (rightCountry ? rightSideHostEntries(rightCountry) : []) : LAYER_HOOK_REGISTRY), [role, rightCountry]);
   return (
     <>
-      {LAYER_HOOK_REGISTRY.map(({ id, Host }) => (
-        <HostSlot key={id} Host={Host} deps={deps} />
+      {entries.map(({ id, Host }) => (
+        <HostSlot key={id} Host={Host} deps={deps} hidden={hidden} />
       ))}
     </>
   );
