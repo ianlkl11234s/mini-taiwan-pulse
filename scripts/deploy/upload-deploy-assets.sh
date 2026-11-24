@@ -594,7 +594,7 @@ for f in \
   public/world/kr_fishing_grounds.pmtiles \
   public/world/kr_bicycle_parking.pmtiles \
   public/world/kr_civil_defense_water.pmtiles \
-  public/world/kr_emergency_bells.pmtiles \
+  public/world/kr_emergency_bells_lt2.pmtiles \
   public/world/kr_rural_experience_villages.pmtiles \
   public/world/kr_slaughterhouses.pmtiles \
   public/world/kr_eco_nature_11.pmtiles \

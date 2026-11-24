@@ -32,6 +32,8 @@ from collections import Counter
 from pathlib import Path
 from typing import Any, Callable
 
+import tiered_cut
+
 ROOT = Path(__file__).resolve().parents[2]
 PUBLIC = ROOT / "public"
 OGDL = "政府資料開放授權條款第1版"
@@ -164,15 +166,22 @@ COORD_FLAG_NOTE = {"ok": "來源座標", "tm2_conflict": "來源經緯度與 TWD
 # ── tippecanoe ───────────────────────────────────────────────────────────────
 
 
-def tile(features: list[dict], out: Path, layer: str, zmin: int, zmax: int, kind: str, extra_flags: tuple[str, ...] = ()) -> None:
+def tile(features: list[dict], out: Path, layer: str, zmin: int, zmax: int, kind: str, extra_flags: tuple[str, ...] = (),
+         tier: dict | None = None) -> None:
     """kind: point → -r1 -pf -pk；line／polygon 另加 -pt（不縮小面）。不用 --drop-densest。
     線的 drop-rate 也要 -r1，否則低 zoom 依比例丟線；極短路段在 z5–7 會退化成點被丟，所以線層從 z8 起切。
-    extra_flags：個別圖層追加（例：大面 `--no-tile-size-limit`，避免 500KB 上限隱性丟面）。"""
+    extra_flags：個別圖層追加（例：大面 `--no-tile-size-limit`，避免 500KB 上限隱性丟面）。
+    tier（僅點）：{"switch_zoom": 10, "low_fields": [...]}＝分段切圖，低縮放只帶熱區用到的欄位、出點層級起全欄位，
+    點數與座標不變（見 tiered_cut.py）。低段沒有 id，audit_zoom_counts 對低段改查「解碼總數 ≥ 應有筆數」（緩衝重複只會多不會少）。"""
     flags = ["-r1", "-pf", "-pk"] + ([] if kind == "point" else ["-pt"]) + list(extra_flags)
     out.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory() as tmp:
         mid = Path(tmp) / f"{layer}.geojson"
         write_collection(mid, features)
+        if tier:
+            assert kind == "point", "tier 只支援點圖層"
+            tiered_cut.cut(mid, out, layer, zmin, zmax, tier, flags)
+            return
         # 公開 PMTiles 的 metadata（name／description／generator_options）會記下 -o 與輸入路徑：
         # 在暫存目錄內以相對路徑呼叫，並明設 -n／-N，避免把本機工作區路徑寫進公開資產。
         tmp_out = f"{layer}.pmtiles"
@@ -181,15 +190,24 @@ def tile(features: list[dict], out: Path, layer: str, zmin: int, zmax: int, kind
         shutil.move(str(Path(tmp) / tmp_out), str(out))
 
 
-def audit_zoom_counts(pmtiles: Path, expected: Callable[[int], int], zmin: int, zmax: int) -> dict[int, int]:
-    """逐 zoom 解碼數不重複 id；每層都要等於該 zoom 應出現的筆數，否則中止（不靜默丟資料）。"""
+def audit_zoom_counts(pmtiles: Path, expected: Callable[[int], int], zmin: int, zmax: int,
+                      ids_from: int | None = None) -> dict[int, int]:
+    """逐 zoom 解碼數不重複 id；每層都要等於該 zoom 應出現的筆數，否則中止（不靜默丟資料）。
+    ids_from（分段切圖用）：低於此 zoom 的圖磚沒有 id 欄位，改查解碼總數 ≥ 應有筆數（含緩衝重複，只會多不會少）。"""
     if not shutil.which("tippecanoe-decode"):
         raise SystemExit("缺 tippecanoe-decode，無法逐 zoom 稽核")
     counts: dict[int, int] = {}
     for z in range(zmin, zmax + 1):
         res = subprocess.run(["tippecanoe-decode", "-Z", str(z), "-z", str(z), str(pmtiles)], check=True, capture_output=True, text=True)
-        ids = {feat["properties"]["id"] for t in json.loads(res.stdout)["features"] for lyr in t["features"] for feat in lyr["features"]}
+        feats = [feat for t in json.loads(res.stdout)["features"] for lyr in t["features"] for feat in lyr["features"]]
         want = expected(z)
+        if ids_from is not None and z < ids_from:
+            counts[z] = len(feats)
+            if len(feats) < want:
+                raise SystemExit(f"{pmtiles.name} z{z}: 解碼 {len(feats)} < 應有 {want}（丟資料）")
+            print(f"  z{z}: 解碼 {len(feats):,} ≥ {want:,} ✓（低段無 id）")
+            continue
+        ids = {feat["properties"]["id"] for feat in feats}
         counts[z] = len(ids)
         if len(ids) != want:
             raise SystemExit(f"{pmtiles.name} z{z}: 解碼 {len(ids)} ≠ 應有 {want}（丟資料）")
@@ -416,8 +434,10 @@ def build_waterlogging(m, feats):
     }) for f in feats]
 
 
-@layer("swcbDisasterPhotoPoints", "hazards", "swcb_disaster_photo_points", "hazards/swcb_disaster_photo_points_v2.pmtiles",
-       pmtiles={"layer": "swcb_disaster_photo_points", "zmin": 5, "zmax": 12, "kind": "point"})
+@layer("swcbDisasterPhotoPoints", "hazards", "swcb_disaster_photo_points", "hazards/swcb_disaster_photo_points_v2_lt2.pmtiles",
+       pmtiles={"layer": "swcb_disaster_photo_points", "zmin": 5, "zmax": 12, "kind": "point",
+                # <z10 熱區只用 photo_category（上色／篩選）＋county／town（畫面摘要）；z10 起全欄位
+                "tier": {"switch_zoom": 10, "low_fields": ["photo_category", "county", "town"]}})
 def build_swcb(m, feats):
     out = []
     for f in feats:
@@ -1043,8 +1063,11 @@ def flag(v: Any) -> int | None:
     return 1 if v is True else 0 if v is False else None
 
 
-@layer("atmSitesFisc", "civic_facilities", "atm_sites_fisc", "finance/atm_sites_fisc.pmtiles",
-       pmtiles={"layer": "atm_sites_fisc", "zmin": 5, "zmax": 12, "kind": "point"})
+@layer("atmSitesFisc", "civic_facilities", "atm_sites_fisc", "finance/atm_sites_fisc_lt2.pmtiles",
+       pmtiles={"layer": "atm_sites_fisc", "zmin": 5, "zmax": 12, "kind": "point",
+                # <z10 熱區只用 institution_category／wheelchair_accessible／voice_guidance（上色與篩選）＋county／town（畫面摘要）
+                "tier": {"switch_zoom": 10, "low_fields": ["institution_category", "wheelchair_accessible",
+                                                           "voice_guidance", "county", "town"]}})
 def build_atm_sites(m, feats):
     out = []
     for f in drop_unmapped("atmSitesFisc", feats):
@@ -1346,13 +1369,13 @@ def build(src: Path, key: str) -> None:
     pm = spec.get("pmtiles")
     if pm:
         print(f"{key}: {len(out_feats):,} features → {out.relative_to(ROOT)}（z{pm['zmin']}–{pm['zmax']}）")
-        tile(out_feats, out, pm["layer"], pm["zmin"], pm["zmax"], pm["kind"], tuple(pm.get("extra_flags", ())))
+        tile(out_feats, out, pm["layer"], pm["zmin"], pm["zmax"], pm["kind"], tuple(pm.get("extra_flags", ())), pm.get("tier"))
         if pm.get("feature_minzoom"):
             mins = [f["tippecanoe"]["minzoom"] for f in out_feats]
             expected = lambda z: sum(1 for mz in mins if mz <= z)  # noqa: E731
         else:
             expected = lambda z: len(out_feats)  # noqa: E731
-        entry["zoom_counts"] = audit_zoom_counts(out, expected, pm["zmin"], pm["zmax"])
+        entry["zoom_counts"] = audit_zoom_counts(out, expected, pm["zmin"], pm["zmax"], (pm.get("tier") or {}).get("switch_zoom"))
         entry["source_layer"] = pm["layer"]
     else:
         write_collection(out, out_feats)
