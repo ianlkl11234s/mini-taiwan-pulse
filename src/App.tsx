@@ -1,4 +1,4 @@
-import { MainMapConnection } from "./research/MainMapConnection";
+import { LazyMainMapConnection } from "./research/LazyMainMapConnection";
 import { globalEventsViewStore } from "./state/globalEventsViewStore";
 import { useAnalysisLegend } from "./research/analysisLegendStore";
 import type { AnalysisResultPanelProperties } from "./research/researchResultPopup";
@@ -88,7 +88,7 @@ import { countryStore, resolveInitialCountry, useCountry, useOwnerOnlyCountryGua
 import { countryForLayerKeys } from "./research/explorationNavigation";
 // filterByTimeWindow removed — airspace shows all flights, isFlightActive handles visibility
 import { LocationJump } from "./components/AirportSelector";
-import { DataSourcePanel } from "./components/sidebar/DataSourcePanel";
+import { LazyDataSourcePanel } from "./components/sidebar/LazyDataSourcePanel";
 import { LayerSidebar } from "./components/LayerSidebar";
 import { IconRailSidebar } from "./components/IconRailSidebar";
 import { showPlaceSearchResult } from "./map/placeSearchMarker";
@@ -158,7 +158,7 @@ import { createMeasureController } from "./map/measureController";
 import { formatMeasureArea, formatMeasureDistance } from "./map/measureMath";
 import { MemberPanel } from "./components/member/MemberPanel";
 import { memberLibraryStore, useMemberLibrary } from "./state/memberLibraryStore";
-import { LAYER_SEARCH_INDEX } from "./lib/layerSearch";
+import { getLayerSearchLabels } from "./lib/layerSearch";
 import { captureSceneParams, resolveSceneRestore } from "./lib/memberSceneAdapter";
 import { restoreLinkedSelects } from "./state/linkedSelect";
 import { validateScene, type MemberSceneSnapshot, type MemberPlaceGeometry } from "./lib/memberSchema";
@@ -287,7 +287,7 @@ export default function App() {
   const pendingSceneDoneRef = useRef<((skipped: string[]) => void) | null>(null);
   const [pendingMemberScene, setPendingMemberScene] = useState<MemberSceneSnapshot | null>(null);
   const favoriteKeys = useMemo(() => new Set(memberLibrary.userId === (memberUser?.id ?? null) ? memberLibrary.favorites : []), [memberLibrary.favorites, memberLibrary.userId, memberUser?.id]);
-  const memberLabels = useMemo(() => Object.fromEntries(LAYER_SEARCH_INDEX.map((item) => [item.key, item.label])), []);
+  const memberLabels = useMemo(() => getLayerSearchLabels() as Record<string, string>, []);
   const knownMemberKeys = useMemo(() => new Set(Object.keys(memberLabels)), [memberLabels]);
   useEffect(() => { memberLibraryStore.setUser(memberUser?.id ?? null); }, [memberUser?.id]);
   useEffect(() => {
@@ -2508,7 +2508,7 @@ export default function App() {
           <CompareDivider isDarkTheme={isDarkTheme} captureMode={captureMode} />
         </>
       )}
-      {agentEnabled && <MainMapConnection
+      {agentEnabled && <LazyMainMapConnection
         bridge={chatBridge}
         map={mapPrepared ? mapRef.current : null}
         labels={memberLabels}
@@ -3250,7 +3250,7 @@ export default function App() {
                 background: isDarkTheme ? SURFACE.solid : LIGHT.surfaceSolid,
               }}
             >
-              <DataSourcePanel
+              <LazyDataSourcePanel
                 isDarkTheme={isDarkTheme}
                 lockedKeys={lockedKeys}
                 onActivateLayer={(key) => { handleBulkSetVisibility([key], true); setMobileDataSourceOpen(false); }}
