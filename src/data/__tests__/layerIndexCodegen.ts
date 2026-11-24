@@ -29,7 +29,7 @@ function lucideExportName(icon: unknown, key: string): string {
 type Json = string | number | boolean | null | Json[] | { [k: string]: Json };
 
 /** 欄位為空（undefined／false）就省略，列才不會被一堆 null 撐大。 */
-function row(entry: LayerManifestEntry, iconName: string, draw: number | undefined, click: number | undefined) {
+function row(key: string, entry: LayerManifestEntry, iconName: string, draw: number | undefined, click: number | undefined) {
   const e = entry as LayerManifestEntry & { dataTimeZone?: string; longTerm?: { kind: string } };
   const themed = entry as Extract<LayerManifestEntry, { section: unknown }> & { section: { theme: string; group: string } };
   const out: Record<string, Json> = {
@@ -42,8 +42,9 @@ function row(entry: LayerManifestEntry, iconName: string, draw: number | undefin
   // 站主限定的唯一來源是 topics 的 OWNER_ONLY（layerCatalog.GATED_LAYERS 同口徑），不是 entry.gated
   if (entry.topics.includes("OWNER_ONLY")) out.gated = true;
   if (entry.expandable) out.expandable = true;
-  out.popup = entry.popup as Json;
-  out.legend = entry.legend;
+  // 與 key 同名就省略（讀時補回 key）；null＝有意識地沒有
+  if (entry.popup !== key) out.popup = entry.popup as Json;
+  if (entry.legend !== key) out.legend = entry.legend;
   if (e.dataTimeZone) out.dataTimeZone = e.dataTimeZone;
   if (e.longTerm) out.longTerm = e.longTerm.kind;
   // 即時時間軸圖層：topics 含「即時」且沒有 longTerm（longTermLayers.isLiveTimelineLayer 同口徑）
@@ -74,7 +75,7 @@ export function renderLayerIndexModule(): string {
     iconNames.add(iconName);
     const types = entry.popup === null ? [] : Array.isArray(entry.popup) ? entry.popup : [entry.popup];
     const clicks = types.map((t) => clickOrder.get(t)).filter((n): n is number => n !== undefined);
-    const r = row(entry, iconName, drawOrder.get(key), clicks.length ? Math.min(...clicks) : undefined);
+    const r = row(key, entry, iconName, drawOrder.get(key), clicks.length ? Math.min(...clicks) : undefined);
     body.push(`  ${JSON.stringify(key)}: ${JSON.stringify(r)},`);
   }
   const icons = [...iconNames].sort();

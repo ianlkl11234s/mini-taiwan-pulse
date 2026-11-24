@@ -9,7 +9,7 @@
  * 欄位（省略＝無）：
  *  - country／name／section／color／icon（lucide 識別名，用 LAYER_INDEX_ICONS 對照元件）
  *  - gated：站主限定（manifest topics 含 OWNER_ONLY，同 GATED_LAYERS 口徑）
- *  - expandable、popup（FeatureInfo layerType）、legend（圖例群組 id）
+ *  - expandable、popup（FeatureInfo layerType）、legend（圖例群組 id）；兩者與 key 同名時省略（用 indexPopup／indexLegend 讀）
  *  - dataTimeZone：上游切日的 IANA 時區（缺＝Asia/Taipei）
  *  - longTerm：長期時間條類別；live：即時時間軸圖層（topics 含「即時」且無 longTerm）
  *  - draw：OVERLAY_REGISTRY 內第一筆 config 的序號（疊放順序）；click：GIS_LAYERS 內第一筆對應 popup 的序號（first-hit-wins）
@@ -28,8 +28,10 @@ export interface LayerIndexRow {
   icon: string;
   gated?: true;
   expandable?: true;
-  popup: string | readonly string[] | null;
-  legend: string | null;
+  /** 省略＝與 key 同名；null＝沒有 */
+  popup?: string | readonly string[] | null;
+  /** 省略＝與 key 同名；null＝沒有 */
+  legend?: string | null;
   dataTimeZone?: string;
   longTerm?: LongTermKind;
   live?: true;
@@ -67,4 +69,16 @@ export function indexIcons(): Record<IndexedLayerKey, LucideIcon> {
 
 export function indexGatedKeys(): IndexedLayerKey[] {
   return INDEXED_LAYER_KEYS.filter((k) => (INDEX[k] as LayerIndexRow).gated);
+}
+
+/** popup layerType：省略＝與 key 同名。 */
+export function indexPopup(key: string): string | readonly string[] | null {
+  const row = layerIndexRow(key);
+  return row && row.popup === undefined ? key : (row?.popup ?? null);
+}
+
+/** 圖例群組 id：省略＝與 key 同名。 */
+export function indexLegend(key: string): string | null {
+  const row = layerIndexRow(key);
+  return row && row.legend === undefined ? key : (row?.legend ?? null);
 }
