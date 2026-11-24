@@ -17,3 +17,6 @@ export type CnRasterKey = (typeof CN_RASTER_KEYS)[number];
 /** 全部 24 個中國圖層 key（全部站主限定；與 pulse-data `_display_only.yaml`、gis-platform `public.gated_layers` 同一份）。 */
 export const CN_ALL_LAYER_KEYS = ["cnAdminBoundaries", "cnPopulation", "cnPopulationGrid", ...CN_DATA_KEYS, ...CN_RASTER_KEYS] as const;
 export type CnLayerKey = (typeof CN_ALL_LAYER_KEYS)[number];
+
+/** 站主權限被撤銷時的事件（useCnLayers 發出、App 收起全部中國圖層）。放 key 檔是因為 App 開站就要掛監聽，不能為此載入國家包。 */
+export const CN_ACCESS_DENIED_EVENT = "cn-owner-data-access-denied";

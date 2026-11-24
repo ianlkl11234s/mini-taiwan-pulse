@@ -1,3 +1,4 @@
+import { CN_ACCESS_DENIED_EVENT } from "../data/cnDataKeys";
 import { useEffect, useState } from "react";
 import type { AnyLayer, Map as MapboxMap } from "mapbox-gl";
 import { hookFillPaint, hookLineLayout, hookLinePaint } from "../map/lineFillSpec";
@@ -47,7 +48,6 @@ function firstSymbolLayerId(map: MapboxMap): string | undefined {
 
 // ═════════════════════════ 站主存取（owner-data） ═════════════════════════
 
-export const CN_ACCESS_DENIED_EVENT = "cn-owner-data-access-denied";
 /** 每個帳號只探一次（同一頁 9 個 host 共用）；撤權事件清掉重探；暫時性失敗不快取。 */
 const probes = new Map<string, Promise<boolean>>();
 
