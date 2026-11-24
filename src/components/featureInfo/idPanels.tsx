@@ -6,7 +6,7 @@ import { useLocale } from "../../state/localeStore";
 import { caText } from "../../data/intlLayerShared";
 import { makePhPanel } from "./intlSpecPanel";
 import {
-  ID_ADMIN_COLOR, ID_ADMIN_LEVEL_LABELS, ID_BOUNDARY_NOTE, ID_DATA_SPECS, ID_FETCHED_AT, ID_IDM_STATUS_KEYS, ID_NOT_COVERED_COLOR, phText, pickL3, type L3, type IdAdminLevel,
+  ID_ADMIN_COLOR, ID_ADMIN_LEVEL_LABELS, ID_DATA_SPECS, ID_FETCHED_AT, ID_IDM_STATUS_KEYS, ID_NOT_COVERED_COLOR, phText, pickL3, type L3, type IdAdminLevel,
 } from "../../data/idDataLayers";
 import { ID_SPEC_BY_KEY } from "../../data/idDataLayers";
 import type { IdDataKey } from "../../data/idDataKeys";
@@ -40,14 +40,14 @@ function AdminRows({ props, pick }: { props: Record<string, unknown>; pick: (t: 
   </>;
 }
 
-/** 行政邊界：名稱、層級、所屬省；邊界立場聲明。 */
+/** 行政邊界：名稱、層級、所屬省（邊界立場聲明在圖層說明・來源）。 */
 export function IdAdminBoundariesPanel({ props }: P) {
   const { locale } = useLocale();
   const pick = (t: L3) => pickL3(t, locale);
   return <>
     <Title color={ID_ADMIN_COLOR}>{nameOf(props) || pick({ zh: "行政區", en: "Administrative area", ja: "行政区域" })}</Title>
     <AdminRows props={props} pick={pick} />
-    <Row label={pick({ zh: "邊界說明", en: "Boundary note", ja: "境界の注記" })} value={pick(ID_BOUNDARY_NOTE)} />
+    {/* 邊界立場聲明每筆都一樣：在圖層「說明・來源」（ID_ADMIN_NOTES），popup 不重複（spec §5.2） */}
     <SourceFooter props={{ source_org: COD_AB.org, source_url: COD_AB.url, license: COD_AB.license, fetched_at: ID_FETCHED_AT }} />
   </>;
 }

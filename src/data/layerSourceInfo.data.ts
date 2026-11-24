@@ -315,7 +315,7 @@ export const LAYER_SOURCE_INFO_DATA: Record<string, LayerSourceInfo> = {
   harmReductionAlcohol: { org: "衛生福利部心理健康司", license: "unspecified（頁面無授權標示）", url: "https://dep.mohw.gov.tw/DOMHAOH/cp-4382-46834-107.html", from: "catalog" },
   harmReductionAntiDrugPharmacies: { org: "新北市政府、高雄市政府", license: "OGDL-1.0-TW", url: "https://data.gov.tw/dataset/125302", from: "catalog" },
   harmReductionCondomOutlets: { org: { "zh-TW": "各縣市政府", en: { key: "enum.atlasOrg.countyGov" }, ja: { key: "enum.atlasOrg.countyGov" } }, from: "legend" },
-  harmReductionDuiCrashes: { org: "內政部警政署", license: "OGDL-1.0-TW", url: "https://data.gov.tw/dataset/177136", from: "catalog" },
+  harmReductionDuiCrashes: { org: "內政部警政署", license: "OGDL-1.0-TW", url: "https://data.gov.tw/dataset/177136", asOf: { "zh-TW": "民國 107–114 年", en: "2018–2025 (ROC 107–114)", ja: "2018–2025 年（民国 107–114 年）" }, notes: [{ "zh-TW": "座標取自警方事故紀錄", en: "Coordinates from the police crash record", ja: "座標は警察の事故記録による" }], from: "catalog" },
   harmReductionHivSelftest: { org: "衛生福利部疾病管制署", license: "unspecified（頁面未標示）", url: "https://hiva.cdc.gov.tw/selftest/Service_place.aspx", from: "catalog" },
   harmReductionInternetAddiction: { org: "衛生福利部心理健康司", license: "unspecified", url: "https://dep.mohw.gov.tw/DOMHAOH/cp-4104-87269-107.html", from: "catalog" },
   harmReductionNeedle: { org: "衛生福利部疾病管制署＋縣市衛生局開放資料", license: "unspecified（疾管署頁面無授權標示）", url: "https://www.cdc.gov.tw/Category/MPage/BVGmgum1evkhTprNSeSjNQ", from: "catalog" },
