@@ -1,4 +1,5 @@
 import { MainMapConnection } from "./research/MainMapConnection";
+import { globalEventsViewStore } from "./state/globalEventsViewStore";
 import { useAnalysisLegend } from "./research/analysisLegendStore";
 import type { AnalysisResultPanelProperties } from "./research/researchResultPopup";
 import { recordSelectionClick, selectionRingAccent, SELECTION_RING_ACCENT_VAR } from "./map/selectionRing";
@@ -1300,6 +1301,14 @@ export default function App() {
       invalidateFeatureRequest();
       setFeatureInfo({ layerType: "analysisResult", properties });
     } else setFeatureInfo((current) => current?.layerType === "analysisResult" ? null : current);
+  }, [setFeatureInfo, invalidateFeatureRequest]);
+  // 全球事件 popup 的「可能相關報導」清單點一則 → popup 換成那一則（只有清單用，INTEL 選取不經過這裡）。
+  useEffect(() => {
+    globalEventsViewStore.setPopupOpener(({ properties, coords }) => {
+      invalidateFeatureRequest();
+      setFeatureInfo({ layerType: "globalEvent", properties, coords });
+    });
+    return () => globalEventsViewStore.setPopupOpener(null);
   }, [setFeatureInfo, invalidateFeatureRequest]);
 
   // ── 水庫 context 動態疊層 + panel 資料 ──
