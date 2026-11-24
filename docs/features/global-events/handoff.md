@@ -42,6 +42,8 @@ Platform #91／migration399與45舊候選概略位置enrichment已上線；Colle
 
 ## AI 未判讀（2026-11-24）
 
+**上線狀態**：2026-11-24 15:4x（台北）gis-platform #256 合併（6ab0f07），migration 566 已套用正式 DB（隨附驗證 566 OK）；pulse-host 收集器已開 `GLOBAL_EVENTS_ASSESSMENT_NOTE_ENABLED=true` 並重建（映像 d071ba8）。之後新寫入的 AI 未判讀候選會帶 `assessment_note`。
+
 契約正本：data-collectors `docs/GLOBAL_EVENTS_AI_UNASSESSED.md`；欄位：gis-platform migration 566（`assessment_note`，未套用前前端退回比對理由句）。
 
 - 候選永遠不會再有 AI 判讀時稱「AI 未判讀」：`provider_rejected`（AI 服務內容審查擋下）、`model_failed`（連續 4 輪判讀失敗後放行）。資料上仍是 `assessment_status='pending'`、`decision=null`。

@@ -84,7 +84,7 @@ import { getH3Resolution } from "./map/h3LayerFactory";
 import { DEFAULT_CAMERA, getPresetById } from "./map/cameraPresets";
 import { DEFAULT_COUNTRY, countryDef, type CountryCode } from "./constants/countries";
 import { countryForMapCenter } from "./lib/localClock";
-import { countryCameraMemory, countryStore, resolveInitialCountry, useCountry, useOwnerOnlyCountryGuard, type CountryFlyMode } from "./state/countryStore";
+import { countryCameraMemory, countryStore, resolveInitialCountry, useCountry, useOwnerOnlyCountryGuard, usePinnedCountries, useVisibleCountries, type CountryFlyMode } from "./state/countryStore";
 import { countryForLayerKeys } from "./research/explorationNavigation";
 // filterByTimeWindow removed — airspace shows all flights, isFlightActive handles visibility
 import { LocationJump } from "./components/AirportSelector";
@@ -135,8 +135,14 @@ import type { MapBridge } from "./chat/types";
 import { BookOpen, Bot, Box, Camera, CircleHelp, Columns2, MessageSquare, Share2, UserRound } from "lucide-react";
 import { CompareMapView } from "./map/CompareMapView";
 import { CompareDivider } from "./components/compare/CompareDivider";
-import { compareStore, isCompareSupported, useCompareSelector } from "./state/compareStore";
+import { CountryCompareChrome } from "./components/compare/CountryCompareChrome";
+import { CompareMenu } from "./components/toolbar/CompareMenu";
+import { CountryCompareMapView } from "./map/CountryCompareMapView";
+import { rightSideBlocker } from "./map/compareCountrySides";
+import { compareHydrateFromUrl, compareStore, countriesTipSeen, isCompareSupported, markCountriesTipSeen, pickRightCountry, useCompareSelector, type CompareMode } from "./state/compareStore";
 import { restoreMobileCompare } from "./utils/mobileCompareRestore";
+import { abStash, countryAbStore, normalizeAb, switchAb, useCountryAb } from "./state/countryAbStore";
+import { CountryAbSwitch } from "./components/compare/CountryAbSwitch";
 import { compareSelectionsForUrl, restoreSelectionsAfterLoad, singleSelectionsForUrl } from "./state/compareStatistics";
 import { layerParamsForUrl, resolveUrlLayerParams } from "./lib/urlLayerParams";
 import { statisticsDefaultOpacity } from "./data/statisticsVisuals";
@@ -263,6 +269,11 @@ export default function App() {
     const { center, zoom, pitch, bearing } = mode === "remembered" ? countryCameraMemory.resolve(code) : countryDef(code).camera;
     mapRef.current?.flyTo({ center, zoom, pitch, bearing, speed: 1.0 });
   }, []);
+  /** 並排左側 chip 換國家：同圖層面板選國家（切 countryStore）＋飛到該國上次的鏡頭 */
+  const handleLeftCountry = useCallback((code: CountryCode, mode: CountryFlyMode = "remembered") => {
+    countryStore.set(code);
+    handleCountryFly(code, mode);
+  }, [handleCountryFly]);
 
   // layer visibility 必須早於動態資料 hook 宣告：供 boot lazy gating（圖層關 → 不抓資料）
   const { layerVisibility, layerVisibilityRef, setLayerVisibility, toggleVisibility } = useLayerVisibility();
@@ -548,27 +559,81 @@ export default function App() {
   // 只訂開關：拖把手（split 每幀變）不重繪 App
   const compareEnabled = useCompareSelector((state) => state.enabled);
   const compareActive = compareEnabled && !isMobile;
+  // 兩國並排（G2-1）：右側國家要先定好才建右圖；手機不支援（站主決定 4，G2-2 另做）
+  const compareMode = useCompareSelector((state) => state.mode);
+  const compareRightCountry = useCompareSelector((state) => state.rightCountry);
+  const countriesCompareActive = compareActive && compareMode === "countries" && compareRightCountry !== null;
+  const visibleCountryCodes = useVisibleCountries().map((c) => c.code);
+  const pinnedCountryCodes = usePinnedCountries();
+  const pickRightCountryRef = useRef<(current: CountryCode | null) => CountryCode | null>(() => null);
+  pickRightCountryRef.current = (current) => pickRightCountry(countryStore.getSnapshot(), pinnedCountryCodes, visibleCountryCodes, current);
+  // 並排中右側國家不合法（左側換成同一國、身分降級看不到、還沒選）→ 換成下一個釘選外國
+  useEffect(() => {
+    if (!compareEnabled || compareMode !== "countries") return;
+    const next = pickRightCountryRef.current(compareRightCountry);
+    if (next !== compareRightCountry) compareStore.setRightCountry(next);
+  }, [compareEnabled, compareMode, compareRightCountry, country, visibleCountryCodes.join(","), pinnedCountryCodes]);
+  // 右圖換國家或關掉：右圖點出來的資訊面板跟著關（那筆資料的地圖已經不在）
+  useEffect(() => {
+    setFeatureInfo((info) => (info?.properties?.compare_side === "right" ? null : info));
+  }, [compareRightCountry, countriesCompareActive]);
+  /** 工具列比較入口選了模式（並排先補齊右側國家再開） */
+  const handleOpenCompare = useCallback((mode: CompareMode) => {
+    if (mode === "countries") compareStore.setRightCountry(pickRightCountryRef.current(compareStore.getSnapshot().rightCountry));
+    compareStore.open(mode);
+  }, []);
   /**
    * 手機退回單地圖時寄放的比較狀態（VIZ-26）：網址照樣寫回 cmp*，只是不渲染右側；
    * 回到桌機寬度時還原成比較畫面。store 在手機維持關閉，右側相關的讀取端不必各自判斷手機。
    */
   const mobileCompareRef = useRef<UrlState["compare"]>(undefined);
+  // 手機兩國 A／B 切換（G2-2）：一次一張地圖，A、B 之間切換；網址仍寫成 cmp=2（寄放的比較狀態）
+  const countryAb = useCountryAb();
+  const countryAbOpenRef = useRef<(preferredB: CountryCode | null) => boolean>(() => false);
+  countryAbOpenRef.current = (preferredB) => countryAbStore.open(countryStore.getSnapshot(), pinnedCountryCodes, visibleCountryCodes, preferredB);
+  // A／B 保持合法（從國家選單換了國家、身分降級）＋寄放狀態跟著目前顯示的國家（網址／回桌機用）
+  useEffect(() => {
+    if (!isMobile || !countryAb) return;
+    const next = normalizeAb(countryAb, country, pinnedCountryCodes, visibleCountryCodes);
+    if (next !== countryAb) { countryAbStore.set(next); return; }
+    mobileCompareRef.current = abStash(countryAb, country, mobileCompareRef.current);
+  }, [isMobile, countryAb, country, visibleCountryCodes.join(","), pinnedCountryCodes]);
+  /** 手機標頭 ⋯ 的「兩國切換」：開／關 */
+  const handleToggleCountryAb = useCallback(() => {
+    if (countryAbStore.getSnapshot()) {
+      countryAbStore.close();
+      if (mobileCompareRef.current?.mode === "countries") mobileCompareRef.current = undefined;
+    } else countryAbOpenRef.current(null);
+  }, []);
+  /** 點另一國：記下離開那一國的鏡頭，飛到目標國上次的鏡頭（沒記錄＝預設） */
+  const handleCountryAbSwitch = useCallback((target: CountryCode) => {
+    const ab = countryAbStore.getSnapshot();
+    const map = mapRef.current;
+    if (!ab) return;
+    const c = map?.getCenter();
+    // 飛行途中（上一次切換還沒到）的鏡頭不記：那只是半路上的一點，不是使用者停下來的位置
+    const { country: next, camera } = switchAb(ab, countryStore.getSnapshot(), map && c && !map.isMoving()
+      ? { center: [c.lng, c.lat], zoom: map.getZoom(), pitch: map.getPitch(), bearing: map.getBearing() }
+      : null, target);
+    countryStore.set(next);
+    map?.flyTo({ center: camera.center, zoom: camera.zoom, pitch: camera.pitch, bearing: camera.bearing, speed: 1.0 });
+  }, []);
   useEffect(() => {
     if (isMobile && compareStore.getSnapshot().enabled) {
-      mobileCompareRef.current = compareStateFromStoreRef.current();
+      const stash = compareStateFromStoreRef.current();
+      mobileCompareRef.current = stash;
       compareStore.setEnabled(false);
+      // 兩國並排縮到手機＝進入 A／B 切換（A＝目前國家、B＝原本的右國；G2-2）
+      if (stash?.mode === "countries") countryAbOpenRef.current(stash.rightCountry ?? null);
       return;
     }
+    if (!isMobile) countryAbStore.close();
     const stashedRaw = mobileCompareRef.current;
     if (isMobile || !stashedRaw) return;
     mobileCompareRef.current = undefined;
     // 左側期別以手機單地圖目前的選擇為準（不蓋掉使用者在手機上的改動）；此時單地圖選擇還沒被比較模式接管
     const stashed = restoreMobileCompare(stashedRaw, singleSelectionsForUrl((key) => !lockedKeysRef.current.has(key as keyof LayerVisibility)));
-    compareStore.hydrate({
-      enabled: true,
-      ...(stashed.split !== undefined ? { split: stashed.split } : {}),
-      sides: Object.fromEntries([...(stashed.left ?? []).map((key) => [key, "left"] as const), ...(stashed.right ?? []).map((key) => [key, "right"] as const)]),
-    });
+    compareStore.hydrate(compareHydrateFromUrl(stashed));
     if (stashed.leftSelection || stashed.rightSelection) void restoreSelectionsAfterLoad(stashed.leftSelection, stashed.rightSelection);
   }, [isMobile]);
   const [chatOpen, setChatOpen] = useState(false);
@@ -1427,6 +1492,11 @@ export default function App() {
     map.on("moveend", update);
     return () => { map.off("moveend", update); };
   }, [mapPrepared]);
+  // 時間軸當地時間小字：單地圖＝地圖中心所在國；兩國並排＝左右兩國（同一刻；當地同時刻是 G2-4）
+  const localClocks = useMemo(() => {
+    if (countriesCompareActive && compareRightCountry) return [{ country: centerCountry ?? country }, { country: compareRightCountry }];
+    return centerCountry ? [{ country: centerCountry }] : [];
+  }, [countriesCompareActive, compareRightCountry, centerCountry, country]);
 
   // 選取圈（useSelectionRing）的主題色走地圖容器上的 CSS 變數，Marker DOM 直接繼承。
   useEffect(() => {
@@ -2046,7 +2116,9 @@ export default function App() {
     if (urlCompare) {
       if (isMobile) {
         mobileCompareRef.current = urlCompare;
-        // 語系包是 lazy 載入：開頁當下 t 還停在預設語系，等目標語系載完（active＝locale）再翻，否則英日文介面會看到中文
+        // 兩國並排的網址在手機＝A／B 切換（A＝目前國家，B＝cmpc）；拉桿仍退回單地圖並提示
+        if (urlCompare.mode === "countries") countryAbOpenRef.current(urlCompare.rightCountry ?? null);
+        else {        // 語系包是 lazy 載入：開頁當下 t 還停在預設語系，等目標語系載完（active＝locale）再翻，否則英日文介面會看到中文
         const notify = () => showTransientNotice(localeStore.getSnapshot().t("compare.mobileFallback"));
         const snap = localeStore.getSnapshot();
         if (snap.active === snap.locale) notify();
@@ -2056,11 +2128,8 @@ export default function App() {
             if (next.active === next.locale) { off(); notify(); }
           });
         }
-      } else compareStore.hydrate({
-        enabled: true,
-        ...(urlCompare.split !== undefined ? { split: urlCompare.split } : {}),
-        sides: Object.fromEntries([...(urlCompare.left ?? []).map((key) => [key, "left"] as const), ...(urlCompare.right ?? []).map((key) => [key, "right"] as const)]),
-      });
+        }
+      } else compareStore.hydrate(compareHydrateFromUrl(urlCompare));
     }
     // URL 明示模式優先於 localStorage；舊連結若列出統計面卻沒有 sm，安全地以單一
     // 模式收斂（layers 原始順序的最後一個統計面保留），避免舊多色階重疊難以閱讀。
@@ -2120,6 +2189,8 @@ export default function App() {
     if (!isMobile) return compareStateFromStore();
     const stashed = mobileCompareRef.current;
     if (!stashed) return undefined;
+    // 並排的參數與圖層開關無關，原樣寫回（VIZ-26）
+    if (stashed.mode === "countries") return stashed;
     const visible = (key: string) => Boolean(layerVisibilityRef.current[key as keyof LayerVisibility]);
     const left = stashed.left?.filter(visible);
     const right = stashed.right?.filter(visible);
@@ -2136,6 +2207,14 @@ export default function App() {
   const compareStateFromStore = (): UrlState["compare"] => {
     const snapshot = compareStore.getSnapshot();
     if (!snapshot.enabled) return undefined;
+    if (snapshot.mode === "countries") {
+      return {
+        mode: "countries",
+        ...(snapshot.rightCountry ? { rightCountry: snapshot.rightCountry } : {}),
+        ...(snapshot.rightCamera ? { rightCamera: snapshot.rightCamera } : {}),
+        ...(snapshot.scaleLocked ? {} : { scaleLocked: false as const }),
+      };
+    }
     const sides = Object.entries(snapshot.sides);
     const visible = (key: string) => Boolean(layerVisibilityRef.current[key as keyof LayerVisibility]);
     const left = sides.filter(([key, side]) => side === "left" && visible(key)).map(([key]) => key);
@@ -2325,13 +2404,20 @@ export default function App() {
       onDismiss: () => setHistoricalLabelTipDismissed(true),
     }
     : null;
-  // 比較模式剛開：同一張卡的第四段（§5.42）說明把手與「顯示在」，並列出幾個開著的圖層只在左側；每次開比較顯示一次
+  // 比較模式剛開：同一張卡的第四段（§5.42）說明把手與「顯示在」，並列出幾個開著的圖層只在左側；每次開比較顯示一次。
+  // 兩國並排的說明看過（按「知道了」）就記在這個瀏覽器，重整或再開都不再出現
   const [compareTipDismissed, setCompareTipDismissed] = useState(false);
+  const [countriesTipSeenState, setCountriesTipSeenState] = useState(countriesTipSeen);
   useEffect(() => { if (!compareActive) setCompareTipDismissed(false); }, [compareActive]);
-  const compareTip = compareActive && !compareTipDismissed && !captureMode && !chatOpen && !agentActivityVisible
+  const compareTip = compareActive && !compareTipDismissed && !(countriesCompareActive && countriesTipSeenState) && !captureMode && !chatOpen && !agentActivityVisible
     ? {
-      unsupported: (Object.entries(layerVisibility) as [string, boolean][]).filter(([key, on]) => on && !lockedKeys.has(key as keyof LayerVisibility) && !isCompareSupported(key)).length,
-      onDismiss: () => setCompareTipDismissed(true),
+      unsupported: (Object.entries(layerVisibility) as [string, boolean][]).filter(([key, on]) => on && !lockedKeys.has(key as keyof LayerVisibility)
+        && (countriesCompareActive ? rightSideBlocker(key, compareRightCountry) !== null : !isCompareSupported(key))).length,
+      countries: countriesCompareActive,
+      onDismiss: () => {
+        setCompareTipDismissed(true);
+        if (countriesCompareActive) { markCountriesTipSeen(); setCountriesTipSeenState(true); }
+      },
     }
     : null;
   const layerHint = useLayerVisibilityHint({
@@ -2522,7 +2608,32 @@ export default function App() {
         onMapReady={handleMapReady}
       />
       {/* 比較模式右圖（開才建、關就銷毀）＋把手；主地圖＝左側，Agent 只操作主地圖（右圖靠鏡頭同步跟著動） */}
-      {compareActive && mapPrepared && mapRef.current && (
+      {countriesCompareActive && mapPrepared && mapRef.current && (
+        <>
+          {/* 兩國並排右圖：換右側國家＝以 key 整張重建（舊國圖層不殘留） */}
+          <CountryCompareMapView
+            key={compareRightCountry}
+            mainMap={mapRef.current}
+            rightCountry={compareRightCountry}
+            styleUrl={styleUrl}
+            pureBlack={mapStyleId === "black"}
+            isDarkTheme={isDarkTheme}
+            showBasemapLabels={showBasemapLabels}
+            featureInfo={featureInfo}
+            onFeatureInfo={setFeatureInfo}
+            hostDeps={hostDeps}
+          />
+          <CountryCompareChrome
+            isDarkTheme={isDarkTheme}
+            captureMode={captureMode}
+            mainMap={mapRef.current}
+            leftCountry={country}
+            rightCountry={compareRightCountry}
+            onLeftCountry={handleLeftCountry}
+          />
+        </>
+      )}
+      {compareActive && compareMode === "slider" && mapPrepared && mapRef.current && (
         <>
           <CompareMapView
             mainMap={mapRef.current}
@@ -2756,15 +2867,7 @@ export default function App() {
                 onToggleLabels={() => setShowBasemapLabels((visible) => !visible)}
               />
               {toolbarDivider}
-              <ToolbarButton
-                palette={toolbarPalette}
-                icon
-                pressed={compareEnabled}
-                title={t(compareEnabled ? "compare.toolbarOn" : "compare.toolbar")}
-                onClick={() => compareStore.setEnabled(!compareStore.getSnapshot().enabled)}
-              >
-                <Columns2 size={13} />
-              </ToolbarButton>
+              <CompareMenu isDarkTheme={isDarkTheme} onOpenMode={handleOpenCompare} />
               <ToolbarButton
                 palette={toolbarPalette}
                 icon
@@ -2954,7 +3057,7 @@ export default function App() {
           {appMode === "realtime" ? (
             <LongTermTimelineGate isDark={isDarkTheme} leftOffset={sidebarWidth + 16} rightReserve={splitActive ? `calc(${navColumnRight} + 296px)` : undefined}>
             <LiveTimelineControls
-              localClockCountry={centerCountry}
+              localClocks={localClocks}
               playing={timeline.playing}
               speed={timeline.speed}
               timeMode={timeline.timeMode}
@@ -3089,6 +3192,7 @@ export default function App() {
                   onSelect: () => setRenderMode((m) => (m === "3d" ? "2d" : "3d")),
                   trailing: <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, color: toolbarPalette.textDim }}>{renderMode === "3d" ? "3D" : "2D"}</span>,
                 },
+                { key: "compare", label: t(countryAb ? "compare.mobileAbClose" : "compare.mobileAb"), icon: <Columns2 size={15} />, active: countryAb !== null, onSelect: handleToggleCountryAb },
                 ...(agentEnabled
                   ? [{ key: "agent", label: t("toolbar.agent"), icon: <Bot size={15} />, active: agentOpen, onSelect: () => setAgentOpen((value) => !value) }]
                   : []),
@@ -3116,7 +3220,7 @@ export default function App() {
           >
             {appMode === "realtime" ? (
               <LiveTimelineControls
-                localClockCountry={centerCountry}
+                localClocks={localClocks}
                 playing={timeline.playing}
                 speed={timeline.speed}
                 timeMode={timeline.timeMode}
@@ -3168,6 +3272,10 @@ export default function App() {
             <div style={{ position: "absolute", top: "calc(100% + 12px)", left: 12, right: 54, display: "flex", justifyContent: "center", pointerEvents: "none" }}>
               <MeasureToolbar controller={measure} isDarkTheme={isDarkTheme} variant="mobile" />
             </div>
+            {/* 兩國 A／B 切換（§5.45.1 手機；G2-2）：時間軸列下方 12px、靠左，跟著時間軸列實際高度走；量測工具列出現時往下讓一列 */}
+            {countryAb && (
+              <CountryAbSwitch isDarkTheme={isDarkTheme} ab={countryAb} current={country} onSwitch={handleCountryAbSwitch} top={measuring ? "calc(100% + 64px)" : "calc(100% + 12px)"} />
+            )}
           </div>
 
           {/* Bottom Sheet */}
@@ -3629,7 +3737,8 @@ export default function App() {
           )}
         </div>
         {/* 比例尺（§5.43）：停靠欄最底一列，寬度跟欄寬（最小 224）；與上方間距 12（欄 gap 8 ＋ 4）；z<5 不渲染、不留空位 */}
-        {navColumnVisible && (
+        {/* 兩國並排時改由分隔線兩側各一條（CountryCompareChrome），這裡不畫，免得看不出量的是哪一張 */}
+        {navColumnVisible && !countriesCompareActive && (
           <MapScaleBar
             map={mapPrepared ? mapRef.current : null}
             isDarkTheme={isDarkTheme}

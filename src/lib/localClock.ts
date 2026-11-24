@@ -17,6 +17,12 @@ export interface LocalClock {
   utc?: boolean;
 }
 
+/** 時間軸要附當地時間的一國；`unixSec` 缺省＝時間軸目前時刻（G2-4 當地同時刻時，某側可傳自己的時鐘） */
+export interface LocalClockSource {
+  country: CountryCode;
+  unixSec?: number;
+}
+
 const pad2 = (n: number) => String(n).padStart(2, "0");
 
 function formatOffset(minutes: number): string {

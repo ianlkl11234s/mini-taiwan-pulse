@@ -10,13 +10,15 @@ import { LAYER_COLORS, THEMES, TRANSPORT_LABELS, layerDisplayName, themeKey, the
 import { LAYER_PANELS, PANEL_COUNTRIES, panelLayerKeys, type LayerPanelId, type PanelMacroGroup } from "./layerPanels";
 import { CountryMenu } from "./CountryMenu";
 import type { CountryFlyMode } from "../../state/countryStore";
-import { useVisibleCountries } from "../../state/countryStore";
+import { usePinnedCountries, useVisibleCountries } from "../../state/countryStore";
 import { countryDef, DEFAULT_COUNTRY, type CountryCode } from "../../constants/countries";
 import { PanelHeader as SharedPanelHeader } from "./PanelHeader";
 import { StatisticsModeControl } from "./StatisticsModeControl";
 import { MedicalStatisticsGroupControls } from "./MedicalStatisticsGroupControls";
 import { ExpandedControls } from "./ExpandedControls";
 import { LayerRow } from "./LayerRow";
+import { PinnedOpenLayers } from "./PinnedOpenLayers";
+import { groupPinnedOpenLayers } from "./pinnedOpenGroups";
 import { MacroGroupLabel, SubGroupLabel, ThemeBanner } from "./ThemeBanner";
 import { useRailTheme } from "./railTheme";
 import { LAYER_ICONS } from "./layerIcons";
@@ -130,6 +132,14 @@ export function LayersPanel({
   // 其他入口（同一國家；統計不涵蓋目前國家時算台灣的統計）＋其他國家的「圖層」入口（顯示國名）
   // 跨國命中只列看得到的國家（站主限定的中國不對非站主列出）
   const visibleCountryCodes = new Set(useVisibleCountries().map((c) => c.code));
+  // G1-b：釘選、非目前國家、開著的圖層（只在圖層入口；搜尋中不畫）
+  const pinnedCountries = usePinnedCountries();
+  const pinnedOpenGroups = useMemo(
+    () => (panelId === "layers" && onCountrySelect && covered ? groupPinnedOpenLayers(pinnedCountries, country, visibleCountryCodes, visibility) : []),
+    // visibleCountryCodes 每次 render 重建；用國碼字串當穩定依賴
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [panelId, onCountrySelect, covered, pinnedCountries, country, [...visibleCountryCodes].join(","), visibility],
+  );
   const otherPanelHits = q && panelId
     ? [
       ...LAYER_PANELS.filter((panel) => panel.id !== panelId && (!availablePanelIds || availablePanelIds.includes(panel.id))).map((panel) => {
@@ -438,6 +448,17 @@ export function LayersPanel({
           );
         })}
       </div>
+      {!q && onCountrySelect && (
+        <PinnedOpenLayers
+          groups={pinnedOpenGroups}
+          visibility={visibility}
+          lockedKeys={lockedKeys}
+          getCount={getCount}
+          onToggleVisibility={onToggleVisibility}
+          onBulkSetVisibility={onBulkSetVisibility}
+          onCountrySelect={onCountrySelect}
+        />
+      )}
     </>
   );
 }

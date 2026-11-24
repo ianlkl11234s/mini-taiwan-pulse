@@ -19,7 +19,7 @@ import { basemapLabelLanguage, bindBasemapLanguage } from "./basemapLanguage";
 import { applyPureBlackTheme, setBasemapLabelsVisible, setupTerrain } from "./MapView";
 import { syncMaps, cameraOf, type SyncableMap } from "./compareSync";
 import { attachRegionalStatistics } from "./regionalStatisticsMap";
-import { COMPARE_DEFAULT_SPLIT, compareStore, shownOnRight, useCompareSelector, useCompareState, type CompareState } from "../state/compareStore";
+import { compareStore, shownOnRight, useCompareSideState, useCompareState, type CompareSideState } from "../state/compareStore";
 import { compareCircleReference, compareDotUnit, rightReadKey, startRightSelectionSync } from "../state/compareStatistics";
 import { layerVisibilityStore, useLayerVisibilityAll } from "../state/layerVisibilityStore";
 import { STATISTICS_RENDER_KEYS } from "../data/regionalStatisticsRecipes";
@@ -189,9 +189,7 @@ export function CompareMapView({ mainMap, styleUrl, pureBlack, isDarkTheme, show
 /** 右圖的 hook 型圖層（P1：古地圖六層）＋選取圈；右圖 load 之後才掛，hook 一定拿得到地圖 */
 function CompareRightLayers({ mapRef, featureInfo }: { mapRef: React.RefObject<mapboxgl.Map | null>; featureInfo: FeatureInfo | null }) {
   // 只訂開關與側別（拖把手不重繪這些 hook）
-  const enabled = useCompareSelector((state) => state.enabled);
-  const sides = useCompareSelector((state) => state.sides);
-  const compare: CompareState = { enabled, sides, split: COMPARE_DEFAULT_SPLIT };
+  const compare = useCompareSideState();
   const visibility = useLayerVisibilityAll() as unknown as Record<string, boolean>;
   // 固定順序呼叫（每個 key 一次），不在迴圈裡以免違反 hooks 規則
   useRightHistorical(mapRef, "historicalMapSinica", Boolean(visibility.historicalMapSinica), compare);
@@ -204,7 +202,7 @@ function CompareRightLayers({ mapRef, featureInfo }: { mapRef: React.RefObject<m
   return null;
 }
 
-function useRightHistorical(mapRef: React.RefObject<mapboxgl.Map | null>, key: HistoricalMapGroupKey, visible: boolean, compare: CompareState) {
+function useRightHistorical(mapRef: React.RefObject<mapboxgl.Map | null>, key: HistoricalMapGroupKey, visible: boolean, compare: CompareSideState) {
   const group = HISTORICAL_MAP_GROUPS.find((g) => g.key === key)!;
   const p = useKeyOverlayParams(key) as Record<string, number | undefined>;
   // 透明度、年代兩側共用（P1 不做左右不同年代）

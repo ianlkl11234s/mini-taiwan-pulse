@@ -660,13 +660,34 @@ function dropPendingPaint(map: object, id: string): void {
 }
 
 // ── Static GeoJSON lazy hydration ──
-// 全域單例：紀錄哪些 sourceId 已經 hydrate（fetch + setData）過，避免重抓。
+// 每張地圖各自紀錄哪些 sourceId 已經 hydrate（fetch + setData）過，避免重抓。
 // key 用 sourceId（不是 config.id），自然處理「多個 overlay 共用同一 sourceUrl」。
-const hydratedSources = new Set<string>();
-/** 以「部署時版本（fallback）」hydrate 的 sourceId：資產索引 ready 後要改抓 CDN 版本（見 refreshFallbackHydratedOverlay） */
-const fallbackHydratedSources = new Set<string>();
-/** 每個 sourceId 的 hydrate 世代：舊請求（例如 fallback）較晚回來時不可覆寫新請求的資料 */
-const hydrateGeneration = new Map<string, number>();
+// 以地圖實例分開（G2-1b）：兩國並排的右圖和主地圖各有一份 source，同一個 sourceId 要能各自 hydrate；
+// 一張圖 remove 後它的紀錄隨 WeakMap 回收，不影響另一張。
+interface HydrationState {
+  hydrated: Set<string>;
+  /** 以「部署時版本（fallback）」hydrate 的 sourceId：資產索引 ready 後要改抓 CDN 版本（見 refreshFallbackHydratedOverlay） */
+  fallback: Set<string>;
+  /** 每個 sourceId 的 hydrate 世代：舊請求（例如 fallback）較晚回來時不可覆寫新請求的資料 */
+  generation: Map<string, number>;
+}
+let hydrationByMap = new WeakMap<object, HydrationState>();
+function hydrationOf(map: object): HydrationState {
+  let state = hydrationByMap.get(map);
+  if (!state) {
+    state = { hydrated: new Set(), fallback: new Set(), generation: new Map() };
+    hydrationByMap.set(map, state);
+  }
+  return state;
+}
+/** 第二張地圖（兩國並排右圖）的載入任務 id 後綴，免得兩張圖同一個 source 的載入狀態互相蓋掉；主地圖不設 */
+const taskSuffixByMap = new WeakMap<object, string>();
+export function setOverlayTaskSuffix(map: object, suffix: string): void {
+  taskSuffixByMap.set(map, suffix);
+}
+function hydrateTaskId(map: object, sourceId: string): string {
+  return `overlay-hydrate:${sourceId}${taskSuffixByMap.get(map) ?? ""}`;
+}
 
 function ringCentroid(ring: GeoJSON.Position[]): [number, number] | null {
   if (ring.length < 3) return null;
@@ -781,14 +802,15 @@ export async function hydrateOverlayIfNeeded(
   config: OverlayConfig,
 ): Promise<void> {
   if (config.pmtiles || config.dynamicData) return;
-  if (hydratedSources.has(config.sourceId)) return;
-  hydratedSources.add(config.sourceId);
-  const generation = (hydrateGeneration.get(config.sourceId) ?? 0) + 1;
-  hydrateGeneration.set(config.sourceId, generation);
-  const taskId = `overlay-hydrate:${config.sourceId}`;
+  const state = hydrationOf(map);
+  if (state.hydrated.has(config.sourceId)) return;
+  state.hydrated.add(config.sourceId);
+  const generation = (state.generation.get(config.sourceId) ?? 0) + 1;
+  state.generation.set(config.sourceId, generation);
+  const taskId = hydrateTaskId(map, config.sourceId);
   const resolved = resolveAssetUrl(config.sourceUrl);
-  if (resolved.source === "fallback") fallbackHydratedSources.add(config.sourceId);
-  else fallbackHydratedSources.delete(config.sourceId);
+  if (resolved.source === "fallback") state.fallback.add(config.sourceId);
+  else state.fallback.delete(config.sourceId);
   const baseLabel = LAYER_LABELS[config.id] ?? config.sourceId;
   // 已遷移的圖層拿不到索引時，沿用右上載入狀態條提示正在顯示部署時版本
   const label = resolved.source === "fallback" ? `${baseLabel}（顯示部署時版本）` : baseLabel;
@@ -805,7 +827,7 @@ export async function hydrateOverlayIfNeeded(
         ? polygonFeaturesToInteriorPoints(raw)
         : raw;
     // 已有較新的 hydrate（例如索引 ready 後改抓 CDN）→ 這份舊結果丟棄
-    if (hydrateGeneration.get(config.sourceId) !== generation) return;
+    if (state.generation.get(config.sourceId) !== generation) return;
     const src = map.getSource(config.sourceId);
     if (src && "setData" in src) {
       (src as any).setData(json);
@@ -813,7 +835,7 @@ export async function hydrateOverlayIfNeeded(
   } catch (e) {
     failed = true;
     // fallback 標記不清：索引稍後就緒時仍要改抓 CDN（否則部署版失敗後圖層永遠空白）
-    if (hydrateGeneration.get(config.sourceId) === generation) hydratedSources.delete(config.sourceId);
+    if (state.generation.get(config.sourceId) === generation) state.hydrated.delete(config.sourceId);
     console.warn(`[overlay] hydrate ${config.sourceId} failed:`, e);
   } finally {
     // 以失敗結束 → 右上載入狀態條顯示「載入失敗 · 圖層名」，不再靜默空圖
@@ -822,10 +844,16 @@ export async function hydrateOverlayIfNeeded(
 }
 
 /** 底圖切換（style.load）後 overlay source 會被 Mapbox 重建為空 FC → 清 hydrate 記錄，
- *  讓可見的靜態 GeoJSON 圖層可重新 fetch + setData（否則切底圖後圖層變空白）。 */
-export function resetOverlayHydration(): void {
-  hydratedSources.clear();
-  fallbackHydratedSources.clear();
+ *  讓可見的靜態 GeoJSON 圖層可重新 fetch + setData（否則切底圖後圖層變空白）。
+ *  給 map 只清那張圖（另一張圖的 source 沒被重建）；不給清全部（測試用）。 */
+export function resetOverlayHydration(map?: object): void {
+  if (!map) {
+    hydrationByMap = new WeakMap();
+    return;
+  }
+  const state = hydrationByMap.get(map);
+  state?.hydrated.clear();
+  state?.fallback.clear();
 }
 
 /**
@@ -834,9 +862,10 @@ export function resetOverlayHydration(): void {
  * 回傳是否有觸發重抓／清除。
  */
 export function refreshFallbackHydratedOverlay(map: OverlayMap, config: OverlayConfig, visible: boolean): boolean {
-  if (!fallbackHydratedSources.has(config.sourceId)) return false;
-  fallbackHydratedSources.delete(config.sourceId);
-  hydratedSources.delete(config.sourceId);
+  const state = hydrationOf(map);
+  if (!state.fallback.has(config.sourceId)) return false;
+  state.fallback.delete(config.sourceId);
+  state.hydrated.delete(config.sourceId);
   if (visible) void hydrateOverlayIfNeeded(map, config);
   return true;
 }

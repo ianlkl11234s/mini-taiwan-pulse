@@ -10,7 +10,7 @@ import { useState, useSyncExternalStore, type ComponentType, type ReactNode } fr
 import { ChevronRight } from "lucide-react";
 import { LegendNote, useLegendTheme } from "../legend/legendKit";
 import { useLocale } from "../../state/localeStore";
-import { COMPARE_DEFAULT_SPLIT, compareSideOf, useCompareSelector } from "../../state/compareStore";
+import { compareSideOf, useCompareSideState } from "../../state/compareStore";
 import { compareLegendSplit, compareSplitActive, statisticsRightStoreKey } from "../../state/compareStatistics";
 import { regionalStatisticsStore } from "../../state/regionalStatisticsStore";
 import { isStatisticsRenderLayer, type StatisticsRenderKey } from "../../data/regionalStatisticsRecipes";
@@ -30,16 +30,15 @@ function useStoreVersion(key: string) {
 
 export function CompareStatisticsLegend({ layerKey, View, children }: { layerKey: StatisticsRenderKey; View: ComponentType<StatisticsLegendViewProps>; children: ReactNode }) {
   // 只訂開關與側別（拖把手不重繪）
-  const enabled = useCompareSelector((state) => state.enabled);
-  const sides = useCompareSelector((state) => state.sides);
-  const compare = { enabled, sides, split: COMPARE_DEFAULT_SPLIT };
+  const compare = useCompareSideState();
   const { t } = useLocale();
   const theme = useLegendTheme();
   const rightKey = statisticsRightStoreKey(layerKey);
   // 兩份選擇任一變動都要重算「色票要不要分兩排」
   useStoreVersion(layerKey);
   useStoreVersion(rightKey);
-  if (!compare.enabled || !isStatisticsRenderLayer(layerKey)) return children;
+  // 兩國並排：圖例整段依國家分左右（LegendPanel），這裡不另標側別
+  if (!compare.enabled || compare.mode === "countries" || !isStatisticsRenderLayer(layerKey)) return children;
   const side = compareSideOf(layerKey, compare);
   if (side !== "both") {
     return <div>
