@@ -5526,6 +5526,7 @@ export type GeneratedStaticKey =
   | "popup.fire.isochroneNote"
   | "popup.fire.isochroneSourceOrg"
   | "popup.fire.minutesLabel"
+  | "popup.fire.nationwide"
   | "popup.fire.reachTime"
   | "popup.fire.resourceCounts"
   | "popup.fire.resourceCountsValue"
