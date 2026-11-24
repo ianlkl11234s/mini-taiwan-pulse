@@ -41,9 +41,10 @@ const lastFailure = new Map<CountryCode, { err: unknown; attempt: number }>();
  * 瀏覽器會把「抓失敗的動態 import」依網址快取，同一網址再 import 一律直接失敗，
  * 所以重試時從錯誤訊息取出失敗的模組網址、加上 ?pack-retry=N 換一個網址重抓。
  * 只重抓國家包入口檔；其相對 import 解析回原網址，共用模組仍是同一份。
- * 錯誤訊息沒有網址（或不是入口檔失敗）時退回原本的 loader。
+ * 錯誤訊息沒有網址，或抓回來的不是這國的國家包（失敗的是入口檔以外的模組）時，退回原本的 loader。
  */
 function retryImport(
+  cc: CountryCode,
   loader: () => Promise<{ default: CountryPack }>,
   failure: { err: unknown; attempt: number } | undefined,
 ): Promise<{ default: CountryPack }> {
@@ -51,7 +52,8 @@ function retryImport(
   const url = msg.match(/(https?:\/\/\S+?\.(?:js|ts|tsx|mjs))(?:\?\S*)?\s*$/)?.[1];
   if (!failure || !url) return loader();
   const sep = url.includes("?") ? "&" : "?";
-  return import(/* @vite-ignore */ `${url}${sep}pack-retry=${failure.attempt}`) as Promise<{ default: CountryPack }>;
+  return (import(/* @vite-ignore */ `${url}${sep}pack-retry=${failure.attempt}`) as Promise<{ default?: CountryPack }>)
+    .then((mod) => (mod.default?.country === cc ? (mod as { default: CountryPack }) : loader()));
 }
 const listeners = new Set<() => void>();
 let version = 0;
@@ -110,7 +112,7 @@ export function ensureCountryPack(cc: CountryCode): Promise<void> {
   // 效能量測（DevTools Performance／performance.getEntriesByName）：國家包從開始抓到登記完成
   globalThis.performance?.mark?.(`country-pack:${cc}:start`);
   const failure = lastFailure.get(cc);
-  const p = withLoading(`country-pack:${cc}`, packLoadingLabel(cc), retryImport(loader, failure))
+  const p = withLoading(`country-pack:${cc}`, packLoadingLabel(cc), retryImport(cc, loader, failure))
     .then((mod) => {
       registerPack(mod.default);
       status.set(cc, "ready");
