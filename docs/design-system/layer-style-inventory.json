@@ -20,7 +20,7 @@
  "summary": {
   "layerKeys": 2199,
   "overlayConfigs": 579,
-  "runtimeSublayers": 1118,
+  "runtimeSublayers": 1122,
   "byResolution": {
    "runtime": 473,
    "static-scan": 341,
@@ -198,7 +198,7 @@
     "decorationExcluded": 187
    },
    "line-width@z10": {
-    "n": 172,
+    "n": 174,
     "min": 0.15,
     "p25": 0.733,
     "median": 1,
@@ -210,9 +210,9 @@
      "0.733×28",
      "2×10",
      "0.35×4",
+     "1.075×4",
      "0.15×3",
-     "0.75×3",
-     "1.6×3"
+     "0.75×3"
     ],
     "dataDrivenCounted": 12,
     "notSet": 0,
@@ -220,7 +220,7 @@
     "decorationExcluded": 31
    },
    "line-width@z14": {
-    "n": 172,
+    "n": 174,
     "min": 0.15,
     "p25": 1,
     "median": 1,
@@ -232,7 +232,7 @@
      "0.5×25",
      "2×20",
      "3.5×9",
-     "1.2×6",
+     "1.2×8",
      "0.7×4",
      "0.15×3"
     ],
@@ -242,18 +242,18 @@
     "decorationExcluded": 31
    },
    "line-opacity": {
-    "n": 174,
+    "n": 176,
     "min": 0.04,
     "p25": 0.6,
-    "median": 0.8,
+    "median": 0.75,
     "p75": 0.85,
     "max": 1,
     "mostCommon": [
      "0.6×56",
      "0.8×39",
      "0.85×36",
+     "0.65×11",
      "0.75×10",
-     "0.65×9",
      "0.9×7",
      "1×5",
      "0.55×4"
@@ -264,7 +264,7 @@
     "decorationExcluded": 31
    },
    "fill-opacity": {
-    "n": 156,
+    "n": 158,
     "min": 0,
     "p25": 0.3,
     "median": 0.5,
@@ -278,9 +278,9 @@
      "0.35×10",
      "0.7×9",
      "0.45×6",
-     "0.495×4"
+     "0.429×4"
     ],
-    "dataDrivenCounted": 20,
+    "dataDrivenCounted": 22,
     "notSet": 0,
     "unresolved": 0,
     "decorationExcluded": 1
@@ -551,19 +551,19 @@
    "waterBasins/line=[2,2]"
   ],
   "lineCapJoin": {
-   "cap=(預設 butt) join=(預設 miter)": 122,
+   "cap=(預設 butt) join=(預設 miter)": 124,
    "cap=round join=round": 44,
    "cap=butt join=miter": 6,
    "cap=(預設 butt) join=round": 2
   },
   "themeDiff": {
-   "sublayersWithDiff": 848,
-   "of": 1118,
+   "sublayersWithDiff": 850,
+   "of": 1122,
    "byProperty": {
     "circle-stroke-color": 410,
     "circle-stroke-opacity": 325,
     "circle-color": 265,
-    "line-color": 153,
+    "line-color": 155,
     "fill-opacity": 90,
     "heatmap-color": 75,
     "text-color": 64,
@@ -579,14 +579,14 @@
   "colorEncoding": {
    "circle:categorical": 315,
    "circle:constant": 264,
-   "line:constant": 139,
+   "line:constant": 141,
    "heatmap:sequential": 79,
    "fill:categorical": 77,
    "symbol:constant": 64,
    "line:categorical": 63,
    "fill:constant": 41,
    "fill:sequential-step": 18,
-   "fill:sequential": 16,
+   "fill:sequential": 18,
    "circle:data-driven": 9,
    "circle:sequential-step": 7,
    "circle:sequential": 6,
@@ -3421,9 +3421,9 @@
   "officialBridgesNewTaipei": {"label":"新北市轄管橋梁","theme":"交通 Move","dataClass":"B","color":"#38bdf8","legend":"officialBridgesNewTaipei","legendType":"dot-swatch","popup":"officialBridgesNewTaipei","params":{"opacity":{"name":"officialBridgesNewTaipeiOpacity","default":0.8,"min":0.1,"max":1},"size":{"name":"officialBridgesNewTaipeiScale","default":1,"min":0.3,"max":3},"controls":2},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"line","type":"line","role":"main","geometry":"line","render":"line","values":{"line-width":{"z10":2,"z14":3.5},"line-opacity":0.85,"line-cap":"round","line-join":"round"},"colors":{"line-color":{"kind":"constant","count":1,"dark":["#38bdf8"]}}},{"suffix":"coincident-endpoints","type":"circle","role":"main","geometry":"point","render":"circle","values":{"circle-radius":{"z10":4.5,"z14":4.5},"circle-stroke-width":{"z10":1,"z14":1},"circle-opacity":0.8,"circle-stroke-opacity":0.45},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#38bdf8"]},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#e5e7eb"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-stroke-color","circle-stroke-opacity"]}],"geometry":["line","point"],"render":["circle","line"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
   "officialNoiseMonitoring": {"label":"官方噪音測站 Official Monitoring","theme":"環境氣候 Environment","dataClass":"A","color":"#38bdf8","legend":"officialNoiseMonitoring","legendType":"gradient+dot-swatch","popup":"officialNoiseMonitoring","params":{"opacity":{"name":"officialNoiseMonitoringOpacity","default":0.9,"min":0.1,"max":1},"controls":2},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"circle","type":"circle","role":"main","geometry":"point","render":"circle","minzoom":7,"maxzoom":19,"values":{"circle-radius":{"z10":4.5,"z14":4.5},"circle-stroke-width":{"z10":{"min":0.7,"max":1.8},"z14":{"min":0.7,"max":1.8}},"circle-opacity":{"min":0,"max":0.9},"circle-stroke-opacity":{"min":0.495,"max":0.9}},"colors":{"circle-color":{"kind":"categorical","count":6},"circle-stroke-color":{"kind":"categorical","count":2,"dark":["#94a3b8","#0a0a14"],"lightDiffers":true,"light":["#94a3b8","#ffffff"]}},"themeDiff":["circle-stroke-color","circle-stroke-opacity"]}],"geometry":["point"],"render":["circle"],"ironRules":{"opacity":true,"pointSize":false,"legend":true,"popup":true}},
   "offshoreWindZones": {"label":"離岸風場 Offshore Wind","theme":"能源 Energy","dataClass":"C","color":"#22d3ee","legend":"offshoreWindZones","legendType":"dot-swatch+square-swatch","popup":"offshoreWindZone","params":{"opacity":{"name":"offshoreWindZonesOpacity","default":0.35,"min":0.05,"max":1},"controls":1},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"fill","type":"fill","role":"main","geometry":"polygon","render":"fill","values":{"fill-opacity":0.5},"colors":{"fill-color":{"kind":"constant","count":1,"dark":["#22d3ee"]}},"themeDiff":["fill-opacity"]},{"suffix":"line","type":"line","role":"main","geometry":"line","render":"line","values":{"line-width":{"z10":1,"z14":1},"line-opacity":0.8},"colors":{"line-color":{"kind":"constant","count":1,"dark":["#67e8f9"]}}}],"geometry":["line","polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
-  "ooklaFixedPerformance": {"label":"Ookla 固定網路效能格網 Fixed Performance Grid","theme":"全球通訊 Global Communications","dataClass":"B","color":"#FDAE61","legend":"ooklaPerformanceGrid","legendType":"square-swatch","popup":"ooklaFixedGrid","params":{"opacity":{"name":"ooklaFixedPerformanceOpacity","default":0.65,"min":0.1,"max":1},"controls":3},"resolution":"runtime","evidence":[],"sublayers":[{"suffix":"fill","type":"fill","role":"main","geometry":"polygon","render":"fill","values":{"fill-opacity":{"min":0.286,"max":0.572}},"colors":{"fill-color":{"kind":"sequential","count":8}}},{"suffix":"line","type":"line","role":"main","geometry":"line","render":"line","values":{"line-width":{"z10":1.075,"z14":1.2},"line-opacity":0.65},"colors":{"line-color":{"kind":"constant","count":1,"dark":["#ffffff"],"lightDiffers":true,"light":["#0f172a"]}},"themeDiff":["line-color"]}],"geometry":["line","polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
+  "ooklaFixedPerformance": {"label":"Ookla 固定網路效能格網 Fixed Performance Grid","theme":"全球通訊 Global Communications","dataClass":"B","color":"#FDAE61","legend":"ooklaPerformanceGrid","legendType":"square-swatch","popup":"ooklaFixedGrid","params":{"opacity":{"name":"ooklaFixedPerformanceOpacity","default":0.65,"min":0.1,"max":1},"controls":3},"resolution":"runtime","evidence":[],"sublayers":[{"suffix":"fill-lo","type":"fill","role":"main","geometry":"polygon","render":"fill","maxzoom":2.5,"values":{"fill-opacity":{"min":0.286,"max":0.572}},"colors":{"fill-color":{"kind":"sequential","count":8}}},{"suffix":"line-lo","type":"line","role":"main","geometry":"line","render":"line","maxzoom":2.5,"values":{"line-width":{"z10":1.075,"z14":1.2},"line-opacity":0.65},"colors":{"line-color":{"kind":"constant","count":1,"dark":["#ffffff"],"lightDiffers":true,"light":["#0f172a"]}},"themeDiff":["line-color"]},{"suffix":"fill","type":"fill","role":"main","geometry":"polygon","render":"fill","minzoom":2.5,"values":{"fill-opacity":{"min":0.286,"max":0.572}},"colors":{"fill-color":{"kind":"sequential","count":8}}},{"suffix":"line","type":"line","role":"main","geometry":"line","render":"line","minzoom":2.5,"values":{"line-width":{"z10":1.075,"z14":1.2},"line-opacity":0.65},"colors":{"line-color":{"kind":"constant","count":1,"dark":["#ffffff"],"lightDiffers":true,"light":["#0f172a"]}},"themeDiff":["line-color"]}],"geometry":["line","polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "ooklaFixedTaiwan": {"label":"Ookla 台灣固定網路細格 Taiwan Fixed Fine Grid","theme":"通訊 Telecom","dataClass":"B","color":"#4575B4","legend":"ooklaPerformanceGrid","legendType":"square-swatch","popup":"ooklaFixedGrid","params":{"opacity":{"name":"ooklaFixedTaiwanOpacity","default":0.75,"min":0.1,"max":1},"controls":2},"resolution":"runtime","evidence":[],"sublayers":[{"suffix":"fill","type":"fill","role":"main","geometry":"polygon","render":"fill","maxzoom":15,"values":{"fill-opacity":{"min":0.33,"max":0.66}},"colors":{"fill-color":{"kind":"sequential","count":8}}},{"suffix":"line","type":"line","role":"main","geometry":"line","render":"line","maxzoom":15,"values":{"line-width":{"z10":0.35,"z14":0.7},"line-opacity":0.6},"colors":{"line-color":{"kind":"constant","count":1,"dark":["#ffffff"],"lightDiffers":true,"light":["#0f172a"]}},"themeDiff":["line-color"]},{"suffix":"fill","type":"fill","role":"main","geometry":"polygon","render":"fill","minzoom":15,"values":{"fill-opacity":{"min":0.33,"max":0.66}},"colors":{"fill-color":{"kind":"sequential","count":8}}},{"suffix":"line","type":"line","role":"main","geometry":"line","render":"line","minzoom":15,"values":{"line-width":{"z10":0.35,"z14":0.7},"line-opacity":0.6},"colors":{"line-color":{"kind":"constant","count":1,"dark":["#ffffff"],"lightDiffers":true,"light":["#0f172a"]}},"themeDiff":["line-color"]}],"geometry":["line","polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
-  "ooklaMobilePerformance": {"label":"Ookla 行動網路效能格網 Mobile Performance Grid","theme":"全球通訊 Global Communications","dataClass":"B","color":"#F46D43","legend":"ooklaPerformanceGrid","legendType":"square-swatch","popup":"ooklaMobileGrid","params":{"opacity":{"name":"ooklaMobilePerformanceOpacity","default":0.65,"min":0.1,"max":1},"controls":3},"resolution":"runtime","evidence":[],"sublayers":[{"suffix":"fill","type":"fill","role":"main","geometry":"polygon","render":"fill","values":{"fill-opacity":{"min":0.286,"max":0.572}},"colors":{"fill-color":{"kind":"sequential","count":8}}},{"suffix":"line","type":"line","role":"main","geometry":"line","render":"line","values":{"line-width":{"z10":1.075,"z14":1.2},"line-opacity":0.65},"colors":{"line-color":{"kind":"constant","count":1,"dark":["#ffffff"],"lightDiffers":true,"light":["#0f172a"]}},"themeDiff":["line-color"]}],"geometry":["line","polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
+  "ooklaMobilePerformance": {"label":"Ookla 行動網路效能格網 Mobile Performance Grid","theme":"全球通訊 Global Communications","dataClass":"B","color":"#F46D43","legend":"ooklaPerformanceGrid","legendType":"square-swatch","popup":"ooklaMobileGrid","params":{"opacity":{"name":"ooklaMobilePerformanceOpacity","default":0.65,"min":0.1,"max":1},"controls":3},"resolution":"runtime","evidence":[],"sublayers":[{"suffix":"fill-lo","type":"fill","role":"main","geometry":"polygon","render":"fill","maxzoom":2.5,"values":{"fill-opacity":{"min":0.286,"max":0.572}},"colors":{"fill-color":{"kind":"sequential","count":8}}},{"suffix":"line-lo","type":"line","role":"main","geometry":"line","render":"line","maxzoom":2.5,"values":{"line-width":{"z10":1.075,"z14":1.2},"line-opacity":0.65},"colors":{"line-color":{"kind":"constant","count":1,"dark":["#ffffff"],"lightDiffers":true,"light":["#0f172a"]}},"themeDiff":["line-color"]},{"suffix":"fill","type":"fill","role":"main","geometry":"polygon","render":"fill","minzoom":2.5,"values":{"fill-opacity":{"min":0.286,"max":0.572}},"colors":{"fill-color":{"kind":"sequential","count":8}}},{"suffix":"line","type":"line","role":"main","geometry":"line","render":"line","minzoom":2.5,"values":{"line-width":{"z10":1.075,"z14":1.2},"line-opacity":0.65},"colors":{"line-color":{"kind":"constant","count":1,"dark":["#ffffff"],"lightDiffers":true,"light":["#0f172a"]}},"themeDiff":["line-color"]}],"geometry":["line","polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "ooklaMobileTaiwan": {"label":"Ookla 台灣行動細格 Taiwan Mobile Fine Grid","theme":"通訊 Telecom","dataClass":"B","color":"#F46D43","legend":"ooklaPerformanceGrid","legendType":"square-swatch","popup":"ooklaMobileGrid","params":{"opacity":{"name":"ooklaMobileTaiwanOpacity","default":0.75,"min":0.1,"max":1},"controls":2},"resolution":"runtime","evidence":[],"sublayers":[{"suffix":"fill","type":"fill","role":"main","geometry":"polygon","render":"fill","maxzoom":15,"values":{"fill-opacity":{"min":0.33,"max":0.66}},"colors":{"fill-color":{"kind":"sequential","count":8}}},{"suffix":"line","type":"line","role":"main","geometry":"line","render":"line","maxzoom":15,"values":{"line-width":{"z10":0.35,"z14":0.7},"line-opacity":0.6},"colors":{"line-color":{"kind":"constant","count":1,"dark":["#ffffff"],"lightDiffers":true,"light":["#0f172a"]}},"themeDiff":["line-color"]},{"suffix":"fill","type":"fill","role":"main","geometry":"polygon","render":"fill","minzoom":15,"values":{"fill-opacity":{"min":0.33,"max":0.66}},"colors":{"fill-color":{"kind":"sequential","count":8}}},{"suffix":"line","type":"line","role":"main","geometry":"line","render":"line","minzoom":15,"values":{"line-width":{"z10":0.35,"z14":0.7},"line-opacity":0.6},"colors":{"line-color":{"kind":"constant","count":1,"dark":["#ffffff"],"lightDiffers":true,"light":["#0f172a"]}},"themeDiff":["line-color"]}],"geometry":["line","polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "openFishingLocations": {"label":"開放捕魚點 Open Fishing Locations","theme":"海洋 Marine","dataClass":"A","color":"#0891b2","legend":"openFishingLocations","legendType":"dot-swatch","popup":"openFishingLocations","params":{"opacity":{"name":"openFishingLocationsOpacity","default":0.85,"min":0.1,"max":1},"size":{"name":"openFishingLocationsScale","default":1,"min":0.3,"max":3},"controls":2},"resolution":"runtime","evidence":[],"sublayers":[{"suffix":"glow","type":"circle","role":"decoration","geometry":"point","render":"circle","values":{"circle-radius":{"z10":9.257,"z14":10.8},"circle-opacity":0,"circle-blur":0.8},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#0891b2"]}}},{"suffix":"circle","type":"circle","role":"main","geometry":"point","render":"circle","values":{"circle-radius":{"z10":5.143,"z14":6},"circle-stroke-width":{"z10":1.029,"z14":1.2},"circle-opacity":0.85,"circle-stroke-opacity":0.85},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#0891b2"]},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#0f172a"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-stroke-color"]},{"suffix":"label","type":"symbol","role":"main","geometry":"label","render":"text","minzoom":14,"values":{"text-size":{"z10":10,"z14":12},"text-opacity":0.85,"text-halo-width":1.25,"text-font":["DIN Pro Medium","Arial Unicode MS Regular"],"text-allow-overlap":false},"colors":{"text-color":{"kind":"constant","count":1,"dark":["#f8fafc"],"lightDiffers":true,"light":["#0f172a"]},"text-halo-color":{"kind":"constant","count":1,"dark":["#0f172a"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["text-color","text-halo-color"]}],"geometry":["label","point"],"render":["circle","text"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
   "osmBridgeCarriers": {"label":"OSM 橋梁承載線","theme":"交通 Move","dataClass":"B","color":"#f97316","legend":"osmBridgeCarriers","legendType":"svg-icon","popup":"osmBridgeCarriers","params":{"opacity":{"name":"osmBridgeCarriersOpacity","default":0.85,"min":0.1,"max":1},"controls":2},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"line","type":"line","role":"main","geometry":"line","render":"line","values":{"line-width":{"z10":1,"z14":2},"line-opacity":0.85,"line-cap":"round","line-join":"round"},"colors":{"line-color":{"kind":"categorical","count":7,"lightDiffers":true}},"themeDiff":["line-color"]}],"geometry":["line"],"render":["line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},

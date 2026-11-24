@@ -117,8 +117,10 @@ public/geo/medical_ltc_v2.pmtiles
 public/geo/mountain_mobile_improvement_v1.pmtiles
 public/geo/ookla_fixed_global.geojson
 public/geo/ookla_fixed_global_20260930.pmtiles
+public/geo/ookla_fixed_global_20260930_t3.pmtiles
 public/geo/ookla_mobile_global.geojson
 public/geo/ookla_mobile_global_20260930.pmtiles
+public/geo/ookla_mobile_global_20260930_t3.pmtiles
 public/geo/ookla_tw_z14.pmtiles
 public/geo/ookla_tw_z16.pmtiles
 public/geo/osm_communication_sites.geojson

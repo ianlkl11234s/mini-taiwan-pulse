@@ -120,9 +120,11 @@ export const GIS_LAYERS: GisLayerEntry[] = [
   { layers: ["ripe-atlas-probes-circle", "ripe-atlas-probes-glow"], type: "ripeAtlasProbe" },
   // 全球格網（z6／z8／z10 同 source）＋ 台灣兩級 PMTiles，各自 fill/line 兩個 layer
   { layers: ["ookla-mobile-global-fill", "ookla-mobile-global-line",
+             "ookla-mobile-global-fill-lo", "ookla-mobile-global-line-lo",
              "ookla-tw-z16-mobile-fill", "ookla-tw-z16-mobile-line",
              "ookla-tw-z14-mobile-fill", "ookla-tw-z14-mobile-line"], type: "ooklaMobileGrid" },
   { layers: ["ookla-fixed-global-fill", "ookla-fixed-global-line",
+             "ookla-fixed-global-fill-lo", "ookla-fixed-global-line-lo",
              "ookla-tw-z16-fixed-fill", "ookla-tw-z16-fixed-line",
              "ookla-tw-z14-fixed-fill", "ookla-tw-z14-fixed-line"], type: "ooklaFixedGrid" },
   // 🎓 教育：6 個學校點層共用 sourceId `edu-schools`（總覽 + 5 分級 + 偏遠），

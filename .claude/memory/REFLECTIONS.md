@@ -2432,3 +2432,24 @@ DATA_SCOPE（12 assets＋coverage＋privacy boundary）／PRINCIPLES（wrap-up v
 ### Memory output
 
 - `docs/PROJECTS.md` 有期限的事兩列、最後盤點；`BACKLOG.md` TWL-18；`STATUS.md` v2.43.0 已發布。
+
+## 2026-11-23～24 長字串版面與 popup／圖例精簡
+
+### What happened
+
+- 長字串擠壞版面（#1173）：右上提示卡的按鈕空間不夠時改排到文字下方；量測工具列改浮在地圖上方，依實際卡片位置決定放哪；右側卡片跟著工具列的實際高度往下讓；手機圖例會讓出版權列的高度。
+- popup 精簡：刪掉 253 個內部代碼（#1165）；約 750 種 popup 的來源、日期、固定備註搬到圖層「說明・來源」，圖例拿掉來源、授權與時效警語，使用限制只留短標（#1179）；Day 23 的日期也搬到圖層側（#1185、#1196）。剩下 141 種記為 POPSRC-1，順手看到的介面問題記為 VPB-31。
+- 全部合進 develop，沒有發版（站主決定之後一起發）。
+
+### Lessons
+
+- 讓文字和按鈕同一列、放不下就換行時，文字要用 `flex: 1 1 auto`。用 `1 1 150px` 會讓中文、日文的短列也被迫換行。
+- 浮動元件不要只用固定斷點或 container query 猜位置，要量地圖可用區和實際卡片的 bounding box 再決定位置；否則監看分割畫面這類版面一樣會擠壞。
+- 從 Supabase 資料目錄讀進來的摘要會帶內部代號（例如「第 3a 波」、C103、LIC-1、`**`），要在讀取時清掉，並用測試擋住。
+- 來源表上線後，其他 session 新增的圖層必須同時補來源表條目或 `POPUP_SOURCE_PENDING`，不然 `layerSourceInfo` 測試會紅（#1179 合併前遇到 Day 23 兩層）。
+- panel 自己放的 `SourceFooter`，在 `popupSourceMode` 為 none 時本來就不顯示，搬 popup 固定欄位時不用另外刪。
+- 平行 session 先發版時，本分支的 CHANGELOG 條目在合併 develop 後可能落到已發布的版本段，要移回 Unreleased，並 diff 已發布段落確認和 master 一致。
+
+### Memory output
+
+- `PRINCIPLES.md` 新增 popup／圖例精簡預設；`BACKLOG.md` POPSRC-1（#1176）、VPB-31（#1185）；`docs/PROJECTS.md` 最後盤點。
