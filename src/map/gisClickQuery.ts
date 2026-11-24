@@ -15,6 +15,7 @@ import { encodeParamsToOverlay, layerParamsStore } from "../state/layerParamsSto
 import { jpWaterSelectionIdentity } from "../data/jpWaterTypes";
 import { BRIDGE_RESILIENCE_LAYER_IDS } from "../data/bridgeResilienceTypes";
 import { isDrawn as isBusCrowdingDrawn } from "../data/busCrowdingSimTypes";
+import { lineUsesStencilPass, orderHitsByVisibleTop } from "./translucentLineHitOrder";
 
 type GisClickType = FeatureInfo["layerType"];
 
@@ -22,6 +23,25 @@ export interface GisHitCandidate {
   type: GisClickType;
   /** 已依該類型過濾、排序後的命中（至少一筆） */
   features: MapboxGeoJSONFeature[];
+}
+
+function visibleTopFirst(map: MapboxMap, hits: MapboxGeoJSONFeature[]): MapboxGeoJSONFeature[] {
+  if (hits.length < 2) return hits;
+  const cache = new Map<string, boolean>();
+  return orderHitsByVisibleTop(hits, (layerId) => {
+    let v = cache.get(layerId);
+    if (v === undefined) {
+      const hit = hits.find((f) => f.layer?.id === layerId);
+      v = map.getLayer(layerId)?.type === "line" && lineUsesStencilPass({
+        type: "line",
+        rawOpacity: map.getPaintProperty(layerId, "line-opacity"),
+        evaluatedOpacity: (hit?.layer?.paint as Record<string, unknown> | undefined)?.["line-opacity"],
+        pattern: map.getPaintProperty(layerId, "line-pattern"),
+      });
+      cache.set(layerId, v);
+    }
+    return v;
+  });
 }
 
 /** 依 `GIS_LAYERS` 順序逐類查詢，只產出有命中的類型（呼叫端取第一個就是 first-hit-wins；要跳過某類時 continue） */
@@ -48,9 +68,10 @@ export function* gisHitCandidates(map: MapboxMap, point: Point): Generator<GisHi
     // 小格網面只查點擊點，不讓 POI 容錯框內的鄰格搶走（清單見 EXACT_POINT_HIT_TYPES）
     const hitTarget = gisHitTarget<PointLike>(type, point, bbox);
     // 統計面以點擊點落在哪個多邊形為準（低縮放時容錯框會先命中鄰區）；比例圓保留容錯框
+    // 半透明線層畫面上是先畫的在上面，Mapbox 查詢卻把後畫的排前面 → 同層重疊時改成畫面最上面那筆在前（LINESORT-1）
     const queried = type === "regionalStatistic"
       ? queryStatisticsHits(map, point, existingIds)
-      : map.queryRenderedFeatures(hitTarget, { layers: existingIds });
+      : visibleTopFirst(map, map.queryRenderedFeatures(hitTarget, { layers: existingIds }));
     // GFW v4 網格：三個小時 slot 的 hit layer 都恆為 visible（翻 visibility 會 reload
     // 共用 source），所以「哪個小時能回答點擊」改在查詢後決定。必須在取 [0] 之前過濾：
     // v4 tile 沒有 observed_at，popup 一律以 dominant hour 去 hydrate，放非 dominant 的
