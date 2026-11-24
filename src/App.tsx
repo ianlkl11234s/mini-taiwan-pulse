@@ -1492,11 +1492,17 @@ export default function App() {
     map.on("moveend", update);
     return () => { map.off("moveend", update); };
   }, [mapPrepared]);
-  // 時間軸當地時間小字：單地圖＝地圖中心所在國；兩國並排＝左右兩國（同一刻；當地同時刻是 G2-4）
+  // 時間軸當地時間小字：單地圖＝地圖中心所在國；兩國並排＝左右兩國。當地同時刻（G2-4）時右側鐘點對齊左側國家
+  // （和 state/sideClock.ts 的右側時鐘同一個換算；時間由 TimelineControls 自己算，App 不訂時間）
+  const compareTimeAlign = useCompareSelector((state) => state.timeAlign);
   const localClocks = useMemo(() => {
-    if (countriesCompareActive && compareRightCountry) return [{ country: centerCountry ?? country }, { country: compareRightCountry }];
+    if (countriesCompareActive && compareRightCountry) {
+      return compareTimeAlign === "local"
+        ? [{ country }, { country: compareRightCountry, alignedFrom: country }]
+        : [{ country: centerCountry ?? country }, { country: compareRightCountry }];
+    }
     return centerCountry ? [{ country: centerCountry }] : [];
-  }, [countriesCompareActive, compareRightCountry, centerCountry, country]);
+  }, [countriesCompareActive, compareRightCountry, compareTimeAlign, centerCountry, country]);
 
   // 選取圈（useSelectionRing）的主題色走地圖容器上的 CSS 變數，Marker DOM 直接繼承。
   useEffect(() => {
@@ -2213,6 +2219,7 @@ export default function App() {
         ...(snapshot.rightCountry ? { rightCountry: snapshot.rightCountry } : {}),
         ...(snapshot.rightCamera ? { rightCamera: snapshot.rightCamera } : {}),
         ...(snapshot.scaleLocked ? {} : { scaleLocked: false as const }),
+        ...(snapshot.timeAlign === "local" ? { timeAlign: "local" as const } : {}),
       };
     }
     const sides = Object.entries(snapshot.sides);

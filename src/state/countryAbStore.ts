@@ -85,7 +85,7 @@ export function switchAb(
 
 /**
  * 手機寄放的比較狀態（網址用）：顯示中的國家＝左、另一國＝右（台灣不能放右邊，那時不寫 `cmpc`，桌機再挑預設）。
- * 同一個右國時沿用原本寄放的右圖鏡頭與比例尺同步設定。
+ * 同一個右國時沿用原本寄放的右圖鏡頭、比例尺同步與時間對齊設定（手機單地圖本身不換算時間）。
  */
 export function abStash(ab: CountryAb, current: CountryCode, prev: UrlState["compare"]): NonNullable<UrlState["compare"]> {
   const other = abOther(ab, current);
@@ -96,5 +96,6 @@ export function abStash(ab: CountryAb, current: CountryCode, prev: UrlState["com
     ...(right ? { rightCountry: right } : {}),
     ...(keep?.rightCamera ? { rightCamera: keep.rightCamera } : {}),
     ...(keep?.scaleLocked === false ? { scaleLocked: false as const } : {}),
+    ...(keep?.timeAlign === "local" ? { timeAlign: "local" as const } : {}),
   };
 }

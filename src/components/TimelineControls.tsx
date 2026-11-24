@@ -7,7 +7,8 @@ import { formatGfwUtcWindow, nearestGfwWindowHour, utcDateWindowSeconds } from "
 import { useUiTime } from "../hooks/useTimeline";
 import { useLocale } from "../state/localeStore";
 import { countryDef } from "../constants/countries";
-import { localClockForCountry, type LocalClockSource } from "../lib/localClock";
+import { alignLocalInstant, countryClockTimeZone, localClockForCountry, type LocalClock, type LocalClockSource } from "../lib/localClock";
+import { DEFAULT_TIME_ZONE, zonedDateKey } from "../lib/zonedTime";
 import { SLOTS, slotParts } from "./intel/intelTokens";
 import { TimeAxis } from "./timeline/TimeAxis";
 import { TimelineShell } from "./timeline/TimelineShell";
@@ -37,7 +38,7 @@ interface Props {
   leftOffset?: number;
   /**
    * 時間旁附當地時間小字的國家（位移與台北相同的不顯示）。單地圖＝地圖中心所在國家（moveend 才更新）；
-   * 兩國並排＝左右兩國（G2-1）。`unixSec` 留給「當地同時刻」（G2-4）讓某側用自己的時鐘，缺省＝時間軸同一刻。
+   * 兩國並排＝左右兩國（G2-1）。帶 `alignedFrom` 的一側是「當地同時刻」（G2-4）：鐘點與該國相同，括號附台北時間。
    */
   localClocks?: readonly LocalClockSource[];
   onToggle: () => void;
@@ -116,9 +117,18 @@ export function TimelineControls({
   const isLive = timeMode === "live";
   const isFuture = currentTime > Date.now() / 1000;
   // currentTime 是 LiveTimelineControls 以 useUiTime（timeStore 訂閱）傳入的 prop，不進任何 hook deps
-  const clocks = (localClocks ?? []).flatMap(({ country, unixSec }) => {
-    const clock = localClockForCountry(unixSec ?? currentTime, country);
-    return clock ? [{ country, clock }] : [];
+  const clocks = (localClocks ?? []).flatMap(({ country, alignedFrom }): { country: typeof country; clock: LocalClock; taipei: { short: string; full: string } | null }[] => {
+    const at = alignedFrom ? alignLocalInstant(currentTime, countryClockTimeZone(alignedFrom), countryClockTimeZone(country)) : currentTime;
+    // 當地同時刻、而且和時間軸差了時間＝一律顯示（和台北同位移的國家也標：那一側已經不是時間軸上的時刻）
+    const aligned = at !== currentTime;
+    const clock = localClockForCountry(at, country, aligned);
+    if (!clock) return [];
+    if (!aligned) return [{ country, clock, taipei: null }];
+    const dayDiff = zonedDateKey(at * 1000, DEFAULT_TIME_ZONE).localeCompare(zonedDateKey(currentTime * 1000, DEFAULT_TIME_ZONE));
+    // 小字用短寫（00:04+1），完整句（台北 00:04 隔天）放 hover 提示，免得把刻度列擠扁
+    const short = `${formatClock(at)}${dayDiff === 0 ? "" : dayDiff < 0 ? "-1" : "+1"}`;
+    const full = `${formatClock(at)}${dayDiff === 0 ? "" : ` ${t(dayDiff < 0 ? "timeline.localPrevDay" : "timeline.localNextDay")}`}`;
+    return [{ country, clock, taipei: { short, full } }];
   });
   const gridWindow = useSyncExternalStore(
     subscribeGfwHourlyGridDataWindow,
@@ -237,7 +247,15 @@ export function TimelineControls({
               </span>
               {timeLabel.slice(timeLabel.lastIndexOf(":") + 1)}
             </span>
-            {expanded && clocks.map(({ country, clock }) => (
+            {expanded && clocks.map(({ country, clock, taipei }) => taipei !== null ? (
+              <span
+                key={country}
+                className="tl3-local"
+                title={`${t(clock.utc ? "timeline.localClockAlignedUtcFull" : "timeline.localClockAlignedFull", { country: t(countryDef(country).labelKey), time: clock.time, taipei: taipei.full })}\n${t("timeline.localClockAlignedTitle")}`}
+              >
+                {t(clock.utc ? "timeline.localClockAlignedUtc" : "timeline.localClockAligned", { country: t(countryDef(country).labelKey), time: clock.time, taipei: taipei.short })}
+              </span>
+            ) : (
               <span key={country} className="tl3-local" title={t(clock.utc ? "timeline.localClockUtcTitle" : "timeline.localClockTitle")}>
                 {clock.utc
                   ? t("timeline.localClockUtc", { country: t(countryDef(country).labelKey), time: clock.time })

@@ -80,6 +80,23 @@
 
 React UI 要顯示時間時用 `useUiTime()`（`src/hooks/useTimeline.ts`，內部是 `useSyncExternalStore`）。
 
+### 本側時鐘：兩國並排的右圖時間（2026-11-24 起，G2-4）
+
+兩國並排有兩種時間對齊（並排工具列切換，`compareStore.timeAlign`，分享網址 `cmpt=local`）：
+
+- **同一刻**（預設）：兩圖看同一個瞬間，右圖也直接用時間軸的時刻。
+- **當地同時刻**：兩國都看自己的同一個當地鐘點（左台灣 08:00 ↔ 右英國 08:00，冬令實際晚 8 小時、夏令晚 7 小時；右日本 08:00 早 1 小時）。
+
+時間軸（`timeStore`）仍只有一把、仍是左圖的時間；右圖的時刻由 `src/state/sideClock.ts` 換算：
+
+- `rightClock`：讀法和 `timeStore` 相同（`getTime`／`getDateKey`／`getWindowDateKeys`／`subscribe`／`subscribeThrottled`／`subscribeDate`／`subscribeWindowDateKeys`）。當地同時刻時，右側時刻＝`alignLocalInstant(時間軸時刻, 左國時區, 右國時區)`（`src/lib/localClock.ts`）：找右國牆上鐘點等於左國牆上鐘點的那一刻，位移取那一刻的（含夏令，切換當天也對）。同一刻、或不在並排時，`rightClock` 就等於時間軸。
+- 國家的「鐘點時區」只有一個出處 `countryClockTimeZone`：一般國家用 `timeZone`；跨多時區的國家（`timeZones` 多於一個，例 CA）用 **UTC**——和時間軸小字同一個規則（站主 2026-11-24「跨時區國家統一以 UTC 顯示」），小字寫的鐘點就是右圖用的鐘點，不會一邊說 UTC、一邊用多倫多時間。
+- `getDateKey()` 是「本側時刻的台北日期」（和 `timeStore.getDateKey()` 同口徑）；`subscribeDate` 依換算後的時刻判斷跨日，同樣有 leading＋trailing debounce。依當地日取資料照舊用 `dataDateKeyFor(key, clock.getTime())`。
+- 切模式、換左右國家時，時間軸可能暫停、不會 tick，所以 `rightClock` 另外訂 compareStore／countryStore：對齊一變，就用新時間通知所有訂閱者。
+- **hook 怎麼拿**：`const clock = useSideClock();`（React context）。右圖的 `<LayerHosts role="right">` 外面包 `SideClockContext.Provider value={rightClock}`（`src/map/CountryCompareMapView.tsx`）；主地圖與其他地方拿到 `leftClock`（＝時間軸本身），台灣圖層與單地圖行為不變。`clock` 身分固定，可以放進 effect deps；**時間本身照舊走訂閱，不進 deps**（規則 6）。
+- 已改讀本側時鐘的外國 hook：`useJmaTimeDriver`（AMeDAS、地震、火山、WBGT、初冠雪、紅葉、櫻花、警報、梅雨）、`useJmaImageryLayer`、`useJmaRiskFloodLayer`、`useGibsSnowCoverLayer`、`useLightningLayer`（日本落雷）、`useJmaLightningCoverage`、`useGbRailReplayLayer`。加拿大即時地震與菲律賓 OpenAQ 是錨在真實「現在」的快照，不跟時間軸，所以不受影響。**之後新增會掛到右圖的時間圖層，一律用 `useSideClock()`，不直接讀 `timeStore`。**
+- 注意：右國在左國西邊（例英國）時，左側停在「現在」，右側的時刻就在未來，即時圖層會是空的（時間軸小字照樣標出那一刻的台北時間）。
+
 ### scoped 回放時鐘
 
 事件級回放（時間單位不是 timeline 的 unix 秒、或只有一個面板在用）不掛全域 timeStore，改用獨立的 external clock：寫入即時、通知節流 10Hz，視覺是時鐘的純函數，scrub 只要 `set(t)`。範本是 `src/state/earthquakeReplayClock.ts`；`src/embed/replayClock.ts` 另外自帶 RAF 與 play／pause／loop。多層共用同一個 scoped 時鐘時，時間範圍取聯集、`setRange` 只呼叫一次（見 PRINCIPLES「事件級回放用 scoped 時鐘」）。
