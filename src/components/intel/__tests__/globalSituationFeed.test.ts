@@ -130,6 +130,12 @@ describe("toIntelCardEvent", () => {
     expect(card.source).toBeNull();
   });
 
+  it("AI 未判讀的候選在 INTEL 卡片標成「AI 未判讀」，不標「AI 初判」", () => {
+    const card = toIntelCardEvent(candidate("u", null, { assessment_status: "pending", assessment_note: "provider_rejected" }))!;
+    expect(card.origin_label).toBe("AI 未判讀");
+    expect(toIntelCardEvent(candidate("p", null, { assessment_status: "pending" }))!.origin_label).toBe("AI 初判");
+  });
+
   it("AI 初判：來源網域、事件時間走 observed_at 不走 available_at、分級依 decision", () => {
     const core = toIntelCardEvent(candidate("a", "keep_core"))!;
     expect(core.origin_label).toBe("AI 初判");

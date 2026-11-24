@@ -76,7 +76,7 @@ export function toIntelCardEvent(entry: GlobalSituationEntry): IntelCardEvent | 
     id: 0,
     card_key: entry.eventId,
     scope: "global",
-    origin_label: published ? "已研究" : "AI 初判",
+    origin_label: published ? "已研究" : entry.aiUnassessed ? "AI 未判讀" : "AI 初判",
     title,
     summary: entry.summaryZhTw,
     category: entry.category,

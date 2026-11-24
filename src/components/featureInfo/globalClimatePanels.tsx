@@ -269,6 +269,7 @@ export function GlobalEventPanel({ props }: { props: Record<string, unknown> }) 
   const t = useFeatureTheme();
   const i18n = useLocale();
   const isInitial = props.research_status === "ai_assessed";
+  const unassessed = props.ai_unassessed === "provider_rejected" || props.ai_unassessed === "model_failed" ? props.ai_unassessed : null;
   let locationUrl: URL | null = null;
   if (typeof props.location_source === "string") {
     try {
@@ -287,7 +288,7 @@ export function GlobalEventPanel({ props }: { props: Record<string, unknown> }) 
       <h3 style={{ color: t.textStrong, fontSize: FONT_SIZE.xl, fontWeight: 600, lineHeight: 1.45, margin: "0 0 10px", overflowWrap: "anywhere" }}>
         {String(props.title_zh_tw ?? "—")}
       </h3>
-      <Row label={i18n.t("popup.globalClimate.verification")} value={i18n.t(isInitial ? (props.assessment_status === "pending" ? "popup.globalClimate.verifyPending" : "popup.globalClimate.verifyInitial") : "popup.globalClimate.verifyPublished")} />
+      <Row label={i18n.t("popup.globalClimate.verification")} value={i18n.t(unassessed ? "popup.globalClimate.verifyUnassessed" : isInitial ? (props.assessment_status === "pending" ? "popup.globalClimate.verifyPending" : "popup.globalClimate.verifyInitial") : "popup.globalClimate.verifyPublished")} />
       <div style={{ marginTop: 10 }}>
         <div style={{ color: t.textMuted, fontSize: FONT_SIZE.base }}>{i18n.t("popup.globalClimate.summary")}</div>
         <p style={{ color: t.textStrong, fontSize: FONT_SIZE.md, lineHeight: 1.65, margin: "3px 0 10px", overflowWrap: "anywhere" }}>
@@ -296,7 +297,9 @@ export function GlobalEventPanel({ props }: { props: Record<string, unknown> }) 
       </div>
       <Row label={i18n.t("popup.globalClimate.categorySeverity")} value={`${globalEventCategoryText(props.category, i18n)} · ${globalEventSeverityText(props.severity, i18n)}`} />
       <Row label={i18n.t("popup.globalClimate.taiwanImpact")} value={String(props.taiwan_impact_zh_tw ?? "—")} />
-      <Row label={i18n.t("popup.globalClimate.reason")} value={String(props.reason_zh_tw ?? "—")} />
+      <Row label={i18n.t("popup.globalClimate.reason")} value={unassessed
+        ? i18n.t(unassessed === "provider_rejected" ? "popup.globalClimate.unassessedProviderRejected" : "popup.globalClimate.unassessedModelFailed")
+        : String(props.reason_zh_tw ?? "—")} />
       {Number(props.story_link_count) > 0 ? <GlobalEventStoryList props={props} /> : null}
       {Number(props.entity_link_count) > 0 ? <Row label={i18n.t("popup.globalClimate.entityLinks")}
         value={i18n.t("popup.globalClimate.entityLinksValue", { n: Number(props.entity_link_count), names: parseStringList(props.entity_names).join("、") || "—" })} /> : null}
