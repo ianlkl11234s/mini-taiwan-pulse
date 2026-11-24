@@ -1,5 +1,5 @@
 import { attachRegionalStatistics } from "./regionalStatisticsMap";
-import { compareStore, shownOnLeft } from "../state/compareStore";
+import { activeRightCountry, compareStore, leftMapVisibility, shownOnLeft } from "../state/compareStore";
 import { compareCircleReference, compareDotUnit } from "../state/compareStatistics";
 import { useEffect, useRef, useState } from "react";
 import mapboxgl from "mapbox-gl";
@@ -343,11 +343,11 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
 
       // 底圖切換 → 所有 overlay source 被 Mapbox 重建為空 FC。先清 hydrate 記錄，
       // 否則 hydratedSources 殘留會讓下方 re-hydrate 被跳過 → 靜態 GeoJSON 圖層切底圖後變空白。
-      resetOverlayHydration();
+      resetOverlayHydration(map);
 
       // AR-21：visibility 讀 store（原本讀 layerVisibilityRef.current，語意相同 ——
       // 都是「此刻的最新值」，只是家從 prop 搬到了 store）
-      const vis = layerVisibilityStore.getAll();
+      const vis = leftMapVisibility(layerVisibilityStore.getAll());
 
       // 批量新增所有 overlays + 設定初始可見性
       addAllOverlays(
@@ -363,7 +363,7 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
       // 索引已 ready 時 addAllOverlays 本身就拿到 CDN，下面的 swap 是 no-op
       offLayerAssetIndexReady?.();
       offLayerAssetIndexReady = onLayerAssetIndexReady(() => {
-        const visNow = layerVisibilityStore.getAll();
+        const visNow = leftMapVisibility(layerVisibilityStore.getAll());
         for (const config of OVERLAY_REGISTRY) {
           if (!MIGRATED_ASSET_KEYS.has(config.sourceUrl)) continue;
           // 靜態 GeoJSON：索引就緒前已用部署時版本 hydrate 的，改抓 CDN（不是 pmtiles／dynamic）
@@ -452,7 +452,7 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
       ensureYoubikeLayers(map);
       ensureAllAgricultureLayers(map, isDarkThemeRef.current);
       // AR-21：同 style.load —— visibility 讀 store 的最新值
-      const vis = layerVisibilityStore.getAll();
+      const vis = leftMapVisibility(layerVisibilityStore.getAll());
       updateAllAgricultureLayers(map, vis, overlayParamsRef.current, isDarkThemeRef.current);
       ensureFireIsochroneLayer(map);
       updateFireIsochroneLayer(map, vis.fireIsochrone, fireIsochroneParamsOf(overlayParamsRef.current));
@@ -578,7 +578,7 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !readyRef.current) return;
-    const vis = layerVisibilityStore.getAll();
+    const vis = leftMapVisibility(layerVisibilityStore.getAll());
     updateAllOverlayThemes(map, OVERLAY_REGISTRY, isDarkTheme, overlayParams, vis);
     jpHeightLifecycleRef.current?.refresh(OVERLAY_REGISTRY, vis, isDarkTheme, overlayParams);
     // OVERLAY_REGISTRY 之外的專屬圖層：params 變動也要 re-apply
@@ -601,7 +601,7 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
     const applyOverlayVisibility = () => {
       const map = mapRef.current;
       if (!map || !readyRef.current) return;
-      const vis = layerVisibilityStore.getAll();
+      const vis = leftMapVisibility(layerVisibilityStore.getAll());
       setStaticTrailsVisible(map, showTrailsRef.current && vis.flights);
       for (const config of OVERLAY_REGISTRY) {
         const v = isOverlayVisible(config, vis, overlayParamsRef.current);
@@ -619,7 +619,17 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
     // mount / scaleIdx 變動時跑一次（等同原本 effect 的 mount + dep 觸發），
     // 之後任何 visibility 變動由 store 訂閱驅動。
     applyOverlayVisibility();
-    return layerVisibilityStore.subscribe(applyOverlayVisibility);
+    // 兩國並排開關／換右國：右國 overlay 在主地圖要關掉或還原（leftMapVisibility）
+    // 只在「並排中的右國」變了才重跑（右圖鏡頭等其他比較狀態每次 moveend 都會變）
+    let lastRight = activeRightCountry();
+    const offCompare = compareStore.subscribe(() => {
+      const right = activeRightCountry();
+      if (right === lastRight) return;
+      lastRight = right;
+      applyOverlayVisibility();
+    });
+    const offVisibility = layerVisibilityStore.subscribe(applyOverlayVisibility);
+    return () => { offCompare(); offVisibility(); };
     // ⚠️ deps 除了 visibility（已改訂閱）還要收 propertyValueGridScaleIdx：
     //    總市值網格的三個尺度共用同一個 layer key，切尺度是 param 變動而非 toggle 變動，
     //    不收這個 dep 會「選了 450m 但畫面還是 150m」（見 overlayManager.isOverlayVisible）。

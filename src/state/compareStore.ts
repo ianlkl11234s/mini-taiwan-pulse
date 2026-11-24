@@ -108,6 +108,15 @@ export function compareHydrateFromUrl(url: UrlCompareState): Parameters<typeof c
   };
 }
 
+/** 「兩國並排」說明卡看過就記住（這個瀏覽器不再出現；G2-1b）。拉桿的說明卡照舊每次開比較出現一次 */
+export const COUNTRIES_TIP_SEEN_KEY = "pulse.compareCountriesTipSeen.v1";
+export function countriesTipSeen(): boolean {
+  try { return typeof localStorage !== "undefined" && localStorage.getItem(COUNTRIES_TIP_SEEN_KEY) === "1"; } catch { return false; }
+}
+export function markCountriesTipSeen(): void {
+  try { if (typeof localStorage !== "undefined") localStorage.setItem(COUNTRIES_TIP_SEEN_KEY, "1"); } catch { /* 私密模式等寫不進去：只是下次再看一次 */ }
+}
+
 /** 兩國並排中（右側國家已定） */
 export function isCountriesCompare(snapshot: CompareSideState = state): boolean {
   return snapshot.enabled && snapshot.mode === "countries" && !!snapshot.rightCountry;
@@ -130,6 +139,22 @@ export function compareSideOf(key: string, snapshot: CompareSideState = state): 
 /** 主地圖（左）畫不畫：比較關閉時＝圖層開關 */
 export function shownOnLeft(key: string, visible: boolean, snapshot: CompareSideState = state): boolean {
   return visible && (!snapshot.enabled || compareSideOf(key, snapshot) !== "right");
+}
+
+/**
+ * 主地圖用的圖層開關表：兩國並排時右國圖層（畫在右圖）讀成 false，其他情況原樣回傳同一個物件。
+ * 給主地圖的 overlay 管理器用（G2-1b）；Host 型圖層由 `<LayerHosts>` 自己遮。
+ */
+export function leftMapVisibility<T extends object>(vis: T, snapshot: CompareSideState = state): T {
+  const right = activeRightCountry(snapshot);
+  if (!right) return vis;
+  let out: T | null = null;
+  for (const [key, on] of Object.entries(vis)) {
+    if (on !== true || !isRightSideKey(key, right)) continue;
+    out ??= { ...vis };
+    (out as Record<string, unknown>)[key] = false;
+  }
+  return out ?? vis;
 }
 
 /** 右圖畫不畫：拉桿只有支援的圖層；並排只有右國圖層 */

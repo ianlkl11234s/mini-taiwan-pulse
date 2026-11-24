@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { activeRightCountry, compareSideOf, compareStore, isCountriesCompare, pickRightCountry, shownOnLeft, shownOnRight } from "../compareStore";
+import { activeRightCountry, compareSideOf, compareStore, isCountriesCompare, leftMapVisibility, pickRightCountry, shownOnLeft, shownOnRight } from "../compareStore";
 import { isRightSideKey, layerCountryOf, rightSideBlocker } from "../../map/compareCountrySides";
 import { LAYER_HOOK_REGISTRY } from "../../layers/layerHookRegistry";
 import { COUNTRIES } from "../../constants/countries";
@@ -21,10 +21,11 @@ describe("兩國並排（compareStore mode=countries）", () => {
     expect(shownOnRight("gbSchools", false)).toBe(false);
   });
 
-  it("右國的 overlay／立體圖層只能畫在主地圖，標出原因", () => {
+  it("右國的 overlay 圖層畫在右圖（G2-1b）；立體圖層只能畫在主地圖，標出原因", () => {
     expect(layerCountryOf("gbPollutionInventoryEngland")).toBe("GB");
-    expect(rightSideBlocker("gbPollutionInventoryEngland", "GB")).toBe("overlay");
-    expect(isRightSideKey("gbPollutionInventoryEngland", "GB")).toBe(false);
+    expect(rightSideBlocker("gbPollutionInventoryEngland", "GB")).toBeNull();
+    expect(isRightSideKey("gbPollutionInventoryEngland", "GB")).toBe(true);
+    expect(isRightSideKey("jmaAmedas", "JP")).toBe(true);
     expect(rightSideBlocker("jpHistoricalFlightTrails", "JP")).toBe("three");
     expect(rightSideBlocker("gbSchools", "GB")).toBeNull();
     expect(rightSideBlocker("gbSchools", "JP")).toBeNull();
@@ -38,6 +39,16 @@ describe("兩國並排（compareStore mode=countries）", () => {
         if (right.length && right.length !== keys.length) throw new Error(`${code} ${id} 混了右側與左側的 key：${keys.join(",")}`);
       }
     }
+  });
+
+  it("主地圖的 overlay 開關表：並排時右國圖層讀成 false，其他情況原樣", () => {
+    const vis = { jmaAmedas: true, railRoutes: true, gbSchools: true };
+    expect(leftMapVisibility(vis)).toBe(vis);
+    compareStore.hydrate({ enabled: true, mode: "countries", rightCountry: "JP" });
+    expect(leftMapVisibility(vis)).toEqual({ jmaAmedas: false, railRoutes: true, gbSchools: true });
+    expect(vis.jmaAmedas).toBe(true);
+    compareStore.open("slider");
+    expect(leftMapVisibility(vis)).toBe(vis);
   });
 
   it("右側不能放台灣；換國家清掉右圖鏡頭；拉桿模式不受影響", () => {
