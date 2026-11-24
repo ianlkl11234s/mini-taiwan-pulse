@@ -84,7 +84,8 @@ export function CountryMenu({ country, onSelect, trailing }: { country: CountryC
                   display: "flex",
                   alignItems: "center",
                   gap: 4,
-                  flex: "1 1 0",
+                  // 目前國家顯示國名（吃剩餘寬度），其餘只留國碼 chip，免得「United Kingdom」被截成「Unite…」
+                  flex: active ? "1 1 0" : "0 0 auto",
                   minWidth: 0,
                   padding: "4px 6px",
                   background: active ? ROW_ACTIVE : "transparent",
@@ -98,7 +99,7 @@ export function CountryMenu({ country, onSelect, trailing }: { country: CountryC
                 }}
               >
                 <CountryChip code={code} color={active ? TEXT_STRONG : INACTIVE_TEXT} />
-                <span style={{ minWidth: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{name}</span>
+                {active && <span style={{ minWidth: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{name}</span>}
               </button>
             );
           })}
