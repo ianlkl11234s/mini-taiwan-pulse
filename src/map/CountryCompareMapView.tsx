@@ -43,6 +43,7 @@ import { isRightSideKey } from "./compareCountrySides";
 import { useCountryPackVersion } from "../countries/packs";
 import { addAllOverlays, addLateOverlays, hydrateOverlayIfNeeded, isOverlayVisible, refreshFallbackHydratedOverlay, resetOverlayHydration, setOverlayTaskSuffix, setOverlayVisible, updateAllOverlayThemes } from "./overlayManager";
 import { createJpHeightLifecycle } from "./jpHeightLifecycle";
+import { registerOverlaySourceReset } from "../lib/ownerGateRevoke";
 import { onLayerAssetIndexReady } from "../data/layerAssetIndex";
 import type { AppLayerHostDeps } from "../layers/layerHostDeps";
 import type { CountryCamera, CountryCode } from "../constants/countries";
@@ -161,6 +162,13 @@ export function CountryCompareMapView({ mainMap, rightCountry, styleUrl, pureBla
         if (!config.pmtiles && !config.dynamicData) refreshFallbackHydratedOverlay(map, config, isOverlayVisible(config, vis, overlayParamsRef.current));
       }
     });
+    // 撤權（登出／失去站主權限）：右圖的私人 overlay source 也要清成空資料，不只隱藏圖層
+    // （主地圖那份在 MapView；hook 只清快取與 listener，不會清這張圖上的 source）
+    const offOwnerReset = registerOverlaySourceReset(
+      OVERLAY_REGISTRY.map((config) => config.id as string),
+      { getSource: (id) => (map.style ? map.getSource(id) : undefined) },
+      () => rightOverlaysRef.current,
+    );
     // 地形各自判斷（兩國各自傾斜，不鏡射主圖）
     map.on("pitch", () => ensureTerrainIfTilted(map));
 
@@ -230,6 +238,7 @@ export function CountryCompareMapView({ mainMap, rightCountry, styleUrl, pureBla
     return () => {
       endLoading();
       offAssetIndex();
+      offOwnerReset();
       jpHeight.dispose();
       jpHeightRef.current = null;
       cancelAnimationFrame(hoverFrame);
