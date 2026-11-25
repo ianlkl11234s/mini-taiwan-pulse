@@ -12,7 +12,7 @@ describe("國家包規格晚到", () => {
   it("派生控件（displayMode）進快照且可 setParam", () => {
     const key = "jpNaturalParkAreas2015";
     extendRecord("layerParamsSpec", { [key]: JP_PACK_PARAMS[key as keyof typeof JP_PACK_PARAMS] });
-    const derived = (LAYER_PARAMS_SPEC as Record<string, LayerParamSpec[]>)[key].find((s) => s.name === `${key}DisplayMode`);
+    const derived = (LAYER_PARAMS_SPEC as Record<string, LayerParamSpec[]>)[key]!.find((s) => s.name === `${key}DisplayMode`);
     expect(derived, "登記簿應已含派生的樣式控件").toBeTruthy();
     const snap = layerParamsStore.getParams(key);
     expect(Object.keys(snap)).toContain(`${key}DisplayMode`);
