@@ -1,4 +1,5 @@
 import { LazyMainMapConnection } from "./research/LazyMainMapConnection";
+import { createRequestToken } from "./lib/requestToken";
 import { globalEventsViewStore } from "./state/globalEventsViewStore";
 import { useAnalysisLegend } from "./research/analysisLegendStore";
 import type { AnalysisResultPanelProperties } from "./research/researchResultPopup";
@@ -302,6 +303,7 @@ export default function App() {
   const restoringMemberSceneRef = useRef(false);
   /** 場景還原完成（含連動選單）時把略過項目交回會員面板 */
   const pendingSceneDoneRef = useRef<((skipped: string[]) => void) | null>(null);
+  const sceneRequestRef = useRef(createRequestToken());
   const [pendingMemberScene, setPendingMemberScene] = useState<MemberSceneSnapshot | null>(null);
   const favoriteKeys = useMemo(() => new Set(memberLibrary.userId === (memberUser?.id ?? null) ? memberLibrary.favorites : []), [memberLibrary.favorites, memberLibrary.userId, memberUser?.id]);
   const countryPackVersion = useCountryPackVersion();
@@ -1870,7 +1872,10 @@ export default function App() {
     if (!validated.ok) throw new Error(validated.errors.join("；"));
     if (!mapRef.current || !mapPrepared) throw new Error("地圖尚未就緒。");
     // B1 P5a：場景裡國家包圖層的參數規格要等包載入，否則還原時會被當成未知參數略過
+    // 載入期間若登出／換帳號，或有更新的還原請求，這次結果作廢（不可把舊帳號的場景套回來）
+    const requestToken = sceneRequestRef.current.begin();
     await ensureCountryPacks(packCountriesForKeys(validated.value.layers));
+    if (!sceneRequestRef.current.isCurrent(requestToken)) return [];
     const resolved = resolveSceneRestore(validated.value, knownMemberKeys, lockedKeysRef.current, MAP_STYLES.map((style) => style.id));
     markPrivateView(); setMemberPlaceGeometry(null); restoringMemberSceneRef.current = true;
     pendingSceneDoneRef.current?.(resolved.skipped);
@@ -1928,6 +1933,7 @@ export default function App() {
   useEffect(() => {
     const userId = memberUser?.id ?? null;
     if (previousMemberIdRef.current !== userId) {
+      sceneRequestRef.current.invalidate();
       setMemberPlaceGeometry(null); setPendingMemberScene(null); restoringMemberSceneRef.current = false;
       pendingSceneDoneRef.current?.([]); pendingSceneDoneRef.current = null;
       if (privateViewRef.current) {
