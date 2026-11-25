@@ -47,8 +47,8 @@ export function AlertSummaryBar({
     );
   }
 
-  // 0-state — 極簡單條
-  if (total === 0) {
+  // 0-state — 極簡單條。篩選後為 0 但全國有警報時不走這條：展開鈕與群組晶片要留著，否則 All／News 分頁沒有清除群組篩選的入口
+  if (total === 0 && tally.total === 0) {
     return (
       <div
         style={{
@@ -61,7 +61,7 @@ export function AlertSummaryBar({
         }}
       >
         <IntelIcon d={MICON.check!} size={12} color={palette.statusLive} />
-        <span>{tally.total > 0 ? t("alerts.noneInFilter") : t("alerts.allClear")}</span>
+        <span>{t("alerts.allClear")}</span>
       </div>
     );
   }
@@ -95,7 +95,7 @@ export function AlertSummaryBar({
           color={severe > 0 ? palette.statusErr : palette.statusWarn}
         />
         <span style={{ fontFamily: FONT_CJK, fontSize: 12.5, fontWeight: 700, color: palette.textStrong }}>
-          {t("alerts.summary.count", { count: total })}
+          {total === 0 ? t("alerts.noneInFilter") : t("alerts.summary.count", { count: total })}
         </span>
         {severe > 0 && (
           <span
