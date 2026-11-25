@@ -7,7 +7,7 @@ series: 30 天地圖挑戰
 challengeDay: 11
 date: 2026-11-11
 tags: [30DayMapChallenge, 聲景, 聲音, 雷達降雨, 航跡, 推估]
-cover: cover-dark.jpg
+cover: cover.jpg
 coverLight: cover-light.jpg
 coverAlt: 研究階段畫面：雙北聲景網格的局部放大，每個方塊是一個約 250 公尺的格子，橘、紅、紫、藍、綠等顏色代表該格此刻最明顯的聲源類別
 threads:

@@ -1,7 +1,7 @@
 /**
  * /blog 靜態文章頁契約：全文與結構化資料在原始 HTML、每篇都登記在 sitemap／llms.txt、nginx 有獨立 location。
  */
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
@@ -268,5 +268,15 @@ describe("30 天地圖挑戰", () => {
     expect(challengePosts(posts).length).toBeGreaterThan(0);
     expect(read("public/sitemap.xml")).toContain(`<loc>${ORIGIN}${MAP_CHALLENGE_PATH}</loc>`);
     expect(read("public/llms.txt")).toContain(`${ORIGIN}${MAP_CHALLENGE_PATH}`);
+  });
+
+  it("每篇文章的 cover／coverLight 檔案都真的存在（否則文章與卡片破圖、社群預覽圖 404）", () => {
+    const missing: string[] = [];
+    for (const post of posts) {
+      for (const file of [post.cover, post.coverLight]) {
+        if (file && !/^https?:\/\//.test(file) && !existsSync(join(root, "public/blog", post.slug, file))) missing.push(`${post.slug}/${file}`);
+      }
+    }
+    expect(missing).toEqual([]);
   });
 });
