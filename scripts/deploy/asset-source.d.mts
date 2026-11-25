@@ -22,11 +22,14 @@ export interface HeadResult { status: number; bytes?: number | null; sha256?: st
 export type PresenceResult = { ok: true; source: "public" | "s3" } | { ok: false; reason: string };
 export declare const UPLOAD_HELP: string;
 export declare function changedLockEntries<T extends LockEntry>(entries: T[], baseEntries: AssetEntry[]): T[];
+export declare function isArchiveBacked(entry: AssetEntry): boolean;
+export declare function archiveMember(entry: AssetEntry): string;
 export declare function checkPresence(
   entry: AssetEntry,
   deps: {
     headPublic: (entry: AssetEntry) => Promise<HeadResult>;
     s3Configured: boolean;
     headS3: (entry: AssetEntry) => Promise<HeadResult>;
+    readS3Member?: (entry: AssetEntry) => Promise<HeadResult>;
   },
 ): Promise<PresenceResult>;
