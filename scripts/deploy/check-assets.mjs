@@ -21,11 +21,11 @@
  *   移出 git 前的關卡（PLAN.md 每批固定步驟第 4 步）。
  */
 import { createHash } from "node:crypto";
-import { copyFileSync, createReadStream, existsSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from "node:fs";
+import { copyFileSync, createReadStream, existsSync, mkdirSync, mkdtempSync, readFileSync, renameSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { execFileSync, spawnSync } from "node:child_process";
-import { UPLOAD_HELP, changedLockEntries, checkPresence, memoBaseLock, resolveAsset } from "./asset-source.mjs";
+import { UPLOAD_HELP, archiveMember, changedLockEntries, checkPresence, isArchiveBacked, memoBaseLock, resolveAsset } from "./asset-source.mjs";
 
 const args = process.argv.slice(2);
 const flag = (name) => {
@@ -130,7 +130,25 @@ async function downloadS3Once(e, dest) {
     if (status === 404 || status === 403) return { status, error: err.name };
     throw err;
   }
+  if (isArchiveBacked(e)) return { status: 200, ...(await hashArchiveMember(res.Body, e, dest)) };
   return { status: 200, ...(await hashBody(res.Body, e, dest)) };
+}
+
+/** S3 物件是 tar.gz 封裝（rail.tar.gz）：先落地暫存檔，取出對應成員後算大小與 sha256（lock 記的是成員檔，不是封裝檔）。 */
+async function hashArchiveMember(body, e, dest) {
+  const dir = mkdtempSync(join(tmpdir(), "check-assets-archive-"));
+  try {
+    const archive = join(dir, "archive.tar.gz");
+    writeFileSync(archive, Buffer.concat(await (async () => { const out = []; for await (const c of body) out.push(c); return out; })()));
+    const member = archiveMember(e);
+    const names = execFileSync("tar", ["-tzf", archive], { encoding: "utf8", maxBuffer: 64 * 1024 * 1024 }).split("\n");
+    const name = names.find((n) => n.replace(/^(?:\.\/)+/, "") === member);
+    if (!name) return { status: 404, error: `封裝檔裡沒有成員 ${member}` };
+    const data = execFileSync("tar", ["-xzOf", archive, name], { maxBuffer: 1024 * 1024 * 1024 });
+    return hashBody([data], e, dest);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
 }
 
 /** 基準 lock（PR：origin/master；master push：上一個 master）的路徑清單。讀不到就丟錯，由 resolveAsset 轉成紅燈。 */
@@ -198,7 +216,7 @@ async function checkLockPresence(baseRef) {
   const counts = { public: 0, s3: 0 };
   const failures = [];
   await pool(changed, async (e) => {
-    const r = await checkPresence(e, { headPublic, s3Configured: hasS3, headS3 });
+    const r = await checkPresence(e, { headPublic, s3Configured: hasS3, headS3, readS3Member: (x) => downloadS3Once(x) });
     if (r.ok) counts[r.source]++;
     else failures.push(`${e.path}：${r.reason}`);
   });

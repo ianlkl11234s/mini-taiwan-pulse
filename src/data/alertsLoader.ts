@@ -200,63 +200,69 @@ async function _fetchAlertSummaryRaw(): Promise<AlertSummaryLoadResult> {
 }
 export const fetchAlertSummary = cachedOnce(_fetchAlertSummaryRaw, TTL_FAST);
 
-async function _fetchActiveAlertsRaw(
+async function _fetchActiveAlertsOrThrow(
   group?: AlertGroupShort | null,
   severityMin: number = 1,
 ): Promise<ActiveAlert[]> {
-  try {
-    const key = `alert-list:${group ?? "all"}:${severityMin}`;
-    const label = group
-      ? `警報細節 ${group}`
-      : "警報細節";
-    const { data, error } = await withLoading(
-      key,
-      label,
-      supabase.rpc("get_active_alerts", {
-        p_group: group ?? null,
-        p_severity_min: severityMin,
-      }),
-    );
-    if (error) throw error;
-    const rows = (data ?? []) as ActiveRaw[];
-    return rows
-      .map((r): ActiveAlert | null => {
-        const g = asGroup(r.group);
-        if (!g) return null;
-        return {
-          id: String(r.id),
-          group: g,
-          term: r.term ?? "",
-          severity: Math.max(1, Math.min(4, r.severity ?? 1)),
-          urgency: r.urgency ?? "unknown",
-          headline: r.headline ?? "",
-          area_desc: r.area_desc ?? "",
-          area_count: r.area_count ?? 0,
-          sent_ts: asNum(r.sent_ts),
-          expires_ts: asNum(r.expires_ts),
-          description: r.description,
-          instruction: r.instruction,
-          magnitude: r.magnitude == null ? null : Number(r.magnitude),
-          depth_km: r.depth_km == null ? null : Number(r.depth_km),
-          occurred_ts: r.occurred_ts == null ? null : asNum(r.occurred_ts),
-          county: normalizeCounty(r.county, g),
-        };
-      })
-      .filter((x): x is ActiveAlert => x !== null);
-  } catch (err) {
-    console.warn("[alertsLoader] fetchActiveAlerts failed:", err);
-    return [];
-  }
+  const key = `alert-list:${group ?? "all"}:${severityMin}`;
+  const label = group
+    ? `警報細節 ${group}`
+    : "警報細節";
+  const { data, error } = await withLoading(
+    key,
+    label,
+    supabase.rpc("get_active_alerts", {
+      p_group: group ?? null,
+      p_severity_min: severityMin,
+    }),
+  );
+  if (error) throw error;
+  const rows = (data ?? []) as ActiveRaw[];
+  return rows
+    .map((r): ActiveAlert | null => {
+      const g = asGroup(r.group);
+      if (!g) return null;
+      return {
+        id: String(r.id),
+        group: g,
+        term: r.term ?? "",
+        severity: Math.max(1, Math.min(4, r.severity ?? 1)),
+        urgency: r.urgency ?? "unknown",
+        headline: r.headline ?? "",
+        area_desc: r.area_desc ?? "",
+        area_count: r.area_count ?? 0,
+        sent_ts: asNum(r.sent_ts),
+        expires_ts: asNum(r.expires_ts),
+        description: r.description,
+        instruction: r.instruction,
+        magnitude: r.magnitude == null ? null : Number(r.magnitude),
+        depth_km: r.depth_km == null ? null : Number(r.depth_km),
+        occurred_ts: r.occurred_ts == null ? null : asNum(r.occurred_ts),
+        county: normalizeCounty(r.county, g),
+      };
+    })
+    .filter((x): x is ActiveAlert => x !== null);
 }
 const _activeAlertsCache = keyedThunkCache<ActiveAlert[]>(TTL_FAST);
-export function fetchActiveAlerts(
+/** 讀取失敗會 reject（成功的空清單才是 []）；摘要數字要用清單覆蓋時走這支，才分得出「失敗」與「沒有警報」。 */
+export function fetchActiveAlertsOrThrow(
   group?: AlertGroupShort | null,
   severityMin: number = 1,
 ): Promise<ActiveAlert[]> {
   return _activeAlertsCache(
     `${group ?? "*"}|${severityMin}`,
-    () => _fetchActiveAlertsRaw(group, severityMin),
+    () => _fetchActiveAlertsOrThrow(group, severityMin),
   );
+}
+/** 失敗時回 []（地圖面板等不分失敗與空清單的呼叫端）。 */
+export function fetchActiveAlerts(
+  group?: AlertGroupShort | null,
+  severityMin: number = 1,
+): Promise<ActiveAlert[]> {
+  return fetchActiveAlertsOrThrow(group, severityMin).catch((err) => {
+    console.warn("[alertsLoader] fetchActiveAlerts failed:", err);
+    return [];
+  });
 }
 
 async function _fetchAlertSeries24hRaw(): Promise<AlertSeriesPoint[]> {

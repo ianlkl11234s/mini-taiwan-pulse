@@ -81,6 +81,16 @@ export function changedLockEntries(entries, baseEntries) {
   });
 }
 
+const ARCHIVE_RE = /\.(?:tar\.gz|tgz|zip)$/i;
+
+/** lock 條目的 S3 物件是壓縮封裝（例：rail/routes_static.geojson 由 deploy-assets/rail.tar.gz 供應）：bytes／sha256 是成員檔的，不是封裝檔的。 */
+export function isArchiveBacked(entry) {
+  return Boolean(entry.s3_key) && ARCHIVE_RE.test(entry.s3_key) && !ARCHIVE_RE.test(entry.path);
+}
+
+/** 封裝檔內的成員名（網址路徑，不含 public/ 與前導 ./）。 */
+export const archiveMember = (entry) => entry.path.replace(/^public\//, "");
+
 /**
  * 單一條目是否「存在且大小相符」。
  * @param {{ path: string, sha256: string, bytes: number, s3_key?: string }} entry
@@ -88,7 +98,8 @@ export function changedLockEntries(entries, baseEntries) {
  *   headPublic: (entry) => Promise<{ status: number, bytes?: number | null, error?: string }>,
  *   s3Configured: boolean,
  *   headS3: (entry) => Promise<{ status: number, bytes?: number | null, sha256?: string | null, error?: string }>,
- * }} deps
+ *   readS3Member?: (entry) => Promise<{ status: number, bytes?: number | null, sha256?: string | null, error?: string }>,
+ * }} deps `readS3Member`：S3 物件是壓縮封裝時，取出成員檔算大小與 sha256（封裝檔本身的大小與 lock 無關）
  * @returns {Promise<{ ok: true, source: "public" | "s3" } | { ok: false, reason: string }>}
  */
 export async function checkPresence(entry, deps) {
@@ -107,6 +118,15 @@ export async function checkPresence(entry, deps) {
     return { ok: false, reason: `${pubNote}，S3 ${entry.s3_key} 也沒有（或金鑰無權讀取）：檔案還沒上傳` };
   }
   if (s3.status !== 200) return { ok: false, reason: `${pubNote}，查 S3 ${entry.s3_key} 失敗（${s3.error ?? `HTTP ${s3.status}`}）` };
+  if (isArchiveBacked(entry)) {
+    // 封裝檔：存在即可，大小／sha256 要比成員檔（lock 記的是成員檔的值）
+    if (!deps.readS3Member) return { ok: false, reason: `${pubNote}，S3 ${entry.s3_key} 是封裝檔，沒有可驗成員檔的方法` };
+    const m = await deps.readS3Member(entry);
+    if (m.status !== 200) return { ok: false, reason: `${pubNote}，讀 S3 ${entry.s3_key} 的成員 ${archiveMember(entry)} 失敗（${m.error ?? `HTTP ${m.status}`}）` };
+    if (m.bytes !== entry.bytes) return { ok: false, reason: `${pubNote}，S3 ${entry.s3_key} 的成員 ${archiveMember(entry)} 大小不符（${m.bytes} bytes，lock 是 ${entry.bytes}）：封裝檔是舊的或 lock 沒重產` };
+    if (m.sha256 && m.sha256 !== entry.sha256) return { ok: false, reason: `${pubNote}，S3 ${entry.s3_key} 的成員 ${archiveMember(entry)} sha256 與 lock 不符：封裝檔是別的版本` };
+    return { ok: true, source: "s3" };
+  }
   if (s3.bytes !== entry.bytes) return { ok: false, reason: `${pubNote}，S3 ${entry.s3_key} 大小不符（${s3.bytes} bytes，lock 是 ${entry.bytes}）：S3 是舊檔或 lock 沒重產` };
   if (s3.sha256 && s3.sha256 !== entry.sha256) return { ok: false, reason: `${pubNote}，S3 ${entry.s3_key} 的 sha256 與 lock 不符：S3 是別的版本` };
   return { ok: true, source: "s3" };

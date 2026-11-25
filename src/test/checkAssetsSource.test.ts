@@ -1,6 +1,6 @@
 /** check-assets 的 R2／S3 取檔決策（scripts/deploy/asset-source.mjs，CI-10 方案 A）；注入假的取檔函式，不碰網路與 git。 */
 import { describe, expect, it, vi } from "vitest";
-import { changedLockEntries, checkPresence, memoBaseLock, resolveAsset, type AssetEntry, type FetchResult, type HeadResult } from "../../scripts/deploy/asset-source.mjs";
+import { archiveMember, changedLockEntries, checkPresence, isArchiveBacked, memoBaseLock, resolveAsset, type AssetEntry, type FetchResult, type HeadResult } from "../../scripts/deploy/asset-source.mjs";
 
 const entry: AssetEntry = { path: "public/x/new_v2.pmtiles", sha256: "a".repeat(64), bytes: 100, s3_key: "deploy-assets/x/new_v2.pmtiles" };
 const good: FetchResult = { status: 200, sha256: entry.sha256, bytes: entry.bytes };
@@ -170,5 +170,45 @@ describe("checkPresence", () => {
     expect(await checkPresence(entry, presence({ headPublic: down, headS3: vi.fn(async () => sized(entry.bytes)) }))).toEqual({ ok: true, source: "s3" });
     const r = await checkPresence(entry, presence({ headPublic: down, headS3: down }));
     expect(!r.ok && r.reason).toMatch(/查 S3 .*失敗（逾時）/);
+  });
+
+  // review #1232：rail/routes_static.geojson 由 deploy-assets/rail.tar.gz 供應，lock 的 bytes／sha256 是成員檔的
+  describe("封裝檔（tar.gz）供應的條目", () => {
+    const rail: AssetEntry = { path: "public/rail/routes_static.geojson", sha256: "c".repeat(64), bytes: 1_193_050, s3_key: "deploy-assets/rail.tar.gz" };
+    const archiveHead = vi.fn(async () => sized(310_000)); // 封裝檔大小 ≠ 成員檔大小
+    const base = (over: Partial<Parameters<typeof checkPresence>[1]> = {}) => ({
+      headPublic: vi.fn(async () => sized(rail.bytes - 1)), // 公開空間仍是舊版
+      s3Configured: true,
+      headS3: archiveHead,
+      ...over,
+    });
+
+    it("辨識封裝條目與成員名", () => {
+      expect(isArchiveBacked(rail)).toBe(true);
+      expect(isArchiveBacked(entry)).toBe(false);
+      expect(archiveMember(rail)).toBe("rail/routes_static.geojson");
+    });
+
+    it("封裝檔大小與 lock 不同，但成員檔相符 → 綠", async () => {
+      const readS3Member = vi.fn(async () => ({ status: 200, bytes: rail.bytes, sha256: rail.sha256 }));
+      expect(await checkPresence(rail, base({ readS3Member }))).toEqual({ ok: true, source: "s3" });
+      expect(readS3Member).toHaveBeenCalledOnce();
+    });
+
+    it("成員檔大小或 sha256 不符、或封裝檔裡沒有該成員 → 紅", async () => {
+      const small = await checkPresence(rail, base({ readS3Member: vi.fn(async () => ({ status: 200, bytes: rail.bytes - 5, sha256: rail.sha256 })) }));
+      expect(!small.ok && small.reason).toMatch(/成員 rail\/routes_static\.geojson 大小不符/);
+      const otherSha = await checkPresence(rail, base({ readS3Member: vi.fn(async () => ({ status: 200, bytes: rail.bytes, sha256: "f".repeat(64) })) }));
+      expect(!otherSha.ok && otherSha.reason).toMatch(/sha256 與 lock 不符/);
+      const missing = await checkPresence(rail, base({ readS3Member: vi.fn(async () => ({ status: 404, error: "封裝檔裡沒有成員" })) }));
+      expect(!missing.ok && missing.reason).toMatch(/成員.*失敗/);
+    });
+
+    it("封裝檔本身不存在（S3 404）→ 紅，不去讀成員", async () => {
+      const readS3Member = vi.fn();
+      const r = await checkPresence(rail, base({ headS3: vi.fn(async () => ({ status: 403 }) as HeadResult), readS3Member }));
+      expect(r.ok).toBe(false);
+      expect(readS3Member).not.toHaveBeenCalled();
+    });
   });
 });

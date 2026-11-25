@@ -514,8 +514,9 @@ describe("Ookla static overlay 的 attribution / loading 契約", () => {
     }
   });
 
-  // 2026-11-23：細格（z=10）只在圖磚縮放 ≥3；縮放分界靠 layer minzoom／maxzoom（filter 內的 zoom 不隨地圖縮放重算）。
-  it("global 格網：-lo 層與一般層縮放區間互補（分界 2.5），選「細」時低縮放退回 z=8", () => {
+  // 2026-11-23：細格（z=10）只在圖磚縮放 ≥3。review #1183：不用地圖縮放分界（主地圖與 MapLibre 嵌入版挑圖磚縮放的方式不同），
+  // 改用「-lo 只在選細時畫 z8、maxzoom＝3 靠圖磚桶位消失；一般層不設 minzoom」，兩個引擎在任何縮放都不留空白、也不重疊。
+  it("global 格網：任何地圖縮放、兩種引擎（mapbox 四捨五入／MapLibre 取整）都剛好畫出一組有資料的格網", () => {
     for (const [id, sourceId, paramKey] of [
       ["ooklaMobilePerformance", "ookla-mobile-global", "ooklaMobileGridZoom"],
       ["ooklaFixedPerformance", "ookla-fixed-global", "ooklaFixedGridZoom"],
@@ -523,21 +524,33 @@ describe("Ookla static overlay 的 attribution / loading 契約", () => {
       const config = ookla(id, sourceId);
       expect(config.sourceUrl).toMatch(/_20260930_t3\.pmtiles$/);
       const by = (suffix: string) => config.layers.find((l) => l.suffix === suffix)!;
-      const filterOf = (suffix: string, grid: number) => (by(suffix).filter as (p: Record<string, number>) => unknown)({ [paramKey]: grid });
+      expect(config.rebuildOnParamChange).toEqual(expect.arrayContaining(["fill", "line", "fill-lo", "line-lo"]));
       for (const [lo, hi] of [["fill-lo", "fill"], ["line-lo", "line"]] as const) {
-        expect(by(lo).maxzoom).toBe(2.5);
-        expect(by(hi).minzoom).toBe(2.5);
-        expect(by(lo).minzoom).toBeUndefined();
-        expect(by(hi).maxzoom).toBeUndefined();
-        expect(filterOf(lo, 10)).toEqual(["==", ["get", "z"], 8]);   // zoom<3 選細 → 中格
-        expect(filterOf(hi, 10)).toEqual(["==", ["get", "z"], 10]);  // zoom≥3 選細 → 細格
-        for (const grid of [6, 8]) {
-          expect(filterOf(lo, grid)).toEqual(["==", ["get", "z"], grid]);
-          expect(filterOf(hi, grid)).toEqual(["==", ["get", "z"], grid]);
+        for (const selected of [6, 8, 10]) {
+          for (const engine of ["mapbox", "maplibre"] as const) {
+            for (let mapZoom = 0; mapZoom <= 6; mapZoom += 0.1) {
+              const tileZ = Math.min(6, engine === "mapbox" ? Math.round(mapZoom) : Math.floor(mapZoom));
+              // 該圖磚裡有的 z 值：z6／z8 每個縮放都有，z10 只有圖磚縮放 ≥ 3
+              const available = new Set([6, 8, ...(tileZ >= 3 ? [10] : [])]);
+              const drawn: number[] = [];
+              for (const suffix of [lo, hi]) {
+                const l = by(suffix);
+                // Mapbox／MapLibre worker：min 取 floor、max 用 >= 排除；繪製時再看地圖縮放
+                const inBucket = (l.minzoom == null || tileZ >= Math.floor(l.minzoom)) && (l.maxzoom == null || tileZ < l.maxzoom);
+                const visible = (l.minzoom == null || mapZoom >= l.minzoom) && (l.maxzoom == null || mapZoom < l.maxzoom);
+                const f = (l.filter as (p: Record<string, number>) => ["==", unknown, number])({ [paramKey]: selected });
+                if (inBucket && visible && available.has(f[2])) drawn.push(f[2]);
+              }
+              const ctx = `${id} ${suffix2(lo)} 選 z${selected} ${engine} 地圖縮放 ${mapZoom.toFixed(1)}`;
+              expect(drawn.length, ctx).toBe(1);
+              // 選「細」但圖磚沒有 z10 → 退回中格；其餘一律是選的值
+              expect(drawn[0], ctx).toBe(selected === 10 && tileZ < 3 ? 8 : selected);
+            }
+          }
         }
       }
-      expect(config.rebuildOnParamChange).toEqual(expect.arrayContaining(["fill", "line", "fill-lo", "line-lo"]));
     }
+    function suffix2(s: string) { return s.replace("-lo", ""); }
   });
 
   it("global PMTiles 不再整包 fetch GeoJSON（hydrate 直接略過）", async () => {

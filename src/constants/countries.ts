@@ -98,6 +98,8 @@ export const CHINA_CAMERA: CountryCamera = countryDef("CN").camera;
 
 /** 經緯度落在哪一國的 bbox；都不在（含公海、爭議海域）回 undefined。 */
 export function countryForPoint(lng: number, lat: number): CountryCode | undefined {
+  // map.getCenter() 換世界副本時 lng 會超出 ±180，bbox 比對前先正規化
+  if (lng < -180 || lng > 180) lng = ((((lng + 180) % 360) + 360) % 360) - 180;
   for (const country of COUNTRIES) {
     for (const [west, south, east, north] of country.bboxes) {
       if (lng >= west && lng <= east && lat >= south && lat <= north) return country.code;

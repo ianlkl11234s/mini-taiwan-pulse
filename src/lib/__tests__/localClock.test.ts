@@ -65,6 +65,11 @@ describe("localClockForCountry / countryForMapCenter", () => {
     expect(countryForMapCenter(-30, 30)).toBeUndefined();
     expect(localClockForCountry(t, countryForMapCenter(-30, 30))).toBeNull();
   });
+  it("review #1194：換世界副本（lng 超出 ±180）仍判得出國家", () => {
+    expect(countryForMapCenter(139.7 + 360, 35.7)).toBe(countryForMapCenter(139.7, 35.7));
+    expect(countryForMapCenter(139.7 + 360, 35.7)).toBeDefined();
+    expect(countryForMapCenter(-0.12 - 360, 51.5)).toBe("GB");
+  });
   it("倫敦座標判為英國", () => {
     expect(countryForMapCenter(-0.12, 51.5)).toBe("GB");
   });
