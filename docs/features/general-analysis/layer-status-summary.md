@@ -13,7 +13,7 @@
 
 | 國別 | 圖層數 | warehouse | statistics | no_upstream | display_only | missing | 入倉率 |
 |---|---|---|---|---|---|---|---|
-| TW | 1393 | 499 | 704 | 6 | 6 | 178 | 86.4% |
+| TW | 1393 | 505 | 704 | 6 | 6 | 172 | 86.8% |
 | JP | 106 | 24 | 0 | 5 | 1 | 76 | 22.6% |
 | FR | 1 | 0 | 0 | 0 | 0 | 1 | 0.0% |
 | GB | 91 | 6 | 22 | 0 | 1 | 62 | 30.8% |
@@ -28,7 +28,7 @@
 | WORLD | 24 | 5 | 0 | 1 | 0 | 18 | 20.8% |
 | SIM | 37 | 0 | 0 | 0 | 16 | 21 | 0.0% |
 
-- 合計：入倉 1688/2205（warehouse 856、statistics 832）；DISPLAY_ONLY 70；外部圖磚等無上游 12；未入倉（在只減不增基準）435
+- 合計：入倉 1694/2205（warehouse 862、statistics 832）；DISPLAY_ONLY 70；外部圖磚等無上游 12；未入倉（在只減不增基準）429
 - `warehouse`：登記條目有 warehouse 區塊；`statistics`：dataset 在 stats_observations；`no_upstream`：registry/_no_upstream.yaml；`display_only`：registry/_display_only.yaml（附解鎖條件）；`missing`：registry/_warehouse_baseline.yaml（AG-13 基準）
 - WORLD＝跨國圖層，SIM＝模擬面板圖層。國別取 manifest `country`（未寫＝TW）。
 
@@ -56,8 +56,8 @@
 
 | 原因 | 圖層數 |
 |---|---|
-| dataset_not_in_warehouse | 408 |
-| upstream_catalog_missing | 86 |
+| dataset_not_in_warehouse | 414 |
+| upstream_catalog_missing | 80 |
 | unfiltered_shared_table | 30 |
 | derived_layer | 19 |
 | warehouse_SKIPPED_FORMAT | 15 |
