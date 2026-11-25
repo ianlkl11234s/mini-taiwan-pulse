@@ -4,9 +4,10 @@ import { afterEach, describe, expect, it } from "vitest";
 import {
   MapchallengeDay19PenaltiesLegend, MapchallengeDay21OsmRoadsLegend,
   MapchallengeDay23TasteTermsLegend, MapchallengeDay23TasteVariantsLegend,
-  MapchallengeDay23TastePlacesLegend, MapchallengeDay23TasteForeignLegend,
+  MapchallengeDay23TastePlacesLegend, MapchallengeDay23TasteForeignLegend, MapchallengeDay23TasteIntlLegend,
 } from "../mapchallengeLegends";
-import { MAPCHALLENGE_DAY23_FOREIGN, mapchallengeDay23Radius } from "../../../data/mapchallengeDay23Types";
+import { MAPCHALLENGE_DAY23_FOREIGN, MAPCHALLENGE_DAY23_INTL, mapchallengeDay23Radius } from "../../../data/mapchallengeDay23Types";
+import { LAYER_PARAMS_SPEC } from "../../../data/layerParamsSpec";
 import { mapchallengeDay19PenaltyRadius } from "../../../data/mapchallengeDay19Types";
 import { layerParamsStore } from "../../../state/layerParamsStore";
 
@@ -18,6 +19,7 @@ afterEach(() => {
   layerParamsStore.setParam("mapchallengeDay19Penalties", "mapchallengeDay19PenaltiesScale", 1);
   layerParamsStore.setParam("mapchallengeDay23TastePlaces", "mapchallengeDay23TastePlacesScale", 1);
   layerParamsStore.setParam("mapchallengeDay23TasteForeign", "mapchallengeDay23TasteForeignScale", 1);
+  for (const c of MAPCHALLENGE_DAY23_INTL) layerParamsStore.setParam(c.key, `${c.key}Scale`, 1);
 });
 
 describe("K3 大小圖例跟著大小滑桿縮放（map-layers LG-5）", () => {
@@ -51,6 +53,27 @@ describe("K3 大小圖例跟著大小滑桿縮放（map-layers LG-5）", () => {
     expect(a).toContain(w(mapchallengeDay23Radius(8, 1.5)));
     const b = renderToStaticMarkup(createElement(MapchallengeDay23TasteForeignLegend, { isDark: true, scale: 1.5 }));
     expect(b).toContain(w(mapchallengeDay23Radius(50, 1.5, MAPCHALLENGE_DAY23_FOREIGN[0]!.k)));
+  });
+  it.each(MAPCHALLENGE_DAY23_INTL.map((c) => [c.cc, c] as const))("Day 23 外國層 %s：大格與小格兩列圓都跟著滑桿（2026-11-24 正式站驗收）", (_cc, c) => {
+    layerParamsStore.setParam(c.key, `${c.key}Scale`, 3);
+    const html = renderToStaticMarkup(createElement(MapchallengeDay23TasteIntlLegend, { layerKey: c.key, isDark: true }));
+    const term = c.terms[0]!;
+    expect(html).toContain(w(mapchallengeDay23Radius(50, 3, term.k)));
+    expect(html).toContain(w(mapchallengeDay23Radius(20, 3, term.kHigh)));
+    expect(html).not.toContain(w(mapchallengeDay23Radius(50, 1, term.k)));
+  });
+  it("Day 23 外國層：embed 傳入 scale／termIdx 優先", () => {
+    const c = MAPCHALLENGE_DAY23_INTL[0]!;
+    const term = c.terms[1] ?? c.terms[0]!;
+    const html = renderToStaticMarkup(createElement(MapchallengeDay23TasteIntlLegend, { layerKey: c.key, isDark: true, scale: 1.5, termIdx: c.terms.indexOf(term) }));
+    expect(html).toContain(w(mapchallengeDay23Radius(50, 1.5, term.k)));
+  });
+  it("Day 23 每一層都有 `${key}Scale` 大小滑桿（共用路徑的前提）", () => {
+    const keys = ["mapchallengeDay23TasteTerms", "mapchallengeDay23TasteVariants", "mapchallengeDay23TastePlaces", "mapchallengeDay23TasteForeign", ...MAPCHALLENGE_DAY23_INTL.map((c) => c.key)];
+    for (const k of keys) {
+      const spec = (LAYER_PARAMS_SPEC as Record<string, readonly { name: string }[]>)[k] ?? [];
+      expect(spec.some((p) => p.name === `${k}Scale`), k).toBe(true);
+    }
   });
   it("Day 19 裁罰（同類問題）", () => {
     layerParamsStore.setParam("mapchallengeDay19Penalties", "mapchallengeDay19PenaltiesScale", 2);

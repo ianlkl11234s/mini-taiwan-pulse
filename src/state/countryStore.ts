@@ -181,9 +181,14 @@ export const pinnedCountries = {
   isPinned(code: CountryCode): boolean {
     return this.getSnapshot().includes(code);
   },
-  /** 釘選到清單尾端；已釘或已滿回 false。 */
-  pin(code: CountryCode): boolean {
-    const list = this.getSnapshot();
+  /**
+   * 釘選到清單尾端；已釘或已滿回 false。
+   * 傳 `accessible`（目前身分看得到的國家）時，看不到的舊釘選（站主登出後的中國）不佔名額，並在這次寫入時一併清掉，
+   * 否則選單顯示還有空位卻永遠釘不進去。
+   */
+  pin(code: CountryCode, accessible?: readonly CountryCode[]): boolean {
+    const stored = this.getSnapshot();
+    const list = accessible ? stored.filter((c) => accessible.includes(c)) : stored;
     if (list.includes(code) || list.length >= MAX_PINNED) return false;
     commitPinned([...list, code]);
     return true;
@@ -193,12 +198,12 @@ export const pinnedCountries = {
     if (list.includes(code)) commitPinned(list.filter((c) => c !== code));
   },
   /** 已釘則取消，否則嘗試釘選；回傳操作後是否為釘選狀態。 */
-  toggle(code: CountryCode): boolean {
+  toggle(code: CountryCode, accessible?: readonly CountryCode[]): boolean {
     if (this.isPinned(code)) {
       this.unpin(code);
       return false;
     }
-    return this.pin(code);
+    return this.pin(code, accessible);
   },
   /** 測試用：清空記憶體狀態，下次讀取重新從 localStorage 載入（不動 localStorage）。 */
   resetForTest(): void {
@@ -238,7 +243,10 @@ export const countryCameraMemory = {
    */
   record(code: CountryCode, camera: CountryCamera): boolean {
     loadCameras();
-    const valid = parseCamera(camera);
+    // map.getCenter() 換世界副本時 lng 會超出 ±180：先折回再驗證，否則整筆被丟棄
+    const lng = camera.center[0];
+    const folded = Number.isFinite(lng) && Math.abs(lng) > 180 ? ((((lng + 180) % 360) + 360) % 360) - 180 : lng;
+    const valid = parseCamera({ ...camera, center: [folded, camera.center[1]] });
     if (!valid || countryForPoint(valid.center[0], valid.center[1]) !== code) return false;
     cameras = { ...cameras, [code]: valid };
     writeStorage(CAMERA_MEMORY_STORAGE_KEY, cameras);

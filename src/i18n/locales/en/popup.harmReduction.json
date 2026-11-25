@@ -58,7 +58,6 @@
   "popup.harmReduction.mainCause": "Primary cause",
   "popup.harmReduction.duiBasis": "DUI determination",
   "popup.harmReduction.duiParties": "Drivers under the influence",
-  "popup.harmReduction.policeCoords": "Coordinates from the police crash record",
   "popup.harmReduction.persons_one": "{count} person",
   "popup.harmReduction.persons_other": "{count} people",
   "popup.harmReduction.deaths_one": "{count} killed",

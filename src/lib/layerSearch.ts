@@ -2,6 +2,7 @@ import { GATED_LAYERS } from "../components/sidebar/layerCatalog";
 import { LAYER_MANIFEST, MANIFEST_KEYS, type LayerSource, type ManifestKey } from "../data/layerManifest";
 import { isDataSourceBrowserVisible } from "../data/statisticsDataSources";
 import type { UpstreamStatus } from "../data/upstreamRegistry";
+import { onRecordExtended } from "../countries/slots";
 
 /**
  * 少量使用者常用稱呼；圖層的名稱、說明、主題與來源仍一律由 manifest 派生。
@@ -184,6 +185,8 @@ export function getLayerSearchIndex(): readonly SearchDocument[] {
 }
 
 let layerSearchLabels: Readonly<Record<string, string>> | null = null;
+// 國家包載入（B1 P5a）後 manifest 多了圖層：快取重建
+onRecordExtended("layerManifest", () => { layerSearchIndex = null; layerSearchLabels = null; });
 
 /** key → 顯示名稱（與搜尋索引同一組圖層）。只讀名稱、不建全文索引，開站就能便宜地用（會員清單、場景還原）。 */
 export function getLayerSearchLabels(): Readonly<Record<string, string>> {

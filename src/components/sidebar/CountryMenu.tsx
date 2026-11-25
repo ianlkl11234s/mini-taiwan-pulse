@@ -203,7 +203,7 @@ export function CountryMenu({ country, onSelect, trailing }: { country: CountryC
                 aria-disabled={pinDisabled}
                 aria-label={pinLabel}
                 title={pinLabel}
-                onClick={() => { if (!pinDisabled) pinnedCountries.toggle(code); }}
+                onClick={() => { if (!pinDisabled) pinnedCountries.toggle(code, countries.map((c) => c.code)); }}
                 style={{
                   display: "flex",
                   alignItems: "center",

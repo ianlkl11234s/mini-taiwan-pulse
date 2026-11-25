@@ -6,6 +6,10 @@ import { FIRE_STATION_CATS, fireStationColor, fireStationColorMatch } from "../f
 import { OVERLAY_REGISTRY } from "../../map/overlayRegistry";
 import { liftedColorMap } from "../../map/darkContrast";
 import { normalizeColor } from "../../map/colorContrast";
+import { loadAllPacks } from "../../countries/packs";
+
+// 全部圖層（含延後載入的國家包，B1 P5）一起驗
+await loadAllPacks();
 
 describe("fireStations 類別色", () => {
   it("match 表達式由 FIRE_STATION_CATS 展開，其他＝fallback", () => {

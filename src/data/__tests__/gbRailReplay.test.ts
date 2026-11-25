@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   GbRailSmoother, GbRailTickClock, buildGbRailReplayData, gbRailBuildTripPath, gbRailPathPoint, gbRailTripProgress, candidateTrips, gbRailDelayTier, gbRailReplayTime, londonMidnightUtc,
   type GbRailGeometry, type GbRailTrip,
-} from "../gbRailReplay";
+} from "../../countries/gb/gbRailReplay";
 
 const geom: GbRailGeometry = {
   lines: [

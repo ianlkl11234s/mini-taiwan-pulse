@@ -6,6 +6,10 @@ import { compositeOver, contrastRatio, deltaE, oklch, parseColor } from "../colo
 import { DARK_CONTRAST, isHueFamily, liftCategoricalForDark, liftForDark, liftModeOf, liftRampForDark, liftedColorMap } from "../darkContrast";
 import { BASEMAP_LAND, MAP_CATEGORICAL } from "../mapStyleScale";
 import { OVERLAY_REGISTRY } from "../overlayRegistry";
+import { loadAllPacks } from "../../countries/packs";
+
+// 全部圖層（含延後載入的國家包，B1 P5）一起驗
+await loadAllPacks();
 
 const DARK = parseColor(BASEMAP_LAND.dark)!.rgb;
 const LIGHT = parseColor(BASEMAP_LAND.light)!.rgb;

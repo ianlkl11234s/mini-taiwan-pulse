@@ -36,6 +36,10 @@ import { STATISTICS_RENDER_KEYS, statisticsRenderRecipe } from "../../src/data/r
 import { LEGEND_REGISTRY } from "../../src/components/LegendPanel";
 import { legendKeys } from "../../src/data/legendGroups";
 import { encodeParamsToOverlay, layerParamsStore } from "../../src/state/layerParamsStore";
+import { loadAllPacks } from "../../src/countries/packs";
+
+// 國家包（B1 P5a）的圖層也要盤點：先全部載入，登記簿才完整
+await loadAllPacks();
 
 const ROOT = fileURLToPath(new URL("../..", import.meta.url));
 const OUT = "docs/design-system/layer-style-inventory.json";
@@ -334,6 +338,25 @@ function paintColorSet(cfgs: OverlayCfg[]): Set<string> {
 //  4. 靜態掃描（自行接線的 hook／factory）
 // ══════════════════════════════════════════════════════════════════
 
+/**
+ * 國家包（B1 P5a）的檔依搬家前的位置排序：「先登記者勝」的函式反查、evidence 與截斷的 staticValues
+ * 才與搬家前相同（盤點只差路徑字串）。
+ */
+function legacyPath(f: string): string {
+  const m = /^src\/countries\/[a-z]+\/(.+)$/.exec(f);
+  if (!m) return f;
+  const name = m[1]!;
+  if (name.startsWith("use")) return `src/hooks/${name}`;
+  if (/Legends\.tsx$/.test(name)) return `src/components/legend/${name}`;
+  if (/Panels?\.tsx$/.test(name)) return `src/components/featureInfo/${name}`;
+  if (/Hosts\.tsx$/.test(name)) return `src/layers/hosts/${name}`;
+  return `src/data/${name}`;
+}
+function byLegacyPath(a: string, b: string): number {
+  const x = legacyPath(a), y = legacyPath(b);
+  return x < y ? -1 : x > y ? 1 : 0;
+}
+
 const SRC_FILES: string[] = (() => {
   const out: string[] = [];
   const walk = (d: string) => {
@@ -345,7 +368,7 @@ const SRC_FILES: string[] = (() => {
     }
   };
   walk("src");
-  return out.sort();
+  return out.sort(byLegacyPath);
 })();
 const TEXT = new Map<string, string>();
 const text = (f: string) => { if (!TEXT.has(f)) TEXT.set(f, readFileSync(join(ROOT, f), "utf8")); return TEXT.get(f)!; };
@@ -358,10 +381,10 @@ for (const f of SRC_FILES) {
 /** src/map・src/three・src/hooks 匯出的函式 → 檔（用來從呼叫點反查渲染檔） */
 const FUNC_FILE = new Map<string, string>();
 for (const f of SRC_FILES) {
-  if (!/^src\/(map|three|hooks)\//.test(f)) continue;
+  if (!/^src\/(map|three|hooks)\//.test(f) && !/^src\/countries\/[a-z]+\/use/.test(f)) continue;
   for (const m of text(f).matchAll(/export\s+(?:async\s+)?(?:function|const|class)\s+([A-Za-z0-9_]+)/g)) if (!FUNC_FILE.has(m[1])) FUNC_FILE.set(m[1], f);
 }
-const CALLSITE_FILES = ["src/map/MapView.tsx", "src/App.tsx", ...SRC_FILES.filter((f) => f.startsWith("src/layers/hosts/"))];
+const CALLSITE_FILES = ["src/map/MapView.tsx", "src/App.tsx", ...SRC_FILES.filter((f) => f.startsWith("src/layers/hosts/") || /^src\/countries\/[a-z]+\/\w*Hosts\.tsx$/.test(f))];
 /** 在掛載點（MapView／App／Host）找引用本 key 的行，取前後 4 行內、函式名含 key 字根的已匯出渲染函式所在檔 */
 function filesFromCallsites(key: string): string[] {
   const out = new Set<string>();
@@ -426,7 +449,7 @@ function localImports(f: string): string[] {
   const out: string[] = [];
   for (const m of s.matchAll(/from\s+["'](\.{1,2}\/[^"']+)["']/g)) {
     const p = relative(ROOT, join(ROOT, dir, m[1])).replace(/\\/g, "/");
-    if (!/^src\/(map|three|hooks)\//.test(p)) continue;
+    if (!/^src\/(map|three|hooks)\//.test(p) && !/^src\/countries\/[a-z]+\/use/.test(p)) continue;
     for (const ext of [".ts", ".tsx"]) if (SRC_FILES.includes(p + ext)) out.push(p + ext);
   }
   return out;
@@ -443,11 +466,13 @@ const overlayParams = encodeParamsToOverlay(layerParamsStore.getAll());
 const byOverlay = new Map<string, OverlayCfg[]>();
 for (const o of overlays) byOverlay.set(o.id, [...(byOverlay.get(o.id) ?? []), o]);
 
-const overlayRegistryText = text("src/map/overlayRegistry.ts");
+// overlay 條目：中央 registry，加上國家包的 overlays.ts（B1 P5b）
+const OVERLAY_FILES = ["src/map/overlayRegistry.ts", ...SRC_FILES.filter((f) => /^src\/countries\/[a-z]+\/overlays\.ts$/.test(f))];
+const overlayFileTexts = OVERLAY_FILES.map((f) => [f, text(f)] as const);
 /** evidence 只記檔名不記行號（行號會隨無關改動位移，讓 CI 一致性比對誤報）；以 layer key 在檔內搜尋 */
 function overlayLines(id: string): string[] {
   const re = new RegExp(`id:\\s*["'\`]${id}["'\`]`);
-  return re.test(overlayRegistryText) ? ["src/map/overlayRegistry.ts"] : [];
+  return overlayFileTexts.filter(([, t]) => re.test(t)).map(([f]) => f);
 }
 
 const hookOfKey = new Map<string, string[]>();
@@ -492,7 +517,8 @@ function paramDefaults(key: string) {
 const legendPanelText = text("src/components/LegendPanel.tsx");
 function componentBody(name: string): string {
   const legendFiles = readdirSync(join(ROOT, "src/components/legend")).filter((n) => n.endsWith(".tsx")).sort().map((n) => `src/components/legend/${n}`);
-  const files = ["src/components/LegendPanel.tsx", ...legendFiles, "src/components/sidebar/StatisticsDetails.tsx"];
+  const packLegendFiles = SRC_FILES.filter((f) => /^src\/countries\/[a-z]+\/\w*Legends\.tsx$/.test(f));
+  const files = ["src/components/LegendPanel.tsx", ...legendFiles, ...packLegendFiles, "src/components/sidebar/StatisticsDetails.tsx"];
   for (const f of files) {
     const s = text(f);
     const m = new RegExp(`\\n(?:export\\s+)?function ${name}\\b`).exec(s);
@@ -718,7 +744,7 @@ for (const key of [...MANIFEST_KEYS].sort()) {
       const re = new RegExp(`["'\`]${key}["'\`]|\\.${key}\\b`);
       for (const f of SRC_FILES) if (/^src\/(map|three)\//.test(f) && !/overlayRegistry|gisClickRegistry|MapView|overlayManager/.test(f) && re.test(text(f))) files.add(f);
     }
-    const scans = [...files].sort().map((f) => ({ f, ...scanFile(f) }));
+    const scans = [...files].sort(byLegacyPath).map((f) => ({ f, ...scanFile(f) }));
     const three = scans.filter((s) => s.three || s.customGl).map((s) => s.f);
     const props = scans.flatMap((s) => s.props.map((p) => ({ ...p, file: s.f })));
     const types = new Set(scans.flatMap((s) => [...s.types]));

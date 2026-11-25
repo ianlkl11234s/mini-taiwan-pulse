@@ -161,3 +161,17 @@ describe("countryCameraMemory", () => {
     expect(countryCameraMemory.get("TW")).toBeUndefined();
   });
 });
+
+describe("Codex review 修正（PR #1201）", () => {
+  it("r4675734777：世界副本的經度（139.7+360）折回後仍記得住", () => {
+    expect(countryCameraMemory.record("JP", { center: [139.7 + 360, 35.7], zoom: 11, pitch: 0, bearing: 0 })).toBe(true);
+    expect(countryCameraMemory.get("JP")?.center[0]).toBeCloseTo(139.7, 6);
+  });
+  it("r4675711923：看不到的舊釘選不佔名額（CN 站主登出後仍可釘滿可見的三國）", () => {
+    pinnedCountries.pin("CN"); pinnedCountries.pin("JP"); pinnedCountries.pin("GB");
+    const visible = ["TW", "JP", "GB", "KR"] as const;
+    expect(pinnedCountries.pin("KR")).toBe(false); // 沒帶 accessible：維持舊行為
+    expect(pinnedCountries.pin("KR", visible)).toBe(true);
+    expect(pinnedCountries.getSnapshot()).toEqual(["JP", "GB", "KR"]);
+  });
+});

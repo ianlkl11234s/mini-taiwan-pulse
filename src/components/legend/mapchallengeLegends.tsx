@@ -18,7 +18,7 @@ import {
   MAPCHALLENGE_DAY23_ARC, MAPCHALLENGE_DAY23_FOREIGN, MAPCHALLENGE_DAY23_FOREIGN_DOMINANT, MAPCHALLENGE_DAY23_ORIGIN, MAPCHALLENGE_DAY23_PLACES,
   mapchallengeDay23ArcWidth, mapchallengeDay23ForeignById, mapchallengeDay23PlaceById,
   type MapchallengeDay23ForeignId, type MapchallengeDay23PlaceId, type MapchallengeDay23TermId,
-  MAPCHALLENGE_DAY23_CELL_KM2, mapchallengeDay23IntlByKey, mapchallengeDay23IntlTermById,
+  MAPCHALLENGE_DAY23_CELL_KM2, mapchallengeDay23IntlByKey, mapchallengeDay23IntlTermAt, mapchallengeDay23IntlTermById,
   type MapchallengeDay23IntlCountry, type MapchallengeDay23IntlKey, type MapchallengeDay23IntlTerm,
 } from "../../data/mapchallengeDay23Types";
 import { useLocale } from "../../state/localeStore";
@@ -705,13 +705,20 @@ export const MAPCHALLENGE_DAY23_FOREIGN_KEYS: Readonly<Record<MapchallengeDay23F
 const MAPCHALLENGE_DAY23_PLACE_SIZE_STEPS = [1, 3, 8] as const;
 const MAPCHALLENGE_DAY23_FOREIGN_SIZE_STEPS = [1, 10, 50] as const;
 const MAPCHALLENGE_DAY23_SIZE_STEPS = [1, 5, 20] as const;
+/**
+ * Day 23 所有圖層（台灣四層＋南韓／英國／日本）圖例圓的大小倍率：同一條路徑（LG-5 圖例圓＝地圖圓）。
+ * 規格統一把大小滑桿命名為 `${layerKey}Scale`（layerParamsSpec 的 scaleSlider）；embed 沒有參數 store，由網址帶入的值優先。
+ */
+export function mapchallengeDay23LegendScale(values: Parameters<typeof paramNum>[0], layerKey: string, embedScale?: number): number {
+  return embedScale ?? paramNum(values, layerKey, `${layerKey}Scale`);
+}
 
 /** termIdx／scale：embed 由網址帶入（embed 沒有參數 store）；主站不傳，讀 store。圖例圓要和地圖同尺寸（LG-5）。 */
 export function MapchallengeDay23TasteTermsLegend({ isDark, termIdx, scale }: { isDark: boolean; termIdx?: number; scale?: number }) {
   const { t, formatNumber } = useLocale();
   const values = useLayerParams("mapchallengeDay23TasteTerms");
   const term = (termIdx != null ? MAPCHALLENGE_DAY23_TERMS[Math.trunc(termIdx)] : mapchallengeDay23TermById(paramStr(values, "mapchallengeDay23TasteTerms", "mapchallengeDay23TasteTermsTerm"))) ?? MAPCHALLENGE_DAY23_TERMS[0];
-  const sizeScale = scale ?? paramNum(values, "mapchallengeDay23TasteTerms", "mapchallengeDay23TasteTermsScale");
+  const sizeScale = mapchallengeDay23LegendScale(values, "mapchallengeDay23TasteTerms", scale);
   const color = mapchallengeDay23TermColor(term, isDark);
   const note = MAPCHALLENGE_DAY23_TERM_NOTE_KEYS[term.value];
   return <div>
@@ -731,7 +738,7 @@ export function MapchallengeDay23TasteVariantsLegend({ isDark, groupIdx, scale }
   const { t, formatNumber } = useLocale();
   const values = useLayerParams("mapchallengeDay23TasteVariants");
   const group = (groupIdx != null ? MAPCHALLENGE_DAY23_VARIANT_GROUPS[Math.trunc(groupIdx)] : mapchallengeDay23GroupById(paramStr(values, "mapchallengeDay23TasteVariants", "mapchallengeDay23TasteVariantsGroup"))) ?? MAPCHALLENGE_DAY23_VARIANT_GROUPS[0];
-  const sizeScale = scale ?? paramNum(values, "mapchallengeDay23TasteVariants", "mapchallengeDay23TasteVariantsScale");
+  const sizeScale = mapchallengeDay23LegendScale(values, "mapchallengeDay23TasteVariants", scale);
   return <div>
     <LegendTitle zh={t("legend.mapchallenge.day23.variantsTitle")} />
     <LegendNote>{t(MAPCHALLENGE_DAY23_GROUP_KEYS[group.value])}</LegendNote>
@@ -751,7 +758,7 @@ export function MapchallengeDay23TastePlacesLegend({ isDark, scale }: { isDark: 
   const { t, formatNumber } = useLocale();
   const values = useLayerParams("mapchallengeDay23TastePlaces");
   const place = mapchallengeDay23PlaceById(paramStr(values, "mapchallengeDay23TastePlaces", "mapchallengeDay23TastePlacesSign")) ?? MAPCHALLENGE_DAY23_PLACES[0];
-  const sizeScale = scale ?? paramNum(values, "mapchallengeDay23TastePlaces", "mapchallengeDay23TastePlacesScale");
+  const sizeScale = mapchallengeDay23LegendScale(values, "mapchallengeDay23TastePlaces", scale);
   const color = mapchallengeDay23TermColor(place, isDark);
   const home = t(MAPCHALLENGE_DAY23_HOME_KEYS[place.value]);
   return <div>
@@ -775,7 +782,7 @@ export function MapchallengeDay23TasteForeignLegend({ isDark, scale }: { isDark:
   const { t, formatNumber } = useLocale();
   const values = useLayerParams("mapchallengeDay23TasteForeign");
   const group = mapchallengeDay23ForeignById(paramStr(values, "mapchallengeDay23TasteForeign", "mapchallengeDay23TasteForeignGroup")) ?? MAPCHALLENGE_DAY23_FOREIGN[0];
-  const sizeScale = scale ?? paramNum(values, "mapchallengeDay23TasteForeign", "mapchallengeDay23TasteForeignScale");
+  const sizeScale = mapchallengeDay23LegendScale(values, "mapchallengeDay23TasteForeign", scale);
   const color = mapchallengeDay23TermColor(group, isDark);
   const dominant = MAPCHALLENGE_DAY23_FOREIGN_DOMINANT[group.value];
   return <div>
@@ -821,13 +828,15 @@ export function useMapchallengeDay23IntlTermName(): (country: MapchallengeDay23I
   };
 }
 
-export function MapchallengeDay23TasteIntlLegend({ layerKey, isDark }: { layerKey: MapchallengeDay23IntlKey; isDark: boolean }) {
+/** termIdx／scale：embed 由網址帶入；主站不傳，讀 store（大小滑桿與台灣四層同一條路徑，LG-5）。 */
+export function MapchallengeDay23TasteIntlLegend({ layerKey, isDark, termIdx, scale }: { layerKey: MapchallengeDay23IntlKey; isDark: boolean; termIdx?: number; scale?: number }) {
   const { t, formatNumber } = useLocale();
   const termName = useMapchallengeDay23IntlTermName();
   const values = useLayerParams(layerKey);
   const country = mapchallengeDay23IntlByKey(layerKey);
   if (!country) return null;
-  const term = mapchallengeDay23IntlTermById(country, paramStr(values, layerKey, `${layerKey}Term`)) ?? country.terms[0];
+  const term = (termIdx != null ? mapchallengeDay23IntlTermAt(country, termIdx) : mapchallengeDay23IntlTermById(country, paramStr(values, layerKey, `${layerKey}Term`))) ?? country.terms[0];
+  const sizeScale = mapchallengeDay23LegendScale(values, layerKey, scale);
   const color = mapchallengeDay23TermColor(term, isDark);
   const [low, high] = country.res;
   return <div>
@@ -837,8 +846,8 @@ export function MapchallengeDay23TasteIntlLegend({ layerKey, isDark }: { layerKe
       {t("legend.mapchallenge.day23.intl.termRow", { term: termName(country, term), n: formatNumber(term.stores), m: formatNumber(term.mapped) })}
     </LegendRow>
     <LegendNote>{t("legend.mapchallenge.day23.sizeTitle")}</LegendNote>
-    <LegendSizeRow title={t("legend.mapchallenge.day23.intl.sizeLow", { km2: formatNumber(MAPCHALLENGE_DAY23_CELL_KM2[low] ?? 0) })} items={MAPCHALLENGE_DAY23_INTL_SIZE_STEPS.map((n) => ({ r: mapchallengeDay23Radius(n, 1, term.k), label: String(n) }))} fill={color} />
-    <LegendSizeRow title={t("legend.mapchallenge.day23.intl.sizeHigh", { z: country.switchZoom, km2: formatNumber(MAPCHALLENGE_DAY23_CELL_KM2[high] ?? 0) })} items={MAPCHALLENGE_DAY23_INTL_SIZE_STEPS_HIGH.map((n) => ({ r: mapchallengeDay23Radius(n, 1, term.kHigh), label: String(n) }))} fill={color} />
+    <LegendSizeRow title={t("legend.mapchallenge.day23.intl.sizeLow", { km2: formatNumber(MAPCHALLENGE_DAY23_CELL_KM2[low] ?? 0) })} items={MAPCHALLENGE_DAY23_INTL_SIZE_STEPS.map((n) => ({ r: mapchallengeDay23Radius(n, sizeScale, term.k), label: String(n) }))} fill={color} />
+    <LegendSizeRow title={t("legend.mapchallenge.day23.intl.sizeHigh", { z: country.switchZoom, km2: formatNumber(MAPCHALLENGE_DAY23_CELL_KM2[high] ?? 0) })} items={MAPCHALLENGE_DAY23_INTL_SIZE_STEPS_HIGH.map((n) => ({ r: mapchallengeDay23Radius(n, sizeScale, term.kHigh), label: String(n) }))} fill={color} />
     <LegendNote>{t("legend.mapchallenge.day23.intl.sizeNote")}</LegendNote>
     <LegendNote>{t("legend.mapchallenge.day23.intl.gridNote")}</LegendNote>
     <LegendNote>{t("legend.mapchallenge.day23.intl.scope")}</LegendNote>

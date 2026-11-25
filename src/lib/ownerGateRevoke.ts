@@ -70,6 +70,18 @@ export function clearOverlaySourcesForKeys(
   return [...cleared];
 }
 
+/**
+ * 某張地圖（例如比較模式的右圖）專屬的撤權清除：每次撤權時用「當下」的 registry 子集清資料。
+ * 回傳 unregister（地圖銷毀時呼叫）。
+ */
+export function registerOverlaySourceReset(
+  keys: Iterable<Key>,
+  map: SourceMap,
+  getRegistry: () => readonly { id: string; sourceId: string; pmtiles?: unknown }[],
+): () => void {
+  return registerOwnerGateReset(keys, (revoked) => { clearOverlaySourcesForKeys(map, getRegistry(), revoked); });
+}
+
 /** 測試用 */
 export function resetOwnerGateHandlersForTest(): void {
   handlers.clear();

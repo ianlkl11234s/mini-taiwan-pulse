@@ -5,7 +5,11 @@
  * 判斷範圍與方法見 `src/map/visibilityAudit.ts`（registry overlay＋南韓資料層；其他 hook 圖層不涵蓋）。
  */
 import { describe, expect, it } from "vitest";
-import { categoryFilterViolations, zoomLagViolations } from "../visibilityAudit";
+import { categoryFilterViolations, zoomLagViolations } from "./visibilityAudit";
+import { loadAllPacks } from "../../countries/packs";
+
+// 全部圖層（含延後載入的國家包，B1 P5）一起驗
+await loadAllPacks();
 
 /**
  * V-2 基準（2026-10-31）：layer 最早出現縮放比圖磚 minzoom 晚超過 1 級。

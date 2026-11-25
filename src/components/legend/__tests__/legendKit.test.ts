@@ -12,6 +12,10 @@ import type { LayerVisibility } from "../../../types";
 import { hatchImageData } from "../../../map/mapStyleScale";
 import { MEDICAL_POI_TYPES, MEDICAL_POI_PAINT_COLORS, medicalPoiColor } from "../../../data/medicalPOITypes";
 import { LAYER_SOURCE_INFO, resolveSourceText } from "../../../data/layerSourceInfo";
+import { loadAllPacks } from "../../../countries/packs";
+
+// 全部圖層（含延後載入的國家包，B1 P5）一起驗
+await loadAllPacks();
 
 describe("legendKit", () => {
   it("LG-11：標題中文在前、英文小字在後，不轉大寫", () => {

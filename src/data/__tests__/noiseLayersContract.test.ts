@@ -19,6 +19,10 @@ import { LAYER_MANIFEST } from "../layerManifest";
 import { LAYER_PARAMS_SPEC } from "../layerParamsSpec";
 import { OVERLAY_REGISTRY } from "../../map/overlayRegistry";
 import { ownerAsset } from "../../test/ownerAssets";
+import { loadAllPacks } from "../../countries/packs";
+
+// 全部圖層（含延後載入的國家包，B1 P5）一起驗
+await loadAllPacks();
 
 const ENVIRONMENT = "public/environment";
 const NOISE_CAPTURE_ASSET = `${ENVIRONMENT}/noise_capture_grid.pmtiles`;

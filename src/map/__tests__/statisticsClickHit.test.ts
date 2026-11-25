@@ -2,6 +2,10 @@ import { describe, expect, it, vi } from "vitest";
 import type { MapboxGeoJSONFeature, PointLike } from "mapbox-gl";
 import { EXACT_POINT_HIT_TYPES, gisHitTarget, queryStatisticsHits } from "../statisticsClickHit";
 import { GIS_LAYERS } from "../gisClickRegistry";
+import { loadAllPacks } from "../../countries/packs";
+
+// 全部圖層（含延後載入的國家包，B1 P5）一起驗
+await loadAllPacks();
 
 // 模擬低縮放的大邱：點擊點落在 중구，但 ±5px 框同時碰到 달서구 等鄰區，且 Mapbox 回傳鄰區在前。
 const feature = (name: string, layer: string) => ({ properties: { area_name: name }, layer: { id: layer } }) as unknown as MapboxGeoJSONFeature;

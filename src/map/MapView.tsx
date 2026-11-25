@@ -4,13 +4,14 @@ import { compareCircleReference, compareDotUnit } from "../state/compareStatisti
 import { useEffect, useRef, useState } from "react";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
-import type { CameraPreset, Flight, RenderMode, LayerVisibility } from "../types";
+import type { CameraPreset, Flight, RenderMode, LayerVisibility, OverlayConfig } from "../types";
+import { subscribeListFill } from "../countries/slots";
 import { layerVisibilityStore } from "../state/layerVisibilityStore";
 import { useOverlayParams } from "../layers/layerParamsAccess";
 import { useHeatmapStackFactor } from "../state/layerPalette";
 import { updateStaticTrails, setStaticTrailsOpacity, setStaticTrailsVisible } from "./staticTrails";
 import { OVERLAY_REGISTRY } from "./overlayRegistry";
-import { addAllOverlays, updateAllOverlayThemes, setOverlayVisible, hydrateOverlayIfNeeded, refreshFallbackHydratedOverlay, resetOverlayHydration, isOverlayVisible, isJpHeightManagedOverlay, swapPmtilesSourceIfMigrated } from "./overlayManager";
+import { addLateOverlays, addAllOverlays, updateAllOverlayThemes, setOverlayVisible, hydrateOverlayIfNeeded, refreshFallbackHydratedOverlay, resetOverlayHydration, isOverlayVisible, isJpHeightManagedOverlay, swapPmtilesSourceIfMigrated } from "./overlayManager";
 import { MIGRATED_ASSET_KEYS, onLayerAssetIndexReady } from "../data/layerAssetIndex";
 import { createJpHeightLifecycle } from "./jpHeightLifecycle";
 import { registerPmtilesSourceTypeOnce } from "./pmtilesSourceType";
@@ -263,6 +264,11 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
   const hiddenBasemapLabelLayerIdsRef = useRef(new Set<string>());
   const overlayParamsRef = useRef(overlayParams);
   const jpHeightLifecycleRef = useRef<ReturnType<typeof createJpHeightLifecycle> | null>(null);
+  /**
+   * 已跑過 style.load 的 addAllOverlays 的地圖（國家包晚到的 overlay 補建用）。不能用 mapRef：
+   * mapRef 要等 "load" 才設，國家包若在 style.load 與 load 之間填進 registry，兩邊都會漏掉。
+   */
+  const overlayMapRef = useRef<mapboxgl.Map | null>(null);
 
   // 撤權（登出／失去站主權限，review F088）：registry GeoJSON overlay 中被撤權的 source 資料清空。
   // source／layer 殼保留（addAllOverlays 建立、feed 靠 getSource 找它；layer 由 visible=false 隱藏）。
@@ -273,6 +279,27 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
       if (map) clearOverlaySourcesForKeys(map, OVERLAY_REGISTRY, revoked);
     },
   ), []);
+  // B1 P5b：國家包晚到的 overlay —— 撤權清除也要涵蓋；style 已建好就照 registry 順序補進圖上
+  // （style 還沒好或正在換底圖：下一次 style.load 的 addAllOverlays 會讀到已插入的 registry）
+  useEffect(() => {
+    const offs: Array<() => void> = [];
+    offs.push(subscribeListFill<OverlayConfig>("overlays", (added) => {
+      offs.push(registerOwnerGateReset(added.map((config) => config.id as string), (revoked) => {
+        const map = mapRef.current;
+        if (map) clearOverlaySourcesForKeys(map, added, revoked);
+      }));
+      const map = overlayMapRef.current;
+      if (!map) return;
+      const vis = leftMapVisibility(layerVisibilityStore.getAll());
+      try {
+        addLateOverlays(map, OVERLAY_REGISTRY, added, isDarkThemeRef.current, vis, overlayParamsRef.current, { deferJpHeightSources: true });
+        jpHeightLifecycleRef.current?.refresh(OVERLAY_REGISTRY, vis, isDarkThemeRef.current, overlayParamsRef.current);
+      } catch (error) {
+        console.warn("[overlay] 國家包 overlay 補建失敗（換底圖途中會由 style.load 補上）", error);
+      }
+    }));
+    return () => { for (const off of offs) off(); };
+  }, []);
   // 右下資料來源列（attribution-compact）：map 建好後才有 host 節點，用 state 觸發 portal 渲染
   const [attribution, setAttribution] = useState<{ map: mapboxgl.Map; host: HTMLElement } | null>(null);
 
@@ -359,6 +386,7 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
         { deferJpHeightSources: true },
       );
       jpHeightLifecycle.refresh(OVERLAY_REGISTRY, vis, isDarkThemeRef.current, overlayParamsRef.current);
+      overlayMapRef.current = map;
 
       // 索引已 ready 時 addAllOverlays 本身就拿到 CDN，下面的 swap 是 no-op
       offLayerAssetIndexReady?.();
@@ -489,6 +517,7 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
       if (jpHeightLifecycleRef.current === jpHeightLifecycle) jpHeightLifecycleRef.current = null;
       map.remove();
       mapRef.current = null;
+      overlayMapRef.current = null;
       readyRef.current = false;
     };
   }, []);

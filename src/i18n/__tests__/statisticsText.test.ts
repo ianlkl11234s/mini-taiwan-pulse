@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { STATISTICS_RENDER_KEYS, statisticsRenderRecipe } from '../../data/regionalStatisticsRecipes';
@@ -22,7 +22,10 @@ import { statisticsDimensionLabel, statisticsDimensionValueLabel, statisticsLoca
 import { statisticsLicense, statisticsPublisher } from '../agencyText';
 
 const LOCALES = join(__dirname, '..', 'locales');
-const read = (locale: string, file: string): Record<string, string> => JSON.parse(readFileSync(join(LOCALES, locale, file), 'utf8'));
+const readOne = (locale: string, file: string): Record<string, string> => JSON.parse(readFileSync(join(LOCALES, locale, file), 'utf8'));
+// 外國圖層名依國家拆成 layers.<cc>.json（B1 P6）：這裡的 'layers.json' 指全部圖層名檔合起來
+const read = (locale: string, file: string): Record<string, string> => file !== 'layers.json' ? readOne(locale, file)
+  : Object.assign({}, ...readdirSync(join(LOCALES, locale)).filter((f) => /^layers(\.[a-z]{2})?\.json$/.test(f)).map((f) => readOne(locale, f)));
 const CJK = /[㐀-鿿]/u;
 
 const units = new Set<string>();

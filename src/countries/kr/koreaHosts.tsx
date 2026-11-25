@@ -1,0 +1,215 @@
+// 南韓 Layer Host（2026-10-31 第 0 波起）。clone hosts/ukHosts.tsx 的 GbAdminHost 慣例。
+
+import { useKrAdminLayers } from "./useKrAdminLayers";
+import { KR_ECO_OPACITY, KR_WASTE_OPACITY } from "./krEcoWasteTypes";
+import { useKrEcologyNaturalnessLayer, useKrWasteDisposalRulesLayer } from "./useKrEcoWasteLayers";
+import { krSourceSpec, useKrDataLayer } from "./useKrDataLayers";
+import { useOwnerPmtilesSource, useOwnerRevokeCleanup } from "../../hooks/useOwnerPmtilesAccess";
+import { KR_SPEC_BY_KEY } from "./krDataLayers";
+import type { KrDataKey } from "./keys";
+import { useKrAirportsLayer, useKrBusStopsLayer, useKrNationalRoadsLayer, useKrPortsLayer, useKrRailLinesLayer, useKrRailStationsLayer } from "./useKrTransportLayers";
+import { useKrFuelStationsLayer, useKrOilGasLayer, useKrPowerLinesLayer, useKrPowerPlantsLayer, useKrPowerTowersLayer, useKrRenewablesLayer, useKrSubstationsLayer } from "./useKrEnergyLayers";
+import { bumpHostRender, type LayerHostComponent } from "../../layers/layerHostDeps";
+import { useKeyOverlayParams } from "../../layers/layerParamsAccess";
+
+/** 南韓行政邊界：시·도／시군구／행정동 三層級（同一個 PMTiles，select 切換）。 */
+export const KrAdminHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useKrAdminLayers");
+  const p = useKeyOverlayParams("krAdminBoundaries");
+  const level = p.krAdminBoundariesLevelIdx;
+  useKrAdminLayers(
+    deps.mapRef,
+    deps.layerVisibility.krAdminBoundaries,
+    p.krAdminBoundariesOpacity ?? 0.85,
+    level === 1 || level === 2 ? level : 0,
+    deps.isDarkTheme,
+  );
+  return null;
+};
+
+/** 第 3–6 波資料層：一個 key 一個 Host，共用 `useKrDataLayer`（規格見 data/krDataLayers.ts）。 */
+function makeKrDataHost(key: KrDataKey, fallbackOpacity: number): LayerHostComponent {
+  const spec = KR_SPEC_BY_KEY[key];
+  const hookId = `useKr${key.slice(2)}Layer`;
+  const KrDataHost: LayerHostComponent = ({ deps }) => {
+    bumpHostRender(hookId);
+    const p = useKeyOverlayParams(key);
+    useKrDataLayer(deps.mapRef, spec, deps.layerVisibility[key], p[`${key}Opacity`] ?? fallbackOpacity, p[`${key}Scale`] ?? 1, deps.isDarkTheme, p[`${key}CatMask`], p[`${key}DisplayModeIdx`]);
+    return null;
+  };
+  return KrDataHost;
+}
+
+export const KrWaterLevelStationsHost = makeKrDataHost("krWaterLevelStations", 0.8);
+export const KrSluiceGatesHost = makeKrDataHost("krSluiceGates", 0.8);
+export const KrWaterQualityStationsHost = makeKrDataHost("krWaterQualityStations", 0.8);
+export const KrCoastalErosionFacilitiesHost = makeKrDataHost("krCoastalErosionFacilities", 0.8);
+export const KrRiversOsmHost = makeKrDataHost("krRiversOsm", 0.85);
+export const KrMarinePollutionIncidentsHost = makeKrDataHost("krMarinePollutionIncidents", 0.8);
+export const KrMarineEnvSitesHost = makeKrDataHost("krMarineEnvSites", 0.85);
+export const KrMarineProtectedAreasHost = makeKrDataHost("krMarineProtectedAreas", 0.7);
+export const KrPublicBicycleStationsHost = makeKrDataHost("krPublicBicycleStations", 0.8);
+export const KrSeoulSubwayCongestionHost = makeKrDataHost("krSeoulSubwayCongestion", 0.85);
+export const KrBridgesHost = makeKrDataHost("krBridges", 0.7);
+export const KrParkingLotsHost = makeKrDataHost("krParkingLots", 0.7);
+export const KrSpeedCamerasHost = makeKrDataHost("krSpeedCameras", 0.7);
+export const KrChildProtectionZonesHost = makeKrDataHost("krChildProtectionZones", 0.7);
+export const KrNationalParksHost = makeKrDataHost("krNationalParks", 0.5);
+export const KrNpLocationSignsHost = makeKrDataHost("krNpLocationSigns", 0.8);
+export const KrNpTrailsHost = makeKrDataHost("krNpTrails", 0.85);
+export const KrStreetTreesHost = makeKrDataHost("krStreetTrees", 0.5);
+/** 南韓第 1 波（國土基礎）：交通 6 層、能源 7 個 key（電網三層共用 kr_power_grid.pmtiles）。 */
+export const KrBusStopsHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useKrBusStopsLayer");
+  const p = useKeyOverlayParams("krBusStops");
+  useKrBusStopsLayer(deps.mapRef, deps.layerVisibility.krBusStops, p.krBusStopsOpacity ?? 0.6, p.krBusStopsScale ?? 1, deps.isDarkTheme);
+  return null;
+};
+
+export const KrRailStationsHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useKrRailStationsLayer");
+  const p = useKeyOverlayParams("krRailStations");
+  useKrRailStationsLayer(deps.mapRef, deps.layerVisibility.krRailStations, p.krRailStationsOpacity ?? 0.8, p.krRailStationsScale ?? 1, deps.isDarkTheme, p.krRailStationsCatMask);
+  return null;
+};
+
+export const KrAirportsHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useKrAirportsLayer");
+  const p = useKeyOverlayParams("krAirports");
+  useKrAirportsLayer(deps.mapRef, deps.layerVisibility.krAirports, p.krAirportsOpacity ?? 0.85, p.krAirportsScale ?? 1, deps.isDarkTheme);
+  return null;
+};
+
+export const KrPortsHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useKrPortsLayer");
+  const p = useKeyOverlayParams("krPorts");
+  useKrPortsLayer(deps.mapRef, deps.layerVisibility.krPorts, p.krPortsOpacity ?? 0.45, deps.isDarkTheme);
+  return null;
+};
+
+export const KrNationalRoadsHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useKrNationalRoadsLayer");
+  const p = useKeyOverlayParams("krNationalRoads");
+  useKrNationalRoadsLayer(deps.mapRef, deps.layerVisibility.krNationalRoads, p.krNationalRoadsOpacity ?? 0.85, deps.isDarkTheme);
+  return null;
+};
+
+export const KrRailLinesHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useKrRailLinesLayer");
+  const p = useKeyOverlayParams("krRailLines");
+  useKrRailLinesLayer(deps.mapRef, deps.layerVisibility.krRailLines, p.krRailLinesOpacity ?? 0.85, deps.isDarkTheme, p.krRailLinesCatMask);
+  return null;
+};
+
+export const KrFuelStationsHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useKrFuelStationsLayer");
+  const p = useKeyOverlayParams("krFuelStations");
+  useKrFuelStationsLayer(deps.mapRef, deps.layerVisibility.krFuelStations, p.krFuelStationsOpacity ?? 0.75, p.krFuelStationsScale ?? 1, deps.isDarkTheme, p.krFuelStationsCatMask);
+  return null;
+};
+
+export const KrPowerPlantsHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useKrPowerPlantsLayer");
+  const p = useKeyOverlayParams("krPowerPlants");
+  useKrPowerPlantsLayer(deps.mapRef, deps.layerVisibility.krPowerPlants, p.krPowerPlantsOpacity ?? 0.8, p.krPowerPlantsScale ?? 1, deps.isDarkTheme, p.krPowerPlantsCatMask);
+  return null;
+};
+
+export const KrRenewablesHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useKrRenewablesLayer");
+  const p = useKeyOverlayParams("krRenewables");
+  useKrRenewablesLayer(deps.mapRef, deps.layerVisibility.krRenewables, p.krRenewablesOpacity ?? 0.75, p.krRenewablesScale ?? 1, deps.isDarkTheme, p.krRenewablesCatMask);
+  return null;
+};
+
+export const KrPowerLinesHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useKrPowerLinesLayer");
+  const p = useKeyOverlayParams("krPowerLines");
+  useKrPowerLinesLayer(deps.mapRef, deps.layerVisibility.krPowerLines, p.krPowerLinesOpacity ?? 0.85, deps.isDarkTheme, p.krPowerLinesCatMask);
+  return null;
+};
+
+export const KrSubstationsHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useKrSubstationsLayer");
+  const p = useKeyOverlayParams("krSubstations");
+  useKrSubstationsLayer(deps.mapRef, deps.layerVisibility.krSubstations, p.krSubstationsOpacity ?? 0.75, p.krSubstationsScale ?? 1, deps.isDarkTheme, p.krSubstationsCatMask);
+  return null;
+};
+
+export const KrPowerTowersHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useKrPowerTowersLayer");
+  const p = useKeyOverlayParams("krPowerTowers");
+  useKrPowerTowersLayer(deps.mapRef, deps.layerVisibility.krPowerTowers, p.krPowerTowersOpacity ?? 0.6, p.krPowerTowersScale ?? 1, deps.isDarkTheme);
+  return null;
+};
+
+export const KrOilGasHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useKrOilGasLayer");
+  const p = useKeyOverlayParams("krOilGas");
+  useKrOilGasLayer(deps.mapRef, deps.layerVisibility.krOilGas, p.krOilGasOpacity ?? 0.6, deps.isDarkTheme, p.krOilGasCatMask, p.krOilGasPipeMask);
+  return null;
+};
+// 第 6 波（2026-11-06）
+export const KrTerritorialSeaHost = makeKrDataHost("krTerritorialSea", 0.85);
+export const KrUrbanParksHost = makeKrDataHost("krUrbanParks", 0.8);
+export const KrSportsFacilitiesHost = makeKrDataHost("krSportsFacilities", 0.85);
+export const KrCemeteriesOsmHost = makeKrDataHost("krCemeteriesOsm", 0.7);
+export const KrPopulationH3Host = makeKrDataHost("krPopulationH3", 0.6);
+// 第 7 波（2026-11-07）
+export const KrSchoolsHost = makeKrDataHost("krSchools", 0.85);
+export const KrSchoolDistrictsHost = makeKrDataHost("krSchoolDistricts", 0.35);
+export const KrHospitalsPharmaciesHost = makeKrDataHost("krHospitalsPharmacies", 0.85);
+export const KrFireStationsHost = makeKrDataHost("krFireStations", 0.85);
+export const KrCivilDefenseSheltersHost = makeKrDataHost("krCivilDefenseShelters", 0.85);
+export const KrPoliceBoxesHost = makeKrDataHost("krPoliceBoxes", 0.85);
+// 第 8 波（2026-11-10）
+export const KrLibrariesHost = makeKrDataHost("krLibraries", 0.85);
+export const KrMuseumsHost = makeKrDataHost("krMuseums", 0.85);
+export const KrPerformancesHost = makeKrDataHost("krPerformances", 0.85);
+export const KrFestivalsHost = makeKrDataHost("krFestivals", 0.85);
+export const KrHeritageHost = makeKrDataHost("krHeritage", 0.85);
+export const KrLodgingHost = makeKrDataHost("krLodging", 0.85);
+export const KrSafeDeliveryBoxesHost = makeKrDataHost("krSafeDeliveryBoxes", 0.85);
+export const KrSeniorCentersHost = makeKrDataHost("krSeniorCenters", 0.85);
+export const KrIndustrialComplexesHost = makeKrDataHost("krIndustrialComplexes", 0.7);
+export const KrNoiseSitesHost = makeKrDataHost("krNoiseSites", 0.85);
+export const KrClothingBinsHost = makeKrDataHost("krClothingBins", 0.85);
+// 第 10 波
+export const KrAnimalHospitalsHost = makeKrDataHost("krAnimalHospitals", 0.85);
+export const KrLocalCultureCentersHost = makeKrDataHost("krLocalCultureCenters", 0.85);
+export const KrTraditionalTemplesHost = makeKrDataHost("krTraditionalTemples", 0.85);
+export const KrProtectedTreesHost = makeKrDataHost("krProtectedTrees", 0.85);
+export const KrFishingGroundsHost = makeKrDataHost("krFishingGrounds", 0.6);
+export const KrBicycleParkingHost = makeKrDataHost("krBicycleParking", 0.85);
+export const KrCivilDefenseWaterHost = makeKrDataHost("krCivilDefenseWater", 0.85);
+export const KrEmergencyBellsHost = makeKrDataHost("krEmergencyBells", 0.85);
+export const KrRuralExperienceVillagesHost = makeKrDataHost("krRuralExperienceVillages", 0.85);
+export const KrSlaughterhousesHost = makeKrDataHost("krSlaughterhouses", 0.85);
+/** 首爾用途地域（站主限定）：圖磚只走私人 owner-data；未驗證站主不掛 source，撤權時移除 layer 與 source。 */
+export const KrSeoulZoningHost: LayerHostComponent = ({ deps }) => {
+  const key = "krSeoulZoning";
+  const spec = KR_SPEC_BY_KEY[key];
+  bumpHostRender("useKrSeoulZoningLayer");
+  const p = useKeyOverlayParams(key);
+  const visible = deps.layerVisibility[key];
+  const priv = useOwnerPmtilesSource("kr-seoul-zoning", visible);
+  useOwnerRevokeCleanup(deps.mapRef, !!priv, [spec.layerId, spec.outlineId ?? ""], [krSourceSpec(spec).id]);
+  useKrDataLayer(deps.mapRef, spec, visible, p[`${key}Opacity`] ?? 0.32, p[`${key}Scale`] ?? 1, deps.isDarkTheme, p[`${key}CatMask`], p[`${key}DisplayModeIdx`], priv);
+  return null;
+};
+
+/** KRH-1 C117 生態自然圖：17 個 시·도 PMTiles 依視窗載入（z10 起）。 */
+export const KrEcologyNaturalnessHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useKrEcologyNaturalnessLayer");
+  const p = useKeyOverlayParams("krEcologyNaturalness");
+  useKrEcologyNaturalnessLayer(deps.mapRef, deps.layerVisibility.krEcologyNaturalness, p.krEcologyNaturalnessOpacity ?? KR_ECO_OPACITY, deps.isDarkTheme);
+  return null;
+};
+
+/** KRH-1 C086 垃圾排出規則：JSON join 行政界 sgg 層。 */
+export const KrWasteDisposalRulesHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useKrWasteDisposalRulesLayer");
+  const p = useKeyOverlayParams("krWasteDisposalRules");
+  useKrWasteDisposalRulesLayer(deps.mapRef, deps.layerVisibility.krWasteDisposalRules, p.krWasteDisposalRulesOpacity ?? KR_WASTE_OPACITY, deps.isDarkTheme);
+  return null;
+};

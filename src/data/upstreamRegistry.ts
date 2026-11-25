@@ -12,6 +12,7 @@
 //   pulse_only       — pure-frontend layer (derived / animated / no upstream)
 //   catalog_missing  — needs new entry in catalog before bridging
 
+import { onRecordExtended } from "../countries/slots";
 import type { LayerVisibility } from '../types';
 import { manifestUpstream, type ManifestKey } from './layerManifest';
 
@@ -78,6 +79,13 @@ export const UPSTREAM_REGISTRY: Record<keyof LayerVisibility, UpstreamRef> = {
   ...HANDWRITTEN_UPSTREAM,
   ...manifestUpstream(),
 };
+
+// 國家包載入（B1 P5a）：新 manifest entry 的血緣一起併入
+onRecordExtended("layerManifest", (added) => {
+  for (const [key, entry] of Object.entries(added)) {
+    (UPSTREAM_REGISTRY as Record<string, UpstreamRef>)[key] = (entry as { upstream: UpstreamRef }).upstream;
+  }
+});
 
 // ── Convenience helpers ──
 

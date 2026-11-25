@@ -168,6 +168,31 @@ def test_lock_entries_always_synced():
         assert "/climate/x.png" not in by
 
 
+def test_global_event_months_collector_managed():
+    """全球事件月檔由收集器寫 R2 並自行清理：不從 S3 補回、R2 有也不算多出；其他 static-rpc 照舊。"""
+    import site_manifest as sm
+    s3 = {sm.PREFIX + f"static-rpc/{n}": {"size": 1, "etag": "e"} for n in (
+        "get_global_event_month_202609.json", "get_global_event_month_202610.json",
+        "get_gas_station_layers.json", "get_fossil_fuel_layers.json", "get_global_event_month_notes.txt")}
+    ptrs = {"jp-medical_current.json": {"version": "v", "catalog": "c", "publication_manifest": "m"}, "jpmed_pub.json": {"files": {}},
+            "jp-heights_catalog.json": {}, "flight-trails_manifest.json": {"samples": []}, "embed-rail_rail-manifest.json": {"bundle": "b.json"}}
+    landed, _ = sm.simulate(s3, ptrs, [])
+    got = {p for p in landed if p.startswith("/static-rpc/")}
+    assert got == {"/static-rpc/get_gas_station_layers.json", "/static-rpc/get_global_event_month_notes.txt"}, got
+
+    class Pages:
+        def get_paginator(self, _):
+            return self
+
+        def paginate(self, Bucket, Prefix):
+            return [{"Contents": [{"Key": k, "Size": 1} for k in (
+                "site/static-rpc/get_global_event_month_202606.json", "site/static-rpc/get_global_event_month_202611.json",
+                "site/static-rpc/get_gas_station_layers.json", "site/static-rpc/get_unknown.json",
+                "site/other/get_global_event_month_202611.json")]}]
+    extras = sync.r2_extras(Pages(), "b", {"site/static-rpc/get_gas_station_layers.json"})
+    assert [k for k, _ in extras] == ["site/static-rpc/get_unknown.json", "site/other/get_global_event_month_202611.json"], extras
+
+
 if __name__ == "__main__":
     for name, fn in list(globals().items()):
         if name.startswith("test_") and callable(fn):

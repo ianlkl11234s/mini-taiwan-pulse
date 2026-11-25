@@ -8,13 +8,14 @@ const rpc = vi.fn();
 vi.mock("../../lib/supabase", () => ({ supabase: { rpc: (...args: unknown[]) => rpc(...args) } }));
 
 const { harness } = await import("./hookHarness");
-const { useGbEaPollutionInventoryLayer, resetGbEaPollutionCacheForTest } = await import("../useGbEaPollutionInventoryLayer");
+const { useGbEaPollutionInventoryLayer, resetGbEaPollutionCacheForTest } = await import("../../countries/gb/useGbEaPollutionInventoryLayer");
 const { GATED_LAYERS, RELEASE_HOLD_LAYERS } = await import("../../components/sidebar/layerCatalog");
 const { EMBED_ALLOWED } = await import("../../embed/embedWhitelist");
 const { parseUrlState, URL_STATE_VERSION } = await import("../../lib/urlState");
 const { isLayerLocked } = await import("../../lib/layerGates");
-const { LAYER_MANIFEST } = await import("../../data/layerManifest");
-const { normalizeGbEaPollution } = await import("../../data/gbEaPollutionLoader");
+// 英國圖層的 manifest 在國家包裡（B1 P5a）
+const { GB_PACK_MANIFEST: LAYER_MANIFEST } = await import("../../countries/gb/manifest");
+const { normalizeGbEaPollution } = await import("../../countries/gb/gbEaPollutionLoader");
 const { runOwnerGateResets } = await import("../../lib/ownerGateRevoke");
 
 const KEY = "gbPollutionInventoryEngland" as const;
@@ -45,8 +46,9 @@ describe("英格蘭污染排放申報：站主限定", () => {
   it("manifest 標示 OWNER_ONLY，資料只走 Supabase、沒有任何公開靜態資產", () => {
     const entry = LAYER_MANIFEST[KEY];
     expect(entry.topics).toContain("OWNER_ONLY");
-    expect(entry.source.kind).toBe("supabase");
-    expect("staticAssets" in entry.source).toBe(false);
+    const source = Array.isArray(entry.source) ? null : entry.source;
+    expect(source?.kind).toBe("supabase");
+    expect(source && "staticAssets" in source).toBe(false);
   });
 
   it("visible=false（非站主開不了）時不呼叫 RPC；visible=true 才呼叫一次", async () => {

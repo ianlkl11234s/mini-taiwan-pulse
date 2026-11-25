@@ -339,12 +339,13 @@ def sync(rows, s3, bucket_s3, w: Writer, s3objs: dict, workers: int = 4) -> list
 
 
 def r2_extras(r2, bucket: str, wanted: set[str]) -> list[tuple[str, int]]:
-    """R2 site/ 有、對照表沒有的物件（排除輪替家族）。只列不刪。"""
+    """R2 site/ 有、對照表沒有的物件（排除輪替家族與收集器自管的全球事件月檔）。只列不刪。"""
     out = []
     for page in r2.get_paginator("list_objects_v2").paginate(Bucket=bucket, Prefix=DEST_PREFIX):
         for o in page.get("Contents", []):
             k = o["Key"]
-            if is_rotating("/" + k[len(DEST_PREFIX):]) or k in wanted:
+            served = "/" + k[len(DEST_PREFIX):]
+            if is_rotating(served) or site_manifest.is_collector_managed(served) or k in wanted:
                 continue
             out.append((k, o["Size"]))
     return out

@@ -14,6 +14,10 @@ import type { SelectConfig, SliderConfig, ToggleConfig } from "../layerParamsCon
 import {
   MULTI_SELECT_ALL, MULTI_SELECT_NONE, encodeMultiSelectBitmask, resolveMultiSelectValues, serializeMultiSelectValues,
 } from "../../data/layerParamsSpec";
+import { loadAllPacks } from "../../countries/packs";
+
+// 全部圖層（含延後載入的國家包，B1 P5）一起驗
+await loadAllPacks();
 
 beforeEach(() => layerParamsStore.reset());
 

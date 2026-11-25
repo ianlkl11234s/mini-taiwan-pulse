@@ -32,6 +32,7 @@ import { isStatisticsRenderLayer, statisticsReleaseFallback, statisticsRenderRec
 import { loadRegionalStatisticsValues, type StatisticsSource } from "../../data/regionalStatisticsLoader";
 import { COLORS, BORDER, CONTROL, LIGHT, FONT_CJK, FONT_DATA, FONT_SIZE, RADIUS } from "../../styles/designTokens";
 import type { LayerVisibility } from "../../types";
+import { useAllCountryPacks } from "../../countries/packs";
 
 function comparisonInputUrl(value: unknown): string | undefined {
   if (typeof value !== "string") return undefined;
@@ -547,6 +548,8 @@ export function DataSourcePanel({ isDarkTheme = true, onClose, lockedKeys, onAct
   }, []);
 
   const q = search.trim().toLowerCase();
+  // 資料來源總覽列全部國家的圖層（B1 P5a）：開面板就載入全部國家包，載完重新 render
+  const packVersion = useAllCountryPacks(true);
   const matchesFilter = (key: string) => statusFilter === "all" || statusOf(key) === statusFilter;
 
   const themedLayers = useMemo(() => {
@@ -568,7 +571,7 @@ export function DataSourcePanel({ isDarkTheme = true, onClose, lockedKeys, onAct
 
   const searchResults = useMemo(
     () => (q ? searchLayers(search, { excludeLocked: false }).filter((r) => isDataSourceBrowserVisible(r.key) && matchesFilter(r.key)) : []),
-    [q, search, statusFilter],
+    [q, search, statusFilter, packVersion],
   );
   const visibleSearchResults = searchResults.slice(0, 50);
 

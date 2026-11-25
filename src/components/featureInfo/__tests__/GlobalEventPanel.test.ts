@@ -1,7 +1,9 @@
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import { GlobalEventPanel } from "../globalClimatePanels";
+import { GlobalEventPanel, globalEventReportSources } from "../globalClimatePanels";
+import { FeatureInfoPanel } from "../../FeatureInfoPanel";
+import type { FeatureInfo } from "../../../types";
 import { DARK_FEATURE, FeatureThemeProvider, LIGHT_FEATURE } from "../featureTheme";
 
 const props = Object.freeze({
@@ -69,5 +71,26 @@ describe("Global Events concise popup", () => {
       expect(markup).toContain(`color:${palette.link}`);
       expect(markup).not.toContain("color:inherit");
     }
+  });
+});
+
+describe("全球事件來源（2026-11-24 正式站驗收：不再顯示「來源資訊待補」）", () => {
+  it("報導來源：只取 http(s)、去掉位置來源那一筆、同網域只留一個、最多三個", () => {
+    const sources = globalEventReportSources({
+      location_source: "https://a.example/1",
+      source_urls: JSON.stringify(["https://a.example/1", "https://www.b.example/x", "https://b.example/y", "javascript:alert(1)", "https://c.example/z", "https://d.example/q", "https://e.example/r"]),
+    });
+    expect(sources.map((s) => s.host)).toEqual(["b.example", "c.example", "d.example"]);
+    expect(globalEventReportSources({ source_urls: "[]" })).toEqual([]);
+    expect(globalEventReportSources({})).toEqual([]);
+  });
+  it("popup 列出報導來源；沒有就不顯示該列", () => {
+    expect(render({ ...props, source_urls: JSON.stringify(["https://reuters.example/a"]) })).toContain(">reuters.example<");
+    expect(render()).not.toContain("報導來源");
+  });
+  it("整個 popup（FeatureInfoPanel）不掛中央來源列、不出現占位字", () => {
+    const html = renderToStaticMarkup(createElement(FeatureInfoPanel, { feature: { layerType: "globalEvent", properties: { ...props } } as FeatureInfo, onClose: () => {} }));
+    expect(html).not.toContain("來源資訊待補");
+    expect(html).not.toContain("fi-footer");
   });
 });

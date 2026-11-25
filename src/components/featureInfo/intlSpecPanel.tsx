@@ -13,6 +13,26 @@ export function fmtNum(v: unknown, digits = 0): string {
   return s !== "" && Number.isFinite(n) ? n.toLocaleString(undefined, { maximumFractionDigits: digits }) : "";
 }
 
+const HECTARE = { zh: "公頃", en: "ha", ja: "ha" } as const;
+/**
+ * 面積（輸入 km²）：≥1 km² 用 km²；0.01–1 km² 換公頃；更小換 m²——小面積不會被四捨五入成「0 km²」。
+ * 0、負值、非數字視為缺值回空字串（不顯示該列，不把缺值寫成 0）。
+ */
+export function fmtArea(v: unknown, locale: string): string {
+  const s = caText(v);
+  const km2 = Number(s);
+  if (s === "" || !Number.isFinite(km2) || km2 <= 0) return "";
+  const n = (x: number, digits: number) => x.toLocaleString(undefined, { maximumFractionDigits: digits });
+  if (km2 >= 1) return `${n(km2, km2 >= 100 ? 0 : km2 >= 10 ? 1 : 2)} km²`;
+  if (km2 >= 0.01) return `${n(km2 * 100, km2 >= 0.1 ? 0 : 1)} ${locale === "en" ? HECTARE.en : locale === "ja" ? HECTARE.ja : HECTARE.zh}`;
+  return `${n(Math.max(1, km2 * 1_000_000), 0)} m²`;
+}
+
+/** 來源值開頭的行政代碼前綴（「.01  Cilacap」「33 Jawa Tengah」「0736 Banten」）。 */
+export function stripCodePrefix(s: string): string {
+  return s.replace(/^\.?\d+\s+/, "");
+}
+
 /** 上游的空值字樣（GFI 的 'nan'、'None'、NAMRIA 的 '..'）一律當空值，不顯示。 */
 const EMPTY_TOKENS = new Set(["nan", "NaN", "None", "null", "..", "…"]);
 
@@ -32,11 +52,12 @@ function formatField(f: PhField, props: Record<string, unknown>, locale: string)
     const n = Number(caText(raw));
     return caText(raw) !== "" && Number.isFinite(n) && n > 0 ? String(Math.round(n)) : "";
   }
+  if (f.kind === "area") return fmtArea(raw, locale);
   if (f.kind === "num") {
     const s = fmtNum(raw, f.digits ?? 0);
     return s ? `${s}${f.unit ? ` ${phText(f.unit, locale)}` : ""}` : "";
   }
-  const s = caText(raw);
+  const s = f.stripCodePrefix ? stripCodePrefix(caText(raw)) : caText(raw);
   if (!s) return "";
   if (f.map?.[s]) return pickL3(f.map[s]!, locale);
   return s;

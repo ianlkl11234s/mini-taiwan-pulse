@@ -7,7 +7,7 @@
 # 規則（排程只算增量，DB 鐵則 R3）：
 #   - 月份依台北時間切（網站時間軸一律顯示台北時間，2026-11-23 站主決定）。
 #   - 預設只匯出「上個月」與「本月」：上個月結束滿 3 天（等改判、補判落定）才匯出；
-#     已結束的月份只要本機有檔、或公開網址（$PUBLIC_BASE/static-rpc/…）已能讀到就跳過，所以換到排程環境也是增量。
+#     已結束的月份只要本機有檔、或公開網址（$PUBLIC_BASE/site/static-rpc/…，網站 /static-rpc/ 由 Worker 讀 R2 site/ 前綴）已有定版檔就跳過，所以換到排程環境也是增量。
 #     本月每次重產（標 partial: true，月底後由上一條固定下來）。
 #   - 指定月份：bash scripts/export/export-global-event-months.sh 2026-09 2026-10（已發布照樣跳過，加 --force 才重產）。
 #   - 不重產超過 150 天前的月份：候選表 180 天後會被清掉，重產會得到殘缺的檔案。
@@ -55,8 +55,10 @@ export_month() {
   [ "$month" = "$THIS_MONTH" ] && partial="true"
   if [[ "$month" < "$OLDEST_OK" ]]; then echo "[SKIP] $month 早於 $OLDEST_OK（候選表可能已清掉一部分，不重產）"; return 0; fi
   if [ "$partial" = "false" ] && [ "$FORCE" -eq 0 ]; then
-    if [ -s "$out" ]; then echo "[SKIP] $month 本機已有檔（已結束的月份不重產；要重產加 --force）"; return 0; fi
-    if curl -sfI -o /dev/null --max-time 20 "$PUBLIC_BASE/static-rpc/$(basename "$out")"; then echo "[SKIP] $month 已發布（$PUBLIC_BASE）"; return 0; fi
+    # 只有「定版」（partial=false）的檔才算有；月中產的未完結檔要在月底後補一次定版（Codex review #1225）。
+    is_final() { python3 -c "import json,sys; sys.exit(0 if json.load(sys.stdin).get('partial') is False else 1)" 2>/dev/null; }
+    if [ -s "$out" ] && is_final < "$out"; then echo "[SKIP] $month 本機已有定版檔（要重產加 --force）"; return 0; fi
+    if curl -sf --max-time 60 "$PUBLIC_BASE/site/static-rpc/$(basename "$out")" | is_final; then echo "[SKIP] $month 已發布定版檔（$PUBLIC_BASE）"; return 0; fi
   fi
   printf "[RUN] %-10s " "$month"
   psql "$SUPABASE_DB_URL" -At -v ON_ERROR_STOP=1 -v month_start="${month}-01T00:00:00+08:00" -v partial="$partial" > "$out.tmp" <<'SQL'

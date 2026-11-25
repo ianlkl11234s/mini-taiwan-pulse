@@ -38,6 +38,10 @@ import { isMigratedParamsKey } from "../layerParamsSpec";
 import {
   extractGolden, extractNonGisFeatureTypes, extractCustomHandlerFeatureTypes,
 } from "./layerGoldenExtract";
+import { loadAllPacks } from "../../countries/packs";
+
+// 全部圖層（含延後載入的國家包，B1 P5）一起驗
+await loadAllPacks();
 
 const entries = MANIFEST_KEYS.map(
   (k) => [k, LAYER_MANIFEST[k] as LayerManifestEntry] as const,

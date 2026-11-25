@@ -3,6 +3,10 @@ import type { LayerSource } from "../../data/layerManifest";
 import { firstGetField, summarizeVisibleLayers, viewportBounds, VISIBLE_SUMMARY_MAX_FEATURES, type VisibleSummaryFeature, type VisibleSummaryMap, type VisibleSummaryStyleLayer } from "../visibleSummary";
 import { validQueryResultData } from "../QueryResponder";
 import { OVERLAY_REGISTRY } from "../../map/overlayRegistry";
+import { loadAllPacks } from "../../countries/packs";
+
+// 全部圖層（含延後載入的國家包，B1 P5）一起驗
+await loadAllPacks();
 
 const SOURCES: Record<string, LayerSource[]> = {
   rain: [{ kind: "geojson", sourceId: "rain-src", url: "./rain.geojson" }],

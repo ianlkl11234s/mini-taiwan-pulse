@@ -242,7 +242,6 @@ export function HarmReductionDuiCrashPanel({ props }: Props) {
     <Row label={tr("popup.harmReduction.mainCause")} value={str(props.cause_main)} />
     <Row label={tr("popup.harmReduction.duiBasis")} value={str(props.dui_cause_basis_label)} />
     <Row label={tr("popup.harmReduction.duiParties")} value={typeof props.n_dui_parties === "number" ? tr("popup.harmReduction.persons", { count: props.n_dui_parties }) : ""} />
-    <Row label={tr("popup.common.coordinates")} value={tr("popup.harmReduction.policeCoords")} />
-    <Row field="dataDate" value={str(props.vintage)} mono />
+    {/* 資料期間（107–114 年）與座標出處每筆都一樣：放圖層「說明・來源」（spec §5.2），popup 不重複 */}
   </>;
 }

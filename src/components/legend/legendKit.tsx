@@ -243,16 +243,32 @@ export function SwatchLine({ color: rawColor, width = 2, dash, opacity = 1 }: { 
 }
 
 /** LG-3 分級：等寬方塊列＋下方實際分界。LG-14：在 LegendFillOpacityCtx 內畫合成色，整列加 1px 面板邊框。 */
+/** 刻度文字總長超過這個字數（約圖例寬度一行可放的量）就交錯成兩列，避免「0100300600 1,000…」黏在一起 */
+export const SWATCH_STEPS_STAGGER_CHARS = 24;
+/** 一格一個刻度、且文字總長超過一行時交錯兩列（純函式，供測試） */
+export function swatchStepsStaggered(colorCount: number, breaks: readonly ReactNode[]): boolean {
+  if (breaks.length !== colorCount || breaks.length < 4) return false;
+  const chars = breaks.reduce<number>((n, b) => n + (typeof b === "string" || typeof b === "number" ? String(b).length : 0), 0);
+  return chars > SWATCH_STEPS_STAGGER_CHARS;
+}
+
 export function SwatchSteps({ colors, breaks }: { colors: readonly string[]; breaks?: readonly ReactNode[] }) {
   const t = useLegendTheme();
   const fillAlpha = useLegendFillOpacity();
+  const stagger = breaks ? swatchStepsStaggered(colors.length, breaks) : false;
   return (
     <div>
       <div style={{ display: "grid", gridAutoFlow: "column", gridAutoColumns: "1fr", gap: 1, ...(fillAlpha === null ? {} : { border: `1px solid ${t.border}` }) }}>
         {colors.map((c, i) => <span key={`${c}:${i}`} style={{ height: LEGEND_SWATCH.steps.height, background: legendCompositeColor(c, fillAlpha, t.isDark) }} />)}
       </div>
-      {breaks && (
-        <div style={{ display: "flex", justifyContent: "space-between", marginTop: 2, fontSize: FONT_SIZE.xs, color: t.textMuted }}>
+      {breaks && stagger && (
+        // 每個刻度對齊自己那一格的中央；奇偶交錯兩列，同一列相鄰刻度之間空一格，長字不會互相擠到
+        <div data-stagger="" style={{ display: "grid", gridTemplateColumns: `repeat(${colors.length}, 1fr)`, rowGap: 0, marginTop: 2, fontSize: FONT_SIZE.xs, color: t.textMuted }}>
+          {breaks.map((b, i) => <span key={i} style={{ gridColumn: i + 1, gridRow: (i % 2) + 1, justifySelf: i === 0 ? "start" : i === breaks.length - 1 ? "end" : "center", whiteSpace: "nowrap" }}><LegendNum>{b}</LegendNum></span>)}
+        </div>
+      )}
+      {breaks && !stagger && (
+        <div style={{ display: "flex", justifyContent: "space-between", gap: 4, marginTop: 2, fontSize: FONT_SIZE.xs, color: t.textMuted }}>
           {breaks.map((b, i) => <LegendNum key={i}>{b}</LegendNum>)}
         </div>
       )}

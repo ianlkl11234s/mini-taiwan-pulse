@@ -30,6 +30,10 @@ import { OVERLAY_REGISTRY } from "../../map/overlayRegistry";
 import { STATISTICS_KEYS, STATISTICS_RECIPES, STATISTICS_RENDER_KEYS } from "../../data/regionalStatisticsRecipes";
 import { ALLEN_CORAL_SOURCES } from "../../data/allenCoralAtlasTypes";
 import { JP_WATER_LOCAL_PMTILES_LAYER_KEYS, JP_WATER_RELEASED_LAYER_KEYS } from "../../data/jpWaterTypes";
+import { loadAllPacks } from "../../countries/packs";
+
+// 全部圖層（含延後載入的國家包，B1 P5）一起驗
+await loadAllPacks();
 
 const REGISTRY_FILE = "src/map/gisClickRegistry.ts";
 const source = readFileSync(REGISTRY_FILE, "utf8");

@@ -31,6 +31,10 @@ import { feedDynamicSource } from "../../map/dynamicSourceFeed";
 import { plantsToHitFC } from "../../hooks/usePowerGenerationBeamLayer";
 import { FUEL_COLORS } from "../energyLoader";
 import type { LayerVisibility } from "../../types";
+import { loadAllPacks } from "../../countries/packs";
+
+// 全部圖層（含延後載入的國家包，B1 P5）一起驗
+await loadAllPacks();
 
 const STAGE2_TOGGLES: ReadonlyArray<[layerKey: string, param: string]> = [
   ["powerGenerationUnit", "powerGenerationUnit3D"],

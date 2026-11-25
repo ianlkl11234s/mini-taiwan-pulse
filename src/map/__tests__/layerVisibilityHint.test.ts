@@ -11,6 +11,10 @@ import {
   type HintStyleLayer,
   type VisibleRange,
 } from "../layerVisibilityHint";
+import { loadAllPacks } from "../../countries/packs";
+
+// 全部圖層（含延後載入的國家包，B1 P5a）一起驗
+await loadAllPacks();
 
 const UK_Z54: [number, number, number, number] = [-12, 49, 4, 59]; // 全英視野（含倫敦）
 const MANCHESTER_Z12: [number, number, number, number] = [-2.35, 53.43, -2.15, 53.53];
