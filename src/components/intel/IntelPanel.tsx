@@ -31,7 +31,7 @@ import {
 } from "../../data/newsEventsLoader";
 import {
   fetchAlertSummary,
-  fetchActiveAlerts,
+  fetchActiveAlertsOrThrow,
   dayAlertsToCards,
   tallySummary,
   EMPTY_TALLY,
@@ -53,6 +53,7 @@ const EMPTY_HEALTH: SourceHealthSummary = {
   total: 0, ok: 0, lagging: 0, degraded: 0, unknown: 0, rows: [],
 };
 const EMPTY_ALERT_SUMMARY: [] = [];
+const EMPTY_ACTIVE_ALERTS: ActiveAlert[] = [];
 const EMPTY_CLUSTERS: Array<{
   county: string | null; location_name: string | null; lon: number | null; lat: number | null; events: IntelCardEvent[];
 }> = [];
@@ -134,9 +135,6 @@ export function IntelPanel({
   const [alertsExpanded, setAlertsExpanded] = useState(false);
   const [pickedGroups, setPickedGroups] = useState<AlertGroupShort[]>([]);
   const [severityMin, setSeverityMin] = useState<1 | 2 | 3 | 4>(1);
-  const [activeAlerts, setActiveAlerts] = useState<ActiveAlert[]>([]);
-  // 清單還沒回來前，分頁角標與摘要先用全國摘要數字，避免閃一下 0
-  const [activeAlertsReady, setActiveAlertsReady] = useState(false);
   const [alertSelectedId, setAlertSelectedId] = useState<string | null>(null);
   const [alertExpandedId, setAlertExpandedId] = useState<string | null>(null);
   const [staleOpen, setStaleOpen] = useState(false);
@@ -212,23 +210,24 @@ export function IntelPanel({
     };
   }, [open]);
 
-  // active alerts list — re-fetch when tab / filter change
+  // active alerts list — 篩選變動時重抓，面板開著時與摘要同步每 60 秒刷新（否則新發布／已解除的警報不會反映在數字上）
   const groupKey = pickedGroups.length === 1 ? pickedGroups[0]! : null;
   // 三處數字（標頭／分頁角標／警報摘要）共用同一份清單，所以不管在哪個分頁都要載入（IN-1）
-  const needsAlertList = true;
-  useEffect(() => {
-    if (!open || !needsAlertList) return;
-    let alive = true;
-    fetchActiveAlerts(groupKey, severityMin).then((rows) => {
-      if (!alive) return;
-      const filtered = pickedGroups.length > 1
-        ? rows.filter((r) => pickedGroups.includes(r.group))
-        : rows;
-      setActiveAlerts(filtered);
-      setActiveAlertsReady(true);
-    });
-    return () => { alive = false; };
-  }, [open, needsAlertList, groupKey, severityMin, pickedGroups]);
+  const loadActiveAlerts = useCallback(async () => {
+    const rows = await fetchActiveAlertsOrThrow(groupKey, severityMin);
+    return {
+      status: "ready" as const,
+      data: pickedGroups.length > 1 ? rows.filter((r) => pickedGroups.includes(r.group)) : rows,
+      lastSuccessAt: Date.now(),
+    };
+  }, [groupKey, severityMin, pickedGroups]);
+  const activeAlertsQuery = useIntelPollingQuery({
+    enabled: open, queryKey: `alert-list|${groupKey ?? "*"}|${severityMin}|${pickedGroups.join(",")}`, intervalMs: 60_000,
+    emptyData: EMPTY_ACTIVE_ALERTS, load: loadActiveAlerts,
+  });
+  const activeAlerts = activeAlertsQuery.data;
+  // 清單還沒回來、或讀取失敗時，分頁角標與摘要退回全國摘要數字（失敗不當成 0 則警報）
+  const activeAlertsReady = activeAlertsQuery.status === "ready";
 
   // 跟著 timeStore 日期切換 scope；guarded polling 負責初載與 60s refresh。
   useEffect(() => {
