@@ -76,6 +76,24 @@ describe("mergeChangelog", () => {
     expect(unreleased).not.toContain("既有 X");
   });
 
+  it("review #1195：本分支改既有條目的子項目、develop 同節追加 → 停（不把子項目接到別人條目下）", () => {
+    const b = log("### 新增\n\n- 既有功能\n  - 舊細節\n");
+    const ours = log("### 新增\n\n- 既有功能\n  - 新細節\n");
+    const theirs = log("### 新增\n\n- 既有功能\n  - 舊細節\n- 功能 D\n");
+    const r = mergeChangelog({ base: b, ours, theirs });
+    expect(r.ok).toBe(false);
+    expect((r as { reason: string }).reason).toContain("子項目");
+  });
+
+  it("review #1195：本分支新增含子項目的整個條目 → 照常合併", () => {
+    const b = log("### 新增\n\n- 既有功能\n  - 細節\n");
+    const ours = log("### 新增\n\n- 既有功能\n  - 細節\n- 本分支 O\n  - O 的警告\n");
+    const theirs = log("### 新增\n\n- 既有功能\n  - 細節\n- 功能 D\n");
+    const r = mergeChangelog({ base: b, ours, theirs });
+    expect(r.ok).toBe(true);
+    expect((r as { text: string }).text).toBe(log("### 新增\n\n- 既有功能\n  - 細節\n- 功能 D\n- 本分支 O\n  - O 的警告\n"));
+  });
+
   it("本分支改到已發布段落 → 停", () => {
     const ours = log("### 新增\n\n- 既有 X（#2）\n").replace("- 功能 A（#1）", "- 功能 A（#1）\n- 誤寫（#6）");
     const r = mergeChangelog({ base, ours, theirs: log("### 新增\n\n- 既有 X（#2）\n- D（#4）\n") });
@@ -96,6 +114,12 @@ describe("mergeJsonObject", () => {
   it("同一個鍵兩邊值不同 → 停", () => {
     const r = mergeJsonObject({ base, ours: j({ a: "A", k: "1" }), theirs: j({ a: "A", k: "2" }) });
     expect(r.ok).toBe(false);
+  });
+
+  it("review #1195：本分支改既有鍵、develop 刪掉該鍵 → 停（不默默復活）", () => {
+    const r = mergeJsonObject({ base: j({ a: "old", b: "old" }), ours: j({ a: "edited", b: "old" }), theirs: j({ b: "edited" }) });
+    expect(r.ok).toBe(false);
+    expect((r as { reason: string }).reason).toContain("a");
   });
 
   it("原檔有重複鍵（JSON.parse 會吃掉）→ 停", () => {
@@ -241,6 +265,22 @@ describe("runMergeDevelop（暫存 repo）", () => {
     expect(run(r.dir).code).toBe(2);
     expect(existsSync(join(r.dir, ".git/MERGE_HEAD"))).toBe(false);
     expect(r.read("src/other.ts")).toBe("dirty\n");
+  });
+
+  it("review #1200：中文檔名的 golden 衝突（git 預設會加引號跳脫）仍歸類並重產", () => {
+    const zh = `${GOLDEN}/tw-交通.json`;
+    const r = repo();
+    r.write({ [zh]: golden(1, "base"), [G_A]: golden(10, "base") }); r.git("add", "-A"); r.git("commit", "-qm", "base");
+    r.git("switch", "-qc", "feat"); r.write({ [zh]: golden(2, "feat") }); r.git("commit", "-qam", "feat");
+    r.git("switch", "-q", "develop"); r.write({ [zh]: golden(3, "dev") }); r.git("commit", "-qam", "dev");
+    r.git("switch", "-q", "feat");
+    const dry = run(r.dir, true);
+    expect(dry.out).toContain(`${zh}：取 develop 版`);
+    const res = run(r.dir);
+    expect(res.code, res.out).toBe(0);
+    expect(r.git("-c", "core.quotePath=false", "diff", "--name-only", "--diff-filter=U").trim()).toBe("");
+    expect(r.read(G_A)).toContain('"regen"');
+    expect(r.read(zh)).toBe(golden(3, "dev"));
   });
 
   it("--dry-run 只列計畫，不合併", () => {

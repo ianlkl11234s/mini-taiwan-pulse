@@ -85,6 +85,15 @@ export function mergeChangelog({ base, ours, theirs }) {
   const oursSet = new Set(oursEntries.map((e) => e.text));
   const added = oursEntries.filter((e) => !baseSet.has(e.text));
   const removed = [...baseSet].filter((x) => !oursSet.has(x));
+  // 縮排的續行（子條目）屬於上一個頂層條目：既有條目的續行被改／刪／新增，逐行合併會把它接到別人的條目下，改人工處理
+  const parentOf = (entries, i) => { for (let k = i - 1; k >= 0; k--) if (!/^\s/.test(entries[k].text)) return entries[k].text; return null; };
+  const indented = (t) => /^\s+\S/.test(t);
+  const baseEntries = unreleasedEntries(b, rb);
+  const touchedParent = [
+    ...oursEntries.map((e, i) => ({ e, i })).filter(({ e }) => indented(e.text) && !baseSet.has(e.text)).map(({ i }) => parentOf(oursEntries, i)).filter((p) => p !== null && baseSet.has(p)),
+    ...baseEntries.map((e, i) => ({ e, i })).filter(({ e }) => indented(e.text) && !oursSet.has(e.text)).map(({ i }) => parentOf(baseEntries, i)).filter((p) => p !== null && oursSet.has(p)),
+  ];
+  if (touchedParent.length) return { ok: false, reason: `本分支改了既有條目的子項目（${touchedParent[0]}），逐行合併會把子項目接到別的條目下，要手動處理` };
   if (added.some((e) => e.sec === "")) return { ok: false, reason: "本分支在 Unreleased 的小節標題之前加了文字，不知道該放哪個 ### 小節" };
 
   const lines = [...t];
@@ -176,7 +185,8 @@ export function mergeJsonObject({ base, ours, theirs }) {
       if (has(t, k) && !same(t[k], o[k])) conflicts.push(k);
       else out[k] = o[k];
     } else if (!same(o[k], b[k])) {
-      if (!has(t, k) || same(t[k], b[k])) out[k] = o[k];
+      if (!has(t, k)) conflicts.push(k); // 本分支改值、develop 刪除：不默默復活，要人決定
+      else if (same(t[k], b[k])) out[k] = o[k];
       else if (!same(t[k], o[k])) conflicts.push(k);
     }
   }
@@ -201,6 +211,8 @@ export function runMergeDevelop(opts) {
   const target = remote ? `${remote}/${branch}` : branch;
   const git = (args, o = {}) => execFileSync("git", args, { cwd, env, encoding: "utf8", maxBuffer: 256 * 1024 * 1024, stdio: ["ignore", "pipe", "pipe"], ...o });
   const tryGit = (args) => spawnSync("git", args, { cwd, env, encoding: "utf8", maxBuffer: 256 * 1024 * 1024 });
+  // -z：路徑以 NUL 分隔且不加引號跳脫（core.quotePath 預設會把 tw-交通.json 輸出成 "tw-\\344..." 而分類失敗）
+  const unmergedFiles = () => git(["diff", "-z", "--name-only", "--diff-filter=U"]).split("\0").filter(Boolean);
   const touched = [];
   const manual = [];
   const done = (code) => ({ code, touched, manual });
@@ -223,8 +235,8 @@ export function runMergeDevelop(opts) {
       return done(0);
     }
     if (dryRun) {
-      const mt = tryGit(["merge-tree", "--write-tree", "--name-only", "--no-messages", "HEAD", target]);
-      const files = mt.status === 1 ? mt.stdout.trim().split("\n").slice(1).filter(Boolean) : [];
+      const mt = tryGit(["merge-tree", "--write-tree", "--name-only", "--no-messages", "-z", "HEAD", target]);
+      const files = mt.status === 1 ? mt.stdout.split("\0").slice(1).filter(Boolean) : [];
       if (mt.status > 1) { log(`git merge-tree 失敗：${mt.stderr}`); return done(1); }
       log(files.length ? `合併 ${target} 會有 ${files.length} 個衝突檔：` : `合併 ${target} 不會有衝突：會直接 merge 並 commit。`);
       planFor(files, log);
@@ -232,12 +244,12 @@ export function runMergeDevelop(opts) {
     }
     log(`git merge --no-commit ${target}`);
     const m = tryGit(["-c", "merge.conflictStyle=diff3", "merge", "--no-ff", "--no-commit", target]);
-    const unmergedNow = git(["diff", "--name-only", "--diff-filter=U"]).trim();
-    if (m.status !== 0 && !unmergedNow) {
+    const unmergedNow = unmergedFiles();
+    if (m.status !== 0 && !unmergedNow.length) {
       log(`git merge 失敗（不是衝突）：\n${m.stdout}${m.stderr}`);
       return done(1);
     }
-    if (!unmergedNow) {
+    if (!unmergedNow.length) {
       git(["commit", "--no-edit"]);
       log(`沒有衝突，已照一般 git merge 建立 merge commit：${git(["log", "--oneline", "-1"]).trim()}`);
       return done(0);
@@ -246,7 +258,7 @@ export function runMergeDevelop(opts) {
     log("偵測到進行中的合併（MERGE_HEAD），接著處理剩下的衝突。");
   }
 
-  const unmerged = git(["diff", "--name-only", "--diff-filter=U"]).trim().split("\n").filter(Boolean);
+  const unmerged = unmergedFiles();
   if (!unmerged.length) {
     log("沒有未解的衝突。請檢查後 git commit。");
     return done(0);
