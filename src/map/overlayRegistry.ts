@@ -199,7 +199,7 @@ import { carrierColorExpression, comparisonColorExpression, comparisonGeometryFi
 import { ECO_NETWORK_ZONE_MATCH } from "../data/ecoNetworkZoneTypes";
 import {
   OSM_COMMUNICATION_COLOR_EXPR, RIPE_ATLAS_NODE_COLOR_EXPR,
-  OOKLA_GRID_META, OOKLA_TESTS_ALPHA_EXPR, ooklaSpeedColorExpr, OOKLA_FINE_MIN_MAP_ZOOM, ooklaGridFilter,
+  OOKLA_GRID_META, OOKLA_TESTS_ALPHA_EXPR, ooklaSpeedColorExpr, OOKLA_FINE_TILE_ZOOM, ooklaGridFilter,
 } from "../data/telecomTypes";
 import { RAIL_ROUTES_URL, RAIL_ROUTES_SOURCE_ID, RAIL_ROUTES_FALLBACK_COLOR, railRoutesSystemFilter } from "../data/railRoutesTypes";
 import { FOREST_RESERVE_PMTILES_URL, FOREST_RESERVE_TYPE_MATCH } from "../data/forestReserveTypes";
@@ -2872,7 +2872,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // 2026-09-30 PF-4：整包 GeoJSON（19–23 MB）改 PMTiles（scripts/preprocess/build-static-pmtiles-pf4.py，
   // 每個 zoom 全量、不抽稀；格網對齊 mercator tile，z6 切片 overzoom 無損）。
   // 透明度另乘 OOKLA_TESTS_ALPHA_EXPR：整季只有 1 次測試的格不該和數萬次的等權。
-  // 2026-11-23 瘦身：細格（z=10）只從圖磚縮放 3 起放進檔案（_t3），所以選「細」時地圖縮放 < 3 退回中格（z=8）。
+  // 2026-11-23 瘦身：細格（z=10）只從圖磚縮放 3 起放進檔案（_t3），所以選「細」時圖磚縮放 < 3 退回中格（z=8）（-lo 層，見 OOKLA_FINE_TILE_ZOOM）。
   ...(([
     { svc: "mobile", key: "ooklaMobilePerformance", sourceUrl: "./geo/ookla_mobile_global_20260930_t3.pmtiles", pmtiles: { sourceLayer: "ookla", minzoom: 0, maxzoom: 6 } },
     { svc: "fixed", key: "ooklaFixedPerformance", sourceUrl: "./geo/ookla_fixed_global_20260930_t3.pmtiles", pmtiles: { sourceLayer: "ookla", minzoom: 0, maxzoom: 6 } },
@@ -2884,12 +2884,12 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     attribution: OOKLA_GRID_META.attribution,
     rebuildOnParamChange: ["fill", "line", "fill-lo", "line-lo"],
     layers: [
-      // 縮放 < OOKLA_FINE_MIN_MAP_ZOOM 的 -lo 層畫「退回後」的格網；其餘縮放畫使用者選的格網。
-      // 兩組 layer 的縮放區間互補不重疊（見 ooklaGridFilter 註解，不用 filter 內的 zoom）。
+      // -lo 層只在選「細」時畫「退回後」的中格網，maxzoom＝細格進檔的圖磚縮放（有 z10 的圖磚桶位裡它不存在）；
+      // 一般層不設 minzoom，永遠畫使用者選的格網（見 telecomTypes 的 OOKLA_FINE_TILE_ZOOM 說明：不用地圖縮放分界，主地圖與 MapLibre 嵌入版挑圖磚縮放的方式不同）。
       {
         suffix: "fill-lo",
         type: "fill",
-        maxzoom: OOKLA_FINE_MIN_MAP_ZOOM,
+        maxzoom: OOKLA_FINE_TILE_ZOOM,
         filter: (p?: Record<string, number>) => ooklaGridFilter(svc, p, true),
         paint: (_isDark: boolean, params?: Record<string, number>) => ({
           "fill-color": ooklaSpeedColorExpr(params?.[`${key}Palette`]),
@@ -2899,7 +2899,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       {
         suffix: "line-lo",
         type: "line",
-        maxzoom: OOKLA_FINE_MIN_MAP_ZOOM,
+        maxzoom: OOKLA_FINE_TILE_ZOOM,
         filter: (p?: Record<string, number>) => ooklaGridFilter(svc, p, true),
         paint: (isDark: boolean, params?: Record<string, number>) => ({
           "line-color": THEMED_PAINT_COLORS.ooklaGlobalOutline[isDark ? "dark" : "light"],
@@ -2910,7 +2910,6 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       {
         suffix: "fill",
         type: "fill",
-        minzoom: OOKLA_FINE_MIN_MAP_ZOOM,
         filter: (p?: Record<string, number>) => ooklaGridFilter(svc, p, false),
         paint: (_isDark: boolean, params?: Record<string, number>) => ({
           "fill-color": ooklaSpeedColorExpr(params?.[`${key}Palette`]),
@@ -2920,7 +2919,6 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       {
         suffix: "line",
         type: "line",
-        minzoom: OOKLA_FINE_MIN_MAP_ZOOM,
         filter: (p?: Record<string, number>) => ooklaGridFilter(svc, p, false),
         paint: (isDark: boolean, params?: Record<string, number>) => ({
           "line-color": THEMED_PAINT_COLORS.ooklaGlobalOutline[isDark ? "dark" : "light"],

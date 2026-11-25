@@ -104,17 +104,23 @@ export const OOKLA_GLOBAL_ZOOMS = [
 
 /**
  * 細格網（z=10）只存在於 PMTiles 圖磚縮放 ≥ 3（_t3 檔，build-static-pmtiles-pf4.py 的 OOKLA_FINE_MINZOOM）；
- * 地圖縮放低於此值時選「細」要退回中格網（z=8）。分界取 2.5 而非 3：實測圖磚縮放在地圖縮放 2.5 就進位到 3，
- * 且 layer 縮放區間遇到進位後的圖磚會雙雙不畫；分界設 3 會在 2.5–3 之間整片空白。
+ * 圖磚縮放 < 3 時選「細」要退回中格網（z=8），由低縮放層（-lo，maxzoom＝此值）畫。
+ *
+ * 不再用「地圖縮放分界」把兩組層切開：各引擎挑圖磚縮放的方式不同（主地圖 mapbox-pmtiles 四捨五入，地圖縮放 2.5 起用 z3 圖磚；
+ * 嵌入版 MapLibre 取整，2.5–3 之間仍用 z2 圖磚，那裡沒有 z10），任何固定的地圖縮放分界都會在其中一個引擎留下空白（review #1183）。
+ * 改成：-lo 只在「選細」時畫 z8，並靠圖磚桶位（layer maxzoom 與圖磚縮放比較）讓它在有 z10 的圖磚上自動消失；
+ * 一般層不設 minzoom，永遠畫使用者選的格網——圖磚裡沒有 z10 的地方它自然什麼都不畫。
  */
-export const OOKLA_FINE_MIN_MAP_ZOOM = 2.5;
+export const OOKLA_FINE_TILE_ZOOM = 3;
 const OOKLA_FINE_GRID = 10;
 const OOKLA_FALLBACK_GRID = 8;
+/** 不匹配任何格的 z 值（-lo 層在沒選「細」時整層不畫，避免和一般層重疊） */
+const OOKLA_NO_GRID = -1;
 
 /**
  * 全球層 `z` 屬性 filter。filter 內的 ["zoom"] 只在圖磚解析時以圖磚縮放評估、不隨地圖縮放重算，
- * 所以縮放分界用 layer 的 minzoom／maxzoom 切（低縮放 layer `lowZoom=true`、其餘 `false`），這裡只決定 z 值：
- * 低縮放 layer 把「細」換成中格網；一般 layer 與選粗／中時一律照使用者選的值。
+ * 所以縮放分界用 layer 的 maxzoom 切（低縮放 layer `lowZoom=true`），這裡只決定 z 值：
+ * 低縮放 layer 只在選「細」時畫中格網（z=8）；一般 layer 一律照使用者選的值。
  */
 export function ooklaGridFilter(
   svc: "mobile" | "fixed",
@@ -122,7 +128,8 @@ export function ooklaGridFilter(
   lowZoom: boolean,
 ): ["==", ["get", "z"], number] {
   const selected = params?.[`ookla${svc === "mobile" ? "Mobile" : "Fixed"}GridZoom`] ?? 6;
-  return ["==", ["get", "z"], lowZoom && selected === OOKLA_FINE_GRID ? OOKLA_FALLBACK_GRID : selected];
+  if (!lowZoom) return ["==", ["get", "z"], selected];
+  return ["==", ["get", "z"], selected === OOKLA_FINE_GRID ? OOKLA_FALLBACK_GRID : OOKLA_NO_GRID];
 }
 
 /**
