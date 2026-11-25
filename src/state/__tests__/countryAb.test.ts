@@ -9,6 +9,18 @@ import { restoreMobileCompare } from "../../utils/mobileCompareRestore";
 const VISIBLE = ["TW", "JP", "GB", "KR"] as const;
 const cam = (lng: number, lat: number, zoom = 9): CountryCamera => ({ center: [lng, lat], zoom, pitch: 0, bearing: 0 });
 
+describe("A／B 審查修正（PR #1220 r4677048461、PR #1230 r4677744690）", () => {
+  it("A 不在可見名單（站主登出後的 CN）→ 改用可見的目前國家；無法替換就關閉", () => {
+    expect(normalizeAb({ a: "CN", b: "GB" }, "JP", [], ["TW", "JP", "GB"])).toEqual({ a: "JP", b: "GB" });
+    expect(normalizeAb({ a: "CN", b: "GB" }, "GB", [], ["TW", "JP", "GB"])).toBeNull();
+  });
+  it("A↔B 切換改變右國時仍保留 cmpt=local 時間對齊", () => {
+    const prev = { mode: "countries" as const, rightCountry: "GB" as const, timeAlign: "local" as const };
+    expect(abStash({ a: "TW", b: "GB" }, "GB", prev).timeAlign).toBe("local");
+    expect(abStash({ a: "TW", b: "GB" }, "TW", prev).timeAlign).toBe("local");
+  });
+});
+
 describe("手機兩國 A／B 切換（G2-2）", () => {
   beforeEach(() => { countryCameraMemory.resetForTest(); });
   afterEach(() => { countryAbStore.reset(); compareStore.reset(); });

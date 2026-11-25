@@ -58,7 +58,10 @@ export function normalizeAb(
   pinned: readonly CountryCode[],
   visible: readonly CountryCode[],
 ): CountryAb | null {
-  const a = current === ab.a || current === ab.b ? ab.a : current;
+  let a = current === ab.a || current === ab.b ? ab.a : current;
+  // A 也要是這個身分看得到的國家（例如站主以中國為 A 後登出）：改用目前國家，仍不可見就關閉
+  if (!visible.includes(a)) a = visible.includes(current) && current !== ab.b ? current : a;
+  if (!visible.includes(a)) return null;
   const b = pickRightCountry(a, pinned, visible, ab.b);
   if (!b) return null;
   return a === ab.a && b === ab.b ? ab : { a, b };
@@ -96,6 +99,7 @@ export function abStash(ab: CountryAb, current: CountryCode, prev: UrlState["com
     ...(right ? { rightCountry: right } : {}),
     ...(keep?.rightCamera ? { rightCamera: keep.rightCamera } : {}),
     ...(keep?.scaleLocked === false ? { scaleLocked: false as const } : {}),
-    ...(keep?.timeAlign === "local" ? { timeAlign: "local" as const } : {}),
+    // 時間對齊與「哪一國」無關：A↔B 切換（右國改變）時也要保留
+    ...(prev?.mode === "countries" && prev.timeAlign === "local" ? { timeAlign: "local" as const } : {}),
   };
 }

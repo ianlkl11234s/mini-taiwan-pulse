@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
-  clearOverlaySourcesForKeys, lockedVisibleKeys, newlyLockedKeys,
+  clearOverlaySourcesForKeys, registerOverlaySourceReset, lockedVisibleKeys, newlyLockedKeys,
   registerOwnerGateReset, resetOwnerGateHandlersForTest, runOwnerGateResets,
 } from "../ownerGateRevoke";
 import { GATED_LAYERS } from "../../components/sidebar/layerCatalog";
@@ -85,5 +85,21 @@ describe("Mapbox source 資料清空（registry overlay）", () => {
     for (const [id, src] of sources) {
       if (!gatedSourceIds.has(id)) expect(src.setData).not.toHaveBeenCalled();
     }
+  });
+});
+
+// Codex review PR #1214 r4676394225：比較模式右圖的私人 overlay source 撤權時也要清空
+describe("右圖專屬撤權清除", () => {
+  it("撤權時清空右圖 registry 子集的 source；unregister 後不再清", () => {
+    const setData = vi.fn();
+    const map = { getSource: (id: string) => (id === "src-right" ? { setData } : undefined) };
+    const registry = [{ id: "gbPollutionInventoryEngland", sourceId: "src-right" }];
+    const off = registerOverlaySourceReset(["gbPollutionInventoryEngland"], map, () => registry);
+    runOwnerGateResets(new Set(["gbPollutionInventoryEngland"]));
+    expect(setData).toHaveBeenCalledWith({ type: "FeatureCollection", features: [] });
+    off();
+    setData.mockClear();
+    runOwnerGateResets(new Set(["gbPollutionInventoryEngland"]));
+    expect(setData).not.toHaveBeenCalled();
   });
 });

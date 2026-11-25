@@ -43,6 +43,8 @@ import { isRightSideKey } from "./compareCountrySides";
 import { useCountryPackVersion } from "../countries/packs";
 import { addAllOverlays, addLateOverlays, hydrateOverlayIfNeeded, isOverlayVisible, refreshFallbackHydratedOverlay, resetOverlayHydration, setOverlayTaskSuffix, setOverlayVisible, updateAllOverlayThemes } from "./overlayManager";
 import { createJpHeightLifecycle } from "./jpHeightLifecycle";
+import { sampleRasterProbes } from "../data/rasterProbeSampler";
+import { registerOverlaySourceReset } from "../lib/ownerGateRevoke";
 import { onLayerAssetIndexReady } from "../data/layerAssetIndex";
 import type { AppLayerHostDeps } from "../layers/layerHostDeps";
 import type { CountryCamera, CountryCode } from "../constants/countries";
@@ -161,6 +163,13 @@ export function CountryCompareMapView({ mainMap, rightCountry, styleUrl, pureBla
         if (!config.pmtiles && !config.dynamicData) refreshFallbackHydratedOverlay(map, config, isOverlayVisible(config, vis, overlayParamsRef.current));
       }
     });
+    // 撤權（登出／失去站主權限）：右圖的私人 overlay source 也要清成空資料，不只隱藏圖層
+    // （主地圖那份在 MapView；hook 只清快取與 listener，不會清這張圖上的 source）
+    const offOwnerReset = registerOverlaySourceReset(
+      OVERLAY_REGISTRY.map((config) => config.id as string),
+      { getSource: (id) => (map.style ? map.getSource(id) : undefined) },
+      () => rightOverlaysRef.current,
+    );
     // 地形各自判斷（兩國各自傾斜，不鏡射主圖）
     map.on("pitch", () => ensureTerrainIfTilted(map));
 
@@ -199,10 +208,32 @@ export function CountryCompareMapView({ mainMap, rightCountry, styleUrl, pureBla
     });
 
     // 右半的點擊：與主地圖共用 GIS_LAYERS 命中（右圖只有右國圖層與右國統計）；沒命中＝關 popup（同主地圖空白處）
+    let rightClickSeq = 0;
     map.on("click", (e) => {
       recordSelectionClick([e.lngLat.lng, e.lngLat.lat]);
+      const clickId = ++rightClickSeq;
       const hit = gisHitCandidates(map, e.point).next();
-      if (hit.done) { onFeatureInfoRef.current(null); return; }
+      if (hit.done) {
+        // 值編碼 raster（日本樹冠高度，manifest popup: rasterProbe）不能 queryRenderedFeatures：沒命中向量時改讀像素
+        if (shownOnRight("jpCanopyHeight", layerVisibilityStore.getVisibility("jpCanopyHeight"))) {
+          const { lng, lat } = e.lngLat;
+          void sampleRasterProbes(
+            { urbanHeat: false, canopyHeight: false, jpCanopyHeight: true }, lng, lat, map.getZoom(),
+            new Set(Object.keys(map.getStyle?.()?.sources ?? {}).filter((id) => id.startsWith("jp-canopy-height--"))),
+          ).then((probe) => {
+            if (clickId !== rightClickSeq) return; // 之後又點了別處（或其他選取接手）
+            if (!probe) { onFeatureInfoRef.current(null); return; }
+            onFeatureInfoRef.current({
+              layerType: "rasterProbe",
+              properties: { urbanHeat: null, canopyHeight: null, jpCanopyHeight: probe.jpCanopyHeight, compare_side: "right" },
+              coords: [lng, lat],
+            });
+            sessionTracker.log("feature_click", { layerType: "rasterProbe", compareSide: "right" });
+          });
+          return;
+        }
+        onFeatureInfoRef.current(null); return;
+      }
       const { type, features } = hit.value;
       const { properties, coords } = gisHitProperties(type, features[0]!, features, e.lngLat);
       onFeatureInfoRef.current({ layerType: type, properties: { ...properties, compare_side: "right" }, coords });
@@ -230,6 +261,7 @@ export function CountryCompareMapView({ mainMap, rightCountry, styleUrl, pureBla
     return () => {
       endLoading();
       offAssetIndex();
+      offOwnerReset();
       jpHeight.dispose();
       jpHeightRef.current = null;
       cancelAnimationFrame(hoverFrame);

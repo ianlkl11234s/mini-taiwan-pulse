@@ -1,4 +1,5 @@
 import { LazyMainMapConnection } from "./research/LazyMainMapConnection";
+import { createRequestToken } from "./lib/requestToken";
 import { globalEventsViewStore } from "./state/globalEventsViewStore";
 import { useAnalysisLegend } from "./research/analysisLegendStore";
 import type { AnalysisResultPanelProperties } from "./research/researchResultPopup";
@@ -119,7 +120,7 @@ import { getToolbarPalette } from "./components/toolbar/toolbarTheme";
 import { MobileMoreMenu } from "./components/toolbar/MobileMoreMenu";
 import { LanguageMenu } from "./components/toolbar/LanguageMenu";
 import { useLocale, localeStore } from "./state/localeStore";
-import { parseUrlState, buildUrl, cleanUrl, type UrlState } from "./lib/urlState";
+import { parseUrlState, buildUrl, cleanUrl, usesSingleMapSelection, type UrlState } from "./lib/urlState";
 import { setTimelineJumpHandler } from "./state/timelineJumpBridge";
 import { ShareModal } from "./components/ShareModal";
 import { MobileBottomSheet } from "./components/MobileBottomSheet";
@@ -302,6 +303,7 @@ export default function App() {
   const restoringMemberSceneRef = useRef(false);
   /** 場景還原完成（含連動選單）時把略過項目交回會員面板 */
   const pendingSceneDoneRef = useRef<((skipped: string[]) => void) | null>(null);
+  const sceneRequestRef = useRef(createRequestToken());
   const [pendingMemberScene, setPendingMemberScene] = useState<MemberSceneSnapshot | null>(null);
   const favoriteKeys = useMemo(() => new Set(memberLibrary.userId === (memberUser?.id ?? null) ? memberLibrary.favorites : []), [memberLibrary.favorites, memberLibrary.userId, memberUser?.id]);
   const countryPackVersion = useCountryPackVersion();
@@ -611,6 +613,8 @@ export default function App() {
     if (next !== countryAb) { countryAbStore.set(next); return; }
     mobileCompareRef.current = abStash(countryAb, country, mobileCompareRef.current);
   }, [isMobile, countryAb, country, visibleCountryCodes.join(","), pinnedCountryCodes]);
+  // 開／關 A／B 也要寫網址（地圖靜止時沒有 moveend 觸發同步，cmp=2 會晚寫或殘留）。排在上面的寄放 effect 之後
+  useEffect(() => { if (isMobile) syncUrlRef.current(); }, [isMobile, countryAb]);
   /** 手機標頭 ⋯ 的「兩國切換」：開／關 */
   const handleToggleCountryAb = useCallback(() => {
     if (countryAbStore.getSnapshot()) {
@@ -1387,6 +1391,11 @@ export default function App() {
       setFeatureInfo({ layerType: "analysisResult", properties });
     } else setFeatureInfo((current) => current?.layerType === "analysisResult" ? null : current);
   }, [setFeatureInfo, invalidateFeatureRequest]);
+  // 比較右圖的選取／清除：先作廢主地圖仍在路上的 raster／GFW 非同步 probe，免得晚回來蓋掉右圖剛選的 popup
+  const handleRightFeatureInfo = useCallback((info: FeatureInfo | null) => {
+    invalidateFeatureRequest();
+    setFeatureInfo(info);
+  }, [setFeatureInfo, invalidateFeatureRequest]);
   // 全球事件 popup 的「可能相關報導」清單點一則 → popup 換成那一則（只有清單用，INTEL 選取不經過這裡）。
   useEffect(() => {
     globalEventsViewStore.setPopupOpener(({ properties, coords }) => {
@@ -1870,7 +1879,10 @@ export default function App() {
     if (!validated.ok) throw new Error(validated.errors.join("；"));
     if (!mapRef.current || !mapPrepared) throw new Error("地圖尚未就緒。");
     // B1 P5a：場景裡國家包圖層的參數規格要等包載入，否則還原時會被當成未知參數略過
+    // 載入期間若登出／換帳號，或有更新的還原請求，這次結果作廢（不可把舊帳號的場景套回來）
+    const requestToken = sceneRequestRef.current.begin();
     await ensureCountryPacks(packCountriesForKeys(validated.value.layers));
+    if (!sceneRequestRef.current.isCurrent(requestToken)) return [];
     const resolved = resolveSceneRestore(validated.value, knownMemberKeys, lockedKeysRef.current, MAP_STYLES.map((style) => style.id));
     markPrivateView(); setMemberPlaceGeometry(null); restoringMemberSceneRef.current = true;
     pendingSceneDoneRef.current?.(resolved.skipped);
@@ -1928,6 +1940,7 @@ export default function App() {
   useEffect(() => {
     const userId = memberUser?.id ?? null;
     if (previousMemberIdRef.current !== userId) {
+      sceneRequestRef.current.invalidate();
       setMemberPlaceGeometry(null); setPendingMemberScene(null); restoringMemberSceneRef.current = false;
       pendingSceneDoneRef.current?.([]); pendingSceneDoneRef.current = null;
       if (privateViewRef.current) {
@@ -2189,7 +2202,8 @@ export default function App() {
       });
     } else {
       // 單地圖（含手機退回單地圖：左側期別就是單地圖的期別）
-      const allowed = urlCompare ? compareLeft : allowedSelection(urlSelection);
+      // 兩國並排：期別／細項寫在單地圖的 sel（統計資料只由左圖擁有）
+      const allowed = usesSingleMapSelection(urlCompare) ? allowedSelection(urlSelection) : compareLeft;
       if (allowed) {
         void restoreSelectionsAfterLoad(allowed).then((skipped) => {
           if (skipped.length) console.warn("[share] 分享網址的期別／細項略過：", skipped);
@@ -2317,8 +2331,8 @@ export default function App() {
         presentation: presentationUrlEntries((key) => Boolean(layerVisibilityRef.current[key as keyof LayerVisibility])),
         compare,
         params,
-        // 比較模式的左側期別已在 cmpdl，不重複寫
-        selection: compare ? undefined : singleSelectionsForUrl(shareableKey),
+        // 拉桿比較的左側期別已在 cmpdl，不重複寫；兩國並排沒有 cmpdl，期別／細項走單地圖的 sel
+        selection: usesSingleMapSelection(compare) ? singleSelectionsForUrl(shareableKey) : undefined,
         style: mapStyleId,
         date,
         hour,
@@ -2664,7 +2678,7 @@ export default function App() {
             isDarkTheme={isDarkTheme}
             showBasemapLabels={showBasemapLabels}
             featureInfo={featureInfo}
-            onFeatureInfo={setFeatureInfo}
+            onFeatureInfo={handleRightFeatureInfo}
             hostDeps={hostDeps}
           />
           <CountryCompareChrome
