@@ -639,3 +639,12 @@ describe("兩國並排 cmp=2（G2-1，選填欄位、不升版）", () => {
     expect(parseUrlState(`?${V}&cmp=3&cmpc=gb`).compare).toBeUndefined();
   });
 });
+
+describe("統計選取走哪條網址欄位（PR #1212 r4676209967、PR #1221 r4677347309）", () => {
+  it("兩國並排與無比較用單地圖 sel；拉桿比較用 cmpdl／cmpdr", async () => {
+    const { usesSingleMapSelection } = await import("../urlState");
+    expect(usesSingleMapSelection(undefined)).toBe(true);
+    expect(usesSingleMapSelection({ mode: "countries" })).toBe(true);
+    expect(usesSingleMapSelection({})).toBe(false);
+  });
+});

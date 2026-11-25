@@ -120,7 +120,7 @@ import { getToolbarPalette } from "./components/toolbar/toolbarTheme";
 import { MobileMoreMenu } from "./components/toolbar/MobileMoreMenu";
 import { LanguageMenu } from "./components/toolbar/LanguageMenu";
 import { useLocale, localeStore } from "./state/localeStore";
-import { parseUrlState, buildUrl, cleanUrl, type UrlState } from "./lib/urlState";
+import { parseUrlState, buildUrl, cleanUrl, usesSingleMapSelection, type UrlState } from "./lib/urlState";
 import { setTimelineJumpHandler } from "./state/timelineJumpBridge";
 import { ShareModal } from "./components/ShareModal";
 import { MobileBottomSheet } from "./components/MobileBottomSheet";
@@ -2200,7 +2200,8 @@ export default function App() {
       });
     } else {
       // 單地圖（含手機退回單地圖：左側期別就是單地圖的期別）
-      const allowed = urlCompare ? compareLeft : allowedSelection(urlSelection);
+      // 兩國並排：期別／細項寫在單地圖的 sel（統計資料只由左圖擁有）
+      const allowed = usesSingleMapSelection(urlCompare) ? allowedSelection(urlSelection) : compareLeft;
       if (allowed) {
         void restoreSelectionsAfterLoad(allowed).then((skipped) => {
           if (skipped.length) console.warn("[share] 分享網址的期別／細項略過：", skipped);
@@ -2328,8 +2329,8 @@ export default function App() {
         presentation: presentationUrlEntries((key) => Boolean(layerVisibilityRef.current[key as keyof LayerVisibility])),
         compare,
         params,
-        // 比較模式的左側期別已在 cmpdl，不重複寫
-        selection: compare ? undefined : singleSelectionsForUrl(shareableKey),
+        // 拉桿比較的左側期別已在 cmpdl，不重複寫；兩國並排沒有 cmpdl，期別／細項走單地圖的 sel
+        selection: usesSingleMapSelection(compare) ? singleSelectionsForUrl(shareableKey) : undefined,
         style: mapStyleId,
         date,
         hour,
