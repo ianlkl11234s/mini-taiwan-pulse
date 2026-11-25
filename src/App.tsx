@@ -1389,6 +1389,11 @@ export default function App() {
       setFeatureInfo({ layerType: "analysisResult", properties });
     } else setFeatureInfo((current) => current?.layerType === "analysisResult" ? null : current);
   }, [setFeatureInfo, invalidateFeatureRequest]);
+  // 比較右圖的選取／清除：先作廢主地圖仍在路上的 raster／GFW 非同步 probe，免得晚回來蓋掉右圖剛選的 popup
+  const handleRightFeatureInfo = useCallback((info: FeatureInfo | null) => {
+    invalidateFeatureRequest();
+    setFeatureInfo(info);
+  }, [setFeatureInfo, invalidateFeatureRequest]);
   // 全球事件 popup 的「可能相關報導」清單點一則 → popup 換成那一則（只有清單用，INTEL 選取不經過這裡）。
   useEffect(() => {
     globalEventsViewStore.setPopupOpener(({ properties, coords }) => {
@@ -2670,7 +2675,7 @@ export default function App() {
             isDarkTheme={isDarkTheme}
             showBasemapLabels={showBasemapLabels}
             featureInfo={featureInfo}
-            onFeatureInfo={setFeatureInfo}
+            onFeatureInfo={handleRightFeatureInfo}
             hostDeps={hostDeps}
           />
           <CountryCompareChrome
