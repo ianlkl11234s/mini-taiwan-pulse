@@ -54,7 +54,8 @@
     },
     "idConservationForest": {
       "layers": [
-        "id-forest-fill"
+        "id-forest-fill",
+        "id-forest-line"
       ],
       "type": "idConservationForest"
     },
@@ -294,7 +295,8 @@
     },
     "idWatersheds": {
       "layers": [
-        "id-watersheds-fill"
+        "id-watersheds-fill",
+        "id-watersheds-line"
       ],
       "type": "idWatersheds"
     },

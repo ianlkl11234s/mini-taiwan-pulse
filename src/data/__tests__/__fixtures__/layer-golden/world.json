@@ -586,10 +586,10 @@
               "get",
               "z"
             ],
-            6
+            -1
           ],
           "layout": null,
-          "maxzoom": 2.5,
+          "maxzoom": 3,
           "minzoom": null,
           "paint": {
             "dark": {
@@ -719,10 +719,10 @@
               "get",
               "z"
             ],
-            6
+            -1
           ],
           "layout": null,
-          "maxzoom": 2.5,
+          "maxzoom": 3,
           "minzoom": null,
           "paint": {
             "dark": {
@@ -777,7 +777,7 @@
             6
           ],
           "layout": null,
-          "minzoom": 2.5,
+          "minzoom": null,
           "paint": {
             "dark": {
               "fill-color": [
@@ -909,7 +909,7 @@
             6
           ],
           "layout": null,
-          "minzoom": 2.5,
+          "minzoom": null,
           "paint": {
             "dark": {
               "line-color": "rgba(255,255,255,0.55)",
@@ -980,10 +980,10 @@
               "get",
               "z"
             ],
-            6
+            -1
           ],
           "layout": null,
-          "maxzoom": 2.5,
+          "maxzoom": 3,
           "minzoom": null,
           "paint": {
             "dark": {
@@ -1113,10 +1113,10 @@
               "get",
               "z"
             ],
-            6
+            -1
           ],
           "layout": null,
-          "maxzoom": 2.5,
+          "maxzoom": 3,
           "minzoom": null,
           "paint": {
             "dark": {
@@ -1171,7 +1171,7 @@
             6
           ],
           "layout": null,
-          "minzoom": 2.5,
+          "minzoom": null,
           "paint": {
             "dark": {
               "fill-color": [
@@ -1303,7 +1303,7 @@
             6
           ],
           "layout": null,
-          "minzoom": 2.5,
+          "minzoom": null,
           "paint": {
             "dark": {
               "line-color": "rgba(255,255,255,0.55)",
