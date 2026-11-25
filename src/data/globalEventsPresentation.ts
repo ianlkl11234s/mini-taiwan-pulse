@@ -231,7 +231,9 @@ function headlineNames(headline: string | null | undefined, placeWords: Readonly
 
 // 小數規模（5.7）與有「規模／震級／M」前綴或「級」後綴的整數規模（規模5、6級）；數值正規化，5 與 5.0 視為相同。
 const MAGNITUDE = /(?<![\d.])\d{1,2}\.\d+|(?<=(?:規模|震級|magnitude|\bM)\s*)\d{1,2}(?![\d.])|(?<![\d.])\d{1,2}(?![\d.])(?=\s*級)/gi;
-const magnitudesOf = (text: string) => new Set((text.match(MAGNITUDE) ?? []).map((m) => String(Number(m))));
+// 震度（最大震度4級、震度5弱、震度4至5級）是另一個量，先剔除再抓規模，否則「4級」會被當成規模 4。
+const SEISMIC_INTENSITY = /震度\s*\d{1,2}(?:\s*[-~至到]\s*\d{1,2})?\s*[級弱強+＋]?/g;
+const magnitudesOf = (text: string) => new Set((text.replace(SEISMIC_INTENSITY, " ").match(MAGNITUDE) ?? []).map((m) => String(Number(m))));
 const QUAKE = /地震|強震|earthquake|quake/i;
 
 export interface GlobalEventRelatedReport { eventId: string; title: string; score: number }

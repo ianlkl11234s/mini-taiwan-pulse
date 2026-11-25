@@ -233,6 +233,15 @@ describe("Global Events possibly-same-story links", () => {
     expect(links.neighbours.size).toBe(0);
   });
 
+  it("review #1193：最大震度4級不是規模，不可讓兩則不同規模的地震因共同震度連成同一件事", () => {
+    const summaryZhTw = "日本附近發生地震，當局呼籲民眾保持警戒並注意餘震，目前沒有海嘯威脅。";
+    const links = globalEventStoryLinks([
+      { ...story("a", "日本附近發生規模5.7地震，最大震度4級", "JA", [131, 32]), summaryZhTw },
+      { ...story("b", "日本附近發生規模5.2地震，最大震度4級", "JA", [137, 36.5]), summaryZhTw },
+    ]);
+    expect(links.neighbours.size).toBe(0);
+  });
+
   it("review L8：同一整數規模與 5.0 寫法一致時仍可連結", () => {
     const summaryZhTw = "日本西南部發生地震，當局呼籲民眾保持警戒並注意餘震，目前沒有海嘯威脅。";
     const links = globalEventStoryLinks([
