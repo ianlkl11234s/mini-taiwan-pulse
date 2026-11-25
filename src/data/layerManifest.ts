@@ -13726,7 +13726,7 @@ export const LAYER_MANIFEST = {
   freewaySpecialSections: {
     key: "freewaySpecialSections", country: "TW", section: { theme: "交通 Move", group: "道路設施 Road Facilities" }, ...layerName({ zh: "國道特殊路段", alt: "Freeway Special Sections" }), expandable: true,
     color: ATLAS_LAYER_COLORS.freewaySpecialSections, icon: Mountain,
-    upstream: { status: "catalog_missing", datasets: [], processing: "analytics transportation/freeway_special_sections（pulse-data 登記尚未建立，2026-11-24）", note: "交通部高速公路局 data.gov.tw 31038、31035、95069；127 條線（隧道 64、開放路肩 35、爬坡道 28）。位置由國道里程換算（主線中心線近似，精度約 0.1 km）；開放路肩來源 59 筆，不含 24 筆無法定位的路段。" },
+    upstream: { status: "verified", datasets: [{ datasetId: "freeway_special_sections", confidence: "HIGH" }], processing: "analytics transportation/freeway_special_sections（2026-11-25 發包入倉）", note: "交通部高速公路局 data.gov.tw 31038、31035、95069；127 條線（隧道 64、開放路肩 35、爬坡道 28）。位置由國道里程換算（主線中心線近似，精度約 0.1 km）；開放路肩來源 59 筆，不含 24 筆無法定位的路段。" },
     dataClass: "B", source: { kind: "pmtiles", sourceId: "freeway-special-sections", url: "./geo/freeway_special_sections_20261124.pmtiles", sourceLayer: "freeway_special_sections", minzoom: 5, maxzoom: 14 },
     legend: "freewaySpecialSections", popup: "freewaySpecialSections", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
     description: "國道隧道、開放路肩與爬坡道共 127 條（位置由里程換算，精度約 0.1 km；開放路肩不含 24 筆無法定位的路段）。",
@@ -13735,7 +13735,7 @@ export const LAYER_MANIFEST = {
   freewayRoadsideDevices: {
     key: "freewayRoadsideDevices", country: "TW", section: { theme: "交通 Move", group: "道路設施 Road Facilities" }, ...layerName({ zh: "國道路邊設備", alt: "Freeway Roadside Devices" }), expandable: true,
     color: ATLAS_LAYER_COLORS.freewayRoadsideDevices, icon: Radio,
-    upstream: { status: "catalog_missing", datasets: [], processing: "analytics transportation/freeway_roadside_devices（pulse-data 登記尚未建立，2026-11-24）", note: "交通部高速公路局 data.gov.tw 37667（資訊可變標誌）、37661（車輛偵測器）；4,295 處，資料日 2026-11-24；只有設備位置、不含即時值；3 筆座標 0,0 已排除。" },
+    upstream: { status: "verified", datasets: [{ datasetId: "freeway_roadside_devices", confidence: "HIGH" }], processing: "analytics transportation/freeway_roadside_devices（2026-11-25 發包入倉）", note: "交通部高速公路局 data.gov.tw 37667（資訊可變標誌）、37661（車輛偵測器）；4,295 處，資料日 2026-11-24；只有設備位置、不含即時值；3 筆座標 0,0 已排除。" },
     dataClass: "B", source: { kind: "pmtiles", sourceId: "freeway-roadside-devices", url: "./geo/freeway_roadside_devices_20261124.pmtiles", sourceLayer: "freeway_roadside_devices", minzoom: 5, maxzoom: 14 },
     legend: "freewayRoadsideDevices", popup: "freewayRoadsideDevices", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
     description: "國道資訊可變標誌（999）與車輛偵測器（3,296）位置，資料日 2026-11-24；預設只顯示資訊可變標誌。",
@@ -13744,7 +13744,7 @@ export const LAYER_MANIFEST = {
   freewayRoadkill: {
     key: "freewayRoadkill", country: "TW", section: { theme: "自然保育 Conservation", group: "綠網與生態 Ecological Networks" }, ...layerName({ zh: "國道路殺紀錄", alt: "Freeway Roadkill" }), expandable: true,
     color: ATLAS_LAYER_COLORS.freewayRoadkill, icon: PawPrint,
-    upstream: { status: "catalog_missing", datasets: [], processing: "analytics transportation/freeway_roadkill_records（pulse-data 登記尚未建立，2026-11-24）", note: "交通部高速公路局 data.gov.tw 31291；107,156 筆（2009–2026）。位置由國道里程換算（主線中心線近似，精度約 0.1 km），非實際路殺位置；低縮放圖磚（z5–10）只帶類群、年份、路線欄。" },
+    upstream: { status: "verified", datasets: [{ datasetId: "freeway_roadkill_records", confidence: "HIGH" }], processing: "analytics transportation/freeway_roadkill_records（2026-11-25 發包入倉）", note: "交通部高速公路局 data.gov.tw 31291；107,156 筆（2009–2026）。位置由國道里程換算（主線中心線近似，精度約 0.1 km），非實際路殺位置；低縮放圖磚（z5–10）只帶類群、年份、路線欄。" },
     dataClass: "B", source: { kind: "pmtiles", sourceId: "freeway-roadkill", url: "./geo/freeway_roadkill_records_20261124.pmtiles", sourceLayer: "freeway_roadkill_records", minzoom: 5, maxzoom: 14 },
     legend: "freewayRoadkill", popup: "freewayRoadkill", params: { count: 5, kinds: ["palette", "multiSelect", "select", "slider", "slider"] },
     description: "國道路殺動物紀錄 10.7 萬筆（2009–2026；位置由里程換算，精度約 0.1 km；拉遠為熱區，11 級起畫逐筆）。",
@@ -13753,7 +13753,7 @@ export const LAYER_MANIFEST = {
   freewayEcoFacilities: {
     key: "freewayEcoFacilities", country: "TW", section: { theme: "自然保育 Conservation", group: "綠網與生態 Ecological Networks" }, ...layerName({ zh: "國道生態友善設施", alt: "Freeway Wildlife Crossings" }), expandable: true,
     color: ATLAS_LAYER_COLORS.freewayEcoFacilities, icon: Footprints,
-    upstream: { status: "catalog_missing", datasets: [], processing: "analytics transportation/freeway_eco_friendly_facilities（pulse-data 登記尚未建立，2026-11-24）", note: "交通部高速公路局 data.gov.tw 31292；22 處（動物通道 14、防護網 8），只涵蓋國 1 苗栗段與國 3 部分路段。位置由國道里程換算（精度約 0.1 km），區間類為區間中點。" },
+    upstream: { status: "verified", datasets: [{ datasetId: "freeway_eco_friendly_facilities", confidence: "HIGH" }], processing: "analytics transportation/freeway_eco_friendly_facilities（2026-11-25 發包入倉）", note: "交通部高速公路局 data.gov.tw 31292；22 處（動物通道 14、防護網 8），只涵蓋國 1 苗栗段與國 3 部分路段。位置由國道里程換算（精度約 0.1 km），區間類為區間中點。" },
     dataClass: "B", source: { kind: "pmtiles", sourceId: "freeway-eco-facilities", url: "./geo/freeway_eco_friendly_facilities_20261124.pmtiles", sourceLayer: "freeway_eco_friendly_facilities", minzoom: 5, maxzoom: 14 },
     legend: "freewayEcoFacilities", popup: "freewayEcoFacilities", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
     description: "國道動物通道與防護網 22 處（只涵蓋國 1 苗栗段與國 3 部分路段；區間類的點為區間中點）。",
@@ -13762,7 +13762,7 @@ export const LAYER_MANIFEST = {
   freewayEcoSurveyFlora: {
     key: "freewayEcoSurveyFlora", country: "TW", section: { theme: "自然保育 Conservation", group: "綠網與生態 Ecological Networks" }, ...layerName({ zh: "國道植物生態調查", alt: "Freeway Flora Survey" }), expandable: true,
     color: ATLAS_LAYER_COLORS.freewayEcoSurveyFlora, icon: Leaf,
-    upstream: { status: "catalog_missing", datasets: [], processing: "analytics transportation/freeway_eco_survey_flora（pulse-data 登記尚未建立，2026-11-24）", note: "交通部高速公路局 data.gov.tw 31289；30,746 筆（2009–2018），約 2,925 個調查座標；只收植物，動物調查未收錄。" },
+    upstream: { status: "verified", datasets: [{ datasetId: "freeway_eco_survey_flora", confidence: "HIGH" }], processing: "analytics transportation/freeway_eco_survey_flora（2026-11-25 發包入倉）", note: "交通部高速公路局 data.gov.tw 31289；30,746 筆（2009–2018），約 2,925 個調查座標；只收植物，動物調查另成一層。" },
     dataClass: "B", source: { kind: "pmtiles", sourceId: "freeway-eco-survey-flora", url: "./geo/freeway_eco_survey_flora_20261124.pmtiles", sourceLayer: "freeway_eco_survey_flora", minzoom: 5, maxzoom: 14 },
     legend: "freewayEcoSurveyFlora", popup: "freewayEcoSurveyFlora", params: { count: 3, kinds: ["palette", "slider", "slider"] },
     description: "國道沿線植物生態調查 3.1 萬筆（2009–2018；拉遠為熱區，11 級起畫逐筆）。",
@@ -13771,7 +13771,7 @@ export const LAYER_MANIFEST = {
   freewayEcoSurveyFauna: {
     key: "freewayEcoSurveyFauna", country: "TW", section: { theme: "自然保育 Conservation", group: "綠網與生態 Ecological Networks" }, ...layerName({ zh: "國道動物生態調查", alt: "Freeway Fauna Survey" }), expandable: true,
     color: ATLAS_LAYER_COLORS.freewayEcoSurveyFauna, icon: PawPrint,
-    upstream: { status: "catalog_missing", datasets: [], processing: "analytics transportation/freeway_eco_survey_fauna（pulse-data 登記尚未建立，2026-11-24）：保育類依農業部《陸域保育類野生動物名錄》（2019-01-09 修正版）比對，7,677 筆座標模糊至約 1 km 方格", note: "交通部高速公路局 data.gov.tw 31285；84,678 筆（2008–2021）；保育類位置為 1 km 方格中心、非實際位置，不可做點對點距離計算；紀錄量反映調查努力。" },
+    upstream: { status: "verified", datasets: [{ datasetId: "freeway_eco_survey_fauna", confidence: "HIGH" }], processing: "analytics transportation/freeway_eco_survey_fauna（2026-11-25 發包入倉）：保育類依農業部《陸域保育類野生動物名錄》（2019-01-09 修正版）比對，7,677 筆座標模糊至約 1 km 方格", note: "交通部高速公路局 data.gov.tw 31285；84,678 筆（2008–2021）；保育類位置為 1 km 方格中心、非實際位置，不可做點對點距離計算；紀錄量反映調查努力。" },
     dataClass: "B", source: { kind: "pmtiles", sourceId: "freeway-eco-survey-fauna", url: "./geo/freeway_eco_survey_fauna_20261124.pmtiles", sourceLayer: "freeway_eco_survey_fauna", minzoom: 5, maxzoom: 14 },
     legend: "freewayEcoSurveyFauna", popup: "freewayEcoSurveyFauna", params: { count: 4, kinds: ["palette", "multiSelect", "slider", "slider"] },
     description: "國道沿線動物生態調查 8.5 萬筆（2008–2021；保育類位置已模糊至約 1 公里方格；拉遠為熱區，11 級起畫逐筆）。",
