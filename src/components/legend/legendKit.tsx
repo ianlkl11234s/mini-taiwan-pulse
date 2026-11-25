@@ -258,12 +258,13 @@ export function SwatchSteps({ colors, breaks }: { colors: readonly string[]; bre
   const stagger = breaks ? swatchStepsStaggered(colors.length, breaks) : false;
   return (
     <div>
-      <div style={{ display: "grid", gridAutoFlow: "column", gridAutoColumns: "1fr", gap: 1, ...(fillAlpha === null ? {} : { border: `1px solid ${t.border}` }) }}>
+      <div style={{ display: "grid", gridAutoFlow: "column", gridAutoColumns: "minmax(0, 1fr)", gap: 1, ...(fillAlpha === null ? {} : { border: `1px solid ${t.border}` }) }}>
         {colors.map((c, i) => <span key={`${c}:${i}`} style={{ height: LEGEND_SWATCH.steps.height, background: legendCompositeColor(c, fillAlpha, t.isDark) }} />)}
       </div>
       {breaks && stagger && (
-        // 每個刻度對齊自己那一格的中央；奇偶交錯兩列，同一列相鄰刻度之間空一格，長字不會互相擠到
-        <div data-stagger="" style={{ display: "grid", gridTemplateColumns: `repeat(${colors.length}, 1fr)`, rowGap: 0, marginTop: 2, fontSize: FONT_SIZE.xs, color: t.textMuted }}>
+        // 每個刻度對齊自己那一格的中央；奇偶交錯兩列，同一列相鄰刻度之間空一格，長字不會互相擠到。
+        // 軌道要 minmax(0,1fr)（bare 1fr 的最小值是內容寬，nowrap 長字會把自己那欄撐寬、與上方色塊錯位），欄距與色塊列一致；長字往空的鄰格延伸
+        <div data-stagger="" style={{ display: "grid", gridTemplateColumns: `repeat(${colors.length}, minmax(0, 1fr))`, columnGap: 1, rowGap: 0, marginTop: 2, fontSize: FONT_SIZE.xs, color: t.textMuted }}>
           {breaks.map((b, i) => <span key={i} style={{ gridColumn: i + 1, gridRow: (i % 2) + 1, justifySelf: i === 0 ? "start" : i === breaks.length - 1 ? "end" : "center", whiteSpace: "nowrap" }}><LegendNum>{b}</LegendNum></span>)}
         </div>
       )}

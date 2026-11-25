@@ -24,6 +24,14 @@ describe("SwatchSteps 刻度太長時交錯兩列", () => {
     expect(html).toContain("grid-column:2;grid-row:2");
     expect(html).toContain("grid-column:3;grid-row:1");
   });
+  it("review #1241：標籤軌與色塊軌同為 minmax(0,1fr)、欄距相同，長標籤不會把自己那欄撐寬而與色塊錯位", () => {
+    const html = renderToStaticMarkup(createElement(SwatchSteps, { colors: relief.map((s) => s.color), breaks: relief.map((s) => s.label) }));
+    const n = relief.length;
+    expect(html).toContain(`grid-template-columns:repeat(${n}, minmax(0, 1fr))`);
+    expect(html).toContain("grid-auto-columns:minmax(0, 1fr)");
+    expect(html).not.toMatch(/repeat\(\d+, 1fr\)/);
+    expect(html.match(/(?:column-gap|gap):1px/g)!.length).toBeGreaterThanOrEqual(2);
+  });
   it("不交錯時刻度之間仍留間距", () => {
     const html = renderToStaticMarkup(createElement(SwatchSteps, { colors: thirds.map((s) => s.color), breaks: thirds.map((s) => s.label) }));
     expect(html).not.toContain("data-stagger");
