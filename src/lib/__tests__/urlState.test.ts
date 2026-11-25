@@ -620,6 +620,16 @@ describe("兩國並排 cmp=2（G2-1，選填欄位、不升版）", () => {
     expect(parseUrlState(url.slice(url.indexOf("?"))).compare).toEqual({ mode: "countries", rightCountry: "JP", rightCamera: { center: [139.7, 35.68], zoom: 10, bearing: 0, pitch: 0 } });
   });
 
+  it("當地同時刻（G2-4）：cmpt=local 往返；同一刻不寫；拉桿與未知值不收", () => {
+    const compare = { mode: "countries" as const, rightCountry: "GB" as const, timeAlign: "local" as const };
+    const url = buildUrl({ camera, compare }, "/");
+    expect(url).toContain("cmpt=local");
+    expect(parseUrlState(url.slice(url.indexOf("?"))).compare).toEqual(compare);
+    expect(buildUrl({ camera, compare: { mode: "countries", rightCountry: "GB" } }, "/")).not.toContain("cmpt");
+    expect(parseUrlState(`?${V}&cmp=2&cmpc=gb&cmpt=utc`).compare).toEqual({ mode: "countries", rightCountry: "GB" });
+    expect(parseUrlState(`?${V}&cmp=1&cmpt=local`).compare).toEqual({});
+  });
+
   it("右側不收台灣與未知國碼；鏡頭壞掉整個不收；cmp=1 舊網址不受影響", () => {
     expect(parseUrlState(`?${V}&cmp=2&cmpc=tw&cmpv=121,25,10`).compare).toEqual({ mode: "countries" });
     expect(parseUrlState(`?${V}&cmp=2&cmpc=zz`).compare).toEqual({ mode: "countries" });
@@ -627,5 +637,14 @@ describe("兩國並排 cmp=2（G2-1，選填欄位、不升版）", () => {
     expect(parseUrlState(`?${V}&cmp=2&cmpc=gb&cmpv=-0.1,51.5`).compare).toEqual({ mode: "countries", rightCountry: "GB" });
     expect(parseUrlState(`?${V}&cmp=1&cmpc=gb&cmpsl=0`).compare).toEqual({});
     expect(parseUrlState(`?${V}&cmp=3&cmpc=gb`).compare).toBeUndefined();
+  });
+});
+
+describe("統計選取走哪條網址欄位（PR #1212 r4676209967、PR #1221 r4677347309）", () => {
+  it("兩國並排與無比較用單地圖 sel；拉桿比較用 cmpdl／cmpdr", async () => {
+    const { usesSingleMapSelection } = await import("../urlState");
+    expect(usesSingleMapSelection(undefined)).toBe(true);
+    expect(usesSingleMapSelection({ mode: "countries" })).toBe(true);
+    expect(usesSingleMapSelection({})).toBe(false);
   });
 });

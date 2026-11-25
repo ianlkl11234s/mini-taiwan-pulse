@@ -11,7 +11,7 @@
 import { supabase } from "../lib/supabase";
 import { withLoading } from "../lib/loadingRegistry";
 import { MICRO_SENSOR_NO_DATA_COLOR, microSensorPm25Color } from "./microSensorTypes";
-import type { L3 } from "./caInfraTypes";
+import type { L3 } from "../countries/ca/caInfraTypes";
 
 export const PH_OPENAQ_LATEST_RPC = "get_openaq_latest";
 export const PH_OPENAQ_SERIES_RPC = "get_openaq_location_series";

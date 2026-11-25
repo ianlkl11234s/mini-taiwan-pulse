@@ -15,9 +15,9 @@
  *   properties 帶 `compare_side: "right"`，選取圈畫在右圖。
  * - **卸載順序**：React 刪除子樹時由上而下跑 cleanup，本元件的 cleanup 早於子層 Host；`map.remove()` 延到
  *   microtask，讓右國 hook 的 cleanup 先拿到仍存活的地圖（不必逐支補 try/catch）。
- * - Agent（MCP）只操作主地圖（站主決定 7，G2-3 另做）。
+ * - Agent（MCP）：map_context 另給 `compare.right`（右圖鏡頭、範圍、摘要），指令可帶 `side: "right"` 移動右圖、在右圖畫結果（G2-3，`research/compareBridge.ts`）。
  */
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import mapboxgl from "mapbox-gl";
 import type { FeatureInfo } from "../types";
 import { resolvedCjkFont } from "../styles/designTokens";
@@ -36,11 +36,15 @@ import { compareRightMap } from "./compareRightMap";
 import { sessionTracker } from "../lib/sessionTracker";
 import { loadingRegistry } from "../lib/loadingRegistry";
 import { LayerHosts } from "../layers/LayerHost";
+import { rightClock, SideClockContext } from "../state/sideClock";
 import { useOverlayParams } from "../layers/layerParamsAccess";
 import { OVERLAY_REGISTRY } from "./overlayRegistry";
 import { isRightSideKey } from "./compareCountrySides";
-import { addAllOverlays, hydrateOverlayIfNeeded, isOverlayVisible, refreshFallbackHydratedOverlay, resetOverlayHydration, setOverlayTaskSuffix, setOverlayVisible, updateAllOverlayThemes } from "./overlayManager";
+import { useCountryPackVersion } from "../countries/packs";
+import { addAllOverlays, addLateOverlays, hydrateOverlayIfNeeded, isOverlayVisible, refreshFallbackHydratedOverlay, resetOverlayHydration, setOverlayTaskSuffix, setOverlayVisible, updateAllOverlayThemes } from "./overlayManager";
 import { createJpHeightLifecycle } from "./jpHeightLifecycle";
+import { sampleRasterProbes } from "../data/rasterProbeSampler";
+import { registerOverlaySourceReset } from "../lib/ownerGateRevoke";
 import { onLayerAssetIndexReady } from "../data/layerAssetIndex";
 import type { AppLayerHostDeps } from "../layers/layerHostDeps";
 import type { CountryCamera, CountryCode } from "../constants/countries";
@@ -89,11 +93,19 @@ export function CountryCompareMapView({ mainMap, rightCountry, styleUrl, pureBla
   const hiddenLabelsRef = useRef(new Set<string>());
   const onFeatureInfoRef = useRef(onFeatureInfo);
   const loadingLabelRef = useRef(t("compare.rightMapLoading"));
-  // overlay 型右國圖層（右圖只管右國那幾筆；換右國由 key 重建，掛載時算一次即可）
+  // overlay 型右國圖層（右圖只管右國那幾筆；換右國由 key 重建）。右國的國家包可能在右圖建好後才載入（B1 P5b），
+  // 所以跟著國家包版本重算，新到的由下面的 effect 補進圖上
   const overlayParams = useOverlayParams();
   const overlayParamsRef = useRef(overlayParams);
   overlayParamsRef.current = overlayParams;
-  const [rightOverlays] = useState(() => OVERLAY_REGISTRY.filter((config) => isRightSideKey(String(config.id), rightCountry)));
+  const packVersion = useCountryPackVersion();
+  const rightOverlays = useMemo(
+    () => OVERLAY_REGISTRY.filter((config) => isRightSideKey(String(config.id), rightCountry)),
+    // packVersion：國家包併入 registry（原地 splice）後重算
+    [rightCountry, packVersion],
+  );
+  const rightOverlaysRef = useRef(rightOverlays);
+  rightOverlaysRef.current = rightOverlays;
   const jpHeightRef = useRef<ReturnType<typeof createJpHeightLifecycle> | null>(null);
   isDarkRef.current = isDarkTheme;
   pureBlackRef.current = pureBlack;
@@ -134,6 +146,7 @@ export function CountryCompareMapView({ mainMap, rightCountry, styleUrl, pureBla
       setBasemapLabelsVisible(map, labelsRef.current, hiddenLabelsRef.current);
       ensureTerrainIfTilted(map);
       // 右國 overlay：每次 style.load（含換底圖）重建 source／layer，這張圖的 hydrate 紀錄清掉重抓
+      const rightOverlays = rightOverlaysRef.current;
       if (rightOverlays.length === 0) return;
       resetOverlayHydration(map);
       const vis = layerVisibilityStore.getAll();
@@ -146,10 +159,17 @@ export function CountryCompareMapView({ mainMap, rightCountry, styleUrl, pureBla
     // 資產索引就緒：先前以部署時版本 hydrate 的改抓 CDN（同主地圖）
     const offAssetIndex = onLayerAssetIndexReady(() => {
       const vis = layerVisibilityStore.getAll();
-      for (const config of rightOverlays) {
+      for (const config of rightOverlaysRef.current) {
         if (!config.pmtiles && !config.dynamicData) refreshFallbackHydratedOverlay(map, config, isOverlayVisible(config, vis, overlayParamsRef.current));
       }
     });
+    // 撤權（登出／失去站主權限）：右圖的私人 overlay source 也要清成空資料，不只隱藏圖層
+    // （主地圖那份在 MapView；hook 只清快取與 listener，不會清這張圖上的 source）
+    const offOwnerReset = registerOverlaySourceReset(
+      OVERLAY_REGISTRY.map((config) => config.id as string),
+      { getSource: (id) => (map.style ? map.getSource(id) : undefined) },
+      () => rightOverlaysRef.current,
+    );
     // 地形各自判斷（兩國各自傾斜，不鏡射主圖）
     map.on("pitch", () => ensureTerrainIfTilted(map));
 
@@ -188,10 +208,32 @@ export function CountryCompareMapView({ mainMap, rightCountry, styleUrl, pureBla
     });
 
     // 右半的點擊：與主地圖共用 GIS_LAYERS 命中（右圖只有右國圖層與右國統計）；沒命中＝關 popup（同主地圖空白處）
+    let rightClickSeq = 0;
     map.on("click", (e) => {
       recordSelectionClick([e.lngLat.lng, e.lngLat.lat]);
+      const clickId = ++rightClickSeq;
       const hit = gisHitCandidates(map, e.point).next();
-      if (hit.done) { onFeatureInfoRef.current(null); return; }
+      if (hit.done) {
+        // 值編碼 raster（日本樹冠高度，manifest popup: rasterProbe）不能 queryRenderedFeatures：沒命中向量時改讀像素
+        if (shownOnRight("jpCanopyHeight", layerVisibilityStore.getVisibility("jpCanopyHeight"))) {
+          const { lng, lat } = e.lngLat;
+          void sampleRasterProbes(
+            { urbanHeat: false, canopyHeight: false, jpCanopyHeight: true }, lng, lat, map.getZoom(),
+            new Set(Object.keys(map.getStyle?.()?.sources ?? {}).filter((id) => id.startsWith("jp-canopy-height--"))),
+          ).then((probe) => {
+            if (clickId !== rightClickSeq) return; // 之後又點了別處（或其他選取接手）
+            if (!probe) { onFeatureInfoRef.current(null); return; }
+            onFeatureInfoRef.current({
+              layerType: "rasterProbe",
+              properties: { urbanHeat: null, canopyHeight: null, jpCanopyHeight: probe.jpCanopyHeight, compare_side: "right" },
+              coords: [lng, lat],
+            });
+            sessionTracker.log("feature_click", { layerType: "rasterProbe", compareSide: "right" });
+          });
+          return;
+        }
+        onFeatureInfoRef.current(null); return;
+      }
       const { type, features } = hit.value;
       const { properties, coords } = gisHitProperties(type, features[0]!, features, e.lngLat);
       onFeatureInfoRef.current({ layerType: type, properties: { ...properties, compare_side: "right" }, coords });
@@ -219,6 +261,7 @@ export function CountryCompareMapView({ mainMap, rightCountry, styleUrl, pureBla
     return () => {
       endLoading();
       offAssetIndex();
+      offOwnerReset();
       jpHeight.dispose();
       jpHeightRef.current = null;
       cancelAnimationFrame(hoverFrame);
@@ -252,6 +295,19 @@ export function CountryCompareMapView({ mainMap, rightCountry, styleUrl, pureBla
       map.setStyle(styleUrl, { diff: false } as never);
     }
   }, [styleUrl, pureBlack, ready]);
+
+  // 右國國家包晚到的 overlay：右圖已就緒就照 registry 順序補建（已在圖上的略過）
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !ready || rightOverlays.length === 0) return;
+    const vis = layerVisibilityStore.getAll();
+    try {
+      addLateOverlays(map, rightOverlays, rightOverlays, isDarkRef.current, vis, overlayParamsRef.current, { deferJpHeightSources: true });
+      jpHeightRef.current?.refresh(rightOverlays, vis, isDarkRef.current, overlayParamsRef.current);
+    } catch (error) {
+      console.warn("[overlay] 右圖國家包 overlay 補建失敗（換底圖途中會由 style.load 補上）", error);
+    }
+  }, [ready, rightOverlays]);
 
   // 右國 overlay 開關：跟著圖層開關 store（同主地圖 applyOverlayVisibility，只管右國那幾筆）
   useEffect(() => {
@@ -317,5 +373,10 @@ function RightCountryLayers({ mapRef, rightCountry, hostDeps, featureInfo }: {
   // 選取圈只畫右圖點出來的
   useSelectionRing(mapRef, featureInfo?.properties?.compare_side === "right" ? featureInfo : null);
   // LayerHosts 逐欄位比較 deps：mapRef 換成右圖、mapPrepared 恆為 true（右圖 load 後才掛）
-  return <LayerHosts role="right" rightCountry={rightCountry} deps={{ ...hostDeps, mapRef, mapPrepared: true }} />;
+  // 右圖的圖層讀右側時鐘（當地同時刻時換算成右國同一個當地鐘點；G2-4，state/sideClock.ts）
+  return (
+    <SideClockContext.Provider value={rightClock}>
+      <LayerHosts role="right" rightCountry={rightCountry} deps={{ ...hostDeps, mapRef, mapPrepared: true }} />
+    </SideClockContext.Provider>
+  );
 }

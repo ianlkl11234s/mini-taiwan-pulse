@@ -9,6 +9,13 @@ import { renderKeysModule } from "./keysCodegen";
 import { translate } from "../translate";
 import { localizeLayerName, localizeSectionTitle } from "../layerText";
 import { collectParamTexts } from "./paramTexts";
+import { loadAllPacks } from "../../countries/packs";
+import { layerFileForKey } from "./layerLocaleFiles";
+import { renderLocaleFileIndexModule, collectForeignFiles } from "./localeFileIndexCodegen";
+import { BOOT_FILES, filesForKey } from "../localeFiles";
+
+// 全部圖層（含延後載入的國家包，B1 P5a）一起驗
+await loadAllPacks();
 
 const LOCALES_DIR = join(__dirname, "..", "locales");
 
@@ -24,8 +31,10 @@ function readLocaleFile(locale: string, file: string): Record<string, string> {
 const UI_FILES = readdirSync(join(LOCALES_DIR, DEFAULT_LOCALE)).filter((f) => f.endsWith(".json"));
 /** 名稱對照檔：只有非預設語系才有，預設語系的名稱就在 manifest */
 const NAME_FILES = ["layers.json", "themes.json", "qualifiers.json", "enums.json", "popupHeaders.json", "params.json"];
-/** 名稱對照檔也可依主題拆：enums.<domain>.json（只在外文語系） */
-const isNameFile = (file: string) => NAME_FILES.includes(file) || /^enums\.[\w-]+\.json$/.test(file);
+/** 名稱對照檔也可依主題拆：enums.<domain>.json；外國圖層名依國家拆：layers.<cc>.json（只在外文語系） */
+const isNameFile = (file: string) => NAME_FILES.includes(file) || /^enums\.[\w-]+\.json$/.test(file) || /^layers\.[a-z]{2}\.json$/.test(file);
+/** 某語系的所有圖層名檔（layers.json＋layers.<cc>.json） */
+const layerFilesOf = (locale: string) => readdirSync(join(LOCALES_DIR, locale)).filter((f) => /^layers(\.[a-z]{2})?\.json$/.test(f));
 
 describe("locale parity", () => {
   it("每個支援語系都有資料夾", () => {
@@ -96,12 +105,59 @@ describe("locale parity", () => {
     expect(UI_FILES.filter(isNameFile)).toEqual([]);
   });
 
-  it("layers.json 只能用 manifest 上存在、有名稱的 key", () => {
+  it("layers*.json 只能用 manifest 上存在、有名稱的 key", () => {
     const named = new Set(Object.values(LAYER_MANIFEST).filter((e) => e.section).map((e) => `layer.${e.key}`));
     for (const locale of SUPPORTED_LOCALES) {
-      const unknown = Object.keys(readLocaleFile(locale, "layers.json")).filter((k) => !named.has(k));
-      expect(unknown, `${locale}/layers.json 有不存在的圖層 key`).toEqual([]);
+      for (const file of layerFilesOf(locale)) {
+        const unknown = Object.keys(readLocaleFile(locale, file)).filter((k) => !named.has(k));
+        expect(unknown, `${locale}/${file} 有不存在的圖層 key`).toEqual([]);
+      }
     }
+  });
+
+  it("外國圖層名放在該國的 layers.<cc>.json（跟著國家包載入；放錯跑 npx vite-node scripts/i18n/split-layer-locales.ts）", () => {
+    for (const locale of SUPPORTED_LOCALES.filter((l) => l !== DEFAULT_LOCALE)) {
+      const misplaced: string[] = [];
+      for (const file of layerFilesOf(locale)) {
+        for (const key of Object.keys(readLocaleFile(locale, file))) {
+          const want = `${layerFileForKey(key)}.json`;
+          if (want !== file) misplaced.push(`${key}：在 ${file}，應在 ${want}`);
+        }
+      }
+      expect(misplaced, `${locale} 圖層名放錯檔`).toEqual([]);
+    }
+  });
+
+  it("英日文的檔案清單相同（分批載入依檔名找檔）", () => {
+    const list = (locale: string) => readdirSync(join(LOCALES_DIR, locale)).filter((f) => f.endsWith(".json")).sort();
+    const foreign = SUPPORTED_LOCALES.filter((l) => l !== DEFAULT_LOCALE);
+    for (const locale of foreign.slice(1)) expect(list(locale), locale).toEqual(list(foreign[0]!));
+  });
+
+  it("英日文圖層名 key 完全相同（日文介面不會為了缺字去抓英文圖層名檔，缺了就直接顯示中文）", () => {
+    const foreign = SUPPORTED_LOCALES.filter((l) => l !== DEFAULT_LOCALE);
+    for (const file of layerFilesOf(foreign[0]!)) {
+      const base = Object.keys(readLocaleFile(foreign[0]!, file)).sort();
+      for (const locale of foreign.slice(1)) expect(Object.keys(readLocaleFile(locale, file)).sort(), `${locale}/${file}`).toEqual(base);
+    }
+  });
+
+  it("localeFileIndex.generated.ts 是最新的（改了英日文 JSON 請跑 npx tsx scripts/i18n/gen-keys.ts）", () => {
+    const root = join(__dirname, "..", "..", "..");
+    expect(readFileSync(join(root, "src/i18n/localeFileIndex.generated.ts"), "utf8")).toBe(renderLocaleFileIndexModule(root));
+  });
+
+  it("每個英日文 key 查不到時都找得到自己的檔（否則會一直顯示中文）", () => {
+    const root = join(__dirname, "..", "..", "..");
+    const files = collectForeignFiles(root);
+    const exists = (f: string) => files.has(f);
+    const lost: string[] = [];
+    for (const [file, keys] of files) {
+      if (BOOT_FILES.includes(file) || /^layers(\.[a-z]{2})?$/.test(file)) continue; // 開站檔一直在；圖層名跟國家包走
+      for (const key of keys) if (!filesForKey(key, exists).includes(file)) lost.push(`${file}: ${key}`);
+    }
+    expect(lost.slice(0, 20), `共 ${lost.length} 個`).toEqual([]);
+    for (const file of BOOT_FILES) expect(exists(file), `開站檔 ${file} 不存在`).toBe(true);
   });
 
   it("popupHeaders.json 只能用說明框有的 layerType", () => {

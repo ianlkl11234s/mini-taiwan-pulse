@@ -8,6 +8,10 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { LAYER_MANIFEST } from "../../data/layerManifest";
 import type { LayerManifestEntry } from "../../data/layerManifest";
+import { loadAllPacks } from "../../countries/packs";
+
+// 全部圖層（含延後載入的國家包，B1 P5a）一起驗
+await loadAllPacks();
 
 const CSV = resolve(__dirname, "../../../docs/features/general-analysis/layer-status.csv");
 const WAREHOUSE_STATUSES = new Set(["warehouse", "statistics", "no_upstream", "display_only", "missing"]);

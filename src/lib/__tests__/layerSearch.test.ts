@@ -2,6 +2,10 @@ import { describe, expect, it } from "vitest";
 import { getLayerSearchIndex, getLayerSearchLabels, searchLayers } from "../layerSearch";
 import { COMPARISON_STATISTICS_KEYS } from "../../data/comparisonStatisticsRecipes";
 import { isDataSourceBrowserVisible } from "../../data/statisticsDataSources";
+import { loadAllPacks } from "../../countries/packs";
+
+// 全部圖層（含延後載入的國家包，B1 P5）一起驗
+await loadAllPacks();
 
 describe("layerSearch", () => {
   it("builds the index lazily and once; labels match the index", () => {

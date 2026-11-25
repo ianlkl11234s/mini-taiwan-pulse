@@ -3,6 +3,7 @@ import { GATED_LAYERS } from "../../components/sidebar/layerCatalog";
 import { getLayerSearchIndex } from "../../lib/layerSearch";
 import { Slider } from "../../components/controls/Slider";
 import { LIGHT } from "../../styles/designTokens";
+import { allPacksReady, useAllCountryPacks } from "../../countries/packs";
 import {
   fingerprintSearchIndex,
   parseJevRunReceipt,
@@ -30,9 +31,12 @@ export function LayerScreeningApp() {
   const [relevanceThreshold, setRelevanceThreshold] = useState(DEFAULT_RELEVANCE_THRESHOLD);
   const [currentIndexFingerprint, setCurrentIndexFingerprint] = useState<string | null>(null);
 
+  // 篩選對象是全部圖層（含國家包，B1 P5a）：先載入全部國家包，載完重算候選與索引指紋
+  const packVersion = useAllCountryPacks(true);
+  const packsReady = allPacksReady();
   const candidates = useMemo(
     () => getLayerSearchIndex().filter((item) => !GATED_LAYERS.has(item.key)),
-    [],
+    [packVersion],
   );
   const layers = useMemo(() => receipt
     ? receiptLayersForCandidates(receipt, candidates).map((layer) => ({
@@ -71,7 +75,9 @@ export function LayerScreeningApp() {
   };
 
   useEffect(() => {
-    void fingerprintSearchIndex(getLayerSearchIndex()).then(setCurrentIndexFingerprint);
+    if (packsReady) void fingerprintSearchIndex(getLayerSearchIndex()).then(setCurrentIndexFingerprint);
+  }, [packsReady]);
+  useEffect(() => {
     loadReceipt();
   }, []);
 

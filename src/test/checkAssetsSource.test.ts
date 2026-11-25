@@ -1,6 +1,6 @@
 /** check-assets 的 R2／S3 取檔決策（scripts/deploy/asset-source.mjs，CI-10 方案 A）；注入假的取檔函式，不碰網路與 git。 */
 import { describe, expect, it, vi } from "vitest";
-import { memoBaseLock, resolveAsset, type AssetEntry, type FetchResult } from "../../scripts/deploy/asset-source.mjs";
+import { changedLockEntries, checkPresence, memoBaseLock, resolveAsset, type AssetEntry, type FetchResult, type HeadResult } from "../../scripts/deploy/asset-source.mjs";
 
 const entry: AssetEntry = { path: "public/x/new_v2.pmtiles", sha256: "a".repeat(64), bytes: 100, s3_key: "deploy-assets/x/new_v2.pmtiles" };
 const good: FetchResult = { status: 200, sha256: entry.sha256, bytes: entry.bytes };
@@ -95,5 +95,80 @@ describe("memoBaseLock", () => {
   it("讀失敗時丟錯", async () => {
     const has = memoBaseLock(() => { throw new Error("no master"); });
     await expect(has("public/a.json")).rejects.toThrow("no master");
+  });
+});
+
+// CI-11：lock 新增／變更的條目都要真的有檔（公開空間或 S3），只做 HEAD
+describe("changedLockEntries", () => {
+  const base = [
+    { path: "public/a.pmtiles", sha256: "1".repeat(64), bytes: 10 },
+    { path: "public/b.json", sha256: "2".repeat(64), bytes: 20 },
+  ];
+  it("只挑新增或內容變更的 r2 條目", () => {
+    const cur = [
+      { ...base[0]!, delivery: "r2" }, // 沒變
+      { ...base[1]!, sha256: "3".repeat(64), delivery: "r2" }, // 同路徑改內容
+      { path: "public/c.pmtiles", sha256: "4".repeat(64), bytes: 30, delivery: "r2" }, // 新增
+      { path: "public/d.pmtiles", sha256: "5".repeat(64), bytes: 40, delivery: "s3" }, // 不是 r2
+    ];
+    expect(changedLockEntries(cur, base).map((e) => e.path)).toEqual(["public/b.json", "public/c.pmtiles"]);
+  });
+});
+
+describe("checkPresence", () => {
+  const sized = (bytes: number | null, status = 200): HeadResult => ({ status, bytes });
+  const presence = (over: Partial<Parameters<typeof checkPresence>[1]> = {}) => ({
+    headPublic: vi.fn(async () => ({ status: 404 }) as HeadResult),
+    s3Configured: true,
+    headS3: vi.fn(async () => ({ status: 404 }) as HeadResult),
+    ...over,
+  });
+
+  it("公開空間有且大小相符 → 綠，不查 S3", async () => {
+    const d = presence({ headPublic: vi.fn(async () => sized(entry.bytes)) });
+    expect(await checkPresence(entry, d)).toEqual({ ok: true, source: "public" });
+    expect(d.headS3).not.toHaveBeenCalled();
+  });
+
+  it("只有 S3、大小相符（還沒發版）→ 綠", async () => {
+    const d = presence({ headS3: vi.fn(async () => sized(entry.bytes)) });
+    expect(await checkPresence(entry, d)).toEqual({ ok: true, source: "s3" });
+  });
+
+  it("公開空間是舊版（同路徑改內容）、S3 是新版 → 綠", async () => {
+    const d = presence({ headPublic: vi.fn(async () => sized(entry.bytes - 1)), headS3: vi.fn(async () => ({ status: 200, bytes: entry.bytes, sha256: entry.sha256 })) });
+    expect(await checkPresence(entry, d)).toEqual({ ok: true, source: "s3" });
+  });
+
+  it("兩邊都沒有 → 紅，說明還沒上傳", async () => {
+    const r = await checkPresence(entry, presence({ headS3: vi.fn(async () => ({ status: 403 }) as HeadResult) }));
+    expect(r.ok).toBe(false);
+    expect(!r.ok && r.reason).toMatch(/公開空間沒有.*S3 .*也沒有.*還沒上傳/);
+  });
+
+  it("S3 大小不符或 sha256 metadata 不符 → 紅", async () => {
+    const small = await checkPresence(entry, presence({ headS3: vi.fn(async () => sized(entry.bytes + 5)) }));
+    expect(!small.ok && small.reason).toMatch(/大小不符/);
+    const otherSha = await checkPresence(entry, presence({ headS3: vi.fn(async () => ({ status: 200, bytes: entry.bytes, sha256: "f".repeat(64) })) }));
+    expect(!otherSha.ok && otherSha.reason).toMatch(/sha256 與 lock 不符/);
+  });
+
+  it("公開空間沒有、又沒有 S3 金鑰（fork PR）→ 紅，不靜默通過", async () => {
+    const d = presence({ s3Configured: false });
+    const r = await checkPresence(entry, d);
+    expect(!r.ok && r.reason).toMatch(/沒有 S3 唯讀金鑰/);
+    expect(d.headS3).not.toHaveBeenCalled();
+  });
+
+  it("公開空間有檔但沒回大小、也沒有 S3 金鑰 → 紅", async () => {
+    const r = await checkPresence(entry, presence({ s3Configured: false, headPublic: vi.fn(async () => sized(null)) }));
+    expect(!r.ok && r.reason).toMatch(/沒回大小/);
+  });
+
+  it("公開空間連線失敗、S3 有 → 綠；S3 也失敗 → 紅並帶錯誤", async () => {
+    const down = vi.fn(async () => ({ status: 0, error: "逾時" }) as HeadResult);
+    expect(await checkPresence(entry, presence({ headPublic: down, headS3: vi.fn(async () => sized(entry.bytes)) }))).toEqual({ ok: true, source: "s3" });
+    const r = await checkPresence(entry, presence({ headPublic: down, headS3: down }));
+    expect(!r.ok && r.reason).toMatch(/查 S3 .*失敗（逾時）/);
   });
 });

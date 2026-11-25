@@ -10,7 +10,7 @@ import {
 } from "../zonedTime";
 import { taipeiDateKeyFromMs, taipeiMidnightMs } from "../taipeiDay";
 import { taipeiParts } from "../../components/timeline/timelineAxis";
-import { londonClock } from "../../data/gbRailReplay";
+import { londonClock } from "../../countries/gb/gbRailReplay";
 
 // 舊實作原文（本檔作為「逐字等價」的參照，不可改成呼叫新 helper）
 const legacyDateKey = (ms: number) => new Date(ms).toLocaleDateString("sv-SE", { timeZone: "Asia/Taipei" });

@@ -22,6 +22,10 @@ import type { OverlayConfig } from "../../types";
 import { OVERLAY_REGISTRY } from "../overlayRegistry";
 import { LAYER_MANIFEST } from "../../data/layerManifest";
 import { loadingRegistry } from "../../lib/loadingRegistry";
+import { loadAllPacks } from "../../countries/packs";
+
+// 全部圖層（含延後載入的國家包，B1 P5a）一起驗
+await loadAllPacks();
 
 // ── 純函式 ──
 

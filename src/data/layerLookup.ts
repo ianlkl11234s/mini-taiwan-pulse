@@ -5,17 +5,32 @@
  * - 本階段外國 manifest 仍靜態存在，所以結果與直接讀 manifest 完全相同（layerIndex.test 逐欄驗證）；
  *   P5 外國 manifest 搬進國家包後，這裡不用改，讀者就不再依賴外國 manifest。
  * - `getLayerEntry(key)` 是取完整 manifest entry 的唯一入口：P5 起外國 entry 只在國家包載入後才有，
- *   屆時這裡改成包沒載入就 throw／觸發載入（本階段同步回傳）。ESLint 禁直接 import LAYER_MANIFEST 留到 P5。
+ *   B1 P5a 起中國、英國的 entry 在國家包，包沒載入時見 getLayerEntry 的處理。
  */
 import type { LucideIcon } from "lucide-react";
 import type { CountryCode } from "../constants/countries";
 import { isCountryCode } from "../constants/countries";
 import { LAYER_MANIFEST, MANIFEST_KEYS, manifestColors, manifestIcons, type LayerManifestEntry, type LayerName, type ManifestKey } from "./layerManifest";
 import { indexColors, indexIcons, isIndexedKey, layerIndexRow, INDEXED_LAYER_KEYS } from "./layerIndex";
+import { ensureCountryPack, isCountryPackReady } from "../countries/packs";
 
-/** 完整 manifest entry（含外國）。P5 前同步回傳。 */
+/**
+ * 完整 manifest entry（含外國）。B1 P5a 起國家包的 entry 要等包載入：
+ * entry 不在、而索引說它屬於還沒載入的國家包 → 開發環境直接 throw（呼叫端漏了 ensureCountryPack），
+ * 正式站記錄錯誤並觸發載入、這次回 undefined（呼叫端照「沒有這層」處理，載完 useCountryPackVersion 會重新 render）。
+ * 判斷看「entry 不在」而不是「國家有包」：同一國留在靜態登記簿的 key（例：英國統計 statsGb*）照常回傳。
+ */
 export function getLayerEntry(key: string): LayerManifestEntry | undefined {
-  return (LAYER_MANIFEST as Record<string, LayerManifestEntry | undefined>)[key];
+  const entry = (LAYER_MANIFEST as Record<string, LayerManifestEntry | undefined>)[key];
+  if (entry) return entry;
+  const cc = layerIndexRow(key)?.country;
+  if (cc && !isCountryPackReady(cc)) {
+    const message = `[countryPack] ${key} 屬於${cc}國家包，還沒載入就讀 manifest（請先 ensureCountryPack("${cc}")）`;
+    if (import.meta.env?.DEV) throw new Error(message);
+    console.error(message);
+    void ensureCountryPack(cc).catch(() => undefined);
+  }
+  return undefined;
 }
 
 /** 不由索引提供的 manifest key（TW／WORLD／SIM／orphan）。 */

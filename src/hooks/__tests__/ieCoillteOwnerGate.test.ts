@@ -8,14 +8,16 @@ const rpc = vi.fn();
 vi.mock("../../lib/supabase", () => ({ supabase: { rpc: (...args: unknown[]) => rpc(...args) } }));
 
 const { harness, createFakeMap } = await import("./hookHarness");
-const { useIeCoillteLayer, useIeCoillteForestRoadsLayer, resetIeCoillteCacheForTest, snapIeCoillteBounds } = await import("../useIeCoillteLayers");
+const { useIeCoillteLayer, useIeCoillteForestRoadsLayer, resetIeCoillteCacheForTest, snapIeCoillteBounds } = await import("../../countries/ie/useIeCoillteLayers");
 const { GATED_LAYERS, RELEASE_HOLD_LAYERS } = await import("../../components/sidebar/layerCatalog");
 const { EMBED_ALLOWED } = await import("../../embed/embedWhitelist");
 const { parseUrlState, URL_STATE_VERSION } = await import("../../lib/urlState");
 const { isLayerLocked } = await import("../../lib/layerGates");
-const { LAYER_MANIFEST } = await import("../../data/layerManifest");
-const { IE_COILLTE_KEYS, IE_COILLTE_SPEC_BY_KEY, IE_COILLTE_ROADS_MIN_ZOOM, ieCoillteKindFilter, normalizeIeCoillte } = await import("../../data/ieCoillteTypes");
-const { OVERLAY_REGISTRY } = await import("../../map/overlayRegistry");
+// 愛爾蘭已搬成國家包（B1 P5b）：直接讀包裡的 manifest／overlay（這檔 mock 了 react，不能載入整包）
+const { IE_PACK_MANIFEST: LAYER_MANIFEST } = await import("../../countries/ie/manifest");
+const { IE_COILLTE_KEYS, IE_COILLTE_SPEC_BY_KEY, IE_COILLTE_ROADS_MIN_ZOOM, ieCoillteKindFilter, normalizeIeCoillte } = await import("../../countries/ie/ieCoillteTypes");
+const { IE_PACK_OVERLAY_SLOTS } = await import("../../countries/ie/overlays");
+const OVERLAY_REGISTRY = Object.values(IE_PACK_OVERLAY_SLOTS).flat();
 
 const mapRef = { current: null };
 

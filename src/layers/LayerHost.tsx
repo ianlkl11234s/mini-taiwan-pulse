@@ -76,6 +76,7 @@ import { activeRightCountry, useCompareSelector } from "../state/compareStore";
 import { isRightSideKey } from "../map/compareCountrySides";
 import type { CountryCode } from "../constants/countries";
 import type { LayerVisibility } from "../types";
+import { useCountryPackVersion } from "../countries/packs";
 
 type VisRecord = Record<string, boolean>;
 
@@ -185,7 +186,12 @@ export const LayerHosts = memo(function LayerHosts({ deps, role = "main", rightC
     if (!maskCountry) return role === "right" ? () => true : null;
     return role === "right" ? (key) => !isRightSideKey(key, maskCountry) : (key) => isRightSideKey(key, maskCountry);
   }, [role, maskCountry]);
-  const entries = useMemo(() => (role === "right" ? (rightCountry ? rightSideHostEntries(rightCountry) : []) : LAYER_HOOK_REGISTRY), [role, rightCountry]);
+  // 國家包（B1 P5a）載入後 LAYER_HOOK_REGISTRY 原地插入該國 Host：版本號變了就重取（陣列身分不變，useMemo 要靠它）
+  const packVersion = useCountryPackVersion();
+  const entries = useMemo(
+    () => (role === "right" ? (rightCountry ? rightSideHostEntries(rightCountry) : []) : [...LAYER_HOOK_REGISTRY]),
+    [role, rightCountry, packVersion],
+  );
   return (
     <>
       {entries.map(({ id, Host }) => (

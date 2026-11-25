@@ -3,6 +3,10 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { FeatureInfoPanel } from "../../FeatureInfoPanel";
 import type { FeatureInfo } from "../../../types";
+import { loadAllPacks } from "../../../countries/packs";
+
+// 全部圖層（含延後載入的國家包，B1 P5）一起驗
+await loadAllPacks();
 
 /**
  * Phase B/D 的核心邏輯（eyebrow「群組 · 圖層名」對照表、中央 SourceFooter 白名單）

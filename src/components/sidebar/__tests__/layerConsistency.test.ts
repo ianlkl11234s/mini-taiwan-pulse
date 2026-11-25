@@ -62,6 +62,10 @@ import type { ParamControl } from "../../../state/layerParamsControls";
 import { STATISTICS_KEYS } from "../../../data/regionalStatisticsRecipes";
 import { LAYER_MANIFEST, MANIFEST_KEYS, type LayerManifestEntry } from "../../../data/layerManifest";
 import { buildDefaultVisibility } from "../../../state/layerVisibilityStore";
+import { loadAllPacks } from "../../../countries/packs";
+
+// 全部圖層（含延後載入的國家包，B1 P5a）一起驗
+await loadAllPacks();
 
 const entries = MANIFEST_KEYS.map(
   (k) => [k as string, LAYER_MANIFEST[k] as LayerManifestEntry] as const,

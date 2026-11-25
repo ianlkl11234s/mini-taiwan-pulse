@@ -8,7 +8,7 @@ import { EmbedApp } from "./EmbedApp";
 import { localeStore } from "../state/localeStore";
 
 // 嵌入頁依看的人的語系：?lang= ＞ 上次選擇 ＞ zh-TW（本頁沒有語系切換器；目前只影響底圖地名與已翻譯的外框文字）。
-localeStore.init();
+localeStore.init({ allFiles: true }); // 獨立入口：英日文一次載全部翻譯檔（有一次畫好不重畫的文字）
 
 const rootEl = document.getElementById("root");
 if (!rootEl) throw new Error("Root element not found");

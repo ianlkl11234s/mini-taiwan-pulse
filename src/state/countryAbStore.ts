@@ -58,7 +58,10 @@ export function normalizeAb(
   pinned: readonly CountryCode[],
   visible: readonly CountryCode[],
 ): CountryAb | null {
-  const a = current === ab.a || current === ab.b ? ab.a : current;
+  let a = current === ab.a || current === ab.b ? ab.a : current;
+  // A 也要是這個身分看得到的國家（例如站主以中國為 A 後登出）：改用目前國家，仍不可見就關閉
+  if (!visible.includes(a)) a = visible.includes(current) && current !== ab.b ? current : a;
+  if (!visible.includes(a)) return null;
   const b = pickRightCountry(a, pinned, visible, ab.b);
   if (!b) return null;
   return a === ab.a && b === ab.b ? ab : { a, b };
@@ -85,7 +88,7 @@ export function switchAb(
 
 /**
  * 手機寄放的比較狀態（網址用）：顯示中的國家＝左、另一國＝右（台灣不能放右邊，那時不寫 `cmpc`，桌機再挑預設）。
- * 同一個右國時沿用原本寄放的右圖鏡頭與比例尺同步設定。
+ * 同一個右國時沿用原本寄放的右圖鏡頭、比例尺同步與時間對齊設定（手機單地圖本身不換算時間）。
  */
 export function abStash(ab: CountryAb, current: CountryCode, prev: UrlState["compare"]): NonNullable<UrlState["compare"]> {
   const other = abOther(ab, current);
@@ -96,5 +99,7 @@ export function abStash(ab: CountryAb, current: CountryCode, prev: UrlState["com
     ...(right ? { rightCountry: right } : {}),
     ...(keep?.rightCamera ? { rightCamera: keep.rightCamera } : {}),
     ...(keep?.scaleLocked === false ? { scaleLocked: false as const } : {}),
+    // 時間對齊與「哪一國」無關：A↔B 切換（右國改變）時也要保留
+    ...(prev?.mode === "countries" && prev.timeAlign === "local" ? { timeAlign: "local" as const } : {}),
   };
 }

@@ -57,6 +57,61 @@ export async function resolveAsset(entry, deps) {
     : { ok: false, source: "s3", reason: `S3 版本與 lock 不符（bytes ${s3.bytes} vs ${entry.bytes}）；lock 或 S3 檔要重產／重傳` };
 }
 
+// ─────────────── CI-11：lock 新增／變更的條目都要真的有檔 ───────────────
+//
+// 上面的 resolveAsset 只管 deploy/asset-test-files.txt 列的「測試會讀的檔」。CI-11 補上：PR 在 lock 新增或
+// 改了內容（sha256／bytes 不同）的每一筆 delivery=r2 條目，都要能在「公開空間（R2）」或「S3 deploy-assets/」找到
+// 同大小的檔，否則合併後圖層是空的。只做 HEAD（不下載），所以大檔也很快。
+// 公開空間有、大小相符 → 綠；公開空間沒有或是舊版（同路徑改內容、還沒發版）→ 看 S3；S3 有且大小相符（有 sha256
+// metadata 時也要相符）→ 綠（發版時 sync-assets 才同步到公開空間，CI-10 方案 A）；其餘一律紅。
+
+export const UPLOAD_HELP = "補法：python3 scripts/deploy/build-public-assets-lock.py add <路徑> 登記後，用 scripts/deploy/upload-deploy-assets.sh 上傳 S3 deploy-assets/（流程見 docs/ci.md §6a）";
+
+/**
+ * 相對基準 lock 新增或內容變更的 delivery=r2 條目（同路徑、sha256 與 bytes 都沒變的不算）。
+ * @param {Array<{ path: string, sha256: string, bytes: number, delivery?: string }>} entries 目前 lock
+ * @param {Array<{ path: string, sha256: string, bytes: number }>} baseEntries 基準 lock
+ */
+export function changedLockEntries(entries, baseEntries) {
+  const base = new Map(baseEntries.map((e) => [e.path, e]));
+  return entries.filter((e) => {
+    if (e.delivery !== "r2") return false;
+    const b = base.get(e.path);
+    return !b || b.sha256 !== e.sha256 || b.bytes !== e.bytes;
+  });
+}
+
+/**
+ * 單一條目是否「存在且大小相符」。
+ * @param {{ path: string, sha256: string, bytes: number, s3_key?: string }} entry
+ * @param {{
+ *   headPublic: (entry) => Promise<{ status: number, bytes?: number | null, error?: string }>,
+ *   s3Configured: boolean,
+ *   headS3: (entry) => Promise<{ status: number, bytes?: number | null, sha256?: string | null, error?: string }>,
+ * }} deps
+ * @returns {Promise<{ ok: true, source: "public" | "s3" } | { ok: false, reason: string }>}
+ */
+export async function checkPresence(entry, deps) {
+  const pub = await deps.headPublic(entry);
+  if (pub.status === 200 && pub.bytes === entry.bytes) return { ok: true, source: "public" };
+  const pubNote = pub.status === 200
+    ? (pub.bytes == null ? "公開空間有檔但沒回大小" : `公開空間是別的版本（${pub.bytes} bytes，lock 是 ${entry.bytes}）`)
+    : pub.status === 404 ? "公開空間沒有" : `公開空間回應異常（${pub.error ?? `HTTP ${pub.status}`}）`;
+
+  if (!deps.s3Configured) {
+    return { ok: false, reason: `${pubNote}，也沒有 S3 唯讀金鑰可以確認 S3（fork PR 或未設 PULSE_SYNC_S3_* secret），無法證明檔案已上傳` };
+  }
+  if (!entry.s3_key) return { ok: false, reason: `${pubNote}，lock 條目沒有 s3_key，無法查 S3` };
+  const s3 = await deps.headS3(entry);
+  if (s3.status === 404 || s3.status === 403) {
+    return { ok: false, reason: `${pubNote}，S3 ${entry.s3_key} 也沒有（或金鑰無權讀取）：檔案還沒上傳` };
+  }
+  if (s3.status !== 200) return { ok: false, reason: `${pubNote}，查 S3 ${entry.s3_key} 失敗（${s3.error ?? `HTTP ${s3.status}`}）` };
+  if (s3.bytes !== entry.bytes) return { ok: false, reason: `${pubNote}，S3 ${entry.s3_key} 大小不符（${s3.bytes} bytes，lock 是 ${entry.bytes}）：S3 是舊檔或 lock 沒重產` };
+  if (s3.sha256 && s3.sha256 !== entry.sha256) return { ok: false, reason: `${pubNote}，S3 ${entry.s3_key} 的 sha256 與 lock 不符：S3 是別的版本` };
+  return { ok: true, source: "s3" };
+}
+
 /** 包一層記憶：基準 lock 只讀一次（pool 有 6 路並行），讀失敗時每次都丟同一個錯。 */
 export function memoBaseLock(readPaths) {
   let promise;

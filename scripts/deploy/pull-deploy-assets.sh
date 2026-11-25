@@ -230,6 +230,7 @@ aws s3 sync "$S3/climate/" "$DATA_DIR/climate/" --no-progress
 #    get_gas_station_layers 仍公開，照常 sync。見 docs/features/owner-gated-layers。
 echo "[pull] sync static-rpc → $DATA_DIR/static-rpc/"
 aws s3 sync "$S3/static-rpc/" "$DATA_DIR/static-rpc/" --no-progress \
+  --exclude "get_global_event_month_*.json" \
   --exclude "get_fossil_fuel_layers.json" \
   --exclude "get_fossil_fuel_infrastructure.json" \
   --exclude "get_osm_substations.json" \

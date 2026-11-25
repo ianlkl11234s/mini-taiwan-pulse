@@ -27,6 +27,12 @@ Agent session API（`Authorization: Research <credential>`）：
 
 已移除：`/pairings*`（含 `/pairings/claim`，正式站回 404）、`/dev/pairings*`、`/browser/query`。新增 session 錯誤碼：`SESSION_EXPIRED`、`SESSION_DISPLACED`、`TOKEN_REVOKED`、`TOKEN_EXPIRED`、`TOKEN_LIMIT`、`TOKEN_NOT_FOUND`、`TAB_NOT_ACTIVE` 等，見 SPEC §2.2。
 
+## 兩國並排右圖（G2-3，2026-11-24）
+
+- **讀**：`map_context` 最上層欄位一律是左圖（主地圖）；另加 `compare`：`{mode:"off"}`／`{mode:"slider"}`／`{mode:"countries",scaleLocked,right:{country,camera,bounds,visibleLayerKeys,visibleSummary,resultPresentation}}`（右圖未就緒或手機回 `right.status:"map_not_ready"`）。沒有 `compare`＝舊網頁。
+- **寫**：scene／patch 多一個 `right`：`{country?,camera?,framing?,results?}` 或 `null`（關並排）。gateway 淺層合併、整個取代，所以 MCP 每次送完整物件；網頁只在該次 patch 帶 `right` 時處理右圖，`country` 不同於目前右國＝打開並排／換國（右圖重建），拿不到右圖時指令回 error、不會改做在左圖。網頁 manual scene 只在 gateway 已送過 `right` 後才帶回 `right`（舊 gateway 不認得這個 key）。
+- 圖層開關與 layerControl 不分側：右國圖層本來就畫在右圖。實作 `src/research/compareBridge.ts`；MCP 端 `src/research/compareSide.ts`；gateway `relay-service.mjs` `validatePatch`。
+
 ## Phase B 原始契約（歷史，部分端點已移除）
 
 Browser owner API:

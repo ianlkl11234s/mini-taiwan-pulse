@@ -1,5 +1,5 @@
 ---
-title: 協作地圖：和朋友一起規劃英國旅行的共用網站
+title: Day 16 - 協作地圖：和朋友一起規劃英國旅行的共用網站
 description: 30 天地圖挑戰 Day 16（Collaborative map）：七個人規劃 2026 年 10 月英國旅行，每人把想去的地方丟進共用網站，留言、投票、加入行程，地點直接顯示在地圖上。
 slug: mapchallenge-2026-day16-collaborative-map
 topic: making
@@ -75,7 +75,7 @@ threads:
 
 - **地圖底圖**：Mapbox Light 樣式（資料來源含 © OpenStreetMap contributors），依 Mapbox 服務條款使用；沒有金鑰或載入失敗時改用 OpenStreetMap 標準圖磚，© OpenStreetMap contributors，ODbL 授權。
 - **道路與鐵路路線**：蘇格蘭自駕道路由 OSRM 依 OpenStreetMap 路網預先產生；Caledonian Sleeper 鐵路取自 OpenStreetMap 的鐵路幾何。© OpenStreetMap contributors，ODbL 授權。
-- **行政區界線**：英國與蘇格蘭、愛丁堡的區界取自 OpenStreetMap，倫敦行政區界線來自大倫敦政府（GLA），圖上標示 © OpenStreetMap、© GLA。〔待確認：GLA 資料的授權條款與版本〕
+- **行政區界線**：英國與蘇格蘭、愛丁堡的區界取自 OpenStreetMap，倫敦行政區界線來自大倫敦政府（GLA），圖上標示 © OpenStreetMap、© GLA。
 - **航班軌跡**：Flightradar24 已完成的歷史航班，僅作為預定航線的示意，依其服務條款使用。
 - **地點資料**：由旅伴自行貼上的 Google Maps、Instagram、Threads 連結；座標取自 Google Maps 連結。
 - **示範畫面**：取自去識別化的示範版網站，旅伴名稱為假名，圖中留言為示範用；數字取自該版本的資料檔。

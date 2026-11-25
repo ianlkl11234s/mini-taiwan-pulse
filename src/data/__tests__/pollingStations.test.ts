@@ -20,6 +20,10 @@ import { POLLING_COLOR_MODES, POLLING_HEAT_ELECTORS_UNIT, POLLING_HEAT_VOTES_UNI
 import { OVERLAY_REGISTRY } from "../../map/overlayRegistry";
 import { formatPartyVotes } from "../../components/featureInfo/politicsPanels";
 import { LAYER_PARAMS_SPEC } from "../layerParamsSpec";
+import { loadAllPacks } from "../../countries/packs";
+
+// 全部圖層（含延後載入的國家包，B1 P5）一起驗
+await loadAllPacks();
 
 // RPC 回傳形狀（gis-platform mig 495 get_polling_stations_2024）的最小 fixture
 const RAW = {

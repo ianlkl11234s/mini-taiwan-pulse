@@ -1,14 +1,18 @@
 import { describe, expect, it } from "vitest";
 import { LAYER_PARAMS_SPEC } from "../layerParamsSpec";
-import { GB_CARE_KINDS, GB_COURT_KINDS, GB_HEALTH_KINDS, GB_SCHOOL_CATEGORIES } from "../gbCivicTypes";
-import { GB_ARTS_KINDS, GB_CULTURAL_KINDS, GB_VISITOR_KINDS } from "../gbCultureTypes";
-import { GB_HUB_TYPES, GB_LONDON_RAIL_MODES } from "../gbTransportTypes";
-import { GB_FIELD_TYPES, GB_FUEL_GROUPS } from "../gbEnergyTypes";
-import { GB_RECYCLING_KINDS } from "../gbEnvPlanningTypes";
-import { GB_AQUACULTURE_KINDS, GB_FUNERAL_KINDS } from "../gbBusinessAgriTypes";
-import { GB_ACCESS_TYPES, GB_MPA_TYPES, GB_RECREATION_CATEGORIES, GB_TREE_CATEGORIES } from "../gbNatureTypes";
-import { GB_GREENSPACE_CATEGORIES } from "../gbOpenSpaceTypes";
-import { GB_PUBLIC_FACILITY_KINDS, GB_ROAD_FACILITY_KINDS, GB_STRUCTURES, GB_WORSHIP_KINDS } from "../gbOsmTypes";
+import { GB_CARE_KINDS, GB_COURT_KINDS, GB_HEALTH_KINDS, GB_SCHOOL_CATEGORIES } from "../../countries/gb/gbCivicTypes";
+import { GB_ARTS_KINDS, GB_CULTURAL_KINDS, GB_VISITOR_KINDS } from "../../countries/gb/gbCultureTypes";
+import { GB_HUB_TYPES, GB_LONDON_RAIL_MODES } from "../../countries/gb/gbTransportTypes";
+import { GB_FIELD_TYPES, GB_FUEL_GROUPS } from "../../countries/gb/gbEnergyTypes";
+import { GB_RECYCLING_KINDS } from "../../countries/gb/gbEnvPlanningTypes";
+import { GB_AQUACULTURE_KINDS, GB_FUNERAL_KINDS } from "../../countries/gb/gbBusinessAgriTypes";
+import { GB_ACCESS_TYPES, GB_MPA_TYPES, GB_RECREATION_CATEGORIES, GB_TREE_CATEGORIES } from "../../countries/gb/gbNatureTypes";
+import { GB_GREENSPACE_CATEGORIES } from "../../countries/gb/gbOpenSpaceTypes";
+import { GB_PUBLIC_FACILITY_KINDS, GB_ROAD_FACILITY_KINDS, GB_STRUCTURES, GB_WORSHIP_KINDS } from "../../countries/gb/gbOsmTypes";
+import { loadAllPacks } from "../../countries/packs";
+
+// 全部圖層（含延後載入的國家包，B1 P5a）一起驗
+await loadAllPacks();
 
 /**
  * §3.8 V-4 英國類別多選：mask 的 bit 順序＝spec options 順序，hook 用同一份資料陣列解碼（gbMaskFilter）。

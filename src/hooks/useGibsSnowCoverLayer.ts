@@ -12,7 +12,7 @@ import type { Map as MapboxMap, RasterLayerSpecification, RasterTileSource } fro
 import { GIBS_ATTRIBUTION, GIBS_MAX_ZOOM, gibsDateInRange, gibsSnowProduct, gibsSnowTileUrl, gibsUtcDate } from "../data/gibsSnowTypes";
 import { GIBS_SNOW_STATUS_KEY } from "../data/jmaUpstreamLoaders";
 import { setJmaImageryStatus } from "../data/jmaImageryLoader";
-import { timeStore } from "../state/timeStore";
+import { useSideClock } from "../state/sideClock";
 import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 import { isHistoryMode } from "./useTimeStoreTime";
 import { useMapReadyTick } from "./useMapReadyTick";
@@ -28,6 +28,7 @@ interface Options {
 }
 
 export function useGibsSnowCoverLayer({ mapRef, visible, opacity, productIdx }: Options) {
+  const clock = useSideClock();
   const mapTick = useMapReadyTick(mapRef);
   const currentUrlRef = useRef<string | null>(null);
   /** 最後一次建圖層用的 map（unmount 清理用；不把 mapRef 放進清理 effect 的 deps） */
@@ -83,16 +84,16 @@ export function useGibsSnowCoverLayer({ mapRef, visible, opacity, productIdx }: 
 
     let disposed = false;
     let retryPending = false;
-    const retry = () => { retryPending = false; if (!disposed) safeRun(timeStore.getTime()); };
+    const retry = () => { retryPending = false; if (!disposed) safeRun(clock.getTime()); };
     const safeRun = (t: number) => {
       try { run(t); } catch {
         if (!disposed && !retryPending) { retryPending = true; map.once("idle", retry); }
       }
     };
-    const onStyleLoad = () => { currentUrlRef.current = null; safeRun(timeStore.getTime()); };
+    const onStyleLoad = () => { currentUrlRef.current = null; safeRun(clock.getTime()); };
 
-    safeRun(timeStore.getTime());
-    const unsubTime = visible ? timeStore.subscribeThrottled(1000, safeRun) : null;
+    safeRun(clock.getTime());
+    const unsubTime = visible ? clock.subscribeThrottled(1000, safeRun) : null;
     map.on("style.load", onStyleLoad);
     return () => {
       disposed = true;
@@ -100,7 +101,7 @@ export function useGibsSnowCoverLayer({ mapRef, visible, opacity, productIdx }: 
       map.off("style.load", onStyleLoad);
       if (retryPending) map.off("idle", retry);
     };
-  }, [mapRef, visible, productIdx, mapTick]);
+  }, [mapRef, visible, productIdx, mapTick, clock]);
 
   useEffect(() => {
     const map = mapRef.current;

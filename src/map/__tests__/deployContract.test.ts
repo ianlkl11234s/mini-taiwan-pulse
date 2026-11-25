@@ -34,8 +34,12 @@ import { execSync } from "node:child_process";
 import { LAYER_MANIFEST, MANIFEST_KEYS, type LayerManifestEntry } from "../../data/layerManifest";
 import { BUS_CROWDING_SIM_ASSETS } from "../../data/busCrowdingSimAssets";
 import { OWNER_DATA_ASSETS } from "../../data/ownerDataAssets";
-import { CN_OWNER_ASSETS } from "../../data/cnDataLayers";
+import { CN_OWNER_ASSETS } from "../../countries/cn/cnDataLayers";
 import { PUBLIC_ASSETS_LOCK as publicAssetsLock, lockedAsset } from "../../test/publicAssets";
+import { loadAllPacks } from "../../countries/packs";
+
+// 全部圖層（含延後載入的國家包，B1 P5a）一起驗
+await loadAllPacks();
 
 const forestReceipt = JSON.parse(readFileSync("docs/features/data-lifecycle-lean/r2-pilot.json", "utf8"));
 const registrySource = readFileSync("src/map/overlayRegistry.ts", "utf8");

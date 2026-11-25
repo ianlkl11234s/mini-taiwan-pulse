@@ -4,6 +4,10 @@ import {
   jpWelfareCategoriesOf, jpWelfareFilter, jpWelfareGroupsOf,
 } from "../data/jpWelfareFacilityTypes";
 import { paramDefault, LAYER_PARAMS_SPEC } from "../data/layerParamsSpec";
+import { loadAllPacks } from "../countries/packs";
+
+// 全部圖層（含延後載入的國家包，B1 P5）一起驗
+await loadAllPacks();
 
 describe("日本福祉設施 PMTiles 契約", () => {
   it("20 個中分類：障礙 4、兒童 16；筆數合計 154,572 且與各層點數一致", () => {

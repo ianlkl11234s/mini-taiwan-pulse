@@ -24,12 +24,13 @@
  */
 import type { LayerVisibility } from "../types";
 import { LAYER_MANIFEST, MANIFEST_KEYS } from "./layerManifest";
+import { onRecordExtended } from "../countries/slots";
 
 /**
  * legend id → 該群組的全部 layer key。
  * 順序 = manifest 的宣告順序（`MANIFEST_KEYS` 即 `LAYER_MANIFEST` 的 key 順序）。
  */
-const KEYS_BY_LEGEND_ID: ReadonlyMap<string, readonly (keyof LayerVisibility)[]> = (() => {
+function buildKeysByLegendId(): Map<string, (keyof LayerVisibility)[]> {
   const out = new Map<string, (keyof LayerVisibility)[]>();
   for (const key of MANIFEST_KEYS) {
     const id = LAYER_MANIFEST[key].legend;
@@ -39,7 +40,10 @@ const KEYS_BY_LEGEND_ID: ReadonlyMap<string, readonly (keyof LayerVisibility)[]>
     else out.set(id, [key]);
   }
   return out;
-})();
+}
+let KEYS_BY_LEGEND_ID = buildKeysByLegendId();
+// 國家包載入（B1 P5a）：manifest 多了 key，重建（MANIFEST_KEYS 已在 layerManifest 的訂閱裡先累加）
+onRecordExtended("layerManifest", () => { KEYS_BY_LEGEND_ID = buildKeysByLegendId(); });
 
 /**
  * 某個 legend 群組的成員 key（manifest 宣告順序）。
@@ -51,4 +55,7 @@ export function legendKeys(id: string): readonly (keyof LayerVisibility)[] {
 }
 
 /** manifest 宣告過的全部 legend id（去重，首次出現順序） */
-export const LEGEND_GROUP_IDS: readonly string[] = [...KEYS_BY_LEGEND_ID.keys()];
+/** manifest 宣告過的全部 legend id（去重，首次出現順序；含已載入的國家包） */
+export function legendGroupIds(): readonly string[] {
+  return [...KEYS_BY_LEGEND_ID.keys()];
+}

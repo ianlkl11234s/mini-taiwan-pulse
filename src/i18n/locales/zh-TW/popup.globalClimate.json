@@ -32,6 +32,7 @@
   "popup.globalClimate.locationSemantics": "落點語意",
   "popup.globalClimate.collectedAt": "來源收集時間",
   "popup.globalClimate.locationSource": "位置來源",
+  "popup.globalClimate.reportSources": "報導來源",
   "popup.globalClimate.loc.mention": "新聞地理提及的概略位置，未核實精確發生地",
   "popup.globalClimate.loc.headline": "標題提及國家／城市的概略位置，未核實精確發生地",
   "popup.globalClimate.loc.related": "新聞相關國家／城市概略位置，未確認精確發生地",

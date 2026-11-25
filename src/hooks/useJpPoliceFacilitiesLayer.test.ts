@@ -7,7 +7,7 @@ import {
 import {
   jpPoliceFacilityInitialFilter,
   jpPoliceFacilityTypeFilter,
-} from "./useJpPoliceFacilitiesLayer";
+} from "../countries/jp/useJpPoliceFacilitiesLayer";
 
 describe("日本警察設施 PMTiles 契約", () => {
   it("維持四種上游 facility_type 的共用色票", () => {

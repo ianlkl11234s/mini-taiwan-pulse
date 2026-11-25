@@ -42,6 +42,8 @@ export interface OverlayMap {
   setLayoutProperty(id: string, name: string, value: any): void;
   setPaintProperty(id: string, name: string, value: any): void;
   getFilter?(id: string): any;
+  /** 晚到的 overlay 要找插入位置（addLateOverlays）；兩個引擎都有 */
+  getStyle?(): { layers?: Array<{ id: string }> } | undefined;
   /** fill-pattern 的缺值斜線圖（`map-hatch-*`）要先註冊；兩個引擎的 Map 都有這兩個方法。 */
   hasImage?(id: string): boolean;
   addImage?(id: string, image: { width: number; height: number; data: Uint8Array }): void;
@@ -59,6 +61,8 @@ export interface OverlayEngineOptions {
   pmtilesSource?: (config: OverlayConfig) => Record<string, unknown>;
   /** 主站 JP pilot 的 source/layer 由 jpHeightLifecycle 依 viewport 管理。 */
   deferJpHeightSources?: boolean;
+  /** 圖層插在這個 layer 之前（晚到的國家包 overlay 用；不給＝疊在最上面） */
+  beforeId?: string;
 }
 
 /** 依參數換檔的 PMTiles（`sourceUrlByParam`）此刻該用的 url；沒設定就是 `sourceUrl`。 */
@@ -415,7 +419,7 @@ export function addOverlay(
       ...(spec.maxzoom != null ? { maxzoom: spec.maxzoom } : {}),
       ...(filter ? { filter } : config.filter ? { filter: config.filter } : {}),
       paint: paint as Record<string, unknown>,
-    } as mapboxgl.AnyLayer);
+    } as mapboxgl.AnyLayer, opts?.beforeId);
     // __filter 併入快照僅供 rebuild 變更偵測比對用，不會送進 mapbox（見下方 updateOverlayTheme）
     cache.set(id, snapshotPaint({ ...paint, ...(filter ? { __filter: filter } : {}) }));
     // style reload 後 layer 是全新的 → 舊 layer 隱藏期間延後的 paint 作廢
@@ -912,6 +916,48 @@ export function addAllOverlays(
       setOverlayVisible(map, config, false, isDark, params);
     }
   }
+}
+
+/**
+ * 晚到的 overlay（國家包載入後才插進 registry，B1 P5b）：style 已經建好，逐筆補建 source／layer，
+ * 插在 registry 裡前一個已在圖上的 overlay 之後，疊放順序等同一開始就載入。已在圖上的略過（可重複呼叫）。
+ */
+export function addLateOverlays(
+  map: OverlayMap,
+  registry: readonly OverlayConfig[],
+  added: readonly OverlayConfig[],
+  isDark: boolean,
+  visibility: LayerVisibility,
+  params?: Record<string, number>,
+  opts?: OverlayEngineOptions,
+) {
+  const addedSet = new Set(added);
+  for (const config of registry) {
+    if (!addedSet.has(config)) continue;
+    if (opts?.deferJpHeightSources && isJpHeightManagedOverlay(config)) continue;
+    if (config.layers.every((spec) => map.getLayer(layerId(config, spec.suffix)))) continue;
+    addOverlay(map, config, isDark, params, { ...opts, beforeId: lateOverlayBeforeId(map, registry, config) });
+    const visible = isOverlayVisible(config, visibility, params);
+    if (visible) void hydrateOverlayIfNeeded(map, config);
+    else setOverlayVisible(map, config, false, isDark, params);
+  }
+}
+
+/** registry 前一個已在圖上的 overlay 最後一層的下一層；前面都沒有就用後面第一個已在圖上的 overlay 的第一層。 */
+export function lateOverlayBeforeId(map: OverlayMap, registry: readonly OverlayConfig[], config: OverlayConfig): string | undefined {
+  const order = (map.getStyle?.()?.layers ?? []).map((layer) => layer.id);
+  const pos = new Map(order.map((id, i) => [id, i]));
+  const placed = (c: OverlayConfig) => c.layers.map((spec) => pos.get(layerId(c, spec.suffix))).filter((i): i is number => i !== undefined);
+  const at = registry.indexOf(config);
+  for (let j = at - 1; j >= 0; j--) {
+    const idx = placed(registry[j]!);
+    if (idx.length) return order[Math.max(...idx) + 1];
+  }
+  for (let j = at + 1; j < registry.length; j++) {
+    const idx = placed(registry[j]!);
+    if (idx.length) return order[Math.min(...idx)];
+  }
+  return undefined;
 }
 
 /** 批量更新所有 overlay 主題 */

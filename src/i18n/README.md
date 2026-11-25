@@ -16,7 +16,9 @@ src/i18n/
 └── locales/<語系>/
     ├── common.json、<區塊>.json   介面字串（zh-TW 是正本）
     ├── layers.json、themes.json、qualifiers.json、enums.json、params.json   名稱對照（只有外文語系有）
-src/state/localeStore.ts   目前語系：?lang= ＞ 上次選擇 ＞ 瀏覽器語言 ＞ zh-TW；lazy 載入外文
+    └── layers.<cc>.json   有國家包的國家的圖層名（只有外文語系有；跟著國家包載入）
+src/state/localeStore.ts   目前語系：?lang= ＞ 上次選擇 ＞ 瀏覽器語言 ＞ zh-TW；英日文分批載入
+src/i18n/localeFiles.ts    英日文分批載入規則：開站檔 BOOT_FILES、查不到字時依 key 找檔（索引 localeFileIndex.generated.ts）
 ```
 
 元件裡一律這樣用：
@@ -46,7 +48,9 @@ enumLabel("newsCategory", code, NEWS_LABELS[code], i18n)
 
 ## 常見工作
 
-**加一句介面字**：`zh-TW/<檔>.json` 加 key → `en/`、`ja/` 同名檔補翻譯 → `npx tsx scripts/i18n/gen-keys.ts` 更新型別 → 程式用 `t()`。
+**加一句介面字**：`zh-TW/<檔>.json` 加 key → `en/`、`ja/` 同名檔補翻譯 → `npx tsx scripts/i18n/gen-keys.ts` 更新型別與分批載入索引 → 程式用 `t()`。
+
+**英日文分批載入（B1 P6）**：中文整包同步打包（開站行為不變）。英日文開站只載 `localeFiles.ts` 的 `BOOT_FILES`；外國圖層名放 `layers.<cc>.json`（國家包載入時一起抓，放錯檔跑 `npx vite-node scripts/i18n/split-layer-locales.ts`）；其餘檔第一次查不到字時才載，載入期間顯示中文後備、載完自動換字。改了任何 `locales/` JSON 都要跑 `gen-keys`（同時更新 `localeFileIndex.generated.ts`）。只讀一次就不重畫的文字（例如 `setHTML`、模組層級 `tr()`）要先 `localeStore.need([...])` 把檔抓好。
 
 **說明框（featureInfo）**：
 - 常用欄位名用 `<Row field="…">`，可用的名稱看 `zh-TW/popup.json` 的 `popup.field.*`（型別 `PopupField`）；同一個意思不要另開 key。

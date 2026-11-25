@@ -109,3 +109,10 @@
 已登記哪些圖層以 `layerManifest.ts` 的 `longTerm` 為準（`grep -n "longTerm: {" src/data/layerManifest.ts`），不在本文件另列清單，涵蓋的查證來源寫在各筆註解。
 1a（2026-11-20）登記了火災歷史、人口數、人口指標與房地產 6 層；共機活動區 `plaActivity`（形狀表最早日期未查證）待查證後補登記。
 全球重大事件 `globalEvents`（2026-11-23 查證）：候選表自 2026-09-02 起有資料、依 ADR-0026 保留 180 天；公開 RPC 一次最多 31 天、每頁 200 件，7 天就有約 1.2 萬列、29 MB，無法直接拿來畫長期時間條。缺的是「事件點、依月切」的期別檔（每月一檔，只留 id、時間、座標、分類、嚴重度、短標題，估每月 1–2 MB gzip 前），由 data-collectors 或 export 腳本每日增量產生、S3 正本＋R2 發布；有了期別檔再填 manifest `longTerm` 與 adapter。在那之前不登記（`layerLongTerm.test.ts` 要求宣告的檔案有部署路徑）。
+- 2026-11-24 期別檔產生程式：`scripts/export/export-global-event-months.sh`（格式 `global-events-month-v1`，解析 `src/data/globalEventMonths.ts`）。
+  - 歸「事件點」類：每列一個候選、地點收成陣列、座標到小數 2 位、標題 24 字、不含雜訊；月份依台北時間切。
+  - 實測（正式庫唯讀）：2026-09 1.8 MB（12,710 件）、2026-10 2.7 MB（18,213 件）、2026-11 至 24 日 1.4 MB；gzip 約 0.4–0.7 MB，在 5 MB 內。
+  - 增量：已結束的月份本機有檔或公開網址讀得到就跳過；本月每次重產並標 `partial`。
+  - 有意義的起點是 2026-09（台北 9/2 起）；候選表 180 天後刪，已結束的月份要在那之前定版。
+  - 保留期（站主 2026-11-24「最多留六個月」）：公開空間（R2 `site/static-rpc/`）只留最近 6 個月（含本月，台北月份），更早的月檔由 data-collectors `global_event_months` 排程每天移除，例如 2026-09 的檔在 2027-03 移除；S3 正本（`deploy-assets/static-rpc/`）不由排程刪。mini site-sync 不從 S3 補回月檔（`deploy/cloudflare/site_manifest.py` 的 `COLLECTOR_MANAGED_STATIC_RPC`）。
+  - 尚未上傳 R2／S3、未設排程、未登記 manifest `longTerm`（等站主同意上傳後再接 adapter 與地圖層）。

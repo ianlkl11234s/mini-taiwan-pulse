@@ -10,6 +10,7 @@
  * 另管 Q6 B「多層熱區疊放」：同時開 ≥2 層可換色熱區時，每層熱區透明度再乘 `HEATMAP.stackedOpacity`。
  */
 import { useCallback, useMemo, useSyncExternalStore } from "react";
+import { onRecordExtended } from "../countries/slots";
 import { LAYER_PARAMS_SPEC, getParamsSpec, type LayerParamSpec, type PaletteParamSpec } from "../data/layerParamsSpec";
 import { HEATMAP, heatmapColorExpr, heatmapOpacity, heatmapPaint } from "../map/mapStyleScale";
 import { paletteById, paletteRamp, resampleRamp } from "../map/palettes";
@@ -97,6 +98,12 @@ export function registerHeatmapPaletteKeys(key: string, specs: readonly LayerPar
 }
 
 for (const [key, specs] of Object.entries(LAYER_PARAMS_SPEC as Record<string, LayerParamSpec[]>)) registerHeatmapPaletteKeys(key, specs);
+// 國家包載入（B1 P5a）：新規格的熱區色盤 key 一起累加
+onRecordExtended("layerParamsSpec", () => {
+  // 依規格表的宣告順序重建（國家包的 key 已由 setRecordOrder 排回原位）
+  heatmapPaletteKeys.length = 0;
+  for (const [key, specs] of Object.entries(LAYER_PARAMS_SPEC as Record<string, LayerParamSpec[]>)) registerHeatmapPaletteKeys(key, specs);
+});
 
 /** 同時開著的可換色熱區層數 */
 export function visibleHeatmapCount(vis: LayerVisibility): number {

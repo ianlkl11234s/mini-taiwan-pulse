@@ -5,8 +5,19 @@ import { OVERLAY_REGISTRY } from "../overlayRegistry";
 import { applyLayerOpacity } from "../overlayManager";
 import { densePointOpacity, densePointsFromZoom, HEATMAP, heatmapMaxzoom, heatmapPaint, POINT_OPACITY } from "../mapStyleScale";
 import { LAYER_PARAMS_SPEC, paramDefault } from "../../data/layerParamsSpec";
-import { GB_RECREATION_MINZOOM } from "../../data/gbNatureTypes";
+import { GB_RECREATION_MINZOOM } from "../../countries/gb/gbNatureTypes";
 import { paletteRamp } from "../palettes";
+import { loadAllPacks } from "../../countries/packs";
+
+/** hook 檔位置：src/hooks/，或已搬進國家包的 src/countries/<cc>/（B1 P5a） */
+function hookFile(file: string): string {
+  const candidates = [path.resolve(__dirname, "../../hooks", file), ...fs.readdirSync(path.resolve(__dirname, "../../countries"), { withFileTypes: true })
+    .filter((d) => d.isDirectory()).map((d) => path.resolve(__dirname, "../../countries", d.name, file))];
+  return candidates.find((c) => fs.existsSync(c)) ?? candidates[0]!;
+}
+
+// 全部圖層（含延後載入的國家包，B1 P5a）一起驗
+await loadAllPacks();
 
 const MAGMA_DARK = paletteRamp("magma", true)!;
 
@@ -206,7 +217,7 @@ const HOOK_MULTIPLIER_OPACITY = new Set(["fireEvents", "fireLatest"]);
 
 describe("R5 hook 密集點全面套用", () => {
   it.each(HOOK_DENSE)("%s：hook 有熱區（%s）且透明度預設依點數", (id, file, count) => {
-    const src = fs.readFileSync(path.resolve(__dirname, "../../hooks", file), "utf8");
+    const src = fs.readFileSync(hookFile(file), "utf8");
     expect(src).toMatch(/type: "heatmap"|heatmapLayer\(|gbHeatmapBuild\(/);
     expect(src).toContain("heatmapMaxzoom(");
     // 綠地三層的細節層是面（出現縮放＝面的 minzoom，z9／z10），熱區 maxzoom 直接接面，不經 densePointsFromZoom
@@ -229,7 +240,7 @@ describe("R5 hook 密集點全面套用", () => {
 // P-4 豁免（hook）：≥1 萬點但刻意不畫熱區，附理由。
 describe("R5 hook 熱區豁免", () => {
   it("gbRenewables 不套熱區：容量 150 kW–GW 級差距大，熱區只反映案件數會誤導；改 z5 起直接畫點、半徑依裝置容量（2026-10-30 使用者決定）", () => {
-    const src = fs.readFileSync(path.resolve(__dirname, "../../hooks/useGbEnergyLayers.ts"), "utf8");
+    const src = fs.readFileSync(hookFile("useGbEnergyLayers.ts"), "utf8");
     const block = src.slice(src.indexOf("function renewablesPaint"), src.indexOf("// ─────────────────────────── 電網"));
     expect(block).not.toMatch(/heatmap/i);
     expect(block).toContain("gbCapacityRadiusExpr(");
@@ -244,7 +255,7 @@ describe("R5 南韓熱區出點縮放", () => {
     expect(densePointsFromZoom(17_699, 0)).toBe(10);
   });
   it("krRenewables 不套熱區：太陽能陣列 90% 但容量差距大，熱區只反映案件數；改 z4 起畫大型點、z8 起補太陽能", () => {
-    const src = fs.readFileSync(path.resolve(__dirname, "../../hooks/useKrEnergyLayers.ts"), "utf8");
+    const src = fs.readFileSync(path.resolve(__dirname, "../../countries/kr/useKrEnergyLayers.ts"), "utf8");
     const block = src.slice(src.indexOf("export function useKrRenewablesLayer"), src.indexOf("// ─────────────────────────── 電網"));
     expect(block).not.toMatch(/heatmap/i);
     expect(paramsSpecHasHeatmap("krRenewables")).toBe(false);

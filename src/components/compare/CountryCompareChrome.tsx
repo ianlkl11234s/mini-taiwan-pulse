@@ -1,16 +1,16 @@
 /**
  * 兩國並排的畫面外框（design-system §5.45「兩國並排」；G2-1）：
  * - 中間分隔線固定 50%、不可拖（沿用拉桿的線樣式，不畫圓鈕與熱區）。
- * - 分隔線頂端一列：左側國家 chip（可選任何國家，＝圖層面板的目前國家）｜比例尺同步開關｜右側國家 chip 列
+ * - 分隔線頂端一列：左側國家 chip（可選任何國家，＝圖層面板的目前國家）｜比例尺同步開關＋時間對齊（同一刻／當地同時刻，G2-4）｜右側國家 chip 列
  *   （只列釘選的外國，另有「其他國家…」選單可選任何外國）。
  * - 下面一列左右各一條比例尺（各量各的地圖，比例尺同步開著時兩條代表的距離相同）。
  */
 import { useRef, useState, useSyncExternalStore } from "react";
-import { ChevronDown, Ruler } from "lucide-react";
+import { ChevronDown, Clock, Ruler } from "lucide-react";
 import { FONT_CJK, FONT_SIZE, RADIUS, Z_INDEX } from "../../styles/designTokens";
 import { countryDef, type CountryCode } from "../../constants/countries";
 import { usePinnedCountries, useVisibleCountries, type CountryFlyMode } from "../../state/countryStore";
-import { compareStore, useCompareSelector } from "../../state/compareStore";
+import { compareStore, useCompareSelector, type CompareTimeAlign } from "../../state/compareStore";
 import { compareRightMap } from "../../map/compareRightMap";
 import { useLocale } from "../../state/localeStore";
 import { CountryChip } from "../sidebar/CountryMenu";
@@ -83,6 +83,7 @@ export function CountryCompareChrome({ isDarkTheme, captureMode, mainMap, leftCo
   const { t } = useLocale();
   const palette = getToolbarPalette(isDarkTheme);
   const scaleLocked = useCompareSelector((s) => s.scaleLocked);
+  const timeAlign = useCompareSelector((s) => s.timeAlign);
   const rightMap = useSyncExternalStore(compareRightMap.subscribe, compareRightMap.get, compareRightMap.get);
   const visible = useVisibleCountries().map((c) => c.code);
   const pinned = usePinnedCountries().filter((code) => visible.includes(code));
@@ -137,7 +138,8 @@ export function CountryCompareChrome({ isDarkTheme, captureMode, mainMap, leftCo
             </div>
             <MapScaleBar map={mainMap} isDarkTheme={isDarkTheme} variant="desktop" style={{ width: 224 }} />
           </div>
-          {/* 中：比例尺同步開關 */}
+          {/* 中：比例尺同步開關＋時間對齊（分段：同一刻／當地同時刻） */}
+          <div style={{ display: "flex", alignItems: "center", gap: 6, pointerEvents: "none" }}>
           <button
             type="button"
             aria-pressed={scaleLocked}
@@ -148,6 +150,29 @@ export function CountryCompareChrome({ isDarkTheme, captureMode, mainMap, leftCo
             <Ruler size={13} aria-hidden />
             {t("compare.scaleLock")}
           </button>
+          <div role="group" aria-label={t("compare.timeAlign")} style={{ ...surface, gap: 2, padding: "0 3px", cursor: "default", pointerEvents: "auto" }}>
+            <Clock size={13} aria-hidden style={{ color: palette.textMuted, margin: "0 3px" }} />
+            {(["instant", "local"] as const satisfies readonly CompareTimeAlign[]).map((mode) => {
+              const active = timeAlign === mode;
+              return (
+                <button
+                  key={mode}
+                  type="button"
+                  aria-pressed={active}
+                  title={t(mode === "instant" ? "compare.timeAlignInstantHint" : "compare.timeAlignLocalHint")}
+                  onClick={() => compareStore.setTimeAlign(mode)}
+                  style={{
+                    height: 22, padding: "0 7px", border: "none", borderRadius: RADIUS.md, cursor: "pointer",
+                    fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm,
+                    background: active ? palette.accentFaint : "transparent", color: active ? palette.accent : palette.textMuted,
+                  }}
+                >
+                  {t(mode === "instant" ? "compare.timeAlignInstant" : "compare.timeAlignLocal")}
+                </button>
+              );
+            })}
+          </div>
+          </div>
           {/* 右：釘選外國 chip 列＋其他國家，下面比例尺 */}
           <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 6 }}>
             <div role="group" aria-label={t("compare.rightCountry")} style={{ display: "flex", gap: 4, pointerEvents: "auto" }}>

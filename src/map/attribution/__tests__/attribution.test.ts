@@ -14,6 +14,10 @@ import {
   parseAttributions,
   splitAttribution,
 } from "../attributionParse";
+import { loadAllPacks } from "../../../countries/packs";
+
+// 全部圖層（含延後載入的國家包，B1 P5）一起驗
+await loadAllPacks();
 
 /** 最小 stub：同時滿足 overlayManager 的 OverlayMap 與 collector 的 AttributionMapLike。 */
 function stubMap(): OverlayMap & AttributionMapLike {

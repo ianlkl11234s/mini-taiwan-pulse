@@ -62,6 +62,10 @@ import { ATLAS_ENABLED_STATISTICS_KEYS } from "../../data/atlasStatisticsRecipes
 import { DEMOGRAPHICS_ENABLED_STATISTICS_KEYS } from "../../data/demographicsStatisticsRecipes";
 import { SOCIAL_ENABLED_STATISTICS_KEYS } from "../../data/socialStatisticsRecipes";
 import { EDUCATION_PRESENTATION_VIEW_KEYS } from "../../data/statisticsPresentationViews";
+import { loadAllPacks } from "../../countries/packs";
+
+// 全部圖層（含延後載入的國家包，B1 P5）一起驗
+await loadAllPacks();
 
 // ══════════════════════════════════════════════════════════════════
 //  桶 2：hook 留在 App.tsx（pattern E）
