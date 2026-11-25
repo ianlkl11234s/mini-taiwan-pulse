@@ -7,9 +7,13 @@ import { createRoot } from "react-dom/client";
 import App from "./App";
 import { setBootAttr } from "./components/boot/bootSequence";
 import { localeStore } from "./state/localeStore";
+import { setPackLocaleLoader } from "./countries/packs";
+import { countryLayerFile } from "./i18n/localeFiles";
 import { loadLayerAssetIndex } from "./data/layerAssetIndex";
 import { MapErrorBoundary, MapUnavailableNotice, hasWebGL2 } from "./components/boot/MapUnavailableNotice";
 
+// i18n：國家包的英日文圖層名（layers.<cc>）跟著國家包載入；要在 init 前接上，開站國家包的檔才會算進開站檔
+setPackLocaleLoader((cc) => localeStore.need([countryLayerFile(cc)]));
 // i18n：讀 URL ?lang／偏好／瀏覽器語言，並寫入 <html lang>（驅動 CSS :lang() 字型堆疊）
 localeStore.init();
 

@@ -67,6 +67,9 @@ import { loadAllPacks } from "../countries/packs";
 
 /** 事件發生當下取目前語系翻譯（非 React 回呼用）。只用在畫面狀態文字；送給 Agent 的內容不經過這裡。 */
 const tr: LocaleSnapshot["t"] = (key, vars) => localeStore.getSnapshot().t(key, vars);
+// 英日文：研究面板的字在操作當下一次讀取（活動紀錄、證據、分析結果圖例），配對元件載入時就把這幾個翻譯檔先抓好（B1 P6）。
+// need() 登記的檔之後切語系也會先載完才換，所以上面「切語系重裝一次」只看 active 就夠。
+void localeStore.need(["research", "researchResult", "analysisCard", "popup", "popup.analysisResult"]);
 type Props = { timeline?: TimelineAdapter; bridge: MapBridge; map: MapboxMap | null; labels: Record<string, string>; locked: ReadonlySet<string>; selection?: [number, number] | null; embedded?: boolean; isDarkTheme?: boolean; open?: boolean; onOpenChange?: (open: boolean) => void; showToggle?: boolean; uiHidden?: boolean;
   /** Opens (properties) or closes (null) the App-level docked FeatureInfoPanel for a clicked analysis result. Null must only close an analysis-result panel, never another layer's. */
   onAnalysisResultFeature?: (properties: AnalysisResultPanelProperties | null) => void;

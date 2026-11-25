@@ -150,7 +150,9 @@ export function useDengueClusterLayer(mapRef: MapRef, visible: boolean, opts: { 
     if (!visible) { emptyNotifiedRef.current = false; return; }
     if (!snap || snap.fc.features.length > 0 || emptyNotifiedRef.current) return;
     emptyNotifiedRef.current = true;
-    showTransientNotice(localeStore.getSnapshot().t("legend.twLive.dengue.emptyNotice", { date: dengueSnapshotDate(snap.status) ?? "—" }));
+    const date = dengueSnapshotDate(snap.status) ?? "—";
+    // 提示只顯示一次：英日文先確保圖例翻譯檔已載入（B1 P6 分批載入），不然會跳中文
+    void localeStore.need(["legend.twLive"]).then(() => showTransientNotice(localeStore.getSnapshot().t("legend.twLive.dengue.emptyNotice", { date })));
   }, [visible, snap]);
 }
 
