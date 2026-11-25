@@ -613,6 +613,8 @@ export default function App() {
     if (next !== countryAb) { countryAbStore.set(next); return; }
     mobileCompareRef.current = abStash(countryAb, country, mobileCompareRef.current);
   }, [isMobile, countryAb, country, visibleCountryCodes.join(","), pinnedCountryCodes]);
+  // 開／關 A／B 也要寫網址（地圖靜止時沒有 moveend 觸發同步，cmp=2 會晚寫或殘留）。排在上面的寄放 effect 之後
+  useEffect(() => { if (isMobile) syncUrlRef.current(); }, [isMobile, countryAb]);
   /** 手機標頭 ⋯ 的「兩國切換」：開／關 */
   const handleToggleCountryAb = useCallback(() => {
     if (countryAbStore.getSnapshot()) {
