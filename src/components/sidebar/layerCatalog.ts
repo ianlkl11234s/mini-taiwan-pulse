@@ -945,6 +945,8 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("freewayTrafficSigns"),
           fromManifest("freewayHundredMeterStakes"),
           fromManifest("freewayInterchanges"),
+          fromManifest("freewaySpecialSections"), // 國道靜態批（2026-11-24）
+          fromManifest("freewayRoadsideDevices"),
           fromManifest("provincialRoadMonitored"),
           fromManifest("provincialRoadEmergencyBays"),
           fromManifest("traLevelCrossings"),
@@ -2371,6 +2373,10 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("ecoNetworkZones"),
           fromManifest("forestWildlife"),
           fromManifest("freewayEcoSensitive"),
+          fromManifest("freewayRoadkill"), // 國道靜態批（2026-11-24）
+          fromManifest("freewayEcoFacilities"),
+          fromManifest("freewayEcoSurveyFlora"),
+          fromManifest("freewayEcoSurveyFauna"),
         ],
       },
       {

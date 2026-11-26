@@ -1,5 +1,5 @@
 {
-  "count": 14,
+  "count": 18,
   "gisLayers": {
     "ecoNetworkZones": {
       "layers": [
@@ -9,6 +9,13 @@
       ],
       "type": "ecoNetworkZones"
     },
+    "freewayEcoFacilities": {
+      "layers": [
+        "freeway-eco-facilities-circle",
+        "freeway-eco-facilities-glow"
+      ],
+      "type": "freewayEcoFacilities"
+    },
     "freewayEcoSensitive": {
       "layers": [
         "freeway-eco-sensitive-fill",
@@ -17,6 +24,27 @@
         "freeway-eco-sensitive-points-circle-polygon"
       ],
       "type": "freewayEcoSensitive"
+    },
+    "freewayEcoSurveyFauna": {
+      "layers": [
+        "freeway-eco-survey-fauna-circle",
+        "freeway-eco-survey-fauna-glow"
+      ],
+      "type": "freewayEcoSurveyFauna"
+    },
+    "freewayEcoSurveyFlora": {
+      "layers": [
+        "freeway-eco-survey-flora-circle",
+        "freeway-eco-survey-flora-glow"
+      ],
+      "type": "freewayEcoSurveyFlora"
+    },
+    "freewayRoadkill": {
+      "layers": [
+        "freeway-roadkill-circle",
+        "freeway-roadkill-glow"
+      ],
+      "type": "freewayRoadkill"
     },
     "importantWetlandZones": {
       "layers": [
@@ -743,6 +771,204 @@
       "sourceId": "forest-wildlife",
       "sourceUrl": "./forestry/wildlife_distribution_3rd.geojson"
     },
+    "freewayEcoFacilities": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "freewayEcoFacilities",
+      "layers": [
+        {
+          "filter": [
+            "has",
+            "facility_type"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "facility_type"
+                ],
+                "動物通道",
+                "#34d399",
+                "防護網",
+                "#fbbf24",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                2,
+                5,
+                7.2,
+                12,
+                14.4
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "facility_type"
+                ],
+                "動物通道",
+                "#34d399",
+                "防護網",
+                "#fbbf24",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                2,
+                5,
+                7.2,
+                12,
+                14.4
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "has",
+            "facility_type"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "facility_type"
+                ],
+                "動物通道",
+                "#34d399",
+                "防護網",
+                "#fbbf24",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.4,
+                5,
+                4,
+                12,
+                8
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "facility_type"
+                ],
+                "動物通道",
+                "#34d399",
+                "防護網",
+                "#fbbf24",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.4,
+                5,
+                4,
+                12,
+                8
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 5,
+        "sourceLayer": "freeway_eco_friendly_facilities"
+      },
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
+      "sourceId": "freeway-eco-facilities",
+      "sourceUrl": "./geo/freeway_eco_friendly_facilities_20261124.pmtiles"
+    },
     "freewayEcoSensitive": {
       "dynamicData": null,
       "filter": null,
@@ -953,6 +1179,1142 @@
       "rebuildOnParamChange": null,
       "sourceId": "freeway-eco-sensitive-points",
       "sourceUrl": "./geo/freeway_eco_sensitive_sections.geojson"
+    },
+    "freewayEcoSurveyFauna": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "freewayEcoSurveyFauna",
+      "layers": [
+        {
+          "filter": [
+            "has",
+            "taxon_group"
+          ],
+          "layout": null,
+          "maxzoom": 11.01,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(93,93,67,0.00)",
+                0.05,
+                "rgba(93,93,67,0.11)",
+                0.15,
+                "rgba(117,116,78,0.33)",
+                0.3,
+                "rgba(145,138,90,0.66)",
+                0.45,
+                "rgba(180,158,107,0.99)",
+                0.6,
+                "rgba(228,170,144,1.00)",
+                0.8,
+                "rgba(251,195,190,1.00)",
+                1,
+                "rgba(255,230,230,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00078125,
+                12,
+                0.2
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(187,161,111,0.00)",
+                0.05,
+                "rgba(187,161,111,0.11)",
+                0.15,
+                "rgba(154,144,94,0.33)",
+                0.3,
+                "rgba(127,125,82,0.66)",
+                0.45,
+                "rgba(105,104,73,0.99)",
+                0.6,
+                "rgba(84,84,63,1.00)",
+                0.8,
+                "rgba(65,65,53,1.00)",
+                1,
+                "rgba(46,46,40,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00078125,
+                12,
+                0.2
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "heatmap",
+          "type": "heatmap"
+        },
+        {
+          "filter": [
+            "has",
+            "taxon_group"
+          ],
+          "layout": null,
+          "minzoom": 11,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "taxon_group"
+                ],
+                "哺乳類",
+                "#f59e0b",
+                "鳥類",
+                "#38bdf8",
+                "貓狗",
+                "#fb7185",
+                "昆蟲",
+                "#facc15",
+                "爬蟲類",
+                "#22c55e",
+                "兩棲類",
+                "#2dd4bf",
+                "魚類",
+                "#818cf8",
+                "蝦蟹類",
+                "#f97316",
+                "螺貝類",
+                "#e879f9",
+                "環節動物",
+                "#d6d3d1",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.9,
+                5,
+                2.7,
+                12,
+                7.2
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "taxon_group"
+                ],
+                "哺乳類",
+                "#f59e0b",
+                "鳥類",
+                "#38bdf8",
+                "貓狗",
+                "#fb7185",
+                "昆蟲",
+                "#facc15",
+                "爬蟲類",
+                "#22c55e",
+                "兩棲類",
+                "#2dd4bf",
+                "魚類",
+                "#818cf8",
+                "蝦蟹類",
+                "#f97316",
+                "螺貝類",
+                "#e879f9",
+                "環節動物",
+                "#d6d3d1",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.9,
+                5,
+                2.7,
+                12,
+                7.2
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "has",
+            "taxon_group"
+          ],
+          "layout": null,
+          "minzoom": 11,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "taxon_group"
+                ],
+                "哺乳類",
+                "#f59e0b",
+                "鳥類",
+                "#38bdf8",
+                "貓狗",
+                "#fb7185",
+                "昆蟲",
+                "#facc15",
+                "爬蟲類",
+                "#22c55e",
+                "兩棲類",
+                "#2dd4bf",
+                "魚類",
+                "#818cf8",
+                "蝦蟹類",
+                "#f97316",
+                "螺貝類",
+                "#e879f9",
+                "環節動物",
+                "#d6d3d1",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.75,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.7,
+                5,
+                1.5,
+                12,
+                4
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.75,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "taxon_group"
+                ],
+                "哺乳類",
+                "#f59e0b",
+                "鳥類",
+                "#38bdf8",
+                "貓狗",
+                "#fb7185",
+                "昆蟲",
+                "#facc15",
+                "爬蟲類",
+                "#22c55e",
+                "兩棲類",
+                "#2dd4bf",
+                "魚類",
+                "#818cf8",
+                "蝦蟹類",
+                "#f97316",
+                "螺貝類",
+                "#e879f9",
+                "環節動物",
+                "#d6d3d1",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.75,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.7,
+                5,
+                1.5,
+                12,
+                4
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.75,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 5,
+        "sourceLayer": "freeway_eco_survey_fauna"
+      },
+      "rebuildOnParamChange": [
+        "heatmap",
+        "glow",
+        "circle"
+      ],
+      "sourceId": "freeway-eco-survey-fauna",
+      "sourceUrl": "./geo/freeway_eco_survey_fauna_20261124.pmtiles"
+    },
+    "freewayEcoSurveyFlora": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "freewayEcoSurveyFlora",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "maxzoom": 11.01,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(17,109,42,0.00)",
+                0.05,
+                "rgba(17,109,42,0.11)",
+                0.15,
+                "rgba(62,133,26,0.33)",
+                0.3,
+                "rgba(115,152,6,0.66)",
+                0.45,
+                "rgba(165,170,27,0.99)",
+                0.6,
+                "rgba(205,189,75,1.00)",
+                0.8,
+                "rgba(231,213,131,1.00)",
+                1,
+                "rgba(248,241,184,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.001171875,
+                12,
+                0.3
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(170,172,33,0.00)",
+                0.05,
+                "rgba(170,172,33,0.11)",
+                0.15,
+                "rgba(128,157,6,0.33)",
+                0.3,
+                "rgba(82,141,18,0.66)",
+                0.45,
+                "rgba(37,122,36,0.99)",
+                0.6,
+                "rgba(11,99,44,1.00)",
+                0.8,
+                "rgba(20,76,42,1.00)",
+                1,
+                "rgba(25,53,32,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.001171875,
+                12,
+                0.3
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "heatmap",
+          "type": "heatmap"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": 11,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": "#a3e635",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.9,
+                5,
+                2.7,
+                12,
+                7.2
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": "#a3e635",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.9,
+                5,
+                2.7,
+                12,
+                7.2
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": 11,
+          "paint": {
+            "dark": {
+              "circle-color": "#a3e635",
+              "circle-opacity": 0.75,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.7,
+                5,
+                1.5,
+                12,
+                4
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.75,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": "#a3e635",
+              "circle-opacity": 0.75,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.7,
+                5,
+                1.5,
+                12,
+                4
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.75,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 5,
+        "sourceLayer": "freeway_eco_survey_flora"
+      },
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
+      "sourceId": "freeway-eco-survey-flora",
+      "sourceUrl": "./geo/freeway_eco_survey_flora_20261124.pmtiles"
+    },
+    "freewayRoadkill": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "freewayRoadkill",
+      "layers": [
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "species_group"
+            ],
+            [
+              "all",
+              [
+                "has",
+                "year"
+              ],
+              [
+                ">=",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "year"
+                  ],
+                  -1
+                ],
+                2022
+              ],
+              [
+                "<=",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "year"
+                  ],
+                  -1
+                ],
+                2026
+              ]
+            ]
+          ],
+          "layout": null,
+          "maxzoom": 12.01,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(160,26,91,0.00)",
+                0.05,
+                "rgba(160,26,91,0.11)",
+                0.15,
+                "rgba(205,28,78,0.33)",
+                0.3,
+                "rgba(234,69,62,0.66)",
+                0.45,
+                "rgba(243,120,82,0.99)",
+                0.6,
+                "rgba(246,163,123,1.00)",
+                0.8,
+                "rgba(247,201,171,1.00)",
+                1,
+                "rgba(250,235,221,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.001171875,
+                12,
+                0.3
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(244,126,87,0.00)",
+                0.05,
+                "rgba(244,126,87,0.11)",
+                0.15,
+                "rgba(238,83,63,0.33)",
+                0.3,
+                "rgba(218,41,71,0.66)",
+                0.45,
+                "rgba(183,22,87,0.99)",
+                0.6,
+                "rgba(142,29,91,1.00)",
+                0.8,
+                "rgba(102,31,84,1.00)",
+                1,
+                "rgba(66,27,70,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.001171875,
+                12,
+                0.3
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "heatmap",
+          "type": "heatmap"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "species_group"
+            ],
+            [
+              "all",
+              [
+                "has",
+                "year"
+              ],
+              [
+                ">=",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "year"
+                  ],
+                  -1
+                ],
+                2022
+              ],
+              [
+                "<=",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "year"
+                  ],
+                  -1
+                ],
+                2026
+              ]
+            ]
+          ],
+          "layout": null,
+          "minzoom": 12,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "species_group"
+                ],
+                "bird",
+                "#38bdf8",
+                "cat_dog",
+                "#f59e0b",
+                "wild_mammal",
+                "#ef4444",
+                "small_mammal",
+                "#a78bfa",
+                "reptile_amphibian",
+                "#22c55e",
+                "unidentified",
+                "#94a3b8",
+                "other",
+                "#f472b6",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.9,
+                5,
+                2.7,
+                12,
+                7.2
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "species_group"
+                ],
+                "bird",
+                "#38bdf8",
+                "cat_dog",
+                "#f59e0b",
+                "wild_mammal",
+                "#ef4444",
+                "small_mammal",
+                "#a78bfa",
+                "reptile_amphibian",
+                "#22c55e",
+                "unidentified",
+                "#94a3b8",
+                "other",
+                "#f472b6",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.9,
+                5,
+                2.7,
+                12,
+                7.2
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "species_group"
+            ],
+            [
+              "all",
+              [
+                "has",
+                "year"
+              ],
+              [
+                ">=",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "year"
+                  ],
+                  -1
+                ],
+                2022
+              ],
+              [
+                "<=",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "year"
+                  ],
+                  -1
+                ],
+                2026
+              ]
+            ]
+          ],
+          "layout": null,
+          "minzoom": 12,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "species_group"
+                ],
+                "bird",
+                "#38bdf8",
+                "cat_dog",
+                "#f59e0b",
+                "wild_mammal",
+                "#ff847c",
+                "small_mammal",
+                "#b097ff",
+                "reptile_amphibian",
+                "#22c55e",
+                "unidentified",
+                "#94a3b8",
+                "other",
+                "#ff7cc0",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.6,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.7,
+                5,
+                1.5,
+                12,
+                4
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.6,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "species_group"
+                ],
+                "bird",
+                "#38bdf8",
+                "cat_dog",
+                "#f59e0b",
+                "wild_mammal",
+                "#ef4444",
+                "small_mammal",
+                "#a78bfa",
+                "reptile_amphibian",
+                "#22c55e",
+                "unidentified",
+                "#94a3b8",
+                "other",
+                "#f472b6",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.6,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.7,
+                5,
+                1.5,
+                12,
+                4
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.6,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 5,
+        "sourceLayer": "freeway_roadkill_records"
+      },
+      "rebuildOnParamChange": [
+        "heatmap",
+        "glow",
+        "circle"
+      ],
+      "sourceId": "freeway-roadkill",
+      "sourceUrl": "./geo/freeway_roadkill_records_20261124.pmtiles"
     },
     "importantWetlandZones": {
       "dynamicData": null,
@@ -2976,6 +4338,44 @@
         "valueText": "1.00"
       }
     ],
+    "freewayEcoFacilities": [
+      {
+        "label": "設施類型",
+        "options": [
+          {
+            "label": "動物通道",
+            "value": "動物通道"
+          },
+          {
+            "label": "防護網",
+            "value": "防護網"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "動物通道",
+          "防護網"
+        ]
+      },
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "freewayEcoSensitive": [
       {
         "label": "透明度 0.50",
@@ -3009,6 +4409,425 @@
         ],
         "type": "select",
         "value": "point"
+      }
+    ],
+    "freewayEcoSurveyFauna": [
+      {
+        "label": "動物類群",
+        "options": [
+          {
+            "label": "哺乳類",
+            "value": "哺乳類"
+          },
+          {
+            "label": "鳥類",
+            "value": "鳥類"
+          },
+          {
+            "label": "貓狗",
+            "value": "貓狗"
+          },
+          {
+            "label": "昆蟲",
+            "value": "昆蟲"
+          },
+          {
+            "label": "爬蟲類",
+            "value": "爬蟲類"
+          },
+          {
+            "label": "兩棲類",
+            "value": "兩棲類"
+          },
+          {
+            "label": "魚類",
+            "value": "魚類"
+          },
+          {
+            "label": "蝦蟹類",
+            "value": "蝦蟹類"
+          },
+          {
+            "label": "螺貝類",
+            "value": "螺貝類"
+          },
+          {
+            "label": "環節動物",
+            "value": "環節動物"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "哺乳類",
+          "鳥類",
+          "貓狗",
+          "昆蟲",
+          "爬蟲類",
+          "兩棲類",
+          "魚類",
+          "蝦蟹類",
+          "螺貝類",
+          "環節動物"
+        ]
+      },
+      {
+        "defaultValue": "turku",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "turku"
+      },
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.75,
+        "valueText": "0.75"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "freewayEcoSurveyFlora": [
+      {
+        "defaultValue": "speed",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "speed"
+      },
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.75,
+        "valueText": "0.75"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "freewayRoadkill": [
+      {
+        "label": "動物類群",
+        "options": [
+          {
+            "label": "鳥類",
+            "value": "bird"
+          },
+          {
+            "label": "貓狗",
+            "value": "cat_dog"
+          },
+          {
+            "label": "野生哺乳類",
+            "value": "wild_mammal"
+          },
+          {
+            "label": "小型哺乳類（含鼠兔蝠）",
+            "value": "small_mammal"
+          },
+          {
+            "label": "爬蟲兩棲",
+            "value": "reptile_amphibian"
+          },
+          {
+            "label": "無法辨識",
+            "value": "unidentified"
+          },
+          {
+            "label": "其他",
+            "value": "other"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "bird",
+          "cat_dog",
+          "wild_mammal",
+          "small_mammal",
+          "reptile_amphibian",
+          "unidentified",
+          "other"
+        ]
+      },
+      {
+        "label": "期間",
+        "options": [
+          {
+            "label": "近 1 年（2025–2026）",
+            "value": "recent1"
+          },
+          {
+            "label": "近 5 年（2022–2026）",
+            "value": "recent5"
+          },
+          {
+            "label": "2016–2021",
+            "value": "y2016"
+          },
+          {
+            "label": "2009–2015",
+            "value": "y2009"
+          },
+          {
+            "label": "全部（2009–2026）",
+            "value": "all"
+          }
+        ],
+        "type": "select",
+        "value": "recent5"
+      },
+      {
+        "defaultValue": "rocket",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "rocket"
+      },
+      {
+        "label": "透明度 0.60",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.6,
+        "valueText": "0.60"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "importantWetlandZones": [

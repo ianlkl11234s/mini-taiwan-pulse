@@ -1439,5 +1439,11 @@
   "layer.mapchallengeDay23TasteForeign": "店名に含まれる外来料理の語",
   "layer.mapchallengeDay23TasteKr": "韓国の店名にみる味",
   "layer.mapchallengeDay23TasteGb": "イギリスの店名にみる味",
-  "layer.mapchallengeDay23TasteJp": "店名にみる日本の味（OSM）"
+  "layer.mapchallengeDay23TasteJp": "店名にみる日本の味（OSM）",
+  "layer.freewaySpecialSections": "国道の特殊区間（トンネル・路肩開放・登坂車線）",
+  "layer.freewayRoadsideDevices": "国道の路側設備",
+  "layer.freewayRoadkill": "国道のロードキル記録",
+  "layer.freewayEcoFacilities": "国道の生態配慮施設（動物用通路など）",
+  "layer.freewayEcoSurveyFlora": "国道の植物生態調査",
+  "layer.freewayEcoSurveyFauna": "国道の動物生態調査"
 }

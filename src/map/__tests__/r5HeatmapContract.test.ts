@@ -92,6 +92,10 @@ const REGISTRY_DENSE: readonly (readonly [string, number, number, string | null]
   ["placeNames", 36_431, 7, "placeNamesOpacity"],
   // G53 批 1（2026-11-09）
   ["freewayHundredMeterStakes", 10_082, 5, "freewayHundredMeterStakesOpacity"],
+  // 國道靜態批（2026-11-24）
+  ["freewayRoadkill", 107_156, 11, "freewayRoadkillOpacity"],
+  ["freewayEcoSurveyFlora", 30_746, 11, "freewayEcoSurveyFloraOpacity"],
+  ["freewayEcoSurveyFauna", 84_678, 11, "freewayEcoSurveyFaunaOpacity"],
 ];
 
 /** 共用滑桿：一般／移動／重大裁處同一支 pollutionPenaltyOpacity，取多數層（> 100k）的 0.6。 */

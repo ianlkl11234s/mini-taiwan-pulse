@@ -3216,5 +3216,8 @@
   "param.BWP 分區 C（共 6 區，名稱見 popup）": "BWP sub-area C (6 in total; names in popup)",
   "param.BWP 分區 D（共 6 區，名稱見 popup）": "BWP sub-area D (6 in total; names in popup)",
   "param.BWP 分區 E（共 6 區，名稱見 popup）": "BWP sub-area E (6 in total; names in popup)",
-  "param.BWP 分區 F（共 6 區，名稱見 popup）": "BWP sub-area F (6 in total; names in popup)"
+  "param.BWP 分區 F（共 6 區，名稱見 popup）": "BWP sub-area F (6 in total; names in popup)",
+  "param.近 1 年（2025–2026）": "Last 1 year (2025–2026)",
+  "param.近 5 年（2022–2026）": "Last 5 years (2022–2026)",
+  "param.全部（2009–2026）": "All (2009–2026)"
 }

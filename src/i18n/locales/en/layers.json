@@ -1439,5 +1439,11 @@
   "layer.mapchallengeDay23TasteForeign": "Foreign Cuisine Words in Shop Names",
   "layer.mapchallengeDay23TasteKr": "Tastes in Korean restaurant names",
   "layer.mapchallengeDay23TasteGb": "Tastes in UK food business names",
-  "layer.mapchallengeDay23TasteJp": "Tastes in Japanese restaurant names (OSM)"
+  "layer.mapchallengeDay23TasteJp": "Tastes in Japanese restaurant names (OSM)",
+  "layer.freewaySpecialSections": "Freeway Special Sections",
+  "layer.freewayRoadsideDevices": "Freeway Roadside Devices",
+  "layer.freewayRoadkill": "Freeway Roadkill Records",
+  "layer.freewayEcoFacilities": "Freeway Wildlife Crossings",
+  "layer.freewayEcoSurveyFlora": "Freeway Flora Survey",
+  "layer.freewayEcoSurveyFauna": "Freeway Fauna Survey"
 }
