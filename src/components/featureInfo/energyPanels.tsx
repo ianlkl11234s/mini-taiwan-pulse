@@ -699,7 +699,7 @@ export function LpgRetailersPanel({ props }: { props: Record<string, unknown> })
       <Row label={t("popup.energy.lpgShop")} value={String(props.name ?? "—")} />
       <Row field="address" value={String(props.address ?? "—")} />
       <Row field="phone" value={String(props.telephone ?? "—")} />
-      <Row label={t("popup.energy.confidence")} value={props.confidence != null ? String(props.confidence) : "—"} />
+      <Row label={t("popup.energy.confidence")} value={roundedText(props.confidence)} />
       <Row field="sourceCount" value={props.n_sources != null ? String(props.n_sources) : "—"} />
     </div>
   );
@@ -714,7 +714,7 @@ export function LngTerminalPanel({ props }: { props: Record<string, unknown> }) 
       <Row field="status" value={String(props.status ?? "—")} />
       <Row field="operator" value={String(props.owner ?? "—")} />
       <Row label={t("popup.energy.capacityMtpa")} value={String(props.capacity_mtpa ?? "—")} />
-      <Row label={t("popup.energy.confidence")} value={props.confidence != null ? String(props.confidence) : "—"} />
+      <Row label={t("popup.energy.confidence")} value={roundedText(props.confidence)} />
       <Row field="sourceCount" value={props.n_sources != null ? String(props.n_sources) : "—"} />
     </div>
   );
