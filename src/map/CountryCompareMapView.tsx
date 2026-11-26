@@ -44,6 +44,7 @@ import { useCountryPackVersion } from "../countries/packs";
 import { addAllOverlays, addLateOverlays, hydrateOverlayIfNeeded, isOverlayVisible, refreshFallbackHydratedOverlay, resetOverlayHydration, setOverlayTaskSuffix, setOverlayVisible, updateAllOverlayThemes } from "./overlayManager";
 import { createJpHeightLifecycle } from "./jpHeightLifecycle";
 import { sampleRasterProbes } from "../data/rasterProbeSampler";
+import { startRightMapProbe, type SelectionRequest } from "./compareRightProbe";
 import { registerOverlaySourceReset } from "../lib/ownerGateRevoke";
 import { onLayerAssetIndexReady } from "../data/layerAssetIndex";
 import type { AppLayerHostDeps } from "../layers/layerHostDeps";
@@ -62,6 +63,8 @@ interface CountryCompareMapViewProps {
   showBasemapLabels: boolean;
   featureInfo: FeatureInfo | null;
   onFeatureInfo: (info: FeatureInfo | null) => void;
+  /** 與主地圖共用的選取代號：主地圖較新的點擊會讓右圖仍在路上的 probe 失效 */
+  selectionRequest: SelectionRequest;
   /** 主地圖那份 LayerHost deps；右圖換成自己的 mapRef */
   hostDeps: AppLayerHostDeps;
 }
@@ -82,7 +85,7 @@ export function initialRightCamera(
   return scaleLocked ? { ...camera, zoom: scaleMatchedZoom(main.zoom, main.lat, camera.center[1]) } : camera;
 }
 
-export function CountryCompareMapView({ mainMap, rightCountry, styleUrl, pureBlack, isDarkTheme, showBasemapLabels, featureInfo, onFeatureInfo, hostDeps }: CountryCompareMapViewProps) {
+export function CountryCompareMapView({ mainMap, rightCountry, styleUrl, pureBlack, isDarkTheme, showBasemapLabels, featureInfo, onFeatureInfo, selectionRequest, hostDeps }: CountryCompareMapViewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const [ready, setReady] = useState(false);
@@ -92,6 +95,7 @@ export function CountryCompareMapView({ mainMap, rightCountry, styleUrl, pureBla
   const labelsRef = useRef(showBasemapLabels);
   const hiddenLabelsRef = useRef(new Set<string>());
   const onFeatureInfoRef = useRef(onFeatureInfo);
+  const selectionRequestRef = useRef(selectionRequest);
   const loadingLabelRef = useRef(t("compare.rightMapLoading"));
   // overlay 型右國圖層（右圖只管右國那幾筆；換右國由 key 重建）。右國的國家包可能在右圖建好後才載入（B1 P5b），
   // 所以跟著國家包版本重算，新到的由下面的 effect 補進圖上
@@ -111,6 +115,7 @@ export function CountryCompareMapView({ mainMap, rightCountry, styleUrl, pureBla
   pureBlackRef.current = pureBlack;
   labelsRef.current = showBasemapLabels;
   onFeatureInfoRef.current = onFeatureInfo;
+  selectionRequestRef.current = selectionRequest;
 
   // 建立／銷毀（開才建、關就銷毀；換右國由 App 的 key 重建）
   useEffect(() => {
@@ -208,20 +213,21 @@ export function CountryCompareMapView({ mainMap, rightCountry, styleUrl, pureBla
     });
 
     // 右半的點擊：與主地圖共用 GIS_LAYERS 命中（右圖只有右國圖層與右國統計）；沒命中＝關 popup（同主地圖空白處）
-    let rightClickSeq = 0;
+    // 關比較／換右國（重建）後，仍在路上的 probe 不可再對已銷毀的右圖開 popup
+    let disposed = false;
     map.on("click", (e) => {
       recordSelectionClick([e.lngLat.lng, e.lngLat.lat]);
-      const clickId = ++rightClickSeq;
       const hit = gisHitCandidates(map, e.point).next();
       if (hit.done) {
         // 值編碼 raster（日本樹冠高度，manifest popup: rasterProbe）不能 queryRenderedFeatures：沒命中向量時改讀像素
         if (shownOnRight("jpCanopyHeight", layerVisibilityStore.getVisibility("jpCanopyHeight"))) {
           const { lng, lat } = e.lngLat;
-          void sampleRasterProbes(
-            { urbanHeat: false, canopyHeight: false, jpCanopyHeight: true }, lng, lat, map.getZoom(),
-            new Set(Object.keys(map.getStyle?.()?.sources ?? {}).filter((id) => id.startsWith("jp-canopy-height--"))),
-          ).then((probe) => {
-            if (clickId !== rightClickSeq) return; // 之後又點了別處（或其他選取接手）
+          const zoom = map.getZoom();
+          const sources = new Set(Object.keys(map.getStyle?.()?.sources ?? {}).filter((id) => id.startsWith("jp-canopy-height--")));
+          // 代號與主地圖共用：之後任一張圖再點（或其他選取接手）都讓這次結果作廢
+          startRightMapProbe(selectionRequestRef.current, () => disposed, () => sampleRasterProbes(
+            { urbanHeat: false, canopyHeight: false, jpCanopyHeight: true }, lng, lat, zoom, sources,
+          ), (probe) => {
             if (!probe) { onFeatureInfoRef.current(null); return; }
             onFeatureInfoRef.current({
               layerType: "rasterProbe",
@@ -259,6 +265,7 @@ export function CountryCompareMapView({ mainMap, rightCountry, styleUrl, pureBla
     });
     map.on("error", endLoading);
     return () => {
+      disposed = true;
       endLoading();
       offAssetIndex();
       offOwnerReset();

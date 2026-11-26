@@ -1123,7 +1123,7 @@ export default function App() {
     playingRef, layerVisibilityRef,
   });
 
-  const { tooltipInfo, setTooltipInfo, trainTooltipInfo, busTooltipInfo, wasteScheduleTooltipInfo, realEstateTooltipInfo, featureInfo, setFeatureInfo, bindEvents, invalidateFeatureRequest } =
+  const { tooltipInfo, setTooltipInfo, trainTooltipInfo, busTooltipInfo, wasteScheduleTooltipInfo, realEstateTooltipInfo, featureInfo, setFeatureInfo, bindEvents, invalidateFeatureRequest, featureRequest } =
     useMapInteraction(mapRef, flightSceneRef, flightsRef, timeRef, railSceneRef, busSceneRef, shipSceneRef, layerVisibilityRef, reservoirSceneRef, wasteScheduleSceneRef, touristShuttleSceneRef, busIntercitySceneRef, wasteTruckSceneRef);
 
   // Allen auth changes first remove the private source in its host. This derived state also
@@ -2679,6 +2679,7 @@ export default function App() {
             showBasemapLabels={showBasemapLabels}
             featureInfo={featureInfo}
             onFeatureInfo={handleRightFeatureInfo}
+            selectionRequest={featureRequest}
             hostDeps={hostDeps}
           />
           <CountryCompareChrome

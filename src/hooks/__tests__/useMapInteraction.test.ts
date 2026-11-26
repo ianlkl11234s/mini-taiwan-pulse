@@ -58,6 +58,7 @@ vi.mock("../useGfwHourlyGridLayer", async (importOriginal) => ({
 import { GIS_LAYERS } from "../../map/gisClickRegistry";
 import { GFW_HOURLY_GRID_PMTILES_HIT_FILL_LAYER_ID } from "../useGfwHourlyGridLayer";
 import { clearMapSelection, useMapInteraction } from "../useMapInteraction";
+import { startRightMapProbe } from "../../map/compareRightProbe";
 
 describe("useMapInteraction GFW grid click", () => {
   beforeEach(() => harness.reset());
@@ -350,6 +351,53 @@ describe("useMapInteraction GFW v4 current-frame track picking", () => {
     await Promise.resolve();
     expect(harness.hydrateTrack).not.toHaveBeenCalled();
     expect(harness.setFeatureInfo).not.toHaveBeenCalledWith(expect.objectContaining({ layerType: "gfwHourlyTrack" }));
+  });
+
+  it("drops a pending compare right-map probe once the main map takes a newer click", async () => {
+    let resolveProbe!: (value: string) => void;
+    const probe = new Promise<string>((resolve) => { resolveProbe = resolve; });
+    harness.trackPick.mockReturnValue(null);
+    const ref = { current: map } as unknown as RefObject<MapboxMap | null>;
+    const interaction = useMapInteraction(ref, { current: null }, { current: [] }, { current: 0 }, undefined, undefined, undefined, { current: { gfwHourlyTracks: true } } as never);
+    interaction.bindEvents(map as never);
+    const publish = vi.fn();
+
+    startRightMapProbe(interaction.featureRequest, () => false, () => probe, publish);
+    harness.click()?.({ point: { x: 5, y: 6 }, lngLat: { lng: 121, lat: 25 } });
+    resolveProbe("right canopy");
+    await probe; await Promise.resolve();
+    expect(publish).not.toHaveBeenCalled();
+  });
+
+  it("a compare right-map click supersedes an in-flight main-map pick, and its own probe still publishes", async () => {
+    let resolveFirst!: (value: ReturnType<typeof picked>) => void;
+    const first = new Promise<ReturnType<typeof picked>>((resolve) => { resolveFirst = resolve; });
+    const epoch = Date.parse("2026-08-21T12:30:00Z") / 1000;
+    harness.trackPick.mockReturnValueOnce({ generation: 3, frameEpoch: epoch, pointIndex: 0, coords: [121, 25], result: first });
+    const ref = { current: map } as unknown as RefObject<MapboxMap | null>;
+    const interaction = useMapInteraction(ref, { current: null }, { current: [] }, { current: 0 }, undefined, undefined, undefined, { current: { gfwHourlyTracks: true } } as never);
+    interaction.bindEvents(map as never);
+    const publish = vi.fn();
+
+    harness.click()?.({ point: { x: 5, y: 6 }, lngLat: { lng: 121, lat: 25 } });
+    const probe = Promise.resolve("right canopy");
+    startRightMapProbe(interaction.featureRequest, () => false, () => probe, publish);
+    resolveFirst(picked(epoch));
+    await probe; await Promise.resolve(); await Promise.resolve();
+    expect(harness.hydrateTrack).not.toHaveBeenCalled();
+    expect(publish).toHaveBeenCalledWith("right canopy");
+  });
+
+  it("drops a compare right-map probe that resolves after the right map was closed", async () => {
+    const ref = { current: map } as unknown as RefObject<MapboxMap | null>;
+    const interaction = useMapInteraction(ref, { current: null }, { current: [] }, { current: 0 });
+    let disposed = false;
+    const publish = vi.fn();
+    const probe = Promise.resolve("right canopy");
+    startRightMapProbe(interaction.featureRequest, () => disposed, () => probe, publish);
+    disposed = true;
+    await probe; await Promise.resolve();
+    expect(publish).not.toHaveBeenCalled();
   });
 });
 
