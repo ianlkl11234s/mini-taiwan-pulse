@@ -151,7 +151,7 @@ export const LAYER_SOURCE_INFO_DATA: Record<string, LayerSourceInfo> = extensibl
   gasCoverageCpc: { org: "中油（台灣中油股份有限公司）、臺中市政府 → 政府資料開放平台 data.gov.tw", license: "政府資料開放授權條款 1.0（OGDL-Taiwan-1.0）", url: "https://data.gov.tw/dataset/{nid}", from: "catalog" },
   gasCoverageFpcc: { org: "中油（台灣中油股份有限公司）、臺中市政府 → 政府資料開放平台 data.gov.tw", license: "政府資料開放授權條款 1.0（OGDL-Taiwan-1.0）", url: "https://data.gov.tw/dataset/{nid}", from: "catalog" },
   gasCoverageTaisugar: { org: "中油（台灣中油股份有限公司）、臺中市政府 → 政府資料開放平台 data.gov.tw", license: "政府資料開放授權條款 1.0（OGDL-Taiwan-1.0）", url: "https://data.gov.tw/dataset/{nid}", from: "catalog" },
-  gasStationCanonical: { org: "中油（台灣中油股份有限公司）、臺中市政府 → 政府資料開放平台 data.gov.tw", license: "政府資料開放授權條款 1.0（OGDL-Taiwan-1.0）", url: "https://data.gov.tw/dataset/{nid}", from: "catalog" },
+  gasStationCanonical: { org: "中油（台灣中油股份有限公司）、臺中市政府 → 政府資料開放平台 data.gov.tw", license: "政府資料開放授權條款 1.0（OGDL-Taiwan-1.0）", url: "https://data.gov.tw/dataset/{nid}", notes: [{ "zh-TW": "國道服務區加油站的國道別與里程來自交通部高速公路局（data.gov.tw 28805）", en: "Freeway name and mileage of service-area gas stations come from the Freeway Bureau, MOTC (data.gov.tw 28805)", ja: "高速道路サービスエリアのガソリンスタンドの路線名とキロポストは交通部高速公路局による（data.gov.tw 28805）" }], from: "catalog" },
   gasStationCpc: { org: "中油（台灣中油股份有限公司）、臺中市政府 → 政府資料開放平台 data.gov.tw", license: "政府資料開放授權條款 1.0（OGDL-Taiwan-1.0）", url: "https://data.gov.tw/dataset/{nid}", from: "catalog" },
   gasStationFpcc: { org: "中油（台灣中油股份有限公司）、臺中市政府 → 政府資料開放平台 data.gov.tw", license: "政府資料開放授權條款 1.0（OGDL-Taiwan-1.0）", url: "https://data.gov.tw/dataset/{nid}", from: "catalog" },
   gasStationOther: { org: "中油（台灣中油股份有限公司）、臺中市政府 → 政府資料開放平台 data.gov.tw", license: "政府資料開放授權條款 1.0（OGDL-Taiwan-1.0）", url: "https://data.gov.tw/dataset/{nid}", from: "catalog" },

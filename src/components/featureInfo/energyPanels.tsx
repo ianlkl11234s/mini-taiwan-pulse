@@ -575,6 +575,30 @@ function joinBrand(b: unknown): string {
   return String(b ?? "");
 }
 
+function nonEmptyText(v: unknown): string {
+  return typeof v === "string" ? v.trim() : "";
+}
+
+// 國道服務區加油站（交通部高公局）：欄位只有約 30 站有值，空值不顯示該列
+function GasStationFreewayRows({ props }: { props: Record<string, unknown> }) {
+  const { t } = useLocale();
+  const road = nonEmptyText(props.freeway_road);
+  if (!road) return null;
+  const mileText = nonEmptyText(props.freeway_mile_text);
+  const km = typeof props.freeway_km === "number" && Number.isFinite(props.freeway_km) ? `${props.freeway_km}K` : "";
+  const mile = mileText || km;
+  const locationNote = nonEmptyText(props.freeway_location_note);
+  const bureauNote = nonEmptyText(props.freeway_bureau_status_note);
+  return (
+    <>
+      <Row label={t("popup.energy.freewayRoad")} value={road} />
+      {mile && <Row label={t("popup.energy.freewayMile")} value={mile} />}
+      {locationNote && <Row label={t("popup.energy.freewayLocationNote")} value={locationNote} />}
+      {bureauNote && <Row label={t("popup.energy.freewayBureauNote")} value={bureauNote} />}
+    </>
+  );
+}
+
 function GasStationCommonRows({ props }: { props: Record<string, unknown> }) {
   return (
     <>
@@ -582,6 +606,7 @@ function GasStationCommonRows({ props }: { props: Record<string, unknown> }) {
       <Row field="brand" value={joinBrand(props.brand) || "—"} />
       <Row field="address" value={String(props.address ?? "—")} />
       <Row field="phone" value={String(props.telephone ?? "—")} />
+      <GasStationFreewayRows props={props} />
     </>
   );
 }
