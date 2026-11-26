@@ -571,8 +571,22 @@ export function EvChargingPanel({ props }: { props: Record<string, unknown> }) {
 // ══════════════════════════════════════════════════════════════════
 
 function joinBrand(b: unknown): string {
-  if (Array.isArray(b)) return b.join(" / ");
-  return String(b ?? "");
+  let v = b;
+  if (typeof v === "string") {
+    const raw = v.trim();
+    if (raw.startsWith("[")) {
+      try { v = JSON.parse(raw); } catch { return raw; }
+    }
+  }
+  if (Array.isArray(v)) return v.map((x) => String(x ?? "").trim()).filter(Boolean).join("、");
+  return String(v ?? "");
+}
+
+/** 最多 maxDigits 位小數，去尾端 0（0.8999999999999999 → "0.9"）；非有限數字回 "—" */
+function roundedText(v: unknown, maxDigits = 2): string {
+  const n = typeof v === "number" ? v : typeof v === "string" && v.trim() !== "" ? Number(v) : NaN;
+  if (!Number.isFinite(n)) return "—";
+  return String(Number(n.toFixed(maxDigits)));
 }
 
 function nonEmptyText(v: unknown): string {
@@ -585,7 +599,8 @@ function GasStationFreewayRows({ props }: { props: Record<string, unknown> }) {
   const road = nonEmptyText(props.freeway_road);
   if (!road) return null;
   const mileText = nonEmptyText(props.freeway_mile_text);
-  const km = typeof props.freeway_km === "number" && Number.isFinite(props.freeway_km) ? `${props.freeway_km}K` : "";
+  const kmText = roundedText(props.freeway_km, 1);
+  const km = kmText === "—" ? "" : `${kmText}K`;
   const mile = mileText || km;
   const locationNote = nonEmptyText(props.freeway_location_note);
   const bureauNote = nonEmptyText(props.freeway_bureau_status_note);
@@ -658,8 +673,8 @@ export function GasStationCanonicalPanel({ props }: { props: Record<string, unkn
   return (
     <div>
       <GasStationCommonRows props={props} />
-      <Row label={t("popup.energy.confidence")} value={props.confidence != null ? String(props.confidence) : "—"} />
-      <Row field="sourceCount" value={props.n_sources != null ? String(props.n_sources) : "—"} />
+      <Row label={t("popup.energy.confidence")} value={roundedText(props.confidence)} />
+      <Row field="sourceCount" value={roundedText(props.n_sources, 0)} />
     </div>
   );
 }
