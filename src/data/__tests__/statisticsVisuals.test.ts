@@ -188,8 +188,9 @@ describe('getStatisticsVisual', () => {
     // 2026-11-20: +4 台灣圖層延伸 B1（法定傳染病鄉鎮／縣市 × 病例數／每十萬人）。
     // 2026-11-20: +23 台灣圖層延伸 B4（普查常住人口 6、原住民族別 4、住宅用電 4、公司登記動態 4、未參加健保 2、工商普查鄉鎮 3）。
     // 2026-11-21: +4 台灣圖層延伸 B5（縣市間遷徙：淨遷入人數／率、遷入、遷出）。
-    expect(STATISTICS_KEYS).toHaveLength(944);
-    expect(STATISTICS_RENDER_KEYS).toHaveLength(956);
+    // 2026-11-27: +10 村里／鄉鎮公司登記與實價登錄彙總（公司家數、每千人家數、地方特色產業、買賣單價中位數、成交筆數 × 村里／鄉鎮）。
+    expect(STATISTICS_KEYS).toHaveLength(954);
+    expect(STATISTICS_RENDER_KEYS).toHaveLength(966);
     const uncoveredRenderKeys = STATISTICS_RENDER_KEYS.filter(key => {
       const recipe = statisticsRenderRecipe(key);
       return getStatisticsVisual(key, recipe.label).icon === ChartNoAxesCombined;

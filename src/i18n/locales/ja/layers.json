@@ -1445,5 +1445,15 @@
   "layer.freewayRoadkill": "国道のロードキル記録",
   "layer.freewayEcoFacilities": "国道の生態配慮施設（動物用通路など）",
   "layer.freewayEcoSurveyFlora": "国道の植物生態調査",
-  "layer.freewayEcoSurveyFauna": "国道の動物生態調査"
+  "layer.freewayEcoSurveyFauna": "国道の動物生態調査",
+  "layer.statsVillageCompanyCount": "登記会社数（村里）",
+  "layer.statsVillageCompanyPer1000": "人口千人あたり登記会社数（村里）",
+  "layer.statsVillageCompanySpecialty": "地域特化産業（村里）",
+  "layer.statsVillageSalePriceMedian": "住宅売買単価の中央値（村里）",
+  "layer.statsVillageSaleCount": "住宅売買の成約件数（村里）",
+  "layer.statsTownshipCompanyCount": "登記会社数（郷鎮）",
+  "layer.statsTownshipCompanyPer1000": "人口千人あたり登記会社数（郷鎮）",
+  "layer.statsTownshipCompanySpecialty": "地域特化産業（郷鎮）",
+  "layer.statsTownshipSalePriceMedian": "住宅売買単価の中央値（郷鎮）",
+  "layer.statsTownshipSaleCount": "住宅売買の成約件数（郷鎮）"
 }

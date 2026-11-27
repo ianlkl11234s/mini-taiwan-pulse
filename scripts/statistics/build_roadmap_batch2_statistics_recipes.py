@@ -13,6 +13,8 @@ Families (one output JSON each, atlas recipe schema in src/data/atlasStatisticsT
                docs/topic-research/tw_layer_ext_20261120/b1/r2/b1-recipes.json；tab_theme 併入「醫療與長照」的「傳染病」）
   twExtB4      台灣圖層延伸 B4 統計（109 年普查常住人口 6、原住民族別 4、住宅用電鄉鎮／縣市 4、公司登記動態 4、未參加健保比 2、
                工商普查鄉鎮 3；docs/topic-research/tw_layer_ext_20261120/b4/r2/b4-recipes.json，23 recipes；tab_theme 併入既有統計主題）
+  twAdminRollup 村里／鄉鎮公司登記與實價登錄彙總（公司家數、每千人家數、地方特色產業〔類別〕、房屋買賣單價中位數、成交筆數，2 層級 × 5 指標＝10 recipes；
+               docs/topic-research/tw_h3_grid/stat_bundles/admin-rollup-recipes.json，公司 tab_theme＝財稅與消費、不動產併入「住宅與不動產」）
   twExtB5      台灣圖層延伸 B5 縣市間遷徙（由縣市 OD 加總：淨遷入人數／率、遷入、遷出，4 recipes；
                docs/topic-research/tw_layer_ext_20261120/b5/r2/b5-recipes.json；併入「人口與教育」的「遷徙」；淨遷入用 diverging）
 
@@ -42,7 +44,7 @@ from collections import Counter, defaultdict
 from pathlib import Path
 
 OUT_DIR = Path(__file__).resolve().parents[2] / "src/data"
-AREA_COUNT = {"township": 368, "county": 22}
+AREA_COUNT = {"village": 7973, "township": 368, "county": 22}
 OGDL = "政府資料開放授權條款-第1版"
 
 # ── 各家族的呈現設定 ────────────────────────────────────────────────────────────
@@ -507,6 +509,68 @@ TW_EXT_B5_LAYERS = [
     b5("statsCountyOdOutMigration", "遷出人數", 0, [], breaks=[5000, 15000, 30000, 60000]),
 ]
 
+# ── 村里／鄉鎮公司登記與實價登錄彙總（2026-11-27；analytics tw_h3_grid 12_export_stat_bundles）─────────────────
+AR_DATA_CO = "財稅與消費統計 Fiscal & Consumption Statistics"
+AR_DATA_RE = "不動產交易統計 Real Estate Transactions"
+AR_TAB_CO = "財稅與消費 Fiscal & Consumption"
+AR_TAB_RE = "住宅與不動產 Housing & Property"
+AR_CO_LICENSE = "授權待確認（部分縣市來源授權待核；僅本人分析）"
+AR_CO_SRC = "出典：經濟部商業發展署 公司登記存量（data.gov.tw 166152，202608 快照；本站以營業地址 geocode）；授權待確認。"
+AR_CO_SCOPE = "公司登記一家算一家，不代表規模；不含行號與獨資；登記地址不等於營運地點，總公司集中登記會讓該區家數偏高。清冊 657,882 筆中 654,165 筆地址定位成功才計入，未定位者不在內。"
+AR_CO_UNCOVERED = "金門縣、連江縣來源近乎無資料，視為未涵蓋（斜線），不是 0。"
+AR_CO_POP = "分母為 112 年底戶政人口、分子為 202608 公司登記快照，期別不同；缺戶政人口的村里為缺值。"
+AR_CO_POP_TOWN = "鄉鎮內缺戶政人口的村里其公司超過該鄉鎮公司的 2% 時，該鄉鎮為缺值。"
+AR_CO_SPEC = "地方特色＝該大類佔比是全台平均的幾倍（區位商數最高者）；只比該區家數 ≥5 的大類，且該區公司需 ≥30 家才計算。"
+AR_CO_SPEC_COLOR = "色塊只標 8 個最常見的大類，其餘大類併為灰色「其他產業」；點選看實際大類。"
+AR_RE_SRC = "出典：內政部 不動產交易實價登錄（買賣）；政府資料開放授權條款-第1版；地址以 TGOS 或快取 geocode。"
+AR_RE_SCOPE = "成交日 2024-10-01 至 2026-03-03；只含房屋標的（房地、房地加車位、建物；排除純土地、純車位）且建物移轉總面積 ≥10 ㎡；已去重。座標為地址 geocode，依座標落區。"
+AR_RE_PRICE = "單價中位數取各區成交單價（元/㎡）的中位數；成交少於 10 筆不給（斜線），不是 0。"
+AR_RE_ZERO = "0＝期間內該區確實無成交。"
+AR_SPEC_CATEGORIES = [  # 碼＝大類 A=1…S=19
+    (3, "製造業", "#4c78a8"), (6, "營建工程業", "#f2a93b"), (12, "不動產業", "#b279a2"), (8, "運輸及倉儲業", "#72b7b2"),
+    (9, "住宿及餐飲業", "#e45756"), (14, "支援服務業", "#9d755d"), (1, "農林漁牧業", "#54a24b"), (4, "電力及燃氣供應業", "#eeca3b"),
+]
+AR_LABEL = {"village": "村里", "township": "鄉鎮市區"}
+AR_LOC_CO = {"village": "公司登記營業地址 geocode 後所在的村里（不是營運地點）", "township": "公司登記營業地址 geocode 後所在的鄉鎮市區（不是營運地點）"}
+AR_LOC_RE = {"village": "房屋座落地址 geocode 後所在的村里", "township": "房屋座落地址 geocode 後所在的鄉鎮市區"}
+
+
+def ar_co(key, lv, group, group_label, digits, notes, **extra):
+    return dict(key=key, label=group_label, group=group, group_label=group_label, option_label=AR_LABEL[lv], subgroup="公司登記與產業", visual="labor", digits=digits,
+                notes=[AR_CO_SRC, AR_CO_SCOPE, *notes], license=AR_CO_LICENSE, theme_dir="socioeconomic", data_theme=AR_DATA_CO, tab_theme=AR_TAB_CO,
+                location_semantics=AR_LOC_CO[lv], source_title="公司登記存量（經濟部商業發展署，data.gov.tw 166152；202608 快照，營業地址 geocode）", **extra)
+
+
+def ar_re(key, lv, group, group_label, digits, notes, **extra):
+    return dict(key=key, label=group_label, group=group, group_label=group_label, option_label=AR_LABEL[lv], subgroup="實價登錄（買賣）", visual="housing", digits=digits,
+                notes=[AR_RE_SRC, AR_RE_SCOPE, *notes], theme_dir="real_estate", data_theme=AR_DATA_RE, tab_theme=AR_TAB_RE,
+                location_semantics=AR_LOC_RE[lv], source_title="內政部不動產交易實價登錄（買賣；2024-10 至 2026-03，地址 geocode）", **extra)
+
+
+AR_MISSING_CO = {"missing": "未涵蓋（金門縣、連江縣公司登記近乎無資料；不是 0）"}
+AR_MISSING_PER1000 = {"missing": "無資料（金門縣、連江縣未涵蓋，或缺戶政人口；不是 0）"}
+AR_MISSING_SPEC = {"missing": "未算（公司少於 30 家、沒有家數 ≥5 的大類，或金門縣、連江縣未涵蓋；不是 0）"}
+AR_MISSING_PRICE = {"missing": "樣本不足（成交少於 10 筆，不給中位數；不是 0）"}
+AR_DISC = {
+    "count": "經濟部商業發展署公司登記存量 202608 快照（清冊 657,882 筆中 654,165 筆地址定位成功才計入），以營業地址定位後落到{lv}界計數；公司登記一家算一家，不代表規模；登記地址不等於營運地點，總公司集中登記會讓該區家數偏高；金門縣、連江縣來源近乎無資料，視為未涵蓋。",
+    "per1000": "每千人公司家數＝{lv}內公司家數 ÷ 戶政人口 × 1,000（四捨五入至 2 位）；分母為 112 年底戶政人口，分子為 202608 公司登記快照，期別不同；缺戶政人口的村里、金門縣與連江縣為缺值。",
+    "specialty": "依稅務行業標準分類第 9 版大類，比較{lv}內各大類佔比與全台佔比的倍數（區位商數），取最高者；該區公司需 ≥30 家、且只比家數 ≥5 的大類；地圖以 8 種常見大類著色，其餘併為其他產業。",
+    "price": "內政部實價登錄買賣（成交日 2024-10-01 至 2026-03-03），{lv}內房屋成交單價（元/平方公尺）取中位數並取整數；成交少於 10 筆不給。",
+    "salecount": "內政部實價登錄買賣（成交日 2024-10-01 至 2026-03-03，去重後），{lv}內房屋成交筆數。",
+}
+TW_ADMIN_ROLLUP_LAYERS = []
+for _lv, _sfx in (("village", "Village"), ("township", "Township")):
+    _d = {k: v.format(lv=AR_LABEL[_lv]) for k, v in AR_DISC.items()}
+    TW_ADMIN_ROLLUP_LAYERS += [
+        ar_co(f"stats{_sfx}CompanyCount", _lv, "adminCompanyCount", "公司登記家數", 0, [AR_CO_UNCOVERED], status=AR_MISSING_CO, disclosure=_d["count"]),
+        ar_co(f"stats{_sfx}CompanyPer1000", _lv, "adminCompanyPer1000", "每千人公司家數", 1,
+              [AR_CO_UNCOVERED, AR_CO_POP, *([AR_CO_POP_TOWN] if _lv == "township" else [])], status=AR_MISSING_PER1000, disclosure=_d["per1000"]),
+        ar_co(f"stats{_sfx}CompanySpecialty", _lv, "adminCompanySpecialty", "地方特色產業", 0, [AR_CO_SPEC, AR_CO_SPEC_COLOR], status=AR_MISSING_SPEC, disclosure=_d["specialty"],
+              categorical=dict(categories=AR_SPEC_CATEGORIES, other_color="#9ca3af", other_label="其他產業")),
+        ar_re(f"stats{_sfx}SalePriceMedian", _lv, "adminSalePrice", "房屋買賣單價中位數", 0, [AR_RE_PRICE], status=AR_MISSING_PRICE, disclosure=_d["price"]),
+        ar_re(f"stats{_sfx}SaleCount", _lv, "adminSaleCount", "房屋買賣成交筆數", 0, [AR_RE_ZERO], disclosure=_d["salecount"]),
+    ]
+
 FAMILIES: dict[str, dict] = {
     "financeAccess": {
         "file": "financeAccessStatisticsRecipes",
@@ -581,6 +645,15 @@ FAMILIES: dict[str, dict] = {
         "tab_theme": "人口與教育 Population & Education",
         "observation_policy": {"observed_zero": "not used", "missing": "not used", "not_applicable": "not used", "suppressed": "not used"},
         "layers": TW_EXT_B5_LAYERS,
+    },
+    "twAdminRollup": {
+        "file": "twAdminRollupStatisticsRecipes",
+        "handoff": "docs/topic-research/tw_h3_grid/stat_bundles/admin-rollup-recipes.json",
+        "theme_dir": None,  # 各層 theme_dir（socioeconomic／real_estate）
+        "data_theme": AR_DATA_CO,
+        "tab_theme": AR_TAB_CO,
+        "observation_policy": {"observed_zero": "status observed and value 0 (the area is covered and has no company or no sale in the period)", "missing": "value null; Kinmen and Lienchiang not covered, no resident population, fewer than 30 companies or 10 sales; no zero fill", "not_applicable": "not used", "suppressed": "not used"},
+        "layers": TW_ADMIN_ROLLUP_LAYERS,
     },
     "culture": {
         "file": "cultureStatisticsRecipes",
@@ -841,7 +914,7 @@ def build_family(name: str, config: dict, root: Path) -> dict:
         if spec.get("nonphysical"):
             notes.append(nonphysical_note(key, layer, config, root, defaults))
         nid = release["provenance"]["source_dataset_id"]
-        if release["license"] != config.get("license", OGDL):
+        if release["license"] != spec.get("license", config.get("license", OGDL)):
             raise SystemExit(f"{key}: unexpected licence {release['license']}")
         recipes.append({
             "layer_key": key, "enabled": True, "family": name,

@@ -127,5 +127,7 @@
   "enum.statUnit.歐元/月": "EUR/month",
   "enum.statUnit.件／萬人": "incidents per 10,000 residents",
   "enum.statUnit.類": "themes",
-  "enum.statUnit.度／戶／月": "kWh per customer per month"
+  "enum.statUnit.度／戶／月": "kWh per customer per month",
+  "enum.statUnit.家/千人": "companies per 1,000 residents",
+  "enum.statUnit.元/㎡": "NT$ per m²"
 }
