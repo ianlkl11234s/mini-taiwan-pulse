@@ -13,8 +13,8 @@ import { categoricalColor, categoricalNeutral } from "../map/mapStyleScale";
 import { TERRITORY_TEXT } from "./territoryText";
 
 // 一對資產一起換版（S3／R2 只寫不覆蓋）：資料重產時兩個檔名的日期一起改
-export const TERRITORY_ATTRIBUTES_URL = "./h3/territory/attributes_20261127.json";
-export const TERRITORY_PMTILES_URL = "./h3/territory/tw_h3_grid_20261127.pmtiles";
+export const TERRITORY_ATTRIBUTES_URL = "./geo/h3_territory/attributes_20261127.json";
+export const TERRITORY_PMTILES_URL = "./geo/h3_territory/tw_h3_grid_20261127.pmtiles";
 export const TERRITORY_SOURCE_LAYER = "cells";
 export const TERRITORY_RESOLUTIONS = [7, 8, 9] as const;
 export type TerritoryRes = (typeof TERRITORY_RESOLUTIONS)[number];
