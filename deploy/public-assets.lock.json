@@ -4295,6 +4295,20 @@
    "s3_key": "deploy-assets/h3_spatial_economy_res8.json"
   },
   {
+   "path": "public/h3/territory/attributes_20261127.json",
+   "bytes": 58218,
+   "sha256": "d4baef03a19d11be6712f657e1b58dd22b3e0ab60cbaf1a125f3dfc1bb94d755",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/territory/attributes_20261127.json"
+  },
+  {
+   "path": "public/h3/territory/tw_h3_grid_20261127.pmtiles",
+   "bytes": 54984507,
+   "sha256": "e12e1fa0886e35a99257d1875482324ff5470203fe629bbfca746dc28dd7d8ab",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/territory/tw_h3_grid_20261127.pmtiles"
+  },
+  {
    "path": "public/harm_reduction/alcohol_treatment_facilities.geojson",
    "bytes": 128133,
    "sha256": "ea38ad7cff8bbee6da25e42879ce6f17b7ecbf1eca62a3a7f787fda255e503f4",
