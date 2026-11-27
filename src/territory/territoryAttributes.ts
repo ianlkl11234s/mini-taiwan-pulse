@@ -18,7 +18,7 @@ export const TERRITORY_SOURCE_LAYER = "cells";
 export const TERRITORY_RESOLUTIONS = [7, 8, 9] as const;
 export type TerritoryRes = (typeof TERRITORY_RESOLUTIONS)[number];
 
-export type AttrKind = "count" | "length" | "ratio" | "median" | "distance" | "village_value" | "category" | "score";
+export type AttrKind = "count" | "length" | "ratio" | "median" | "mean" | "distance" | "village_value" | "category" | "score";
 
 export interface AttrStats {
   non_null?: number;
@@ -36,7 +36,8 @@ export interface TerritoryAttribute {
   unit?: string;
   source?: string;
   source_date?: string;
-  coverage?: "全台" | string[];
+  /** "全台"、縣市陣列，或一句說明文字（例 DEM 範圍） */
+  coverage?: string | string[];
   rollup?: string;
   min_res?: number;
   formula?: string;
@@ -116,7 +117,11 @@ export const gridBase = (isDark: boolean) => (isDark ? GRID_BASE.dark : GRID_BAS
 // ── 斷點 ──────────────────────────────────────────────────────────
 
 export type ColorScale =
-  | { type: "steps"; colors: string[]; breaksByRes: Partial<Record<TerritoryRes, number[]>> }
+  | {
+    type: "steps"; colors: string[]; breaksByRes: Partial<Record<TerritoryRes, number[]>>;
+    /** 該解析度是「0 一階＋非零值對數分級」（零值極多、分位數全是 0 時） */
+    zeroSplitRes: TerritoryRes[];
+  }
   | { type: "categories"; entries: { value: string; label: string; color: string }[]; otherColor: string };
 
 function percentileEntries(stats: AttrStats): [number, number][] {
@@ -141,6 +146,24 @@ function strictlyAscending(values: number[]): number[] {
 export function quantileBreaks(stats: AttrStats | undefined): number[] {
   if (!stats) return [];
   return insideRange(rawQuantileBreaks(stats), stats.min, stats.max);
+}
+
+/** 零值極多時第一個斷點（「>0」）；個數類直接用 1 */
+export const ZERO_SPLIT_EPS = 1e-9;
+
+/**
+ * 零值極多（p20…p80 全是 0）時分位數切不出級距：改成「0 一階＋非零值依對數分 4 階」。
+ * 非零下界：個數類 1、其他連續值 max/1000；上界 max。全部由 stats 推得。
+ */
+export function zeroSplitBreaks(stats: AttrStats | undefined, kind: AttrKind): number[] | null {
+  if (!stats || stats.min !== 0 || !(typeof stats.max === "number" && stats.max > 0)) return null;
+  if (quantileBreaks(stats).length >= 2) return null;
+  const max = stats.max;
+  const integer = kind === "count";
+  const lo = integer ? 1 : max / 1000;
+  if (lo >= max) return integer ? [] : null;
+  const geo = [1, 2, 3].map((i) => lo * (max / lo) ** (i / 4)).map((v) => (integer ? Math.ceil(v) : Number(v.toPrecision(2))));
+  return strictlyAscending([integer ? 1 : ZERO_SPLIT_EPS, ...geo]).filter((b) => b < max);
 }
 
 /**
@@ -174,7 +197,12 @@ function normaliseCategories(raw: unknown): { value: string; label: string; coun
       const o = item as Record<string, unknown>;
       const value = o.value ?? o.key ?? o.code ?? o.label;
       if (value === undefined || value === null) continue;
-      out.push({ value: String(value), label: String(o.label ?? o.name ?? value), count: Number(o.count ?? o.n ?? 0) || 0 });
+      // count 可能是數字或 {"9":n,"8":n,"7":n}（契約 v0）：物件取最細一級排序
+      const rawCount = o.count ?? o.n ?? 0;
+      const count = rawCount && typeof rawCount === "object"
+        ? Number((rawCount as Record<string, unknown>)["9"] ?? Object.values(rawCount as Record<string, unknown>)[0] ?? 0)
+        : Number(rawCount);
+      out.push({ value: String(value), label: String(o.label ?? o.name ?? value), count: Number.isFinite(count) ? count : 0 });
     }
   }
   // 有 count 就由多到少排，取前 8 色；沒 count 保留檔案順序
@@ -192,15 +220,19 @@ export function buildColorScale(attr: TerritoryAttribute, isDark: boolean): Colo
   }
   const colors = [...rampFor(attr, isDark)];
   const breaksByRes: Partial<Record<TerritoryRes, number[]>> = {};
+  const zeroSplitRes: TerritoryRes[] = [];
   for (const res of TERRITORY_RESOLUTIONS) {
     if (attr.kind === "ratio") breaksByRes[res] = LINEAR_5(0, 1);
     else if (attr.kind === "score") breaksByRes[res] = LINEAR_5(0, 100);
     else {
       const stats = attr.stats?.[String(res)];
-      if (stats) breaksByRes[res] = quantileBreaks(stats);
+      if (!stats) continue;
+      const zero = zeroSplitBreaks(stats, attr.kind);
+      if (zero) { breaksByRes[res] = zero; zeroSplitRes.push(res); }
+      else breaksByRes[res] = quantileBreaks(stats);
     }
   }
-  return { type: "steps", colors, breaksByRes };
+  return { type: "steps", colors, breaksByRes, zeroSplitRes };
 }
 
 /** 斷點 n 個 → 用色 n+1 階；從 5 階中平均取，保留最淺與最深 */
@@ -259,17 +291,36 @@ export function zoomToRes(zoom: number): TerritoryRes {
 
 // ── 數值顯示 ──────────────────────────────────────────────────────
 
+/** 契約的 unit 欄給人看的版本：值域說明（0–1、0–100）不當單位；括號內換算說明拿掉；m → 公尺 */
+export function displayUnit(attr: TerritoryAttribute): string {
+  const u = (attr.unit ?? "").replace(/（.*$/, "").trim();
+  if (!u || u === "0–1" || u === "0–100" || u === "%" || u === "比例") return "";
+  return u === "m" ? "公尺" : u === "km" ? "公里" : u;
+}
+
+/** 0–1 的比例（kind ratio，或村里值單位寫 0–1）以百分比顯示 */
+export function isFraction(attr: TerritoryAttribute): boolean {
+  return attr.kind === "ratio" || attr.unit === "0–1";
+}
+
+/** 這個屬性在這個解析度是否有資料（min_res＝最細可用級；更細的級磚內沒有該欄） */
+export function availableAtRes(attr: TerritoryAttribute, res: number): boolean {
+  if (attr.min_res !== undefined && Number.isFinite(res) && res > attr.min_res) return false;
+  return attr.kind === "ratio" || attr.kind === "score" || attr.kind === "category" || !!attr.stats?.[String(res)] || !attr.stats;
+}
+
 export function formatAttrValue(attr: TerritoryAttribute, raw: unknown, formatNumber: (n: number, o?: Intl.NumberFormatOptions) => string): string | null {
   if (raw === undefined || raw === null || raw === "") return null;
   if (attr.kind === "category") return categoryLabel(attr, raw);
   const v = Number(raw);
   if (!Number.isFinite(v)) return String(raw);
-  if (attr.kind === "ratio" && (!attr.unit || attr.unit === "%" || attr.unit === "比例")) {
-    return `${formatNumber(v * 100, { maximumFractionDigits: 1 })}%`;
-  }
-  const digits = attr.kind === "count" || attr.kind === "score" ? 0 : Math.abs(v) >= 100 ? 0 : Math.abs(v) >= 10 ? 1 : 2;
+  if (isFraction(attr)) return `${formatNumber(v * 100, { maximumFractionDigits: 1 })}%`;
+  const unit = displayUnit(attr);
+  if (unit === "公尺" && Math.abs(v) >= 1000) return `${formatNumber(v / 1000, { maximumFractionDigits: 1 })} 公里`;
+  const abs = Math.abs(v);
+  const digits = attr.kind === "score" || (attr.kind === "count" && Number.isInteger(v)) ? 0 : abs >= 100 ? 0 : abs >= 10 ? 1 : 2;
   const num = formatNumber(v, { maximumFractionDigits: digits });
-  return attr.unit ? `${num} ${attr.unit}` : num;
+  return unit ? `${num} ${unit}` : num;
 }
 
 export function categoryLabel(attr: TerritoryAttribute, raw: unknown): string {
@@ -277,7 +328,17 @@ export function categoryLabel(attr: TerritoryAttribute, raw: unknown): string {
   return normaliseCategories(attr.categories).find((c) => c.value === value)?.label ?? value;
 }
 
+const ALL_COUNTIES = ["臺北市", "新北市", "桃園市", "臺中市", "臺南市", "高雄市", "基隆市", "新竹市", "嘉義市", "新竹縣", "苗栗縣", "彰化縣", "南投縣", "雲林縣", "嘉義縣", "屏東縣", "宜蘭縣", "花蓮縣", "臺東縣", "澎湖縣", "金門縣", "連江縣"];
+
+/** 涵蓋範圍白話：全台→null；縣市清單多於一半→「不含 X」；說明文字照原文 */
 export function coverageText(attr: TerritoryAttribute): string | null {
-  if (!attr.coverage || attr.coverage === "全台") return null;
-  return Array.isArray(attr.coverage) && attr.coverage.length ? attr.coverage.join("、") : null;
+  const cov = attr.coverage;
+  if (!cov || cov === "全台") return null;
+  if (typeof cov === "string") return cov;
+  if (!cov.length) return null;
+  if (cov.length > ALL_COUNTIES.length / 2) {
+    const missing = ALL_COUNTIES.filter((c) => !cov.includes(c));
+    return missing.length ? `全台（不含${missing.join("、")}）` : null;
+  }
+  return cov.join("、");
 }

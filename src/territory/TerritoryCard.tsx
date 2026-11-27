@@ -10,12 +10,15 @@ import { DARK_FEATURE, FeatureThemeProvider, LIGHT_FEATURE, useFeatureTheme } fr
 import { COLORS, FONT_CJK, FONT_DATA, FONT_SIZE, FONT_WEIGHT, LIGHT, RADIUS, SURFACE } from "../styles/designTokens";
 import { useLocale } from "../state/localeStore";
 import { RES_LABEL, SCORE_TAGS, TAG_ORDER, TERRITORY_TEXT as T } from "./territoryText";
-import { accentFor, coverageText, formatAttrValue, type TerritoryAttribute } from "./territoryAttributes";
+import { accentFor, availableAtRes, coverageText, formatAttrValue, type TerritoryAttribute } from "./territoryAttributes";
 import { territoryStore, useTerritory } from "./territoryStore";
 import { useTerritoryAttributes } from "./useTerritoryAttributes";
 import "./territory.css";
 
 const present = (v: unknown) => v !== undefined && v !== null && v !== "";
+/** 等寬字只給純數字（spec §4.1）：值含中文單位時不用 mono */
+const CJK = /[\u3400-\u9fff]/;
+const monoOk = (s: string | null) => s !== null && !CJK.test(s);
 
 export function TerritoryCard({ isDark }: { isDark: boolean }) {
   const { open, selected } = useTerritory();
@@ -99,12 +102,16 @@ function CardBody({ props, attributes, isDark }: { props: Record<string, unknown
           return (
             <div key={tag} style={{ marginTop: 10 }}>
               <div style={{ fontSize: FONT_SIZE.sm, fontWeight: FONT_WEIGHT.bold, color: t.textStrong, borderBottom: `1px solid ${t.border}`, paddingBottom: 3, marginBottom: 2 }}>{tag}</div>
-              {items.map((a) => {
-                const shown = formatAttrValue(a, props[a.key], formatNumber);
+              {items.some((a) => a.key.startsWith("biz_div_")) && (
+                <BizDivRows items={items.filter((a) => a.key.startsWith("biz_div_"))} props={props} formatNumber={formatNumber} />
+              )}
+              {items.filter((a) => !a.key.startsWith("biz_div_")).map((a) => {
+                const here = availableAtRes(a, res);
+                const shown = here ? formatAttrValue(a, props[a.key], formatNumber) : null;
                 return (
                   <div key={a.key} style={{ display: "flex", alignItems: "flex-start" }}>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <Row label={a.label} value={shown ?? T.uncovered} color={shown ? undefined : t.textDim} mono={shown !== null && a.kind !== "category"} />
+                      <Row label={a.label} value={shown ?? (here ? T.uncovered : T.zoomOut)} color={shown ? undefined : t.textDim} mono={a.kind !== "category" && monoOk(shown)} />
                     </div>
                     {a.kind === "village_value" && (
                       <span style={{ fontSize: FONT_SIZE.xs, color: t.textDim, border: "1px solid currentColor", borderRadius: RADIUS.sm, padding: "0 3px", marginTop: 4, marginLeft: 4, flexShrink: 0 }}>{T.villageValue}</span>
@@ -121,6 +128,30 @@ function CardBody({ props, attributes, isDark }: { props: Record<string, unknown
           );
         })}
       </PopupScroll>
+    </>
+  );
+}
+
+/** 產業大類：只列這格 >0 的大類，由多到少最多 5 個，其餘併「其他 N 類」 */
+function BizDivRows({ items, props, formatNumber }: {
+  items: TerritoryAttribute[]; props: Record<string, unknown>;
+  formatNumber: (n: number, o?: Intl.NumberFormatOptions) => string;
+}) {
+  const t = useFeatureTheme();
+  const present = items.filter((a) => props[a.key] !== undefined && props[a.key] !== null);
+  if (present.length === 0) return <Row label="產業大類" value={T.uncovered} color={t.textDim} />;
+  const positive = present
+    .map((a) => ({ a, v: Number(props[a.key]) }))
+    .filter((x) => Number.isFinite(x.v) && x.v > 0)
+    .sort((x, y) => y.v - x.v);
+  if (positive.length === 0) return <Row label="產業大類" value={T.bizNone} color={t.textDim} />;
+  const top = positive.slice(0, 5);
+  const rest = positive.slice(5);
+  const restSum = rest.reduce((n, x) => n + x.v, 0);
+  return (
+    <>
+      {top.map(({ a, v }) => <Row key={a.key} label={a.label.replace(/家數$/, "")} value={`${formatNumber(v)} 家`} />)}
+      {rest.length > 0 && <Row label={T.bizOther(rest.length)} value={`${formatNumber(restSum)} 家`} color={t.textMuted} />}
     </>
   );
 }

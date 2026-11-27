@@ -2,8 +2,8 @@
  * 「領土格」左側面板（rail 六角形入口）：三個標籤大按鈕＋依 tag 分組的屬性單選＋圖例＋透明度。
  * 外殼由 IconRailSidebar 提供（同資料來源面板）；這裡只有內容。
  */
-import { useMemo, type CSSProperties, type ReactNode } from "react";
-import { Siren, Coins, Store, Hexagon, type LucideIcon } from "lucide-react";
+import { useMemo, useState, type CSSProperties, type ReactNode } from "react";
+import { Siren, Coins, Store, Hexagon, ChevronRight, type LucideIcon } from "lucide-react";
 import { PanelHeader } from "../components/sidebar/PanelHeader";
 import { useRailTheme } from "../components/sidebar/railTheme";
 import { Slider } from "../components/controls/Slider";
@@ -14,7 +14,8 @@ import { COLORS, CONTROL, FONT_CJK, FONT_SIZE, FONT_WEIGHT, LIGHT, RADIUS, SPACI
 import { useLocale } from "../state/localeStore";
 import { RES_LABEL, SCORE_TAGS, TAG_ORDER, TERRITORY_TEXT as T } from "./territoryText";
 import {
-  accentFor, buildColorScale, colorsForBreaks, coverageText, gridBase, type TerritoryAttribute, type TerritoryRes,
+  accentFor, availableAtRes, buildColorScale, colorsForBreaks, coverageText, displayUnit, gridBase, isFraction, ZERO_SPLIT_EPS,
+  type TerritoryAttribute, type TerritoryRes,
 } from "./territoryAttributes";
 import { territoryStore, useTerritory } from "./territoryStore";
 import { useTerritoryAttributes } from "./useTerritoryAttributes";
@@ -136,23 +137,53 @@ export function TerritoryPanel({ isDark, onClose }: { isDark: boolean; onClose: 
           <div key={tag} style={{ padding: "8px 14px 0" }}>
             <div style={{ fontSize: FONT_SIZE.sm, fontWeight: FONT_WEIGHT.semibold, color: c.muted, marginBottom: 4 }}>{tag}</div>
             <div style={{ display: "flex", flexWrap: "wrap", gap: SPACING.xs }}>
-              {items.map((a) => {
-                const on = activeKey === a.key;
-                const cov = coverageText(a);
-                return (
-                  <button key={a.key} type="button" className="territory-btn" aria-pressed={on}
-                    title={[a.note, cov ? T.coverageOnly(cov) : null].filter(Boolean).join("\n") || undefined}
-                    onClick={() => territoryStore.setActiveKey(on ? null : a.key)}
-                    style={chipStyle(on, c, accentFor(a, isDark))}>
-                    {a.label}
-                    {a.kind === "village_value" && <VillageBadge color={c.dim} />}
-                  </button>
-                );
-              })}
+              {items.filter((a) => !isBizDiv(a)).map((a) => (
+                <AttrChip key={a.key} attr={a} on={activeKey === a.key} res={res} c={c} isDark={isDark} />
+              ))}
             </div>
+            {items.some(isBizDiv) && (
+              <BizDivList items={items.filter(isBizDiv)} activeKey={activeKey} res={res} c={c} isDark={isDark} />
+            )}
           </div>
         ))}
       </div>
+    </div>
+  );
+}
+
+export const isBizDiv = (a: { key: string }) => a.key.startsWith("biz_div_");
+
+function AttrChip({ attr: a, on, res, c, isDark }: { attr: TerritoryAttribute; on: boolean; res: TerritoryRes; c: ReturnType<typeof controlPalette>; isDark: boolean }) {
+  const cov = coverageText(a);
+  const here = availableAtRes(a, res);
+  return (
+    <button type="button" className="territory-btn" aria-pressed={on}
+      title={[a.note, cov ? T.coverageOnly(cov) : null, here ? null : T.zoomOut].filter(Boolean).join("\n") || undefined}
+      onClick={() => territoryStore.setActiveKey(on ? null : a.key)}
+      style={{ ...chipStyle(on, c, accentFor(a, isDark)), ...(here ? {} : { borderStyle: "dashed", color: c.dim }) }}>
+      {a.label}
+      {a.kind === "village_value" && <VillageBadge color={c.dim} />}
+    </button>
+  );
+}
+
+/** 19 個產業大類家數：預設收合成一個子清單，不攤平 */
+function BizDivList({ items, activeKey, res, c, isDark }: { items: TerritoryAttribute[]; activeKey: string | null; res: TerritoryRes; c: ReturnType<typeof controlPalette>; isDark: boolean }) {
+  const hasActive = items.some((a) => a.key === activeKey);
+  const [open, setOpen] = useState(hasActive);
+  const shown = open || hasActive;
+  return (
+    <div style={{ marginTop: SPACING.xs }}>
+      <button type="button" className="territory-btn" aria-expanded={shown} onClick={() => setOpen((v) => !v)}
+        style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "3px 0", border: "none", background: "transparent", color: c.muted, cursor: "pointer", fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm }}>
+        <ChevronRight size={12} style={{ transform: shown ? "rotate(90deg)" : undefined, transition: "transform 0.15s" }} aria-hidden />
+        {T.bizGroup(items.length)}
+      </button>
+      {shown && (
+        <div style={{ display: "flex", flexWrap: "wrap", gap: SPACING.xs, paddingLeft: 16, marginTop: 2 }}>
+          {items.map((a) => <AttrChip key={a.key} attr={{ ...a, label: a.label.replace(/家數$/, "") }} on={activeKey === a.key} res={res} c={c} isDark={isDark} />)}
+        </div>
+      )}
     </div>
   );
 }
@@ -175,8 +206,12 @@ function TerritoryLegend({ attr, isDark, res }: { attr: TerritoryAttribute; isDa
   const { formatNumber } = useLocale();
   const scale = useMemo(() => buildColorScale(attr, isDark), [attr, isDark]);
   const cov = coverageText(attr);
+  const fraction = isFraction(attr);
+  const unit = displayUnit(attr);
   const fmt = (v: number): string => {
-    if (attr.kind === "ratio") return `${formatNumber(v * 100, { maximumFractionDigits: 0 })}%`;
+    if (v === ZERO_SPLIT_EPS) return ">0";
+    if (fraction) return `${formatNumber(v * 100, { maximumFractionDigits: 0 })}%`;
+    if (unit === "公尺" && Math.abs(v) >= 1000) return `${formatNumber(v / 1000, { maximumFractionDigits: 1 })}k`;
     const abs = Math.abs(v);
     return formatNumber(v, { maximumFractionDigits: abs >= 100 ? 0 : abs >= 10 ? 1 : 2 });
   };
@@ -192,7 +227,7 @@ function TerritoryLegend({ attr, isDark, res }: { attr: TerritoryAttribute; isDa
     const breaks = scale.breaksByRes[res];
     const stats = attr.stats?.[String(res)];
     const linear = attr.kind === "ratio" || attr.kind === "score";
-    if (!linear && !stats) {
+    if (!availableAtRes(attr, res) || (!linear && !stats)) {
       body = <LegendNote>{T.legendNoStatsAtRes}</LegendNote>;
     } else if (!breaks || breaks.length === 0) {
       body = <LegendNote>{T.legendNoBreaks}</LegendNote>;
@@ -205,7 +240,9 @@ function TerritoryLegend({ attr, isDark, res }: { attr: TerritoryAttribute; isDa
         <>
           <SwatchSteps colors={colorsForBreaks(scale.colors, breaks.length)} breaks={labels} />
           <LegendNote style={{ marginTop: 3 }}>
-            {attr.kind === "score" ? T.legendScore : attr.kind === "distance" ? T.legendLowHighDistance : T.legendLowHigh}
+            {attr.kind === "score" ? T.legendScore
+              : scale.zeroSplitRes.includes(res) ? T.legendZeroSplit
+              : attr.kind === "distance" ? T.legendLowHighDistance : T.legendLowHigh}
           </LegendNote>
         </>
       );
@@ -213,7 +250,7 @@ function TerritoryLegend({ attr, isDark, res }: { attr: TerritoryAttribute; isDa
   }
   return (
     <>
-      <LegendTitle zh={<>{attr.label}{attr.unit && attr.kind !== "ratio" ? <span style={{ fontWeight: FONT_WEIGHT.regular }}>（{attr.unit}）</span> : null}</>} />
+      <LegendTitle zh={<>{attr.label}{unit ? <span style={{ fontWeight: FONT_WEIGHT.regular }}>（{unit === "公尺" ? "公尺；k＝千公尺" : unit}）</span> : null}</>} />
       {body}
       <div style={{ marginTop: 6 }}>
         <LegendRow swatch={<SwatchSquare color={gridBase(isDark).fill} opacity={0.5} />}>{T.legendUncovered}</LegendRow>
