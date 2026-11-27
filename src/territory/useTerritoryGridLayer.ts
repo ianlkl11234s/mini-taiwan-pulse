@@ -11,9 +11,10 @@ import { registerPmtilesSourceTypeOnce } from "../map/pmtilesSourceType";
 import { PMTILES_SOURCE_TYPE } from "../map/pmtilesConstants";
 import { useMapReadyTick } from "../hooks/useMapReadyTick";
 import { SELECTION_RING } from "../styles/designTokens";
+import { hatchImageData, hatchImageId, mapSeamColor } from "../map/mapStyleScale";
 import {
   TERRITORY_PMTILES_URL, TERRITORY_SOURCE_LAYER, buildColorScale, fillColorExpr, fillOpacityExpr, gridBase, zoomToRes,
-  type TerritoryAttribute,
+  type TerritoryAttribute, type TerritoryRes,
 } from "./territoryAttributes";
 import { territoryStore, useTerritory } from "./territoryStore";
 import { useTerritoryAttributes } from "./useTerritoryAttributes";
@@ -21,8 +22,10 @@ import { useTerritoryAttributes } from "./useTerritoryAttributes";
 const SOURCE_ID = "territory-h3";
 export const TERRITORY_FILL_LAYER = "territory-h3-fill";
 const LINE_LAYER = "territory-h3-line";
+/** 上色中：沒有該屬性的格子（未涵蓋）疊缺值斜線（spec map-layers F-3：全站缺值一種畫法） */
+const HATCH_LAYER = "territory-h3-missing";
 const SELECTED_LAYER = "territory-h3-selected";
-const LAYERS = [TERRITORY_FILL_LAYER, LINE_LAYER, SELECTED_LAYER] as const;
+const LAYERS = [TERRITORY_FILL_LAYER, HATCH_LAYER, LINE_LAYER, SELECTED_LAYER] as const;
 
 function safeIsStyleLoaded(map: MapboxMap): boolean {
   try { return map.isStyleLoaded(); } catch { return false; }
@@ -45,12 +48,22 @@ interface PaintInput { activeAttr: TerritoryAttribute | null; opacity: number; i
 function applyPaint(map: MapboxMap, { activeAttr: attr, opacity, isDark }: PaintInput) {
   if (!map.getLayer(TERRITORY_FILL_LAYER)) return;
   const base = gridBase(isDark);
-  const color = attr ? fillColorExpr(attr, buildColorScale(attr, isDark), isDark) : base.fill;
+  const scale = attr ? buildColorScale(attr, isDark) : null;
+  const color = attr && scale ? fillColorExpr(attr, scale, isDark) : base.fill;
   map.setPaintProperty(TERRITORY_FILL_LAYER, "fill-color", color as ExpressionSpecification);
-  map.setPaintProperty(TERRITORY_FILL_LAYER, "fill-opacity", fillOpacityExpr(attr?.key ?? null, opacity, isDark) as ExpressionSpecification);
-  map.setPaintProperty(LINE_LAYER, "line-color", base.line);
-  map.setPaintProperty(LINE_LAYER, "line-opacity", base.lineOpacity);
+  map.setPaintProperty(TERRITORY_FILL_LAYER, "fill-opacity", fillOpacityExpr(attr, scale, opacity, isDark) as ExpressionSpecification);
+  // 上色中：格縫改底圖色細縫（spec map-layers F-2 分級面），同色相連的格子才看得出一格一格；未涵蓋的灰格維持灰線
+  const seamed = attr ? ["case", ["has", attr.key], mapSeamColor(isDark), base.line] : base.line;
+  map.setPaintProperty(LINE_LAYER, "line-color", seamed as ExpressionSpecification);
+  map.setPaintProperty(LINE_LAYER, "line-opacity", attr ? ["case", ["has", attr.key], 0.55, base.lineOpacity] as ExpressionSpecification : base.lineOpacity);
   map.setPaintProperty(SELECTED_LAYER, "line-color", isDark ? SELECTION_RING.dark : SELECTION_RING.light);
+  if (map.getLayer(HATCH_LAYER)) {
+    const id = hatchImageId("missing", isDark);
+    if (!map.hasImage(id)) map.addImage(id, hatchImageData("missing", isDark));
+    map.setPaintProperty(HATCH_LAYER, "fill-pattern", id);
+    map.setFilter(HATCH_LAYER, attr ? ["!", ["has", attr.key]] : ["==", ["get", "h3"], "__none__"]);
+    map.setLayoutProperty(HATCH_LAYER, "visibility", attr ? "visible" : "none");
+  }
 }
 
 function applySelection(map: MapboxMap, selected: Record<string, unknown> | null) {
@@ -81,7 +94,19 @@ export function useTerritoryGridLayer(
     let map: MapboxMap | null = null;
     let retryTimer: ReturnType<typeof setInterval> | null = null;
 
-    const onZoom = () => { if (map) territoryStore.setRes(zoomToRes(map.getZoom())); };
+    // 圖例解析度：實際讀畫面上渲染出的格子 res（實測 z8.5 已顯示 res8、z10.5 已顯示 res9，floor(zoom) 推算會錯一級）；
+    // 讀不到（海上、圖磚未到）才退回縮放推算
+    const onZoom = () => {
+      if (!map) return;
+      let res: TerritoryRes | null = null;
+      if (map.getLayer(TERRITORY_FILL_LAYER)) {
+        const { width, height } = map.getCanvas().getBoundingClientRect();
+        const box: [[number, number], [number, number]] = [[width / 2 - 40, height / 2 - 40], [width / 2 + 40, height / 2 + 40]];
+        const r = Number(map.queryRenderedFeatures(box, { layers: [TERRITORY_FILL_LAYER] })[0]?.properties?.res);
+        if (r === 7 || r === 8 || r === 9) res = r;
+      }
+      territoryStore.setRes(res ?? zoomToRes(map.getZoom()));
+    };
     const onClick = (e: MapMouseEvent) => {
       if (!map || !map.getLayer(TERRITORY_FILL_LAYER)) return;
       const hit = map.queryRenderedFeatures(e.point, { layers: [TERRITORY_FILL_LAYER] })[0];
@@ -106,6 +131,15 @@ export function useTerritoryGridLayer(
         map.addLayer({
           id: TERRITORY_FILL_LAYER, type: "fill", source: SOURCE_ID, "source-layer": TERRITORY_SOURCE_LAYER,
           paint: { "fill-color": base.fill, "fill-opacity": base.fillOpacity, "fill-antialias": false },
+        }, before);
+      }
+      if (!map.getLayer(HATCH_LAYER)) {
+        const hid = hatchImageId("missing", paintRef.current.isDark);
+        if (!map.hasImage(hid)) map.addImage(hid, hatchImageData("missing", paintRef.current.isDark));
+        map.addLayer({
+          id: HATCH_LAYER, type: "fill", source: SOURCE_ID, "source-layer": TERRITORY_SOURCE_LAYER,
+          layout: { visibility: "none" },
+          paint: { "fill-pattern": hid, "fill-antialias": false },
         }, before);
       }
       if (!map.getLayer(LINE_LAYER)) {
@@ -136,7 +170,7 @@ export function useTerritoryGridLayer(
     const bound = map as MapboxMap | null;
     if (bound && open) {
       bound.on("style.load", onStyleLoad);
-      bound.on("zoomend", onZoom);
+      bound.on("idle", onZoom);
       bound.on("click", onClick);
       bound.on("mouseenter", TERRITORY_FILL_LAYER, onEnter);
       bound.on("mouseleave", TERRITORY_FILL_LAYER, onLeave);
@@ -146,7 +180,7 @@ export function useTerritoryGridLayer(
       if (retryTimer) clearInterval(retryTimer);
       if (bound) {
         bound.off("style.load", onStyleLoad);
-        bound.off("zoomend", onZoom);
+        bound.off("idle", onZoom);
         bound.off("click", onClick);
         bound.off("mouseenter", TERRITORY_FILL_LAYER, onEnter);
         bound.off("mouseleave", TERRITORY_FILL_LAYER, onLeave);
@@ -160,8 +194,10 @@ export function useTerritoryGridLayer(
   // 上色／透明度／主題變更：只改 paint
   useEffect(() => {
     const map = mapRef.current;
-    if (!map || !open || !safeIsStyleLoaded(map)) return;
-    applyPaint(map, { activeAttr, opacity, isDark });
+    // 不檢查 isStyleLoaded：Mapbox 在任何 source 還在載圖磚時都回 false，會把上色吞掉（實測：點標籤時圖磚載入中→格子不變色）。
+    // 圖層還沒建好也沒關係，ensure() 建層時會讀 paintRef 補上。
+    if (!map || !open) return;
+    try { applyPaint(map, { activeAttr, opacity, isDark }); } catch { /* style 換到一半：等 style.load 後 ensure 補 */ }
   }, [mapRef, open, activeAttr, opacity, isDark, mapTick]);
 
   // 選取描邊

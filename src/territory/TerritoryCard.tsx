@@ -98,20 +98,17 @@ function CardBody({ props, attributes, isDark }: { props: Record<string, unknown
 
         {/* 依 tag 分組的全部屬性 */}
         {groups.map(({ tag, items }) => {
-          const sources = [...new Map(items.filter((a) => a.source).map((a) => [`${a.source}|${a.source_date ?? ""}`, a] as const)).values()];
+          const sources = groupSources(items);
           return (
             <div key={tag} style={{ marginTop: 10 }}>
               <div style={{ fontSize: FONT_SIZE.sm, fontWeight: FONT_WEIGHT.bold, color: t.textStrong, borderBottom: `1px solid ${t.border}`, paddingBottom: 3, marginBottom: 2 }}>{tag}</div>
-              {items.some((a) => a.key.startsWith("biz_div_")) && (
-                <BizDivRows items={items.filter((a) => a.key.startsWith("biz_div_"))} props={props} formatNumber={formatNumber} />
-              )}
               {items.filter((a) => !a.key.startsWith("biz_div_")).map((a) => {
                 const here = availableAtRes(a, res);
                 const shown = here ? formatAttrValue(a, props[a.key], formatNumber) : null;
                 return (
                   <div key={a.key} style={{ display: "flex", alignItems: "flex-start" }}>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <Row label={a.label} value={shown ?? (here ? T.uncovered : T.zoomOut)} color={shown ? undefined : t.textDim} mono={a.kind !== "category" && monoOk(shown)} />
+                      <Row label={a.kind === "village_value" ? a.label.replace(/（村里值）$/, "") : a.label} value={shown ?? (here ? T.uncovered : T.zoomOut)} color={shown ? undefined : t.textDim} mono={a.kind !== "category" && monoOk(shown)} />
                     </div>
                     {a.kind === "village_value" && (
                       <span style={{ fontSize: FONT_SIZE.xs, color: t.textDim, border: "1px solid currentColor", borderRadius: RADIUS.sm, padding: "0 3px", marginTop: 4, marginLeft: 4, flexShrink: 0 }}>{T.villageValue}</span>
@@ -119,9 +116,12 @@ function CardBody({ props, attributes, isDark }: { props: Record<string, unknown
                   </div>
                 );
               })}
+              {items.some((a) => a.key.startsWith("biz_div_")) && (
+                <BizDivRows items={items.filter((a) => a.key.startsWith("biz_div_"))} props={props} formatNumber={formatNumber} />
+              )}
               {sources.length > 0 && (
                 <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 3, lineHeight: 1.4 }}>
-                  {sources.map((a) => T.sourceLine(a.source!, a.source_date ?? "")).join("；")}
+                  {sources.join("；")}
                 </div>
               )}
             </div>
@@ -154,6 +154,29 @@ function BizDivRows({ items, props, formatNumber }: {
       {rest.length > 0 && <Row label={T.bizOther(rest.length)} value={`${formatNumber(restSum)} 家`} color={t.textMuted} />}
     </>
   );
+}
+
+/**
+ * 每組一行來源（站主尚未決定是否保留）：attributes.json 的 source 混有內部檔名（例 rail_stations_20260529），
+ * 顯示前拿掉含底線的代號（spec §6.3）；「同上」「同 X」這類參照與 19 個產業大類的逐類說明不重列；同文同日只列一次。
+ */
+const INTERNAL_ID = /[A-Za-z][A-Za-z0-9]*(?:_[A-Za-z0-9]+)+/g;
+function humanSource(raw: string): string {
+  let s = raw.trim();
+  const m = s.match(/^[A-Za-z][A-Za-z0-9_]*_[A-Za-z0-9_]+\s*（(.+)）$/);
+  if (m) s = m[1]!;
+  return s.replace(/（[^）]*_[^）]*）/g, "").replace(INTERNAL_ID, "").replace(/\s{2,}/g, " ").replace(/^[，、；\s]+|[，、；\s]+$/g, "").trim();
+}
+function groupSources(items: TerritoryAttribute[]): string[] {
+  const out = new Set<string>();
+  for (const a of items) {
+    if (!a.source || a.key.startsWith("biz_div_")) continue;
+    if (/^同/.test(a.source.trim())) continue;
+    const src = humanSource(a.source);
+    if (!src) continue;
+    out.add(T.sourceLine(src, a.source_date ?? ""));
+  }
+  return [...out];
 }
 
 function AbilityBar({ label, value, color, caption, formatNumber }: {

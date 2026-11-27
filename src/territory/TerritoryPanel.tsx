@@ -8,7 +8,7 @@ import { PanelHeader } from "../components/sidebar/PanelHeader";
 import { useRailTheme } from "../components/sidebar/railTheme";
 import { Slider } from "../components/controls/Slider";
 import {
-  DARK_LEGEND, LIGHT_LEGEND, LegendFillOpacityCtx, LegendNote, LegendRow, LegendThemeCtx, LegendTitle, SwatchSquare, SwatchSteps,
+  DARK_LEGEND, LIGHT_LEGEND, LegendFillOpacityCtx, LegendNote, LegendRow, LegendThemeCtx, LegendTitle, SwatchHatch, SwatchSquare, SwatchSteps,
 } from "../components/legend/legendKit";
 import { COLORS, CONTROL, FONT_CJK, FONT_SIZE, FONT_WEIGHT, LIGHT, RADIUS, SPACING } from "../styles/designTokens";
 import { useLocale } from "../state/localeStore";
@@ -110,20 +110,6 @@ export function TerritoryPanel({ isDark, onClose }: { isDark: boolean; onClose: 
           })}
         </div>
 
-        {/* ── 圖例＋透明度（上色中才顯示） ── */}
-        <LegendThemeCtx.Provider value={isDark ? DARK_LEGEND : LIGHT_LEGEND}>
-          <div style={{ margin: "12px 14px 0", padding: "10px 12px", borderRadius: RADIUS.lg, border: `1px solid ${c.border}`, background: c.bg }}>
-            {active
-              ? <LegendFillOpacityCtx.Provider value={opacity}><TerritoryLegend attr={active} isDark={isDark} res={res} /></LegendFillOpacityCtx.Provider>
-              : <LegendRow swatch={<SwatchSquare color={gridBase(isDark).fill} opacity={0.5} />}>{T.legendGrayBase}</LegendRow>}
-            {active && (
-              <div style={{ display: "flex", alignItems: "center", gap: SPACING.md, marginTop: 10 }}>
-                <span style={{ fontSize: FONT_SIZE.sm, color: c.muted, flexShrink: 0 }}>{T.opacity}</span>
-                <Slider value={opacity} min={0.2} max={1} step={0.05} onChange={(v) => territoryStore.setOpacity(v)} ariaLabel={T.opacity} ariaValueText={`${Math.round(opacity * 100)}%`} style={{ flex: 1 }} />
-              </div>
-            )}
-          </div>
-        </LegendThemeCtx.Provider>
 
         {/* ── 屬性：依 tag 分組單選 ── */}
         <SectionTitle title={T.attrSection} hint={T.attrHint} color={rail.DIM} hintColor={c.dim} />
@@ -147,6 +133,23 @@ export function TerritoryPanel({ isDark, onClose }: { isDark: boolean; onClose: 
           </div>
         ))}
       </div>
+      {/* ── 圖例＋透明度：釘在面板底部，捲到屬性區也看得到 ── */}
+      <div style={{ flexShrink: 0, borderTop: `1px solid ${rail.PANEL_BORDER}` }}>
+      <LegendThemeCtx.Provider value={isDark ? DARK_LEGEND : LIGHT_LEGEND}>
+        <div style={{ margin: "8px 14px 12px", padding: "10px 12px", borderRadius: RADIUS.lg, border: `1px solid ${c.border}`, background: c.bg }}>
+          {active
+            ? <LegendFillOpacityCtx.Provider value={opacity}><TerritoryLegend attr={active} isDark={isDark} res={res} /></LegendFillOpacityCtx.Provider>
+            : <LegendRow swatch={<SwatchSquare color={gridBase(isDark).fill} opacity={0.5} />}>{T.legendGrayBase}</LegendRow>}
+          {active && (
+            <div style={{ display: "flex", alignItems: "center", gap: SPACING.md, marginTop: 10 }}>
+              <span style={{ fontSize: FONT_SIZE.sm, color: c.muted, flexShrink: 0 }}>{T.opacity}</span>
+              <Slider value={opacity} min={0.2} max={1} step={0.05} onChange={(v) => territoryStore.setOpacity(v)} ariaLabel={T.opacity} ariaValueText={`${Math.round(opacity * 100)}%`} style={{ flex: 1 }}
+                {...(isDark ? {} : { trackColor: LIGHT.sliderTrack, fillColor: LIGHT.sliderFill, thumbColor: LIGHT.sliderThumb, accentColor: LIGHT.accent })} />
+            </div>
+          )}
+        </div>
+      </LegendThemeCtx.Provider>
+      </div>
     </div>
   );
 }
@@ -160,8 +163,8 @@ function AttrChip({ attr: a, on, res, c, isDark }: { attr: TerritoryAttribute; o
     <button type="button" className="territory-btn" aria-pressed={on}
       title={[a.note, cov ? T.coverageOnly(cov) : null, here ? null : T.zoomOut].filter(Boolean).join("\n") || undefined}
       onClick={() => territoryStore.setActiveKey(on ? null : a.key)}
-      style={{ ...chipStyle(on, c, accentFor(a, isDark)), ...(here ? {} : { borderStyle: "dashed", color: c.dim }) }}>
-      {a.label}
+      style={{ ...chipStyle(on, c, accentFor(a, isDark), here ? "solid" : "dashed"), ...(here ? {} : { color: c.dim }) }}>
+      {a.kind === "village_value" ? a.label.replace(/（村里值）$/, "") : a.label}
       {a.kind === "village_value" && <VillageBadge color={c.dim} />}
     </button>
   );
@@ -188,11 +191,11 @@ function BizDivList({ items, activeKey, res, c, isDark }: { items: TerritoryAttr
   );
 }
 
-function chipStyle(on: boolean, c: ReturnType<typeof controlPalette>, accent: string): CSSProperties {
+function chipStyle(on: boolean, c: ReturnType<typeof controlPalette>, accent: string, borderStyle: "solid" | "dashed" = "solid"): CSSProperties {
   return {
     display: "inline-flex", alignItems: "center", gap: 4, padding: "4px 8px", borderRadius: RADIUS.md, cursor: "pointer",
     fontFamily: FONT_CJK, fontSize: FONT_SIZE.base, fontWeight: on ? FONT_WEIGHT.semibold : FONT_WEIGHT.regular,
-    border: `1px solid ${on ? accent : c.border}`,
+    border: `1px ${borderStyle} ${on ? accent : c.border}`,
     background: on ? `color-mix(in srgb, ${accent} 18%, transparent)` : c.bg,
     color: on ? c.strong : c.text,
   };
@@ -253,7 +256,7 @@ function TerritoryLegend({ attr, isDark, res }: { attr: TerritoryAttribute; isDa
       <LegendTitle zh={<>{attr.label}{unit ? <span style={{ fontWeight: FONT_WEIGHT.regular }}>（{unit === "公尺" ? "公尺；k＝千公尺" : unit}）</span> : null}</>} />
       {body}
       <div style={{ marginTop: 6 }}>
-        <LegendRow swatch={<SwatchSquare color={gridBase(isDark).fill} opacity={0.5} />}>{T.legendUncovered}</LegendRow>
+        <LegendRow swatch={<SwatchHatch />}>{T.legendUncovered}</LegendRow>
       </div>
       <LegendNote>
         {T.resNote(RES_LABEL[res] ?? "")}
