@@ -38,6 +38,12 @@ export const TERRITORY_TEXT = {
   cardAbilities: "能力值",
   beatAll: (n: number) => `贏過全台 ${n}% 的格子`,
   beatArea: (n: number, areas: string) => `贏過${areas} ${n}% 的格子`,
+  rankNation: "全台排名",
+  rankCounty: "縣市內排名",
+  rankScopeLabel: "排名方式",
+  countySuffix: "（縣市內）",
+  /** res9 房價中位數本格成交不足、取自所屬 res8 格 */
+  fromNeighbour: "取自周邊約 500 公尺",
   sourceLine: (source: string, date: string) => (date ? `${source} · ${date}` : source),
   loadingLabel: "領土格屬性",
 } as const;

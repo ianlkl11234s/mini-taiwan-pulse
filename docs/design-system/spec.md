@@ -378,6 +378,7 @@
 - **掛載**：`FeatureInfoPanel` 統一掛一次，以 `SourceFooterModeProvider` 傳模式；panel 自掛的 `SourceFooter` 也讀同一模式。popup 以外（衛星詳細卡、元件頁）維持舊兩行版（`legacy`）。
 - **授權署名**：政府資料必標機關、資料名稱、授權條款（與連結）；OSM 標 ODbL 署名。popup 拿掉來源前，圖層側必須已能顯示機關＋授權（＋原本有的連結），`src/data/__tests__/layerSourceInfo.test.ts` 檢查。來源未標授權時圖層側寫「授權未明示」。
 - **禁止**：panel 內另畫「來源機關」「原始資料 ↗」列；把每筆都一樣的備註、資料時點留在 popup。
+- **例外（領土卡）**：領土卡（H3 格子屬性卡）一次列多個不同來源的數值，每組底下保留一行來源與資料日期；其餘 popup 照原規則。
 - **實作**：`src/components/featureInfo/shared.tsx` `SourceFooter`、`FeatureInfoPanel.tsx`、`src/data/layerSourceInfo.ts`。
 
 ### 5.4 選取圈（R2 呼吸脈衝）

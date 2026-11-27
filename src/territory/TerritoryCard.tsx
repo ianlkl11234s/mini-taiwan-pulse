@@ -3,14 +3,14 @@
  * 標題＝縣市 鄉鎮 村里＋格子大小白話；三個標籤做成能力條；以下依 tag 分組列全部屬性。
  * 值是點擊當下的磚內屬性快照（territoryStore.selected），缺席一律寫「未涵蓋」不寫 0。
  */
-import { useMemo, type CSSProperties } from "react";
+import { useMemo, type CSSProperties, type ReactNode } from "react";
 import { X } from "lucide-react";
 import { Row, Title, PopupScroll } from "../components/featureInfo/shared";
 import { DARK_FEATURE, FeatureThemeProvider, LIGHT_FEATURE, useFeatureTheme } from "../components/featureInfo/featureTheme";
 import { COLORS, FONT_CJK, FONT_DATA, FONT_SIZE, FONT_WEIGHT, LIGHT, RADIUS, SURFACE } from "../styles/designTokens";
 import { useLocale } from "../state/localeStore";
 import { RES_LABEL, SCORE_TAGS, TAG_ORDER, TERRITORY_TEXT as T } from "./territoryText";
-import { accentFor, availableAtRes, coverageText, formatAttrValue, type TerritoryAttribute } from "./territoryAttributes";
+import { accentFor, availableAtRes, coverageText, formatAttrValue, META_KEYS, scoreFieldFor, type RankScope, type TerritoryAttribute } from "./territoryAttributes";
 import { territoryStore, useTerritory } from "./territoryStore";
 import { useTerritoryAttributes } from "./useTerritoryAttributes";
 import "./territory.css";
@@ -21,7 +21,7 @@ const CJK = /[\u3400-\u9fff]/;
 const monoOk = (s: string | null) => s !== null && !CJK.test(s);
 
 export function TerritoryCard({ isDark }: { isDark: boolean }) {
-  const { open, selected } = useTerritory();
+  const { open, selected, rankScope } = useTerritory();
   const attrs = useTerritoryAttributes(open);
   if (!open || !selected) return null;
   const list = attrs.status === "ready" ? attrs.data.attributes : [];
@@ -44,23 +44,28 @@ export function TerritoryCard({ isDark }: { isDark: boolean }) {
           style={{ position: "absolute", top: 8, right: 8, background: "none", border: "none", color: palette.textDim, cursor: "pointer", padding: 2, display: "flex" }}>
           <X size={14} />
         </button>
-        <CardBody props={selected} attributes={list} isDark={isDark} />
+        <CardBody props={selected} attributes={list} isDark={isDark} rankScope={rankScope} />
       </div>
     </FeatureThemeProvider>
   );
 }
 
-function CardBody({ props, attributes, isDark }: { props: Record<string, unknown>; attributes: TerritoryAttribute[]; isDark: boolean }) {
+/** 財力 key 與房價中位數：res9 且 sale_median_src_res=8 時值取自所屬 res8 格（周邊約 500 公尺） */
+const NEIGHBOUR_FILLED_KEYS: ReadonlySet<string> = new Set(["score_wealth", "sale_unit_price_median"]);
+
+function CardBody({ props, attributes, isDark, rankScope }: { props: Record<string, unknown>; attributes: TerritoryAttribute[]; isDark: boolean; rankScope: RankScope }) {
   const t = useFeatureTheme();
   const { formatNumber } = useLocale();
   const res = Number(props.res);
   const place = [props.county, props.town, props.village].filter(present).map(String).join(" ") || T.uncovered;
   const accent = isDark ? COLORS.accent : LIGHT.accent;
+  const fromNeighbour = res === 9 && Number(props.sale_median_src_res) === 8;
+  const neighbourTag = (key: string) => fromNeighbour && NEIGHBOUR_FILLED_KEYS.has(key) ? <SmallTag text={T.fromNeighbour} /> : null;
 
   const groups = useMemo(() => {
     const m = new Map<string, TerritoryAttribute[]>();
     for (const a of attributes) {
-      if (a.tag === "標籤" || a.key.startsWith("score_")) continue;
+      if (a.tag === "標籤" || a.key.startsWith("score_") || META_KEYS.has(a.key)) continue;
       const arr = m.get(a.tag) ?? [];
       arr.push(a);
       m.set(a.tag, arr);
@@ -83,14 +88,17 @@ function CardBody({ props, attributes, isDark }: { props: Record<string, unknown
         <div style={{ display: "flex", flexDirection: "column", gap: 7, padding: "6px 0 4px" }}>
           {SCORE_TAGS.map((tag) => {
             const attr = byKey.get(tag.key);
-            const raw = props[tag.key];
+            const raw = props[scoreFieldFor(tag.key, rankScope)];
             const v = present(raw) ? Number(raw) : null;
             const color = accentFor({ key: tag.key, tag: "標籤" }, isDark);
             const cov = attr ? coverageText(attr) : null;
+            const county = present(props.county) ? String(props.county) : null;
+            const area = rankScope === "county" ? county : cov;
             return (
               <AbilityBar key={tag.key} label={tag.label} value={v !== null && Number.isFinite(v) ? v : null} color={color}
-                caption={v === null || !Number.isFinite(v) ? T.uncovered
-                  : cov ? T.beatArea(Math.round(v), cov) : T.beatAll(Math.round(v))}
+                tag={neighbourTag(tag.key)}
+                caption={v === null || !Number.isFinite(v) || (rankScope === "county" && !county) ? T.uncovered
+                  : area ? T.beatArea(Math.round(v), area) : T.beatAll(Math.round(v))}
                 formatNumber={formatNumber} />
             );
           })}
@@ -110,6 +118,7 @@ function CardBody({ props, attributes, isDark }: { props: Record<string, unknown
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <Row label={a.kind === "village_value" ? a.label.replace(/（村里值）$/, "") : a.label} value={shown ?? (here ? T.uncovered : T.zoomOut)} color={shown ? undefined : t.textDim} mono={a.kind !== "category" && monoOk(shown)} />
                     </div>
+                    {neighbourTag(a.key)}
                     {a.kind === "village_value" && (
                       <span style={{ fontSize: FONT_SIZE.xs, color: t.textDim, border: "1px solid currentColor", borderRadius: RADIUS.sm, padding: "0 3px", marginTop: 4, marginLeft: 4, flexShrink: 0 }}>{T.villageValue}</span>
                     )}
@@ -179,8 +188,14 @@ function groupSources(items: TerritoryAttribute[]): string[] {
   return [...out];
 }
 
-function AbilityBar({ label, value, color, caption, formatNumber }: {
-  label: string; value: number | null; color: string; caption: string;
+/** 數值旁的小標（村里值、取自周邊） */
+function SmallTag({ text }: { text: string }) {
+  const t = useFeatureTheme();
+  return <span style={{ fontSize: FONT_SIZE.xs, color: t.textDim, border: "1px solid currentColor", borderRadius: RADIUS.sm, padding: "0 3px", marginTop: 4, marginLeft: 4, flexShrink: 0, whiteSpace: "nowrap" }}>{text}</span>;
+}
+
+function AbilityBar({ label, value, color, caption, tag, formatNumber }: {
+  label: string; value: number | null; color: string; caption: string; tag?: ReactNode;
   formatNumber: (n: number, o?: Intl.NumberFormatOptions) => string;
 }) {
   const t = useFeatureTheme();
@@ -189,6 +204,7 @@ function AbilityBar({ label, value, color, caption, formatNumber }: {
     <div>
       <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
         <span style={{ fontSize: FONT_SIZE.base, fontWeight: FONT_WEIGHT.semibold, color: t.textStrong, minWidth: 52 }}>{label}</span>
+        {tag}
         <span style={{ flex: 1 }} />
         {value !== null && (
           <span style={{ fontFamily: FONT_DATA, fontVariantNumeric: "tabular-nums", fontSize: FONT_SIZE.lg, fontWeight: FONT_WEIGHT.bold, color }}>

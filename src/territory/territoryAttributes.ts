@@ -83,6 +83,27 @@ const SCORE_SCHEME: Record<string, SchemeId> = {
   score_convenience: "education", // 紫：便利
 };
 
+// ── 排名方式（全台／縣市內）────────────────────────────────────────
+export type RankScope = "nation" | "county";
+const CTY_SUFFIX = "_cty";
+const baseScoreKey = (key: string) => key.endsWith(CTY_SUFFIX) ? key.slice(0, -CTY_SUFFIX.length) : key;
+export const isScoreKey = (key: string) => baseScoreKey(key) in SCORE_SCHEME;
+/** 標籤分數在該排名方式下的磚內欄名（縣市內＝score_*_cty） */
+export const scoreFieldFor = (key: string, scope: RankScope) => scope === "county" && isScoreKey(key) ? `${key}${CTY_SUFFIX}` : key;
+
+/** 不是屬性、是其他欄位的說明（例：房價中位數取自哪個解析度），面板與卡片不列 */
+export const META_KEYS: ReadonlySet<string> = new Set(["sale_median_src_res"]);
+
+/** 目前上色的屬性：縣市內排名時標籤分數換成 *_cty 欄（attributes.json 有就用它，沒有就沿用全台那筆的說明）、標題加「（縣市內）」 */
+export function resolveActiveAttr(list: readonly TerritoryAttribute[], activeKey: string | null, scope: RankScope, countySuffix: string): TerritoryAttribute | null {
+  if (!activeKey) return null;
+  const base = list.find((a) => a.key === activeKey) ?? null;
+  const field = scoreFieldFor(activeKey, scope);
+  if (!base || field === activeKey) return base;
+  const cty = list.find((a) => a.key === field);
+  return { ...(cty ?? base), key: field, label: `${base.label}${countySuffix}` };
+}
+
 const TAG_SCHEME: Record<string, SchemeId> = {
   交通: "transport",
   生活機能: "education",
@@ -96,7 +117,7 @@ const TAG_SCHEME: Record<string, SchemeId> = {
 };
 
 export function rampFor(attr: TerritoryAttribute, isDark: boolean): readonly string[] {
-  const scheme = STATISTICS_SEQUENTIAL_SCHEMES[SCORE_SCHEME[attr.key] ?? TAG_SCHEME[attr.tag] ?? "fallback"];
+  const scheme = STATISTICS_SEQUENTIAL_SCHEMES[SCORE_SCHEME[baseScoreKey(attr.key)] ?? TAG_SCHEME[attr.tag] ?? "fallback"];
   return isDark ? scheme.darkColors : shiftDeeper(scheme.colors);
 }
 
@@ -113,7 +134,7 @@ function mixHex(a: string, b: string, t: number): string {
 
 /** 選中按鈕／能力條用的代表色（色階第 4 階，夠飽和又不沉進底圖） */
 export function accentFor(attr: TerritoryAttribute | { key: string; tag: string }, isDark: boolean): string {
-  const scheme = STATISTICS_SEQUENTIAL_SCHEMES[SCORE_SCHEME[attr.key] ?? TAG_SCHEME[attr.tag] ?? "fallback"];
+  const scheme = STATISTICS_SEQUENTIAL_SCHEMES[SCORE_SCHEME[baseScoreKey(attr.key)] ?? TAG_SCHEME[attr.tag] ?? "fallback"];
   const colors: readonly string[] = isDark ? scheme.darkColors : scheme.colors;
   return colors[Math.min(3, colors.length - 1)]!;
 }

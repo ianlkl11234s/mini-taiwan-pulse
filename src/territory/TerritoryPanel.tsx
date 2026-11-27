@@ -14,7 +14,7 @@ import { COLORS, CONTROL, FONT_CJK, FONT_SIZE, FONT_WEIGHT, LIGHT, RADIUS, SPACI
 import { useLocale } from "../state/localeStore";
 import { RES_LABEL, SCORE_TAGS, TAG_ORDER, TERRITORY_TEXT as T } from "./territoryText";
 import {
-  accentFor, availableAtRes, buildColorScale, colorsForBreaks, coverageText, displayUnit, gridBase, isFraction, ZERO_SPLIT_EPS,
+  accentFor, availableAtRes, buildColorScale, META_KEYS, resolveActiveAttr, colorsForBreaks, coverageText, displayUnit, gridBase, isFraction, ZERO_SPLIT_EPS,
   type TerritoryAttribute, type TerritoryRes,
 } from "./territoryAttributes";
 import { territoryStore, useTerritory } from "./territoryStore";
@@ -41,7 +41,7 @@ function SectionTitle({ title, hint, color, hintColor }: { title: string; hint: 
 export function TerritoryPanel({ isDark, onClose }: { isDark: boolean; onClose: () => void }) {
   const rail = useRailTheme();
   const c = controlPalette(isDark);
-  const { activeKey, opacity, res } = useTerritory();
+  const { activeKey, opacity, res, rankScope } = useTerritory();
   const attrs = useTerritoryAttributes(true);
 
   const list = attrs.status === "ready" ? attrs.data.attributes : [];
@@ -49,7 +49,7 @@ export function TerritoryPanel({ isDark, onClose }: { isDark: boolean; onClose: 
   const groups = useMemo(() => {
     const m = new Map<string, TerritoryAttribute[]>();
     for (const a of list) {
-      if (a.tag === "標籤" || a.key.startsWith("score_")) continue; // 三個標籤在上方大按鈕
+      if (a.tag === "標籤" || a.key.startsWith("score_") || META_KEYS.has(a.key)) continue; // 三個標籤在上方大按鈕
       const arr = m.get(a.tag) ?? [];
       arr.push(a);
       m.set(a.tag, arr);
@@ -57,7 +57,7 @@ export function TerritoryPanel({ isDark, onClose }: { isDark: boolean; onClose: 
     const order = [...TAG_ORDER, ...[...m.keys()].filter((k) => !(TAG_ORDER as readonly string[]).includes(k))];
     return order.filter((t) => m.has(t)).map((t) => ({ tag: t, items: m.get(t)! }));
   }, [list]);
-  const active = activeKey ? byKey.get(activeKey) ?? null : null;
+  const active = useMemo(() => resolveActiveAttr(list, activeKey, rankScope, T.countySuffix), [list, activeKey, rankScope]);
 
   return (
     <div className="territory-panel" style={{ display: "flex", flexDirection: "column", minHeight: 0, flex: 1, fontFamily: FONT_CJK }}>
@@ -73,6 +73,15 @@ export function TerritoryPanel({ isDark, onClose }: { isDark: boolean; onClose: 
 
         {/* ── 標籤：三顆大按鈕 ── */}
         <SectionTitle title={T.tagSection} hint={T.tagHint} color={rail.DIM} hintColor={c.dim} />
+        {/* 排名方式：全台｜縣市內（只影響三個標籤分數） */}
+        <div role="group" aria-label={T.rankScopeLabel} style={{ display: "flex", gap: SPACING.xs, padding: "0 14px 8px" }}>
+          {(["nation", "county"] as const).map((s) => (
+            <button key={s} type="button" className="territory-btn" aria-pressed={rankScope === s} onClick={() => territoryStore.setRankScope(s)}
+              style={{ ...chipStyle(rankScope === s, c, isDark ? COLORS.accent : LIGHT.accent), flex: 1, justifyContent: "center", textAlign: "center" }}>
+              {s === "nation" ? T.rankNation : T.rankCounty}
+            </button>
+          ))}
+        </div>
         <div style={{ display: "flex", flexDirection: "column", gap: SPACING.sm, padding: "0 14px" }}>
           {SCORE_TAGS.map((tag) => {
             const attr = byKey.get(tag.key);

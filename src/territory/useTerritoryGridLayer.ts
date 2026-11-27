@@ -13,11 +13,12 @@ import { useMapReadyTick } from "../hooks/useMapReadyTick";
 import { SELECTION_RING } from "../styles/designTokens";
 import { hatchImageData, hatchImageId, mapSeamColor } from "../map/mapStyleScale";
 import {
-  TERRITORY_PMTILES_URL, TERRITORY_SOURCE_LAYER, buildColorScale, fillColorExpr, fillOpacityExpr, gridBase, zoomToRes,
+  TERRITORY_PMTILES_URL, TERRITORY_SOURCE_LAYER, buildColorScale, resolveActiveAttr, fillColorExpr, fillOpacityExpr, gridBase, zoomToRes,
   type TerritoryAttribute, type TerritoryRes,
 } from "./territoryAttributes";
 import { territoryStore, useTerritory } from "./territoryStore";
 import { useTerritoryAttributes } from "./useTerritoryAttributes";
+import { TERRITORY_TEXT } from "./territoryText";
 
 const SOURCE_ID = "territory-h3";
 export const TERRITORY_FILL_LAYER = "territory-h3-fill";
@@ -76,14 +77,14 @@ export function useTerritoryGridLayer(
   styleId: string,
   isDark: boolean,
 ) {
-  const { open, activeKey, opacity, selected } = useTerritory();
+  const { open, activeKey, opacity, selected, rankScope } = useTerritory();
   const attrs = useTerritoryAttributes(open);
   const mapTick = useMapReadyTick(mapRef, open);
 
   const activeAttr = useMemo(() => {
     if (attrs.status !== "ready" || !activeKey) return null;
-    return attrs.data.attributes.find((a) => a.key === activeKey) ?? null;
-  }, [attrs, activeKey]);
+    return resolveActiveAttr(attrs.data.attributes, activeKey, rankScope, TERRITORY_TEXT.countySuffix);
+  }, [attrs, activeKey, rankScope]);
 
   const paintRef = useRef<PaintInput>({ activeAttr, opacity, isDark });
   paintRef.current = { activeAttr, opacity, isDark };
