@@ -286,13 +286,19 @@ export function IconRailSidebar({
           paddingBottom: 8,
           flexShrink: 0,
           zIndex: 2,
+          // 視窗矮時 icon 放不下 → 欄內垂直捲動，不讓下方按鈕被切掉（提示用原生 title，不受裁切影響）
+          height: "100%",
+          boxSizing: "border-box",
+          overflowY: "auto",
+          overflowX: "hidden",
+          scrollbarWidth: "none",
         }}
       >
         {/* Logo / Activity */}
         <RailIcon icon={Activity} active={false} onClick={() => {}} tooltip="Mini Taiwan Pulse" />
 
         {/* Divider */}
-        <div style={{ width: 32, height: 1, background: BORDER, margin: "8px 0" }} />
+        <div style={{ width: 32, height: 1, background: BORDER, margin: "8px 0", flexShrink: 0 }} />
 
         {/* Layers */}
         <RailIcon
@@ -406,7 +412,7 @@ export function IconRailSidebar({
         )}
 
         {/* Pulse 筆記（/blog）：離開地圖的連結，用分隔線與上面開面板的按鈕分開；帶目前底圖明暗讓文章頁同色 */}
-        <div style={{ width: 32, height: 1, background: BORDER, margin: "8px 0" }} />
+        <div style={{ width: 32, height: 1, background: BORDER, margin: "8px 0", flexShrink: 0 }} />
         <RailLink
           icon={BookOpen}
           href={`/blog/?theme=${isDarkTheme ? "dark" : "light"}`}
@@ -568,6 +574,7 @@ function RailLink({ icon: Icon, href, tooltip }: { icon: ComponentType<{ size?: 
         alignItems: "center",
         justifyContent: "center",
         marginBottom: 4,
+        flexShrink: 0,
       }}
     >
       <Icon size={20} />
@@ -602,6 +609,7 @@ function RailIcon({
         cursor: "pointer",
         padding: 0,
         marginBottom: 4,
+        flexShrink: 0,
         transition: "background 0.15s, color 0.15s",
       }}
     >
