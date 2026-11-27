@@ -18,7 +18,7 @@ import {
 } from "./territoryAttributes";
 import { territoryStore, useTerritory } from "./territoryStore";
 import { useTerritoryAttributes } from "./useTerritoryAttributes";
-import { TERRITORY_TEXT } from "./territoryText";
+import { useTerritoryText } from "./territoryText";
 
 const SOURCE_ID = "territory-h3";
 export const TERRITORY_FILL_LAYER = "territory-h3-fill";
@@ -78,13 +78,14 @@ export function useTerritoryGridLayer(
   isDark: boolean,
 ) {
   const { open, activeKey, opacity, selected, rankScope } = useTerritory();
+  const { countySuffix } = useTerritoryText();
   const attrs = useTerritoryAttributes(open);
   const mapTick = useMapReadyTick(mapRef, open);
 
   const activeAttr = useMemo(() => {
     if (attrs.status !== "ready" || !activeKey) return null;
-    return resolveActiveAttr(attrs.data.attributes, activeKey, rankScope, TERRITORY_TEXT.countySuffix);
-  }, [attrs, activeKey, rankScope]);
+    return resolveActiveAttr(attrs.data.attributes, activeKey, rankScope, countySuffix);
+  }, [attrs, activeKey, rankScope, countySuffix]);
 
   const paintRef = useRef<PaintInput>({ activeAttr, opacity, isDark });
   paintRef.current = { activeAttr, opacity, isDark };

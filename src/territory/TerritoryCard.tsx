@@ -9,8 +9,8 @@ import { Row, Title, PopupScroll } from "../components/featureInfo/shared";
 import { DARK_FEATURE, FeatureThemeProvider, LIGHT_FEATURE, useFeatureTheme } from "../components/featureInfo/featureTheme";
 import { COLORS, FONT_CJK, FONT_DATA, FONT_SIZE, FONT_WEIGHT, LIGHT, RADIUS, SURFACE } from "../styles/designTokens";
 import { useLocale } from "../state/localeStore";
-import { RES_LABEL, SCORE_TAGS, TAG_ORDER, TERRITORY_TEXT as T } from "./territoryText";
-import { accentFor, availableAtRes, coverageText, formatAttrValue, META_KEYS, scoreFieldFor, type RankScope, type TerritoryAttribute } from "./territoryAttributes";
+import { SCORE_TAGS, TAG_ORDER, useTerritoryText } from "./territoryText";
+import { accentFor, availableAtRes, coverageText, formatAttrValue, isNeighbourFilled, META_KEYS, scoreFieldFor, type RankScope, type TerritoryAttribute } from "./territoryAttributes";
 import { territoryStore, useTerritory } from "./territoryStore";
 import { useTerritoryAttributes } from "./useTerritoryAttributes";
 import "./territory.css";
@@ -23,6 +23,7 @@ const monoOk = (s: string | null) => s !== null && !CJK.test(s);
 export function TerritoryCard({ isDark }: { isDark: boolean }) {
   const { open, selected, rankScope } = useTerritory();
   const attrs = useTerritoryAttributes(open);
+  const T = useTerritoryText();
   if (!open || !selected) return null;
   const list = attrs.status === "ready" ? attrs.data.attributes : [];
   const palette = isDark ? DARK_FEATURE : LIGHT_FEATURE;
@@ -50,17 +51,14 @@ export function TerritoryCard({ isDark }: { isDark: boolean }) {
   );
 }
 
-/** 財力 key 與房價中位數：res9 且 sale_median_src_res=8 時值取自所屬 res8 格（周邊約 500 公尺） */
-const NEIGHBOUR_FILLED_KEYS: ReadonlySet<string> = new Set(["score_wealth", "sale_unit_price_median"]);
-
 function CardBody({ props, attributes, isDark, rankScope }: { props: Record<string, unknown>; attributes: TerritoryAttribute[]; isDark: boolean; rankScope: RankScope }) {
   const t = useFeatureTheme();
   const { formatNumber } = useLocale();
+  const T = useTerritoryText();
   const res = Number(props.res);
   const place = [props.county, props.town, props.village].filter(present).map(String).join(" ") || T.uncovered;
   const accent = isDark ? COLORS.accent : LIGHT.accent;
-  const fromNeighbour = res === 9 && Number(props.sale_median_src_res) === 8;
-  const neighbourTag = (key: string) => fromNeighbour && NEIGHBOUR_FILLED_KEYS.has(key) ? <SmallTag text={T.fromNeighbour} /> : null;
+  const neighbourTag = (key: string) => isNeighbourFilled(props, key) ? <SmallTag text={T.fromNeighbour} /> : null;
 
   const groups = useMemo(() => {
     const m = new Map<string, TerritoryAttribute[]>();
@@ -78,7 +76,7 @@ function CardBody({ props, attributes, isDark, rankScope }: { props: Record<stri
   return (
     <>
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1.2, marginBottom: 6, flexShrink: 0 }}>
-        {T.cardEyebrow}{RES_LABEL[res] ? ` · ${RES_LABEL[res]}` : ""}
+        {T.cardEyebrow}{T.resLabel(res) ? ` · ${T.resLabel(res)}` : ""}
       </div>
       <div style={{ paddingRight: 16, flexShrink: 0 }}>
         <Title color={accent}>{place}</Title>
@@ -91,11 +89,11 @@ function CardBody({ props, attributes, isDark, rankScope }: { props: Record<stri
             const raw = props[scoreFieldFor(tag.key, rankScope)];
             const v = present(raw) ? Number(raw) : null;
             const color = accentFor({ key: tag.key, tag: "標籤" }, isDark);
-            const cov = attr ? coverageText(attr) : null;
+            const cov = attr ? coverageText(attr, T.allExcept) : null;
             const county = present(props.county) ? String(props.county) : null;
             const area = rankScope === "county" ? county : cov;
             return (
-              <AbilityBar key={tag.key} label={tag.label} value={v !== null && Number.isFinite(v) ? v : null} color={color}
+              <AbilityBar key={tag.key} label={T.scoreLabel(tag.key)} value={v !== null && Number.isFinite(v) ? v : null} color={color}
                 tag={neighbourTag(tag.key)}
                 caption={v === null || !Number.isFinite(v) || (rankScope === "county" && !county) ? T.uncovered
                   : area ? T.beatArea(Math.round(v), area) : T.beatAll(Math.round(v))}
@@ -147,13 +145,14 @@ function BizDivRows({ items, props, formatNumber }: {
   formatNumber: (n: number, o?: Intl.NumberFormatOptions) => string;
 }) {
   const t = useFeatureTheme();
+  const T = useTerritoryText();
   const present = items.filter((a) => props[a.key] !== undefined && props[a.key] !== null);
-  if (present.length === 0) return <Row label="產業大類" value={T.uncovered} color={t.textDim} />;
+  if (present.length === 0) return <Row label={T.bizRow} value={T.uncovered} color={t.textDim} />;
   const positive = present
     .map((a) => ({ a, v: Number(props[a.key]) }))
     .filter((x) => Number.isFinite(x.v) && x.v > 0)
     .sort((x, y) => y.v - x.v);
-  if (positive.length === 0) return <Row label="產業大類" value={T.bizNone} color={t.textDim} />;
+  if (positive.length === 0) return <Row label={T.bizRow} value={T.bizNone} color={t.textDim} />;
   const top = positive.slice(0, 5);
   const rest = positive.slice(5);
   const restSum = rest.reduce((n, x) => n + x.v, 0);
@@ -183,7 +182,7 @@ function groupSources(items: TerritoryAttribute[]): string[] {
     if (/^同/.test(a.source.trim())) continue;
     const src = humanSource(a.source);
     if (!src) continue;
-    out.add(T.sourceLine(src, a.source_date ?? ""));
+    out.add(a.source_date ? `${src} · ${a.source_date}` : src);
   }
   return [...out];
 }

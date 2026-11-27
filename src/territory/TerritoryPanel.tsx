@@ -12,9 +12,9 @@ import {
 } from "../components/legend/legendKit";
 import { COLORS, CONTROL, FONT_CJK, FONT_SIZE, FONT_WEIGHT, LIGHT, RADIUS, SPACING } from "../styles/designTokens";
 import { useLocale } from "../state/localeStore";
-import { RES_LABEL, SCORE_TAGS, TAG_ORDER, TERRITORY_TEXT as T } from "./territoryText";
+import { SCORE_TAGS, TAG_ORDER, useTerritoryText } from "./territoryText";
 import {
-  accentFor, availableAtRes, buildColorScale, META_KEYS, resolveActiveAttr, colorsForBreaks, coverageText, displayUnit, gridBase, isFraction, ZERO_SPLIT_EPS,
+  accentFor, availableAtRes, buildColorScale, isScoreKey, META_KEYS, resolveActiveAttr, colorsForBreaks, coverageText, displayUnit, gridBase, isFraction, ZERO_SPLIT_EPS,
   type TerritoryAttribute, type TerritoryRes,
 } from "./territoryAttributes";
 import { territoryStore, useTerritory } from "./territoryStore";
@@ -43,6 +43,7 @@ export function TerritoryPanel({ isDark, onClose }: { isDark: boolean; onClose: 
   const c = controlPalette(isDark);
   const { activeKey, opacity, res, rankScope } = useTerritory();
   const attrs = useTerritoryAttributes(true);
+  const T = useTerritoryText();
 
   const list = attrs.status === "ready" ? attrs.data.attributes : [];
   const byKey = useMemo(() => new Map(list.map((a) => [a.key, a] as const)), [list]);
@@ -57,7 +58,10 @@ export function TerritoryPanel({ isDark, onClose }: { isDark: boolean; onClose: 
     const order = [...TAG_ORDER, ...[...m.keys()].filter((k) => !(TAG_ORDER as readonly string[]).includes(k))];
     return order.filter((t) => m.has(t)).map((t) => ({ tag: t, items: m.get(t)! }));
   }, [list]);
-  const active = useMemo(() => resolveActiveAttr(list, activeKey, rankScope, T.countySuffix), [list, activeKey, rankScope]);
+  const active = useMemo(
+    () => resolveActiveAttr(list, activeKey, rankScope, T.countySuffix, activeKey && isScoreKey(activeKey) ? T.scoreLabel(activeKey as (typeof SCORE_TAGS)[number]["key"]) : undefined),
+    [list, activeKey, rankScope, T],
+  );
 
   return (
     <div className="territory-panel" style={{ display: "flex", flexDirection: "column", minHeight: 0, flex: 1, fontFamily: FONT_CJK }}>
@@ -111,8 +115,8 @@ export function TerritoryPanel({ isDark, onClose }: { isDark: boolean; onClose: 
                   <Icon size={17} />
                 </span>
                 <span style={{ minWidth: 0 }}>
-                  <span style={{ display: "block", fontSize: FONT_SIZE.lg, fontWeight: FONT_WEIGHT.bold, color: on ? c.strong : c.text }}>{tag.label}</span>
-                  <span style={{ display: "block", fontSize: FONT_SIZE.sm, color: c.muted, marginTop: 1 }}>{rankScope === "county" ? tag.blurb.replace("全台", "縣市內") : tag.blurb}</span>
+                  <span style={{ display: "block", fontSize: FONT_SIZE.lg, fontWeight: FONT_WEIGHT.bold, color: on ? c.strong : c.text }}>{T.scoreLabel(tag.key)}</span>
+                  <span style={{ display: "block", fontSize: FONT_SIZE.sm, color: c.muted, marginTop: 1 }}>{T.scoreBlurb(tag.key, rankScope === "county")}</span>
                 </span>
               </button>
             );
@@ -166,7 +170,8 @@ export function TerritoryPanel({ isDark, onClose }: { isDark: boolean; onClose: 
 export const isBizDiv = (a: { key: string }) => a.key.startsWith("biz_div_");
 
 function AttrChip({ attr: a, on, res, c, isDark }: { attr: TerritoryAttribute; on: boolean; res: TerritoryRes; c: ReturnType<typeof controlPalette>; isDark: boolean }) {
-  const cov = coverageText(a);
+  const T = useTerritoryText();
+  const cov = coverageText(a, T.allExcept);
   const here = availableAtRes(a, res);
   return (
     <button type="button" className="territory-btn" aria-pressed={on}
@@ -181,6 +186,7 @@ function AttrChip({ attr: a, on, res, c, isDark }: { attr: TerritoryAttribute; o
 
 /** 19 個產業大類家數：預設收合成一個子清單，不攤平 */
 function BizDivList({ items, activeKey, res, c, isDark }: { items: TerritoryAttribute[]; activeKey: string | null; res: TerritoryRes; c: ReturnType<typeof controlPalette>; isDark: boolean }) {
+  const T = useTerritoryText();
   const hasActive = items.some((a) => a.key === activeKey);
   const [open, setOpen] = useState(hasActive);
   const shown = open || hasActive;
@@ -211,13 +217,15 @@ function chipStyle(on: boolean, c: ReturnType<typeof controlPalette>, accent: st
 }
 
 export function VillageBadge({ color }: { color: string }) {
+  const T = useTerritoryText();
   return <span style={{ fontSize: FONT_SIZE.xs, color, border: `1px solid currentColor`, borderRadius: RADIUS.sm, padding: "0 3px", lineHeight: 1.4 }}>{T.villageValue}</span>;
 }
 
 function TerritoryLegend({ attr, isDark, res }: { attr: TerritoryAttribute; isDark: boolean; res: TerritoryRes }) {
   const { formatNumber } = useLocale();
+  const T = useTerritoryText();
   const scale = useMemo(() => buildColorScale(attr, isDark), [attr, isDark]);
-  const cov = coverageText(attr);
+  const cov = coverageText(attr, T.allExcept);
   const fraction = isFraction(attr);
   const unit = displayUnit(attr);
   const fmt = (v: number): string => {
@@ -262,13 +270,13 @@ function TerritoryLegend({ attr, isDark, res }: { attr: TerritoryAttribute; isDa
   }
   return (
     <>
-      <LegendTitle zh={<>{attr.label}{unit ? <span style={{ fontWeight: FONT_WEIGHT.regular }}>（{unit === "公尺" ? "公尺；k＝千公尺" : unit}）</span> : null}</>} />
+      <LegendTitle zh={<>{attr.label}{unit ? <span style={{ fontWeight: FONT_WEIGHT.regular }}>（{unit === "公尺" ? T.legendMeters : unit}）</span> : null}</>} />
       {body}
       <div style={{ marginTop: 6 }}>
-        <LegendRow swatch={<SwatchHatch />}>{T.legendUncovered}</LegendRow>
+        <LegendRow swatch={<SwatchHatch />}>{T.uncovered}</LegendRow>
       </div>
       <LegendNote>
-        {T.resNote(RES_LABEL[res] ?? "")}
+        {T.resNote(T.resLabel(res) ?? "")}
         {cov ? `；${T.coverageOnly(cov)}` : ""}
         {attr.kind === "village_value" ? `；${T.villageValueNote}` : ""}
       </LegendNote>

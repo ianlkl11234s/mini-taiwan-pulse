@@ -36,7 +36,6 @@ import { railPalette, RailThemeContext, useRailTheme } from "./sidebar/railTheme
 import { maxHeightAboveLongTermBar } from "./longTermBar/longTermBarLayout";
 import { TerritoryPanel } from "../territory/TerritoryPanel";
 import { territoryStore } from "../territory/territoryStore";
-import { TERRITORY_TEXT } from "../territory/territoryText";
 
 // 既有 export 維持原路徑（測試與其他模組從這裡 import）
 export { LAYER_ICONS } from "./sidebar/LayersPanel";
@@ -349,7 +348,7 @@ export function IconRailSidebar({
           icon={Hexagon}
           active={activePanel === "territory"}
           onClick={() => togglePanel("territory")}
-          tooltip={TERRITORY_TEXT.railTooltip}
+          tooltip={t("territory.rail")}
         />
 
         {agentAvailable && onAgentToggle && (

@@ -22,7 +22,7 @@ import { BRIDGE_RESILIENCE_ACCESS_DENIED_EVENT, BRIDGE_RESILIENCE_PRIVATE_LAYER_
 import { BSS_BRIDGE_ACCESS_DENIED_EVENT, BSS_BRIDGE_PRIVATE_LAYER_KEYS, BSS_BRIDGE_SELECTION_CLEAR_EVENT, isBssBridgePrivateLayer } from "./data/bssBridgeTypes";
 import { isSoilLiquefactionPrivateLayer, SOIL_LIQUEFACTION_ACCESS_DENIED_EVENT, SOIL_LIQUEFACTION_PRIVATE_LAYER_KEYS, SOIL_LIQUEFACTION_SELECTION_CLEAR_EVENT } from "./data/soilLiquefactionTypes";
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
-import { COLORS, FONT_CJK, FONT_DATA, LAYOUT, LIGHT, RADIUS, FONT_SIZE, SPACING, SURFACE, Z_INDEX } from "./styles/designTokens";
+import { COLORS, CONTROL, FONT_CJK, FONT_DATA, LAYOUT, LIGHT, RADIUS, FONT_SIZE, SPACING, SURFACE, Z_INDEX } from "./styles/designTokens";
 import type { Map as MapboxMap } from "mapbox-gl";
 import type { ViewMode, RenderMode, DisplayMode, Flight, ExpandableLayerKey, LayerVisibility, AppMode, FeatureInfo } from "./types";
 import type { StationPillarData } from "./three/StationPillarScene";
@@ -132,13 +132,15 @@ import { GATED_LAYERS, RELEASE_HOLD_LAYERS } from "./components/sidebar/layerCat
 import { useLayerGates, loadLayerGates, isLayerLocked } from "./lib/layerGates";
 import { FeatureInfoPanel } from "./components/FeatureInfoPanel";
 import { TerritoryCard } from "./territory/TerritoryCard";
+import { TerritoryPanel } from "./territory/TerritoryPanel";
+import { railPalette, RailThemeContext } from "./components/sidebar/railTheme";
 import { territoryStore, useTerritory } from "./territory/territoryStore";
 import { useTerritoryGridLayer } from "./territory/useTerritoryGridLayer";
 import { HEADER_LABELS } from "./components/featureInfo/registry";
 import { ChatPanel } from "./components/chat/ChatPanel";
 import { runChatTurn, testKey } from "./chat/lazyAgent";
 import type { MapBridge } from "./chat/types";
-import { BookOpen, Bot, Box, Camera, CircleHelp, Columns2, MessageSquare, Share2, UserRound } from "lucide-react";
+import { BookOpen, Bot, Box, Camera, CircleHelp, Columns2, Hexagon, MessageSquare, Share2, UserRound } from "lucide-react";
 import { CompareMapView } from "./map/CompareMapView";
 import { CompareDivider } from "./components/compare/CompareDivider";
 import { CountryCompareChrome } from "./components/compare/CountryCompareChrome";
@@ -1420,7 +1422,7 @@ export default function App() {
   // 領土格原型（proto/h3-territory）：面板開著才鋪格子；左側面板寫 territoryStore，這裡只接地圖
   useTerritoryGridLayer(mapRef, mapStyleId, isDarkTheme);
   // 領土卡與停靠 popup 互斥：後開的關掉前一個。同一次點擊兩邊都開（點到格子上方的點位）時保留 popup：點位是更具體的目標
-  const territorySelected = useTerritory().selected;
+  const { selected: territorySelected, open: territoryOpen } = useTerritory();
   const exclusivePrevRef = useRef<{ fi: unknown; ts: unknown }>({ fi: null, ts: null });
   useEffect(() => {
     const prev = exclusivePrevRef.current;
@@ -3364,7 +3366,31 @@ export default function App() {
           >
             {(level) => (
               <>
-                {(level === "half" || level === "full") && (
+                {/* 手機領土格（桌機在 rail）：底部面板裡切換成領土格面板；面板半開時上方地圖仍可點格子 */}
+                {(level === "half" || level === "full") && territoryOpen && (
+                  <RailThemeContext.Provider value={railPalette(isDarkTheme)}>
+                    <div data-testid="mobile-territory-panel" style={{ marginTop: 12, display: "flex", flexDirection: "column", maxHeight: "60vh", minHeight: 0 }}>
+                      <TerritoryPanel isDark={isDarkTheme} onClose={() => territoryStore.setOpen(false)} />
+                    </div>
+                  </RailThemeContext.Provider>
+                )}
+                {(level === "half" || level === "full") && !territoryOpen && (
+                  <button
+                    type="button"
+                    onClick={() => territoryStore.setOpen(true)}
+                    style={{
+                      marginTop: 12, display: "inline-flex", alignItems: "center", gap: SPACING.sm, padding: "6px 12px", borderRadius: RADIUS.md, cursor: "pointer",
+                      fontFamily: FONT_CJK, fontSize: FONT_SIZE.base,
+                      background: isDarkTheme ? CONTROL.bg : LIGHT.fillStrong,
+                      color: isDarkTheme ? COLORS.textDefault : LIGHT.textDefault,
+                      border: `1px solid ${isDarkTheme ? CONTROL.border : LIGHT.border}`,
+                    }}
+                  >
+                    <Hexagon size={14} aria-hidden />
+                    {i18n.t("territory.rail")}
+                  </button>
+                )}
+                {(level === "half" || level === "full") && !territoryOpen && (
                   <div style={{ marginTop: 12 }}>
                     <LayerSidebar
                       visibility={layerVisibility}

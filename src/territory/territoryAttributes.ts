@@ -10,7 +10,7 @@ import type { ExpressionSpecification } from "mapbox-gl";
 import { withLoading } from "../lib/loadingRegistry";
 import { STATISTICS_SEQUENTIAL_SCHEMES } from "../data/statisticsVisuals";
 import { categoricalColor, categoricalNeutral } from "../map/mapStyleScale";
-import { TERRITORY_TEXT } from "./territoryText";
+import { TERRITORY_LOADING_LABEL } from "./territoryText";
 
 // 一對資產一起換版（S3／R2 只寫不覆蓋）：資料重產時兩個檔名的日期一起改
 export const TERRITORY_ATTRIBUTES_URL = "./geo/h3_territory/attributes_20261127.json";
@@ -61,7 +61,7 @@ export function loadTerritoryAttributes(): Promise<TerritoryAttributesFile> {
   if (!attributesPromise) {
     attributesPromise = withLoading(
       "territory-attributes",
-      TERRITORY_TEXT.loadingLabel,
+      TERRITORY_LOADING_LABEL,
       fetch(TERRITORY_ATTRIBUTES_URL).then((res) => {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         return res.json() as Promise<TerritoryAttributesFile>;
@@ -92,13 +92,24 @@ export const isScoreKey = (key: string) => baseScoreKey(key) in SCORE_SCHEME;
 /** 標籤分數在該排名方式下的磚內欄名（縣市內＝score_*_cty） */
 export const scoreFieldFor = (key: string, scope: RankScope) => scope === "county" && isScoreKey(key) ? `${key}${CTY_SUFFIX}` : key;
 
+/** 財力與房價中位數：res9 且 sale_median_src_res=8 時，值取自所屬 res8 格（周邊約 500 公尺），卡片要加小標 */
+const NEIGHBOUR_FILLED_KEYS: ReadonlySet<string> = new Set(["score_wealth", "score_wealth_cty", "sale_unit_price_median"]);
+export function isNeighbourFilled(props: Record<string, unknown>, key: string): boolean {
+  return Number(props.res) === 9 && Number(props.sale_median_src_res) === 8 && NEIGHBOUR_FILLED_KEYS.has(key);
+}
+
 /** 不是屬性、是其他欄位的說明（例：房價中位數取自哪個解析度），面板與卡片不列 */
 export const META_KEYS: ReadonlySet<string> = new Set(["sale_median_src_res"]);
 
 /** 目前上色的屬性：縣市內排名時標籤分數換成 *_cty 欄（attributes.json 有就用它，沒有就沿用全台那筆的說明）、標題加「（縣市內）」 */
-export function resolveActiveAttr(list: readonly TerritoryAttribute[], activeKey: string | null, scope: RankScope, countySuffix: string): TerritoryAttribute | null {
+export function resolveActiveAttr(
+  list: readonly TerritoryAttribute[], activeKey: string | null, scope: RankScope, countySuffix: string,
+  /** 標籤分數的顯示名（介面語系）；省略＝用 attributes.json 的 label */
+  scoreLabel?: string,
+): TerritoryAttribute | null {
   if (!activeKey) return null;
-  const base = list.find((a) => a.key === activeKey) ?? null;
+  const found = list.find((a) => a.key === activeKey) ?? null;
+  const base = found && scoreLabel ? { ...found, label: scoreLabel } : found;
   const field = scoreFieldFor(activeKey, scope);
   if (!base || field === activeKey) return base;
   const cty = list.find((a) => a.key === field);
@@ -364,15 +375,15 @@ export function categoryLabel(attr: TerritoryAttribute, raw: unknown): string {
 
 const ALL_COUNTIES = ["臺北市", "新北市", "桃園市", "臺中市", "臺南市", "高雄市", "基隆市", "新竹市", "嘉義市", "新竹縣", "苗栗縣", "彰化縣", "南投縣", "雲林縣", "嘉義縣", "屏東縣", "宜蘭縣", "花蓮縣", "臺東縣", "澎湖縣", "金門縣", "連江縣"];
 
-/** 涵蓋範圍白話：全台→null；縣市清單多於一半→「不含 X」；說明文字照原文 */
-export function coverageText(attr: TerritoryAttribute): string | null {
+/** 涵蓋範圍白話：全台→null；縣市清單多於一半→「全台（不含 X）」（allExcept 由介面字提供）；說明文字照原文 */
+export function coverageText(attr: TerritoryAttribute, allExcept: (list: string) => string): string | null {
   const cov = attr.coverage;
   if (!cov || cov === "全台") return null;
   if (typeof cov === "string") return cov;
   if (!cov.length) return null;
   if (cov.length > ALL_COUNTIES.length / 2) {
     const missing = ALL_COUNTIES.filter((c) => !cov.includes(c));
-    return missing.length ? `全台（不含${missing.join("、")}）` : null;
+    return missing.length ? allExcept(missing.join("、")) : null;
   }
   return cov.join("、");
 }
