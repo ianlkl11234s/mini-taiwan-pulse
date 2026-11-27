@@ -140,6 +140,18 @@ function strictlyAscending(values: number[]): number[] {
  */
 export function quantileBreaks(stats: AttrStats | undefined): number[] {
   if (!stats) return [];
+  return insideRange(rawQuantileBreaks(stats), stats.min, stats.max);
+}
+
+/**
+ * 斷點等於最小值（零值很多時 min＝p50＝0 常見）會讓「確實是 0」的格子跳過最淺一階、圖例印出「0 0 …」；
+ * 等於最大值同理。只留 min < b < max 的斷點。
+ */
+function insideRange(breaks: number[], min: number | undefined, max: number | undefined): number[] {
+  return breaks.filter((b) => (min === undefined || b > min) && (max === undefined || b < max));
+}
+
+function rawQuantileBreaks(stats: AttrStats): number[] {
   const ps = percentileEntries(stats);
   const wanted = [20, 40, 60, 80];
   const exact = wanted.map((p) => ps.find(([q]) => q === p)?.[1]);

@@ -20,6 +20,7 @@ export const TERRITORY_TEXT = {
   legendLowHighDistance: "淺＝近　深＝遠",
   legendScore: "分數 0–100（百分位）",
   legendNoBreaks: "這一層的數值都相同，無法分級",
+  legendNoStatsAtRes: "這個屬性在目前的格子大小沒有資料，放大或縮小看看",
   loading: "格子屬性載入中…",
   loadFailed: "格子屬性載入失敗",
   resNote: (label: string) => `目前畫面：${label}`,

@@ -191,7 +191,10 @@ function TerritoryLegend({ attr, isDark, res }: { attr: TerritoryAttribute; isDa
   } else {
     const breaks = scale.breaksByRes[res];
     const stats = attr.stats?.[String(res)];
-    if (!breaks || breaks.length === 0) {
+    const linear = attr.kind === "ratio" || attr.kind === "score";
+    if (!linear && !stats) {
+      body = <LegendNote>{T.legendNoStatsAtRes}</LegendNote>;
+    } else if (!breaks || breaks.length === 0) {
       body = <LegendNote>{T.legendNoBreaks}</LegendNote>;
     } else {
       const lo = attr.kind === "ratio" ? 0 : attr.kind === "score" ? 0 : stats?.min;

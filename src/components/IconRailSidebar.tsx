@@ -183,6 +183,7 @@ export function IconRailSidebar({
   useEffect(() => {
     territoryStore.setOpen(activePanel === "territory");
   }, [activePanel]);
+  useEffect(() => () => territoryStore.setOpen(false), []);
 
   // Floating panel doesn't push content — always report rail width only
   useEffect(() => {

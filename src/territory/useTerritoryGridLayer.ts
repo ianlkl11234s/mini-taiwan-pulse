@@ -131,8 +131,11 @@ export function useTerritoryGridLayer(
     retry();
     if (!map || !safeIsStyleLoaded(map as MapboxMap)) retryTimer = setInterval(retry, 200);
 
+    // 換底圖：setStyle 晚於本 effect 重跑時，style.load 後再補一次（同 useSlopeVectorLayer）
+    const onStyleLoad = () => { if (!cancelled) setTimeout(retry, 0); };
     const bound = map as MapboxMap | null;
     if (bound && open) {
+      bound.on("style.load", onStyleLoad);
       bound.on("zoomend", onZoom);
       bound.on("click", onClick);
       bound.on("mouseenter", TERRITORY_FILL_LAYER, onEnter);
@@ -142,6 +145,7 @@ export function useTerritoryGridLayer(
       cancelled = true;
       if (retryTimer) clearInterval(retryTimer);
       if (bound) {
+        bound.off("style.load", onStyleLoad);
         bound.off("zoomend", onZoom);
         bound.off("click", onClick);
         bound.off("mouseenter", TERRITORY_FILL_LAYER, onEnter);
