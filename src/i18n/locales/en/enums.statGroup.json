@@ -222,5 +222,10 @@
   "enum.statGroup.海洋廢棄物清理": "Marine debris cleanup",
   "enum.statGroup.畜禽在養與場數": "Livestock on farm and farm count",
   "enum.statGroup.漁業生產量": "Fishery production volume",
-  "enum.statGroup.漁業生產值": "Fishery production value"
+  "enum.statGroup.漁業生產值": "Fishery production value",
+  "enum.statGroup.公司登記家數": "Registered companies",
+  "enum.statGroup.每千人公司家數": "Registered companies per 1,000 residents",
+  "enum.statGroup.地方特色產業": "Local specialty industry",
+  "enum.statGroup.房屋買賣單價中位數": "Median home sale price per m²",
+  "enum.statGroup.房屋買賣成交筆數": "Home sale transactions"
 }

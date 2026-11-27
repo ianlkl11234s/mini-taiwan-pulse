@@ -430,5 +430,9 @@
   "theme.農地": "Farmland",
   "theme.通訊塔": "Communications Towers",
   "theme.郵局": "Post Offices",
-  "theme.體驗": "Experiences"
+  "theme.體驗": "Experiences",
+  "theme.公司登記與產業": "Company registrations and industry",
+  "theme.實價登錄（買賣）": "Actual-price registration (sales)",
+  "theme.不動產交易統計 Real Estate Transactions": "Real Estate Transactions",
+  "theme.財稅與消費統計 Fiscal & Consumption Statistics": "Fiscal & Consumption Statistics"
 }

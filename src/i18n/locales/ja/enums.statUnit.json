@@ -127,5 +127,7 @@
   "enum.statUnit.歐元/月": "ユーロ/月",
   "enum.statUnit.件／萬人": "件／人口1万人",
   "enum.statUnit.類": "テーマ",
-  "enum.statUnit.度／戶／月": "kWh／戸／月"
+  "enum.statUnit.度／戶／月": "kWh／戸／月",
+  "enum.statUnit.家/千人": "社/千人",
+  "enum.statUnit.元/㎡": "台湾ドル/㎡"
 }

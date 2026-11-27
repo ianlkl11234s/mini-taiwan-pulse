@@ -1445,5 +1445,15 @@
   "layer.freewayRoadkill": "Freeway Roadkill Records",
   "layer.freewayEcoFacilities": "Freeway Wildlife Crossings",
   "layer.freewayEcoSurveyFlora": "Freeway Flora Survey",
-  "layer.freewayEcoSurveyFauna": "Freeway Fauna Survey"
+  "layer.freewayEcoSurveyFauna": "Freeway Fauna Survey",
+  "layer.statsVillageCompanyCount": "Registered companies (village)",
+  "layer.statsVillageCompanyPer1000": "Registered companies per 1,000 residents (village)",
+  "layer.statsVillageCompanySpecialty": "Local specialty industry (village)",
+  "layer.statsVillageSalePriceMedian": "Median home sale price per m² (village)",
+  "layer.statsVillageSaleCount": "Home sale transactions (village)",
+  "layer.statsTownshipCompanyCount": "Registered companies (township)",
+  "layer.statsTownshipCompanyPer1000": "Registered companies per 1,000 residents (township)",
+  "layer.statsTownshipCompanySpecialty": "Local specialty industry (township)",
+  "layer.statsTownshipSalePriceMedian": "Median home sale price per m² (township)",
+  "layer.statsTownshipSaleCount": "Home sale transactions (township)"
 }
