@@ -1,0 +1,8 @@
+/* 領土格原型：按鈕 hover／focus（spec §5.7：focus-visible 2px accent 外框） */
+.territory-btn { transition: background 0.12s, border-color 0.12s; }
+.territory-btn:disabled { opacity: var(--control-disabled-opacity); cursor: not-allowed; }
+.territory-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.territory-card button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+@media (prefers-reduced-motion: reduce) {
+  .territory-btn, .territory-bar-fill { transition: none; }
+}

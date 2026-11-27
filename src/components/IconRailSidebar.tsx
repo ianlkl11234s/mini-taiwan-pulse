@@ -11,6 +11,7 @@ import {
   PanelRight,  // 監測模式 Monitor split（右半邊）rail 按鈕
   Database,    // 資料來源 rail 按鈕
   BookOpen,    // Pulse 筆記（/blog）rail 連結
+  Hexagon,     // 領土格原型（proto/h3-territory）rail 按鈕
   type LucideIcon,
 } from "lucide-react";
 import type {
@@ -33,6 +34,8 @@ import { countryStore, useCountry, type CountryFlyMode } from "../state/countryS
 import type { CountryCode } from "../constants/countries";
 import { railPalette, RailThemeContext, useRailTheme } from "./sidebar/railTheme";
 import { maxHeightAboveLongTermBar } from "./longTermBar/longTermBarLayout";
+import { TerritoryPanel } from "../territory/TerritoryPanel";
+import { territoryStore } from "../territory/territoryStore";
 
 // 既有 export 維持原路徑（測試與其他模組從這裡 import）
 export { LAYER_ICONS } from "./sidebar/LayersPanel";
@@ -95,7 +98,7 @@ interface IconRailSidebarProps {
 }
 
 
-type PanelId = LayerPanelId | "locations" | "datasource";
+type PanelId = LayerPanelId | "locations" | "datasource" | "territory";
 
 // ── Main Component ──
 
@@ -174,6 +177,12 @@ export function IconRailSidebar({
 
 
   const panelOpen = activePanel !== null;
+
+  // 領土格：地圖格子跟著面板開關（任何關閉路徑——切面板、外部互斥、explore 事件——都會移除格子與選取）
+  useEffect(() => {
+    territoryStore.setOpen(activePanel === "territory");
+  }, [activePanel]);
+  useEffect(() => () => territoryStore.setOpen(false), []);
 
   // Floating panel doesn't push content — always report rail width only
   useEffect(() => {
@@ -334,6 +343,14 @@ export function IconRailSidebar({
           tooltip={t("rail.datasource")}
         />
 
+        {/* 領土格（原型）：灰色六角格底＋標籤上色＋點格看領土卡 */}
+        <RailIcon
+          icon={Hexagon}
+          active={activePanel === "territory"}
+          onClick={() => togglePanel("territory")}
+          tooltip={t("territory.rail")}
+        />
+
         {agentAvailable && onAgentToggle && (
           <RailIcon
             icon={Bot}
@@ -482,6 +499,9 @@ export function IconRailSidebar({
                 onPickPlace={handlePickPlace}
                 onPickLayer={handlePickLayer}
               />
+            )}
+            {activePanel === "territory" && (
+              <TerritoryPanel isDark={isDarkTheme} onClose={closePanel} />
             )}
             {activePanel === "datasource" && (
               <LazyDataSourcePanel
