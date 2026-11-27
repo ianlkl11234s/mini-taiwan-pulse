@@ -311,5 +311,6 @@
   "enum.statVariant.全年售電度數": "年間販売電力量",
   "enum.statVariant.未參加健保比": "未加入の割合",
   "enum.statVariant.淨遷入人數": "純転入者数",
-  "enum.statVariant.淨遷入率（‰）": "純転入率（‰）"
+  "enum.statVariant.淨遷入率（‰）": "純転入率（‰）",
+  "enum.statVariant.村里": "村・里（最小行政区）"
 }

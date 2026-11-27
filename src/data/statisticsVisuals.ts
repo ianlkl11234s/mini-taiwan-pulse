@@ -311,6 +311,9 @@ const ATLAS_KEY_ICONS: ReadonlyArray<readonly [RegExp, ThemeName, LucideIcon]> =
   [/^statsIndigenousTribe/, 'population', Feather],
   [/^statsResidentialKwh/, 'utilities', Zap],
   [/^statsCompany/, 'labor', Building2],
+  // 村里／鄉鎮公司登記與實價登錄彙總（2026-11-27）：公司＝財稅與消費 labor 色票、買賣＝住宅 Oranges，不新增色票。
+  [/^stats(?:Village|Township)Company/, 'labor', Building2],
+  [/^stats(?:Village|Township)Sale/, 'housing', Landmark],
   [/^statsNhiUninsured/, 'health', Hospital],
   [/^statsIndustry(?:Establishments|PersonsEngaged|ProductionValue)/, 'labor', Factory],
   // 國有資產 G16（2026-10-24）：同住宅 Oranges，不新增色票；國有地／房地、台糖標的、行政執行拍定分三種 icon。

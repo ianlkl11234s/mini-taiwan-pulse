@@ -311,5 +311,6 @@
   "enum.statVariant.全年售電度數": "Annual kWh sold",
   "enum.statVariant.未參加健保比": "Share not enrolled",
   "enum.statVariant.淨遷入人數": "Net in-migration",
-  "enum.statVariant.淨遷入率（‰）": "Net in-migration rate (‰)"
+  "enum.statVariant.淨遷入率（‰）": "Net in-migration rate (‰)",
+  "enum.statVariant.村里": "Village"
 }

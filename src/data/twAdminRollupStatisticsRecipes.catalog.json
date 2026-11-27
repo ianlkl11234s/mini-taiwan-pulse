@@ -1,0 +1,929 @@
+{
+  "version": 1,
+  "scope": "production_r2",
+  "family": "twAdminRollup",
+  "generated_from": {
+    "recipes": "admin-rollup-recipes.json",
+    "bundles": "taipei-gis-analytics data/processed/None/<dataset_id>/releases/<release_id>.json"
+  },
+  "release_selector": {
+    "type": "exact_whitelist",
+    "identity_fields": [
+      "dataset_id",
+      "indicator_id",
+      "release_id",
+      "period_start",
+      "period_end",
+      "boundary_version",
+      "dimensions"
+    ],
+    "unknown_release": "reject"
+  },
+  "observation_policy": {
+    "observed_zero": "status observed and value 0 (the area is covered and has no company or no sale in the period)",
+    "missing": "value null; Kinmen and Lienchiang not covered, no resident population, fewer than 30 companies or 10 sales; no zero fill",
+    "not_applicable": "not used",
+    "suppressed": "not used"
+  },
+  "recipes": [
+    {
+      "layer_key": "statsVillageCompanyCount",
+      "enabled": true,
+      "family": "twAdminRollup",
+      "label": "公司登記家數",
+      "group": "adminCompanyCount",
+      "group_label": "公司登記家數",
+      "option_label": "村里",
+      "subgroup": "公司登記與產業",
+      "data_theme": "財稅與消費統計 Fiscal & Consumption Statistics",
+      "tab_theme": "財稅與消費 Fiscal & Consumption",
+      "visual_theme": "labor",
+      "dataset_id": "company_registry_admin",
+      "indicator_id": "company_count",
+      "level": "village",
+      "boundary_version": "VILLAGE_NLSC_1150119",
+      "unit": "家",
+      "aggregation": "sum",
+      "default_release_id": "company_registry_admin-company_count-village-202608-v1",
+      "dimensions": [],
+      "release_options": [
+        {
+          "release_id": "company_registry_admin-company_count-village-202608-v1",
+          "period_start": "2026-08-01",
+          "period_end": "2026-08-31",
+          "dimensions": {}
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          1,
+          11,
+          39,
+          97
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": "0 自成最淺一級（該區為 0，不是無資料）。",
+        "display_note": null,
+        "notes": [
+          "出典：經濟部商業發展署 公司登記存量（data.gov.tw 166152，202608 快照；本站以營業地址 geocode）；授權待確認。",
+          "公司登記一家算一家，不代表規模；不含行號與獨資；登記地址不等於營運地點，總公司集中登記會讓該區家數偏高。清冊 657,882 筆中 654,165 筆地址定位成功才計入，未定位者不在內。",
+          "金門縣、連江縣來源近乎無資料，視為未涵蓋（斜線），不是 0。"
+        ],
+        "by_dimension": null,
+        "dimension_notes": null
+      },
+      "status_labels": {
+        "missing": "未涵蓋（金門縣、連江縣公司登記近乎無資料；不是 0）"
+      },
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 0
+      },
+      "derived": false,
+      "location_semantics": "公司登記營業地址 geocode 後所在的村里（不是營運地點）",
+      "disclosure": "經濟部商業發展署公司登記存量 202608 快照（清冊 657,882 筆中 654,165 筆地址定位成功才計入），以營業地址定位後落到村里界計數；公司登記一家算一家，不代表規模；登記地址不等於營運地點，總公司集中登記會讓該區家數偏高；金門縣、連江縣來源近乎無資料，視為未涵蓋。",
+      "publisher": "經濟部商業發展署（GCIS）",
+      "license": "授權待確認（部分縣市來源授權待核；僅本人分析）",
+      "source_landing_url": "https://data.gov.tw/dataset/166152",
+      "source_download_url": "https://data.gov.tw/dataset/166152",
+      "source_title": "公司登記存量（經濟部商業發展署，data.gov.tw 166152；202608 快照，營業地址 geocode）"
+    },
+    {
+      "layer_key": "statsVillageCompanyPer1000",
+      "enabled": true,
+      "family": "twAdminRollup",
+      "label": "每千人公司家數",
+      "group": "adminCompanyPer1000",
+      "group_label": "每千人公司家數",
+      "option_label": "村里",
+      "subgroup": "公司登記與產業",
+      "data_theme": "財稅與消費統計 Fiscal & Consumption Statistics",
+      "tab_theme": "財稅與消費 Fiscal & Consumption",
+      "visual_theme": "labor",
+      "dataset_id": "company_registry_admin",
+      "indicator_id": "company_per_1000",
+      "level": "village",
+      "boundary_version": "VILLAGE_NLSC_1150119",
+      "unit": "家/千人",
+      "aggregation": "ratio",
+      "default_release_id": "company_registry_admin-company_per_1000-village-202608-v1",
+      "dimensions": [],
+      "release_options": [
+        {
+          "release_id": "company_registry_admin-company_per_1000-village-202608-v1",
+          "period_start": "2026-08-01",
+          "period_end": "2026-08-31",
+          "dimensions": {}
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          6.7,
+          12,
+          18,
+          28
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": "最淺色含 0（該區為 0，不是無資料）。",
+        "display_note": null,
+        "notes": [
+          "出典：經濟部商業發展署 公司登記存量（data.gov.tw 166152，202608 快照；本站以營業地址 geocode）；授權待確認。",
+          "公司登記一家算一家，不代表規模；不含行號與獨資；登記地址不等於營運地點，總公司集中登記會讓該區家數偏高。清冊 657,882 筆中 654,165 筆地址定位成功才計入，未定位者不在內。",
+          "金門縣、連江縣來源近乎無資料，視為未涵蓋（斜線），不是 0。",
+          "分母為 112 年底戶政人口、分子為 202608 公司登記快照，期別不同；缺戶政人口的村里為缺值。"
+        ],
+        "by_dimension": null,
+        "dimension_notes": null
+      },
+      "status_labels": {
+        "missing": "無資料（金門縣、連江縣未涵蓋，或缺戶政人口；不是 0）"
+      },
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 1
+      },
+      "derived": true,
+      "location_semantics": "公司登記營業地址 geocode 後所在的村里（不是營運地點）",
+      "disclosure": "每千人公司家數＝村里內公司家數 ÷ 戶政人口 × 1,000（四捨五入至 2 位）；分母為 112 年底戶政人口，分子為 202608 公司登記快照，期別不同；缺戶政人口的村里、金門縣與連江縣為缺值。",
+      "publisher": "經濟部商業發展署（GCIS）",
+      "license": "授權待確認（部分縣市來源授權待核；僅本人分析）",
+      "source_landing_url": "https://data.gov.tw/dataset/166152",
+      "source_download_url": "https://data.gov.tw/dataset/166152",
+      "source_title": "公司登記存量（經濟部商業發展署，data.gov.tw 166152；202608 快照，營業地址 geocode）"
+    },
+    {
+      "layer_key": "statsVillageCompanySpecialty",
+      "enabled": true,
+      "family": "twAdminRollup",
+      "label": "地方特色產業",
+      "group": "adminCompanySpecialty",
+      "group_label": "地方特色產業",
+      "option_label": "村里",
+      "subgroup": "公司登記與產業",
+      "data_theme": "財稅與消費統計 Fiscal & Consumption Statistics",
+      "tab_theme": "財稅與消費 Fiscal & Consumption",
+      "visual_theme": "labor",
+      "dataset_id": "company_registry_admin",
+      "indicator_id": "company_specialty_div",
+      "level": "village",
+      "boundary_version": "VILLAGE_NLSC_1150119",
+      "unit": "類別碼",
+      "aggregation": "source_defined",
+      "default_release_id": "company_registry_admin-company_specialty_div-village-202608-v1",
+      "dimensions": [],
+      "release_options": [
+        {
+          "release_id": "company_registry_admin-company_specialty_div-village-202608-v1",
+          "period_start": "2026-08-01",
+          "period_end": "2026-08-31",
+          "dimensions": {}
+        }
+      ],
+      "legend": {
+        "method": "categorical",
+        "breaks": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19
+        ],
+        "direction": "ascending",
+        "categories": [
+          {
+            "value": 3,
+            "label": "製造業",
+            "color": "#4c78a8"
+          },
+          {
+            "value": 6,
+            "label": "營建工程業",
+            "color": "#f2a93b"
+          },
+          {
+            "value": 12,
+            "label": "不動產業",
+            "color": "#b279a2"
+          },
+          {
+            "value": 8,
+            "label": "運輸及倉儲業",
+            "color": "#72b7b2"
+          },
+          {
+            "value": 9,
+            "label": "住宿及餐飲業",
+            "color": "#e45756"
+          },
+          {
+            "value": 14,
+            "label": "支援服務業",
+            "color": "#9d755d"
+          },
+          {
+            "value": 1,
+            "label": "農林漁牧業",
+            "color": "#54a24b"
+          },
+          {
+            "value": 4,
+            "label": "電力及燃氣供應業",
+            "color": "#eeca3b"
+          },
+          {
+            "value": 2,
+            "label": "礦業及土石採取業",
+            "color": "#9ca3af",
+            "legend_hidden": true
+          },
+          {
+            "value": 5,
+            "label": "用水供應及污染整治業",
+            "color": "#9ca3af",
+            "legend_hidden": true
+          },
+          {
+            "value": 7,
+            "label": "批發及零售業",
+            "color": "#9ca3af",
+            "legend_hidden": true
+          },
+          {
+            "value": 10,
+            "label": "出版影音及資通訊業",
+            "color": "#9ca3af",
+            "legend_hidden": true
+          },
+          {
+            "value": 11,
+            "label": "金融及保險業",
+            "color": "#9ca3af",
+            "legend_hidden": true
+          },
+          {
+            "value": 13,
+            "label": "專業科學及技術服務業",
+            "color": "#9ca3af",
+            "legend_hidden": true
+          },
+          {
+            "value": 15,
+            "label": "公共行政及國防",
+            "color": "#9ca3af",
+            "legend_hidden": true
+          },
+          {
+            "value": 16,
+            "label": "教育業",
+            "color": "#9ca3af",
+            "legend_hidden": true
+          },
+          {
+            "value": 17,
+            "label": "醫療保健及社會工作服務業",
+            "color": "#9ca3af",
+            "legend_hidden": true
+          },
+          {
+            "value": 18,
+            "label": "藝術娛樂及休閒服務業",
+            "color": "#9ca3af",
+            "legend_hidden": true
+          },
+          {
+            "value": 19,
+            "label": "其他服務業",
+            "color": "#9ca3af",
+            "legend_hidden": true
+          },
+          {
+            "value": 0,
+            "label": "其他產業",
+            "color": "#9ca3af"
+          }
+        ],
+        "scale_note": null,
+        "zero_note": null,
+        "display_note": null,
+        "notes": [
+          "出典：經濟部商業發展署 公司登記存量（data.gov.tw 166152，202608 快照；本站以營業地址 geocode）；授權待確認。",
+          "公司登記一家算一家，不代表規模；不含行號與獨資；登記地址不等於營運地點，總公司集中登記會讓該區家數偏高。清冊 657,882 筆中 654,165 筆地址定位成功才計入，未定位者不在內。",
+          "地方特色＝該大類佔比是全台平均的幾倍（區位商數最高者）；只比該區家數 ≥5 的大類，且該區公司需 ≥30 家才計算。",
+          "色塊只標 8 個最常見的大類，其餘大類併為灰色「其他產業」；點選看實際大類。"
+        ],
+        "by_dimension": null,
+        "dimension_notes": null
+      },
+      "status_labels": {
+        "missing": "未算（公司少於 30 家、沒有家數 ≥5 的大類，或金門縣、連江縣未涵蓋；不是 0）"
+      },
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 0
+      },
+      "derived": false,
+      "location_semantics": "公司登記營業地址 geocode 後所在的村里（不是營運地點）",
+      "disclosure": "依稅務行業標準分類第 9 版大類，比較村里內各大類佔比與全台佔比的倍數（區位商數），取最高者；該區公司需 ≥30 家、且只比家數 ≥5 的大類；地圖以 8 種常見大類著色，其餘併為其他產業。",
+      "publisher": "經濟部商業發展署（GCIS）",
+      "license": "授權待確認（部分縣市來源授權待核；僅本人分析）",
+      "source_landing_url": "https://data.gov.tw/dataset/166152",
+      "source_download_url": "https://data.gov.tw/dataset/166152",
+      "source_title": "公司登記存量（經濟部商業發展署，data.gov.tw 166152；202608 快照，營業地址 geocode）"
+    },
+    {
+      "layer_key": "statsVillageSalePriceMedian",
+      "enabled": true,
+      "family": "twAdminRollup",
+      "label": "房屋買賣單價中位數",
+      "group": "adminSalePrice",
+      "group_label": "房屋買賣單價中位數",
+      "option_label": "村里",
+      "subgroup": "實價登錄（買賣）",
+      "data_theme": "不動產交易統計 Real Estate Transactions",
+      "tab_theme": "住宅與不動產 Housing & Property",
+      "visual_theme": "housing",
+      "dataset_id": "real_estate_sale_admin",
+      "indicator_id": "sale_unit_price_median",
+      "level": "village",
+      "boundary_version": "VILLAGE_NLSC_1150119",
+      "unit": "元/㎡",
+      "aggregation": "median",
+      "default_release_id": "real_estate_sale_admin-sale_unit_price_median-village-20241001-20260303-v1",
+      "dimensions": [],
+      "release_options": [
+        {
+          "release_id": "real_estate_sale_admin-sale_unit_price_median-village-20241001-20260303-v1",
+          "period_start": "2024-10-01",
+          "period_end": "2026-03-03",
+          "dimensions": {}
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          63000,
+          78000,
+          98000,
+          150000
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": null,
+        "display_note": null,
+        "notes": [
+          "出典：內政部 不動產交易實價登錄（買賣）；政府資料開放授權條款-第1版；地址以 TGOS 或快取 geocode。",
+          "成交日 2024-10-01 至 2026-03-03；只含房屋標的（房地、房地加車位、建物；排除純土地、純車位）且建物移轉總面積 ≥10 ㎡；已去重。座標為地址 geocode，依座標落區。",
+          "單價中位數取各區成交單價（元/㎡）的中位數；成交少於 10 筆不給（斜線），不是 0。"
+        ],
+        "by_dimension": null,
+        "dimension_notes": null
+      },
+      "status_labels": {
+        "missing": "樣本不足（成交少於 10 筆，不給中位數；不是 0）"
+      },
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 0
+      },
+      "derived": false,
+      "location_semantics": "房屋座落地址 geocode 後所在的村里",
+      "disclosure": "內政部實價登錄買賣（成交日 2024-10-01 至 2026-03-03），村里內房屋成交單價（元/平方公尺）取中位數並取整數；成交少於 10 筆不給。",
+      "publisher": "內政部地政司（實價登錄）；地址 geocode 用 TGOS",
+      "license": "政府資料開放授權條款-第1版",
+      "source_landing_url": "https://plvr.land.moi.gov.tw/DownloadOpenData",
+      "source_download_url": "https://plvr.land.moi.gov.tw/DownloadOpenData",
+      "source_title": "內政部不動產交易實價登錄（買賣；2024-10 至 2026-03，地址 geocode）"
+    },
+    {
+      "layer_key": "statsVillageSaleCount",
+      "enabled": true,
+      "family": "twAdminRollup",
+      "label": "房屋買賣成交筆數",
+      "group": "adminSaleCount",
+      "group_label": "房屋買賣成交筆數",
+      "option_label": "村里",
+      "subgroup": "實價登錄（買賣）",
+      "data_theme": "不動產交易統計 Real Estate Transactions",
+      "tab_theme": "住宅與不動產 Housing & Property",
+      "visual_theme": "housing",
+      "dataset_id": "real_estate_sale_admin",
+      "indicator_id": "sale_count",
+      "level": "village",
+      "boundary_version": "VILLAGE_NLSC_1150119",
+      "unit": "筆",
+      "aggregation": "sum",
+      "default_release_id": "real_estate_sale_admin-sale_count-village-20241001-20260303-v1",
+      "dimensions": [],
+      "release_options": [
+        {
+          "release_id": "real_estate_sale_admin-sale_count-village-20241001-20260303-v1",
+          "period_start": "2024-10-01",
+          "period_end": "2026-03-03",
+          "dimensions": {}
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          1,
+          4,
+          11,
+          23
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": "0 自成最淺一級（該區為 0，不是無資料）。",
+        "display_note": null,
+        "notes": [
+          "出典：內政部 不動產交易實價登錄（買賣）；政府資料開放授權條款-第1版；地址以 TGOS 或快取 geocode。",
+          "成交日 2024-10-01 至 2026-03-03；只含房屋標的（房地、房地加車位、建物；排除純土地、純車位）且建物移轉總面積 ≥10 ㎡；已去重。座標為地址 geocode，依座標落區。",
+          "0＝期間內該區確實無成交。"
+        ],
+        "by_dimension": null,
+        "dimension_notes": null
+      },
+      "status_labels": {},
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 0
+      },
+      "derived": false,
+      "location_semantics": "房屋座落地址 geocode 後所在的村里",
+      "disclosure": "內政部實價登錄買賣（成交日 2024-10-01 至 2026-03-03，去重後），村里內房屋成交筆數。",
+      "publisher": "內政部地政司（實價登錄）；地址 geocode 用 TGOS",
+      "license": "政府資料開放授權條款-第1版",
+      "source_landing_url": "https://plvr.land.moi.gov.tw/DownloadOpenData",
+      "source_download_url": "https://plvr.land.moi.gov.tw/DownloadOpenData",
+      "source_title": "內政部不動產交易實價登錄（買賣；2024-10 至 2026-03，地址 geocode）"
+    },
+    {
+      "layer_key": "statsTownshipCompanyCount",
+      "enabled": true,
+      "family": "twAdminRollup",
+      "label": "公司登記家數",
+      "group": "adminCompanyCount",
+      "group_label": "公司登記家數",
+      "option_label": "鄉鎮市區",
+      "subgroup": "公司登記與產業",
+      "data_theme": "財稅與消費統計 Fiscal & Consumption Statistics",
+      "tab_theme": "財稅與消費 Fiscal & Consumption",
+      "visual_theme": "labor",
+      "dataset_id": "company_registry_admin",
+      "indicator_id": "company_count",
+      "level": "township",
+      "boundary_version": "TOWN_MOI_1140318",
+      "unit": "家",
+      "aggregation": "sum",
+      "default_release_id": "company_registry_admin-company_count-township-202608-v1",
+      "dimensions": [],
+      "release_options": [
+        {
+          "release_id": "company_registry_admin-company_count-township-202608-v1",
+          "period_start": "2026-08-01",
+          "period_end": "2026-08-31",
+          "dimensions": {}
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          53,
+          190,
+          650,
+          2500
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": null,
+        "display_note": null,
+        "notes": [
+          "出典：經濟部商業發展署 公司登記存量（data.gov.tw 166152，202608 快照；本站以營業地址 geocode）；授權待確認。",
+          "公司登記一家算一家，不代表規模；不含行號與獨資；登記地址不等於營運地點，總公司集中登記會讓該區家數偏高。清冊 657,882 筆中 654,165 筆地址定位成功才計入，未定位者不在內。",
+          "金門縣、連江縣來源近乎無資料，視為未涵蓋（斜線），不是 0。"
+        ],
+        "by_dimension": null,
+        "dimension_notes": null
+      },
+      "status_labels": {
+        "missing": "未涵蓋（金門縣、連江縣公司登記近乎無資料；不是 0）"
+      },
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 0
+      },
+      "derived": false,
+      "location_semantics": "公司登記營業地址 geocode 後所在的鄉鎮市區（不是營運地點）",
+      "disclosure": "經濟部商業發展署公司登記存量 202608 快照（清冊 657,882 筆中 654,165 筆地址定位成功才計入），以營業地址定位後落到鄉鎮市區界計數；公司登記一家算一家，不代表規模；登記地址不等於營運地點，總公司集中登記會讓該區家數偏高；金門縣、連江縣來源近乎無資料，視為未涵蓋。",
+      "publisher": "經濟部商業發展署（GCIS）",
+      "license": "授權待確認（部分縣市來源授權待核；僅本人分析）",
+      "source_landing_url": "https://data.gov.tw/dataset/166152",
+      "source_download_url": "https://data.gov.tw/dataset/166152",
+      "source_title": "公司登記存量（經濟部商業發展署，data.gov.tw 166152；202608 快照，營業地址 geocode）"
+    },
+    {
+      "layer_key": "statsTownshipCompanyPer1000",
+      "enabled": true,
+      "family": "twAdminRollup",
+      "label": "每千人公司家數",
+      "group": "adminCompanyPer1000",
+      "group_label": "每千人公司家數",
+      "option_label": "鄉鎮市區",
+      "subgroup": "公司登記與產業",
+      "data_theme": "財稅與消費統計 Fiscal & Consumption Statistics",
+      "tab_theme": "財稅與消費 Fiscal & Consumption",
+      "visual_theme": "labor",
+      "dataset_id": "company_registry_admin",
+      "indicator_id": "company_per_1000",
+      "level": "township",
+      "boundary_version": "TOWN_MOI_1140318",
+      "unit": "家/千人",
+      "aggregation": "ratio",
+      "default_release_id": "company_registry_admin-company_per_1000-township-202608-v1",
+      "dimensions": [],
+      "release_options": [
+        {
+          "release_id": "company_registry_admin-company_per_1000-township-202608-v1",
+          "period_start": "2026-08-01",
+          "period_end": "2026-08-31",
+          "dimensions": {}
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          4.8,
+          8.9,
+          15,
+          25
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": null,
+        "display_note": null,
+        "notes": [
+          "出典：經濟部商業發展署 公司登記存量（data.gov.tw 166152，202608 快照；本站以營業地址 geocode）；授權待確認。",
+          "公司登記一家算一家，不代表規模；不含行號與獨資；登記地址不等於營運地點，總公司集中登記會讓該區家數偏高。清冊 657,882 筆中 654,165 筆地址定位成功才計入，未定位者不在內。",
+          "金門縣、連江縣來源近乎無資料，視為未涵蓋（斜線），不是 0。",
+          "分母為 112 年底戶政人口、分子為 202608 公司登記快照，期別不同；缺戶政人口的村里為缺值。",
+          "鄉鎮內缺戶政人口的村里其公司超過該鄉鎮公司的 2% 時，該鄉鎮為缺值。"
+        ],
+        "by_dimension": null,
+        "dimension_notes": null
+      },
+      "status_labels": {
+        "missing": "無資料（金門縣、連江縣未涵蓋，或缺戶政人口；不是 0）"
+      },
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 1
+      },
+      "derived": true,
+      "location_semantics": "公司登記營業地址 geocode 後所在的鄉鎮市區（不是營運地點）",
+      "disclosure": "每千人公司家數＝鄉鎮市區內公司家數 ÷ 戶政人口 × 1,000（四捨五入至 2 位）；分母為 112 年底戶政人口，分子為 202608 公司登記快照，期別不同；缺戶政人口的村里、金門縣與連江縣為缺值。",
+      "publisher": "經濟部商業發展署（GCIS）",
+      "license": "授權待確認（部分縣市來源授權待核；僅本人分析）",
+      "source_landing_url": "https://data.gov.tw/dataset/166152",
+      "source_download_url": "https://data.gov.tw/dataset/166152",
+      "source_title": "公司登記存量（經濟部商業發展署，data.gov.tw 166152；202608 快照，營業地址 geocode）"
+    },
+    {
+      "layer_key": "statsTownshipCompanySpecialty",
+      "enabled": true,
+      "family": "twAdminRollup",
+      "label": "地方特色產業",
+      "group": "adminCompanySpecialty",
+      "group_label": "地方特色產業",
+      "option_label": "鄉鎮市區",
+      "subgroup": "公司登記與產業",
+      "data_theme": "財稅與消費統計 Fiscal & Consumption Statistics",
+      "tab_theme": "財稅與消費 Fiscal & Consumption",
+      "visual_theme": "labor",
+      "dataset_id": "company_registry_admin",
+      "indicator_id": "company_specialty_div",
+      "level": "township",
+      "boundary_version": "TOWN_MOI_1140318",
+      "unit": "類別碼",
+      "aggregation": "source_defined",
+      "default_release_id": "company_registry_admin-company_specialty_div-township-202608-v1",
+      "dimensions": [],
+      "release_options": [
+        {
+          "release_id": "company_registry_admin-company_specialty_div-township-202608-v1",
+          "period_start": "2026-08-01",
+          "period_end": "2026-08-31",
+          "dimensions": {}
+        }
+      ],
+      "legend": {
+        "method": "categorical",
+        "breaks": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19
+        ],
+        "direction": "ascending",
+        "categories": [
+          {
+            "value": 3,
+            "label": "製造業",
+            "color": "#4c78a8"
+          },
+          {
+            "value": 6,
+            "label": "營建工程業",
+            "color": "#f2a93b"
+          },
+          {
+            "value": 12,
+            "label": "不動產業",
+            "color": "#b279a2"
+          },
+          {
+            "value": 8,
+            "label": "運輸及倉儲業",
+            "color": "#72b7b2"
+          },
+          {
+            "value": 9,
+            "label": "住宿及餐飲業",
+            "color": "#e45756"
+          },
+          {
+            "value": 14,
+            "label": "支援服務業",
+            "color": "#9d755d"
+          },
+          {
+            "value": 1,
+            "label": "農林漁牧業",
+            "color": "#54a24b"
+          },
+          {
+            "value": 4,
+            "label": "電力及燃氣供應業",
+            "color": "#eeca3b"
+          },
+          {
+            "value": 2,
+            "label": "礦業及土石採取業",
+            "color": "#9ca3af",
+            "legend_hidden": true
+          },
+          {
+            "value": 5,
+            "label": "用水供應及污染整治業",
+            "color": "#9ca3af",
+            "legend_hidden": true
+          },
+          {
+            "value": 7,
+            "label": "批發及零售業",
+            "color": "#9ca3af",
+            "legend_hidden": true
+          },
+          {
+            "value": 10,
+            "label": "出版影音及資通訊業",
+            "color": "#9ca3af",
+            "legend_hidden": true
+          },
+          {
+            "value": 11,
+            "label": "金融及保險業",
+            "color": "#9ca3af",
+            "legend_hidden": true
+          },
+          {
+            "value": 13,
+            "label": "專業科學及技術服務業",
+            "color": "#9ca3af",
+            "legend_hidden": true
+          },
+          {
+            "value": 15,
+            "label": "公共行政及國防",
+            "color": "#9ca3af",
+            "legend_hidden": true
+          },
+          {
+            "value": 16,
+            "label": "教育業",
+            "color": "#9ca3af",
+            "legend_hidden": true
+          },
+          {
+            "value": 17,
+            "label": "醫療保健及社會工作服務業",
+            "color": "#9ca3af",
+            "legend_hidden": true
+          },
+          {
+            "value": 18,
+            "label": "藝術娛樂及休閒服務業",
+            "color": "#9ca3af",
+            "legend_hidden": true
+          },
+          {
+            "value": 19,
+            "label": "其他服務業",
+            "color": "#9ca3af",
+            "legend_hidden": true
+          },
+          {
+            "value": 0,
+            "label": "其他產業",
+            "color": "#9ca3af"
+          }
+        ],
+        "scale_note": null,
+        "zero_note": null,
+        "display_note": null,
+        "notes": [
+          "出典：經濟部商業發展署 公司登記存量（data.gov.tw 166152，202608 快照；本站以營業地址 geocode）；授權待確認。",
+          "公司登記一家算一家，不代表規模；不含行號與獨資；登記地址不等於營運地點，總公司集中登記會讓該區家數偏高。清冊 657,882 筆中 654,165 筆地址定位成功才計入，未定位者不在內。",
+          "地方特色＝該大類佔比是全台平均的幾倍（區位商數最高者）；只比該區家數 ≥5 的大類，且該區公司需 ≥30 家才計算。",
+          "色塊只標 8 個最常見的大類，其餘大類併為灰色「其他產業」；點選看實際大類。"
+        ],
+        "by_dimension": null,
+        "dimension_notes": null
+      },
+      "status_labels": {
+        "missing": "未算（公司少於 30 家、沒有家數 ≥5 的大類，或金門縣、連江縣未涵蓋；不是 0）"
+      },
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 0
+      },
+      "derived": false,
+      "location_semantics": "公司登記營業地址 geocode 後所在的鄉鎮市區（不是營運地點）",
+      "disclosure": "依稅務行業標準分類第 9 版大類，比較鄉鎮市區內各大類佔比與全台佔比的倍數（區位商數），取最高者；該區公司需 ≥30 家、且只比家數 ≥5 的大類；地圖以 8 種常見大類著色，其餘併為其他產業。",
+      "publisher": "經濟部商業發展署（GCIS）",
+      "license": "授權待確認（部分縣市來源授權待核；僅本人分析）",
+      "source_landing_url": "https://data.gov.tw/dataset/166152",
+      "source_download_url": "https://data.gov.tw/dataset/166152",
+      "source_title": "公司登記存量（經濟部商業發展署，data.gov.tw 166152；202608 快照，營業地址 geocode）"
+    },
+    {
+      "layer_key": "statsTownshipSalePriceMedian",
+      "enabled": true,
+      "family": "twAdminRollup",
+      "label": "房屋買賣單價中位數",
+      "group": "adminSalePrice",
+      "group_label": "房屋買賣單價中位數",
+      "option_label": "鄉鎮市區",
+      "subgroup": "實價登錄（買賣）",
+      "data_theme": "不動產交易統計 Real Estate Transactions",
+      "tab_theme": "住宅與不動產 Housing & Property",
+      "visual_theme": "housing",
+      "dataset_id": "real_estate_sale_admin",
+      "indicator_id": "sale_unit_price_median",
+      "level": "township",
+      "boundary_version": "TOWN_MOI_1140318",
+      "unit": "元/㎡",
+      "aggregation": "median",
+      "default_release_id": "real_estate_sale_admin-sale_unit_price_median-township-20241001-20260303-v1",
+      "dimensions": [],
+      "release_options": [
+        {
+          "release_id": "real_estate_sale_admin-sale_unit_price_median-township-20241001-20260303-v1",
+          "period_start": "2024-10-01",
+          "period_end": "2026-03-03",
+          "dimensions": {}
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          46000,
+          58000,
+          68000,
+          86000
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": null,
+        "display_note": null,
+        "notes": [
+          "出典：內政部 不動產交易實價登錄（買賣）；政府資料開放授權條款-第1版；地址以 TGOS 或快取 geocode。",
+          "成交日 2024-10-01 至 2026-03-03；只含房屋標的（房地、房地加車位、建物；排除純土地、純車位）且建物移轉總面積 ≥10 ㎡；已去重。座標為地址 geocode，依座標落區。",
+          "單價中位數取各區成交單價（元/㎡）的中位數；成交少於 10 筆不給（斜線），不是 0。"
+        ],
+        "by_dimension": null,
+        "dimension_notes": null
+      },
+      "status_labels": {
+        "missing": "樣本不足（成交少於 10 筆，不給中位數；不是 0）"
+      },
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 0
+      },
+      "derived": false,
+      "location_semantics": "房屋座落地址 geocode 後所在的鄉鎮市區",
+      "disclosure": "內政部實價登錄買賣（成交日 2024-10-01 至 2026-03-03），鄉鎮市區內房屋成交單價（元/平方公尺）取中位數並取整數；成交少於 10 筆不給。",
+      "publisher": "內政部地政司（實價登錄）；地址 geocode 用 TGOS",
+      "license": "政府資料開放授權條款-第1版",
+      "source_landing_url": "https://plvr.land.moi.gov.tw/DownloadOpenData",
+      "source_download_url": "https://plvr.land.moi.gov.tw/DownloadOpenData",
+      "source_title": "內政部不動產交易實價登錄（買賣；2024-10 至 2026-03，地址 geocode）"
+    },
+    {
+      "layer_key": "statsTownshipSaleCount",
+      "enabled": true,
+      "family": "twAdminRollup",
+      "label": "房屋買賣成交筆數",
+      "group": "adminSaleCount",
+      "group_label": "房屋買賣成交筆數",
+      "option_label": "鄉鎮市區",
+      "subgroup": "實價登錄（買賣）",
+      "data_theme": "不動產交易統計 Real Estate Transactions",
+      "tab_theme": "住宅與不動產 Housing & Property",
+      "visual_theme": "housing",
+      "dataset_id": "real_estate_sale_admin",
+      "indicator_id": "sale_count",
+      "level": "township",
+      "boundary_version": "TOWN_MOI_1140318",
+      "unit": "筆",
+      "aggregation": "sum",
+      "default_release_id": "real_estate_sale_admin-sale_count-township-20241001-20260303-v1",
+      "dimensions": [],
+      "release_options": [
+        {
+          "release_id": "real_estate_sale_admin-sale_count-township-20241001-20260303-v1",
+          "period_start": "2024-10-01",
+          "period_end": "2026-03-03",
+          "dimensions": {}
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          1,
+          20,
+          89,
+          400
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": "0 自成最淺一級（該區為 0，不是無資料）。",
+        "display_note": null,
+        "notes": [
+          "出典：內政部 不動產交易實價登錄（買賣）；政府資料開放授權條款-第1版；地址以 TGOS 或快取 geocode。",
+          "成交日 2024-10-01 至 2026-03-03；只含房屋標的（房地、房地加車位、建物；排除純土地、純車位）且建物移轉總面積 ≥10 ㎡；已去重。座標為地址 geocode，依座標落區。",
+          "0＝期間內該區確實無成交。"
+        ],
+        "by_dimension": null,
+        "dimension_notes": null
+      },
+      "status_labels": {},
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 0
+      },
+      "derived": false,
+      "location_semantics": "房屋座落地址 geocode 後所在的鄉鎮市區",
+      "disclosure": "內政部實價登錄買賣（成交日 2024-10-01 至 2026-03-03，去重後），鄉鎮市區內房屋成交筆數。",
+      "publisher": "內政部地政司（實價登錄）；地址 geocode 用 TGOS",
+      "license": "政府資料開放授權條款-第1版",
+      "source_landing_url": "https://plvr.land.moi.gov.tw/DownloadOpenData",
+      "source_download_url": "https://plvr.land.moi.gov.tw/DownloadOpenData",
+      "source_title": "內政部不動產交易實價登錄（買賣；2024-10 至 2026-03，地址 geocode）"
+    }
+  ],
+  "catalog_generated_from": "twAdminRollupStatisticsRecipes.json",
+  "catalog_generator": "src/data/statisticsRecipeCatalog.ts via scripts/statistics/build_statistics_recipe_catalogs.ts"
+}
