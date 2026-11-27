@@ -617,6 +617,8 @@ export const G53_SELF_FOOTER_KEYS = [
   "namrBuoys", "towingYards", "swcOutdoorClassrooms", "swcEcoCheckZones", "airportHeightSurfaces", "landOfficeJurisdiction", "npSpeciesSites",
   // 台灣圖層延伸 B7（2026-11-21）
   "hakkaLivingSchools", "sandGravelPlants", "countyWelfarePoints", "evMotorcycleCharging", "countyStreetlights",
+  // 國道靜態批（2026-11-24）
+  "freewaySpecialSections", "freewayRoadsideDevices", "freewayRoadkill", "freewayEcoFacilities", "freewayEcoSurveyFlora", "freewayEcoSurveyFauna",
 ] as const;
 // ── 台灣圖層待辦池第二＋三批 G53 批 2／3（2026-11-10）──────────────────────
 /** 廣播發射站與電波監測站（上游 kind；英日文 enum.atlasBroadcastKind.*）。 */
@@ -962,9 +964,83 @@ export function welfareUncoveredCounties(mask?: number): readonly string[] {
   if (m === 2) return B7_WELFARE_UNCOVERED_BY_KIND.foodBank;
   return B7_WELFARE_UNCOVERED_BY_KIND.care.filter((c) => (B7_WELFARE_UNCOVERED_BY_KIND.foodBank as readonly string[]).includes(c));
 }
+// ── 國道靜態批（2026-11-24）──────────────────────────────────────────────
+/** 國道特殊路段種類（上游 kind；英日文 enum.atlasFreewaySpecialKind.*）。 */
+export const FREEWAY_SPECIAL_KIND_OPTIONS: readonly AtlasOption[] = [
+  { value: "tunnel", label: "隧道", color: "#c084fc" },
+  { value: "open_shoulder", label: "開放路肩", color: "#f59e0b" },
+  { value: "climbing_lane", label: "爬坡道", color: "#22d3ee" },
+];
+/** 國道路邊設備種類（上游 kind；英日文 enum.atlasFreewayRoadsideKind.*）。預設只開資訊可變標誌，車輛偵測器約 1 公里一處、由使用者勾選。 */
+export const FREEWAY_ROADSIDE_KIND_OPTIONS: readonly AtlasOption[] = [
+  { value: "cms", label: "資訊可變標誌（CMS）", color: "#38bdf8" },
+  { value: "vd", label: "車輛偵測器（VD）", color: "#a3e635" },
+];
+/** 國道路殺動物類群（上游 species_group；低縮放圖磚也帶這欄；英日文 enum.atlasFreewayRoadkillGroup.*）。 */
+export const FREEWAY_ROADKILL_GROUP_OPTIONS: readonly AtlasOption[] = [
+  { value: "bird", label: "鳥類", color: "#38bdf8" },
+  { value: "cat_dog", label: "貓狗", color: "#f59e0b" },
+  { value: "wild_mammal", label: "野生哺乳類", color: "#ef4444" },
+  { value: "small_mammal", label: "小型哺乳類（含鼠兔蝠）", color: "#a78bfa" },
+  { value: "reptile_amphibian", label: "爬蟲兩棲", color: "#22c55e" },
+  { value: "unidentified", label: "無法辨識", color: ATLAS_OTHER_COLOR },
+  { value: "other", label: "其他", color: "#f472b6" },
+];
+/**
+ * 國道路殺紀錄「期間」（上游 year；低縮放圖磚也帶 year）。value 順序＝spec encode＝熱區權重表。
+ * 筆數（2026-11-24 資料）：近 1 年 6,341／近 5 年 19,402／2016–2021 34,933／2009–2015 52,783／全部 107,156（year 缺值 38 筆只在「全部」）。
+ */
+export const FREEWAY_ROADKILL_PERIOD_OPTIONS = [
+  { value: "recent1", label: "近 1 年（2025–2026）", from: 2025, to: 2026, weight: 2 },
+  { value: "recent5", label: "近 5 年（2022–2026）", from: 2022, to: 2026, weight: 1 },
+  { value: "y2016", label: "2016–2021", from: 2016, to: 2021, weight: 0.6 },
+  { value: "y2009", label: "2009–2015", from: 2009, to: 2015, weight: 0.45 },
+  { value: "all", label: "全部（2009–2026）", from: null, to: null, weight: 0.3 },
+] as const;
+export const FREEWAY_ROADKILL_PERIOD_DEFAULT = "recent5";
+const roadkillPeriodOf = (idx: number | undefined) => FREEWAY_ROADKILL_PERIOD_OPTIONS[idx ?? 1] ?? FREEWAY_ROADKILL_PERIOD_OPTIONS[1];
+/** 期間篩選：year 缺值的紀錄只在「全部」顯示。 */
+export function freewayRoadkillPeriodFilter(idx?: number): unknown[] {
+  const o = roadkillPeriodOf(idx);
+  if (o.from == null) return ["all"];
+  return ["all", ["has", "year"], [">=", ["to-number", ["get", "year"], -1], o.from], ["<=", ["to-number", ["get", "year"], -1], o.to]];
+}
+/** 熱區權重：點數隨期間差 5 倍以上，用權重把各期間的濃淡拉回同一量級（近 5 年＝1）。 */
+export const freewayRoadkillPeriodWeight = (idx?: number): number => roadkillPeriodOf(idx).weight;
+/** 國道生態友善設施類型（上游 facility_type；英日文 enum.atlasFreewayEcoFacilityType.*）。 */
+export const FREEWAY_ECO_FACILITY_OPTIONS: readonly AtlasOption[] = [
+  { value: "動物通道", label: "動物通道", color: "#34d399" },
+  { value: "防護網", label: "防護網", color: "#fbbf24" },
+];
+/** 國道動物生態調查類群（上游 taxon_group；英日文 enum.atlasFreewayFaunaGroup.*）。 */
+export const FREEWAY_FAUNA_GROUP_OPTIONS: readonly AtlasOption[] = [
+  { value: "哺乳類", label: "哺乳類", color: "#f59e0b" },
+  { value: "鳥類", label: "鳥類", color: "#38bdf8" },
+  { value: "貓狗", label: "貓狗", color: "#fb7185" },
+  { value: "昆蟲", label: "昆蟲", color: "#facc15" },
+  { value: "爬蟲類", label: "爬蟲類", color: "#22c55e" },
+  { value: "兩棲類", label: "兩棲類", color: "#2dd4bf" },
+  { value: "魚類", label: "魚類", color: "#818cf8" },
+  { value: "蝦蟹類", label: "蝦蟹類", color: "#f97316" },
+  { value: "螺貝類", label: "螺貝類", color: "#e879f9" },
+  { value: "環節動物", label: "環節動物", color: "#d6d3d1" },
+];
+/** 保育類等級（上游 protected_status；依《陸域保育類野生動物名錄》，2019-01-09 修正版）。 */
+export const FREEWAY_FAUNA_PROTECTED_LEVELS = ["I", "II", "III"] as const;
+/** 路殺紀錄、植物調查低縮放熱區的出點縮放（圖磚 z11 起帶全欄位）。 */
+export const FREEWAY_STATIC_POINTS_FROM_ZOOM = 11;
+/** 路邊設備預設只開 CMS（序列化多選值；spec 與測試共用）。 */
+export const FREEWAY_ROADSIDE_DEFAULT_KINDS = ["cms"] as const;
 export const G53_ORGS = { cdc: "衛生福利部疾病管制署", nlma: "內政部國土管理署", ncc: "國家通訊傳播委員會", tra: "國營臺灣鐵路股份有限公司", nfa: "內政部消防署", moda: "數位發展部", caa: "交通部民用航空局", npa: "內政部警政署", gsmb: "經濟部地質調查及礦業管理中心", countyGov: "各縣市政府", countyEpa: "各縣市環保局" } as const;
 
 export const ATLAS_NOTES = {
+  // 國道靜態批（2026-11-24）
+  freewayEcoSurveyFauna: "交通部高速公路局國道沿線動物生態調查 84,678 筆（2008–2021；data.gov.tw 31285），紅外線自動相機約占 88%；調查座標約 334 處，同一座標可有上千筆（單站最多 1.6 萬筆）。對到農業部《陸域保育類野生動物名錄》（2019-01-09 修正版）的 7,677 筆，位置已模糊至約 1 公里方格中心，不是實際位置，也不可用於點對點距離計算。紀錄量反映調查努力，不是族群量。拉遠為密度熱區，放大到 11 級起畫逐筆。",
+  freewaySpecialSections: "交通部高速公路局國道特殊路段 127 條：隧道 64、開放路肩 35、爬坡道 28（data.gov.tw 31038、31035、95069）。位置由國道里程換算（主線中心線近似，精度約 0.1 km），來源只有起迄里程；南北向共用同一條線，同處雙向隧道會重疊。開放路肩來源 59 筆，不含 24 筆無法定位的路段（迄點在匝道或國 1 高架，沒有里程樁）。",
+  freewayRoadsideDevices: "交通部高速公路局國道路邊設備位置 4,295 處：資訊可變標誌（CMS）999、車輛偵測器（VD）3,296（data.gov.tw 37667、37661；資料日 2026-11-24）。只有設備位置，不含即時訊息或車流值；3 筆來源座標為 0,0，已排除。預設只顯示資訊可變標誌，車輛偵測器約每公里一處，可在類別篩選勾選。國道 3,983、其他道路 312。",
+  freewayRoadkill: "交通部高速公路局國道路殺動物紀錄 107,156 筆（2009–2026；data.gov.tw 31291）。位置由國道里程換算（主線中心線近似，精度約 0.1 km），不是實際路殺位置；同日同里程的多筆會疊在同一點。種類為目視登記。里程為 0 的 249 筆可能是缺值佔位，仍照原值畫出。拉遠為密度熱區，放大到 11 級起畫逐筆。",
+  freewayEcoFacilities: "交通部高速公路局國道生態友善設施 22 處：動物通道 14、防護網 8（data.gov.tw 31292）。目前只涵蓋國 1 苗栗段與國 3 大甲、關西、白河段。位置由國道里程換算（主線中心線近似，精度約 0.1 km）；區間類設施的點為區間中點。",
+  freewayEcoSurveyFlora: "交通部高速公路局國道沿線植物生態調查 30,746 筆（2009–2018；data.gov.tw 31289），位於約 2,925 個調查座標，同一樣區可有數百筆。只有植物，動物調查未收錄。拉遠為密度熱區，放大到 11 級起畫逐筆。",
   // 台灣圖層延伸 B7（2026-11-21）
   hakkaLivingSchools: "客家委員會客語生活學校（來源 4,766 列為「學校×年度」，105–114 年度逐年名單），校名正規化並依同縣市、同學制、同座標合併後 822 校，715 校依地址定位上圖，另有 107 筆（校）地址無法定位、未上圖（多為只有校名或鄉間門牌），不補座標。位置依地址推定，不是官方座標。附設幼兒園與本校視為不同單位；同校不同寫法已合併，少數可能殘留重複。「名單年度」是該校出現在名單的年度，不等於目前仍參與。與「客家文化重點發展區」（鄉鎮面）是不同資料，可疊合對照。",
   sandGravelPlants: "經濟部地質調查及礦業管理中心砂石碎解洗選場名冊來源 328 列，243 處依地址定位上圖，另有 85 筆地址無法定位、未上圖（鄉間「村＋號」門牌多半只能到村），不補座標。位置依地址推定，不是官方座標。來源涵蓋 16 縣市，沒有臺北、基隆、嘉義市、澎湖、金門、連江的場址。登記類別依來源欄位；事業單位名稱為公司或行號，不含個人資料。",

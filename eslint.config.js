@@ -28,7 +28,9 @@ export const OWNER_ONLY_FILES = [`src/data/${OWNER_ONLY_FAMILIES}*.ts`, `src/hoo
   // 門牌搜尋站主版（2026-11-22，地址搜尋第二階段）：公開分片在 addressIndexLoader.ts，這支只讀私人 owner-data
   "src/data/addressOwnerLoader.ts",
   // 英國列車重播測試圖層（2026-11-23 站主限定，owner-data gzip JSON）
-  "src/countries/gb/gbRailReplayLoader.ts", "src/countries/gb/useGbRailReplayLayer.ts"];
+  "src/countries/gb/gbRailReplayLoader.ts", "src/countries/gb/useGbRailReplayLayer.ts",
+  // 設施研究 M 四層（2026-11-24 站主限定，owner-data GeoJSON）
+  "src/data/siteStudyMLoader.ts", "src/data/siteStudyMTypes.ts", "src/hooks/useSiteStudyMLayer.ts"];
 /** 不套 owner-only-no-external-source 的檔與理由（ownerOnlyScope.test.js 逐字釘住，新增要改測試並在 PR 說明）。 */
 export const OWNER_ONLY_EXEMPT = {
   "src/data/layerManifest.ts": "全站圖層登記簿，不是 owner-only 專屬檔",

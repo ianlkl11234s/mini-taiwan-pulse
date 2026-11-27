@@ -399,6 +399,11 @@ export const GIS_LAYERS: GisLayerEntry[] = slottedList<GisLayerEntry>("gisClickL
   { layers: ["parking-offstreet-circle"], type: "parkingOffstreet" },
   { layers: ["election-events-2026-spread", "election-events-2026-group", "election-events-2026-circle", "election-events-2026-precision"], type: "electionEvents2026" },
   { layers: ["polling-stations-2024-circle"], type: "pollingStations2024" },
+  // 設施研究 M（站主限定）：點與代表點優先，其次線／外框，最後面
+  { layers: ["site-study-m-circle", "site-study-m-rep", "site-study-m-outline", "site-study-m-fill"], type: "siteStudyM" },
+  { layers: ["site-study-m-ranges-circle", "site-study-m-ranges-rep", "site-study-m-ranges-outline", "site-study-m-ranges-fill"], type: "siteStudyMRanges" },
+  { layers: ["site-study-m-parcels-circle", "site-study-m-parcels-rep", "site-study-m-parcels-outline", "site-study-m-parcels-fill"], type: "siteStudyMParcels" },
+  { layers: ["site-study-m-past-circle", "site-study-m-past-rep", "site-study-m-past-outline", "site-study-m-past-fill"], type: "siteStudyMPast" },
   { layers: ["news-events-circle", "news-events-glow", "news-events-critical-halo", "news-events-count"], type: "newsEvent" },
   { layers: DISASTER_ALERT_CLICK_LAYERS, type: "disasterAlert" },
   // ⚠️ 特殊船舶（點 + 線）必須排在 plaActivity **之前**：共機活動區是覆蓋整個
@@ -711,6 +716,13 @@ export const GIS_LAYERS: GisLayerEntry[] = slottedList<GisLayerEntry>("gisClickL
   { layers: ["water-recreation-restricted-areas-fill", "water-recreation-restricted-areas-outline"], type: "waterRecreationRestrictedAreas" },
   { layers: ["toxic-chemical-facilities-circle", "toxic-chemical-facilities-glow"], type: "toxicChemicalFacilities" },
   { layers: ["freeway-hundred-meter-stakes-circle", "freeway-hundred-meter-stakes-glow"], type: "freewayHundredMeterStakes" },
+  // 國道靜態批（2026-11-24）
+  { layers: ["freeway-special-sections-line"], type: "freewaySpecialSections" },
+  { layers: ["freeway-roadside-devices-circle", "freeway-roadside-devices-glow"], type: "freewayRoadsideDevices" },
+  { layers: ["freeway-roadkill-circle", "freeway-roadkill-glow"], type: "freewayRoadkill" },
+  { layers: ["freeway-eco-facilities-circle", "freeway-eco-facilities-glow"], type: "freewayEcoFacilities" },
+  { layers: ["freeway-eco-survey-flora-circle", "freeway-eco-survey-flora-glow"], type: "freewayEcoSurveyFlora" },
+  { layers: ["freeway-eco-survey-fauna-circle", "freeway-eco-survey-fauna-glow"], type: "freewayEcoSurveyFauna" },
   { layers: ["antivenom-hospitals-circle", "antivenom-hospitals-glow"], type: "antivenomHospitals" },
   { layers: ["natural-vegetation-map-fill", "forest-types-4th-survey-fill"], type: "vegetationForestTypes" },
   { layers: ["vehicle-inspection-offices-circle", "vehicle-inspection-offices-glow", "vehicle-inspection-jurisdictions-fill"], type: "vehicleInspectionOffices" },

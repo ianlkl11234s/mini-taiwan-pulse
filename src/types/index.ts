@@ -178,6 +178,8 @@ export type ExpandableLayerKey =
   | "ecoLabelHotels" // 台灣圖層延伸 B2（2026-11-20）
   | "namrBuoys" | "towingYards" | "swcOutdoorClassrooms" | "swcEcoCheckZones" | "airportHeightSurfaces" | "landOfficeJurisdiction" | "npSpeciesSites" // 台灣圖層延伸 B3（2026-11-20）
   | "hakkaLivingSchools" | "sandGravelPlants" | "countyWelfarePoints" | "evMotorcycleCharging" | "countyStreetlights" // 台灣圖層延伸 B7（2026-11-21）
+  | "freewaySpecialSections" | "freewayRoadsideDevices" | "freewayRoadkill" | "freewayEcoFacilities" | "freewayEcoSurveyFlora" // 國道靜態批（2026-11-24）
+  | "freewayEcoSurveyFauna" // 國道靜態批（2026-11-24）：保育類位置已模糊至 1 km 方格
   | "vehicleInspectionOffices" // G53 批 2／3（2026-11-10）
   | "landUseChangeMonitoring" // G53 批 1（2026-11-09）
   | "debrisFlowPotential" // G53 批 1（2026-11-09）
@@ -191,6 +193,7 @@ export type ExpandableLayerKey =
   | "firingNoticeAreas"
   // 🗳 政治 Politics：2026 選舉活動（owner-only RPC）
   | "electionEvents2026" | "pollingStations2024" | "councilDistricts2026"
+  | "siteStudyM" | "siteStudyMRanges" | "siteStudyMParcels" | "siteStudyMPast" // 設施研究 M 四層（站主限定，owner-data 私人檔）
   // 即時 119 案件／警廣即時路況（owner-only RPC，mig 555）
   | "fire119Live" | "pbsRoadEventsLive"
   // 台灣圖層延伸 B8：R2 即時快照（登革熱聚集區、航船布告、大潮與長浪警戒）
@@ -845,6 +848,7 @@ export interface FeatureInfo {
     | "historicalFlightTrails"
     | "activeFault" | "newsEvent" | "globalEvent" | "disasterAlert" | "plaActivity" | "vesselWatch"
     | "electionEvents2026" | "pollingStations2024" | "councilDistricts2026"
+    | "siteStudyM" | "siteStudyMRanges" | "siteStudyMParcels" | "siteStudyMPast"
     | "fire119Live" | "pbsRoadEventsLive"
     | "dengueCluster" | "navNotice" | "tideSwellAlert"
     | "aisstreamVessel" | "gfwVesselPresence" | "gfwHourlyGrid" | "gfwHourlyTrack" | "gfwFishingEffort" | "gfwDarkVessel"
@@ -968,6 +972,12 @@ export interface FeatureInfo {
     | "countyWelfarePoints"
     | "evMotorcycleCharging"
     | "countyStreetlights"
+    | "freewaySpecialSections"
+    | "freewayRoadsideDevices"
+    | "freewayRoadkill"
+    | "freewayEcoFacilities"
+    | "freewayEcoSurveyFlora"
+    | "freewayEcoSurveyFauna"
     | "vehicleInspectionOffices"
     | "postMailboxes"
     | "motorcycleInspectionStations"
@@ -1310,6 +1320,10 @@ export interface LayerVisibility extends Record<KrDataKey | IeDataKey | PhDataKe
   newsEvents: boolean;
   /** 2026 地方選舉活動（owner-only RPC get_election_events_2026；研究原型） */
   electionEvents2026: boolean;
+  siteStudyM: boolean;            // 設施研究 M（站主限定研究資料）
+  siteStudyMRanges: boolean;      // 設施研究 M・範圍
+  siteStudyMParcels: boolean;     // 設施研究 M・地塊
+  siteStudyMPast: boolean;        // 設施研究 M・歷史
   /** 即時 119 案件（owner-only RPC get_fire119_live；mig 555） */
   fire119Live: boolean;
   /** 警廣即時路況（owner-only RPC get_pbs_road_events_live；mig 555） */
@@ -1564,6 +1578,18 @@ export interface LayerVisibility extends Record<KrDataKey | IeDataKey | PhDataKe
   evMotorcycleCharging: boolean;
   /** 台灣圖層延伸 B7 縣市路燈點位：各縣市路燈清冊 951,143 點（部分縣市） */
   countyStreetlights: boolean;
+  /** 國道靜態批（2026-11-24）國道特殊路段：高公局 31038／31035／95069，127 條線 */
+  freewaySpecialSections: boolean;
+  /** 國道靜態批（2026-11-24）國道路邊設備：高公局 37667／37661，4,295 點（資料日 2026-11-24） */
+  freewayRoadsideDevices: boolean;
+  /** 國道靜態批（2026-11-24）國道路殺紀錄：高公局 31291，107,156 筆 */
+  freewayRoadkill: boolean;
+  /** 國道靜態批（2026-11-24）國道生態友善設施：高公局 31292，22 處 */
+  freewayEcoFacilities: boolean;
+  /** 國道靜態批（2026-11-24）國道植物生態調查：高公局 31289，30,746 筆 */
+  freewayEcoSurveyFlora: boolean;
+  /** 國道靜態批（2026-11-24）國道動物生態調查：高公局 31285，84,678 筆（保育類位置模糊至約 1 km 方格） */
+  freewayEcoSurveyFauna: boolean;
   /** G53 批 2／3（2026-11-10）監理所站＋轄區：公路局 14203，34／37 所站上圖，轄區依汽車／機車切換 */
   vehicleInspectionOffices: boolean;
   /** G53 批 1（2026-11-09）國土利用監測變異點：國土管理署 168030，z4–9 六角格、z10 起點與面 */

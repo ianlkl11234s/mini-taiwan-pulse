@@ -44,7 +44,7 @@ import { SOIL_FERTILITY_METRIC_OPTIONS } from "./agriSoilFertilityMetrics";
 import { MOUNTAIN_RESCUE_YEARS } from "./mountainSafetyTypes";
 import { ANNUAL_DEFAULT_YEAR, ANNUAL_YEAR_OPTIONS, DOD_DEFAULT_YEAR, DOD_YEAR_OPTIONS, HIGHWAY_CATEGORY_GROUPS, HIGHWAY_YEAR_OPTIONS } from "./landslideTypes";
 import {
-  FLOOD_YEAR_OPTIONS, FREEWAY_SIGN_GROUP_OPTIONS, GATE_KIND_OPTIONS, MONITOR_SERIES_OPTIONS, PLACE_CATEGORY_OPTIONS, ROAD_SIGN_SERIES_OPTIONS,
+  FLOOD_YEAR_OPTIONS, FREEWAY_SIGN_GROUP_OPTIONS, FREEWAY_SPECIAL_KIND_OPTIONS, FREEWAY_ROADSIDE_KIND_OPTIONS, FREEWAY_ROADSIDE_DEFAULT_KINDS, FREEWAY_ROADKILL_GROUP_OPTIONS, FREEWAY_ECO_FACILITY_OPTIONS, FREEWAY_FAUNA_GROUP_OPTIONS, FREEWAY_ROADKILL_PERIOD_OPTIONS, FREEWAY_ROADKILL_PERIOD_DEFAULT, GATE_KIND_OPTIONS, MONITOR_SERIES_OPTIONS, PLACE_CATEGORY_OPTIONS, ROAD_SIGN_SERIES_OPTIONS,
   RURAL_COMMUNITY_OPTIONS, STRANDING_YEAR_OPTIONS, SWCB_PHOTO_CATEGORY_OPTIONS, COASTAL_AREA_TYPE_OPTIONS, type AtlasOption,
 } from "./atlasLayerTypes";
 import { CUMULATIVE_PERIOD_OPTIONS, RATE_PERIOD_OPTIONS, CONTOUR_LATEST, STATION_TYPE_OPTIONS } from "./landSubsidenceTypes";
@@ -4497,6 +4497,23 @@ const STATIC_LAYER_PARAMS_SPEC = {
   councilDistricts2026: [
     opacitySlider("councilDistricts2026Opacity", 0.9),
   ],
+  // 設施研究 M 四層（站主限定）
+  siteStudyM: [
+    opacitySlider("siteStudyMOpacity", 0.85),
+    scaleSlider("siteStudyMScale", 1),
+  ],
+  siteStudyMRanges: [
+    opacitySlider("siteStudyMRangesOpacity", 0.85),
+    scaleSlider("siteStudyMRangesScale", 1),
+  ],
+  siteStudyMParcels: [
+    opacitySlider("siteStudyMParcelsOpacity", 0.85),
+    scaleSlider("siteStudyMParcelsScale", 1),
+  ],
+  siteStudyMPast: [
+    opacitySlider("siteStudyMPastOpacity", 0.85),
+    scaleSlider("siteStudyMPastScale", 1),
+  ],
   // 新聞三軸 filter 照 Intel Panel 設計；三個值另有 setter 從 hook 導出
   // （IntelPanel / MonitorPanel 的 onFilterChange 直接呼叫）。
   electionEvents2026: [
@@ -4679,6 +4696,54 @@ const STATIC_LAYER_PARAMS_SPEC = {
   landUseChangeMonitoring: [opacitySlider("landUseChangeMonitoringOpacity", 0.7), scaleSlider("landUseChangeMonitoringScale", 1)],
   slopelandSwcAct: [opacitySlider("slopelandSwcActOpacity", 0.3)],
   swcSpecialZones: [opacitySlider("swcSpecialZonesOpacity", 0.45)],
+  // 國道靜態批（2026-11-24）
+  freewaySpecialSections: [
+    {
+      kind: "multiSelect", name: "freewaySpecialSectionsKind", label: "路段種類", default: MULTI_SELECT_ALL,
+      options: atlasParamOptions(FREEWAY_SPECIAL_KIND_OPTIONS), out: "freewaySpecialSectionsKindMask",
+    },
+    opacitySlider("freewaySpecialSectionsOpacity", 0.9), scaleSlider("freewaySpecialSectionsScale", 1),
+  ],
+  freewayRoadsideDevices: [
+    {
+      // 預設只開資訊可變標誌；車輛偵測器約每公里一處（3,296 處），由使用者勾選
+      kind: "multiSelect", name: "freewayRoadsideDevicesKind", label: "設備種類", default: serializeMultiSelectValues(FREEWAY_ROADSIDE_DEFAULT_KINDS),
+      options: atlasParamOptions(FREEWAY_ROADSIDE_KIND_OPTIONS), out: "freewayRoadsideDevicesKindMask",
+    },
+    opacitySlider("freewayRoadsideDevicesOpacity", 0.9), scaleSlider("freewayRoadsideDevicesScale", 1),
+  ],
+  freewayRoadkill: [
+    heatmapPalette("freewayRoadkill"),
+    {
+      kind: "multiSelect", name: "freewayRoadkillGroup", label: "動物類群", default: MULTI_SELECT_ALL,
+      options: atlasParamOptions(FREEWAY_ROADKILL_GROUP_OPTIONS), out: "freewayRoadkillGroupMask",
+    },
+    {
+      kind: "select", category: "data", name: "freewayRoadkillPeriod", label: "期間", default: FREEWAY_ROADKILL_PERIOD_DEFAULT,
+      options: FREEWAY_ROADKILL_PERIOD_OPTIONS.map((o) => ({ label: o.label, value: o.value })),
+      out: "freewayRoadkillPeriodIdx", encode: FREEWAY_ROADKILL_PERIOD_OPTIONS.map((o) => o.value),
+    },
+    opacitySlider("freewayRoadkillOpacity", densePointOpacity(107_156)), scaleSlider("freewayRoadkillScale", 1),
+  ],
+  freewayEcoFacilities: [
+    {
+      kind: "multiSelect", name: "freewayEcoFacilitiesType", label: "設施類型", default: MULTI_SELECT_ALL,
+      options: atlasParamOptions(FREEWAY_ECO_FACILITY_OPTIONS), out: "freewayEcoFacilitiesTypeMask",
+    },
+    opacitySlider("freewayEcoFacilitiesOpacity", 0.9), scaleSlider("freewayEcoFacilitiesScale", 1),
+  ],
+  freewayEcoSurveyFlora: [
+    heatmapPalette("freewayEcoSurveyFlora"),
+    opacitySlider("freewayEcoSurveyFloraOpacity", densePointOpacity(30_746)), scaleSlider("freewayEcoSurveyFloraScale", 1),
+  ],
+  freewayEcoSurveyFauna: [
+    heatmapPalette("freewayEcoSurveyFauna"),
+    {
+      kind: "multiSelect", name: "freewayEcoSurveyFaunaGroup", label: "動物類群", default: MULTI_SELECT_ALL,
+      options: atlasParamOptions(FREEWAY_FAUNA_GROUP_OPTIONS), out: "freewayEcoSurveyFaunaGroupMask",
+    },
+    opacitySlider("freewayEcoSurveyFaunaOpacity", densePointOpacity(84_678)), scaleSlider("freewayEcoSurveyFaunaScale", 1),
+  ],
   freewayHundredMeterStakes: [
     heatmapPalette("freewayHundredMeterStakes"),
     opacitySlider("freewayHundredMeterStakesOpacity", densePointOpacity(10_082)), scaleSlider("freewayHundredMeterStakesScale", 1),

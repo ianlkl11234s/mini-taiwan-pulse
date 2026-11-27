@@ -3213,5 +3213,8 @@
   "param.BWP 分區 C（共 6 區，名稱見 popup）": "BWP 区画 C（全 6 区。名称は popup）",
   "param.BWP 分區 D（共 6 區，名稱見 popup）": "BWP 区画 D（全 6 区。名称は popup）",
   "param.BWP 分區 E（共 6 區，名稱見 popup）": "BWP 区画 E（全 6 区。名称は popup）",
-  "param.BWP 分區 F（共 6 區，名稱見 popup）": "BWP 区画 F（全 6 区。名称は popup）"
+  "param.BWP 分區 F（共 6 區，名稱見 popup）": "BWP 区画 F（全 6 区。名称は popup）",
+  "param.近 1 年（2025–2026）": "直近 1 年（2025–2026）",
+  "param.近 5 年（2022–2026）": "直近 5 年（2022–2026）",
+  "param.全部（2009–2026）": "全期間（2009–2026）"
 }
