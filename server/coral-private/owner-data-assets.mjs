@@ -112,5 +112,7 @@ export const OWNER_DATA_ASSETS = Object.freeze({
   "gb-rail-replay-trips-20261121": Object.freeze({ filename: "gb_rail_replay_trips_20261121.json.gz", size: 2743026, sha256: "34aaf353dd9c107f41bb2fc69e9ccb5c41cfac2d428ae35059e5d270f956d41b" }),
   // ── 設施研究 M（2026-11-24，站主限定研究資料；GeoJSON FeatureCollection＋頂層 meta.legend，圖例與 popup 文字都在檔內）──
   "study-m-sites": Object.freeze({ filename: "study_m_sites.geojson", size: 1210791, sha256: "8c6151fc79f28e2af152776b5eb2494963c73f006282b18eeb3a3855826c5b44" }),
-  "study-m-overlays": Object.freeze({ filename: "study_m_overlays.geojson", size: 1573095, sha256: "077b7a6496da5fb648fec21dca2afcd85d952fa954a8d92020e36740dad57c60" }),
+  "study-m-ranges": Object.freeze({ filename: "study_m_ranges.geojson", size: 405911, sha256: "c37f90dca928284fe4dd1208cf0478482a0c6464f85a0bd89c98cd85b810410b" }),
+  "study-m-parcels": Object.freeze({ filename: "study_m_parcels.geojson", size: 985416, sha256: "b5e4ba8cac547932d22f7146b6f2d98e6e8fb0f798022967a82a92357c6cdaa0" }),
+  "study-m-past": Object.freeze({ filename: "study_m_past.geojson", size: 181978, sha256: "e48542337cacb21f53945af2155faee4a37fcaba4e63d47cc28cfd064d0ca967" }),
 });
