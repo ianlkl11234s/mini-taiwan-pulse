@@ -112,7 +112,7 @@ export function TerritoryPanel({ isDark, onClose }: { isDark: boolean; onClose: 
                 </span>
                 <span style={{ minWidth: 0 }}>
                   <span style={{ display: "block", fontSize: FONT_SIZE.lg, fontWeight: FONT_WEIGHT.bold, color: on ? c.strong : c.text }}>{tag.label}</span>
-                  <span style={{ display: "block", fontSize: FONT_SIZE.sm, color: c.muted, marginTop: 1 }}>{tag.blurb}</span>
+                  <span style={{ display: "block", fontSize: FONT_SIZE.sm, color: c.muted, marginTop: 1 }}>{rankScope === "county" ? tag.blurb.replace("全台", "縣市內") : tag.blurb}</span>
                 </span>
               </button>
             );

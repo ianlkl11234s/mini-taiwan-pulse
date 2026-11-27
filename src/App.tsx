@@ -1419,7 +1419,7 @@ export default function App() {
   const reservoirContext = useReservoirContextLayer(mapRef, activeReservoirId);
   // 領土格原型（proto/h3-territory）：面板開著才鋪格子；左側面板寫 territoryStore，這裡只接地圖
   useTerritoryGridLayer(mapRef, mapStyleId, isDarkTheme);
-  // 領土卡與停靠 popup 互斥：後開的關掉前一個（同一次點擊兩邊都開時保留領土卡）
+  // 領土卡與停靠 popup 互斥：後開的關掉前一個。同一次點擊兩邊都開（點到格子上方的點位）時保留 popup：點位是更具體的目標
   const territorySelected = useTerritory().selected;
   const exclusivePrevRef = useRef<{ fi: unknown; ts: unknown }>({ fi: null, ts: null });
   useEffect(() => {
@@ -1427,10 +1427,10 @@ export default function App() {
     const fiOpened = featureInfo && featureInfo !== prev.fi;
     const tsOpened = territorySelected && territorySelected !== prev.ts;
     exclusivePrevRef.current = { fi: featureInfo, ts: territorySelected };
-    if (tsOpened && featureInfo) {
-      setFeatureInfo(null);
-    } else if (fiOpened && territorySelected) {
+    if (fiOpened && territorySelected) {
       territoryStore.select(null);
+    } else if (tsOpened && featureInfo) {
+      setFeatureInfo(null);
     }
   }, [featureInfo, territorySelected, setFeatureInfo]);
 
