@@ -51,7 +51,7 @@ function applyPaint(map: MapboxMap, { activeAttr: attr, opacity, isDark }: Paint
   const scale = attr ? buildColorScale(attr, isDark) : null;
   const color = attr && scale ? fillColorExpr(attr, scale, isDark) : base.fill;
   map.setPaintProperty(TERRITORY_FILL_LAYER, "fill-color", color as ExpressionSpecification);
-  map.setPaintProperty(TERRITORY_FILL_LAYER, "fill-opacity", fillOpacityExpr(attr, scale, opacity, isDark) as ExpressionSpecification);
+  map.setPaintProperty(TERRITORY_FILL_LAYER, "fill-opacity", fillOpacityExpr(attr, opacity, isDark) as ExpressionSpecification);
   // 上色中：格縫改底圖色細縫（spec map-layers F-2 分級面），同色相連的格子才看得出一格一格；未涵蓋的灰格維持灰線
   const seamed = attr ? ["case", ["has", attr.key], mapSeamColor(isDark), base.line] : base.line;
   map.setPaintProperty(LINE_LAYER, "line-color", seamed as ExpressionSpecification);

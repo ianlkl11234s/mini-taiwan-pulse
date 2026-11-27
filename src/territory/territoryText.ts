@@ -51,9 +51,9 @@ export const RES_LABEL: Record<number, string> = {
 
 /** 三個標籤（站主拍板名稱；不叫治安） */
 export const SCORE_TAGS = [
-  { key: "score_response", label: "應變速度", blurb: "出事時，消防、救護、警察多快趕得到" },
-  { key: "score_wealth", label: "財力", blurb: "這塊地的房價、所得看起來有多「富」" },
-  { key: "score_convenience", label: "便利度", blurb: "走出門，買東西、搭車、辦事有多方便" },
+  { key: "score_response", label: "應變速度", blurb: "離最近的消防隊、警察機關有多近（直線距離）" },
+  { key: "score_wealth", label: "財力", blurb: "這塊地的房屋成交單價，在全台排第幾" },
+  { key: "score_convenience", label: "便利度", blurb: "附近的學校、醫療院所、便利商店、車站有多少" },
 ] as const;
 
 export type ScoreKey = (typeof SCORE_TAGS)[number]["key"];

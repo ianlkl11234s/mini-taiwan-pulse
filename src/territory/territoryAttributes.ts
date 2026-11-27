@@ -275,28 +275,11 @@ export function fillColorExpr(attr: TerritoryAttribute, scale: ColorScale, isDar
   return ["case", ["has", attr.key], byRes, gray] as unknown as ExpressionSpecification;
 }
 
-/** fill-opacity：有值＝滑桿值；未涵蓋＝灰底透明度 */
-/** 最淺一階的透明度倍率：暗底上最淺色（近白）佔多數時會整片洗白、蓋掉底圖（原型實測農地比、零值多的個數類），讓它退後 */
-export const LOWEST_CLASS_OPACITY_FACTOR = 0.4;
-
-/** fill-opacity：有值＝滑桿值（最淺一階 ×0.4）；未涵蓋＝灰底透明度 */
-export function fillOpacityExpr(attr: TerritoryAttribute | null, scale: ColorScale | null, opacity: number, isDark: boolean): ExpressionSpecification | number {
+/** fill-opacity：有值＝滑桿值（各階一致，圖例色塊即地圖實色；最淺一階不再調淡，免得和灰底／未涵蓋混淆）；未涵蓋＝灰底透明度 */
+export function fillOpacityExpr(attr: TerritoryAttribute | null, opacity: number, isDark: boolean): ExpressionSpecification | number {
   const base = gridBase(isDark).fillOpacity;
   if (!attr) return base;
-  let valued: unknown = opacity;
-  if (scale?.type === "steps") {
-    const byRes: unknown[] = ["match", ["to-number", ["get", "res"]]];
-    let fallback: unknown = null;
-    for (const res of TERRITORY_RESOLUTIONS) {
-      const first = scale.breaksByRes[res]?.[0];
-      if (first === undefined) continue;
-      const e = ["step", ["to-number", ["get", attr.key]], opacity * LOWEST_CLASS_OPACITY_FACTOR, first, opacity];
-      byRes.push(res, e);
-      fallback = e;
-    }
-    if (fallback) { byRes.push(fallback); valued = byRes; }
-  }
-  return ["case", ["has", attr.key], valued, base] as unknown as ExpressionSpecification;
+  return ["case", ["has", attr.key], opacity, base] as unknown as ExpressionSpecification;
 }
 
 /** 退路用：此 PMTiles source 實測以 round(zoom) 取磚（z8.5 已是 res8 磚），不是 floor */
