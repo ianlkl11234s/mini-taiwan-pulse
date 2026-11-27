@@ -83,6 +83,7 @@ import {
   IndustrialParkComparisonPanel,
 } from "./businessRegistryPanels";
 import { CouncilDistrictPanel, ElectionEventPanel, PollingStationPanel } from "./politicsPanels";
+import { SiteStudyMPanel } from "./siteStudyPanels";
 import { Fire119LivePanel, PbsRoadEventsLivePanel } from "./liveIncidentsPanels";
 import { DengueClusterPanel, NavNoticePanel, TideSwellAlertPanel } from "./twLivePanels";
 import { LivestockFarmPanel, LivestockSlaughterPanel, LivestockFeedPanel, LivestockMarketPanel } from "./livestockPanels";
@@ -250,6 +251,10 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   activeFault: ActiveFaultPanel,
   newsEvent: NewsEventPanel,
   electionEvents2026: ElectionEventPanel,
+  siteStudyM: SiteStudyMPanel,
+  siteStudyMRanges: SiteStudyMPanel,
+  siteStudyMParcels: SiteStudyMPanel,
+  siteStudyMPast: SiteStudyMPanel,
   fire119Live: Fire119LivePanel,
   pbsRoadEventsLive: PbsRoadEventsLivePanel,
   dengueCluster: DengueClusterPanel,
@@ -693,6 +698,10 @@ export const HEADER_LABELS = extensibleRecord("featureHeaderLabels", {
   activeFault: "活動斷層",
   newsEvent: "新聞事件",
   electionEvents2026: "2026 選舉活動",
+  siteStudyM: "設施研究 M",
+  siteStudyMRanges: "設施研究 M・範圍",
+  siteStudyMParcels: "設施研究 M・地塊",
+  siteStudyMPast: "設施研究 M・歷史",
   fire119Live: "即時 119 案件",
   pbsRoadEventsLive: "警廣即時路況",
   dengueCluster: "登革熱聚集區",

@@ -187,6 +187,10 @@ export const POINT_TIERS: Partial<Record<keyof LayerVisibility, PointTierOrBubbl
   osmSolarFarms: "M", // None
   osmWindTurbines: "M", // 風機 Wind Turbines
   parkingOnstreet: "M", // 路邊停車 On-street
+  siteStudyM: "M", // 設施研究 M Site Study M
+  siteStudyMRanges: "M", // 設施研究 M・範圍
+  siteStudyMParcels: "M", // 設施研究 M・地塊
+  siteStudyMPast: "M", // 設施研究 M・歷史
   playgrounds: "M", // 遊戲場 Playgrounds
   pollutionSite: "M", // 污染場址 Site
   ports: "M", // 港口 Port

@@ -86,6 +86,10 @@ export const FILL_TIERS: Partial<Record<keyof LayerVisibility, FillTier | "keep"
   ooklaMobileTaiwan: "keep", // Ookla 台灣行動細格 Taiwan Mobile Fine Grid
   osmBridgeFootprints: "background", // OSM 橋梁輪廓
   parkingOnstreet: "graded", // 路邊停車 On-street
+  siteStudyM: "keep", // 設施研究 M（面填色用固定比例的透明度，隨滑桿縮放）
+  siteStudyMRanges: "keep", // 設施研究 M・範圍
+  siteStudyMParcels: "keep", // 設施研究 M・地塊
+  siteStudyMPast: "keep", // 設施研究 M・歷史
   policeIsoCityDept: "keep", // 縣市警局 30/60 min
   policeIsoPrecinct: "keep", // 分局 15/30 min
   policeIsoSubstation: "keep", // 派出所 5/10 min

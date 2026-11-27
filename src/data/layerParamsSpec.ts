@@ -4497,6 +4497,23 @@ const STATIC_LAYER_PARAMS_SPEC = {
   councilDistricts2026: [
     opacitySlider("councilDistricts2026Opacity", 0.9),
   ],
+  // 設施研究 M 四層（站主限定）
+  siteStudyM: [
+    opacitySlider("siteStudyMOpacity", 0.85),
+    scaleSlider("siteStudyMScale", 1),
+  ],
+  siteStudyMRanges: [
+    opacitySlider("siteStudyMRangesOpacity", 0.85),
+    scaleSlider("siteStudyMRangesScale", 1),
+  ],
+  siteStudyMParcels: [
+    opacitySlider("siteStudyMParcelsOpacity", 0.85),
+    scaleSlider("siteStudyMParcelsScale", 1),
+  ],
+  siteStudyMPast: [
+    opacitySlider("siteStudyMPastOpacity", 0.85),
+    scaleSlider("siteStudyMPastScale", 1),
+  ],
   // 新聞三軸 filter 照 Intel Panel 設計；三個值另有 setter 從 hook 導出
   // （IntelPanel / MonitorPanel 的 onFilterChange 直接呼叫）。
   electionEvents2026: [

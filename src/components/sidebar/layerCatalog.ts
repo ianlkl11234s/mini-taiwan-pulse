@@ -1186,6 +1186,11 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("postOfficeFxCounters"),
         ],
       },
+      {
+        // 站主限定的研究資料（2026-11-24）
+        title: "設施研究 Site Study",
+        layers: [fromManifest("siteStudyM"), fromManifest("siteStudyMRanges"), fromManifest("siteStudyMParcels"), fromManifest("siteStudyMPast")],
+      },
     ],
   },
 

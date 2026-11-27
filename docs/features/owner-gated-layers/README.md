@@ -79,6 +79,8 @@
   - 舊 RPC 12 支待前端發布到 master、站主驗收後撤除（gis-platform PENDING migration）。
 - 越南 WDPCA 保護區（2026-11-17）：`vn-wdpca-raster`＝`vn_wdpca_raster.pmtiles`（PNG raster 圖磚 z5–12，WDPCA 條款禁再散布與可下載地圖，站主 W6-1 選 A＋B）。`VnWdpcaHost` 以 `useOwnerPmtilesSource` 取私人來源後交給 `useVnRasterLayer`（raster＋`private`），沒驗證就不掛 source、不退回公開 `./world/`。
   - 待辦：`upload-owner-data-private.mjs` 上傳、主機重建 coral-private、gis-platform `public.gated_layers` 補 `vnWdpca`（migration 須拍板）。
+- 設施研究 M（2026-11-24，四層）：`study-m-sites`、`study-m-ranges`、`study-m-parcels`、`study-m-past` 四支 GeoJSON（頂層另帶 `meta.legend`），對應圖層 `siteStudyM`、`siteStudyMRanges`、`siteStudyMParcels`、`siteStudyMPast`，四層共用同一份 loader／hook／host／圖例／popup（`src/data/siteStudyMLoader.ts`、`src/hooks/useSiteStudyMLayer.ts`，資料檔對照在 `siteStudyMTypes.ts`）。類別名稱、顏色、筆數與 popup 文字全部讀檔案，程式不寫類別值；換資料只要重新匯出、上傳並更新兩份 assets 常數的 size／sha256，不用改圖例或 popup。
+  - 待辦：`upload-owner-data-private.mjs` 上傳四支、主機重建 coral-private、gis-platform `public.gated_layers` 補四個 key（migration 須拍板；未補前前端仍以靜態名單鎖定）、pulse-data `_display_only.yaml` 登記四個 key。
 
 ### 已知限制
 
