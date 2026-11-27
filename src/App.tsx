@@ -131,6 +131,8 @@ import { useMemberGate, signInWithGoogle } from "./lib/auth";
 import { GATED_LAYERS, RELEASE_HOLD_LAYERS } from "./components/sidebar/layerCatalog";
 import { useLayerGates, loadLayerGates, isLayerLocked } from "./lib/layerGates";
 import { FeatureInfoPanel } from "./components/FeatureInfoPanel";
+import { TerritoryCard } from "./territory/TerritoryCard";
+import { useTerritoryGridLayer } from "./territory/useTerritoryGridLayer";
 import { HEADER_LABELS } from "./components/featureInfo/registry";
 import { ChatPanel } from "./components/chat/ChatPanel";
 import { runChatTurn, testKey } from "./chat/lazyAgent";
@@ -1414,6 +1416,8 @@ export default function App() {
     return typeof id === "number" && id > 0 ? id : null;
   })();
   const reservoirContext = useReservoirContextLayer(mapRef, activeReservoirId);
+  // 領土格原型（proto/h3-territory）：面板開著才鋪格子；左側面板寫 territoryStore，這裡只接地圖
+  useTerritoryGridLayer(mapRef, mapStyleId, isDarkTheme);
 
   // 點選光暈 + 水庫水位計 + 水資源 12 層的 hook 已搬進 LayerHost
   //（useSelectedFeatureHalo / useReservoirStatusLayer / useRainGauge… 見 layerHookRegistry）
@@ -3752,6 +3756,10 @@ export default function App() {
           pointerEvents: "none",
         }}
       >
+        {/* 領土卡（原型）：與停靠 popup 同欄、排在它上方 */}
+        <div style={{ pointerEvents: "auto", display: "flex", flexDirection: "column", flexShrink: 1, minHeight: 0, maxHeight: "100%" }}>
+          <TerritoryCard isDark={isDarkTheme} />
+        </div>
         {privateUiFeatureInfo && (
           // popup 優先保留自身高度，圖例吃剩下的空間（圖例 flexShrink 較大，先縮）；
           // AQI 切換器、黃砂面板是 flexShrink:0 的固定高度兄弟，同時開啟時 popup 可縮（minHeight:0）並自行捲動，
