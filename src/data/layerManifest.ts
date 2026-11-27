@@ -1908,7 +1908,7 @@ export const LAYER_MANIFEST = {
     topics: ["政治", "選舉", "活動", "研究中", "OWNER_ONLY"],
   },
 
-  // 設施研究 M（站主限定研究資料；owner-data 私人檔，類別、圖例與 popup 文字都在檔內）
+  // 設施研究 M 四層（站主限定研究資料；owner-data 私人檔，類別、圖例與 popup 文字都在檔內）
   siteStudyM: {
     key: "siteStudyM",
     country: "TW", section: { theme: "基礎建設 Infrastructure", group: "設施研究 Site Study" },
@@ -1929,7 +1929,82 @@ export const LAYER_MANIFEST = {
     },
     legend: "siteStudyM",
     popup: "siteStudyM",
-    params: { count: 3, kinds: ["slider", "slider", "toggle"] },
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "站主限定的研究資料。",
+    topics: ["研究中", "OWNER_ONLY"],
+  },
+
+  siteStudyMRanges: {
+    key: "siteStudyMRanges",
+    country: "TW", section: { theme: "基礎建設 Infrastructure", group: "設施研究 Site Study" },
+    ...layerName({ zh: "設施研究 M・範圍", alt: "Site Study M · Ranges" }),
+    expandable: true,
+    color: "#94a3b8",
+    icon: Building2,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      note: "站主限定的研究資料。不進 embed／分析倉庫／MCP。",
+    },
+    dataClass: "C",
+    source: {
+      kind: "supabase",
+      sourceId: "site-study-m-ranges",
+      fallbackUrl: "./geo/_empty.geojson",
+    },
+    legend: "siteStudyMRanges",
+    popup: "siteStudyMRanges",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "站主限定的研究資料。",
+    topics: ["研究中", "OWNER_ONLY"],
+  },
+
+  siteStudyMParcels: {
+    key: "siteStudyMParcels",
+    country: "TW", section: { theme: "基礎建設 Infrastructure", group: "設施研究 Site Study" },
+    ...layerName({ zh: "設施研究 M・地塊", alt: "Site Study M · Parcels" }),
+    expandable: true,
+    color: "#94a3b8",
+    icon: Building2,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      note: "站主限定的研究資料。不進 embed／分析倉庫／MCP。",
+    },
+    dataClass: "C",
+    source: {
+      kind: "supabase",
+      sourceId: "site-study-m-parcels",
+      fallbackUrl: "./geo/_empty.geojson",
+    },
+    legend: "siteStudyMParcels",
+    popup: "siteStudyMParcels",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "站主限定的研究資料。",
+    topics: ["研究中", "OWNER_ONLY"],
+  },
+
+  siteStudyMPast: {
+    key: "siteStudyMPast",
+    country: "TW", section: { theme: "基礎建設 Infrastructure", group: "設施研究 Site Study" },
+    ...layerName({ zh: "設施研究 M・歷史", alt: "Site Study M · Past" }),
+    expandable: true,
+    color: "#94a3b8",
+    icon: Building2,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      note: "站主限定的研究資料。不進 embed／分析倉庫／MCP。",
+    },
+    dataClass: "C",
+    source: {
+      kind: "supabase",
+      sourceId: "site-study-m-past",
+      fallbackUrl: "./geo/_empty.geojson",
+    },
+    legend: "siteStudyMPast",
+    popup: "siteStudyMPast",
+    params: { count: 2, kinds: ["slider", "slider"] },
     description: "站主限定的研究資料。",
     topics: ["研究中", "OWNER_ONLY"],
   },

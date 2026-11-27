@@ -1,6 +1,6 @@
-// 設施研究 M（站主限定）popup：內容全部讀 feature 屬性（*_label 欄位由私人檔提供），欄位標題用中性字。
+// 設施研究 M（站主限定）popup（四個圖層共用；依 _part 選版型）：內容全部讀 feature 屬性（*_label 欄位由私人檔提供），欄位標題用中性字。
 import { Row, Title } from "./shared";
-import { siteStudyColor } from "../../data/siteStudyMTypes";
+import { SITE_STUDY_M_PARTS, siteStudyColor, siteStudyPartOf } from "../../data/siteStudyMTypes";
 import { LAYER_MANIFEST } from "../../data/layerManifest";
 import { localizeLayerName } from "../../i18n/layerText";
 import { useLocale } from "../../state/localeStore";
@@ -17,8 +17,10 @@ export function SiteStudyMPanel({ props }: { props: Record<string, unknown> }) {
   const i18n = useLocale();
   const { t, formatNumber } = i18n;
   const accent = siteStudyColor(props.color);
-  const layerName = localizeLayerName("siteStudyM", LAYER_MANIFEST.siteStudyM.name, i18n).primary;
-  if (props._part === "overlays") {
+  const part = siteStudyPartOf(props._part);
+  const layerKey = SITE_STUDY_M_PARTS[part].layerKey;
+  const layerName = localizeLayerName(layerKey, LAYER_MANIFEST[layerKey].name, i18n).primary;
+  if (part !== "sites") {
     const title = str(props.name) || str(props.overlay_label) || layerName;
     return (
       <>

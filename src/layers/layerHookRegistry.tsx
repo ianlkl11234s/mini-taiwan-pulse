@@ -42,7 +42,7 @@ import {
 } from "./hosts/waterHosts";
 import { NewsEventsHost, NewsTimelineHost } from "./hosts/newsHosts";
 import { CouncilDistrictsHost, ElectionEventsHost, PollingStationsHost } from "./hosts/politicsHosts";
-import { SiteStudyMHost } from "./hosts/siteStudyHosts";
+import { SiteStudyMHost, SiteStudyMParcelsHost, SiteStudyMPastHost, SiteStudyMRangesHost } from "./hosts/siteStudyHosts";
 import { Fire119LiveHost, PbsRoadEventsLiveHost } from "./hosts/liveIncidentsHosts";
 import { DengueClustersHost, NavNoticesHost, TideSwellAlertsHost } from "./hosts/twLiveHosts";
 import {
@@ -988,8 +988,11 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
   { id: "useAnimalWelfarePointsLayer", keys: ["animalWelfarePoints"], Host: AnimalWelfarePointsHost },
   // 政治：2026 選舉活動（owner-only RPC；時間軸只改資料的 _past，不改 paint）
   { id: "useElectionEventsLayer", keys: ["electionEvents2026"], Host: ElectionEventsHost },
-  // 設施研究 M（站主限定，owner-data 私人檔；「參考資料」開關開啟才讀第二支檔）
+  // 設施研究 M 四層（站主限定，owner-data 私人檔；同一支 hook，各讀自己的檔）
   { id: "useSiteStudyMLayer", keys: ["siteStudyM"], Host: SiteStudyMHost },
+  { id: "useSiteStudyMRangesLayer", keys: ["siteStudyMRanges"], Host: SiteStudyMRangesHost },
+  { id: "useSiteStudyMParcelsLayer", keys: ["siteStudyMParcels"], Host: SiteStudyMParcelsHost },
+  { id: "useSiteStudyMPastLayer", keys: ["siteStudyMPast"], Host: SiteStudyMPastHost },
   // 政治：2024 投開票所（公開 bbox RPC；moveend debounce、zoom ≥ 12 才查）
   { id: "usePollingStationsLayer", keys: ["pollingStations2024"], Host: PollingStationsHost },
   // 政治：2026 議員選區（公開 RPC，一次抓全臺）

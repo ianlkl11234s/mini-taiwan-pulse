@@ -2392,7 +2392,6 @@ export type GeneratedStaticKey =
   | "legend.restriction.ownerOnly"
   | "legend.siteStudy.built"
   | "legend.siteStudy.loading"
-  | "legend.siteStudy.overlaysTitle"
   | "legend.transitAccess.carFree"
   | "legend.transitAccess.carPeak"
   | "legend.transitAccess.cmpDirection"

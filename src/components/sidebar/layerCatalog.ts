@@ -1178,7 +1178,7 @@ const THEME_CATALOG: ThemeDef[] = [
       {
         // 站主限定的研究資料（2026-11-24）
         title: "設施研究 Site Study",
-        layers: [fromManifest("siteStudyM")],
+        layers: [fromManifest("siteStudyM"), fromManifest("siteStudyMRanges"), fromManifest("siteStudyMParcels"), fromManifest("siteStudyMPast")],
       },
     ],
   },
