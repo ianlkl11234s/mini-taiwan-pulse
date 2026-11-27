@@ -132,6 +132,7 @@ import { GATED_LAYERS, RELEASE_HOLD_LAYERS } from "./components/sidebar/layerCat
 import { useLayerGates, loadLayerGates, isLayerLocked } from "./lib/layerGates";
 import { FeatureInfoPanel } from "./components/FeatureInfoPanel";
 import { TerritoryCard } from "./territory/TerritoryCard";
+import { territoryStore, useTerritory } from "./territory/territoryStore";
 import { useTerritoryGridLayer } from "./territory/useTerritoryGridLayer";
 import { HEADER_LABELS } from "./components/featureInfo/registry";
 import { ChatPanel } from "./components/chat/ChatPanel";
@@ -1418,6 +1419,20 @@ export default function App() {
   const reservoirContext = useReservoirContextLayer(mapRef, activeReservoirId);
   // 領土格原型（proto/h3-territory）：面板開著才鋪格子；左側面板寫 territoryStore，這裡只接地圖
   useTerritoryGridLayer(mapRef, mapStyleId, isDarkTheme);
+  // 領土卡與停靠 popup 互斥：後開的關掉前一個（同一次點擊兩邊都開時保留領土卡）
+  const territorySelected = useTerritory().selected;
+  const exclusivePrevRef = useRef<{ fi: unknown; ts: unknown }>({ fi: null, ts: null });
+  useEffect(() => {
+    const prev = exclusivePrevRef.current;
+    const fiOpened = featureInfo && featureInfo !== prev.fi;
+    const tsOpened = territorySelected && territorySelected !== prev.ts;
+    exclusivePrevRef.current = { fi: featureInfo, ts: territorySelected };
+    if (tsOpened && featureInfo) {
+      setFeatureInfo(null);
+    } else if (fiOpened && territorySelected) {
+      territoryStore.select(null);
+    }
+  }, [featureInfo, territorySelected, setFeatureInfo]);
 
   // 點選光暈 + 水庫水位計 + 水資源 12 層的 hook 已搬進 LayerHost
   //（useSelectedFeatureHalo / useReservoirStatusLayer / useRainGauge… 見 layerHookRegistry）

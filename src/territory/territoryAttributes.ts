@@ -97,7 +97,18 @@ const TAG_SCHEME: Record<string, SchemeId> = {
 
 export function rampFor(attr: TerritoryAttribute, isDark: boolean): readonly string[] {
   const scheme = STATISTICS_SEQUENTIAL_SCHEMES[SCORE_SCHEME[attr.key] ?? TAG_SCHEME[attr.tag] ?? "fallback"];
-  return isDark ? scheme.darkColors : scheme.colors;
+  return isDark ? scheme.darkColors : shiftDeeper(scheme.colors);
+}
+
+/** 淡色底圖：最淺階（近白）和淡底圖對比太弱 → 五階各往下一階移 LIGHT_SHIFT（同一組色號內插，不另造色），最淺仍明顯淺於中間階 */
+const LIGHT_SHIFT = 0.35;
+function shiftDeeper(colors: readonly string[]): string[] {
+  return colors.map((c, i) => mixHex(c, colors[Math.min(i + 1, colors.length - 1)]!, i < colors.length - 1 ? LIGHT_SHIFT : 0));
+}
+function mixHex(a: string, b: string, t: number): string {
+  const p = (h: string) => [1, 3, 5].map((k) => parseInt(h.slice(k, k + 2), 16));
+  const [x, y] = [p(a), p(b)];
+  return "#" + x.map((v, k) => Math.round(v + (y[k]! - v) * t).toString(16).padStart(2, "0")).join("");
 }
 
 /** 選中按鈕／能力條用的代表色（色階第 4 階，夠飽和又不沉進底圖） */

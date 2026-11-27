@@ -106,11 +106,17 @@ export function useTerritoryGridLayer(
         if (r === 7 || r === 8 || r === 9) res = r;
       }
       territoryStore.setRes(res ?? zoomToRes(map.getZoom()));
+      // 跨過解析度切換點：選取格的 res 和畫面不同 → 用點擊經緯度選回新解析度的那一格（卡片值與格子大小跟著換）
+      const { selected, selectedLngLat } = territoryStore.getSnapshot();
+      if (selected && selectedLngLat && map.getLayer(TERRITORY_FILL_LAYER)) {
+        const hit = map.queryRenderedFeatures(map.project(selectedLngLat), { layers: [TERRITORY_FILL_LAYER] })[0];
+        if (hit && hit.properties?.h3 !== selected.h3) territoryStore.select({ ...(hit.properties ?? {}) });
+      }
     };
     const onClick = (e: MapMouseEvent) => {
       if (!map || !map.getLayer(TERRITORY_FILL_LAYER)) return;
       const hit = map.queryRenderedFeatures(e.point, { layers: [TERRITORY_FILL_LAYER] })[0];
-      territoryStore.select(hit ? { ...(hit.properties ?? {}) } : null);
+      territoryStore.select(hit ? { ...(hit.properties ?? {}) } : null, [e.lngLat.lng, e.lngLat.lat]);
     };
     const onEnter = () => { if (map) map.getCanvas().style.cursor = "pointer"; };
     const onLeave = () => { if (map) map.getCanvas().style.cursor = ""; };
