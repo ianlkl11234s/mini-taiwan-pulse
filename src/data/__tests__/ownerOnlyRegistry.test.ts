@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { GATED_LAYERS } from "../../components/sidebar/layerCatalog";
 import { LAYER_MANIFEST } from "../layerManifest";
+import { loadAllPacks } from "../../countries/packs";
+
+// 全部圖層（含延後載入的國家包，B1 P5a）一起驗
+await loadAllPacks();
 
 // 站主限定名單的唯一來源＝manifest topics "OWNER_ONLY"；GATED_LAYERS 由它派生（layerCatalog.ts）。
 // 這是安全清單：下面釘死完整 key，少一個標記（＝私人圖層對外開放）或多一個都要紅，

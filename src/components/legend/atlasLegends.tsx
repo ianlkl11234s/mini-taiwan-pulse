@@ -15,6 +15,7 @@ import {
   TWC_OFFICE_TYPE_OPTIONS, TWC_FACILITY_TYPE_OPTIONS, STATE_TENDER_KIND_OPTIONS, STATE_ASSET_ORGS,
   ATM_INSTITUTION_OPTIONS, BRANCH_CATEGORY_OPTIONS, FINANCE_ACCESS_ORGS, SECURITIES_TYPE_OPTIONS, INSURANCE_TYPE_OPTIONS,
   DIALECT_LEGEND_OPTIONS, HAKKA_ACCENT_OPTIONS, TOUR_SERVICE_SITE_OPTIONS, VISITOR_STEPS, G35_ORGS,
+  FREEWAY_SPECIAL_KIND_OPTIONS, FREEWAY_ROADSIDE_KIND_OPTIONS, FREEWAY_ROADKILL_GROUP_OPTIONS, FREEWAY_ECO_FACILITY_OPTIONS, FREEWAY_FAUNA_GROUP_OPTIONS, FREEWAY_ROADKILL_PERIOD_OPTIONS,
   MAILBOX_SERVICE_OPTIONS, BROADCAST_KIND_OPTIONS, WRA_CCTV_KIND_OPTIONS, TRA_CROSSING_TYPE_OPTIONS, IOCEAN_GROUP_OPTIONS, FISHING_TYPE_OPTIONS, FIREWORKS_KIND_OPTIONS, ALISHAN_RAIL_KIND_OPTIONS, MOUNTAIN_MOBILE_GROUP_OPTIONS, ECO_HOTEL_LEVEL_OPTIONS, NAMR_BUOY_KIND_OPTIONS, AIRPORT_SURFACE_OPTIONS, NP_PARK_OPTIONS, HAKKA_SCHOOL_KIND_OPTIONS, SAND_GRAVEL_REG_OPTIONS, WELFARE_POINT_KIND_OPTIONS, EV_MOTO_KIND_OPTIONS, STREETLIGHT_LED_OPTIONS, STREETLIGHT_LED_UNKNOWN_COLOR, STREETLIGHT_GRID_STEPS, VIO_KIND_OPTIONS, VIO_ZONE_PALETTE, VEG_DATASET_OPTIONS, VEG_CLASS_OPTIONS, FOREST_TYPE_OPTIONS, TEDS_VIEW_OPTIONS, TEDS_POLLUTANT_OPTIONS, TEDS_DENSITY_STEPS,
   POLLUTION_ZONE_GROUP_OPTIONS, POLLUTION_ZONE_RELEASED_COLOR, LANDSLIDE_EVENT_TYPE_OPTIONS,
   G53_ORGS,
@@ -213,6 +214,27 @@ function CountyStreetlightsLegend() {
   return <AtlasLegend layer="countyStreetlights" en="County Streetlight Points" subtitle={t("legend.atlas.slSubtitle")} source={src("countyGov")} domain="atlasStreetlightLed" rows={rows} />;
 }
 
+/** 國道靜態批：動物調查，副標說明保育類位置已模糊。 */
+function FreewayFaunaLegend() {
+  const { t } = useLocale();
+  return <AtlasLegend layer="freewayEcoSurveyFauna" en="Freeway Fauna Survey" subtitle={t("legend.atlas.fwyFaunaSubtitle")} source={src("freeway", ["31285"])} domain="atlasFreewayFaunaGroup" rows={FREEWAY_FAUNA_GROUP_OPTIONS} dense />;
+}
+
+/** 國道靜態批：路殺，副標寫目前顯示的期間與資料涵蓋年份。 */
+function FreewayRoadkillLegend() {
+  const { t } = useLocale();
+  const values = useLayerParams("freewayRoadkill");
+  const period = oneOfParam(paramStr(values, "freewayRoadkill", "freewayRoadkillPeriod"), FREEWAY_ROADKILL_PERIOD_OPTIONS.map((o) => o.value), "recent5");
+  const labels = { recent1: t("legend.atlas.fwyRkRecent1"), recent5: t("legend.atlas.fwyRkRecent5"), y2016: t("legend.atlas.fwyRkY2016"), y2009: t("legend.atlas.fwyRkY2009"), all: t("legend.atlas.fwyRkAll") };
+  return <AtlasLegend layer="freewayRoadkill" en="Freeway Roadkill" subtitle={t("legend.atlas.fwyRoadkillPeriod", { period: labels[period] })} source={src("freeway", ["31291"])} domain="atlasFreewayRoadkillGroup" rows={FREEWAY_ROADKILL_GROUP_OPTIONS} dense />;
+}
+
+/** 國道靜態批：路邊設備預設只開資訊可變標誌，副標說明。 */
+function FreewayRoadsideDevicesLegend() {
+  const { t } = useLocale();
+  return <AtlasLegend layer="freewayRoadsideDevices" en="Freeway Roadside Devices" subtitle={t("legend.atlas.fwyRoadsideSubtitle")} source={src("freeway", ["37667", "37661"])} domain="atlasFreewayRoadsideKind" rows={FREEWAY_ROADSIDE_KIND_OPTIONS} />;
+}
+
 /** G53 批 2／3 爆竹煙火場所：副標「名冊 19 處，地圖上 10 處」。 */
 function FireworksSitesLegend() {
   const { t } = useLocale();
@@ -302,6 +324,14 @@ export const ATLAS_LEGENDS: Record<AtlasLayerKey, () => ReactNode> = {
   provincialRoadSigns: () => <AtlasLegend layer="provincialRoadSigns" en="Provincial Road Signs" source={src("thb", ["146233"], true)} domain="atlasSignSeries" rows={ROAD_SIGN_SERIES_OPTIONS} dense />,
   provincialRoadMileposts: () => <AtlasLegend layer="provincialRoadMileposts" en="Provincial Road Mileposts" source={src("thb", ["7040"])} rows={single("provincialRoadMileposts", "legend.atlas.milepost")} dense />,
   freewayTrafficSigns: () => <AtlasLegend layer="freewayTrafficSigns" en="Freeway Traffic Signs" source={src("freeway", ["98447"])} domain="atlasFreewaySign" rows={FREEWAY_SIGN_GROUP_OPTIONS} dense />,
+  // 國道靜態批（2026-11-24）
+  freewaySpecialSections: () => <AtlasLegend layer="freewaySpecialSections" en="Freeway Special Sections" kind="line" source={src("freeway", ["31038", "31035", "95069"])} domain="atlasFreewaySpecialKind"
+    rows={FREEWAY_SPECIAL_KIND_OPTIONS.map((o): Row => o.value === "open_shoulder" ? { labelKey: "legend.atlas.fwyOpenShoulder", color: o.color } : { value: o.value, label: o.label, color: o.color })} />,
+  freewayRoadsideDevices: () => <FreewayRoadsideDevicesLegend />,
+  freewayRoadkill: () => <FreewayRoadkillLegend />,
+  freewayEcoFacilities: () => <AtlasLegend layer="freewayEcoFacilities" en="Freeway Wildlife Crossings" source={src("freeway", ["31292"])} domain="atlasFreewayEcoFacilityType" rows={FREEWAY_ECO_FACILITY_OPTIONS} />,
+  freewayEcoSurveyFlora: () => <AtlasLegend layer="freewayEcoSurveyFlora" en="Freeway Flora Survey" source={src("freeway", ["31289"])} rows={single("freewayEcoSurveyFlora", "legend.atlas.fwyFloraRow")} dense />,
+  freewayEcoSurveyFauna: () => <FreewayFaunaLegend />,
   freewayInterchanges: () => <AtlasLegend layer="freewayInterchanges" en="Freeway Interchanges" source={src("freeway", ["166496"])} domain="atlasInterchange" rows={INTERCHANGE_TYPE_OPTIONS} />,
   freewayEcoSensitive: () => <AtlasLegend layer="freewayEcoSensitive" en="Freeway Eco-sensitive Sections" kind="square" source={src("freeway", ["31290"])} domain="atlasEcoLevel" rows={ECO_SENSITIVE_LEVEL_OPTIONS} />,
   provincialRoadMonitored: () => <AtlasLegend layer="provincialRoadMonitored" en="Monitored Road Sections" kind="line" source={src("thb", ["16193"], true)} domain="atlasMonitor" rows={MONITOR_SERIES_OPTIONS} />,

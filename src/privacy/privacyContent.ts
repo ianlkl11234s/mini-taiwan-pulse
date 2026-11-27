@@ -6,7 +6,7 @@
  * - 使用紀錄：src/lib/sessionTracker.ts＋gis-platform migrations/472（不帶帳號、保留 90 天）
  * - AI 金鑰：src/lib/keyVault.ts（記憶體／sessionStorage／localStorage）
  * - 第三方：nginx.conf 主站 CSP（Report-Only）connect-src／img-src／frame-src，
- *   以及直接向日本機關伺服器請求的圖層（src/data/jmaTypes.ts、src/hooks/useJpWaterLayers.ts）
+ *   以及直接向日本機關伺服器請求的圖層（src/data/jmaTypes.ts、src/countries/jp/useJpWaterLayers.ts）
  * - 刪除帳號：gis-platform `delete_my_account()` RPC
  *
  * 不放進 src/i18n/locales：長文只在這頁用，避免把整頁塞進介面字串 parity。

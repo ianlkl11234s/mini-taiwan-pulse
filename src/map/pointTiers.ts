@@ -290,138 +290,138 @@ export const HOOK_POINT_TIERS: Partial<Record<keyof LayerVisibility, PointTierOr
   groundwaterWells: "M", // 水井點位 Wells · src/hooks/useGroundwaterWellsLayer.ts
   iotWraRiver: "B", // 資料驅動半徑，2026-09-29 拍板 · IoT 河川 IoT River · src/hooks/useIotWraRiverLayer.ts
   iotWraStructure: "B", // 資料驅動半徑，2026-09-29 拍板 · IoT 水工結構 IoT Structure · src/hooks/useIotWraStructureLayer.ts
-  jpAirports: "M", // 機場 空港 · src/hooks/useJpAirportsLayer.ts
-  jpCareCombined: "M", // 複合服務 訪問・通い・宿泊の組合せ · src/hooks/useJpMedicalLayers.ts
-  jpCareDayServices: "M", // 日間服務 施設に通う · src/hooks/useJpMedicalLayers.ts
-  jpCareEquipment: "M", // 福祉用具 福祉用具 · src/hooks/useJpMedicalLayers.ts
-  jpCareHomeVisit: "M", // 到宅服務 自宅に訪問 · src/hooks/useJpMedicalLayers.ts
-  jpCarePlanning: "M", // 照護諮詢／計畫 介護の相談・ケアプラン · src/hooks/useJpMedicalLayers.ts
-  jpCareResidential: "M", // 住宿／短期入住 施設で生活・宿泊 · src/hooks/useJpMedicalLayers.ts
-  jpMedicalAreasPrimary: "M", // 一次醫療圈 一次医療圏 · 2020 · src/hooks/useJpMedicalLayers.ts
-  jpMedicalAreasSecondary: "M", // 二次醫療圈 二次医療圏 · 2020 · src/hooks/useJpMedicalLayers.ts
-  jpMedicalAreasTertiary: "M", // 三次醫療圈 三次医療圏 · 2020 · src/hooks/useJpMedicalLayers.ts
-  jpMedicalClinics: "M", // 診所 診療所 · src/hooks/useJpMedicalLayers.ts
-  jpMedicalDental: "M", // 牙科 歯科 · src/hooks/useJpMedicalLayers.ts
-  jpMedicalHospitals: "M", // 醫院 病院 · src/hooks/useJpMedicalLayers.ts
-  jpMedicalMaternity: "M", // 助產所 助産所 · src/hooks/useJpMedicalLayers.ts
-  jpMedicalPharmacies: "M", // 藥局 薬局 · src/hooks/useJpMedicalLayers.ts
-  jpPoliceFacilities: "M", // 警察設施 警察施設 · src/hooks/useJpPoliceFacilitiesLayer.ts
-  gbHydroStations: "M", // 英國水文測站 Hydrometric Stations · src/hooks/useGbWaterLayers.ts
-  gbBathingWaters: "M", // 英國浴場 Bathing Waters · src/hooks/useGbWaterLayers.ts
-  gbTransportHubs: "M", // 英國交通樞紐 Transport Hubs（渡輪棧橋 S） · src/hooks/useGbTransportLayers.ts
-  gbStationUsage: "B", // 半徑＝年進出站人次 5 級 · src/hooks/useGbTransportLayers.ts
-  gbLondonStations: "M", // 倫敦軌道車站 London Rail Stations · src/hooks/useGbTransportLayers.ts
-  gbLondonBikePoints: "S", // 倫敦公共自行車（比照 bikeStations S） · src/hooks/useGbTransportLayers.ts
-  gbForestRecreation: "M", // 英國森林遊憩設施（指標 z12 起另用 S） · src/hooks/useGbNatureLayers.ts
-  krBusStops: "S", // 南韓公車站（22.7 萬點，z12 起單點、之下熱區） · src/hooks/useKrTransportLayers.ts
-  krRailStations: "M", // 南韓鐵道車站（依 network 3 色） · src/hooks/useKrTransportLayers.ts
-  krAirports: "L", // 南韓機場 · src/hooks/useKrTransportLayers.ts
-  krFuelStations: "M", // 南韓燃料／充電站（依 fuel_type 4 色） · src/hooks/useKrEnergyLayers.ts
-  krPowerPlants: "B", // 南韓電廠：半徑＝裝置容量 4 級 · src/hooks/useKrEnergyLayers.ts
-  krRenewables: "B", // 南韓再生能源點：半徑＝裝置容量 4 級（未標容量用最小級） · src/hooks/useKrEnergyLayers.ts
-  krSubstations: "B", // 南韓變電所：半徑＝電壓 5 級 · src/hooks/useKrEnergyLayers.ts
-  krPowerTowers: "S", // 南韓高壓鐵塔（z11 起） · src/hooks/useKrEnergyLayers.ts
-  caTransitStops: "S", // 加拿大公共運輸站點（13.3 萬點，z12 起單點、之下熱區） · src/hooks/useCaTransportLayers.ts
-  caAirportsPorts: "M", // 加拿大機場與港口（次要點 z7 起用 S） · src/hooks/useCaTransportLayers.ts
-  caRailways: "M", // 加拿大鐵道車站（z8 起） · src/hooks/useCaTransportLayers.ts
-  caPowerPlants: "B", // 加拿大電廠：半徑＝裝置容量 4 級 · src/hooks/useCaEnergyLayers.ts
-  caWindTurbines: "S", // 加拿大風機（7,841 點，不畫熱區） · src/hooks/useCaEnergyLayers.ts
-  caPowerGrid: "S", // 加拿大變電站（z7 起） · src/hooks/useCaEnergyLayers.ts
-  caOilGas: "S", // 加拿大油氣點位（井、設施 z10 起單點、之下熱區；主要設施 M） · src/hooks/useCaEnergyLayers.ts
-  caPopulationCentres: "B", // 加拿大人口中心代表點：半徑＝人口級距 · src/hooks/useCaEnergyLayers.ts
-  caFederalDistricts: "S", // 加拿大聯邦選區代表點（z<6） · src/hooks/useCaAreaLayers.ts
-  caIndigenousLands: "S", // 加拿大原住民土地代表點（z<7 或點模式） · src/hooks/useCaAreaLayers.ts
-  caDeprivation: "S", // 加拿大 CIMD DA 代表點（z<6，5.6 萬點依五分位上色、隨縮放 1.2–2.6px） · src/hooks/useCaAreaLayers.ts
-  caRents: "M", // 加拿大租金 CMA／CA 代表點（z<6） · src/hooks/useCaAreaLayers.ts
-  caPlaceNames: "S", // 加拿大地名點（依 relevance_scale 逐級出現） · src/hooks/useCaTerrainLayers.ts
-  caClimateStations: "S", // 加拿大氣象站（8,435 點，不畫熱區） · src/hooks/useCaEnvLayers.ts
-  caAqhiStations: "M", // 加拿大 AQHI 地點（134 點） · src/hooks/useCaEnvLayers.ts
-  caRadiationStations: "M", // 加拿大輻射監測站（46 點） · src/hooks/useCaEnvLayers.ts
-  caNpriFacilities: "S", // 加拿大 NPRI 申報設施（2.5 萬點，z10 起單點、之下熱區） · src/hooks/useCaEnvLayers.ts
-  caWastewaterSystems: "B", // 加拿大污水系統：半徑＝日均放流量級距 · src/hooks/useCaEnvLayers.ts
-  phOpenaqAir: "M", // 菲律賓空品（OpenAQ）：低價感測器 M、官方監測站 L＋白框 · src/hooks/usePhOpenaqAirLayer.ts
-  caEarthquakesLive: "B", // 加拿大即時地震：半徑＝規模（同 caEarthquakes） · src/hooks/useCaLiveEarthquakesLayer.ts
-  caEarthquakes: "B", // 加拿大地震：半徑＝規模（同 JMA／英國地震） · src/hooks/useCaEnvLayers.ts
-  gbPowerPlants: "B", // 英國電廠：半徑＝裝置容量 4 級 · src/hooks/useGbEnergyLayers.ts
-  gbRenewables: "B", // 英國再生能源專案：半徑＝裝置容量 4 級、z5 起（P-4 例外不畫熱區；施工中黃框） · src/hooks/useGbEnergyLayers.ts
-  gbFuelStations: "M", // 英國加油站 · src/hooks/useGbEnergyLayers.ts
-  gbSubstations: "B", // 英國變電所：半徑＝電壓 5 級（59k 點，z5 起、z4–9 只有 ≥132kV） · src/hooks/useGbEnergyLayers.ts
-  gbSchools: "M", // 英國學校（30k 點，z<10 熱區、z10 起畫點） · src/hooks/useGbCivicLayers.ts
-  gbRoadFacilities: "M", // 英國道路設施（1,757 點，z5 起） · src/hooks/useGbOsmLayers.ts
-  gbPublicFacilities: "M", // 英國公共設施（41k 點，z<10 熱區、z10 起畫點） · src/hooks/useGbOsmLayers.ts
-  gbPlacesOfWorship: "M", // 英國宗教場所（42k 點，z<10 熱區、z10 起畫點） · src/hooks/useGbOsmLayers.ts
-  gbHealthFacilities: "M", // 英國醫院（z5 起）、GP／藥局（z<10 熱區、z10 起畫點） · src/hooks/useGbCivicLayers.ts
-  gbCareHomes: "M", // 英國照護之家（z<10 熱區、z10 起畫點） · src/hooks/useGbCivicLayers.ts
-  gbCareServices: "M", // 英國長照服務（z<10 熱區、z10 起畫點） · src/hooks/useGbCivicLayers.ts
-  gbFireStations: "M", // 英國消防站（OSM 補缺空心） · src/hooks/useGbCivicLayers.ts
-  gbCourts: "M", // 英國法院與審裁處 · src/hooks/useGbCivicLayers.ts
-  gbCulturalFacilities: "M", // 英國文化設施（OSM 補缺空心） · src/hooks/useGbCultureLayers.ts
-  gbArtsVenues: "M", // 英國藝文場館 · src/hooks/useGbCultureLayers.ts
-  gbVisitorExperience: "M", // 英國觀光體驗（z5 起） · src/hooks/useGbCultureLayers.ts
-  gbSurplusLand: "M", // 英國公有地標售（進度以填色強度區分） · src/hooks/useGbLandLayers.ts
-  gbLandslide: "S", // 英國山崩紀錄（18,699 點，z<10 熱區、z10 起畫點；已複核實心／未複核空心） · src/hooks/useGbHazardLayers.ts
-  gbRadiation: "M", // 英國加馬劑量率固定站（比照台灣環境輻射） · src/hooks/useGbHazardLayers.ts
-  gbEarthquakes: "B", // 半徑＝規模（沿用 jmaQuakes） · 英國地震目錄 · src/hooks/useGbHazardLayers.ts
-  gbTreeProtection: "S", // 英國 TPO 單株（26 萬點，z12 起） · src/hooks/useGbNatureLayers.ts
-  gbLondonJamCams: "S", // 倫敦道路攝影機（比照 cctv S） · src/hooks/useGbTransportLayers.ts
-  gbCompanies: "B", // 半徑＝district 公司家數 5 級（比照 gbStationUsage） · src/hooks/useGbBusinessAgriLayers.ts
-  gbManufacturing: "B", // 半徑＝district 製造業家數 5 級 · src/hooks/useGbBusinessAgriLayers.ts
-  gbFuneral: "M", // 火葬場 M（葬儀社 S，依 kind） · src/hooks/useGbBusinessAgriLayers.ts
-  gbAquaculture: "M", // 蘇格蘭＋北愛養殖場（3,129 點；狀態以外框區分 P-9） · src/hooks/useGbBusinessAgriLayers.ts
-  gbSportsFacilities: "S", // 英國運動場地：點／面切換（V-5），「點」畫代表點（代表點由共用 useGbRepPointLayers 畫） · src/hooks/useGbWaterLayers.ts
-  gbGreenspace: "S", // 英國公園綠地：「點」畫代表點（80,918，z<10 熱區）（代表點由共用 useGbRepPointLayers 畫） · src/hooks/useGbWaterLayers.ts
-  gbGolfCourses: "S", // 英國高爾夫球場：代表點（2,980，「面」模式 z<10 也畫點）（代表點由共用 useGbRepPointLayers 畫） · src/hooks/useGbWaterLayers.ts
-  gbCemeteries: "S", // 英國墓園與宗教場地：預設「點」（30,208，z<10 熱區）（代表點由共用 useGbRepPointLayers 畫） · src/hooks/useGbWaterLayers.ts
-  gbWoodland: "S", // 英國林地：「點」畫代表點（62 萬，z<12 熱區） · src/hooks/useGbNatureLayers.ts
-  gbOpenAccessLand: "S", // 英國開放進入地：「點」畫代表點（48,034） · src/hooks/useGbNatureLayers.ts
-  gbPlanningConstraints: "S", // 英國規劃限制區：預設「點」畫代表點（18,727） · src/hooks/useGbEnvPlanningLayers.ts
-  gbBrownfield: "S", // 英格蘭棕地（30,303 點，z<10 熱區、z10 起畫點；許可進度以填色強度區分） · src/hooks/useGbEnvPlanningLayers.ts
-  gbRecyclingCentres: "M", // 回收中心 M z5 起（回收桶 S，z<10 熱區、z10 起畫點） · src/hooks/useGbEnvPlanningLayers.ts
-  gbWastePermits: "S", // 英國廢棄物處理許可（8,711 點，z5 起） · src/hooks/useGbEnvPlanningLayers.ts
-  gbPollutionInventory: "M", // 蘇格蘭污染排放申報（比照台灣 pollutionFacility） · src/hooks/useGbEnvPlanningLayers.ts
-  gbTrafficCountsAadf: "B", // 半徑＝年平均日交通量 5 級 · src/hooks/useGbTransportLayers.ts
-  jpEvacuationSites: "S", // 避難場所 指定緊急避難場所・指定避難所（199k 點，>100k 比照 busStationsCity） · src/hooks/useJpEvacuationSitesLayer.ts
-  jpPublicOffices: "M", // 役所與公民館 市町村役場・公民館 · src/hooks/useJpPublicOfficesLayer.ts
-  jpWelfareDisability: "M", // 障礙福祉設施 障害者福祉施設（76k 點） · src/hooks/useJpWelfareFacilitiesLayer.ts
-  jpWelfareChild: "M", // 兒童福祉設施 児童福祉施設（79k 點） · src/hooks/useJpWelfareFacilitiesLayer.ts
-  jpExpressways: "M", // 高速道路 IC／JCT · src/hooks/useJpExpresswaysLayer.ts
-  jpBusStops: "S", // 公車站 バス停（278k 點） · src/hooks/useJpBusStopsLayer.ts
-  jpReligionGsi: "M", // 宗教設施 宗教施設（国土地理院） · src/hooks/useJpReligionLayers.ts
-  jpReligionOsm: "M", // 宗教設施 宗教施設（OpenStreetMap） · src/hooks/useJpReligionLayers.ts
-  jpReligionWikidata: "M", // 宗教設施 宗教施設（Wikidata） · src/hooks/useJpReligionLayers.ts
-  jpSchools: "M", // 學校 学校 · src/hooks/useJpSchoolsLayer.ts
-  jpStations: "M", // 車站 駅 · src/hooks/useJpStationsLayer.ts
-  jpAccommodationCanonical: "M", // 旅宿去重總覽 宿泊施設の統合一覧 · src/hooks/useJpTourismLayers.ts
-  jpAccommodationJta: "M", // 觀光廳登錄飯店／旅館 観光庁登録ホテル・旅館 · src/hooks/useJpTourismLayers.ts
-  jpAccommodationLocal: "M", // 地方旅館業許可 地方自治体の旅館業許可 · src/hooks/useJpTourismLayers.ts
-  jpAccommodationOsm: "M", // OpenStreetMap 住宿涵蓋 OpenStreetMap 宿泊施設カバレッジ · src/hooks/useJpTourismLayers.ts
-  jpMarineEbsaCoastal: "M", // 沿岸生態重要海域 沿岸EBSA（2015） · src/hooks/useJpTourismLayers.ts
-  jpNaturalParksNational: "M", // 國立公園 国立公園（A10 2010） · src/hooks/useJpTourismLayers.ts
-  jpNaturalParksPrefectural: "M", // 都道府縣立自然公園 都道府県立自然公園（A10 2010） · src/hooks/useJpTourismLayers.ts
-  jpNaturalParksQuasiNational: "M", // 國定公園 国定公園（A10 2010） · src/hooks/useJpTourismLayers.ts
-  jpNatureConservationArea: "M", // 自然保育地域 自然保全地域（A11 2015） · src/hooks/useJpTourismLayers.ts
-  jpNatureConservationSpecialDistrict: "M", // 自然保育特別地區 自然保全特別地区（A11 2015） · src/hooks/useJpTourismLayers.ts
-  jpPrimitiveNatureEnvironmentArea: "M", // 原生自然環境地域 原生自然環境保全地域（A11 2015） · src/hooks/useJpTourismLayers.ts
-  jpRamsarSites: "M", // 拉姆薩濕地名冊衍生點 ラムサール条約湿地名簿の派生点 · src/hooks/useJpTourismLayers.ts
-  jpWildlifeProtectionNational: "M", // 國家指定鳥獸保護區 国指定鳥獣保護区 · src/hooks/useJpTourismLayers.ts
-  jpWildlifeSpecialProtectionDesignatedArea: "M", // 鳥獸特別保護指定區域 特別保護指定区域 · src/hooks/useJpTourismLayers.ts
-  jpWildlifeSpecialProtectionDistrict: "M", // 鳥獸特別保護地區 鳥獣保護区特別保護地区 · src/hooks/useJpTourismLayers.ts
-  jpWorldHeritageCultural: "M", // UNESCO 文化遺產代表點 UNESCO 文化遺産代表点 · src/hooks/useJpTourismLayers.ts
-  jpWorldHeritageNatural: "M", // UNESCO 自然遺產代表點 UNESCO 自然遺産代表点 · src/hooks/useJpTourismLayers.ts
-  jpWorldNaturalHeritageHistorical: "M", // 世界自然遺產歷史範圍 世界自然遺産の歴史的範囲（A28 2011） · src/hooks/useJpTourismLayers.ts
-  jpWaterAgriculturalPonds: "M", // 農業蓄水池（2026-03） · src/hooks/useJpWaterLayers.ts
-  jpWaterDams: "M", // 水壩 ダム（2014） · src/hooks/useJpWaterLayers.ts
-  jpWaterFloodHazard: "M", // 洪水浸水想定（最大規模） · src/hooks/useJpWaterLayers.ts
-  jpWaterGroundwaterSites: "M", // 地下水等觀測點（24縣） · src/hooks/useJpWaterLayers.ts
-  jpWaterLakes: "M", // 湖沼 湖沼（W09・2005） · src/hooks/useJpWaterLayers.ts
-  jpWaterLevelStations: "M", // 橫濱水位站 横浜市 · src/hooks/useJpWaterLayers.ts
-  jpWaterLocalFacilities: "M", // 高松供排水相關設施 高松市 · src/hooks/useJpWaterLayers.ts
-  jpWaterNilimDams: "M", // NILIM 水壩位置（46縣） · src/hooks/useJpWaterLayers.ts
-  jpWaterQualityStations: "M", // 水質測定地点 水質測定地点（2024） · src/hooks/useJpWaterLayers.ts
-  jpWaterRivers: "M", // 河川流路 河川（2006–2009） · src/hooks/useJpWaterLayers.ts
-  jpWaterSewerFacilities: "M", // 下水道設施（2012） · src/hooks/useJpWaterLayers.ts
-  jpWaterSupplyAreas: "M", // 給水區域 給水区域（2010） · src/hooks/useJpWaterLayers.ts
-  jpWaterSupplyFacilities: "M", // 上水道相關設施（2010） · src/hooks/useJpWaterLayers.ts
+  jpAirports: "M", // 機場 空港 · src/countries/jp/useJpAirportsLayer.ts
+  jpCareCombined: "M", // 複合服務 訪問・通い・宿泊の組合せ · src/countries/jp/useJpMedicalLayers.ts
+  jpCareDayServices: "M", // 日間服務 施設に通う · src/countries/jp/useJpMedicalLayers.ts
+  jpCareEquipment: "M", // 福祉用具 福祉用具 · src/countries/jp/useJpMedicalLayers.ts
+  jpCareHomeVisit: "M", // 到宅服務 自宅に訪問 · src/countries/jp/useJpMedicalLayers.ts
+  jpCarePlanning: "M", // 照護諮詢／計畫 介護の相談・ケアプラン · src/countries/jp/useJpMedicalLayers.ts
+  jpCareResidential: "M", // 住宿／短期入住 施設で生活・宿泊 · src/countries/jp/useJpMedicalLayers.ts
+  jpMedicalAreasPrimary: "M", // 一次醫療圈 一次医療圏 · 2020 · src/countries/jp/useJpMedicalLayers.ts
+  jpMedicalAreasSecondary: "M", // 二次醫療圈 二次医療圏 · 2020 · src/countries/jp/useJpMedicalLayers.ts
+  jpMedicalAreasTertiary: "M", // 三次醫療圈 三次医療圏 · 2020 · src/countries/jp/useJpMedicalLayers.ts
+  jpMedicalClinics: "M", // 診所 診療所 · src/countries/jp/useJpMedicalLayers.ts
+  jpMedicalDental: "M", // 牙科 歯科 · src/countries/jp/useJpMedicalLayers.ts
+  jpMedicalHospitals: "M", // 醫院 病院 · src/countries/jp/useJpMedicalLayers.ts
+  jpMedicalMaternity: "M", // 助產所 助産所 · src/countries/jp/useJpMedicalLayers.ts
+  jpMedicalPharmacies: "M", // 藥局 薬局 · src/countries/jp/useJpMedicalLayers.ts
+  jpPoliceFacilities: "M", // 警察設施 警察施設 · src/countries/jp/useJpPoliceFacilitiesLayer.ts
+  gbHydroStations: "M", // 英國水文測站 Hydrometric Stations · src/countries/gb/useGbWaterLayers.ts
+  gbBathingWaters: "M", // 英國浴場 Bathing Waters · src/countries/gb/useGbWaterLayers.ts
+  gbTransportHubs: "M", // 英國交通樞紐 Transport Hubs（渡輪棧橋 S） · src/countries/gb/useGbTransportLayers.ts
+  gbStationUsage: "B", // 半徑＝年進出站人次 5 級 · src/countries/gb/useGbTransportLayers.ts
+  gbLondonStations: "M", // 倫敦軌道車站 London Rail Stations · src/countries/gb/useGbTransportLayers.ts
+  gbLondonBikePoints: "S", // 倫敦公共自行車（比照 bikeStations S） · src/countries/gb/useGbTransportLayers.ts
+  gbForestRecreation: "M", // 英國森林遊憩設施（指標 z12 起另用 S） · src/countries/gb/useGbNatureLayers.ts
+  krBusStops: "S", // 南韓公車站（22.7 萬點，z12 起單點、之下熱區） · src/countries/kr/useKrTransportLayers.ts
+  krRailStations: "M", // 南韓鐵道車站（依 network 3 色） · src/countries/kr/useKrTransportLayers.ts
+  krAirports: "L", // 南韓機場 · src/countries/kr/useKrTransportLayers.ts
+  krFuelStations: "M", // 南韓燃料／充電站（依 fuel_type 4 色） · src/countries/kr/useKrEnergyLayers.ts
+  krPowerPlants: "B", // 南韓電廠：半徑＝裝置容量 4 級 · src/countries/kr/useKrEnergyLayers.ts
+  krRenewables: "B", // 南韓再生能源點：半徑＝裝置容量 4 級（未標容量用最小級） · src/countries/kr/useKrEnergyLayers.ts
+  krSubstations: "B", // 南韓變電所：半徑＝電壓 5 級 · src/countries/kr/useKrEnergyLayers.ts
+  krPowerTowers: "S", // 南韓高壓鐵塔（z11 起） · src/countries/kr/useKrEnergyLayers.ts
+  caTransitStops: "S", // 加拿大公共運輸站點（13.3 萬點，z12 起單點、之下熱區） · src/countries/ca/useCaTransportLayers.ts
+  caAirportsPorts: "M", // 加拿大機場與港口（次要點 z7 起用 S） · src/countries/ca/useCaTransportLayers.ts
+  caRailways: "M", // 加拿大鐵道車站（z8 起） · src/countries/ca/useCaTransportLayers.ts
+  caPowerPlants: "B", // 加拿大電廠：半徑＝裝置容量 4 級 · src/countries/ca/useCaEnergyLayers.ts
+  caWindTurbines: "S", // 加拿大風機（7,841 點，不畫熱區） · src/countries/ca/useCaEnergyLayers.ts
+  caPowerGrid: "S", // 加拿大變電站（z7 起） · src/countries/ca/useCaEnergyLayers.ts
+  caOilGas: "S", // 加拿大油氣點位（井、設施 z10 起單點、之下熱區；主要設施 M） · src/countries/ca/useCaEnergyLayers.ts
+  caPopulationCentres: "B", // 加拿大人口中心代表點：半徑＝人口級距 · src/countries/ca/useCaEnergyLayers.ts
+  caFederalDistricts: "S", // 加拿大聯邦選區代表點（z<6） · src/countries/ca/useCaAreaLayers.ts
+  caIndigenousLands: "S", // 加拿大原住民土地代表點（z<7 或點模式） · src/countries/ca/useCaAreaLayers.ts
+  caDeprivation: "S", // 加拿大 CIMD DA 代表點（z<6，5.6 萬點依五分位上色、隨縮放 1.2–2.6px） · src/countries/ca/useCaAreaLayers.ts
+  caRents: "M", // 加拿大租金 CMA／CA 代表點（z<6） · src/countries/ca/useCaAreaLayers.ts
+  caPlaceNames: "S", // 加拿大地名點（依 relevance_scale 逐級出現） · src/countries/ca/useCaTerrainLayers.ts
+  caClimateStations: "S", // 加拿大氣象站（8,435 點，不畫熱區） · src/countries/ca/useCaEnvLayers.ts
+  caAqhiStations: "M", // 加拿大 AQHI 地點（134 點） · src/countries/ca/useCaEnvLayers.ts
+  caRadiationStations: "M", // 加拿大輻射監測站（46 點） · src/countries/ca/useCaEnvLayers.ts
+  caNpriFacilities: "S", // 加拿大 NPRI 申報設施（2.5 萬點，z10 起單點、之下熱區） · src/countries/ca/useCaEnvLayers.ts
+  caWastewaterSystems: "B", // 加拿大污水系統：半徑＝日均放流量級距 · src/countries/ca/useCaEnvLayers.ts
+  phOpenaqAir: "M", // 菲律賓空品（OpenAQ）：低價感測器 M、官方監測站 L＋白框 · src/countries/ph/usePhOpenaqAirLayer.ts
+  caEarthquakesLive: "B", // 加拿大即時地震：半徑＝規模（同 caEarthquakes） · src/countries/ca/useCaLiveEarthquakesLayer.ts
+  caEarthquakes: "B", // 加拿大地震：半徑＝規模（同 JMA／英國地震） · src/countries/ca/useCaEnvLayers.ts
+  gbPowerPlants: "B", // 英國電廠：半徑＝裝置容量 4 級 · src/countries/gb/useGbEnergyLayers.ts
+  gbRenewables: "B", // 英國再生能源專案：半徑＝裝置容量 4 級、z5 起（P-4 例外不畫熱區；施工中黃框） · src/countries/gb/useGbEnergyLayers.ts
+  gbFuelStations: "M", // 英國加油站 · src/countries/gb/useGbEnergyLayers.ts
+  gbSubstations: "B", // 英國變電所：半徑＝電壓 5 級（59k 點，z5 起、z4–9 只有 ≥132kV） · src/countries/gb/useGbEnergyLayers.ts
+  gbSchools: "M", // 英國學校（30k 點，z<10 熱區、z10 起畫點） · src/countries/gb/useGbCivicLayers.ts
+  gbRoadFacilities: "M", // 英國道路設施（1,757 點，z5 起） · src/countries/gb/useGbOsmLayers.ts
+  gbPublicFacilities: "M", // 英國公共設施（41k 點，z<10 熱區、z10 起畫點） · src/countries/gb/useGbOsmLayers.ts
+  gbPlacesOfWorship: "M", // 英國宗教場所（42k 點，z<10 熱區、z10 起畫點） · src/countries/gb/useGbOsmLayers.ts
+  gbHealthFacilities: "M", // 英國醫院（z5 起）、GP／藥局（z<10 熱區、z10 起畫點） · src/countries/gb/useGbCivicLayers.ts
+  gbCareHomes: "M", // 英國照護之家（z<10 熱區、z10 起畫點） · src/countries/gb/useGbCivicLayers.ts
+  gbCareServices: "M", // 英國長照服務（z<10 熱區、z10 起畫點） · src/countries/gb/useGbCivicLayers.ts
+  gbFireStations: "M", // 英國消防站（OSM 補缺空心） · src/countries/gb/useGbCivicLayers.ts
+  gbCourts: "M", // 英國法院與審裁處 · src/countries/gb/useGbCivicLayers.ts
+  gbCulturalFacilities: "M", // 英國文化設施（OSM 補缺空心） · src/countries/gb/useGbCultureLayers.ts
+  gbArtsVenues: "M", // 英國藝文場館 · src/countries/gb/useGbCultureLayers.ts
+  gbVisitorExperience: "M", // 英國觀光體驗（z5 起） · src/countries/gb/useGbCultureLayers.ts
+  gbSurplusLand: "M", // 英國公有地標售（進度以填色強度區分） · src/countries/gb/useGbLandLayers.ts
+  gbLandslide: "S", // 英國山崩紀錄（18,699 點，z<10 熱區、z10 起畫點；已複核實心／未複核空心） · src/countries/gb/useGbHazardLayers.ts
+  gbRadiation: "M", // 英國加馬劑量率固定站（比照台灣環境輻射） · src/countries/gb/useGbHazardLayers.ts
+  gbEarthquakes: "B", // 半徑＝規模（沿用 jmaQuakes） · 英國地震目錄 · src/countries/gb/useGbHazardLayers.ts
+  gbTreeProtection: "S", // 英國 TPO 單株（26 萬點，z12 起） · src/countries/gb/useGbNatureLayers.ts
+  gbLondonJamCams: "S", // 倫敦道路攝影機（比照 cctv S） · src/countries/gb/useGbTransportLayers.ts
+  gbCompanies: "B", // 半徑＝district 公司家數 5 級（比照 gbStationUsage） · src/countries/gb/useGbBusinessAgriLayers.ts
+  gbManufacturing: "B", // 半徑＝district 製造業家數 5 級 · src/countries/gb/useGbBusinessAgriLayers.ts
+  gbFuneral: "M", // 火葬場 M（葬儀社 S，依 kind） · src/countries/gb/useGbBusinessAgriLayers.ts
+  gbAquaculture: "M", // 蘇格蘭＋北愛養殖場（3,129 點；狀態以外框區分 P-9） · src/countries/gb/useGbBusinessAgriLayers.ts
+  gbSportsFacilities: "S", // 英國運動場地：點／面切換（V-5），「點」畫代表點（代表點由共用 useGbRepPointLayers 畫） · src/countries/gb/useGbWaterLayers.ts
+  gbGreenspace: "S", // 英國公園綠地：「點」畫代表點（80,918，z<10 熱區）（代表點由共用 useGbRepPointLayers 畫） · src/countries/gb/useGbWaterLayers.ts
+  gbGolfCourses: "S", // 英國高爾夫球場：代表點（2,980，「面」模式 z<10 也畫點）（代表點由共用 useGbRepPointLayers 畫） · src/countries/gb/useGbWaterLayers.ts
+  gbCemeteries: "S", // 英國墓園與宗教場地：預設「點」（30,208，z<10 熱區）（代表點由共用 useGbRepPointLayers 畫） · src/countries/gb/useGbWaterLayers.ts
+  gbWoodland: "S", // 英國林地：「點」畫代表點（62 萬，z<12 熱區） · src/countries/gb/useGbNatureLayers.ts
+  gbOpenAccessLand: "S", // 英國開放進入地：「點」畫代表點（48,034） · src/countries/gb/useGbNatureLayers.ts
+  gbPlanningConstraints: "S", // 英國規劃限制區：預設「點」畫代表點（18,727） · src/countries/gb/useGbEnvPlanningLayers.ts
+  gbBrownfield: "S", // 英格蘭棕地（30,303 點，z<10 熱區、z10 起畫點；許可進度以填色強度區分） · src/countries/gb/useGbEnvPlanningLayers.ts
+  gbRecyclingCentres: "M", // 回收中心 M z5 起（回收桶 S，z<10 熱區、z10 起畫點） · src/countries/gb/useGbEnvPlanningLayers.ts
+  gbWastePermits: "S", // 英國廢棄物處理許可（8,711 點，z5 起） · src/countries/gb/useGbEnvPlanningLayers.ts
+  gbPollutionInventory: "M", // 蘇格蘭污染排放申報（比照台灣 pollutionFacility） · src/countries/gb/useGbEnvPlanningLayers.ts
+  gbTrafficCountsAadf: "B", // 半徑＝年平均日交通量 5 級 · src/countries/gb/useGbTransportLayers.ts
+  jpEvacuationSites: "S", // 避難場所 指定緊急避難場所・指定避難所（199k 點，>100k 比照 busStationsCity） · src/countries/jp/useJpEvacuationSitesLayer.ts
+  jpPublicOffices: "M", // 役所與公民館 市町村役場・公民館 · src/countries/jp/useJpPublicOfficesLayer.ts
+  jpWelfareDisability: "M", // 障礙福祉設施 障害者福祉施設（76k 點） · src/countries/jp/useJpWelfareFacilitiesLayer.ts
+  jpWelfareChild: "M", // 兒童福祉設施 児童福祉施設（79k 點） · src/countries/jp/useJpWelfareFacilitiesLayer.ts
+  jpExpressways: "M", // 高速道路 IC／JCT · src/countries/jp/useJpExpresswaysLayer.ts
+  jpBusStops: "S", // 公車站 バス停（278k 點） · src/countries/jp/useJpBusStopsLayer.ts
+  jpReligionGsi: "M", // 宗教設施 宗教施設（国土地理院） · src/countries/jp/useJpReligionLayers.ts
+  jpReligionOsm: "M", // 宗教設施 宗教施設（OpenStreetMap） · src/countries/jp/useJpReligionLayers.ts
+  jpReligionWikidata: "M", // 宗教設施 宗教施設（Wikidata） · src/countries/jp/useJpReligionLayers.ts
+  jpSchools: "M", // 學校 学校 · src/countries/jp/useJpSchoolsLayer.ts
+  jpStations: "M", // 車站 駅 · src/countries/jp/useJpStationsLayer.ts
+  jpAccommodationCanonical: "M", // 旅宿去重總覽 宿泊施設の統合一覧 · src/countries/jp/useJpTourismLayers.ts
+  jpAccommodationJta: "M", // 觀光廳登錄飯店／旅館 観光庁登録ホテル・旅館 · src/countries/jp/useJpTourismLayers.ts
+  jpAccommodationLocal: "M", // 地方旅館業許可 地方自治体の旅館業許可 · src/countries/jp/useJpTourismLayers.ts
+  jpAccommodationOsm: "M", // OpenStreetMap 住宿涵蓋 OpenStreetMap 宿泊施設カバレッジ · src/countries/jp/useJpTourismLayers.ts
+  jpMarineEbsaCoastal: "M", // 沿岸生態重要海域 沿岸EBSA（2015） · src/countries/jp/useJpTourismLayers.ts
+  jpNaturalParksNational: "M", // 國立公園 国立公園（A10 2010） · src/countries/jp/useJpTourismLayers.ts
+  jpNaturalParksPrefectural: "M", // 都道府縣立自然公園 都道府県立自然公園（A10 2010） · src/countries/jp/useJpTourismLayers.ts
+  jpNaturalParksQuasiNational: "M", // 國定公園 国定公園（A10 2010） · src/countries/jp/useJpTourismLayers.ts
+  jpNatureConservationArea: "M", // 自然保育地域 自然保全地域（A11 2015） · src/countries/jp/useJpTourismLayers.ts
+  jpNatureConservationSpecialDistrict: "M", // 自然保育特別地區 自然保全特別地区（A11 2015） · src/countries/jp/useJpTourismLayers.ts
+  jpPrimitiveNatureEnvironmentArea: "M", // 原生自然環境地域 原生自然環境保全地域（A11 2015） · src/countries/jp/useJpTourismLayers.ts
+  jpRamsarSites: "M", // 拉姆薩濕地名冊衍生點 ラムサール条約湿地名簿の派生点 · src/countries/jp/useJpTourismLayers.ts
+  jpWildlifeProtectionNational: "M", // 國家指定鳥獸保護區 国指定鳥獣保護区 · src/countries/jp/useJpTourismLayers.ts
+  jpWildlifeSpecialProtectionDesignatedArea: "M", // 鳥獸特別保護指定區域 特別保護指定区域 · src/countries/jp/useJpTourismLayers.ts
+  jpWildlifeSpecialProtectionDistrict: "M", // 鳥獸特別保護地區 鳥獣保護区特別保護地区 · src/countries/jp/useJpTourismLayers.ts
+  jpWorldHeritageCultural: "M", // UNESCO 文化遺產代表點 UNESCO 文化遺産代表点 · src/countries/jp/useJpTourismLayers.ts
+  jpWorldHeritageNatural: "M", // UNESCO 自然遺產代表點 UNESCO 自然遺産代表点 · src/countries/jp/useJpTourismLayers.ts
+  jpWorldNaturalHeritageHistorical: "M", // 世界自然遺產歷史範圍 世界自然遺産の歴史的範囲（A28 2011） · src/countries/jp/useJpTourismLayers.ts
+  jpWaterAgriculturalPonds: "M", // 農業蓄水池（2026-03） · src/countries/jp/useJpWaterLayers.ts
+  jpWaterDams: "M", // 水壩 ダム（2014） · src/countries/jp/useJpWaterLayers.ts
+  jpWaterFloodHazard: "M", // 洪水浸水想定（最大規模） · src/countries/jp/useJpWaterLayers.ts
+  jpWaterGroundwaterSites: "M", // 地下水等觀測點（24縣） · src/countries/jp/useJpWaterLayers.ts
+  jpWaterLakes: "M", // 湖沼 湖沼（W09・2005） · src/countries/jp/useJpWaterLayers.ts
+  jpWaterLevelStations: "M", // 橫濱水位站 横浜市 · src/countries/jp/useJpWaterLayers.ts
+  jpWaterLocalFacilities: "M", // 高松供排水相關設施 高松市 · src/countries/jp/useJpWaterLayers.ts
+  jpWaterNilimDams: "M", // NILIM 水壩位置（46縣） · src/countries/jp/useJpWaterLayers.ts
+  jpWaterQualityStations: "M", // 水質測定地点 水質測定地点（2024） · src/countries/jp/useJpWaterLayers.ts
+  jpWaterRivers: "M", // 河川流路 河川（2006–2009） · src/countries/jp/useJpWaterLayers.ts
+  jpWaterSewerFacilities: "M", // 下水道設施（2012） · src/countries/jp/useJpWaterLayers.ts
+  jpWaterSupplyAreas: "M", // 給水區域 給水区域（2010） · src/countries/jp/useJpWaterLayers.ts
+  jpWaterSupplyFacilities: "M", // 上水道相關設施（2010） · src/countries/jp/useJpWaterLayers.ts
   marineObservationCwa: "M", // CWA 海洋觀測站 CWA Marine · src/hooks/useMarineObservationLayer.ts
   marineObservationIsohe: "M", // ISOHE 港區海氣象 ISOHE Port · src/hooks/useMarineObservationLayer.ts
   aqiMicroSensors: "B", // LASS 微型感測 Micro Sensor · src/hooks/useMicroSensorsLayer.ts

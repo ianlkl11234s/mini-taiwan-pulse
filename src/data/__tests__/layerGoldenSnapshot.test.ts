@@ -45,6 +45,10 @@ import {
 import { GOLDEN_DIR, baseId, goldenDirExists, readGoldenDir, assembleFixture } from "./layerGoldenFiles";
 import { MIGRATED_PARAMS_KEYS } from "../layerParamsSpec";
 import { PENALTY_YEAR_MAX } from "../pollutionTypes";
+import { loadAllPacks } from "../../countries/packs";
+
+// 全部圖層（含延後載入的國家包，B1 P5a）一起驗
+await loadAllPacks();
 
 const REGEN = "npx vite-node scripts/preprocess/dump-layer-golden.ts";
 

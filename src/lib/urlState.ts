@@ -291,6 +291,14 @@ function parseCompareCamera(raw: string | null): UrlCamera | undefined {
   };
 }
 
+/**
+ * 統計期別／細項走單地圖 `sel`（true）還是拉桿比較的 `cmpdl`／`cmpdr`（false）。
+ * 兩國並排的統計資料只由左圖擁有，沒有 cmpdl，所以和沒比較一樣用 `sel`（review PR #1212 r4676209967）。
+ */
+export function usesSingleMapSelection(compare: Pick<UrlCompareState, "mode"> | undefined | null): boolean {
+  return !compare || compare.mode === "countries";
+}
+
 /** 兩國並排（`cmp=2`）：右側國家必須是外國；國家不合法＝仍開並排，由主站挑預設的右側國家 */
 function parseCountriesCompare(q: URLSearchParams): UrlCompareState {
   const compare: UrlCompareState = { mode: "countries" };

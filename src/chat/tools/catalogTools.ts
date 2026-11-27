@@ -8,6 +8,7 @@ import { THEMES } from "../../components/sidebar/layerCatalog";
 import { searchLayers } from "../../lib/layerSearch";
 import { capToolResult } from "./truncate";
 import { callWhitelistedRpc } from "./rpcTools";
+import { loadAllPacks } from "../../countries/packs";
 
 interface LayerRef {
   key: string;
@@ -117,7 +118,8 @@ export function catalogTools(bridge: MapBridge) {
       inputSchema: z.object({
         query: z.string().describe("關鍵字，例如「消防」「flood」「bus」"),
       }),
-      execute: ({ query }) => {
+      execute: async ({ query }) => {
+        await loadAllPacks().catch(() => undefined); // 搜尋涵蓋全部國家（B1 P5a）
         const hits = searchLayers(query, { limit: 50 });
         const results = hits.slice(0, 10);
         const visible = new Set(bridge.getVisibleLayerKeys());

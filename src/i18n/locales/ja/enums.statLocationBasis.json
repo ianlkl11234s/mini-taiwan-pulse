@@ -100,5 +100,9 @@
   "enum.statLocationBasis.申報／戶籍村里：112年綜所稅申報戶所得；界線為同一份 SEGIS 112 年村里統計檔自帶的原生界線（排除未編定），來源缺值村里不補零。": "申告／戸籍の村里：令和 5 年（2023 年）の総合所得税申告世帯所得。境界は同じ SEGIS 2023 年村里統計ファイルに付属する元の境界（未編定を除く）。出典に値がない村里は 0 で補完しない。",
   "enum.statLocationBasis.實際工作場所縣市：本國籍全時受僱員工的實際工作所在地；非居住地、戶籍、稅務或投保地。金門、連江未涵蓋。": "実際の勤務地の県市：自国籍のフルタイム被雇用者の実際の勤務地。居住地・戸籍地・納税地・保険加入地ではない。金門・連江は対象外。",
   "enum.statLocationBasis.居住地：人力資源調查的居住地統計；來源無 native geometry，COUNTY_MOI_1140318 為 reference boundary；金門、連江未涵蓋。": "居住地：労働力調査の居住地別統計。出典に元のジオメトリがないため、内政部の県市境界（2025 年 3 月 18 日版）を参照境界として使用。金門・連江は対象外。",
-  "enum.statLocationBasis.居住地：人力資源調查居住地統計；manufacturing 是 industry 子集，四個 industry dimensions 只能 exact selector 選取；金門、連江未涵蓋。": "居住地：労働力調査の居住地別統計。製造業は産業の部分集合で、4 つの産業区分は完全一致でのみ選択可能。金門・連江は対象外。"
+  "enum.statLocationBasis.居住地：人力資源調查居住地統計；manufacturing 是 industry 子集，四個 industry dimensions 只能 exact selector 選取；金門、連江未涵蓋。": "居住地：労働力調査の居住地別統計。製造業は産業の部分集合で、4 つの産業区分は完全一致でのみ選択可能。金門・連江は対象外。",
+  "enum.statLocationBasis.公司登記營業地址 geocode 後所在的村里（不是營運地點）": "登録営業所住所のジオコード後の所在村里（実際の営業地ではない）",
+  "enum.statLocationBasis.公司登記營業地址 geocode 後所在的鄉鎮市區（不是營運地點）": "登録営業所住所のジオコード後の所在郷鎮市区（実際の営業地ではない）",
+  "enum.statLocationBasis.房屋座落地址 geocode 後所在的村里": "物件所在地住所のジオコード後の所在村里",
+  "enum.statLocationBasis.房屋座落地址 geocode 後所在的鄉鎮市區": "物件所在地住所のジオコード後の所在郷鎮市区"
 }

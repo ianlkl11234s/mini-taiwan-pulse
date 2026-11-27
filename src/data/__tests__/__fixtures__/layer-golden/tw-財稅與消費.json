@@ -1,5 +1,5 @@
 {
-  "count": 50,
+  "count": 56,
   "gisLayers": {},
   "overlays": {},
   "params": {
@@ -2176,6 +2176,126 @@
         "valueText": "0.55"
       }
     ],
+    "statsTownshipCompanyCount": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "村里",
+            "value": "statsVillageCompanyCount"
+          },
+          {
+            "label": "鄉鎮市區",
+            "value": "statsTownshipCompanyCount"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsTownshipCompanyCount"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsTownshipCompanyPer1000": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "村里",
+            "value": "statsVillageCompanyPer1000"
+          },
+          {
+            "label": "鄉鎮市區",
+            "value": "statsTownshipCompanyPer1000"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsTownshipCompanyPer1000"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsTownshipCompanySpecialty": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "村里",
+            "value": "statsVillageCompanySpecialty"
+          },
+          {
+            "label": "鄉鎮市區",
+            "value": "statsTownshipCompanySpecialty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsTownshipCompanySpecialty"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
     "statsVatDeclarers": [
       {
         "label": "指標",
@@ -2327,6 +2447,126 @@
         ],
         "type": "select",
         "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsVillageCompanyCount": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "村里",
+            "value": "statsVillageCompanyCount"
+          },
+          {
+            "label": "鄉鎮市區",
+            "value": "statsTownshipCompanyCount"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsVillageCompanyCount"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsVillageCompanyPer1000": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "村里",
+            "value": "statsVillageCompanyPer1000"
+          },
+          {
+            "label": "鄉鎮市區",
+            "value": "statsTownshipCompanyPer1000"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsVillageCompanyPer1000"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsVillageCompanySpecialty": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "村里",
+            "value": "statsVillageCompanySpecialty"
+          },
+          {
+            "label": "鄉鎮市區",
+            "value": "statsTownshipCompanySpecialty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsVillageCompanySpecialty"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
       },
       {
         "label": "透明度 0.55",

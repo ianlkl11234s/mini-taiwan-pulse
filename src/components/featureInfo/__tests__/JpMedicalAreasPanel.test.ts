@@ -1,7 +1,7 @@
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import { JpMedicalAreasPanel } from "../jpMedicalPanels";
+import { JpMedicalAreasPanel } from "../../../countries/jp/jpMedicalPanels";
 
 const render = (props: Record<string, unknown>) => renderToStaticMarkup(createElement(JpMedicalAreasPanel, { props }));
 

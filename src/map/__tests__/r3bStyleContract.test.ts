@@ -2,6 +2,10 @@ import { describe, expect, it } from "vitest";
 import { LAYER_PARAMS_SPEC } from "../../data/layerParamsSpec";
 import { EXTRUSION, RASTER } from "../mapStyleScale";
 import { OVERLAY_REGISTRY } from "../overlayRegistry";
+import { loadAllPacks } from "../../countries/packs";
+
+// 全部圖層（含延後載入的國家包，B1 P5）一起驗
+await loadAllPacks();
 
 type Param = { name?: string; default?: unknown; min?: unknown; max?: unknown };
 type Paint = Record<string, unknown>;

@@ -19,6 +19,10 @@ import { describe, it, expect } from "vitest";
 import { validate } from "mapbox-gl/dist/style-spec/index.cjs";
 import { OVERLAY_REGISTRY } from "../overlayRegistry";
 import type { OverlayConfig, OverlayLayerSpec } from "../../types";
+import { loadAllPacks } from "../../countries/packs";
+
+// 全部圖層（含延後載入的國家包，B1 P5）一起驗
+await loadAllPacks();
 
 /** 依 config 決定 source 型別：PMTiles → vector（raster PMTiles 無 sourceLayer → raster） */
 function sourceFor(config: OverlayConfig, specType: string): Record<string, unknown> {

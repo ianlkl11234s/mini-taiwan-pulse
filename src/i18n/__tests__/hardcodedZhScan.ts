@@ -51,7 +51,7 @@ export const I18N_AREAS: I18nArea[] = [
       "src/components/featureInfo/environmentLayerPanels.tsx", "src/components/featureInfo/eventPanels.tsx", "src/components/featureInfo/featureTheme.tsx", "src/components/featureInfo/firePanels.tsx",
       "src/components/featureInfo/fisheryPanels.tsx", "src/components/featureInfo/forestryPanels.tsx", "src/components/featureInfo/funeralPanels.tsx", "src/components/featureInfo/globalClimatePanels.tsx",
       "src/components/featureInfo/h3MetricPanels.tsx", "src/components/featureInfo/harmReductionPanels.tsx", "src/components/featureInfo/hazardPanels.tsx", "src/components/featureInfo/historicalFlightPanels.tsx",
-      "src/components/featureInfo/infraPanels.tsx", "src/components/featureInfo/japanPanels.tsx", "src/components/featureInfo/jmaPanels.tsx", "src/components/featureInfo/jpMedicalPanels.tsx",
+      "src/components/featureInfo/infraPanels.tsx", "src/countries/jp/japanPanels.tsx", "src/countries/jp/jmaPanels.tsx", "src/countries/jp/jpMedicalPanels.tsx",
       "src/components/featureInfo/landslidePanels.tsx", "src/components/featureInfo/livestockPanels.tsx", "src/components/featureInfo/marinePanels.tsx", "src/components/featureInfo/medicalPanels.tsx",
       "src/components/featureInfo/networkStructuresPanels.tsx", "src/components/featureInfo/noisePanels.tsx", "src/components/featureInfo/parkingPanels.tsx", "src/components/featureInfo/policeJusticePanels.tsx",
       "src/components/featureInfo/pollutionPanels.tsx", "src/components/featureInfo/publicLifePanels.tsx", "src/components/featureInfo/regionalStatisticsPanel.tsx", "src/components/featureInfo/religionPanels.tsx",
@@ -59,7 +59,7 @@ export const I18N_AREAS: I18nArea[] = [
       "src/components/featureInfo/sportsPanels.tsx", "src/components/featureInfo/taipeiWicPanels.tsx", "src/components/featureInfo/tourismPanels.tsx", "src/components/featureInfo/transportPanels.tsx",
       "src/components/featureInfo/urbanPanels.tsx", "src/components/featureInfo/wastePanels.tsx", "src/components/featureInfo/waterPanels.tsx", "src/components/featureInfo/welfarePanels.tsx",
       // develop 新增（日本氣象防災時間軸點位），已用 t() 寫成
-      "src/components/featureInfo/jmaPointPanels.tsx", "src/components/legend/jmaPointLegends.tsx",
+      "src/countries/jp/jmaPointPanels.tsx", "src/countries/jp/jmaPointLegends.tsx",
       // P4 AI 介面（只有畫面文字；系統提示、工具說明、資料集描述給 AI 讀，留在報告區）
       "src/card/AnalysisCard.tsx", "src/card/CardApp.tsx", "src/components/chat/ChatPanel.tsx", "src/components/chat/KeySettings.tsx",
       "src/research/AgentTokenSection.tsx", "src/research/AnalysisCardDraftSection.tsx", "src/research/AnalysisLegendSection.tsx", "src/research/MainMapConnection.tsx",
@@ -92,7 +92,7 @@ export const I18N_AREAS: I18nArea[] = [
       // P2 圖例與設定面板（layerParamsSpec.ts 是控件標籤中文正本，留在報告區）。剩下的中文是註解、英文小字旁的中文正本與 enumLabel 對照表。
       "src/components/LegendPanel.tsx", "src/components/legend/agriIndustryLegends.tsx", "src/components/legend/civicServiceLegends.tsx", "src/components/legend/cultureLegends.tsx",
       "src/components/legend/energyTelecomLegends.tsx", "src/components/legend/environmentLegends.tsx", "src/components/legend/environmentWeatherLegends.tsx", "src/components/legend/harmReductionLegends.tsx",
-      "src/components/legend/hazardLegends.tsx", "src/components/legend/jmaLegends.tsx", "src/components/legend/landslideLegends.tsx", "src/components/legend/legendKit.tsx",
+      "src/components/legend/hazardLegends.tsx", "src/countries/jp/jmaLegends.tsx", "src/components/legend/landslideLegends.tsx", "src/components/legend/legendKit.tsx",
       "src/components/legend/legendShared.tsx", "src/components/legend/maritimeLegends.tsx", "src/components/legend/railRoutesLegend.tsx", "src/components/legend/transportLegends.tsx",
       "src/components/legend/urbanFormLegends.tsx", "src/components/legend/waterLegends.tsx", "src/state/layerParamsControls.ts", "src/components/sidebar/ExpandedControls.tsx",
       "src/components/sidebar/LayerParamControls.tsx", "src/components/sidebar/PaletteControl.tsx", "src/components/sidebar/StatisticsModeControl.tsx", "src/components/sidebar/MedicalStatisticsGroupControls.tsx",

@@ -1,5 +1,5 @@
 {
-  "count": 61,
+  "count": 63,
   "gisLayers": {
     "airport": {
       "layers": [
@@ -160,6 +160,19 @@
         "freeway-interchanges-glow"
       ],
       "type": "freewayInterchanges"
+    },
+    "freewayRoadsideDevices": {
+      "layers": [
+        "freeway-roadside-devices-circle",
+        "freeway-roadside-devices-glow"
+      ],
+      "type": "freewayRoadsideDevices"
+    },
+    "freewaySpecialSections": {
+      "layers": [
+        "freeway-special-sections-line"
+      ],
+      "type": "freewaySpecialSections"
     },
     "freewayTrafficSigns": {
       "layers": [
@@ -2931,6 +2944,314 @@
       ],
       "sourceId": "freeway-interchanges",
       "sourceUrl": "./geo/freeway_interchanges.geojson"
+    },
+    "freewayRoadsideDevices": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "freewayRoadsideDevices",
+      "layers": [
+        {
+          "filter": [
+            "in",
+            [
+              "get",
+              "kind"
+            ],
+            [
+              "literal",
+              [
+                "cms"
+              ]
+            ]
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "kind"
+                ],
+                "cms",
+                "#38bdf8",
+                "vd",
+                "#a3e635",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.9,
+                5,
+                2.7,
+                12,
+                9
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "kind"
+                ],
+                "cms",
+                "#38bdf8",
+                "vd",
+                "#a3e635",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.9,
+                5,
+                2.7,
+                12,
+                9
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "in",
+            [
+              "get",
+              "kind"
+            ],
+            [
+              "literal",
+              [
+                "cms"
+              ]
+            ]
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "kind"
+                ],
+                "cms",
+                "#38bdf8",
+                "vd",
+                "#a3e635",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.7,
+                5,
+                1.5,
+                12,
+                5
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "kind"
+                ],
+                "cms",
+                "#38bdf8",
+                "vd",
+                "#a3e635",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.7,
+                5,
+                1.5,
+                12,
+                5
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 5,
+        "sourceLayer": "freeway_roadside_devices"
+      },
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
+      "sourceId": "freeway-roadside-devices",
+      "sourceUrl": "./geo/freeway_roadside_devices_20261124.pmtiles"
+    },
+    "freewaySpecialSections": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "freewaySpecialSections",
+      "layers": [
+        {
+          "filter": [
+            "has",
+            "kind"
+          ],
+          "layout": {
+            "line-cap": "round",
+            "line-join": "round"
+          },
+          "minzoom": 5,
+          "paint": {
+            "dark": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "kind"
+                ],
+                "tunnel",
+                "#c084fc",
+                "open_shoulder",
+                "#f59e0b",
+                "climbing_lane",
+                "#22d3ee",
+                "#94a3b8"
+              ],
+              "line-opacity": 0.9,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                10,
+                2,
+                14,
+                3.5
+              ]
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "kind"
+                ],
+                "tunnel",
+                "#c084fc",
+                "open_shoulder",
+                "#f59e0b",
+                "climbing_lane",
+                "#22d3ee",
+                "#94a3b8"
+              ],
+              "line-opacity": 0.9,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                10,
+                2,
+                14,
+                3.5
+              ]
+            }
+          },
+          "suffix": "line",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 5,
+        "sourceLayer": "freeway_special_sections"
+      },
+      "rebuildOnParamChange": [
+        "line"
+      ],
+      "sourceId": "freeway-special-sections",
+      "sourceUrl": "./geo/freeway_special_sections_20261124.pmtiles"
     },
     "freewayTrafficSigns": {
       "dynamicData": null,
@@ -9510,6 +9831,86 @@
         "step": 0.05,
         "value": 0.85,
         "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "freewayRoadsideDevices": [
+      {
+        "label": "設備種類",
+        "options": [
+          {
+            "label": "資訊可變標誌（CMS）",
+            "value": "cms"
+          },
+          {
+            "label": "車輛偵測器（VD）",
+            "value": "vd"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "cms"
+        ]
+      },
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "freewaySpecialSections": [
+      {
+        "label": "路段種類",
+        "options": [
+          {
+            "label": "隧道",
+            "value": "tunnel"
+          },
+          {
+            "label": "開放路肩",
+            "value": "open_shoulder"
+          },
+          {
+            "label": "爬坡道",
+            "value": "climbing_lane"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "tunnel",
+          "open_shoulder",
+          "climbing_lane"
+        ]
+      },
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
       },
       {
         "label": "大小 1.0",

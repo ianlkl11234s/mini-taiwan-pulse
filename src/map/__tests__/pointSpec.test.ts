@@ -5,6 +5,10 @@ import { POINT_TIERS } from "../pointTiers";
 import { POINT_RADIUS, POINT_STROKE, pointStrokeColor } from "../mapStyleScale";
 import { getParamsSpec } from "../../data/layerParamsSpec";
 import type { OverlayConfig } from "../../types";
+import { loadAllPacks } from "../../countries/packs";
+
+// 全部圖層（含延後載入的國家包，B1 P5）一起驗
+await loadAllPacks();
 
 const exempt = (c: OverlayConfig, suffix: string) => POINT_SPEC_EXEMPT[c.id]?.test(suffix) ?? false;
 const mainCircles = (c: OverlayConfig) => c.layers.filter((l) => l.type === "circle" && !DECORATION_SUFFIX_RE.test(l.suffix) && !exempt(c, l.suffix));

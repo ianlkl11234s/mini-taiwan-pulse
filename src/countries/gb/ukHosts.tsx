@@ -1,0 +1,515 @@
+// 英國 Layer Host（2026-10-29 第 0b 波起）。clone hosts/japanHosts.tsx 的 JpAdminHost 慣例。
+
+import { useGbAdminLayers } from "./useGbAdminLayers";
+import { useGbMaritimeLimitsLayer } from "./useGbMaritimeLimitsLayer";
+import { useGbRailReplayLayer } from "./useGbRailReplayLayer";
+import { useGbOpenSpaceLayers } from "./useGbOpenSpaceLayers";
+import { gbDisplayModeFromIdx, useGbBathingWatersLayer, useGbCoastalErosionLayer, useGbFloodDefencesLayer, useGbHydroStationsLayer, useGbRiversLayer } from "./useGbWaterLayers";
+import { useGbLondonBikePointsLayer, useGbLondonChargingZonesLayer, useGbLondonJamCamsLayer, useGbLondonRailLinesLayer, useGbLondonStationsLayer, useGbMajorRoadsLayer, useGbStationUsageLayer, useGbTrafficCountsAadfLayer, useGbTransportHubsLayer } from "./useGbTransportLayers";
+import { useGbArtsVenuesLayer, useGbCulturalFacilitiesLayer, useGbVisitorExperienceLayer } from "./useGbCultureLayers";
+import { useGbSurplusLandLayer, useGbTerrainLayer } from "./useGbLandLayers";
+import { useGbAquacultureLayer, useGbCompaniesLayer, useGbFuneralLayer, useGbManufacturingLayer, useGbSoilParentMaterialLayer } from "./useGbBusinessAgriLayers";
+import { useGbBrownfieldLayer, useGbNoiseLayer, useGbPlanningConstraintsLayer, useGbPollutionInventoryLayer, useGbRecyclingCentresLayer, useGbWastePermitsLayer } from "./useGbEnvPlanningLayers";
+import { useGbEarthquakesLayer, useGbGroundStabilityLayer, useGbLandslideLayer, useGbRadiationLayer, useGbRadonLayer } from "./useGbHazardLayers";
+import { useGbCareHomesLayer, useGbCareServicesLayer, useGbCourtsLayer, useGbFireStationsLayer, useGbHealthFacilitiesLayer, useGbSchoolsLayer } from "./useGbCivicLayers";
+import { useGbFuelStationsLayer, useGbOilGasFieldsLayer, useGbPowerLinesLayer, useGbPowerPlantsLayer, useGbRenewablesLayer, useGbSubstationsLayer } from "./useGbEnergyLayers";
+import { useGbForestRecreationLayer, useGbMarineProtectedAreasLayer, useGbOpenAccessLandLayer, useGbProtectedAreasLayer, useGbTrailsLayer, useGbTreeProtectionLayer, useGbWoodlandLayer } from "./useGbNatureLayers";
+import { useGbEaPollutionInventoryLayer } from "./useGbEaPollutionInventoryLayer";
+import { useGbBridgesTunnelsLayer, useGbPlacesOfWorshipLayer, useGbPublicFacilitiesLayer, useGbRoadFacilitiesLayer } from "./useGbOsmLayers";
+import { bumpHostRender, type LayerHostComponent } from "../../layers/layerHostDeps";
+import { useKeyOverlayParams } from "../../layers/layerParamsAccess";
+
+/** 英國行政邊界：LAD ＋ 四地統計小區（各自獨立的 PMTiles polygon 圖層）。 */
+export const GbAdminHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbAdminLayers");
+  const lad = useKeyOverlayParams("gbAdminBoundaries");
+  const small = useKeyOverlayParams("gbSmallAreaBoundaries");
+  useGbAdminLayers(
+    deps.mapRef,
+    { visible: deps.layerVisibility.gbAdminBoundaries, opacity: lad.gbAdminBoundariesOpacity ?? 0.85 },
+    {
+      visible: deps.layerVisibility.gbSmallAreaBoundaries,
+      opacity: small.gbSmallAreaBoundariesOpacity ?? 0.85,
+      niLevel: small.gbSmallAreaBoundariesNiLevelIdx === 1 ? 1 : 0,
+    },
+    deps.isDarkTheme,
+  );
+  return null;
+};
+
+/** 英國海域界線（第 1 波 C002，UKHO）：PMTiles line，依界線類型分色。 */
+export const GbMaritimeLimitsHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbMaritimeLimitsLayer");
+  const p = useKeyOverlayParams("gbMaritimeLimits");
+  useGbMaritimeLimitsLayer(deps.mapRef, deps.layerVisibility.gbMaritimeLimits, p.gbMaritimeLimitsOpacity ?? 0.85, deps.isDarkTheme);
+  return null;
+};
+
+/** 英國建成區＋綠地四層（公園、運動場、高爾夫球場、墓園；後四者共用 gb_greenspace.pmtiles）。 */
+export const GbOpenSpaceHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbOpenSpaceLayers");
+  const builtUp = useKeyOverlayParams("gbBuiltUpAreas");
+  const park = useKeyOverlayParams("gbGreenspace");
+  const sports = useKeyOverlayParams("gbSportsFacilities");
+  const golf = useKeyOverlayParams("gbGolfCourses");
+  const burial = useKeyOverlayParams("gbCemeteries");
+  useGbOpenSpaceLayers(deps.mapRef, {
+    gbBuiltUpAreas: { visible: deps.layerVisibility.gbBuiltUpAreas, opacity: builtUp.gbBuiltUpAreasOpacity ?? 0.7, scale: builtUp.gbBuiltUpAreasScale ?? 1, mode: gbDisplayModeFromIdx(builtUp.gbBuiltUpAreasDisplayModeIdx, "polygon") },
+    gbGreenspace: {
+      visible: deps.layerVisibility.gbGreenspace, opacity: park.gbGreenspaceOpacity ?? 0.75, scale: park.gbGreenspaceScale ?? 1,
+      mode: gbDisplayModeFromIdx(park.gbGreenspaceDisplayModeIdx, "polygon"), categoryMask: park.gbGreenspaceCategoryMask,
+    },
+    gbSportsFacilities: {
+      visible: deps.layerVisibility.gbSportsFacilities, opacity: sports.gbSportsFacilitiesOpacity ?? 0.75, scale: sports.gbSportsFacilitiesScale ?? 1,
+      mode: gbDisplayModeFromIdx(sports.gbSportsFacilitiesDisplayModeIdx, "polygon"), categoryMask: sports.gbSportsFacilitiesCategoryMask,
+    },
+    gbGolfCourses: {
+      visible: deps.layerVisibility.gbGolfCourses, opacity: golf.gbGolfCoursesOpacity ?? 0.75, scale: golf.gbGolfCoursesScale ?? 1,
+      mode: gbDisplayModeFromIdx(golf.gbGolfCoursesDisplayModeIdx, "polygon"),
+    },
+    gbCemeteries: {
+      visible: deps.layerVisibility.gbCemeteries, opacity: burial.gbCemeteriesOpacity ?? 0.75, scale: burial.gbCemeteriesScale ?? 1,
+      mode: gbDisplayModeFromIdx(burial.gbCemeteriesDisplayModeIdx, "point"), categoryMask: burial.gbCemeteriesCategoryMask,
+    },
+  }, deps.isDarkTheme);
+  return null;
+};
+
+/** 英國第 3 波：河川、水文測站、防洪設施、海岸侵蝕、浴場（各自一個 PMTiles source）。 */
+export const GbRiversHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbRiversLayer");
+  const p = useKeyOverlayParams("gbRivers");
+  useGbRiversLayer(deps.mapRef, deps.layerVisibility.gbRivers, p.gbRiversOpacity ?? 0.85, deps.isDarkTheme);
+  return null;
+};
+
+export const GbHydroStationsHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbHydroStationsLayer");
+  const p = useKeyOverlayParams("gbHydroStations");
+  useGbHydroStationsLayer(deps.mapRef, deps.layerVisibility.gbHydroStations, p.gbHydroStationsOpacity ?? 0.8, p.gbHydroStationsScale ?? 1, deps.isDarkTheme);
+  return null;
+};
+
+export const GbFloodDefencesHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbFloodDefencesLayer");
+  const p = useKeyOverlayParams("gbFloodDefenceAssets");
+  useGbFloodDefencesLayer(deps.mapRef, deps.layerVisibility.gbFloodDefenceAssets, p.gbFloodDefenceAssetsOpacity ?? 0.85, deps.isDarkTheme);
+  return null;
+};
+
+export const GbCoastalErosionHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbCoastalErosionLayer");
+  const p = useKeyOverlayParams("gbCoastalErosionRisk");
+  useGbCoastalErosionLayer(deps.mapRef, deps.layerVisibility.gbCoastalErosionRisk, p.gbCoastalErosionRiskOpacity ?? 0.7, p.gbCoastalErosionRiskPeriodIdx ?? 0, deps.isDarkTheme, p.gbCoastalErosionRiskScale ?? 1, gbDisplayModeFromIdx(p.gbCoastalErosionRiskDisplayModeIdx, "polygon"));
+  return null;
+};
+
+export const GbBathingWatersHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbBathingWatersLayer");
+  const p = useKeyOverlayParams("gbBathingWaters");
+  useGbBathingWatersLayer(deps.mapRef, deps.layerVisibility.gbBathingWaters, p.gbBathingWatersOpacity ?? 0.85, p.gbBathingWatersScale ?? 1, deps.isDarkTheme);
+  return null;
+};
+
+/** 英國第 4 波：交通樞紐＋站客流（共用 gb_transport_hubs）、倫敦軌道線＋車站（共用 gb_london_rail）、單車站、攝影機、收費區。 */
+export const GbTransportHubsHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbTransportHubsLayer");
+  const hubs = useKeyOverlayParams("gbTransportHubs");
+  const usage = useKeyOverlayParams("gbStationUsage");
+  useGbTransportHubsLayer(deps.mapRef, deps.layerVisibility.gbTransportHubs, hubs.gbTransportHubsOpacity ?? 0.8, hubs.gbTransportHubsScale ?? 1, hubs.gbTransportHubsCategoryMask, deps.isDarkTheme);
+  useGbStationUsageLayer(deps.mapRef, deps.layerVisibility.gbStationUsage, usage.gbStationUsageOpacity ?? 0.8, usage.gbStationUsageScale ?? 1, deps.isDarkTheme);
+  return null;
+};
+
+export const GbLondonRailHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbLondonRailLayers");
+  const lines = useKeyOverlayParams("gbLondonRailLines");
+  const stations = useKeyOverlayParams("gbLondonStations");
+  useGbLondonRailLinesLayer(deps.mapRef, deps.layerVisibility.gbLondonRailLines, lines.gbLondonRailLinesOpacity ?? 0.85, lines.gbLondonRailLinesCategoryMask, deps.isDarkTheme);
+  useGbLondonStationsLayer(deps.mapRef, deps.layerVisibility.gbLondonStations, stations.gbLondonStationsOpacity ?? 0.85, stations.gbLondonStationsScale ?? 1, deps.isDarkTheme);
+  return null;
+};
+
+/** 英國列車重播（倫敦與東南部，Darwin 前一日；本機預覽）：時間內插的平面移動點。 */
+export const GbRailReplayHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbRailReplayLayer");
+  const p = useKeyOverlayParams("gbRailReplay");
+  useGbRailReplayLayer(deps.mapRef, deps.layerVisibility.gbRailReplay, p.gbRailReplayOpacity ?? 0.9, p.gbRailReplayScale ?? 1, deps.isDarkTheme);
+  return null;
+};
+
+export const GbLondonBikePointsHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbLondonBikePointsLayer");
+  const p = useKeyOverlayParams("gbLondonBikePoints");
+  useGbLondonBikePointsLayer(deps.mapRef, deps.layerVisibility.gbLondonBikePoints, p.gbLondonBikePointsOpacity ?? 0.85, p.gbLondonBikePointsScale ?? 1, deps.isDarkTheme);
+  return null;
+};
+
+export const GbLondonJamCamsHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbLondonJamCamsLayer");
+  const p = useKeyOverlayParams("gbLondonJamCams");
+  useGbLondonJamCamsLayer(deps.mapRef, deps.layerVisibility.gbLondonJamCams, p.gbLondonJamCamsOpacity ?? 0.85, p.gbLondonJamCamsScale ?? 1, deps.isDarkTheme);
+  return null;
+};
+
+export const GbLondonChargingZonesHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbLondonChargingZonesLayer");
+  const p = useKeyOverlayParams("gbLondonChargingZones");
+  useGbLondonChargingZonesLayer(deps.mapRef, deps.layerVisibility.gbLondonChargingZones, p.gbLondonChargingZonesOpacity ?? 0.7, deps.isDarkTheme);
+  return null;
+};
+
+/** 英國第 5 波：保護區、海洋保護區、林地、森林遊憩、步道、開放進入地、樹木保護（各自一個 PMTiles）。 */
+export const GbProtectedAreasHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbProtectedAreasLayer");
+  const p = useKeyOverlayParams("gbProtectedAreas");
+  useGbProtectedAreasLayer(deps.mapRef, deps.layerVisibility.gbProtectedAreas, p.gbProtectedAreasOpacity ?? 0.45, p.gbProtectedAreasGroupIdx ?? 0, deps.isDarkTheme, p.gbProtectedAreasScale ?? 1, gbDisplayModeFromIdx(p.gbProtectedAreasDisplayModeIdx, "point"));
+  return null;
+};
+
+export const GbMarineProtectedAreasHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbMarineProtectedAreasLayer");
+  const p = useKeyOverlayParams("gbMarineProtectedAreas");
+  useGbMarineProtectedAreasLayer(deps.mapRef, deps.layerVisibility.gbMarineProtectedAreas, p.gbMarineProtectedAreasOpacity ?? 0.5, p.gbMarineProtectedAreasCategoryMask, deps.isDarkTheme, p.gbMarineProtectedAreasScale ?? 1, gbDisplayModeFromIdx(p.gbMarineProtectedAreasDisplayModeIdx, "point"));
+  return null;
+};
+
+export const GbWoodlandHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbWoodlandLayer");
+  const p = useKeyOverlayParams("gbWoodland");
+  useGbWoodlandLayer(deps.mapRef, deps.layerVisibility.gbWoodland, p.gbWoodlandOpacity ?? 0.7, p.gbWoodlandScale ?? 1, gbDisplayModeFromIdx(p.gbWoodlandDisplayModeIdx, "polygon"), deps.isDarkTheme);
+  return null;
+};
+
+export const GbForestRecreationHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbForestRecreationLayer");
+  const p = useKeyOverlayParams("gbForestRecreation");
+  useGbForestRecreationLayer(deps.mapRef, deps.layerVisibility.gbForestRecreation, p.gbForestRecreationOpacity ?? 0.75, p.gbForestRecreationScale ?? 1, p.gbForestRecreationCategoryMask, deps.isDarkTheme);
+  return null;
+};
+
+export const GbTrailsHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbTrailsLayer");
+  const p = useKeyOverlayParams("gbTrails");
+  useGbTrailsLayer(deps.mapRef, deps.layerVisibility.gbTrails, p.gbTrailsOpacity ?? 0.85, deps.isDarkTheme);
+  return null;
+};
+
+export const GbOpenAccessLandHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbOpenAccessLandLayer");
+  const p = useKeyOverlayParams("gbOpenAccessLand");
+  useGbOpenAccessLandLayer(deps.mapRef, deps.layerVisibility.gbOpenAccessLand, p.gbOpenAccessLandOpacity ?? 0.6, p.gbOpenAccessLandScale ?? 1, gbDisplayModeFromIdx(p.gbOpenAccessLandDisplayModeIdx, "polygon"), p.gbOpenAccessLandCategoryMask, deps.isDarkTheme);
+  return null;
+};
+
+export const GbTreeProtectionHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbTreeProtectionLayer");
+  const p = useKeyOverlayParams("gbTreeProtection");
+  useGbTreeProtectionLayer(deps.mapRef, deps.layerVisibility.gbTreeProtection, p.gbTreeProtectionOpacity ?? 0.7, p.gbTreeProtectionScale ?? 1, gbDisplayModeFromIdx(p.gbTreeProtectionDisplayModeIdx, "polygon"), p.gbTreeProtectionCategoryMask, deps.isDarkTheme);
+  return null;
+};
+
+/** 英國第 6 波：電廠、再生能源、電網線、變電所（後兩者共用 gb_power_grid.pmtiles）、加油站、離岸油氣田。 */
+export const GbPowerPlantsHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbPowerPlantsLayer");
+  const p = useKeyOverlayParams("gbPowerPlants");
+  useGbPowerPlantsLayer(deps.mapRef, deps.layerVisibility.gbPowerPlants, p.gbPowerPlantsOpacity ?? 0.8, p.gbPowerPlantsScale ?? 1, p.gbPowerPlantsCategoryMask, deps.isDarkTheme);
+  return null;
+};
+
+export const GbRenewablesHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbRenewablesLayer");
+  const p = useKeyOverlayParams("gbRenewables");
+  useGbRenewablesLayer(deps.mapRef, deps.layerVisibility.gbRenewables, p.gbRenewablesOpacity ?? 0.75, p.gbRenewablesScale ?? 1, p.gbRenewablesStatusIdx ?? 0, deps.isDarkTheme);
+  return null;
+};
+
+export const GbPowerLinesHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbPowerLinesLayer");
+  const p = useKeyOverlayParams("gbPowerLines");
+  useGbPowerLinesLayer(deps.mapRef, deps.layerVisibility.gbPowerLines, p.gbPowerLinesOpacity ?? 0.85, deps.isDarkTheme);
+  return null;
+};
+
+export const GbSubstationsHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbSubstationsLayer");
+  const p = useKeyOverlayParams("gbSubstations");
+  useGbSubstationsLayer(deps.mapRef, deps.layerVisibility.gbSubstations, p.gbSubstationsOpacity ?? 0.75, p.gbSubstationsScale ?? 1, deps.isDarkTheme);
+  return null;
+};
+
+export const GbFuelStationsHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbFuelStationsLayer");
+  const p = useKeyOverlayParams("gbFuelStations");
+  useGbFuelStationsLayer(deps.mapRef, deps.layerVisibility.gbFuelStations, p.gbFuelStationsOpacity ?? 0.8, p.gbFuelStationsScale ?? 1, deps.isDarkTheme);
+  return null;
+};
+
+export const GbOilGasFieldsHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbOilGasFieldsLayer");
+  const p = useKeyOverlayParams("gbOilGasFields");
+  useGbOilGasFieldsLayer(deps.mapRef, deps.layerVisibility.gbOilGasFields, p.gbOilGasFieldsOpacity ?? 0.6, p.gbOilGasFieldsCategoryMask, deps.isDarkTheme, p.gbOilGasFieldsScale ?? 1, gbDisplayModeFromIdx(p.gbOilGasFieldsDisplayModeIdx, "polygon"));
+  return null;
+};
+
+/** 英國第 7 波：學校、醫療、照護之家、長照服務（後兩者共用 gb_care_services.pmtiles）、消防站、法院。 */
+export const GbSchoolsHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbSchoolsLayer");
+  const p = useKeyOverlayParams("gbSchools");
+  useGbSchoolsLayer(deps.mapRef, deps.layerVisibility.gbSchools, p.gbSchoolsOpacity ?? 0.8, p.gbSchoolsScale ?? 1, p.gbSchoolsCategoryMask, deps.isDarkTheme);
+  return null;
+};
+
+export const GbHealthFacilitiesHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbHealthFacilitiesLayer");
+  const p = useKeyOverlayParams("gbHealthFacilities");
+  useGbHealthFacilitiesLayer(deps.mapRef, deps.layerVisibility.gbHealthFacilities, p.gbHealthFacilitiesOpacity ?? 0.8, p.gbHealthFacilitiesScale ?? 1, p.gbHealthFacilitiesCategoryMask, deps.isDarkTheme);
+  return null;
+};
+
+export const GbCareHomesHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbCareHomesLayer");
+  const p = useKeyOverlayParams("gbCareHomes");
+  useGbCareHomesLayer(deps.mapRef, deps.layerVisibility.gbCareHomes, p.gbCareHomesOpacity ?? 0.8, p.gbCareHomesScale ?? 1, p.gbCareHomesCategoryMask, deps.isDarkTheme);
+  return null;
+};
+
+export const GbCareServicesHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbCareServicesLayer");
+  const p = useKeyOverlayParams("gbCareServices");
+  useGbCareServicesLayer(deps.mapRef, deps.layerVisibility.gbCareServices, p.gbCareServicesOpacity ?? 0.8, p.gbCareServicesScale ?? 1, p.gbCareServicesCategoryMask, deps.isDarkTheme);
+  return null;
+};
+
+export const GbFireStationsHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbFireStationsLayer");
+  const p = useKeyOverlayParams("gbFireStations");
+  useGbFireStationsLayer(deps.mapRef, deps.layerVisibility.gbFireStations, p.gbFireStationsOpacity ?? 0.85, p.gbFireStationsScale ?? 1, deps.isDarkTheme);
+  return null;
+};
+
+export const GbCourtsHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbCourtsLayer");
+  const p = useKeyOverlayParams("gbCourts");
+  useGbCourtsLayer(deps.mapRef, deps.layerVisibility.gbCourts, p.gbCourtsOpacity ?? 0.85, p.gbCourtsScale ?? 1, p.gbCourtsCategoryMask, deps.isDarkTheme);
+  return null;
+};
+
+/** 英國第 8 波：文化設施、藝文場館、觀光體驗。 */
+export const GbCulturalFacilitiesHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbCulturalFacilitiesLayer");
+  const p = useKeyOverlayParams("gbCulturalFacilities");
+  useGbCulturalFacilitiesLayer(deps.mapRef, deps.layerVisibility.gbCulturalFacilities, p.gbCulturalFacilitiesOpacity ?? 0.8, p.gbCulturalFacilitiesScale ?? 1, p.gbCulturalFacilitiesCategoryMask, deps.isDarkTheme);
+  return null;
+};
+
+export const GbArtsVenuesHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbArtsVenuesLayer");
+  const p = useKeyOverlayParams("gbArtsVenues");
+  useGbArtsVenuesLayer(deps.mapRef, deps.layerVisibility.gbArtsVenues, p.gbArtsVenuesOpacity ?? 0.8, p.gbArtsVenuesScale ?? 1, p.gbArtsVenuesCategoryMask, deps.isDarkTheme);
+  return null;
+};
+
+export const GbVisitorExperienceHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbVisitorExperienceLayer");
+  const p = useKeyOverlayParams("gbVisitorExperience");
+  useGbVisitorExperienceLayer(deps.mapRef, deps.layerVisibility.gbVisitorExperience, p.gbVisitorExperienceOpacity ?? 0.8, p.gbVisitorExperienceScale ?? 1, p.gbVisitorExperienceCategoryMask, deps.isDarkTheme);
+  return null;
+};
+
+/** 英國 C003 地形兩層（raster，只有透明度）：先掛色別標高、再掛山體陰影（陰影疊在上面）。 */
+export const GbTerrainHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbTerrainLayers");
+  const h = useKeyOverlayParams("gbTerrainHillshade");
+  const r = useKeyOverlayParams("gbTerrainRelief");
+  useGbTerrainLayer(deps.mapRef, "gbTerrainRelief", deps.layerVisibility.gbTerrainRelief, r.gbTerrainReliefOpacity ?? 0.7);
+  useGbTerrainLayer(deps.mapRef, "gbTerrainHillshade", deps.layerVisibility.gbTerrainHillshade, h.gbTerrainHillshadeOpacity ?? 0.5);
+  return null;
+};
+
+/** 英國 C028 公有地標售。 */
+export const GbSurplusLandHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbSurplusLandLayer");
+  const p = useKeyOverlayParams("gbSurplusLand");
+  useGbSurplusLandLayer(deps.mapRef, deps.layerVisibility.gbSurplusLand, p.gbSurplusLandOpacity ?? 0.9, p.gbSurplusLandScale ?? 1, deps.isDarkTheme);
+  return null;
+};
+
+/** 英國第 9 波：GeoSure 地質災害易發性（災害選單，一次一種）。 */
+export const GbGroundStabilityHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbGroundStabilityLayer");
+  const p = useKeyOverlayParams("gbGroundStability");
+  useGbGroundStabilityLayer(deps.mapRef, deps.layerVisibility.gbGroundStability, p.gbGroundStabilityOpacity ?? 0.55, p.gbGroundStabilityHazardIdx ?? 0, deps.isDarkTheme);
+  return null;
+};
+
+/** 英國第 9 波：山崩紀錄點。 */
+export const GbLandslideHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbLandslideLayer");
+  const p = useKeyOverlayParams("gbLandslide");
+  useGbLandslideLayer(deps.mapRef, deps.layerVisibility.gbLandslide, p.gbLandslideOpacity ?? 0.7, p.gbLandslideScale ?? 1, deps.isDarkTheme);
+  return null;
+};
+
+/** 英國第 9 波：氡氣指示圖（1 km 網格，色階隨底圖）。 */
+export const GbRadonHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbRadonLayer");
+  const p = useKeyOverlayParams("gbRadon");
+  useGbRadonLayer(deps.mapRef, deps.layerVisibility.gbRadon, p.gbRadonOpacity ?? 0.7, deps.isDarkTheme);
+  return null;
+};
+
+/** 英國第 9 波：環境加馬劑量率固定站。 */
+export const GbRadiationHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbRadiationLayer");
+  const p = useKeyOverlayParams("gbRadiation");
+  useGbRadiationLayer(deps.mapRef, deps.layerVisibility.gbRadiation, p.gbRadiationOpacity ?? 0.9, p.gbRadiationScale ?? 1, deps.isDarkTheme);
+  return null;
+};
+
+/** 英國第 9 波：地震目錄（儀器記錄實心、歷史地震空心）。 */
+export const GbEarthquakesHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbEarthquakesLayer");
+  const p = useKeyOverlayParams("gbEarthquakes");
+  useGbEarthquakesLayer(deps.mapRef, deps.layerVisibility.gbEarthquakes, p.gbEarthquakesOpacity ?? 0.8, p.gbEarthquakesScale ?? 1, deps.isDarkTheme);
+  return null;
+};
+
+/** 英國第 10 波：主要路網（線）、AADF 交通計數點（點，含「資料方式」選單）。 */
+export const GbMajorRoadsHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbMajorRoadsLayer");
+  const p = useKeyOverlayParams("gbMajorRoads");
+  useGbMajorRoadsLayer(deps.mapRef, deps.layerVisibility.gbMajorRoads, p.gbMajorRoadsOpacity ?? 0.85, deps.isDarkTheme);
+  return null;
+};
+
+export const GbTrafficCountsAadfHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbTrafficCountsAadfLayer");
+  const p = useKeyOverlayParams("gbTrafficCountsAadf");
+  useGbTrafficCountsAadfLayer(deps.mapRef, deps.layerVisibility.gbTrafficCountsAadf, p.gbTrafficCountsAadfOpacity ?? 0.75, p.gbTrafficCountsAadfScale ?? 1, p.gbTrafficCountsAadfMethodIdx ?? 0, deps.isDarkTheme);
+  return null;
+};
+
+/** 英國第 11 波：規劃限制區（類別選單，預設保育區）。 */
+export const GbPlanningConstraintsHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbPlanningConstraintsLayer");
+  const p = useKeyOverlayParams("gbPlanningConstraints");
+  useGbPlanningConstraintsLayer(deps.mapRef, deps.layerVisibility.gbPlanningConstraints, p.gbPlanningConstraintsOpacity ?? 0.35, p.gbPlanningConstraintsScale ?? 1, gbDisplayModeFromIdx(p.gbPlanningConstraintsDisplayModeIdx, "point"), p.gbPlanningConstraintsViewIdx ?? 0, deps.isDarkTheme);
+  return null;
+};
+
+/** 英國第 11 波：棕地登記冊（許可狀態選單）。 */
+export const GbBrownfieldHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbBrownfieldLayer");
+  const p = useKeyOverlayParams("gbBrownfield");
+  useGbBrownfieldLayer(deps.mapRef, deps.layerVisibility.gbBrownfield, p.gbBrownfieldOpacity ?? 0.75, p.gbBrownfieldScale ?? 1, p.gbBrownfieldStatusIdx ?? 0, deps.isDarkTheme);
+  return null;
+};
+
+/** 英國第 11 波：回收點（回收中心、回收桶，OSM）。 */
+export const GbRecyclingCentresHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbRecyclingCentresLayer");
+  const p = useKeyOverlayParams("gbRecyclingCentres");
+  useGbRecyclingCentresLayer(deps.mapRef, deps.layerVisibility.gbRecyclingCentres, p.gbRecyclingCentresOpacity ?? 0.75, p.gbRecyclingCentresScale ?? 1, p.gbRecyclingCentresCategoryMask, deps.isDarkTheme);
+  return null;
+};
+
+/** 英國第 11 波：廢棄物處理許可場址（主管機關選單）。 */
+export const GbWastePermitsHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbWastePermitsLayer");
+  const p = useKeyOverlayParams("gbWastePermits");
+  useGbWastePermitsLayer(deps.mapRef, deps.layerVisibility.gbWastePermits, p.gbWastePermitsOpacity ?? 0.8, p.gbWastePermitsScale ?? 1, p.gbWastePermitsAuthorityIdx ?? 0, deps.isDarkTheme);
+  return null;
+};
+
+/** 英國第 11 波：污染排放申報場址（只有蘇格蘭 SEPA）。 */
+export const GbPollutionInventoryHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbPollutionInventoryLayer");
+  const p = useKeyOverlayParams("gbPollutionInventory");
+  useGbPollutionInventoryLayer(deps.mapRef, deps.layerVisibility.gbPollutionInventory, p.gbPollutionInventoryOpacity ?? 0.8, p.gbPollutionInventoryScale ?? 1, deps.isDarkTheme);
+  return null;
+};
+
+/** 英格蘭污染排放申報（EA，站主限定 owner-only RPC）：只供資料，樣式在 overlayRegistry。 */
+export const GbPollutionInventoryEnglandHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbEaPollutionInventoryLayer");
+  useGbEaPollutionInventoryLayer(deps.mapRef, deps.layerVisibility.gbPollutionInventoryEngland);
+  return null;
+};
+
+/** 英國第 11 波：策略噪音地圖（道路／鐵路選單）。 */
+export const GbNoiseHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbNoiseLayer");
+  const p = useKeyOverlayParams("gbNoise");
+  useGbNoiseLayer(deps.mapRef, deps.layerVisibility.gbNoise, p.gbNoiseOpacity ?? 0.55, p.gbNoiseSourceIdx ?? 0, deps.isDarkTheme);
+  return null;
+};
+
+/** 英國第 12 波：公司登記（郵遞區號 district 聚合，依家數分級半徑）。 */
+export const GbCompaniesHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbCompaniesLayer");
+  const p = useKeyOverlayParams("gbCompanies");
+  useGbCompaniesLayer(deps.mapRef, deps.layerVisibility.gbCompanies, p.gbCompaniesOpacity ?? 0.8, p.gbCompaniesScale ?? 1, deps.isDarkTheme);
+  return null;
+};
+
+/** 英國第 12 波：製造業公司（同檔 c_C）。 */
+export const GbManufacturingHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbManufacturingLayer");
+  const p = useKeyOverlayParams("gbManufacturing");
+  useGbManufacturingLayer(deps.mapRef, deps.layerVisibility.gbManufacturing, p.gbManufacturingOpacity ?? 0.8, p.gbManufacturingScale ?? 1, deps.isDarkTheme);
+  return null;
+};
+
+/** 英國第 12 波：火葬場與葬儀社（OSM）。 */
+export const GbFuneralHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbFuneralLayer");
+  const p = useKeyOverlayParams("gbFuneral");
+  useGbFuneralLayer(deps.mapRef, deps.layerVisibility.gbFuneral, p.gbFuneralOpacity ?? 0.8, p.gbFuneralScale ?? 1, p.gbFuneralCategoryMask, deps.isDarkTheme);
+  return null;
+};
+
+/** 英國第 12 波：養殖場（狀態選單，預設現役）。 */
+export const GbAquacultureHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbAquacultureLayer");
+  const p = useKeyOverlayParams("gbAquaculture");
+  useGbAquacultureLayer(deps.mapRef, deps.layerVisibility.gbAquaculture, p.gbAquacultureOpacity ?? 0.8, p.gbAquacultureScale ?? 1, p.gbAquacultureStatusIdx ?? 0, p.gbAquacultureCategoryMask, deps.isDarkTheme);
+  return null;
+};
+
+/** 英國第 12 波：土壤母質（依土層深度分級）。 */
+export const GbSoilParentMaterialHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbSoilParentMaterialLayer");
+  const p = useKeyOverlayParams("gbSoilParentMaterial");
+  useGbSoilParentMaterialLayer(deps.mapRef, deps.layerVisibility.gbSoilParentMaterial, p.gbSoilParentMaterialOpacity ?? 0.55, deps.isDarkTheme);
+  return null;
+};
+
+/** 英國第 13 波 OSM（2026-11-13）：主要道路橋梁與隧道（線）、道路設施（點）、公共設施與宗教場所（≥1 萬點熱區）。四層都有類別多選。 */
+export const GbBridgesTunnelsHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbBridgesTunnelsLayer");
+  const p = useKeyOverlayParams("gbBridgesTunnels");
+  useGbBridgesTunnelsLayer(deps.mapRef, deps.layerVisibility.gbBridgesTunnels, p.gbBridgesTunnelsOpacity ?? 0.85, p.gbBridgesTunnelsCategoryMask, deps.isDarkTheme);
+  return null;
+};
+
+export const GbRoadFacilitiesHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbRoadFacilitiesLayer");
+  const p = useKeyOverlayParams("gbRoadFacilities");
+  useGbRoadFacilitiesLayer(deps.mapRef, deps.layerVisibility.gbRoadFacilities, p.gbRoadFacilitiesOpacity ?? 0.8, p.gbRoadFacilitiesScale ?? 1, p.gbRoadFacilitiesCategoryMask, deps.isDarkTheme);
+  return null;
+};
+
+export const GbPublicFacilitiesHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbPublicFacilitiesLayer");
+  const p = useKeyOverlayParams("gbPublicFacilities");
+  useGbPublicFacilitiesLayer(deps.mapRef, deps.layerVisibility.gbPublicFacilities, p.gbPublicFacilitiesOpacity ?? 0.75, p.gbPublicFacilitiesScale ?? 1, p.gbPublicFacilitiesCategoryMask, deps.isDarkTheme);
+  return null;
+};
+
+export const GbPlacesOfWorshipHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbPlacesOfWorshipLayer");
+  const p = useKeyOverlayParams("gbPlacesOfWorship");
+  useGbPlacesOfWorshipLayer(deps.mapRef, deps.layerVisibility.gbPlacesOfWorship, p.gbPlacesOfWorshipOpacity ?? 0.75, p.gbPlacesOfWorshipScale ?? 1, p.gbPlacesOfWorshipCategoryMask, deps.isDarkTheme);
+  return null;
+};

@@ -222,5 +222,10 @@
   "enum.statGroup.海洋廢棄物清理": "海洋廃棄物の清掃",
   "enum.statGroup.畜禽在養與場數": "畜禽の飼養数と農場数",
   "enum.statGroup.漁業生產量": "漁業生産量",
-  "enum.statGroup.漁業生產值": "漁業生産額"
+  "enum.statGroup.漁業生產值": "漁業生産額",
+  "enum.statGroup.公司登記家數": "登記会社数",
+  "enum.statGroup.每千人公司家數": "人口千人あたり登記会社数",
+  "enum.statGroup.地方特色產業": "地域特化産業",
+  "enum.statGroup.房屋買賣單價中位數": "住宅売買単価の中央値",
+  "enum.statGroup.房屋買賣成交筆數": "住宅売買の成約件数"
 }

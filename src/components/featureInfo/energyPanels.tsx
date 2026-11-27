@@ -571,8 +571,47 @@ export function EvChargingPanel({ props }: { props: Record<string, unknown> }) {
 // ══════════════════════════════════════════════════════════════════
 
 function joinBrand(b: unknown): string {
-  if (Array.isArray(b)) return b.join(" / ");
-  return String(b ?? "");
+  let v = b;
+  if (typeof v === "string") {
+    const raw = v.trim();
+    if (raw.startsWith("[")) {
+      try { v = JSON.parse(raw); } catch { return raw; }
+    }
+  }
+  if (Array.isArray(v)) return v.map((x) => String(x ?? "").trim()).filter(Boolean).join("、");
+  return String(v ?? "");
+}
+
+/** 最多 maxDigits 位小數，去尾端 0（0.8999999999999999 → "0.9"）；非有限數字回 "—" */
+function roundedText(v: unknown, maxDigits = 2): string {
+  const n = typeof v === "number" ? v : typeof v === "string" && v.trim() !== "" ? Number(v) : NaN;
+  if (!Number.isFinite(n)) return "—";
+  return String(Number(n.toFixed(maxDigits)));
+}
+
+function nonEmptyText(v: unknown): string {
+  return typeof v === "string" ? v.trim() : "";
+}
+
+// 國道服務區加油站（交通部高公局）：欄位只有約 30 站有值，空值不顯示該列
+function GasStationFreewayRows({ props }: { props: Record<string, unknown> }) {
+  const { t } = useLocale();
+  const road = nonEmptyText(props.freeway_road);
+  if (!road) return null;
+  const mileText = nonEmptyText(props.freeway_mile_text);
+  const kmText = roundedText(props.freeway_km, 1);
+  const km = kmText === "—" ? "" : `${kmText}K`;
+  const mile = mileText || km;
+  const locationNote = nonEmptyText(props.freeway_location_note);
+  const bureauNote = nonEmptyText(props.freeway_bureau_status_note);
+  return (
+    <>
+      <Row label={t("popup.energy.freewayRoad")} value={road} />
+      {mile && <Row label={t("popup.energy.freewayMile")} value={mile} />}
+      {locationNote && <Row label={t("popup.energy.freewayLocationNote")} value={locationNote} />}
+      {bureauNote && <Row label={t("popup.energy.freewayBureauNote")} value={bureauNote} />}
+    </>
+  );
 }
 
 function GasStationCommonRows({ props }: { props: Record<string, unknown> }) {
@@ -582,6 +621,7 @@ function GasStationCommonRows({ props }: { props: Record<string, unknown> }) {
       <Row field="brand" value={joinBrand(props.brand) || "—"} />
       <Row field="address" value={String(props.address ?? "—")} />
       <Row field="phone" value={String(props.telephone ?? "—")} />
+      <GasStationFreewayRows props={props} />
     </>
   );
 }
@@ -633,8 +673,8 @@ export function GasStationCanonicalPanel({ props }: { props: Record<string, unkn
   return (
     <div>
       <GasStationCommonRows props={props} />
-      <Row label={t("popup.energy.confidence")} value={props.confidence != null ? String(props.confidence) : "—"} />
-      <Row field="sourceCount" value={props.n_sources != null ? String(props.n_sources) : "—"} />
+      <Row label={t("popup.energy.confidence")} value={roundedText(props.confidence)} />
+      <Row field="sourceCount" value={roundedText(props.n_sources, 0)} />
     </div>
   );
 }
@@ -659,7 +699,7 @@ export function LpgRetailersPanel({ props }: { props: Record<string, unknown> })
       <Row label={t("popup.energy.lpgShop")} value={String(props.name ?? "—")} />
       <Row field="address" value={String(props.address ?? "—")} />
       <Row field="phone" value={String(props.telephone ?? "—")} />
-      <Row label={t("popup.energy.confidence")} value={props.confidence != null ? String(props.confidence) : "—"} />
+      <Row label={t("popup.energy.confidence")} value={roundedText(props.confidence)} />
       <Row field="sourceCount" value={props.n_sources != null ? String(props.n_sources) : "—"} />
     </div>
   );
@@ -674,7 +714,7 @@ export function LngTerminalPanel({ props }: { props: Record<string, unknown> }) 
       <Row field="status" value={String(props.status ?? "—")} />
       <Row field="operator" value={String(props.owner ?? "—")} />
       <Row label={t("popup.energy.capacityMtpa")} value={String(props.capacity_mtpa ?? "—")} />
-      <Row label={t("popup.energy.confidence")} value={props.confidence != null ? String(props.confidence) : "—"} />
+      <Row label={t("popup.energy.confidence")} value={roundedText(props.confidence)} />
       <Row field="sourceCount" value={props.n_sources != null ? String(props.n_sources) : "—"} />
     </div>
   );

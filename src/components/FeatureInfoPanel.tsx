@@ -3,14 +3,14 @@
 // 各 layer 的 panel 元件在 src/components/featureInfo/*Panels.tsx（按 domain 分檔），
 // layerType → 元件對應在 featureInfo/registry.tsx。新增 layer popup 只要：
 // 1) 對應 domain 檔寫 panel 元件  2) registry.tsx 加 PANEL_REGISTRY + HEADER_LABELS 各一行。
-import { KR_DATA_KEYS } from "../data/krDataKeys";
-import { IE_DATA_KEYS } from "../data/ieDataKeys";
-import { PH_DATA_KEYS } from "../data/phDataKeys";
-import { VN_DATA_KEYS } from "../data/vnDataKeys";
-import { TH_DATA_KEYS } from "../data/thDataKeys";
-import { ID_DATA_KEYS } from "../data/idDataKeys";
-import { CN_DATA_KEYS } from "../data/cnDataKeys";
-import { CA_WAVE_KEYS } from "../data/caWavesKeys";
+import { KR_DATA_KEYS } from "../countries/kr/keys";
+import { IE_DATA_KEYS } from "../countries/ie/keys";
+import { PH_DATA_KEYS } from "../countries/ph/keys";
+import { VN_DATA_KEYS } from "../countries/vn/keys";
+import { TH_DATA_KEYS } from "../countries/th/keys";
+import { ID_DATA_KEYS } from "../countries/id/keys";
+import { CN_DATA_KEYS } from "../countries/cn/keys";
+import { CA_WAVE_KEYS } from "../countries/ca/keys";
 import { G53_SELF_FOOTER_KEYS } from "../data/atlasLayerTypes";
 import { useEffect, useRef, type CSSProperties } from "react";
 import { X } from "lucide-react";

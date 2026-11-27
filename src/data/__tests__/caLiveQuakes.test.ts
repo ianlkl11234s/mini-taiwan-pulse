@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { caQuakeEventType, caQuakeLiveStatus, caQuakeLiveUrl, caQuakePlaceEn, fetchCaQuakesLive, parseCaQuakeText } from "../caLiveQuakesLoader";
+import { caQuakeEventType, caQuakeLiveStatus, caQuakeLiveUrl, caQuakePlaceEn, fetchCaQuakesLive, parseCaQuakeText } from "../../countries/ca/caLiveQuakesLoader";
 
 const SAMPLE = `#EventID|Time|Latitude|Longitude|Depth/km|MagType|Magnitude|EventLocationName
 ca2026vycq|2026-11-05T15:56:06.000Z|54.5418|-117.3|3|MLy|2.33|Suspected industry-related event, 36 km WNW of Fox Creek, AB/Événement lié à l'industrie soupçonné, 36 km ONO de Fox Creek, AB

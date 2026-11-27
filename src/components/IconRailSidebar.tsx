@@ -11,6 +11,7 @@ import {
   PanelRight,  // 監測模式 Monitor split（右半邊）rail 按鈕
   Database,    // 資料來源 rail 按鈕
   BookOpen,    // Pulse 筆記（/blog）rail 連結
+  Hexagon,     // 領土格原型（proto/h3-territory）rail 按鈕
   type LucideIcon,
 } from "lucide-react";
 import type {
@@ -33,6 +34,8 @@ import { countryStore, useCountry, type CountryFlyMode } from "../state/countryS
 import type { CountryCode } from "../constants/countries";
 import { railPalette, RailThemeContext, useRailTheme } from "./sidebar/railTheme";
 import { maxHeightAboveLongTermBar } from "./longTermBar/longTermBarLayout";
+import { TerritoryPanel } from "../territory/TerritoryPanel";
+import { territoryStore } from "../territory/territoryStore";
 
 // 既有 export 維持原路徑（測試與其他模組從這裡 import）
 export { LAYER_ICONS } from "./sidebar/LayersPanel";
@@ -95,7 +98,7 @@ interface IconRailSidebarProps {
 }
 
 
-type PanelId = LayerPanelId | "locations" | "datasource";
+type PanelId = LayerPanelId | "locations" | "datasource" | "territory";
 
 // ── Main Component ──
 
@@ -174,6 +177,12 @@ export function IconRailSidebar({
 
 
   const panelOpen = activePanel !== null;
+
+  // 領土格：地圖格子跟著面板開關（任何關閉路徑——切面板、外部互斥、explore 事件——都會移除格子與選取）
+  useEffect(() => {
+    territoryStore.setOpen(activePanel === "territory");
+  }, [activePanel]);
+  useEffect(() => () => territoryStore.setOpen(false), []);
 
   // Floating panel doesn't push content — always report rail width only
   useEffect(() => {
@@ -277,13 +286,19 @@ export function IconRailSidebar({
           paddingBottom: 8,
           flexShrink: 0,
           zIndex: 2,
+          // 視窗矮時 icon 放不下 → 欄內垂直捲動，不讓下方按鈕被切掉（提示用原生 title，不受裁切影響）
+          height: "100%",
+          boxSizing: "border-box",
+          overflowY: "auto",
+          overflowX: "hidden",
+          scrollbarWidth: "none",
         }}
       >
         {/* Logo / Activity */}
         <RailIcon icon={Activity} active={false} onClick={() => {}} tooltip="Mini Taiwan Pulse" />
 
         {/* Divider */}
-        <div style={{ width: 32, height: 1, background: BORDER, margin: "8px 0" }} />
+        <div style={{ width: 32, height: 1, background: BORDER, margin: "8px 0", flexShrink: 0 }} />
 
         {/* Layers */}
         <RailIcon
@@ -332,6 +347,14 @@ export function IconRailSidebar({
           active={activePanel === "datasource"}
           onClick={() => togglePanel("datasource")}
           tooltip={t("rail.datasource")}
+        />
+
+        {/* 領土格（原型）：灰色六角格底＋標籤上色＋點格看領土卡 */}
+        <RailIcon
+          icon={Hexagon}
+          active={activePanel === "territory"}
+          onClick={() => togglePanel("territory")}
+          tooltip={t("territory.rail")}
         />
 
         {agentAvailable && onAgentToggle && (
@@ -389,7 +412,7 @@ export function IconRailSidebar({
         )}
 
         {/* Pulse 筆記（/blog）：離開地圖的連結，用分隔線與上面開面板的按鈕分開；帶目前底圖明暗讓文章頁同色 */}
-        <div style={{ width: 32, height: 1, background: BORDER, margin: "8px 0" }} />
+        <div style={{ width: 32, height: 1, background: BORDER, margin: "8px 0", flexShrink: 0 }} />
         <RailLink
           icon={BookOpen}
           href={`/blog/?theme=${isDarkTheme ? "dark" : "light"}`}
@@ -483,6 +506,9 @@ export function IconRailSidebar({
                 onPickLayer={handlePickLayer}
               />
             )}
+            {activePanel === "territory" && (
+              <TerritoryPanel isDark={isDarkTheme} onClose={closePanel} />
+            )}
             {activePanel === "datasource" && (
               <LazyDataSourcePanel
                 isDarkTheme={isDarkTheme}
@@ -548,6 +574,7 @@ function RailLink({ icon: Icon, href, tooltip }: { icon: ComponentType<{ size?: 
         alignItems: "center",
         justifyContent: "center",
         marginBottom: 4,
+        flexShrink: 0,
       }}
     >
       <Icon size={20} />
@@ -582,6 +609,7 @@ function RailIcon({
         cursor: "pointer",
         padding: 0,
         marginBottom: 4,
+        flexShrink: 0,
         transition: "background 0.15s, color 0.15s",
       }}
     >

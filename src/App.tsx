@@ -1,13 +1,16 @@
 import { LazyMainMapConnection } from "./research/LazyMainMapConnection";
+import { createRequestToken } from "./lib/requestToken";
 import { globalEventsViewStore } from "./state/globalEventsViewStore";
 import { useAnalysisLegend } from "./research/analysisLegendStore";
 import type { AnalysisResultPanelProperties } from "./research/researchResultPopup";
 import { recordSelectionClick, selectionRingAccent, SELECTION_RING_ACCENT_VAR } from "./map/selectionRing";
 import { createTimelineControl, type ShipDateAvailability, type TimelineActions, type TimelineSnapshot } from "./research/timelineControl";
 import { useAllenCoralPrivateAccess } from "./hooks/useAllenCoralPrivateAccess";
-import { CN_ACCESS_DENIED_EVENT } from "./hooks/useCnLayers";
 import { OWNER_PMTILES_ACCESS_DENIED_EVENT } from "./hooks/useOwnerPmtilesAccess";
-import { CN_ALL_LAYER_KEYS } from "./data/cnDataKeys";
+import { CN_ACCESS_DENIED_EVENT, CN_ALL_LAYER_KEYS } from "./countries/cn/keys";
+import { bootPacksReady, packCountriesForKeys } from "./countries/bootPacks";
+import { ensureCountryPacks, isCountryPackReady, subscribeCountryPacks, useCountryPackVersion } from "./countries/packs";
+import { layerCountryOf } from "./data/layerLookup";
 import { JP_WATER_ACCESS_DENIED_EVENT, useJpWaterPrivateAccess } from "./hooks/useJpWaterPrivateAccess";
 import { isJpWaterPrivateLayer, JP_WATER_PRIVATE_LAYER_KEYS } from "./data/jpWaterTypes";
 import { useSoilLiquefactionPrivateAccess } from "./hooks/useSoilLiquefactionPrivateAccess";
@@ -19,7 +22,7 @@ import { BRIDGE_RESILIENCE_ACCESS_DENIED_EVENT, BRIDGE_RESILIENCE_PRIVATE_LAYER_
 import { BSS_BRIDGE_ACCESS_DENIED_EVENT, BSS_BRIDGE_PRIVATE_LAYER_KEYS, BSS_BRIDGE_SELECTION_CLEAR_EVENT, isBssBridgePrivateLayer } from "./data/bssBridgeTypes";
 import { isSoilLiquefactionPrivateLayer, SOIL_LIQUEFACTION_ACCESS_DENIED_EVENT, SOIL_LIQUEFACTION_PRIVATE_LAYER_KEYS, SOIL_LIQUEFACTION_SELECTION_CLEAR_EVENT } from "./data/soilLiquefactionTypes";
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
-import { COLORS, FONT_CJK, FONT_DATA, LAYOUT, LIGHT, RADIUS, FONT_SIZE, SPACING, SURFACE, Z_INDEX } from "./styles/designTokens";
+import { COLORS, CONTROL, FONT_CJK, FONT_DATA, LAYOUT, LIGHT, RADIUS, FONT_SIZE, SPACING, SURFACE, Z_INDEX } from "./styles/designTokens";
 import type { Map as MapboxMap } from "mapbox-gl";
 import type { ViewMode, RenderMode, DisplayMode, Flight, ExpandableLayerKey, LayerVisibility, AppMode, FeatureInfo } from "./types";
 import type { StationPillarData } from "./three/StationPillarScene";
@@ -117,7 +120,7 @@ import { getToolbarPalette } from "./components/toolbar/toolbarTheme";
 import { MobileMoreMenu } from "./components/toolbar/MobileMoreMenu";
 import { LanguageMenu } from "./components/toolbar/LanguageMenu";
 import { useLocale, localeStore } from "./state/localeStore";
-import { parseUrlState, buildUrl, cleanUrl, type UrlState } from "./lib/urlState";
+import { parseUrlState, buildUrl, cleanUrl, usesSingleMapSelection, type UrlState } from "./lib/urlState";
 import { setTimelineJumpHandler } from "./state/timelineJumpBridge";
 import { ShareModal } from "./components/ShareModal";
 import { MobileBottomSheet } from "./components/MobileBottomSheet";
@@ -128,11 +131,16 @@ import { useMemberGate, signInWithGoogle } from "./lib/auth";
 import { GATED_LAYERS, RELEASE_HOLD_LAYERS } from "./components/sidebar/layerCatalog";
 import { useLayerGates, loadLayerGates, isLayerLocked } from "./lib/layerGates";
 import { FeatureInfoPanel } from "./components/FeatureInfoPanel";
+import { TerritoryCard } from "./territory/TerritoryCard";
+import { TerritoryPanel } from "./territory/TerritoryPanel";
+import { railPalette, RailThemeContext } from "./components/sidebar/railTheme";
+import { territoryStore, useTerritory } from "./territory/territoryStore";
+import { useTerritoryGridLayer } from "./territory/useTerritoryGridLayer";
 import { HEADER_LABELS } from "./components/featureInfo/registry";
 import { ChatPanel } from "./components/chat/ChatPanel";
 import { runChatTurn, testKey } from "./chat/lazyAgent";
 import type { MapBridge } from "./chat/types";
-import { BookOpen, Bot, Box, Camera, CircleHelp, Columns2, MessageSquare, Share2, UserRound } from "lucide-react";
+import { BookOpen, Bot, Box, Camera, CircleHelp, Columns2, Hexagon, MessageSquare, Share2, UserRound } from "lucide-react";
 import { CompareMapView } from "./map/CompareMapView";
 import { CompareDivider } from "./components/compare/CompareDivider";
 import { CountryCompareChrome } from "./components/compare/CountryCompareChrome";
@@ -300,9 +308,11 @@ export default function App() {
   const restoringMemberSceneRef = useRef(false);
   /** 場景還原完成（含連動選單）時把略過項目交回會員面板 */
   const pendingSceneDoneRef = useRef<((skipped: string[]) => void) | null>(null);
+  const sceneRequestRef = useRef(createRequestToken());
   const [pendingMemberScene, setPendingMemberScene] = useState<MemberSceneSnapshot | null>(null);
   const favoriteKeys = useMemo(() => new Set(memberLibrary.userId === (memberUser?.id ?? null) ? memberLibrary.favorites : []), [memberLibrary.favorites, memberLibrary.userId, memberUser?.id]);
-  const memberLabels = useMemo(() => getLayerSearchLabels() as Record<string, string>, []);
+  const countryPackVersion = useCountryPackVersion();
+  const memberLabels = useMemo(() => getLayerSearchLabels() as Record<string, string>, [countryPackVersion]);
   const knownMemberKeys = useMemo(() => new Set(Object.keys(memberLabels)), [memberLabels]);
   useEffect(() => { memberLibraryStore.setUser(memberUser?.id ?? null); }, [memberUser?.id]);
   useEffect(() => {
@@ -573,6 +583,16 @@ export default function App() {
     const next = pickRightCountryRef.current(compareRightCountry);
     if (next !== compareRightCountry) compareStore.setRightCountry(next);
   }, [compareEnabled, compareMode, compareRightCountry, country, visibleCountryCodes.join(","), pinnedCountryCodes]);
+  // B1 P5a 國家包：目前國家（國家選單、釘選、地圖視野提示都經 countryStore）與並排右國的包先載入；
+  // 另外任何開著的圖層（Agent、會員場景、批次開啟、記住的開關）所屬國家包沒載入就補載 —— 單一安全網
+  useEffect(() => {
+    void ensureCountryPacks(countriesCompareActive && compareRightCountry ? [country, compareRightCountry] : [country]).catch(() => undefined);
+  }, [country, compareRightCountry, countriesCompareActive]);
+  useEffect(() => {
+    const need = packCountriesForKeys(Object.keys(layerVisibility).filter((key) => layerVisibility[key as keyof LayerVisibility]))
+      .filter((cc) => !isCountryPackReady(cc));
+    if (need.length) void ensureCountryPacks(need).catch(() => undefined);
+  }, [layerVisibility]);
   // 右圖換國家或關掉：右圖點出來的資訊面板跟著關（那筆資料的地圖已經不在）
   useEffect(() => {
     setFeatureInfo((info) => (info?.properties?.compare_side === "right" ? null : info));
@@ -598,6 +618,8 @@ export default function App() {
     if (next !== countryAb) { countryAbStore.set(next); return; }
     mobileCompareRef.current = abStash(countryAb, country, mobileCompareRef.current);
   }, [isMobile, countryAb, country, visibleCountryCodes.join(","), pinnedCountryCodes]);
+  // 開／關 A／B 也要寫網址（地圖靜止時沒有 moveend 觸發同步，cmp=2 會晚寫或殘留）。排在上面的寄放 effect 之後
+  useEffect(() => { if (isMobile) syncUrlRef.current(); }, [isMobile, countryAb]);
   /** 手機標頭 ⋯ 的「兩國切換」：開／關 */
   const handleToggleCountryAb = useCallback(() => {
     if (countryAbStore.getSnapshot()) {
@@ -1374,6 +1396,11 @@ export default function App() {
       setFeatureInfo({ layerType: "analysisResult", properties });
     } else setFeatureInfo((current) => current?.layerType === "analysisResult" ? null : current);
   }, [setFeatureInfo, invalidateFeatureRequest]);
+  // 比較右圖的選取／清除：先作廢主地圖仍在路上的 raster／GFW 非同步 probe，免得晚回來蓋掉右圖剛選的 popup
+  const handleRightFeatureInfo = useCallback((info: FeatureInfo | null) => {
+    invalidateFeatureRequest();
+    setFeatureInfo(info);
+  }, [setFeatureInfo, invalidateFeatureRequest]);
   // 全球事件 popup 的「可能相關報導」清單點一則 → popup 換成那一則（只有清單用，INTEL 選取不經過這裡）。
   useEffect(() => {
     globalEventsViewStore.setPopupOpener(({ properties, coords }) => {
@@ -1392,6 +1419,22 @@ export default function App() {
     return typeof id === "number" && id > 0 ? id : null;
   })();
   const reservoirContext = useReservoirContextLayer(mapRef, activeReservoirId);
+  // 領土格原型（proto/h3-territory）：面板開著才鋪格子；左側面板寫 territoryStore，這裡只接地圖
+  useTerritoryGridLayer(mapRef, mapStyleId, isDarkTheme);
+  // 領土卡與停靠 popup 互斥：後開的關掉前一個。同一次點擊兩邊都開（點到格子上方的點位）時保留 popup：點位是更具體的目標
+  const { selected: territorySelected, open: territoryOpen } = useTerritory();
+  const exclusivePrevRef = useRef<{ fi: unknown; ts: unknown }>({ fi: null, ts: null });
+  useEffect(() => {
+    const prev = exclusivePrevRef.current;
+    const fiOpened = featureInfo && featureInfo !== prev.fi;
+    const tsOpened = territorySelected && territorySelected !== prev.ts;
+    exclusivePrevRef.current = { fi: featureInfo, ts: territorySelected };
+    if (fiOpened && territorySelected) {
+      territoryStore.select(null);
+    } else if (tsOpened && featureInfo) {
+      setFeatureInfo(null);
+    }
+  }, [featureInfo, territorySelected, setFeatureInfo]);
 
   // 點選光暈 + 水庫水位計 + 水資源 12 層的 hook 已搬進 LayerHost
   //（useSelectedFeatureHalo / useReservoirStatusLayer / useRainGauge… 見 layerHookRegistry）
@@ -1852,10 +1895,15 @@ export default function App() {
    * 回傳的 Promise 在連動選單（統計期別、細項）也還原完才 resolve：那些值要等圖層開啟、選項載入後
    * 才能驗證（`restoreLinkedSelects`），不合法或逾時的列一併列進「略過項目」。
    */
-  const restoreMemberScene = (snapshot: MemberSceneSnapshot): Promise<string[]> => {
+  const restoreMemberScene = async (snapshot: MemberSceneSnapshot): Promise<string[]> => {
     const validated = validateScene(snapshot);
     if (!validated.ok) throw new Error(validated.errors.join("；"));
     if (!mapRef.current || !mapPrepared) throw new Error("地圖尚未就緒。");
+    // B1 P5a：場景裡國家包圖層的參數規格要等包載入，否則還原時會被當成未知參數略過
+    // 載入期間若登出／換帳號，或有更新的還原請求，這次結果作廢（不可把舊帳號的場景套回來）
+    const requestToken = sceneRequestRef.current.begin();
+    await ensureCountryPacks(packCountriesForKeys(validated.value.layers));
+    if (!sceneRequestRef.current.isCurrent(requestToken)) return [];
     const resolved = resolveSceneRestore(validated.value, knownMemberKeys, lockedKeysRef.current, MAP_STYLES.map((style) => style.id));
     markPrivateView(); setMemberPlaceGeometry(null); restoringMemberSceneRef.current = true;
     pendingSceneDoneRef.current?.(resolved.skipped);
@@ -1913,6 +1961,7 @@ export default function App() {
   useEffect(() => {
     const userId = memberUser?.id ?? null;
     if (previousMemberIdRef.current !== userId) {
+      sceneRequestRef.current.invalidate();
       setMemberPlaceGeometry(null); setPendingMemberScene(null); restoringMemberSceneRef.current = false;
       pendingSceneDoneRef.current?.([]); pendingSceneDoneRef.current = null;
       if (privateViewRef.current) {
@@ -2104,7 +2153,28 @@ export default function App() {
   useEffect(() => {
     if (urlStateAppliedRef.current) return;
     urlStateAppliedRef.current = true;
-    const { layers, date, hour, statisticsMode: urlStatisticsMode, presentation, compare: urlCompare, params: urlParams, selection: urlSelection } = urlStateRef.current;
+    // B1 P5a：網址圖層屬於國家包的，要等包載入（開站時 bootPacks 已平行發出）才套參數、開圖層；
+    // 載入失敗的國家先不開、參數先留著，之後重試成功（國家選單、釘選…）再補套，不靜默丟掉
+    void bootPacksReady.then(() => {
+      const urlLayers = urlStateRef.current.layers ?? [];
+      const waiting = new Set(packCountriesForKeys(urlLayers).filter((cc) => !isCountryPackReady(cc)));
+      const isWaiting = (key: string) => { const cc = layerCountryOf(key); return Boolean(cc && waiting.has(cc)); };
+      applyUrlState(urlLayers.filter((key) => !isWaiting(key)));
+      if (!waiting.size) return;
+      let pending = urlLayers.filter(isWaiting);
+      const off = subscribeCountryPacks(() => {
+        const ready = pending.filter((key) => isCountryPackReady(layerCountryOf(key)!));
+        if (!ready.length) return;
+        pending = pending.filter((key) => !ready.includes(key));
+        if (!pending.length) off();
+        const allowed = ready.filter((key) => !lockedKeysRef.current.has(key));
+        layerParamsStore.setManyDirect(resolveUrlLayerParams(urlStateRef.current.params, allowed, layerParamsStore.getAll()));
+        handleBulkSetVisibility(ready, true);
+      });
+    });
+    function applyUrlState(readyLayers: (keyof LayerVisibility)[]) {
+    const { date, hour, statisticsMode: urlStatisticsMode, presentation, compare: urlCompare, params: urlParams, selection: urlSelection } = urlStateRef.current;
+    const layers = readyLayers.length ? readyLayers : undefined;
     // 呈現方式（pm=）先套，圖層開啟時第一次畫就是比例圓
     applyPresentationUrlEntries(presentation);
     // 圖層參數（p.*，D8-1）：只套網址裡有開、目前沒上鎖的圖層（parseLayers 已濾掉站主限定與 HOLD；
@@ -2153,7 +2223,8 @@ export default function App() {
       });
     } else {
       // 單地圖（含手機退回單地圖：左側期別就是單地圖的期別）
-      const allowed = urlCompare ? compareLeft : allowedSelection(urlSelection);
+      // 兩國並排：期別／細項寫在單地圖的 sel（統計資料只由左圖擁有）
+      const allowed = usesSingleMapSelection(urlCompare) ? allowedSelection(urlSelection) : compareLeft;
       if (allowed) {
         void restoreSelectionsAfterLoad(allowed).then((skipped) => {
           if (skipped.length) console.warn("[share] 分享網址的期別／細項略過：", skipped);
@@ -2170,6 +2241,7 @@ export default function App() {
         timelineSetSelectedDate(selected);
         timeStore.setTime(Math.floor(ts / 1000));
       }
+    }
     }
   }, [handleBulkSetVisibility, timelineSetSelectedDate]);
 
@@ -2280,8 +2352,8 @@ export default function App() {
         presentation: presentationUrlEntries((key) => Boolean(layerVisibilityRef.current[key as keyof LayerVisibility])),
         compare,
         params,
-        // 比較模式的左側期別已在 cmpdl，不重複寫
-        selection: compare ? undefined : singleSelectionsForUrl(shareableKey),
+        // 拉桿比較的左側期別已在 cmpdl，不重複寫；兩國並排沒有 cmpdl，期別／細項走單地圖的 sel
+        selection: usesSingleMapSelection(compare) ? singleSelectionsForUrl(shareableKey) : undefined,
         style: mapStyleId,
         date,
         hour,
@@ -2627,7 +2699,7 @@ export default function App() {
             isDarkTheme={isDarkTheme}
             showBasemapLabels={showBasemapLabels}
             featureInfo={featureInfo}
-            onFeatureInfo={setFeatureInfo}
+            onFeatureInfo={handleRightFeatureInfo}
             hostDeps={hostDeps}
           />
           <CountryCompareChrome
@@ -3294,7 +3366,31 @@ export default function App() {
           >
             {(level) => (
               <>
-                {(level === "half" || level === "full") && (
+                {/* 手機領土格（桌機在 rail）：底部面板裡切換成領土格面板；面板半開時上方地圖仍可點格子 */}
+                {(level === "half" || level === "full") && territoryOpen && (
+                  <RailThemeContext.Provider value={railPalette(isDarkTheme)}>
+                    <div data-testid="mobile-territory-panel" style={{ marginTop: 12, display: "flex", flexDirection: "column", maxHeight: "60vh", minHeight: 0 }}>
+                      <TerritoryPanel isDark={isDarkTheme} onClose={() => territoryStore.setOpen(false)} />
+                    </div>
+                  </RailThemeContext.Provider>
+                )}
+                {(level === "half" || level === "full") && !territoryOpen && (
+                  <button
+                    type="button"
+                    onClick={() => territoryStore.setOpen(true)}
+                    style={{
+                      marginTop: 12, display: "inline-flex", alignItems: "center", gap: SPACING.sm, padding: "6px 12px", borderRadius: RADIUS.md, cursor: "pointer",
+                      fontFamily: FONT_CJK, fontSize: FONT_SIZE.base,
+                      background: isDarkTheme ? CONTROL.bg : LIGHT.fillStrong,
+                      color: isDarkTheme ? COLORS.textDefault : LIGHT.textDefault,
+                      border: `1px solid ${isDarkTheme ? CONTROL.border : LIGHT.border}`,
+                    }}
+                  >
+                    <Hexagon size={14} aria-hidden />
+                    {i18n.t("territory.rail")}
+                  </button>
+                )}
+                {(level === "half" || level === "full") && !territoryOpen && (
                   <div style={{ marginTop: 12 }}>
                     <LayerSidebar
                       visibility={layerVisibility}
@@ -3701,6 +3797,10 @@ export default function App() {
           pointerEvents: "none",
         }}
       >
+        {/* 領土卡（原型）：與停靠 popup 同欄、排在它上方 */}
+        <div style={{ pointerEvents: "auto", display: "flex", flexDirection: "column", flexShrink: 1, minHeight: 0, maxHeight: "100%" }}>
+          <TerritoryCard isDark={isDarkTheme} />
+        </div>
         {privateUiFeatureInfo && (
           // popup 優先保留自身高度，圖例吃剩下的空間（圖例 flexShrink 較大，先縮）；
           // AQI 切換器、黃砂面板是 flexShrink:0 的固定高度兄弟，同時開啟時 popup 可縮（minHeight:0）並自行捲動，

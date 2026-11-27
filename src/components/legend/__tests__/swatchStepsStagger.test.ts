@@ -2,7 +2,7 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { SwatchSteps, swatchStepsStaggered } from "../legendKit";
-import { ID_RASTER_BY_KEY } from "../../../data/idWavesLayers";
+import { ID_RASTER_BY_KEY } from "../../../countries/id/idWavesLayers";
 
 /** 2026-11-24 正式站驗收：色別標高「0100300600 1,0001,5002,5004,500 m」、多災種「P0–20P20–40…」刻度黏在一起。 */
 describe("SwatchSteps 刻度太長時交錯兩列", () => {

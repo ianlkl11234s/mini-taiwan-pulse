@@ -62,6 +62,10 @@ import { ATLAS_ENABLED_STATISTICS_KEYS } from "../../data/atlasStatisticsRecipes
 import { DEMOGRAPHICS_ENABLED_STATISTICS_KEYS } from "../../data/demographicsStatisticsRecipes";
 import { SOCIAL_ENABLED_STATISTICS_KEYS } from "../../data/socialStatisticsRecipes";
 import { EDUCATION_PRESENTATION_VIEW_KEYS } from "../../data/statisticsPresentationViews";
+import { loadAllPacks } from "../../countries/packs";
+
+// 全部圖層（含延後載入的國家包，B1 P5）一起驗
+await loadAllPacks();
 
 // ══════════════════════════════════════════════════════════════════
 //  桶 2：hook 留在 App.tsx（pattern E）
@@ -214,6 +218,7 @@ const NO_HOOK_LEDGER = new Set<string>([
   "postMailboxes", // G53 批 1（2026-11-09）：atlas overlay，無 hook
   "antivenomHospitals", // G53 批 1（2026-11-09）：atlas overlay，無 hook
   "freewayHundredMeterStakes", // G53 批 1（2026-11-09）：atlas overlay，無 hook
+  "freewaySpecialSections", "freewayRoadsideDevices", "freewayRoadkill", "freewayEcoFacilities", "freewayEcoSurveyFlora", "freewayEcoSurveyFauna", // 國道靜態批（2026-11-24）：atlas overlay，無 hook
   "swcSpecialZones", // G53 批 1（2026-11-09）：atlas overlay，無 hook
   "slopelandSwcAct", // G53 批 1（2026-11-09）：atlas overlay，無 hook
   "debrisFlowPotential", // G53 批 1（2026-11-09）：atlas overlay，無 hook

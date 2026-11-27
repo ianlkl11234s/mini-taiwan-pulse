@@ -5,8 +5,10 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 vi.mock("../../lib/supabase", () => ({ supabase: { auth: { getSession: vi.fn() } } }));
 
 const { probeOwnerPmtilesAccess, resetOwnerPmtilesAccessProbes } = await import("../useOwnerPmtilesAccess");
-const { KR_SPEC_BY_KEY } = await import("../../data/krDataLayers");
+const { KR_SPEC_BY_KEY } = await import("../../countries/kr/krDataLayers");
 const { LAYER_MANIFEST } = await import("../../data/layerManifest");
+// 南韓已搬成國家包（B1 P5b）：manifest 等登記簿要先載入
+await (await import("../../countries/packs")).loadAllPacks();
 const { GATED_LAYERS } = await import("../../components/sidebar/layerCatalog");
 const { OWNER_DATA_ASSETS } = await import("../../data/ownerDataAssets");
 

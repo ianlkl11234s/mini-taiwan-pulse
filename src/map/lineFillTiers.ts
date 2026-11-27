@@ -199,105 +199,105 @@ export const HOOK_LINE_TIERS: Readonly<Record<string, HookLineTierSpec>> = {
   "gfwHourlyTracks/gfw-hourly-tracks-line": {"width": "standard", "opacity": "reference"}, // src/hooks/useGfwHourlyTracksLayer.ts
   "globalEvents/global-events-relations-line": {"width": "thin", "opacity": "keep"}, // src/hooks/useGlobalEventsLayer.ts
   "globalEvents/global-events-story-links-line": {"width": "standard", "opacity": "keep"}, // 可能同一件事虛線 · src/hooks/useGlobalEventsLayer.ts
-  "jpAdminBoundaries/jp-admin-municipality-line": {"width": "standard", "opacity": "reference"}, // src/hooks/useJpAdminLayers.ts
-  "jpAdminPrefecture/jp-admin-prefecture-line": {"width": "standard", "opacity": "reference"}, // src/hooks/useJpAdminLayers.ts
-  "gbAdminBoundaries/gb-admin-lad-line": {"width": "emphasis", "opacity": "standard"}, // L-5 行政界：LAD 比照縣市 · src/hooks/useGbAdminLayers.ts
-  "krAdminBoundaries/kr-admin-sido-line": {"width": "emphasis", "opacity": "standard"}, // L-5 行政界：시·도比照縣市 · src/hooks/useKrAdminLayers.ts
-  "krAdminBoundaries/kr-admin-sgg-line": {"width": "standard", "opacity": "standard"}, // L-5：시군구比照鄉鎮市區 · src/hooks/useKrAdminLayers.ts
-  "krAdminBoundaries/kr-admin-emd-line": {"width": "thin", "opacity": "standard"}, // L-5：행정동比照村里 · src/hooks/useKrAdminLayers.ts
-  "krPorts/kr-ports-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // 港灣區外框 · src/hooks/useKrTransportLayers.ts
-  "krNationalParks/kr-national-parks-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // 國立公園外框 · src/hooks/useKrDataLayers.ts
-  "krMarineProtectedAreas/kr-marine-protected-areas-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // 海洋保護區外框 · src/hooks/useKrDataLayers.ts
-  "krNationalRoads/kr-national-roads-line": {"width": "standard", "opacity": "standard"}, // 一般國道（單一類，標準階）· src/hooks/useKrTransportLayers.ts
-  "krRailLines/kr-rail-lines-line": {"width": "keep", "opacity": "keep"}, // 寬、透明度依 line_class（幹線強調、地鐵輕軌標準、側線細）· src/hooks/useKrTransportLayers.ts
-  "krPowerLines/kr-power-lines-line": {"width": "keep", "opacity": "keep"}, // 寬、透明度依電壓（比照 osmPowerLines）· src/hooks/useKrEnergyLayers.ts
-  "krPowerLines/kr-power-cables-line": {"width": "keep", "opacity": "keep"}, // 地下／海底電纜虛線，依電壓 · src/hooks/useKrEnergyLayers.ts
-  "krOilGas/kr-oil-gas-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // 油氣設施外框（依類型色）· src/hooks/useKrEnergyLayers.ts
-  "krOilGas/kr-oil-gas-pipelines-line": {"width": "keep", "opacity": "keep"}, // 油氣管線（依 substance）· src/hooks/useKrEnergyLayers.ts
-  "caAdminBoundaries/ca-admin-pr-line": {"width": "emphasis", "opacity": "standard"}, // L-5 行政界：省／地區比照縣市 · src/hooks/useCaAdminLayers.ts
-  "caAdminBoundaries/ca-admin-cd-line": {"width": "standard", "opacity": "standard"}, // L-5：普查區比照鄉鎮市區 · src/hooks/useCaAdminLayers.ts
-  "caAdminBoundaries/ca-admin-csd-line": {"width": "thin", "opacity": "standard"}, // L-5：普查分區比照村里 · src/hooks/useCaAdminLayers.ts
-  "ieAdminBoundaries/ie-admin-la-line": {"width": "emphasis", "opacity": "standard"}, // L-5 行政界：地方政府比照縣市 · src/hooks/useIeAdminLayers.ts
-  "ieAdminBoundaries/ie-admin-ed-line": {"width": "standard", "opacity": "standard"}, // L-5：選舉分區比照鄉鎮市區 · src/hooks/useIeAdminLayers.ts
-  "ieAdminBoundaries/ie-admin-sa-line": {"width": "thin", "opacity": "standard"}, // L-5：統計小區比照村里 · src/hooks/useIeAdminLayers.ts
-  "caMajorRoads/ca-major-roads-line": {"width": "keep", "opacity": "keep"}, // 寬依道路等級（L-1 三階 match）· src/hooks/useCaTransportLayers.ts
-  "caRailways/ca-rail-tracks-line": {"width": "keep", "opacity": "keep"}, // 寬、透明度依 track_class · src/hooks/useCaTransportLayers.ts
-  "caRailways/ca-rail-tracks-minor-line": {"width": "keep", "opacity": "keep"}, // 支線、側線 z10 起 · src/hooks/useCaTransportLayers.ts
-  "caPowerGrid/ca-power-lines-line": {"width": "standard", "opacity": "standard"}, // 電力線（不分電壓）· src/hooks/useCaEnergyLayers.ts
-  "caPowerGrid/ca-power-cables-line": {"width": "standard", "opacity": "standard"}, // 水下電力線虛線 · src/hooks/useCaEnergyLayers.ts
-  "caOilGas/ca-oil-gas-major-pipelines-line": {"width": "keep", "opacity": "keep"}, // 主要管線（依產品）· src/hooks/useCaEnergyLayers.ts
-  "caOilGas/ca-oil-gas-pipelines-line": {"width": "keep", "opacity": "keep"}, // ODI 集輸管線 z8 起（依物質）· src/hooks/useCaEnergyLayers.ts
-  "caPopulationCentres/ca-population-centres-outline": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // 人口中心面外框（F-2）· src/hooks/useCaEnergyLayers.ts
-  "caFederalDistricts/ca-fed-line": {"width": "standard", "opacity": "standard"}, // L-5 行政界中性灰：聯邦選區比照鄉鎮市區 · src/hooks/useCaAreaLayers.ts
-  "caPostalFsa/ca-fsa-line": {"width": "thin", "opacity": "standard"}, // L-5：FSA 細外框 · src/hooks/useCaAreaLayers.ts
-  "caIndigenousLands/ca-indigenous-lands-outline": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // 原住民土地面外框（F-2）· src/hooks/useCaAreaLayers.ts
-  "caDeprivation/ca-cimd-seam": {"width": "keep", "opacity": "keep"}, // 分級面底圖色細縫（F-2 gradedSeamPaint）· src/hooks/useCaAreaLayers.ts
-  "caRents/ca-rents-seam": {"width": "keep", "opacity": "keep"}, // 分級面底圖色細縫（F-2 gradedSeamPaint）· src/hooks/useCaAreaLayers.ts
-  "gbSmallAreaBoundaries/gb-small-areas-line": {"width": "thin", "opacity": "standard"}, // L-5：統計小區比照村里 · src/hooks/useGbAdminLayers.ts
-  "gbSmallAreaBoundaries/gb-ni-sdz-line": {"width": "thin", "opacity": "standard"}, // L-5：北愛 SDZ（與 DZ 擇一）· src/hooks/useGbAdminLayers.ts
-  "gbSmallAreaBoundaries/gb-small-areas-low-line": {"width": "thin", "opacity": "standard"}, // L-5：統計小區 z5–7 低縮放段 · src/hooks/useGbAdminLayers.ts
-  "gbSmallAreaBoundaries/gb-ni-sdz-low-line": {"width": "thin", "opacity": "standard"}, // L-5：北愛 SDZ z5–7 低縮放段 · src/hooks/useGbAdminLayers.ts
+  "jpAdminBoundaries/jp-admin-municipality-line": {"width": "standard", "opacity": "reference"}, // src/countries/jp/useJpAdminLayers.ts
+  "jpAdminPrefecture/jp-admin-prefecture-line": {"width": "standard", "opacity": "reference"}, // src/countries/jp/useJpAdminLayers.ts
+  "gbAdminBoundaries/gb-admin-lad-line": {"width": "emphasis", "opacity": "standard"}, // L-5 行政界：LAD 比照縣市 · src/countries/gb/useGbAdminLayers.ts
+  "krAdminBoundaries/kr-admin-sido-line": {"width": "emphasis", "opacity": "standard"}, // L-5 行政界：시·도比照縣市 · src/countries/kr/useKrAdminLayers.ts
+  "krAdminBoundaries/kr-admin-sgg-line": {"width": "standard", "opacity": "standard"}, // L-5：시군구比照鄉鎮市區 · src/countries/kr/useKrAdminLayers.ts
+  "krAdminBoundaries/kr-admin-emd-line": {"width": "thin", "opacity": "standard"}, // L-5：행정동比照村里 · src/countries/kr/useKrAdminLayers.ts
+  "krPorts/kr-ports-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // 港灣區外框 · src/countries/kr/useKrTransportLayers.ts
+  "krNationalParks/kr-national-parks-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // 國立公園外框 · src/countries/kr/useKrDataLayers.ts
+  "krMarineProtectedAreas/kr-marine-protected-areas-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // 海洋保護區外框 · src/countries/kr/useKrDataLayers.ts
+  "krNationalRoads/kr-national-roads-line": {"width": "standard", "opacity": "standard"}, // 一般國道（單一類，標準階）· src/countries/kr/useKrTransportLayers.ts
+  "krRailLines/kr-rail-lines-line": {"width": "keep", "opacity": "keep"}, // 寬、透明度依 line_class（幹線強調、地鐵輕軌標準、側線細）· src/countries/kr/useKrTransportLayers.ts
+  "krPowerLines/kr-power-lines-line": {"width": "keep", "opacity": "keep"}, // 寬、透明度依電壓（比照 osmPowerLines）· src/countries/kr/useKrEnergyLayers.ts
+  "krPowerLines/kr-power-cables-line": {"width": "keep", "opacity": "keep"}, // 地下／海底電纜虛線，依電壓 · src/countries/kr/useKrEnergyLayers.ts
+  "krOilGas/kr-oil-gas-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // 油氣設施外框（依類型色）· src/countries/kr/useKrEnergyLayers.ts
+  "krOilGas/kr-oil-gas-pipelines-line": {"width": "keep", "opacity": "keep"}, // 油氣管線（依 substance）· src/countries/kr/useKrEnergyLayers.ts
+  "caAdminBoundaries/ca-admin-pr-line": {"width": "emphasis", "opacity": "standard"}, // L-5 行政界：省／地區比照縣市 · src/countries/ca/useCaAdminLayers.ts
+  "caAdminBoundaries/ca-admin-cd-line": {"width": "standard", "opacity": "standard"}, // L-5：普查區比照鄉鎮市區 · src/countries/ca/useCaAdminLayers.ts
+  "caAdminBoundaries/ca-admin-csd-line": {"width": "thin", "opacity": "standard"}, // L-5：普查分區比照村里 · src/countries/ca/useCaAdminLayers.ts
+  "ieAdminBoundaries/ie-admin-la-line": {"width": "emphasis", "opacity": "standard"}, // L-5 行政界：地方政府比照縣市 · src/countries/ie/useIeAdminLayers.ts
+  "ieAdminBoundaries/ie-admin-ed-line": {"width": "standard", "opacity": "standard"}, // L-5：選舉分區比照鄉鎮市區 · src/countries/ie/useIeAdminLayers.ts
+  "ieAdminBoundaries/ie-admin-sa-line": {"width": "thin", "opacity": "standard"}, // L-5：統計小區比照村里 · src/countries/ie/useIeAdminLayers.ts
+  "caMajorRoads/ca-major-roads-line": {"width": "keep", "opacity": "keep"}, // 寬依道路等級（L-1 三階 match）· src/countries/ca/useCaTransportLayers.ts
+  "caRailways/ca-rail-tracks-line": {"width": "keep", "opacity": "keep"}, // 寬、透明度依 track_class · src/countries/ca/useCaTransportLayers.ts
+  "caRailways/ca-rail-tracks-minor-line": {"width": "keep", "opacity": "keep"}, // 支線、側線 z10 起 · src/countries/ca/useCaTransportLayers.ts
+  "caPowerGrid/ca-power-lines-line": {"width": "standard", "opacity": "standard"}, // 電力線（不分電壓）· src/countries/ca/useCaEnergyLayers.ts
+  "caPowerGrid/ca-power-cables-line": {"width": "standard", "opacity": "standard"}, // 水下電力線虛線 · src/countries/ca/useCaEnergyLayers.ts
+  "caOilGas/ca-oil-gas-major-pipelines-line": {"width": "keep", "opacity": "keep"}, // 主要管線（依產品）· src/countries/ca/useCaEnergyLayers.ts
+  "caOilGas/ca-oil-gas-pipelines-line": {"width": "keep", "opacity": "keep"}, // ODI 集輸管線 z8 起（依物質）· src/countries/ca/useCaEnergyLayers.ts
+  "caPopulationCentres/ca-population-centres-outline": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // 人口中心面外框（F-2）· src/countries/ca/useCaEnergyLayers.ts
+  "caFederalDistricts/ca-fed-line": {"width": "standard", "opacity": "standard"}, // L-5 行政界中性灰：聯邦選區比照鄉鎮市區 · src/countries/ca/useCaAreaLayers.ts
+  "caPostalFsa/ca-fsa-line": {"width": "thin", "opacity": "standard"}, // L-5：FSA 細外框 · src/countries/ca/useCaAreaLayers.ts
+  "caIndigenousLands/ca-indigenous-lands-outline": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // 原住民土地面外框（F-2）· src/countries/ca/useCaAreaLayers.ts
+  "caDeprivation/ca-cimd-seam": {"width": "keep", "opacity": "keep"}, // 分級面底圖色細縫（F-2 gradedSeamPaint）· src/countries/ca/useCaAreaLayers.ts
+  "caRents/ca-rents-seam": {"width": "keep", "opacity": "keep"}, // 分級面底圖色細縫（F-2 gradedSeamPaint）· src/countries/ca/useCaAreaLayers.ts
+  "gbSmallAreaBoundaries/gb-small-areas-line": {"width": "thin", "opacity": "standard"}, // L-5：統計小區比照村里 · src/countries/gb/useGbAdminLayers.ts
+  "gbSmallAreaBoundaries/gb-ni-sdz-line": {"width": "thin", "opacity": "standard"}, // L-5：北愛 SDZ（與 DZ 擇一）· src/countries/gb/useGbAdminLayers.ts
+  "gbSmallAreaBoundaries/gb-small-areas-low-line": {"width": "thin", "opacity": "standard"}, // L-5：統計小區 z5–7 低縮放段 · src/countries/gb/useGbAdminLayers.ts
+  "gbSmallAreaBoundaries/gb-ni-sdz-low-line": {"width": "thin", "opacity": "standard"}, // L-5：北愛 SDZ z5–7 低縮放段 · src/countries/gb/useGbAdminLayers.ts
   "twCountyMigrationFlows/tw-county-migration-flows-line": {"width": "keep", "opacity": "standard"}, // 線寬＝人數 4 級（資料驅動） · src/hooks/useCountyMigrationFlowsLayer.ts
-  "gbMaritimeLimits/gb-maritime-limits-line": {"width": "keep", "opacity": "standard"}, // L-5 海域界：寬依界線類型（L-1 三階 match）· src/hooks/useGbMaritimeLimitsLayer.ts
-  "gbMaritimeLimits/gb-maritime-limits-dashed": {"width": "keep", "opacity": "standard"}, // L-2 [4,3]：大陸棚、四地分區 · src/hooks/useGbMaritimeLimitsLayer.ts
-  "gbMaritimeLimits/gb-maritime-limits-closing": {"width": "keep", "opacity": "standard"}, // 海灣封口線 z8 起 · src/hooks/useGbMaritimeLimitsLayer.ts
-  "gbRivers/gb-rivers-line": {"width": "keep", "opacity": "keep"}, // 寬依 form／北愛 Strahler（L-1 三階）、湖中連接段淡化 · src/hooks/useGbWaterLayers.ts
-  "gbFloodDefenceAssets/gb-flood-defences-line": {"width": "standard", "opacity": "keep"}, // 透明度：天然高地淡化（資料編碼）· src/hooks/useGbWaterLayers.ts
-  "gbFloodDefenceAssets/gb-flood-defences-z5-6-line": {"width": "standard", "opacity": "keep"}, // z5–6 小檔 · src/hooks/useGbWaterLayers.ts
-  "gbCoastalErosionRisk/gb-coastal-erosion-outline": {"width": "keep", "opacity": "keep"}, // 侵蝕帶外框（低縮放加寬，寬度逐縮放）· src/hooks/useGbWaterLayers.ts
-  "gbCoastalErosionRisk/gb-coastal-erosion-ni-line": {"width": "emphasis", "opacity": "standard"}, // 北愛 2019 風險等級線 · src/hooks/useGbWaterLayers.ts
-  "gbLondonRailLines/gb-london-rail-lines-line": {"width": "standard", "opacity": "standard"}, // 依 mode 5 色 · src/hooks/useGbTransportLayers.ts
-  "gbProtectedAreas/gb-protected-areas-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // 保護區外框（依類別色）· src/hooks/useGbNatureLayers.ts
-  "gbMarineProtectedAreas/gb-marine-protected-areas-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // 海洋保護區外框 · src/hooks/useGbNatureLayers.ts
-  "gbTrails/gb-trails-national-line": {"width": "emphasis", "opacity": "standard"}, // 國家步道（粗線，比照 hikingTrails）· src/hooks/useGbNatureLayers.ts
-  "gbPowerLines/gb-power-lines-line": {"width": "keep", "opacity": "keep"}, // 寬、透明度依電壓 5 級（比照 osmPowerLines）· src/hooks/useGbEnergyLayers.ts
-  "gbPowerLines/gb-power-cables-line": {"width": "keep", "opacity": "keep"}, // 地下／海底電纜虛線，依電壓 · src/hooks/useGbEnergyLayers.ts
-  "gbOilGasFields/gb-oil-gas-fields-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // 油氣田外框（依類型色）· src/hooks/useGbEnergyLayers.ts
-  "gbTrails/gb-trails-forest-line": {"width": "standard", "opacity": "standard"}, // 公有林步道依 category 分色 · src/hooks/useGbNatureLayers.ts
-  "gbLondonChargingZones/gb-london-charging-zones-line": {"width": "standard", "opacity": "standard"}, // 收費區外框 · src/hooks/useGbTransportLayers.ts
-  "gbPlanningConstraints/gb-planning-constraints-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // 規劃限制區外框（依類別色）· src/hooks/useGbEnvPlanningLayers.ts
-  "gbMajorRoads/gb-major-roads-line": {"width": "keep", "opacity": "standard"}, // 寬依 road_class 對 L-1 三階（高速強調／A 標準／B 細，L-5）· src/hooks/useGbTransportLayers.ts
-  "gbBridgesTunnels/gb-bridges-tunnels-bridge-line": {"width": "keep", "opacity": "standard"}, // 寬依 road_class（同主要路網 L-5）· src/hooks/useGbOsmLayers.ts
-  "gbBridgesTunnels/gb-bridges-tunnels-tunnel-line": {"width": "keep", "opacity": "standard"}, // 隧道虛線，寬依 road_class · src/hooks/useGbOsmLayers.ts
-  "jpAirports/jp-airports-line": {"width": "standard", "opacity": "reference"}, // src/hooks/useJpAirportsLayer.ts
-  "jpCareCombined/jp-medical-care-aggregate-outline": {"width": "keep", "opacity": "keep", "outline": "graded"}, // src/hooks/useJpMedicalLayers.ts
-  "jpCareDayServices/jp-medical-care-aggregate-outline": {"width": "keep", "opacity": "keep", "outline": "graded"}, // src/hooks/useJpMedicalLayers.ts
-  "jpCareEquipment/jp-medical-care-aggregate-outline": {"width": "keep", "opacity": "keep", "outline": "graded"}, // src/hooks/useJpMedicalLayers.ts
-  "jpCareHomeVisit/jp-medical-care-aggregate-outline": {"width": "keep", "opacity": "keep", "outline": "graded"}, // src/hooks/useJpMedicalLayers.ts
-  "jpCarePlanning/jp-medical-care-aggregate-outline": {"width": "keep", "opacity": "keep", "outline": "graded"}, // src/hooks/useJpMedicalLayers.ts
-  "jpCareResidential/jp-medical-care-aggregate-outline": {"width": "keep", "opacity": "keep", "outline": "graded"}, // src/hooks/useJpMedicalLayers.ts
-  "jpMarineEbsaCoastal/jp-tourism-jp-marine-ebsa-coastal-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/hooks/useJpTourismLayers.ts
-  "jpMedicalAreasPrimary/jp-medical-areas-1-outline": {"width": "keep", "opacity": "keep", "outline": "background"}, // src/hooks/useJpMedicalLayers.ts
-  "jpMedicalAreasSecondary/jp-medical-areas-2-outline": {"width": "keep", "opacity": "keep", "outline": "background"}, // src/hooks/useJpMedicalLayers.ts
-  "jpMedicalAreasTertiary/jp-medical-areas-3-outline": {"width": "keep", "opacity": "keep", "outline": "background"}, // src/hooks/useJpMedicalLayers.ts
-  "jpMedicalClinics/jp-medical-facilities-aggregate-outline": {"width": "keep", "opacity": "keep", "outline": "graded"}, // src/hooks/useJpMedicalLayers.ts
-  "jpMedicalDental/jp-medical-facilities-aggregate-outline": {"width": "keep", "opacity": "keep", "outline": "graded"}, // src/hooks/useJpMedicalLayers.ts
-  "jpMedicalHospitals/jp-medical-facilities-aggregate-outline": {"width": "keep", "opacity": "keep", "outline": "graded"}, // src/hooks/useJpMedicalLayers.ts
-  "jpMedicalMaternity/jp-medical-facilities-aggregate-outline": {"width": "keep", "opacity": "keep", "outline": "graded"}, // src/hooks/useJpMedicalLayers.ts
-  "jpMedicalPharmacies/jp-medical-facilities-aggregate-outline": {"width": "keep", "opacity": "keep", "outline": "graded"}, // src/hooks/useJpMedicalLayers.ts
-  "jpNaturalParksNational/jp-tourism-jp-natural-parks-national-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/hooks/useJpTourismLayers.ts
-  "jpNaturalParksPrefectural/jp-tourism-jp-natural-parks-prefectural-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/hooks/useJpTourismLayers.ts
-  "jpNaturalParksQuasiNational/jp-tourism-jp-natural-parks-quasi-national-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/hooks/useJpTourismLayers.ts
-  "jpNatureConservationArea/jp-tourism-jp-nature-conservation-area-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/hooks/useJpTourismLayers.ts
-  "jpNatureConservationSpecialDistrict/jp-tourism-jp-nature-conservation-special-district-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/hooks/useJpTourismLayers.ts
-  "jpPrimitiveNatureEnvironmentArea/jp-tourism-jp-primitive-nature-environment-area-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/hooks/useJpTourismLayers.ts
-  "jpRailways/jp-railways-line": {"width": "emphasis", "opacity": "standard"}, // src/hooks/useJpRailwaysLayer.ts
-  "jpExpressways/jp-expressways-line": {"width": "emphasis", "opacity": "standard"}, // src/hooks/useJpExpresswaysLayer.ts
-  "jpMajorRoads/jp-major-roads-line": {"width": "standard", "opacity": "standard"}, // 線寬依 road_class_code 資料編碼（L-5 三階）· src/hooks/useJpMajorRoadsLayer.ts
-  "jpMajorRoads/jp-major-roads-z5-line": {"width": "standard", "opacity": "standard"}, // 線寬依 road_class_code 資料編碼（L-5 三階）· src/hooks/useJpMajorRoadsLayer.ts
-  "jpMunicipalRoads/jp-municipal-roads-hokkaido_tohoku-line": {"width": "thin", "opacity": "standard"}, // 市町村道 6 片同一樣式（L-1 最細階＋淡色）· src/hooks/useJpMunicipalRoadsLayer.ts
-  "jpMunicipalRoads/jp-municipal-roads-kanto-line": {"width": "thin", "opacity": "standard"}, // 市町村道 6 片同一樣式（L-1 最細階＋淡色）· src/hooks/useJpMunicipalRoadsLayer.ts
-  "jpMunicipalRoads/jp-municipal-roads-chubu-line": {"width": "thin", "opacity": "standard"}, // 市町村道 6 片同一樣式（L-1 最細階＋淡色）· src/hooks/useJpMunicipalRoadsLayer.ts
-  "jpMunicipalRoads/jp-municipal-roads-kinki-line": {"width": "thin", "opacity": "standard"}, // 市町村道 6 片同一樣式（L-1 最細階＋淡色）· src/hooks/useJpMunicipalRoadsLayer.ts
-  "jpMunicipalRoads/jp-municipal-roads-chugoku_shikoku-line": {"width": "thin", "opacity": "standard"}, // 市町村道 6 片同一樣式（L-1 最細階＋淡色）· src/hooks/useJpMunicipalRoadsLayer.ts
-  "jpMunicipalRoads/jp-municipal-roads-kyushu_okinawa-line": {"width": "thin", "opacity": "standard"}, // 市町村道 6 片同一樣式（L-1 最細階＋淡色）· src/hooks/useJpMunicipalRoadsLayer.ts
-  "jpWaterLakes/jp-water-jpWaterLakes-outline": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/hooks/useJpWaterLayers.ts
-  "jpWaterSupplyAreas/jp-water-jpWaterSupplyAreas-outline": {"width": "keep", "opacity": "keep", "outline": "background"}, // src/hooks/useJpWaterLayers.ts
-  "jpWaterRivers/jp-water-jpWaterRivers": {"width": "standard", "opacity": "standard"}, // src/hooks/useJpWaterLayers.ts
-  "jpWildlifeProtectionNational/jp-tourism-jp-wildlife-protection-national-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/hooks/useJpTourismLayers.ts
-  "jpWildlifeSpecialProtectionDesignatedArea/jp-tourism-jp-wildlife-special-protection-designated-area-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/hooks/useJpTourismLayers.ts
-  "jpWildlifeSpecialProtectionDistrict/jp-tourism-jp-wildlife-special-protection-district-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/hooks/useJpTourismLayers.ts
-  "jpWorldNaturalHeritageHistorical/jp-tourism-jp-world-natural-heritage-historical-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/hooks/useJpTourismLayers.ts
+  "gbMaritimeLimits/gb-maritime-limits-line": {"width": "keep", "opacity": "standard"}, // L-5 海域界：寬依界線類型（L-1 三階 match）· src/countries/gb/useGbMaritimeLimitsLayer.ts
+  "gbMaritimeLimits/gb-maritime-limits-dashed": {"width": "keep", "opacity": "standard"}, // L-2 [4,3]：大陸棚、四地分區 · src/countries/gb/useGbMaritimeLimitsLayer.ts
+  "gbMaritimeLimits/gb-maritime-limits-closing": {"width": "keep", "opacity": "standard"}, // 海灣封口線 z8 起 · src/countries/gb/useGbMaritimeLimitsLayer.ts
+  "gbRivers/gb-rivers-line": {"width": "keep", "opacity": "keep"}, // 寬依 form／北愛 Strahler（L-1 三階）、湖中連接段淡化 · src/countries/gb/useGbWaterLayers.ts
+  "gbFloodDefenceAssets/gb-flood-defences-line": {"width": "standard", "opacity": "keep"}, // 透明度：天然高地淡化（資料編碼）· src/countries/gb/useGbWaterLayers.ts
+  "gbFloodDefenceAssets/gb-flood-defences-z5-6-line": {"width": "standard", "opacity": "keep"}, // z5–6 小檔 · src/countries/gb/useGbWaterLayers.ts
+  "gbCoastalErosionRisk/gb-coastal-erosion-outline": {"width": "keep", "opacity": "keep"}, // 侵蝕帶外框（低縮放加寬，寬度逐縮放）· src/countries/gb/useGbWaterLayers.ts
+  "gbCoastalErosionRisk/gb-coastal-erosion-ni-line": {"width": "emphasis", "opacity": "standard"}, // 北愛 2019 風險等級線 · src/countries/gb/useGbWaterLayers.ts
+  "gbLondonRailLines/gb-london-rail-lines-line": {"width": "standard", "opacity": "standard"}, // 依 mode 5 色 · src/countries/gb/useGbTransportLayers.ts
+  "gbProtectedAreas/gb-protected-areas-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // 保護區外框（依類別色）· src/countries/gb/useGbNatureLayers.ts
+  "gbMarineProtectedAreas/gb-marine-protected-areas-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // 海洋保護區外框 · src/countries/gb/useGbNatureLayers.ts
+  "gbTrails/gb-trails-national-line": {"width": "emphasis", "opacity": "standard"}, // 國家步道（粗線，比照 hikingTrails）· src/countries/gb/useGbNatureLayers.ts
+  "gbPowerLines/gb-power-lines-line": {"width": "keep", "opacity": "keep"}, // 寬、透明度依電壓 5 級（比照 osmPowerLines）· src/countries/gb/useGbEnergyLayers.ts
+  "gbPowerLines/gb-power-cables-line": {"width": "keep", "opacity": "keep"}, // 地下／海底電纜虛線，依電壓 · src/countries/gb/useGbEnergyLayers.ts
+  "gbOilGasFields/gb-oil-gas-fields-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // 油氣田外框（依類型色）· src/countries/gb/useGbEnergyLayers.ts
+  "gbTrails/gb-trails-forest-line": {"width": "standard", "opacity": "standard"}, // 公有林步道依 category 分色 · src/countries/gb/useGbNatureLayers.ts
+  "gbLondonChargingZones/gb-london-charging-zones-line": {"width": "standard", "opacity": "standard"}, // 收費區外框 · src/countries/gb/useGbTransportLayers.ts
+  "gbPlanningConstraints/gb-planning-constraints-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // 規劃限制區外框（依類別色）· src/countries/gb/useGbEnvPlanningLayers.ts
+  "gbMajorRoads/gb-major-roads-line": {"width": "keep", "opacity": "standard"}, // 寬依 road_class 對 L-1 三階（高速強調／A 標準／B 細，L-5）· src/countries/gb/useGbTransportLayers.ts
+  "gbBridgesTunnels/gb-bridges-tunnels-bridge-line": {"width": "keep", "opacity": "standard"}, // 寬依 road_class（同主要路網 L-5）· src/countries/gb/useGbOsmLayers.ts
+  "gbBridgesTunnels/gb-bridges-tunnels-tunnel-line": {"width": "keep", "opacity": "standard"}, // 隧道虛線，寬依 road_class · src/countries/gb/useGbOsmLayers.ts
+  "jpAirports/jp-airports-line": {"width": "standard", "opacity": "reference"}, // src/countries/jp/useJpAirportsLayer.ts
+  "jpCareCombined/jp-medical-care-aggregate-outline": {"width": "keep", "opacity": "keep", "outline": "graded"}, // src/countries/jp/useJpMedicalLayers.ts
+  "jpCareDayServices/jp-medical-care-aggregate-outline": {"width": "keep", "opacity": "keep", "outline": "graded"}, // src/countries/jp/useJpMedicalLayers.ts
+  "jpCareEquipment/jp-medical-care-aggregate-outline": {"width": "keep", "opacity": "keep", "outline": "graded"}, // src/countries/jp/useJpMedicalLayers.ts
+  "jpCareHomeVisit/jp-medical-care-aggregate-outline": {"width": "keep", "opacity": "keep", "outline": "graded"}, // src/countries/jp/useJpMedicalLayers.ts
+  "jpCarePlanning/jp-medical-care-aggregate-outline": {"width": "keep", "opacity": "keep", "outline": "graded"}, // src/countries/jp/useJpMedicalLayers.ts
+  "jpCareResidential/jp-medical-care-aggregate-outline": {"width": "keep", "opacity": "keep", "outline": "graded"}, // src/countries/jp/useJpMedicalLayers.ts
+  "jpMarineEbsaCoastal/jp-tourism-jp-marine-ebsa-coastal-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/countries/jp/useJpTourismLayers.ts
+  "jpMedicalAreasPrimary/jp-medical-areas-1-outline": {"width": "keep", "opacity": "keep", "outline": "background"}, // src/countries/jp/useJpMedicalLayers.ts
+  "jpMedicalAreasSecondary/jp-medical-areas-2-outline": {"width": "keep", "opacity": "keep", "outline": "background"}, // src/countries/jp/useJpMedicalLayers.ts
+  "jpMedicalAreasTertiary/jp-medical-areas-3-outline": {"width": "keep", "opacity": "keep", "outline": "background"}, // src/countries/jp/useJpMedicalLayers.ts
+  "jpMedicalClinics/jp-medical-facilities-aggregate-outline": {"width": "keep", "opacity": "keep", "outline": "graded"}, // src/countries/jp/useJpMedicalLayers.ts
+  "jpMedicalDental/jp-medical-facilities-aggregate-outline": {"width": "keep", "opacity": "keep", "outline": "graded"}, // src/countries/jp/useJpMedicalLayers.ts
+  "jpMedicalHospitals/jp-medical-facilities-aggregate-outline": {"width": "keep", "opacity": "keep", "outline": "graded"}, // src/countries/jp/useJpMedicalLayers.ts
+  "jpMedicalMaternity/jp-medical-facilities-aggregate-outline": {"width": "keep", "opacity": "keep", "outline": "graded"}, // src/countries/jp/useJpMedicalLayers.ts
+  "jpMedicalPharmacies/jp-medical-facilities-aggregate-outline": {"width": "keep", "opacity": "keep", "outline": "graded"}, // src/countries/jp/useJpMedicalLayers.ts
+  "jpNaturalParksNational/jp-tourism-jp-natural-parks-national-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/countries/jp/useJpTourismLayers.ts
+  "jpNaturalParksPrefectural/jp-tourism-jp-natural-parks-prefectural-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/countries/jp/useJpTourismLayers.ts
+  "jpNaturalParksQuasiNational/jp-tourism-jp-natural-parks-quasi-national-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/countries/jp/useJpTourismLayers.ts
+  "jpNatureConservationArea/jp-tourism-jp-nature-conservation-area-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/countries/jp/useJpTourismLayers.ts
+  "jpNatureConservationSpecialDistrict/jp-tourism-jp-nature-conservation-special-district-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/countries/jp/useJpTourismLayers.ts
+  "jpPrimitiveNatureEnvironmentArea/jp-tourism-jp-primitive-nature-environment-area-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/countries/jp/useJpTourismLayers.ts
+  "jpRailways/jp-railways-line": {"width": "emphasis", "opacity": "standard"}, // src/countries/jp/useJpRailwaysLayer.ts
+  "jpExpressways/jp-expressways-line": {"width": "emphasis", "opacity": "standard"}, // src/countries/jp/useJpExpresswaysLayer.ts
+  "jpMajorRoads/jp-major-roads-line": {"width": "standard", "opacity": "standard"}, // 線寬依 road_class_code 資料編碼（L-5 三階）· src/countries/jp/useJpMajorRoadsLayer.ts
+  "jpMajorRoads/jp-major-roads-z5-line": {"width": "standard", "opacity": "standard"}, // 線寬依 road_class_code 資料編碼（L-5 三階）· src/countries/jp/useJpMajorRoadsLayer.ts
+  "jpMunicipalRoads/jp-municipal-roads-hokkaido_tohoku-line": {"width": "thin", "opacity": "standard"}, // 市町村道 6 片同一樣式（L-1 最細階＋淡色）· src/countries/jp/useJpMunicipalRoadsLayer.ts
+  "jpMunicipalRoads/jp-municipal-roads-kanto-line": {"width": "thin", "opacity": "standard"}, // 市町村道 6 片同一樣式（L-1 最細階＋淡色）· src/countries/jp/useJpMunicipalRoadsLayer.ts
+  "jpMunicipalRoads/jp-municipal-roads-chubu-line": {"width": "thin", "opacity": "standard"}, // 市町村道 6 片同一樣式（L-1 最細階＋淡色）· src/countries/jp/useJpMunicipalRoadsLayer.ts
+  "jpMunicipalRoads/jp-municipal-roads-kinki-line": {"width": "thin", "opacity": "standard"}, // 市町村道 6 片同一樣式（L-1 最細階＋淡色）· src/countries/jp/useJpMunicipalRoadsLayer.ts
+  "jpMunicipalRoads/jp-municipal-roads-chugoku_shikoku-line": {"width": "thin", "opacity": "standard"}, // 市町村道 6 片同一樣式（L-1 最細階＋淡色）· src/countries/jp/useJpMunicipalRoadsLayer.ts
+  "jpMunicipalRoads/jp-municipal-roads-kyushu_okinawa-line": {"width": "thin", "opacity": "standard"}, // 市町村道 6 片同一樣式（L-1 最細階＋淡色）· src/countries/jp/useJpMunicipalRoadsLayer.ts
+  "jpWaterLakes/jp-water-jpWaterLakes-outline": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/countries/jp/useJpWaterLayers.ts
+  "jpWaterSupplyAreas/jp-water-jpWaterSupplyAreas-outline": {"width": "keep", "opacity": "keep", "outline": "background"}, // src/countries/jp/useJpWaterLayers.ts
+  "jpWaterRivers/jp-water-jpWaterRivers": {"width": "standard", "opacity": "standard"}, // src/countries/jp/useJpWaterLayers.ts
+  "jpWildlifeProtectionNational/jp-tourism-jp-wildlife-protection-national-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/countries/jp/useJpTourismLayers.ts
+  "jpWildlifeSpecialProtectionDesignatedArea/jp-tourism-jp-wildlife-special-protection-designated-area-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/countries/jp/useJpTourismLayers.ts
+  "jpWildlifeSpecialProtectionDistrict/jp-tourism-jp-wildlife-special-protection-district-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/countries/jp/useJpTourismLayers.ts
+  "jpWorldNaturalHeritageHistorical/jp-tourism-jp-world-natural-heritage-historical-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/countries/jp/useJpTourismLayers.ts
   "lifelineAlerts/lifelineAlerts-line": {"width": "standard", "opacity": "standard"}, // src/hooks/useDisasterAlertLayer.ts
   "plaActivity/pla-activity-line": {"width": "keep", "opacity": "keep"}, // src/hooks/usePlaActivityLayer.ts
   "propertyValueAdmin/property-value-admin-county-line": {"width": "keep", "opacity": "keep", "outline": "graded"}, // src/hooks/usePropertyValueAdminLayer.ts
@@ -314,58 +314,58 @@ export const HOOK_LINE_TIERS: Readonly<Record<string, HookLineTierSpec>> = {
   "typhoonTracks/typhoon-tracks-line-observed": {"width": "emphasis", "opacity": "standard"}, // src/hooks/useTyphoonTracksLayer.ts
   "vesselWatch/vessel-watch-trail-line": {"width": "standard", "opacity": "reference"}, // src/hooks/useVesselWatchLayer.ts
   "weatherAlerts/weatherAlerts-line": {"width": "standard", "opacity": "standard"}, // src/hooks/useDisasterAlertLayer.ts
-  "phAdminBoundaries/ph-admin-region-line": {"width": "emphasis", "opacity": "standard"}, // L-5 行政界：region 比照縣市 · src/hooks/usePhLayers.ts
-  "phAdminBoundaries/ph-admin-province-line": {"width": "emphasis", "opacity": "standard"}, // L-5：省比照縣市 · src/hooks/usePhLayers.ts
-  "phAdminBoundaries/ph-admin-municipality-line": {"width": "standard", "opacity": "standard"}, // L-5：市鎮比照鄉鎮市區 · src/hooks/usePhLayers.ts
-  "phAdminBoundaries/ph-admin-barangay-line": {"width": "thin", "opacity": "standard"}, // L-5：barangay 比照村里 · src/hooks/usePhLayers.ts
-  "phPopulation/ph-population-region-line": {"width": "keep", "opacity": "keep"}, // 分級面底圖色細縫（F-2）· src/hooks/usePhLayers.ts
-  "phPopulation/ph-population-province-line": {"width": "keep", "opacity": "keep"}, // 分級面底圖色細縫（F-2）· src/hooks/usePhLayers.ts
-  "phPopulation/ph-population-municipality-line": {"width": "keep", "opacity": "keep"}, // 分級面底圖色細縫（F-2）· src/hooks/usePhLayers.ts
-  "phPopulation/ph-population-barangay-line": {"width": "keep", "opacity": "keep"}, // 分級面底圖色細縫（F-2）· src/hooks/usePhLayers.ts
-  "phMajorRoads/ph-major-roads-line": {"width": "keep", "opacity": "standard"}, // 寬依道路等級 · src/hooks/usePhLayers.ts
-  "phMajorRoads/ph-major-rail-line": {"width": "standard", "opacity": "standard"}, // 鐵道單一類 · src/hooks/usePhLayers.ts
-  "phPowerGrid/ph-power-lines-line": {"width": "keep", "opacity": "standard"}, // 寬依電壓（比照 osmPowerLines）· src/hooks/usePhLayers.ts
-  "phPowerGrid/ph-power-cables-line": {"width": "keep", "opacity": "standard"}, // 地下／海底電纜虛線，寬依電壓 · src/hooks/usePhLayers.ts
-  "phPipelines/ph-pipelines-line": {"width": "standard", "opacity": "standard"}, // 依內容物分色 · src/hooks/usePhLayers.ts
-  "thAdminBoundaries/th-admin-country-line": {"width": "emphasis", "opacity": "standard"}, // L-5：國界 · src/hooks/useThLayers.ts
-  "thAdminBoundaries/th-admin-province-line": {"width": "emphasis", "opacity": "standard"}, // L-5：77 府比照縣市 · src/hooks/useThLayers.ts
-  "thAdminBoundaries/th-admin-amphoe-line": {"width": "emphasis", "opacity": "standard"}, // L-5：928 縣 · src/hooks/useThLayers.ts
-  "thAdminBoundaries/th-admin-tambon-line": {"width": "emphasis", "opacity": "standard"}, // L-5：7,425 區 · src/hooks/useThLayers.ts
-  "thPopulation/th-population-province-line": {"width": "keep", "opacity": "keep"}, // 分級面底圖色細縫（F-2）· src/hooks/useThLayers.ts
-  "thPopulation/th-population-amphoe-line": {"width": "keep", "opacity": "keep"}, // 同上 · src/hooks/useThLayers.ts
-  "thMajorRoads/th-major-roads-line": {"width": "keep", "opacity": "standard"}, // 寬依道路等級 · src/hooks/usePhLayers.ts（泰國規格）
-  "thMajorRoads/th-major-rail-line": {"width": "standard", "opacity": "standard"}, // 鐵道 · src/hooks/usePhLayers.ts（泰國規格）
-  "thPowerGrid/th-power-lines-line": {"width": "keep", "opacity": "standard"}, // 寬依電壓 · src/hooks/usePhLayers.ts（泰國規格）
-  "thPipelines/th-pipelines-line": {"width": "keep", "opacity": "standard"}, // 依內容物分色、油氣較寬 · src/hooks/usePhLayers.ts（泰國規格）
-  "vnAdminBoundaries/vn-admin-province-line": {"width": "emphasis", "opacity": "standard"}, // L-5：34 省比照縣市 · src/hooks/useVnLayers.ts
-  "vnPopulation/vn-population-province-line": {"width": "keep", "opacity": "keep"}, // 分級面底圖色細縫（F-2）· src/hooks/useVnLayers.ts
-  "vnMajorRoads/vn-major-roads-line": {"width": "keep", "opacity": "standard"}, // 寬依道路等級 · src/hooks/usePhLayers.ts（越南規格）
-  "vnMajorRoads/vn-major-rail-line": {"width": "standard", "opacity": "standard"}, // 鐵道營運中 · src/hooks/usePhLayers.ts（越南規格）
-  "vnMajorRoads/vn-major-rail-construction-line": {"width": "standard", "opacity": "standard"}, // 鐵道興建中虛線 · src/hooks/usePhLayers.ts（越南規格）
-  "vnPowerGrid/vn-power-lines-line": {"width": "keep", "opacity": "standard"}, // 寬依電壓 · src/hooks/usePhLayers.ts（越南規格）
-  "vnPowerGrid/vn-power-cables-line": {"width": "keep", "opacity": "standard"}, // 地下／海底電纜虛線 · src/hooks/usePhLayers.ts（越南規格）
-  "vnOilGas/vn-pipelines-gem-line": {"width": "keep", "opacity": "standard"}, // GEM 油氣管線 · src/hooks/usePhLayers.ts（越南規格）
-  "vnOilGas/vn-pipelines-osm-line": {"width": "standard", "opacity": "standard"}, // OSM 天然氣管線 · src/hooks/usePhLayers.ts（越南規格）
-  "vnAngiangDemo/vn-angiang-clusters-outline": {"width": "keep", "opacity": "standard"}, // 安江工業群外框，低縮放加粗 · src/hooks/usePhLayers.ts（越南規格）
-  "phUrbanRail/ph-urban-rail-line": {"width": "keep", "opacity": "standard"}, // 依線別分色，營運線比渡線粗 · src/hooks/usePhLayers.ts
-  "phExpressways/ph-expressways-line": {"width": "keep", "opacity": "standard"}, // 依收費分色，收費路較粗 · src/hooks/usePhLayers.ts  "fire119Live/fire119-live-district-line": {"width": "thin", "opacity": "reference", "outline": "graded"}, // 只到行政區的案件鄉鎮外框 · src/hooks/useFire119LiveLayer.ts
+  "phAdminBoundaries/ph-admin-region-line": {"width": "emphasis", "opacity": "standard"}, // L-5 行政界：region 比照縣市 · src/countries/ph/usePhLayers.ts
+  "phAdminBoundaries/ph-admin-province-line": {"width": "emphasis", "opacity": "standard"}, // L-5：省比照縣市 · src/countries/ph/usePhLayers.ts
+  "phAdminBoundaries/ph-admin-municipality-line": {"width": "standard", "opacity": "standard"}, // L-5：市鎮比照鄉鎮市區 · src/countries/ph/usePhLayers.ts
+  "phAdminBoundaries/ph-admin-barangay-line": {"width": "thin", "opacity": "standard"}, // L-5：barangay 比照村里 · src/countries/ph/usePhLayers.ts
+  "phPopulation/ph-population-region-line": {"width": "keep", "opacity": "keep"}, // 分級面底圖色細縫（F-2）· src/countries/ph/usePhLayers.ts
+  "phPopulation/ph-population-province-line": {"width": "keep", "opacity": "keep"}, // 分級面底圖色細縫（F-2）· src/countries/ph/usePhLayers.ts
+  "phPopulation/ph-population-municipality-line": {"width": "keep", "opacity": "keep"}, // 分級面底圖色細縫（F-2）· src/countries/ph/usePhLayers.ts
+  "phPopulation/ph-population-barangay-line": {"width": "keep", "opacity": "keep"}, // 分級面底圖色細縫（F-2）· src/countries/ph/usePhLayers.ts
+  "phMajorRoads/ph-major-roads-line": {"width": "keep", "opacity": "standard"}, // 寬依道路等級 · src/countries/ph/usePhLayers.ts
+  "phMajorRoads/ph-major-rail-line": {"width": "standard", "opacity": "standard"}, // 鐵道單一類 · src/countries/ph/usePhLayers.ts
+  "phPowerGrid/ph-power-lines-line": {"width": "keep", "opacity": "standard"}, // 寬依電壓（比照 osmPowerLines）· src/countries/ph/usePhLayers.ts
+  "phPowerGrid/ph-power-cables-line": {"width": "keep", "opacity": "standard"}, // 地下／海底電纜虛線，寬依電壓 · src/countries/ph/usePhLayers.ts
+  "phPipelines/ph-pipelines-line": {"width": "standard", "opacity": "standard"}, // 依內容物分色 · src/countries/ph/usePhLayers.ts
+  "thAdminBoundaries/th-admin-country-line": {"width": "emphasis", "opacity": "standard"}, // L-5：國界 · src/countries/th/useThLayers.ts
+  "thAdminBoundaries/th-admin-province-line": {"width": "emphasis", "opacity": "standard"}, // L-5：77 府比照縣市 · src/countries/th/useThLayers.ts
+  "thAdminBoundaries/th-admin-amphoe-line": {"width": "emphasis", "opacity": "standard"}, // L-5：928 縣 · src/countries/th/useThLayers.ts
+  "thAdminBoundaries/th-admin-tambon-line": {"width": "emphasis", "opacity": "standard"}, // L-5：7,425 區 · src/countries/th/useThLayers.ts
+  "thPopulation/th-population-province-line": {"width": "keep", "opacity": "keep"}, // 分級面底圖色細縫（F-2）· src/countries/th/useThLayers.ts
+  "thPopulation/th-population-amphoe-line": {"width": "keep", "opacity": "keep"}, // 同上 · src/countries/th/useThLayers.ts
+  "thMajorRoads/th-major-roads-line": {"width": "keep", "opacity": "standard"}, // 寬依道路等級 · src/countries/ph/usePhLayers.ts（泰國規格）
+  "thMajorRoads/th-major-rail-line": {"width": "standard", "opacity": "standard"}, // 鐵道 · src/countries/ph/usePhLayers.ts（泰國規格）
+  "thPowerGrid/th-power-lines-line": {"width": "keep", "opacity": "standard"}, // 寬依電壓 · src/countries/ph/usePhLayers.ts（泰國規格）
+  "thPipelines/th-pipelines-line": {"width": "keep", "opacity": "standard"}, // 依內容物分色、油氣較寬 · src/countries/ph/usePhLayers.ts（泰國規格）
+  "vnAdminBoundaries/vn-admin-province-line": {"width": "emphasis", "opacity": "standard"}, // L-5：34 省比照縣市 · src/countries/vn/useVnLayers.ts
+  "vnPopulation/vn-population-province-line": {"width": "keep", "opacity": "keep"}, // 分級面底圖色細縫（F-2）· src/countries/vn/useVnLayers.ts
+  "vnMajorRoads/vn-major-roads-line": {"width": "keep", "opacity": "standard"}, // 寬依道路等級 · src/countries/ph/usePhLayers.ts（越南規格）
+  "vnMajorRoads/vn-major-rail-line": {"width": "standard", "opacity": "standard"}, // 鐵道營運中 · src/countries/ph/usePhLayers.ts（越南規格）
+  "vnMajorRoads/vn-major-rail-construction-line": {"width": "standard", "opacity": "standard"}, // 鐵道興建中虛線 · src/countries/ph/usePhLayers.ts（越南規格）
+  "vnPowerGrid/vn-power-lines-line": {"width": "keep", "opacity": "standard"}, // 寬依電壓 · src/countries/ph/usePhLayers.ts（越南規格）
+  "vnPowerGrid/vn-power-cables-line": {"width": "keep", "opacity": "standard"}, // 地下／海底電纜虛線 · src/countries/ph/usePhLayers.ts（越南規格）
+  "vnOilGas/vn-pipelines-gem-line": {"width": "keep", "opacity": "standard"}, // GEM 油氣管線 · src/countries/ph/usePhLayers.ts（越南規格）
+  "vnOilGas/vn-pipelines-osm-line": {"width": "standard", "opacity": "standard"}, // OSM 天然氣管線 · src/countries/ph/usePhLayers.ts（越南規格）
+  "vnAngiangDemo/vn-angiang-clusters-outline": {"width": "keep", "opacity": "standard"}, // 安江工業群外框，低縮放加粗 · src/countries/ph/usePhLayers.ts（越南規格）
+  "phUrbanRail/ph-urban-rail-line": {"width": "keep", "opacity": "standard"}, // 依線別分色，營運線比渡線粗 · src/countries/ph/usePhLayers.ts
+  "phExpressways/ph-expressways-line": {"width": "keep", "opacity": "standard"}, // 依收費分色，收費路較粗 · src/countries/ph/usePhLayers.ts  "fire119Live/fire119-live-district-line": {"width": "thin", "opacity": "reference", "outline": "graded"}, // 只到行政區的案件鄉鎮外框 · src/hooks/useFire119LiveLayer.ts
   "fire119Live/fire119-live-road": {"width": "emphasis", "opacity": "reference"}, // 點開／滑過路段級案件時淡淡高亮整條路 · src/hooks/useFire119LiveLayer.ts
-  "cnAdminBoundaries/cn-admin-province-line": {"width": "emphasis", "opacity": "standard"}, // L-5：省比照縣市 · src/hooks/useCnLayers.ts
-  "cnAdminBoundaries/cn-admin-prefecture-line": {"width": "standard", "opacity": "standard"}, // L-5：地級比照鄉鎮市區 · src/hooks/useCnLayers.ts
-  "cnPopulation/cn-population-province-line": {"width": "keep", "opacity": "keep"}, // 分級面底圖色細縫（F-2）· src/hooks/useCnLayers.ts
-  "cnPopulation/cn-population-prefecture-line": {"width": "keep", "opacity": "keep"}, // 分級面底圖色細縫（F-2）· src/hooks/useCnLayers.ts
-  "cnMajorRoads/cn-major-roads-line": {"width": "keep", "opacity": "standard"}, // 寬依道路等級 · src/hooks/useCnLayers.ts
-  "cnMajorRoads/cn-major-rail-line": {"width": "keep", "opacity": "standard"}, // 寬依鐵路類型（高鐵較粗）· src/hooks/useCnLayers.ts
-  "cnPowerGrid/cn-power-lines-line": {"width": "keep", "opacity": "standard"}, // 寬依電壓（比照 osmPowerLines）· src/hooks/useCnLayers.ts
-  "cnRivers/cn-rivers-line": {"width": "keep", "opacity": "standard"}, // 寬依流量等級 · src/hooks/useCnLayers.ts
-  "cnActiveFaults/cn-active-faults-line": {"width": "standard", "opacity": "standard"}, // 依錯動型態分色 · src/hooks/useCnLayers.ts
-  "cnEez/cn-eez-outline": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/hooks/useCnLayers.ts
-  "cnEthnicAutonomy/cn-ethnic-autonomy-outline": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/hooks/useCnLayers.ts
-  "cnDams/cn-reservoirs-outline": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/hooks/useCnLayers.ts
-  "cnNatureReserves/cn-nature-reserves-outline": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/hooks/useCnLayers.ts
-  "cnWdpa/cn-wdpa-outline": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/hooks/useCnLayers.ts
-  "cnPipelines/cn-pipelines-line": {"width": "standard", "opacity": "standard"}, // 運轉中實線，依輸送物分色；路線精度低者淡化 · src/hooks/useCnLayers.ts
-  "cnPipelines/cn-pipelines-planned-line": {"width": "standard", "opacity": "standard"}, // 非運轉中虛線 · src/hooks/useCnLayers.ts
+  "cnAdminBoundaries/cn-admin-province-line": {"width": "emphasis", "opacity": "standard"}, // L-5：省比照縣市 · src/countries/cn/useCnLayers.ts
+  "cnAdminBoundaries/cn-admin-prefecture-line": {"width": "standard", "opacity": "standard"}, // L-5：地級比照鄉鎮市區 · src/countries/cn/useCnLayers.ts
+  "cnPopulation/cn-population-province-line": {"width": "keep", "opacity": "keep"}, // 分級面底圖色細縫（F-2）· src/countries/cn/useCnLayers.ts
+  "cnPopulation/cn-population-prefecture-line": {"width": "keep", "opacity": "keep"}, // 分級面底圖色細縫（F-2）· src/countries/cn/useCnLayers.ts
+  "cnMajorRoads/cn-major-roads-line": {"width": "keep", "opacity": "standard"}, // 寬依道路等級 · src/countries/cn/useCnLayers.ts
+  "cnMajorRoads/cn-major-rail-line": {"width": "keep", "opacity": "standard"}, // 寬依鐵路類型（高鐵較粗）· src/countries/cn/useCnLayers.ts
+  "cnPowerGrid/cn-power-lines-line": {"width": "keep", "opacity": "standard"}, // 寬依電壓（比照 osmPowerLines）· src/countries/cn/useCnLayers.ts
+  "cnRivers/cn-rivers-line": {"width": "keep", "opacity": "standard"}, // 寬依流量等級 · src/countries/cn/useCnLayers.ts
+  "cnActiveFaults/cn-active-faults-line": {"width": "standard", "opacity": "standard"}, // 依錯動型態分色 · src/countries/cn/useCnLayers.ts
+  "cnEez/cn-eez-outline": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/countries/cn/useCnLayers.ts
+  "cnEthnicAutonomy/cn-ethnic-autonomy-outline": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/countries/cn/useCnLayers.ts
+  "cnDams/cn-reservoirs-outline": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/countries/cn/useCnLayers.ts
+  "cnNatureReserves/cn-nature-reserves-outline": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/countries/cn/useCnLayers.ts
+  "cnWdpa/cn-wdpa-outline": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/countries/cn/useCnLayers.ts
+  "cnPipelines/cn-pipelines-line": {"width": "standard", "opacity": "standard"}, // 運轉中實線，依輸送物分色；路線精度低者淡化 · src/countries/cn/useCnLayers.ts
+  "cnPipelines/cn-pipelines-planned-line": {"width": "standard", "opacity": "standard"}, // 非運轉中虛線 · src/countries/cn/useCnLayers.ts
 };
 
 export const HOOK_FILL_TIERS: Readonly<Record<string, FillTier | "keep">> = {
@@ -401,76 +401,76 @@ export const HOOK_FILL_TIERS: Readonly<Record<string, FillTier | "keep">> = {
   "gfwHourlyGrid/gfw-hourly-grid-pmtiles-preload-fill": "keep", // src/hooks/useGfwHourlyGridLayer.ts
   "h3Population/h3-population-fill": "graded", // src/map/h3LayerFactory.ts
   "indicators/h3-indicators-fill": "graded", // src/map/demographicsLayerFactory.ts
-  "jpAdminBoundaries/jp-admin-municipality-fill": "background", // src/hooks/useJpAdminLayers.ts
-  "jpAdminPrefecture/jp-admin-prefecture-fill": "background", // src/hooks/useJpAdminLayers.ts
-  "jpAirports/jp-airports-fill": "coverage", // src/hooks/useJpAirportsLayer.ts
-  "jpCareCombined/jp-medical-care-aggregate-fill": "graded", // src/hooks/useJpMedicalLayers.ts
-  "jpCareDayServices/jp-medical-care-aggregate-fill": "graded", // src/hooks/useJpMedicalLayers.ts
-  "jpCareEquipment/jp-medical-care-aggregate-fill": "graded", // src/hooks/useJpMedicalLayers.ts
-  "jpCareHomeVisit/jp-medical-care-aggregate-fill": "graded", // src/hooks/useJpMedicalLayers.ts
-  "jpCarePlanning/jp-medical-care-aggregate-fill": "graded", // src/hooks/useJpMedicalLayers.ts
-  "jpCareResidential/jp-medical-care-aggregate-fill": "graded", // src/hooks/useJpMedicalLayers.ts
-  "jpNationalForests/jp-national-forests-fill": "coverage", // src/hooks/useJpNationalForestsLayer.ts
-  "krPorts/kr-ports-fill": "coverage", // 港灣區面 · src/hooks/useKrTransportLayers.ts
-  "krNationalParks/kr-national-parks-fill": "coverage", // 國立公園面 · src/hooks/useKrDataLayers.ts
-  "krMarineProtectedAreas/kr-marine-protected-areas-fill": "coverage", // 海洋保護區面 · src/hooks/useKrDataLayers.ts
-  "krOilGas/kr-oil-gas-fill": "coverage", // 油氣設施面（依類型色）· src/hooks/useKrEnergyLayers.ts
-  "caPopulationCentres/ca-population-centres-fill": "coverage", // 人口中心面（依規模色）· src/hooks/useCaEnergyLayers.ts
-  "caPostalFsa/ca-fsa-fill": "coverage", // FSA 面（都市／農村）· src/hooks/useCaAreaLayers.ts
-  "caIndigenousLands/ca-indigenous-lands-fill": "coverage", // 原住民土地面（4 類）· src/hooks/useCaAreaLayers.ts
-  "caDeprivation/ca-cimd-fill": "graded", // CIMD 五分位（BuPu 5 級）· src/hooks/useCaAreaLayers.ts
-  "caDeprivation/ca-cimd-na-fill": "coverage", // 無指數＝缺值斜線（F-3）· src/hooks/useCaAreaLayers.ts
-  "caRents/ca-rents-fill": "graded", // 平均月租 5 級（YlOrBr）· src/hooks/useCaAreaLayers.ts
-  "caRents/ca-rents-na-fill": "coverage", // 不公布＝缺值斜線（F-3）· src/hooks/useCaAreaLayers.ts
-  "caPopulationGrid/ca-population-grid-r5-fill": "graded", // GHSL 人口密度 7 級（YlOrBr，H3 r5）· src/hooks/useCaEnvLayers.ts
-  "caPopulationGrid/ca-population-grid-r6-fill": "graded", // GHSL 人口密度 7 級（YlOrBr，H3 r6）· src/hooks/useCaEnvLayers.ts
-  "caPopulationGrid/ca-population-grid-r7-fill": "graded", // GHSL 人口密度 7 級（YlOrBr，H3 r7）· src/hooks/useCaEnvLayers.ts
-  "gbBuiltUpAreas/gb-built-up-areas-fill": "coverage", // src/hooks/useGbOpenSpaceLayers.ts
-  "gbGreenspace/gb-greenspace-park-fill": "coverage", // src/hooks/useGbOpenSpaceLayers.ts
-  "gbSportsFacilities/gb-greenspace-sports-fill": "coverage", // src/hooks/useGbOpenSpaceLayers.ts
-  "gbGolfCourses/gb-greenspace-golf-fill": "coverage", // src/hooks/useGbOpenSpaceLayers.ts
-  "gbCemeteries/gb-greenspace-burial-fill": "coverage", // src/hooks/useGbOpenSpaceLayers.ts
-  "gbCoastalErosionRisk/gb-coastal-erosion-fill": "coverage", // src/hooks/useGbWaterLayers.ts
-  "gbPlanningConstraints/gb-planning-constraints-fill": "keep", // 透明度：綠帶淡化（資料編碼）· src/hooks/useGbEnvPlanningLayers.ts
-  "gbSoilParentMaterial/gb-soil-parent-material-fill": "graded", // 土層深度 5 級（bilbao 序列色）· src/hooks/useGbBusinessAgriLayers.ts
-  "gbSoilParentMaterial/gb-soil-parent-material-na": "coverage", // 未分類＝缺值斜線（F-3）· src/hooks/useGbBusinessAgriLayers.ts
-  "gbNoise/gb-noise-fill": "graded", // Lden 五帶（台灣 NoiseCapture dB 色階）· src/hooks/useGbEnvPlanningLayers.ts
-  "gbGroundStability/gb-geosure-fill": "graded", // GeoSure 易發性三級（比照土壤液化潛勢）· src/hooks/useGbHazardLayers.ts
-  "gbRadon/gb-radon-fill": "grid", // 氡氣 1 km 方格 6 級（網格色盤）· src/hooks/useGbHazardLayers.ts
-  "gbProtectedAreas/gb-protected-areas-fill": "keep", // 透明度：景觀類淡化（資料編碼）· src/hooks/useGbNatureLayers.ts
-  "gbMarineProtectedAreas/gb-marine-protected-areas-fill": "coverage", // src/hooks/useGbNatureLayers.ts
-  "gbWoodland/gb-woodland-fill": "graded", // 林型分類面（類別色，非覆蓋範圍）· src/hooks/useGbNatureLayers.ts
-  "gbOpenAccessLand/gb-open-access-land-fill": "coverage", // src/hooks/useGbNatureLayers.ts
-  "gbOpenAccessLand/gb-open-access-land-z5-fill": "coverage", // z5–6 小檔 · src/hooks/useGbNatureLayers.ts
-  "gbTreeProtection/gb-ancient-woodland-fill": "coverage", // src/hooks/useGbNatureLayers.ts
-  "gbOilGasFields/gb-oil-gas-fields-fill": "keep", // 透明度：生產中深、其他淡化（資料編碼）· src/hooks/useGbEnergyLayers.ts
-  "gbTreeProtection/gb-tpo-fill": "coverage", // src/hooks/useGbNatureLayers.ts
-  "gbLondonChargingZones/gb-london-charging-zones-fill": "coverage", // src/hooks/useGbTransportLayers.ts
-  "jpInlandFloodAreas/jp-inland-flood-areas-fill": "graded", // src/hooks/useJpInlandFloodAreasLayer.ts
-  "jpLandslideWarningAreas/jp-landslide-warning-areas-fill": "coverage", // src/hooks/useJpLandslideWarningAreasLayer.ts
-  "jpMarineEbsaCoastal/jp-tourism-jp-marine-ebsa-coastal-fill": "coverage", // src/hooks/useJpTourismLayers.ts
-  "jpMedicalAreasPrimary/jp-medical-areas-1-fill": "background", // src/hooks/useJpMedicalLayers.ts
-  "jpMedicalAreasSecondary/jp-medical-areas-2-fill": "background", // src/hooks/useJpMedicalLayers.ts
-  "jpMedicalAreasTertiary/jp-medical-areas-3-fill": "background", // src/hooks/useJpMedicalLayers.ts
-  "jpMedicalClinics/jp-medical-facilities-aggregate-fill": "graded", // src/hooks/useJpMedicalLayers.ts
-  "jpMedicalDental/jp-medical-facilities-aggregate-fill": "graded", // src/hooks/useJpMedicalLayers.ts
-  "jpMedicalHospitals/jp-medical-facilities-aggregate-fill": "graded", // src/hooks/useJpMedicalLayers.ts
-  "jpMedicalMaternity/jp-medical-facilities-aggregate-fill": "graded", // src/hooks/useJpMedicalLayers.ts
-  "jpMedicalPharmacies/jp-medical-facilities-aggregate-fill": "graded", // src/hooks/useJpMedicalLayers.ts
-  "jpNaturalParksNational/jp-tourism-jp-natural-parks-national-fill": "coverage", // src/hooks/useJpTourismLayers.ts
-  "jpNaturalParksPrefectural/jp-tourism-jp-natural-parks-prefectural-fill": "coverage", // src/hooks/useJpTourismLayers.ts
-  "jpNaturalParksQuasiNational/jp-tourism-jp-natural-parks-quasi-national-fill": "coverage", // src/hooks/useJpTourismLayers.ts
-  "jpNatureConservationArea/jp-tourism-jp-nature-conservation-area-fill": "coverage", // src/hooks/useJpTourismLayers.ts
-  "jpNatureConservationSpecialDistrict/jp-tourism-jp-nature-conservation-special-district-fill": "coverage", // src/hooks/useJpTourismLayers.ts
-  "jpPopulationMesh1km/jp-population-mesh-fill": "coverage", // src/hooks/useJpPopulationMeshLayer.ts
-  "jpPrimitiveNatureEnvironmentArea/jp-tourism-jp-primitive-nature-environment-area-fill": "coverage", // src/hooks/useJpTourismLayers.ts
-  "jpZoningUseDistricts/jp-zoning-use-districts-fill": "coverage", // src/hooks/useJpZoningUseDistrictsLayer.ts
-  "jpWaterLakes/jp-water-jpWaterLakes": "coverage", // src/hooks/useJpWaterLayers.ts
-  "jpWaterSupplyAreas/jp-water-jpWaterSupplyAreas": "background", // src/hooks/useJpWaterLayers.ts
-  "jpWildlifeProtectionNational/jp-tourism-jp-wildlife-protection-national-fill": "coverage", // src/hooks/useJpTourismLayers.ts
-  "jpWildlifeSpecialProtectionDesignatedArea/jp-tourism-jp-wildlife-special-protection-designated-area-fill": "coverage", // src/hooks/useJpTourismLayers.ts
-  "jpWildlifeSpecialProtectionDistrict/jp-tourism-jp-wildlife-special-protection-district-fill": "coverage", // src/hooks/useJpTourismLayers.ts
-  "jpWorldNaturalHeritageHistorical/jp-tourism-jp-world-natural-heritage-historical-fill": "coverage", // src/hooks/useJpTourismLayers.ts
+  "jpAdminBoundaries/jp-admin-municipality-fill": "background", // src/countries/jp/useJpAdminLayers.ts
+  "jpAdminPrefecture/jp-admin-prefecture-fill": "background", // src/countries/jp/useJpAdminLayers.ts
+  "jpAirports/jp-airports-fill": "coverage", // src/countries/jp/useJpAirportsLayer.ts
+  "jpCareCombined/jp-medical-care-aggregate-fill": "graded", // src/countries/jp/useJpMedicalLayers.ts
+  "jpCareDayServices/jp-medical-care-aggregate-fill": "graded", // src/countries/jp/useJpMedicalLayers.ts
+  "jpCareEquipment/jp-medical-care-aggregate-fill": "graded", // src/countries/jp/useJpMedicalLayers.ts
+  "jpCareHomeVisit/jp-medical-care-aggregate-fill": "graded", // src/countries/jp/useJpMedicalLayers.ts
+  "jpCarePlanning/jp-medical-care-aggregate-fill": "graded", // src/countries/jp/useJpMedicalLayers.ts
+  "jpCareResidential/jp-medical-care-aggregate-fill": "graded", // src/countries/jp/useJpMedicalLayers.ts
+  "jpNationalForests/jp-national-forests-fill": "coverage", // src/countries/jp/useJpNationalForestsLayer.ts
+  "krPorts/kr-ports-fill": "coverage", // 港灣區面 · src/countries/kr/useKrTransportLayers.ts
+  "krNationalParks/kr-national-parks-fill": "coverage", // 國立公園面 · src/countries/kr/useKrDataLayers.ts
+  "krMarineProtectedAreas/kr-marine-protected-areas-fill": "coverage", // 海洋保護區面 · src/countries/kr/useKrDataLayers.ts
+  "krOilGas/kr-oil-gas-fill": "coverage", // 油氣設施面（依類型色）· src/countries/kr/useKrEnergyLayers.ts
+  "caPopulationCentres/ca-population-centres-fill": "coverage", // 人口中心面（依規模色）· src/countries/ca/useCaEnergyLayers.ts
+  "caPostalFsa/ca-fsa-fill": "coverage", // FSA 面（都市／農村）· src/countries/ca/useCaAreaLayers.ts
+  "caIndigenousLands/ca-indigenous-lands-fill": "coverage", // 原住民土地面（4 類）· src/countries/ca/useCaAreaLayers.ts
+  "caDeprivation/ca-cimd-fill": "graded", // CIMD 五分位（BuPu 5 級）· src/countries/ca/useCaAreaLayers.ts
+  "caDeprivation/ca-cimd-na-fill": "coverage", // 無指數＝缺值斜線（F-3）· src/countries/ca/useCaAreaLayers.ts
+  "caRents/ca-rents-fill": "graded", // 平均月租 5 級（YlOrBr）· src/countries/ca/useCaAreaLayers.ts
+  "caRents/ca-rents-na-fill": "coverage", // 不公布＝缺值斜線（F-3）· src/countries/ca/useCaAreaLayers.ts
+  "caPopulationGrid/ca-population-grid-r5-fill": "graded", // GHSL 人口密度 7 級（YlOrBr，H3 r5）· src/countries/ca/useCaEnvLayers.ts
+  "caPopulationGrid/ca-population-grid-r6-fill": "graded", // GHSL 人口密度 7 級（YlOrBr，H3 r6）· src/countries/ca/useCaEnvLayers.ts
+  "caPopulationGrid/ca-population-grid-r7-fill": "graded", // GHSL 人口密度 7 級（YlOrBr，H3 r7）· src/countries/ca/useCaEnvLayers.ts
+  "gbBuiltUpAreas/gb-built-up-areas-fill": "coverage", // src/countries/gb/useGbOpenSpaceLayers.ts
+  "gbGreenspace/gb-greenspace-park-fill": "coverage", // src/countries/gb/useGbOpenSpaceLayers.ts
+  "gbSportsFacilities/gb-greenspace-sports-fill": "coverage", // src/countries/gb/useGbOpenSpaceLayers.ts
+  "gbGolfCourses/gb-greenspace-golf-fill": "coverage", // src/countries/gb/useGbOpenSpaceLayers.ts
+  "gbCemeteries/gb-greenspace-burial-fill": "coverage", // src/countries/gb/useGbOpenSpaceLayers.ts
+  "gbCoastalErosionRisk/gb-coastal-erosion-fill": "coverage", // src/countries/gb/useGbWaterLayers.ts
+  "gbPlanningConstraints/gb-planning-constraints-fill": "keep", // 透明度：綠帶淡化（資料編碼）· src/countries/gb/useGbEnvPlanningLayers.ts
+  "gbSoilParentMaterial/gb-soil-parent-material-fill": "graded", // 土層深度 5 級（bilbao 序列色）· src/countries/gb/useGbBusinessAgriLayers.ts
+  "gbSoilParentMaterial/gb-soil-parent-material-na": "coverage", // 未分類＝缺值斜線（F-3）· src/countries/gb/useGbBusinessAgriLayers.ts
+  "gbNoise/gb-noise-fill": "graded", // Lden 五帶（台灣 NoiseCapture dB 色階）· src/countries/gb/useGbEnvPlanningLayers.ts
+  "gbGroundStability/gb-geosure-fill": "graded", // GeoSure 易發性三級（比照土壤液化潛勢）· src/countries/gb/useGbHazardLayers.ts
+  "gbRadon/gb-radon-fill": "grid", // 氡氣 1 km 方格 6 級（網格色盤）· src/countries/gb/useGbHazardLayers.ts
+  "gbProtectedAreas/gb-protected-areas-fill": "keep", // 透明度：景觀類淡化（資料編碼）· src/countries/gb/useGbNatureLayers.ts
+  "gbMarineProtectedAreas/gb-marine-protected-areas-fill": "coverage", // src/countries/gb/useGbNatureLayers.ts
+  "gbWoodland/gb-woodland-fill": "graded", // 林型分類面（類別色，非覆蓋範圍）· src/countries/gb/useGbNatureLayers.ts
+  "gbOpenAccessLand/gb-open-access-land-fill": "coverage", // src/countries/gb/useGbNatureLayers.ts
+  "gbOpenAccessLand/gb-open-access-land-z5-fill": "coverage", // z5–6 小檔 · src/countries/gb/useGbNatureLayers.ts
+  "gbTreeProtection/gb-ancient-woodland-fill": "coverage", // src/countries/gb/useGbNatureLayers.ts
+  "gbOilGasFields/gb-oil-gas-fields-fill": "keep", // 透明度：生產中深、其他淡化（資料編碼）· src/countries/gb/useGbEnergyLayers.ts
+  "gbTreeProtection/gb-tpo-fill": "coverage", // src/countries/gb/useGbNatureLayers.ts
+  "gbLondonChargingZones/gb-london-charging-zones-fill": "coverage", // src/countries/gb/useGbTransportLayers.ts
+  "jpInlandFloodAreas/jp-inland-flood-areas-fill": "graded", // src/countries/jp/useJpInlandFloodAreasLayer.ts
+  "jpLandslideWarningAreas/jp-landslide-warning-areas-fill": "coverage", // src/countries/jp/useJpLandslideWarningAreasLayer.ts
+  "jpMarineEbsaCoastal/jp-tourism-jp-marine-ebsa-coastal-fill": "coverage", // src/countries/jp/useJpTourismLayers.ts
+  "jpMedicalAreasPrimary/jp-medical-areas-1-fill": "background", // src/countries/jp/useJpMedicalLayers.ts
+  "jpMedicalAreasSecondary/jp-medical-areas-2-fill": "background", // src/countries/jp/useJpMedicalLayers.ts
+  "jpMedicalAreasTertiary/jp-medical-areas-3-fill": "background", // src/countries/jp/useJpMedicalLayers.ts
+  "jpMedicalClinics/jp-medical-facilities-aggregate-fill": "graded", // src/countries/jp/useJpMedicalLayers.ts
+  "jpMedicalDental/jp-medical-facilities-aggregate-fill": "graded", // src/countries/jp/useJpMedicalLayers.ts
+  "jpMedicalHospitals/jp-medical-facilities-aggregate-fill": "graded", // src/countries/jp/useJpMedicalLayers.ts
+  "jpMedicalMaternity/jp-medical-facilities-aggregate-fill": "graded", // src/countries/jp/useJpMedicalLayers.ts
+  "jpMedicalPharmacies/jp-medical-facilities-aggregate-fill": "graded", // src/countries/jp/useJpMedicalLayers.ts
+  "jpNaturalParksNational/jp-tourism-jp-natural-parks-national-fill": "coverage", // src/countries/jp/useJpTourismLayers.ts
+  "jpNaturalParksPrefectural/jp-tourism-jp-natural-parks-prefectural-fill": "coverage", // src/countries/jp/useJpTourismLayers.ts
+  "jpNaturalParksQuasiNational/jp-tourism-jp-natural-parks-quasi-national-fill": "coverage", // src/countries/jp/useJpTourismLayers.ts
+  "jpNatureConservationArea/jp-tourism-jp-nature-conservation-area-fill": "coverage", // src/countries/jp/useJpTourismLayers.ts
+  "jpNatureConservationSpecialDistrict/jp-tourism-jp-nature-conservation-special-district-fill": "coverage", // src/countries/jp/useJpTourismLayers.ts
+  "jpPopulationMesh1km/jp-population-mesh-fill": "coverage", // src/countries/jp/useJpPopulationMeshLayer.ts
+  "jpPrimitiveNatureEnvironmentArea/jp-tourism-jp-primitive-nature-environment-area-fill": "coverage", // src/countries/jp/useJpTourismLayers.ts
+  "jpZoningUseDistricts/jp-zoning-use-districts-fill": "coverage", // src/countries/jp/useJpZoningUseDistrictsLayer.ts
+  "jpWaterLakes/jp-water-jpWaterLakes": "coverage", // src/countries/jp/useJpWaterLayers.ts
+  "jpWaterSupplyAreas/jp-water-jpWaterSupplyAreas": "background", // src/countries/jp/useJpWaterLayers.ts
+  "jpWildlifeProtectionNational/jp-tourism-jp-wildlife-protection-national-fill": "coverage", // src/countries/jp/useJpTourismLayers.ts
+  "jpWildlifeSpecialProtectionDesignatedArea/jp-tourism-jp-wildlife-special-protection-designated-area-fill": "coverage", // src/countries/jp/useJpTourismLayers.ts
+  "jpWildlifeSpecialProtectionDistrict/jp-tourism-jp-wildlife-special-protection-district-fill": "coverage", // src/countries/jp/useJpTourismLayers.ts
+  "jpWorldNaturalHeritageHistorical/jp-tourism-jp-world-natural-heritage-historical-fill": "coverage", // src/countries/jp/useJpTourismLayers.ts
   "lifelineAlerts/lifelineAlerts-fill": "keep", // src/hooks/useDisasterAlertLayer.ts
   "medDesert/medical-isochrone-fill": "graded", // src/map/medicalIsochroneLayerFactory.ts
   "medIsochrone/medical-isochrone-fill": "graded", // src/map/medicalIsochroneLayerFactory.ts
@@ -502,21 +502,21 @@ export const HOOK_FILL_TIERS: Readonly<Record<string, FillTier | "keep">> = {
   "weakSoilSand5To10/soil-liquefaction-weakSoilSand5To10-missing": "coverage", // src/hooks/useSoilLiquefactionLayers.ts
   "weatherAlerts/weatherAlerts-fill": "keep", // src/hooks/useDisasterAlertLayer.ts
   "youbikeFullness/h3-youbike-fill": "graded", // src/map/youbikeLayerFactory.ts
-  "phPopulation/ph-population-region-fill": "graded", // 人口密度 6 級＋未涵蓋灰 · src/hooks/usePhLayers.ts
-  "phPopulation/ph-population-province-fill": "graded", // 同上 · src/hooks/usePhLayers.ts
-  "phPopulation/ph-population-municipality-fill": "graded", // 同上 · src/hooks/usePhLayers.ts
-  "phPopulation/ph-population-barangay-fill": "graded", // 同上 · src/hooks/usePhLayers.ts
-  "thPopulation/th-population-province-fill": "graded", // 人口密度 6 級 · src/hooks/useThLayers.ts
-  "thPopulation/th-population-amphoe-fill": "graded", // 同上 · src/hooks/useThLayers.ts
-  "vnPopulation/vn-population-province-fill": "graded", // 人口密度 5 級 · src/hooks/useVnLayers.ts
-  "vnAngiangDemo/vn-angiang-clusters-fill": "coverage", // 安江工業群依狀態分色 · src/hooks/usePhLayers.ts（越南規格）
-  "cnPopulation/cn-population-province-fill": "graded", // 人口密度 6 級＋未涵蓋灰 · src/hooks/useCnLayers.ts
-  "cnPopulation/cn-population-prefecture-fill": "graded", // 同上（GHS 模型值）· src/hooks/useCnLayers.ts
-  "cnEez/cn-eez-fill": "coverage", // src/hooks/useCnLayers.ts
-  "cnEthnicAutonomy/cn-ethnic-autonomy-fill": "coverage", // 依層級分色 · src/hooks/useCnLayers.ts
-  "cnDams/cn-reservoirs-fill": "coverage", // src/hooks/useCnLayers.ts
-  "cnNatureReserves/cn-nature-reserves-fill": "coverage", // 依分區分色 · src/hooks/useCnLayers.ts
-  "cnWdpa/cn-wdpa-fill": "coverage", // 依類別分色 · src/hooks/useCnLayers.ts
+  "phPopulation/ph-population-region-fill": "graded", // 人口密度 6 級＋未涵蓋灰 · src/countries/ph/usePhLayers.ts
+  "phPopulation/ph-population-province-fill": "graded", // 同上 · src/countries/ph/usePhLayers.ts
+  "phPopulation/ph-population-municipality-fill": "graded", // 同上 · src/countries/ph/usePhLayers.ts
+  "phPopulation/ph-population-barangay-fill": "graded", // 同上 · src/countries/ph/usePhLayers.ts
+  "thPopulation/th-population-province-fill": "graded", // 人口密度 6 級 · src/countries/th/useThLayers.ts
+  "thPopulation/th-population-amphoe-fill": "graded", // 同上 · src/countries/th/useThLayers.ts
+  "vnPopulation/vn-population-province-fill": "graded", // 人口密度 5 級 · src/countries/vn/useVnLayers.ts
+  "vnAngiangDemo/vn-angiang-clusters-fill": "coverage", // 安江工業群依狀態分色 · src/countries/ph/usePhLayers.ts（越南規格）
+  "cnPopulation/cn-population-province-fill": "graded", // 人口密度 6 級＋未涵蓋灰 · src/countries/cn/useCnLayers.ts
+  "cnPopulation/cn-population-prefecture-fill": "graded", // 同上（GHS 模型值）· src/countries/cn/useCnLayers.ts
+  "cnEez/cn-eez-fill": "coverage", // src/countries/cn/useCnLayers.ts
+  "cnEthnicAutonomy/cn-ethnic-autonomy-fill": "coverage", // 依層級分色 · src/countries/cn/useCnLayers.ts
+  "cnDams/cn-reservoirs-fill": "coverage", // src/countries/cn/useCnLayers.ts
+  "cnNatureReserves/cn-nature-reserves-fill": "coverage", // 依分區分色 · src/countries/cn/useCnLayers.ts
+  "cnWdpa/cn-wdpa-fill": "coverage", // 依類別分色 · src/countries/cn/useCnLayers.ts
 };
 /**
  * 暗底面透明度的個別例外（F-1 暗底，2026-11-10）：值＝暗底預設透明度，取代 FILL_OPACITY_DARK 的階。

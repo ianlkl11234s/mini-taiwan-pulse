@@ -2,8 +2,8 @@ import { describe, expect, it } from "vitest";
 import {
   JP_EXPRESSWAY_COLOR_EXPRESSION, JP_ROAD_CLASSES, JP_ROAD_SORT_KEY, jpExpresswayFilter, jpRoadFilter,
 } from "../data/jpRoadTypes";
-import { jpRoadWidthExpression } from "./useJpMajorRoadsLayer";
-import { JP_MUNICIPAL_ROADS_LAYER_IDS } from "./useJpMunicipalRoadsLayer";
+import { jpRoadWidthExpression } from "../countries/jp/useJpMajorRoadsLayer";
+import { JP_MUNICIPAL_ROADS_LAYER_IDS } from "../countries/jp/useJpMunicipalRoadsLayer";
 import {
   JP_MUNICIPAL_ROAD, JP_MUNICIPAL_ROAD_COLOR, JP_MUNICIPAL_ROAD_MINZOOM, JP_MUNICIPAL_ROAD_SHARDS, JP_MUNICIPAL_ROAD_MIX,
 } from "../data/jpRoadTypes";
@@ -11,6 +11,10 @@ import { mixWithWhite } from "../data/jpZoningUseDistrictTypes";
 import { GIS_LAYERS } from "../map/gisClickRegistry";
 import { LAYER_MANIFEST } from "../data/layerManifest";
 import { LINE_WIDTH } from "../map/mapStyleScale";
+import { loadAllPacks } from "../countries/packs";
+
+// 全部圖層（含延後載入的國家包，B1 P5）一起驗
+await loadAllPacks();
 
 describe("日本道路 PMTiles 契約", () => {
   it("主要道路：代碼 1/2/4；sort-key 高速 > 國道 > 縣道；線寬照 L-1 三階", () => {

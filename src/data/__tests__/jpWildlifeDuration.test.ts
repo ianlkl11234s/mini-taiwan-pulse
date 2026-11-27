@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatJpWildlifeDuration } from "../jpNatureR2Types";
+import { formatJpWildlifeDuration } from "../../countries/jp/jpNatureR2Types";
 
 describe("formatJpWildlifeDuration（鳥獸保護區存続期間補分隔）", () => {
   it("兩個日期黏在一起時補「～」（VPB-5）", () => {

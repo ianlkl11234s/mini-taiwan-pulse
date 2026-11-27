@@ -17,6 +17,10 @@ import type { LayerVisibility } from "../../types";
 import { applyLayerControl, describeLayerControls } from "../../research/layerControls";
 import { captureSceneParams, resolveSceneRestore } from "../../lib/memberSceneAdapter";
 import type { MemberSceneSnapshot } from "../../lib/memberSchema";
+import { loadAllPacks } from "../../countries/packs";
+
+// 全部圖層（含延後載入的國家包，B1 P5a）一起驗
+await loadAllPacks();
 
 afterEach(() => layerParamsStore.reset());
 
@@ -121,7 +125,9 @@ describe("R7 顏色解析器", () => {
     // 2026-11-23 -1 泰國住宿改 per-feature minzoom 分級、不用熱區
     // 2026-11-24 +2 印尼第 3、2 波：橋梁、地名（≥1 萬點）
     // 2026-11-24 +5 印尼第 5–6 波：學校、醫療、銀行、宗教場所、住宿（≥1 萬點）
-    expect(HEATMAP_PALETTE_KEYS).toHaveLength(158);
+    // 2026-11-24 +2 國道靜態批：路殺紀錄（10.7 萬點）、植物生態調查（3 萬點）
+    // 2026-11-24 +1 國道動物生態調查（8.5 萬點）
+    expect(HEATMAP_PALETTE_KEYS).toHaveLength(161);
     for (const key of HEATMAP_PALETTE_KEYS) {
       const spec = getParamsSpec(key)!.find((s) => s.kind === "palette" && s.role === "heatmap")!;
       const theme = layerHeatmapTheme(key);

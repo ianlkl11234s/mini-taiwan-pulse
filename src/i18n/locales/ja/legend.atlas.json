@@ -68,5 +68,15 @@
   "legend.atlas.evSubtitle": "電動バイク専用：4,464 か所を表示（13 県市の環境保護局名簿）。ほかに 205 件は住所から位置を特定できず非表示",
   "legend.atlas.slSubtitle": "縮小時は 0.01° メッシュごとの街路灯地点数、ズーム 12 以上で個別表示。全域収録：台北・新北・台中・新竹市・嘉義市。部分収録：高雄（公園処管理の 35 区）、彰化（省道のみ）、桃園（中壢区公所のみ）",
   "legend.atlas.slLedUnknown": "灯具種別不明（出典に項目なし）",
-  "legend.atlas.wpHatchNote": "。斜線は選択した種別に連動します：1 種別のみ選ぶと、その種別の名簿がない県市に斜線が付きます。"
+  "legend.atlas.wpHatchNote": "。斜線は選択した種別に連動します：1 種別のみ選ぶと、その種別の名簿がない県市に斜線が付きます。",
+  "legend.atlas.fwyOpenShoulder": "路肩開放区間（位置を特定できない 24 件を除く）",
+  "legend.atlas.fwyRoadsideSubtitle": "初期表示は可変情報板のみです。車両感知器は種別フィルターで選べます（データ日 2026-11-24）",
+  "legend.atlas.fwyFloraRow": "植物調査の記録",
+  "legend.atlas.fwyFaunaSubtitle": "保護対象種の位置は約 1 km 区画の中心に秘匿しており、実際の位置ではありません",
+  "legend.atlas.fwyRkRecent1": "直近 1 年（2025–2026）",
+  "legend.atlas.fwyRkRecent5": "直近 5 年（2022–2026）",
+  "legend.atlas.fwyRkY2016": "2016–2021",
+  "legend.atlas.fwyRkY2009": "2009–2015",
+  "legend.atlas.fwyRkAll": "全期間（2009–2026）",
+  "legend.atlas.fwyRoadkillPeriod": "表示中：{period}。データは 2009–2026 を含み、年が空の 38 件は「全期間」でのみ表示します"
 }

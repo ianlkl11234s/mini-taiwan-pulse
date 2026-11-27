@@ -1,7 +1,7 @@
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import { JpPoliceFacilitiesPanel } from "../japanPanels";
+import { JpPoliceFacilitiesPanel } from "../../../countries/jp/japanPanels";
 
 describe("日本警察設施 popup 資料語意", () => {
   it.each([null, undefined, "", "null"])("缺漏電話 %s 顯示未提供", phone => {

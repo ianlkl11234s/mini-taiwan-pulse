@@ -63,9 +63,13 @@ import { AnalysisCardDraftSection } from "./AnalysisCardDraftSection";
 import { summarizeVisibleLayers, SUMMARY_LOADED_WAIT_MS as SUMMARY_WAIT_CAP, summarizeWhenLoaded, viewportBounds, type VisibleSummaryMap } from "./visibleSummary";
 import { restoreWarehouseResults } from "./warehouseResultRestore";
 import { parseAnalysisCardDraft, type AnalysisCardDraft } from "./analysisCardDraft";
+import { loadAllPacks } from "../countries/packs";
 
 /** 事件發生當下取目前語系翻譯（非 React 回呼用）。只用在畫面狀態文字；送給 Agent 的內容不經過這裡。 */
 const tr: LocaleSnapshot["t"] = (key, vars) => localeStore.getSnapshot().t(key, vars);
+// 英日文：研究面板的字在操作當下一次讀取（活動紀錄、證據、分析結果圖例），配對元件載入時就把這幾個翻譯檔先抓好（B1 P6）。
+// need() 登記的檔之後切語系也會先載完才換，所以上面「切語系重裝一次」只看 active 就夠。
+void localeStore.need(["research", "researchResult", "analysisCard", "popup", "popup.analysisResult"]);
 type Props = { timeline?: TimelineAdapter; bridge: MapBridge; map: MapboxMap | null; labels: Record<string, string>; locked: ReadonlySet<string>; selection?: [number, number] | null; embedded?: boolean; isDarkTheme?: boolean; open?: boolean; onOpenChange?: (open: boolean) => void; showToggle?: boolean; uiHidden?: boolean;
   /** Opens (properties) or closes (null) the App-level docked FeatureInfoPanel for a clicked analysis result. Null must only close an analysis-result panel, never another layer's. */
   onAnalysisResultFeature?: (properties: AnalysisResultPanelProperties | null) => void;
@@ -145,6 +149,8 @@ export function scheduleAnalysisResultStyleRestore(
 
 /** Paired adapter: map exploration plus bounded, session-local analysis over authorized dataset results. */
 export function MainMapConnection(props: Props) {
+  // Agent 配對後的工具（找圖層、描述圖層、分析）要看得到全部國家的圖層（B1 P5a）
+  useEffect(() => { void loadAllPacks().catch(() => undefined); }, []);
   const i18n = useLocale();
   const { t } = i18n;
   const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
@@ -187,6 +193,8 @@ export function MainMapConnection(props: Props) {
   const [rightPresented, setRightPresented] = useState<AnalysisResultPresentation[]>([]);
   /** The right-map collection currently installed (scene.right.results as last applied). */
   const rightCollectionRef = useRef<ResultCollection | null>(null);
+  /** Reactive twin of rightCollectionRef: the expiry watchdog must also cover results shown only on the right. */
+  const [rightCollection, setRightCollection] = useState<ResultCollection | null>(null);
   /** Installs (or clears) the right map's results; validation follows the left side (every declared id must be presentable). */
   const installRightResults = (map: MapboxMap | null, collection: ResultCollection | null): AnalysisResultPresentation[] => {
     const session = analysis.current;
@@ -198,7 +206,7 @@ export function MainMapConnection(props: Props) {
       if (shown.length) installed = installAnalysisResults(map, shown, analysisOpacityRef.current, vizThemeForBasemap(latest.current.isDarkTheme));
       else removeAnalysisResults(map);
     }
-    rightPresentedRef.current = installed; rightCollectionRef.current = collection; setRightPresented(installed);
+    rightPresentedRef.current = installed; rightCollectionRef.current = collection; setRightCollection(collection); setRightPresented(installed);
     return installed;
   };
   /** Pins every result either map shows, so neither side's results are evicted by later analysis. */
@@ -323,7 +331,7 @@ export function MainMapConnection(props: Props) {
     if (latest.current.map) removeAnalysisResults(latest.current.map);
     const rightMap = compareRightMap.get();
     if (rightMap && isStyleReady(rightMap)) removeAnalysisResults(rightMap);
-    rightPresentedRef.current = []; rightCollectionRef.current = null; setRightPresented([]);
+    rightPresentedRef.current = []; rightCollectionRef.current = null; setRightCollection(null); setRightPresented([]);
     clearAnalysisPlayback();
     presentedAnalysisRef.current = []; setPresentedAnalysis([]); setAvailableAnalysis([]); setAnalysisOpacityValue({ defaultOpacity: 0.85, byResult: {} });
     resultCollectionRef.current = null; setResultCollection(null);
@@ -496,7 +504,9 @@ export function MainMapConnection(props: Props) {
           installRightResults(rightMap, rightPlan.results ?? null);
           pinResults(scene.results, rightCollectionRef.current);
         }
-        if (rightPlan.move && followingRef.current) {
+        // Following paused: the request is not applied, so it must not read as a successful move (same as the left side).
+        if (rightPlan.move && !followingRef.current) rightMovement = Promise.resolve(false);
+        else if (rightPlan.move) {
           await waitForLayoutFrame();
           if (run !== generation.current) return "error";
           rightMovement = moveResearchCamera(rightMap, "framing" in rightPlan.move ? resolveViewportCamera(rightMap, rightPlan.move.framing) : rightPlan.move.camera);
@@ -565,6 +575,8 @@ export function MainMapConnection(props: Props) {
       if (!EXPLORATION_OPERATIONS.has(request.operation)) throw new Error("MAP_EXPLORATION_OPERATION_UNSUPPORTED");
       // PF-7: statistics-recipe datasets register after their lazily imported details load (loadingRegistry task).
       await ensureStatisticsResearchDatasets();
+      // B1 P5a：圖層查詢要涵蓋全部國家包（掛上時已開始載，這裡等它完成；失敗就照已載入的回答）
+      await loadAllPacks().catch(() => undefined);
       const current = latest.current;
       const visible = current.bridge.getVisibleLayerKeys();
       const discoveryContext = { locked: current.locked, visible: new Set(visible) };
@@ -794,7 +806,7 @@ export function MainMapConnection(props: Props) {
       attached = map;
       const stored = previous.current?.right;
       const keep = map && stored?.results && stored.country === compareStore.getSnapshot().rightCountry ? stored.results : null;
-      rightCollectionRef.current = keep;
+      rightCollectionRef.current = keep; setRightCollection(keep);
       rightPresentedRef.current = []; setRightPresented([]);
       if (map) { map.on("style.load", reinstall); if (keep) reinstall(); }
       if (applying.current || !controller.current || !previous.current || !("right" in previous.current)) return;
@@ -1028,7 +1040,7 @@ export function MainMapConnection(props: Props) {
     applyAnalysisSelection();
   }, [props.analysisResultSelected, applyAnalysisSelection]);
   useEffect(() => {
-    const resultIds = resultCollection?.items.map(item => item.resultId) ?? [];
+    const resultIds = [...(resultCollection?.items ?? []), ...(rightCollection?.items ?? [])].map(item => item.resultId);
     if (!resultIds.length) return;
     const timer = window.setInterval(() => {
       if (!analysis.current || resultIds.some(resultId => !analysis.current!.hasAccessibleResult(resultId))) {
@@ -1038,7 +1050,7 @@ export function MainMapConnection(props: Props) {
       }
     }, 1_000);
     return () => window.clearInterval(timer);
-  }, [clearAnalysisPresentation, resultCollection, setActivity]);
+  }, [clearAnalysisPresentation, resultCollection, rightCollection, setActivity]);
   useEffect(() => () => { controller.current?.stop(); responder.current?.stop(); locationLookup.current?.abort("SESSION_REVOKED"); locationLookup.current = null; latest.current.onAnalysisResultFeature?.(null); if (latest.current.map) removeAnalysisResults(latest.current.map); ++generation.current; ++connectionEpoch.current; }, []);
   const panelOpen = props.embedded || open;
   const showToggle = props.showToggle ?? !props.embedded;

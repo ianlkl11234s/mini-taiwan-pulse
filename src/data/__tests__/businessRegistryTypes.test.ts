@@ -15,6 +15,10 @@ import { densePointsFromZoom, heatmapMaxzoom } from "../../map/mapStyleScale";
 import { LAYER_MANIFEST } from "../layerManifest";
 import { GIS_LAYERS } from "../../map/gisClickRegistry";
 import type { LayerVisibility } from "../../types";
+import { loadAllPacks } from "../../countries/packs";
+
+// 全部圖層（含延後載入的國家包，B1 P5）一起驗
+await loadAllPacks();
 
 describe("工商登記 B1/B2/B3/A4 契約", () => {
   it("密度格網 popup 依 render stack 由上到下命中", () => {

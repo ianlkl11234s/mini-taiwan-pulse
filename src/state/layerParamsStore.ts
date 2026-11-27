@@ -19,6 +19,7 @@
  */
 
 import { useCallback, useSyncExternalStore } from "react";
+import { onRecordExtended } from "../countries/slots";
 import {
   LAYER_PARAMS_SPEC, MIGRATED_PARAMS_KEYS, encodeParamValue, sharedSlotMembers, specOutKey,
   type LayerParamSpec, type LayerParamValues, type ParamValue,
@@ -67,6 +68,20 @@ function notify(keys: readonly string[]): void {
   }
   for (const cb of globalListeners) cb();
 }
+
+// 國家包載入（B1 P5a）：新規格的 key 補上預設值（已有值的不動），再通知
+onRecordExtended("layerParamsSpec", (added) => {
+  const keys = Object.keys(added).filter((key) => !(key in snapshot));
+  if (keys.length === 0) return;
+  const next: Record<string, LayerParamValues> = { ...snapshot };
+  for (const key of keys) {
+    // 讀登記簿（派生控件已併入）而非 added 原始 payload：類別多選／樣式切換等派生控件的名稱才會進快照，setParam 才不會拒收
+    const finalized = ((LAYER_PARAMS_SPEC as Record<string, LayerParamSpec[]>)[key] ?? added[key]) as LayerParamSpec[];
+    next[key] = Object.fromEntries(finalized.map((spec) => [spec.name, spec.default]));
+  }
+  snapshot = next;
+  notify(keys);
+});
 
 /** 一次寫入請求（尚未展開共用 slot） */
 interface Write {

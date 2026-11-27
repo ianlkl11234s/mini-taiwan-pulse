@@ -5,12 +5,12 @@
 import { createElement, type FC } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import { ID_DATA_SPECS } from "../idDataLayers";
-import { plain } from "../idWavesLayers";
+import { ID_DATA_SPECS } from "../../countries/id/idDataLayers";
+import { plain } from "../../countries/id/idWavesLayers";
 import type { L3 } from "../intlLayerShared";
 import { LAYER_SOURCE_INFO } from "../layerSourceInfo";
 import { fmtArea, stripCodePrefix } from "../../components/featureInfo/intlSpecPanel";
-import { ID_DATA_PANELS, IdAdminBoundariesPanel } from "../../components/featureInfo/idPanels";
+import { ID_DATA_PANELS, IdAdminBoundariesPanel } from "../../countries/id/idPanels";
 import { HarmReductionDuiCrashPanel } from "../../components/featureInfo/harmReductionPanels";
 
 const all = (t: L3) => [t.zh, t.en, t.ja];

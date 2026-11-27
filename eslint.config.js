@@ -4,7 +4,8 @@ import css from "@eslint/css";
 import tsParser from "@typescript-eslint/parser";
 import pulse from "./eslint-rules/index.js";
 
-const HOOKS_AND_MAP = ["src/hooks/**/*.{ts,tsx}", "src/map/**/*.{ts,tsx}"];
+// 國家包（src/countries/<cc>/，B1 P5a）裡的圖層 hook 與 loader 一樣適用 hooks／data 的規則
+const HOOKS_AND_MAP = ["src/hooks/**/*.{ts,tsx}", "src/map/**/*.{ts,tsx}", "src/countries/*/use*.{ts,tsx}"];
 /**
  * R2「點半徑不隨 zoom」的正式例外（只列檔名，不放寬規則）：
  * - statisticsDots.ts：統計點密度的點不是資料點位，半徑隨縮放變化（使用者 2026-11-12 決定；map-layers.md §3.10）。
@@ -23,11 +24,11 @@ export const OWNER_ONLY_FILES = [`src/data/${OWNER_ONLY_FAMILIES}*.ts`, `src/hoo
   // 站主限定 PMTiles 的通用存取（2026-11-14，首爾用途地域首用）
   "src/hooks/useOwnerPmtilesAccess.ts",
   // 中國第 0–1 波（2026-11-13）：全部站主限定，圖磚只走私人 owner-data
-  "src/hooks/useCnLayers.ts",
+  "src/countries/cn/useCnLayers.ts",
   // 門牌搜尋站主版（2026-11-22，地址搜尋第二階段）：公開分片在 addressIndexLoader.ts，這支只讀私人 owner-data
   "src/data/addressOwnerLoader.ts",
   // 英國列車重播測試圖層（2026-11-23 站主限定，owner-data gzip JSON）
-  "src/data/gbRailReplayLoader.ts", "src/hooks/useGbRailReplayLayer.ts",
+  "src/countries/gb/gbRailReplayLoader.ts", "src/countries/gb/useGbRailReplayLayer.ts",
   // 設施研究 M 四層（2026-11-24 站主限定，owner-data GeoJSON）
   "src/data/siteStudyMLoader.ts", "src/data/siteStudyMTypes.ts", "src/hooks/useSiteStudyMLayer.ts"];
 /** 不套 owner-only-no-external-source 的檔與理由（ownerOnlyScope.test.js 逐字釘住，新增要改測試並在 PR 說明）。 */
@@ -156,7 +157,7 @@ export default [
     rules: { "pulse/owner-only-no-external-source": ["error", { allowImportMeta: ["env.DEV"] }] },
   },
   {
-    files: ["src/hooks/useJpWaterLayers.ts"],
+    files: ["src/countries/jp/useJpWaterLayers.ts"],
     // 淹水圖層的國土地理院公開 raster 圖磚與兩個授權說明連結（逐一列出完整網址）
     rules: {
       "pulse/owner-only-no-external-source": [
@@ -178,10 +179,10 @@ export default [
   },
 
   // 非同步載入必註冊 loadingRegistry（CLAUDE.md §3）
-  { files: ["src/data/*Loader.ts", "src/data/*Loaders.ts"], rules: { "pulse/loader-rpc-with-loading": ["error", { exempt: LOADER_RPC_EXEMPT }] } },
+  { files: ["src/data/*Loader.ts", "src/data/*Loaders.ts", "src/countries/*/*Loader.ts", "src/countries/*/*Loaders.ts"], rules: { "pulse/loader-rpc-with-loading": ["error", { exempt: LOADER_RPC_EXEMPT }] } },
 
   // 圖層 hook：map-ready 競態
-  { files: ["src/hooks/use*Layer.ts", "src/hooks/factories/timelineSliceLayer.ts"], rules: { "pulse/map-ready-tick-deps": "error" } },
+  { files: ["src/hooks/use*Layer.ts", "src/hooks/factories/timelineSliceLayer.ts", "src/countries/*/use*Layer.ts"], rules: { "pulse/map-ready-tick-deps": "error" } },
 
   // 點圖層 R2（docs/design-system/map-layers.md）
   { files: HOOKS_AND_MAP, ignores: ["src/map/overlayRegistry.ts", ...ZOOM_RADIUS_EXCEPTIONS], rules: { "pulse/no-zoom-circle-radius": "error" } },
@@ -221,6 +222,22 @@ export default [
     rules: { "pulse/legend-no-letter-spacing": "error", "pulse/legend-no-hand-sized-swatch": "error" },
   },
 
+  // 國家包（B1 P5a）：src/countries/<cc>/ 只能經 countries/packs.ts 的 ensureCountryPack 動態載入；
+  // 國家目錄外只可 import 各國的 keys（key 聯集與常數），型別 import 不受限（不進 bundle）。
+  // 本條寫在各 entry 自己的 no-restricted-imports 之前，那些檔案以自己的規則為準。
+  {
+    files: ["src/**/*.{ts,tsx}"],
+    ignores: ["src/countries/**", "src/**/__tests__/**", "src/**/*.test.{ts,tsx}"],
+    rules: {
+      "no-restricted-imports": ["error", {
+        patterns: [{
+          group: ["**/countries/*/*", "!**/countries/*/keys"],
+          allowTypeImports: true,
+          message: "國家包只能經 src/countries/packs.ts 的 ensureCountryPack／loadAllPacks 動態載入（B1 P5a）；需要 key 請 import 該國的 keys。",
+        }],
+      }],
+    },
+  },
   // 獨立 entry 的 bundle 邊界
   {
     files: ["src/card/*.{ts,tsx}"],
