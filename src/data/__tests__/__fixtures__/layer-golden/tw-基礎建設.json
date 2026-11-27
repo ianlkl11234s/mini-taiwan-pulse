@@ -1,5 +1,5 @@
 {
-  "count": 22,
+  "count": 25,
   "gisLayers": {
     "accessibleParkFacilities": {
       "layers": [
@@ -155,6 +155,33 @@
         "site-study-m-fill"
       ],
       "type": "siteStudyM"
+    },
+    "siteStudyMParcels": {
+      "layers": [
+        "site-study-m-parcels-circle",
+        "site-study-m-parcels-rep",
+        "site-study-m-parcels-outline",
+        "site-study-m-parcels-fill"
+      ],
+      "type": "siteStudyMParcels"
+    },
+    "siteStudyMPast": {
+      "layers": [
+        "site-study-m-past-circle",
+        "site-study-m-past-rep",
+        "site-study-m-past-outline",
+        "site-study-m-past-fill"
+      ],
+      "type": "siteStudyMPast"
+    },
+    "siteStudyMRanges": {
+      "layers": [
+        "site-study-m-ranges-circle",
+        "site-study-m-ranges-rep",
+        "site-study-m-ranges-outline",
+        "site-study-m-ranges-fill"
+      ],
+      "type": "siteStudyMRanges"
     },
     "vehicleInspectionOffices": {
       "layers": [
@@ -4376,19 +4403,7 @@
                 ],
                 "#94a3b8"
               ],
-              "fill-opacity": [
-                "case",
-                [
-                  "==",
-                  [
-                    "get",
-                    "_part"
-                  ],
-                  "overlays"
-                ],
-                0.2,
-                0.5
-              ]
+              "fill-opacity": 0.5
             },
             "light": {
               "fill-color": [
@@ -4399,19 +4414,7 @@
                 ],
                 "#94a3b8"
               ],
-              "fill-opacity": [
-                "case",
-                [
-                  "==",
-                  [
-                    "get",
-                    "_part"
-                  ],
-                  "overlays"
-                ],
-                0.2,
-                0.5
-              ]
+              "fill-opacity": 0.5
             }
           },
           "suffix": "fill",
@@ -4437,19 +4440,7 @@
                 ],
                 "#94a3b8"
               ],
-              "line-opacity": [
-                "case",
-                [
-                  "==",
-                  [
-                    "get",
-                    "_part"
-                  ],
-                  "overlays"
-                ],
-                0.55,
-                1
-              ],
+              "line-opacity": 1,
               "line-width": [
                 "interpolate",
                 [
@@ -4473,19 +4464,7 @@
                 ],
                 "#94a3b8"
               ],
-              "line-opacity": [
-                "case",
-                [
-                  "==",
-                  [
-                    "get",
-                    "_part"
-                  ],
-                  "overlays"
-                ],
-                0.55,
-                1
-              ],
+              "line-opacity": 1,
               "line-width": [
                 "interpolate",
                 [
@@ -4540,19 +4519,7 @@
                 ],
                 "#94a3b8"
               ],
-              "circle-opacity": [
-                "case",
-                [
-                  "==",
-                  [
-                    "get",
-                    "_part"
-                  ],
-                  "overlays"
-                ],
-                0.45,
-                0.85
-              ],
+              "circle-opacity": 0.85,
               "circle-radius": 4.5,
               "circle-stroke-color": "#e5e7eb",
               "circle-stroke-opacity": 0.45,
@@ -4567,19 +4534,7 @@
                 ],
                 "#94a3b8"
               ],
-              "circle-opacity": [
-                "case",
-                [
-                  "==",
-                  [
-                    "get",
-                    "_part"
-                  ],
-                  "overlays"
-                ],
-                0.45,
-                0.85
-              ],
+              "circle-opacity": 0.85,
               "circle-radius": 4.5,
               "circle-stroke-color": "#ffffff",
               "circle-stroke-opacity": 0.9,
@@ -4624,19 +4579,7 @@
                 ],
                 "#94a3b8"
               ],
-              "circle-opacity": [
-                "case",
-                [
-                  "==",
-                  [
-                    "get",
-                    "_part"
-                  ],
-                  "overlays"
-                ],
-                0.45,
-                0.85
-              ],
+              "circle-opacity": 0.85,
               "circle-radius": 4.5,
               "circle-stroke-color": "#e5e7eb",
               "circle-stroke-opacity": 0.45,
@@ -4651,19 +4594,7 @@
                 ],
                 "#94a3b8"
               ],
-              "circle-opacity": [
-                "case",
-                [
-                  "==",
-                  [
-                    "get",
-                    "_part"
-                  ],
-                  "overlays"
-                ],
-                0.45,
-                0.85
-              ],
+              "circle-opacity": 0.85,
               "circle-radius": 4.5,
               "circle-stroke-color": "#ffffff",
               "circle-stroke-opacity": 0.9,
@@ -4677,6 +4608,702 @@
       "pmtiles": null,
       "rebuildOnParamChange": null,
       "sourceId": "site-study-m",
+      "sourceUrl": "./geo/_empty.geojson"
+    },
+    "siteStudyMParcels": {
+      "dynamicData": true,
+      "filter": null,
+      "id": "siteStudyMParcels",
+      "layers": [
+        {
+          "filter": [
+            "==",
+            [
+              "geometry-type"
+            ],
+            "Polygon"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "to-color",
+                [
+                  "get",
+                  "color"
+                ],
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.5
+            },
+            "light": {
+              "fill-color": [
+                "to-color",
+                [
+                  "get",
+                  "color"
+                ],
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.5
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": [
+            "!=",
+            [
+              "geometry-type"
+            ],
+            "Point"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": [
+                "to-color",
+                [
+                  "get",
+                  "color"
+                ],
+                "#94a3b8"
+              ],
+              "line-opacity": 1,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                10,
+                1,
+                14,
+                2
+              ]
+            },
+            "light": {
+              "line-color": [
+                "to-color",
+                [
+                  "get",
+                  "color"
+                ],
+                "#94a3b8"
+              ],
+              "line-opacity": 1,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                10,
+                1,
+                14,
+                2
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "==",
+              [
+                "geometry-type"
+              ],
+              "Point"
+            ],
+            [
+              "==",
+              [
+                "coalesce",
+                [
+                  "get",
+                  "_rep"
+                ],
+                0
+              ],
+              1
+            ]
+          ],
+          "layout": null,
+          "maxzoom": 11,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "to-color",
+                [
+                  "get",
+                  "color"
+                ],
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "to-color",
+                [
+                  "get",
+                  "color"
+                ],
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "rep",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "==",
+              [
+                "geometry-type"
+              ],
+              "Point"
+            ],
+            [
+              "!=",
+              [
+                "coalesce",
+                [
+                  "get",
+                  "_rep"
+                ],
+                0
+              ],
+              1
+            ]
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "to-color",
+                [
+                  "get",
+                  "color"
+                ],
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "to-color",
+                [
+                  "get",
+                  "color"
+                ],
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": null,
+      "sourceId": "site-study-m-parcels",
+      "sourceUrl": "./geo/_empty.geojson"
+    },
+    "siteStudyMPast": {
+      "dynamicData": true,
+      "filter": null,
+      "id": "siteStudyMPast",
+      "layers": [
+        {
+          "filter": [
+            "==",
+            [
+              "geometry-type"
+            ],
+            "Polygon"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "to-color",
+                [
+                  "get",
+                  "color"
+                ],
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.5
+            },
+            "light": {
+              "fill-color": [
+                "to-color",
+                [
+                  "get",
+                  "color"
+                ],
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.5
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": [
+            "!=",
+            [
+              "geometry-type"
+            ],
+            "Point"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": [
+                "to-color",
+                [
+                  "get",
+                  "color"
+                ],
+                "#94a3b8"
+              ],
+              "line-opacity": 1,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                10,
+                1,
+                14,
+                2
+              ]
+            },
+            "light": {
+              "line-color": [
+                "to-color",
+                [
+                  "get",
+                  "color"
+                ],
+                "#94a3b8"
+              ],
+              "line-opacity": 1,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                10,
+                1,
+                14,
+                2
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "==",
+              [
+                "geometry-type"
+              ],
+              "Point"
+            ],
+            [
+              "==",
+              [
+                "coalesce",
+                [
+                  "get",
+                  "_rep"
+                ],
+                0
+              ],
+              1
+            ]
+          ],
+          "layout": null,
+          "maxzoom": 11,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "to-color",
+                [
+                  "get",
+                  "color"
+                ],
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "to-color",
+                [
+                  "get",
+                  "color"
+                ],
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "rep",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "==",
+              [
+                "geometry-type"
+              ],
+              "Point"
+            ],
+            [
+              "!=",
+              [
+                "coalesce",
+                [
+                  "get",
+                  "_rep"
+                ],
+                0
+              ],
+              1
+            ]
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "to-color",
+                [
+                  "get",
+                  "color"
+                ],
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "to-color",
+                [
+                  "get",
+                  "color"
+                ],
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": null,
+      "sourceId": "site-study-m-past",
+      "sourceUrl": "./geo/_empty.geojson"
+    },
+    "siteStudyMRanges": {
+      "dynamicData": true,
+      "filter": null,
+      "id": "siteStudyMRanges",
+      "layers": [
+        {
+          "filter": [
+            "==",
+            [
+              "geometry-type"
+            ],
+            "Polygon"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "to-color",
+                [
+                  "get",
+                  "color"
+                ],
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.5
+            },
+            "light": {
+              "fill-color": [
+                "to-color",
+                [
+                  "get",
+                  "color"
+                ],
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.5
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": [
+            "!=",
+            [
+              "geometry-type"
+            ],
+            "Point"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": [
+                "to-color",
+                [
+                  "get",
+                  "color"
+                ],
+                "#94a3b8"
+              ],
+              "line-opacity": 1,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                10,
+                1,
+                14,
+                2
+              ]
+            },
+            "light": {
+              "line-color": [
+                "to-color",
+                [
+                  "get",
+                  "color"
+                ],
+                "#94a3b8"
+              ],
+              "line-opacity": 1,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                10,
+                1,
+                14,
+                2
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "==",
+              [
+                "geometry-type"
+              ],
+              "Point"
+            ],
+            [
+              "==",
+              [
+                "coalesce",
+                [
+                  "get",
+                  "_rep"
+                ],
+                0
+              ],
+              1
+            ]
+          ],
+          "layout": null,
+          "maxzoom": 11,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "to-color",
+                [
+                  "get",
+                  "color"
+                ],
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "to-color",
+                [
+                  "get",
+                  "color"
+                ],
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "rep",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "==",
+              [
+                "geometry-type"
+              ],
+              "Point"
+            ],
+            [
+              "!=",
+              [
+                "coalesce",
+                [
+                  "get",
+                  "_rep"
+                ],
+                0
+              ],
+              1
+            ]
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "to-color",
+                [
+                  "get",
+                  "color"
+                ],
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "to-color",
+                [
+                  "get",
+                  "color"
+                ],
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": null,
+      "sourceId": "site-study-m-ranges",
       "sourceUrl": "./geo/_empty.geojson"
     },
     "vehicleInspectionOffices": {
@@ -6416,10 +7043,65 @@
     ],
     "siteStudyM": [
       {
-        "label": "參考資料",
-        "type": "toggle",
-        "value": false
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
       },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "siteStudyMParcels": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "siteStudyMPast": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "siteStudyMRanges": [
       {
         "label": "透明度 0.85",
         "max": 1,

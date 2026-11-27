@@ -4,16 +4,16 @@
 > 依據 [ADR-0014](../../../../.gis-agent-system/decisions/0014-pulse-analysis-warehouse.md)：L1 可操作、L2 可分析、L3 位置精度（屬性，不是關卡）。
 > L2 欄來自倉庫 catalog（`catalog.json 2026-11-21，倉庫 20261119T011401Z`）；入倉狀態欄來自 pulse-data 登記簿（ADR-0023 成員清單 SSOT），兩者口徑不同時以入倉狀態為準。
 
-- 圖層總數：**2200**；L1 可操作：**2200/2200**
-- L2 倉庫可分析（spatial＋statistics＋attribute）：**1572/2200**（71.5%）
+- 圖層總數：**2203**；L1 可操作：**2203/2203**
+- L2 倉庫可分析（spatial＋statistics＋attribute）：**1572/2203**（71.4%）
 - 共用混合幾何表但缺逐層 rowFilter（不計入上列）：30
-- 只有舊瀏覽器 reader：6；尚不可分析：584
+- 只有舊瀏覽器 reader：6；尚不可分析：587
 
 ## 各國入倉狀態（AG-14；以 pulse-data 登記簿為準）
 
 | 國別 | 圖層數 | warehouse | statistics | no_upstream | display_only | missing | 入倉率 |
 |---|---|---|---|---|---|---|---|
-| TW | 1388 | 499 | 704 | 6 | 7 | 172 | 86.7% |
+| TW | 1391 | 499 | 704 | 6 | 10 | 172 | 86.5% |
 | JP | 106 | 24 | 0 | 5 | 1 | 76 | 22.6% |
 | FR | 1 | 0 | 0 | 0 | 0 | 1 | 0.0% |
 | GB | 91 | 6 | 22 | 0 | 1 | 62 | 30.8% |
@@ -28,7 +28,7 @@
 | WORLD | 24 | 5 | 0 | 1 | 0 | 18 | 20.8% |
 | SIM | 37 | 0 | 0 | 0 | 16 | 21 | 0.0% |
 
-- 合計：入倉 1688/2200（warehouse 856、statistics 832）；DISPLAY_ONLY 71；外部圖磚等無上游 12；未入倉（在只減不增基準）429
+- 合計：入倉 1688/2203（warehouse 856、statistics 832）；DISPLAY_ONLY 74；外部圖磚等無上游 12；未入倉（在只減不增基準）429
 - `warehouse`：登記條目有 warehouse 區塊；`statistics`：dataset 在 stats_observations；`no_upstream`：registry/_no_upstream.yaml；`display_only`：registry/_display_only.yaml（附解鎖條件）；`missing`：registry/_warehouse_baseline.yaml（AG-13 基準）
 - WORLD＝跨國圖層，SIM＝模擬面板圖層。國別取 manifest `country`（未寫＝TW）。
 
@@ -36,7 +36,7 @@
 
 | 面板 | 圖層數 | spatial | statistics | attribute | browser_reader | none | display_only |
 |---|---|---|---|---|---|---|---|
-| 臺灣圖層 | 646 | 389 | 87 | 4 | 5 | 157 | 4 |
+| 臺灣圖層 | 649 | 389 | 87 | 4 | 5 | 160 | 4 |
 | 日本 | 106 | 16 | 0 | 2 | 0 | 87 | 1 |
 | 法國 | 1 | 0 | 0 | 0 | 0 | 1 | 0 |
 | 英國 | 69 | 6 | 0 | 0 | 0 | 63 | 0 |
@@ -57,7 +57,7 @@
 | 原因 | 圖層數 |
 |---|---|
 | dataset_not_in_warehouse | 408 |
-| upstream_catalog_missing | 81 |
+| upstream_catalog_missing | 84 |
 | unfiltered_shared_table | 30 |
 | derived_layer | 19 |
 | warehouse_SKIPPED_FORMAT | 15 |

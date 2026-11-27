@@ -55,7 +55,7 @@ const LICENSE_UNSTATED = new Set<string>([
   "phTerrainRelief", "pollutionPenaltyCritical", "pollutionPenaltyGeneral", "pollutionPenaltyMobile", "popCount", "powerPoles",
   "ripeAtlasProbes", "satellitesBeidou", "satellitesFrance", "satellitesGaofen", "satellitesGermany", "satellitesIndia",
   "satellitesIsrael", "satellitesItaly", "satellitesJapan", "satellitesJilin", "satellitesKorea", "satellitesRussia", "satellitesShiyan",
-  "satellitesTJS", "satellitesTaiwan", "satellitesUSA", "satellitesYaogan", "siteStudyM", "taipeiPumb", "transitAccessPlayback", "vnTerrainHillshade",
+  "satellitesTJS", "satellitesTaiwan", "satellitesUSA", "satellitesYaogan", "siteStudyM", "siteStudyMParcels", "siteStudyMPast", "siteStudyMRanges", "taipeiPumb", "transitAccessPlayback", "vnTerrainHillshade",
   "vnTerrainRelief", "youbikeFullness",
 ]);
 

@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { parseSiteStudyMeta, prepareSiteStudyFeatures } from "../siteStudyMLoader";
-import { SITE_STUDY_M_NEUTRAL, siteStudyColor } from "../siteStudyMTypes";
-import { mergeSiteStudyFeatures } from "../../hooks/useSiteStudyMLayer";
+import { SITE_STUDY_M_LAYER_KEYS, SITE_STUDY_M_NEUTRAL, SITE_STUDY_M_PARTS, SITE_STUDY_M_PART_LIST, siteStudyColor, siteStudyPartOf } from "../siteStudyMTypes";
+import { OWNER_DATA_ASSETS } from "../ownerDataAssets";
+import { LAYER_MANIFEST } from "../layerManifest";
 import { siteStudyOtherNames } from "../../components/featureInfo/siteStudyPanels";
 import { OVERLAY_REGISTRY } from "../../map/overlayRegistry";
 
@@ -46,11 +47,18 @@ describe("設施研究 M：檔案內容正規化", () => {
     expect(out[2]!.properties?.color).toBe(SITE_STUDY_M_NEUTRAL);
   });
 
-  it("併成同一個 source 時參考資料排前面（畫在主資料下方）；沒開參考資料就不帶", () => {
-    const sites = prepareSiteStudyFeatures(fc([{ type: "Feature", geometry: { type: "Point", coordinates: [121, 25] }, properties: {} }]), "sites");
-    const overlays = prepareSiteStudyFeatures(fc([{ type: "Feature", geometry: { type: "Point", coordinates: [121, 25] }, properties: {} }]), "overlays");
-    expect(mergeSiteStudyFeatures(sites, overlays).features.map((f) => f.properties?._part)).toEqual(["overlays", "sites"]);
-    expect(mergeSiteStudyFeatures(sites, null).features.map((f) => f.properties?._part)).toEqual(["sites"]);
+  it("四個圖層各有自己的資料檔、source、manifest 項目；不認得的 _part 當主資料", () => {
+    expect(SITE_STUDY_M_PART_LIST).toHaveLength(4);
+    expect(new Set(SITE_STUDY_M_PART_LIST.map((p) => SITE_STUDY_M_PARTS[p].sourceId)).size).toBe(4);
+    for (const part of SITE_STUDY_M_PART_LIST) {
+      const info = SITE_STUDY_M_PARTS[part];
+      expect(OWNER_DATA_ASSETS[info.asset]).toBeDefined();
+      expect(LAYER_MANIFEST[info.layerKey].topics).toContain("OWNER_ONLY");
+      expect(OVERLAY_REGISTRY.find((c) => c.id === info.layerKey)?.sourceId).toBe(info.sourceId);
+    }
+    expect(siteStudyPartOf("parcels")).toBe("parcels");
+    expect(siteStudyPartOf("x")).toBe("sites");
+    expect(siteStudyPartOf(undefined)).toBe("sites");
   });
 
   it("其他名稱：去掉與標題相同者與重複，其餘用頓號接", () => {
@@ -60,8 +68,8 @@ describe("設施研究 M：檔案內容正規化", () => {
   });
 });
 
-describe("設施研究 M：overlayRegistry 樣式只讀 color 與 _part", () => {
-  const config = OVERLAY_REGISTRY.find((c) => c.id === "siteStudyM")!;
+describe.each(SITE_STUDY_M_LAYER_KEYS)("設施研究 M：overlayRegistry 樣式只讀 color（%s）", (key) => {
+  const config = OVERLAY_REGISTRY.find((c) => c.id === key)!;
 
   it("四個子圖層；代表點只畫到 z11", () => {
     expect(config.dynamicData).toBe(true);
@@ -70,7 +78,7 @@ describe("設施研究 M：overlayRegistry 樣式只讀 color 與 _part", () => 
     ]);
   });
 
-  it("paint 與 filter 引用的資料欄位只有 color／_part／_rep（沒有寫死任何類別值）", () => {
+  it("paint 與 filter 引用的資料欄位只有 color／_rep（沒有寫死任何類別值）", () => {
     const fields = new Set<string>();
     const walk = (v: unknown) => {
       if (!Array.isArray(v)) return;
@@ -81,15 +89,14 @@ describe("設施研究 M：overlayRegistry 樣式只讀 color 與 _part", () => 
       for (const isDark of [true, false]) Object.values(layer.paint(isDark, undefined)).forEach(walk);
       walk(typeof layer.filter === "function" ? layer.filter(undefined) : layer.filter);
     }
-    expect([...fields].sort()).toEqual(["_part", "_rep", "color"]);
+    expect([...fields].sort()).toEqual(["_rep", "color"]);
   });
 
-  it("參考資料比主資料淡，透明度滑桿同時作用在兩者", () => {
+  it("透明度滑桿作用在填色與圓點，各圖層用自己的參數名", () => {
     const fill = config.layers.find((l) => l.suffix === "fill")!;
-    const at = (v: number) => fill.paint(false, { siteStudyMOpacity: v })["fill-opacity"] as [string, unknown, number, number];
-    const [, , reference, main] = at(0.85);
-    expect(reference).toBeLessThan(main);
-    expect(at(0.425)[3]).toBeCloseTo(main / 2);
-    expect(at(0.425)[2]).toBeCloseTo(reference / 2);
+    const circle = config.layers.find((l) => l.suffix === "circle")!;
+    expect(fill.paint(false, { [`${key}Opacity`]: 0.425 })["fill-opacity"]).toBeCloseTo(0.25);
+    expect(circle.paint(false, { [`${key}Opacity`]: 0.425 })["circle-opacity"]).toBeCloseTo(0.425);
+    expect(circle.paint(false, { siteStudyMOtherOpacity: 0.1 })["circle-opacity"]).toBeCloseTo(0.85);
   });
 });
